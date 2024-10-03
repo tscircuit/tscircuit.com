@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown } from "lucide-react"
 
 export default function HeaderDropdown() {
   const blankTemplates = [
@@ -17,7 +17,7 @@ export default function HeaderDropdown() {
     },
     { name: "Blank 3D Model", type: "model", badgeColor: "bg-purple-500 " },
     { name: "Blank Footprint", type: "footprint", badgeColor: "bg-pink-500 " },
-  ];
+  ]
 
   return (
     <DropdownMenu>
@@ -46,5 +46,5 @@ export default function HeaderDropdown() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

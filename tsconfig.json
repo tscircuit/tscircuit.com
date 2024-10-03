@@ -6,9 +6,7 @@
     "module": "ESNext",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
+      "@/*": ["./src/*"],
       "fake-snippets-api/*": ["./fake-snippets-api/*"]
     },
     "skipLibCheck": true,

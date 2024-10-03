@@ -27,7 +27,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
   })
 
   afterEach(async () => {
-    if (server && typeof server.stop === 'function') {
+    if (server && typeof server.stop === "function") {
       await server.stop()
     }
     // Here you might want to add logic to drop the test database

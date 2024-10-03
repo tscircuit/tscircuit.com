@@ -26,7 +26,7 @@ const Menubar = React.forwardRef<
     ref={ref}
     className={cn(
       "flex h-9 items-center space-x-1 rounded-md border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-950",
-      className
+      className,
     )}
     {...props}
   />
@@ -41,7 +41,7 @@ const MenubarTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-3 py-1 text-sm font-medium outline-none focus:bg-slate-100 focus:text-slate-900 data-[state=open]:bg-slate-100 data-[state=open]:text-slate-900 dark:focus:bg-slate-800 dark:focus:text-slate-50 dark:data-[state=open]:bg-slate-800 dark:data-[state=open]:text-slate-50",
-      className
+      className,
     )}
     {...props}
   />
@@ -59,7 +59,7 @@ const MenubarSubTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-slate-100 focus:text-slate-900 data-[state=open]:bg-slate-100 data-[state=open]:text-slate-900 dark:focus:bg-slate-800 dark:focus:text-slate-50 dark:data-[state=open]:bg-slate-800 dark:data-[state=open]:text-slate-50",
       inset && "pl-8",
-      className
+      className,
     )}
     {...props}
   >
@@ -77,7 +77,7 @@ const MenubarSubContent = React.forwardRef<
     ref={ref}
     className={cn(
       "z-50 min-w-[8rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 text-slate-950 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50",
-      className
+      className,
     )}
     {...props}
   />
@@ -90,7 +90,7 @@ const MenubarContent = React.forwardRef<
 >(
   (
     { className, align = "start", alignOffset = -4, sideOffset = 8, ...props },
-    ref
+    ref,
   ) => (
     <MenubarPrimitive.Portal>
       <MenubarPrimitive.Content
@@ -100,12 +100,12 @@ const MenubarContent = React.forwardRef<
         sideOffset={sideOffset}
         className={cn(
           "z-50 min-w-[12rem] overflow-hidden rounded-md border border-slate-200 bg-white p-1 text-slate-950 shadow-md data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50",
-          className
+          className,
         )}
         {...props}
       />
     </MenubarPrimitive.Portal>
-  )
+  ),
 )
 MenubarContent.displayName = MenubarPrimitive.Content.displayName
 
@@ -120,7 +120,7 @@ const MenubarItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-slate-100 focus:text-slate-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-slate-800 dark:focus:text-slate-50",
       inset && "pl-8",
-      className
+      className,
     )}
     {...props}
   />
@@ -135,7 +135,7 @@ const MenubarCheckboxItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 focus:text-slate-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-slate-800 dark:focus:text-slate-50",
-      className
+      className,
     )}
     checked={checked}
     {...props}
@@ -158,7 +158,7 @@ const MenubarRadioItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 focus:text-slate-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-slate-800 dark:focus:text-slate-50",
-      className
+      className,
     )}
     {...props}
   >
@@ -183,7 +183,7 @@ const MenubarLabel = React.forwardRef<
     className={cn(
       "px-2 py-1.5 text-sm font-semibold",
       inset && "pl-8",
-      className
+      className,
     )}
     {...props}
   />
@@ -210,7 +210,7 @@ const MenubarShortcut = ({
     <span
       className={cn(
         "ml-auto text-xs tracking-widest text-slate-500 dark:text-slate-400",
-        className
+        className,
       )}
       {...props}
     />
