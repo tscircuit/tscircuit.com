@@ -3,18 +3,26 @@ import { z } from "zod"
 import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
-  methods: ["GET"],
+  methods: ["GET", "POST"],
+  auth: "none",
   commonParams: z.object({
-    author_name: z.string().optional(),
+    owner_name: z.string().optional(),
+    unscoped_name: z.string().optional(),
   }),
   jsonBody: z.any().optional(),
   jsonResponse: z.object({
+    ok: z.boolean(),
     snippets: z.array(snippetSchema),
   }),
 })(async (req, ctx) => {
-  const author_name = req.commonParams.author_name
-  const snippets = ctx.db.getSnippetsByAuthor(author_name)
+  const { owner_name, unscoped_name } = req.commonParams
+
+  const snippets = ctx.db
+    .getSnippetsByAuthor(owner_name)
+    .filter((s) => !unscoped_name || s.unscoped_name === unscoped_name)
+
   return ctx.json({
-    snippets: snippets.map((snippet) => snippetSchema.parse(snippet)),
+    ok: true,
+    snippets,
   })
 })

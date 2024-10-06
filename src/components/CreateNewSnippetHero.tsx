@@ -11,8 +11,24 @@ import {
   LayoutGrid,
   Bot,
 } from "lucide-react"
+import { useState } from "react"
+import { useLocation } from "wouter"
 
 export function CreateNewSnippetHero() {
+  const [inputValue, setInputValue] = useState("")
+  const [, navigate] = useLocation()
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (inputValue.trim()) {
+      navigate(`/ai?initial_prompt=${encodeURIComponent(inputValue)}`)
+    }
+  }
+
+  const handleQuickPrompt = (prompt: string) => {
+    navigate(`/ai?initial_prompt=${encodeURIComponent(prompt)}`)
+  }
+
   return (
     <Card className="mb-6 bg-blue-50 rounded-sm">
       <CardHeader>
@@ -24,16 +40,19 @@ export function CreateNewSnippetHero() {
         </CardTitle>
       </CardHeader>
       <CardContent className="pb-4">
-        <div className="mb-4">
+        <form onSubmit={handleSubmit} className="mb-4">
           <Input
             placeholder="Create a 3x3 usb keyboard with a dial"
             className="w-full bg-white"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-        </div>
+        </form>
         <div className="flex justify-between">
           <Button
             variant="ghost"
             className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            onClick={() => handleQuickPrompt("Battery-powered flashlight")}
           >
             <Battery size={20} />
             <span>Battery-powered flashlight</span>
@@ -41,6 +60,7 @@ export function CreateNewSnippetHero() {
           <Button
             variant="ghost"
             className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            onClick={() => handleQuickPrompt("Motor driver module")}
           >
             <Cpu size={20} />
             <span>Motor driver module</span>
@@ -48,6 +68,7 @@ export function CreateNewSnippetHero() {
           <Button
             variant="ghost"
             className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            onClick={() => handleQuickPrompt("NA555 Timer Chip")}
           >
             <LayoutGrid size={20} />
             <span>NA555 Timer Chip</span>

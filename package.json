@@ -10,10 +10,11 @@
   "scripts": {
     "start": "bun run dev",
     "dev": "bun run build:fake-api && vite",
+    "dev:registry": "SNIPPETS_API_URL=http://localhost:3100 vite",
     "build": "bun run build:fake-api && tsc -b && vite build",
     "preview": "vite preview",
     "format": "biome format --write .",
-    "lint": "biome check .",
+    "lint": "biome format .",
     "build:fake-api": "winterspec bundle -o dist/bundle.js"
   },
   "dependencies": {
@@ -48,6 +49,7 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tscircuit/3d-viewer": "^0.0.32",
     "@tscircuit/pcb-viewer": "^1.10.5",
+    "@types/ms": "^0.7.34",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
@@ -56,7 +58,9 @@
     "fflate": "^0.8.2",
     "immer": "^10.1.1",
     "input-otp": "^1.2.4",
+    "jose": "^5.9.3",
     "lucide-react": "^0.445.0",
+    "ms": "^2.1.3",
     "next-themes": "^0.3.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",

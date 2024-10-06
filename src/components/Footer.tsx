@@ -71,9 +71,18 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Company</h3>
             <nav className="flex flex-col space-y-2">
-              <Link href="#" className="hover:underline">
-                About
-              </Link>
+              <a
+                href="https://tscircuit.com/legal/terms-of-service"
+                className="hover:underline"
+              >
+                Terms of Service
+              </a>
+              <a
+                href="https://tscircuit.com/legal/privacy-policy"
+                className="hover:underline"
+              >
+                Privacy Policy
+              </a>
               <Link
                 href="mailto:contact@tscircuit.com"
                 className="hover:underline"

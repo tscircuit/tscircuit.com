@@ -17,11 +17,14 @@ import {
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { cn } from "@/lib/utils"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ViewSnippetSidebar({
   className,
 }: { className?: string }) {
   const { snippet } = useCurrentSnippet()
+  const { toast } = useToast()
+
   return (
     <div
       className={cn(
@@ -41,20 +44,58 @@ export default function ViewSnippetSidebar({
               icon: <Bot className="w-5 h-5" />,
               label: "Edit with AI",
               badge: "AI",
+              href: `/ai?snippet_id=${snippet?.snippet_id}`,
             },
             // {
             //   icon: <GitHubLogoIcon className="w-5 h-5" />,
             //   label: "Github",
             // },
-            { icon: <GitFork className="w-5 h-5" />, label: "Forks" },
-            { icon: <AtSign className="w-5 h-5" />, label: "References" },
-            { icon: <Package className="w-5 h-5" />, label: "Dependencies" },
-            { icon: <Clock className="w-5 h-5" />, label: "Versions" },
+            {
+              icon: <GitFork className="w-5 h-5" />,
+              label: "Forks",
+              notImplemented: true,
+            },
+            {
+              icon: <AtSign className="w-5 h-5" />,
+              label: "References",
+              notImplemented: true,
+            },
+            {
+              icon: <Package className="w-5 h-5" />,
+              label: "Dependencies",
+              notImplemented: true,
+            },
+            {
+              icon: <Clock className="w-5 h-5" />,
+              label: "Versions",
+              notImplemented: true,
+            },
             // { icon: <Settings className="w-5 h-5" />, label: "Settings" },
           ].map((item, index) => (
             <li key={index}>
               <Link
                 href={item.href ?? "#"}
+                onClick={
+                  item.notImplemented
+                    ? () => {
+                        toast({
+                          title: "Not Implemented!",
+                          description: (
+                            <div>
+                              The {item.label} selection is not implemented yet.
+                              Help us out!{" "}
+                              <a
+                                className="text-blue-500 hover:underline font-semibold"
+                                href="https://github.com/tscircuit/snippets"
+                              >
+                                Check out our Github
+                              </a>
+                            </div>
+                          ),
+                        })
+                      }
+                    : undefined
+                }
                 className="flex items-center gap-3 px-2 py-1.5 hover:bg-gray-200 rounded-md"
               >
                 {item.icon}
@@ -79,13 +120,14 @@ export default function ViewSnippetSidebar({
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy import code</div>
           <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
-            import CircuitModule from "@tsci/seveibar.circuitmodule"
+            import CircuitModule from "@tsci/{snippet?.owner_name}.
+            {snippet?.unscoped_name}"
           </div>
         </div>
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy install command</div>
           <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
-            tsci add @tsci/{snippet?.owner_name}.{snippet?.snippet_name}
+            tsci add @tsci/{snippet?.owner_name}.{snippet?.unscoped_name}
           </div>
         </div>
       </div>

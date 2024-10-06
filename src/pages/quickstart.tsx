@@ -1,6 +1,6 @@
 import React from "react"
 import { useQuery } from "react-query"
-import axios from "redaxios"
+import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -10,12 +10,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 
 export const QuickstartPage = () => {
+  const axios = useAxios()
   const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
     "userSnippets",
     async () => {
       const currentUser = "seveibar"
       const response = await axios.get(
-        `/api/snippets/list?author_name=${currentUser}`,
+        `/snippets/list?owner_name=${currentUser}`,
       )
       return response.data.snippets
     },
@@ -48,7 +49,7 @@ export const QuickstartPage = () => {
                   <Card className="hover:shadow-md transition-shadow rounded-md">
                     <CardHeader className="pb-0 p-4">
                       <CardTitle className="text-md">
-                        {snippet.snippet_name}
+                        {snippet.unscoped_name}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0">

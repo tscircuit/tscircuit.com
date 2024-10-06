@@ -28,7 +28,7 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
         disabled={disabled}
         type="text"
         placeholder="Ask for more"
-        className="pr-20 pl-4 py-6 rounded-full bg-gray-100 border-none focus:ring-2 focus:ring-blue-500"
+        className="pr-20 pl-4 py-6 bg-white rounded-full border-none focus:ring-2 focus:ring-blue-500"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />

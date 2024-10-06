@@ -6,45 +6,64 @@ test("update snippet", async () => {
 
   // Add a test snippet
   const snippet = {
-    snippet_name: "TestSnippet",
-    owner_name: "TestUser",
-    content: "Original Content",
+    unscoped_name: "TestSnippet",
+    owner_name: "testuser",
+    code: "Original Content",
     created_at: "2023-01-01T00:00:00Z",
-    full_snippet_name: "TestUser/TestSnippet",
+    updated_at: "2023-01-01T00:00:00Z",
+    name: "testuser/TestSnippet",
+    snippet_type: "package",
+    description: "Original Description",
   }
-  db.addSnippet(snippet)
+  db.addSnippet(snippet as any)
 
   const addedSnippet = db.snippets[0]
 
   // Update the snippet
-  const updatedContent = "Updated Content"
-  const response = await axios.post("/api/snippets/update", {
-    snippet_id: addedSnippet.snippet_id,
-    content: updatedContent,
-  })
+  const updatedCode = "Updated Content"
+  const response = await axios.post(
+    "/api/snippets/update",
+    {
+      snippet_id: addedSnippet.snippet_id,
+      code: updatedCode,
+    },
+    {
+      headers: {
+        Authorization: "Bearer 1234",
+      },
+    },
+  )
 
   expect(response.status).toBe(200)
-  expect(response.data.snippet.content).toBe(updatedContent)
+  expect(response.data.snippet.code).toBe(updatedCode)
   expect(response.data.snippet.updated_at).not.toBe(addedSnippet.created_at)
 
   // Verify the snippet was updated in the database
   const updatedSnippet = db.snippets[0]
-  expect(updatedSnippet.content).toBe(updatedContent)
+  expect(updatedSnippet.code).toBe(updatedCode)
   expect(updatedSnippet.updated_at).not.toBe(updatedSnippet.created_at)
 })
 
-test.skip("update non-existent snippet", async () => {
+test("update non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post("/api/snippets/update", {
-      snippet_id: "non-existent-id",
-      content: "Updated Content",
-    })
+    await axios.post(
+      "/api/snippets/update",
+      {
+        snippet_id: "non-existent-id",
+        code: "Updated Content",
+      },
+      {
+        headers: {
+          Authorization: "Bearer 1234",
+        },
+      },
+    )
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
-    expect(error.response.status).toBe(404)
-    expect(error.response.data.error.message).toBe("Snippet not found")
+    expect(error.status).toBe(404)
+    expect(error.data.error.message).toBe("Snippet not found")
   }
 })

@@ -11,7 +11,7 @@ import { useRunTsx } from "@/hooks/use-run-tsx"
 import EditorNav from "./EditorNav"
 import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
-import axios from "redaxios"
+import { useAxios } from "@/hooks/use-axios"
 import { TypeBadge } from "./TypeBadge"
 import { useToast } from "@/hooks/use-toast"
 import { useMutation, useQueryClient } from "react-query"
@@ -26,28 +26,29 @@ interface Props {
 }
 
 export function CodeAndPreview({ snippet }: Props) {
+  const axios = useAxios()
   const defaultCode = useMemo(() => {
-    return decodeUrlHashToText(window.location.toString()) ?? snippet?.content
+    return decodeUrlHashToText(window.location.toString()) ?? snippet?.code
   }, [])
   const [code, setCode] = useState(defaultCode ?? "")
   const [showPreview, setShowPreview] = useState(true)
 
   useEffect(() => {
-    if (snippet?.content && !defaultCode) {
-      setCode(snippet.content)
+    if (snippet?.code && !defaultCode) {
+      setCode(snippet.code)
     }
-  }, [snippet?.content])
+  }, [snippet?.code])
   const { toast } = useToast()
 
-  const { message, circuitJson } = useRunTsx(code, snippet?.type!)
+  const { message, circuitJson } = useRunTsx(code, snippet?.snippet_type)
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
-      const response = await axios.post("/api/snippets/update", {
+      const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
-        content: code,
+        code: code,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -75,7 +76,7 @@ export function CodeAndPreview({ snippet }: Props) {
     updateSnippetMutation.mutate()
   }
 
-  const hasUnsavedChanges = snippet?.content !== code
+  const hasUnsavedChanges = snippet?.code !== code
 
   if (!snippet) {
     return <div>Loading...</div>

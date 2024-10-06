@@ -14,8 +14,9 @@ import {
   EyeIcon,
   CodeIcon,
   Menu,
+  Sparkles,
 } from "lucide-react"
-import { Link } from "wouter"
+import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -30,6 +31,7 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { TypeBadge } from "./TypeBadge"
+import { SnippetLink } from "./SnippetLink"
 
 export default function EditorNav({
   snippet,
@@ -48,14 +50,12 @@ export default function EditorNav({
   isSaving: boolean
   onSave: () => void
 }) {
+  const [, navigate] = useLocation()
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="flex items-center space-x-1">
-        {/* <span className="text-base font-semibold">»</span> */}
-        <span className="text-md font-semibold">
-          {snippet.full_snippet_name}
-        </span>
-        <Link href={`/${snippet.full_snippet_name}`}>
+        <SnippetLink snippet={snippet} />
+        <Link href={`/${snippet.name}`}>
           <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
             <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
           </Button>
@@ -100,13 +100,22 @@ export default function EditorNav({
           </div>
         )}
       </div>
-      <div className="flex items-center space-x-2">
-        {snippet && <TypeBadge type={snippet.type} />}
+      <div className="flex items-center space-x-1">
+        {snippet && <TypeBadge type={snippet.snippet_type} />}
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={hasUnsavedChanges || isSaving}
+          onClick={() => navigate(`/ai?snippet_id=${snippet.snippet_id}`)}
+        >
+          <Sparkles className="mr-1 h-3 w-3" />
+          Edit with AI
+        </Button>
         <DownloadButtonAndMenu className="hidden md:flex" />
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="hidden md:flex h-6 px-2 text-xs"
+          className="hidden md:flex px-2 text-xs"
           onClick={() => {
             const url = encodeTextToUrlHash(code)
             navigator.clipboard.writeText(url)
@@ -117,9 +126,9 @@ export default function EditorNav({
           Copy URL
         </Button>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="hidden md:flex h-6 px-2 text-xs"
+          className="hidden md:flex px-2 text-xs"
         >
           <Eye className="mr-1 h-3 w-3" />
           Public
@@ -128,7 +137,7 @@ export default function EditorNav({
           variant="ghost"
           size="icon"
           className={cn(
-            "h-6 w-6 hidden md:flex",
+            "hidden md:flex",
             !previewOpen
               ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
               : "",

@@ -19,8 +19,8 @@ export const ViewSnippetPage = () => {
   const { snippet } = useCurrentSnippet()
 
   const { circuitJson, message } = useRunTsx(
-    snippet?.content ?? "",
-    snippet?.type,
+    snippet?.code ?? "",
+    snippet?.snippet_type,
   )
 
   return (
@@ -37,7 +37,7 @@ export const ViewSnippetPage = () => {
                 className="h-6 px-2 text-xs"
                 onClick={() => {
                   if (!snippet) return
-                  const url = encodeTextToUrlHash(snippet.content)
+                  const url = encodeTextToUrlHash(snippet.code)
                   navigator.clipboard.writeText(url)
                   alert("URL copied to clipboard!")
                 }}
@@ -65,7 +65,7 @@ export const ViewSnippetPage = () => {
               {snippet && (
                 <div className="mt-4 bg-gray-50 rounded-md border border-gray-200">
                   <CodeEditor
-                    code={snippet?.content ?? ""}
+                    code={snippet?.code ?? ""}
                     onCodeChange={() => {}}
                     readOnly
                   />

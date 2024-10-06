@@ -35,24 +35,31 @@ function apiFakePlugin(): Plugin {
   }
 }
 
+let plugins: any[] = [react()]
+let proxy: any = undefined
+if (!process.env.SNIPPETS_API_URL) {
+  console.log("Using fake snippets API (see ./fake-snippets-api)")
+  plugins.push(apiFakePlugin())
+} else {
+  console.log(`Using snippets API at "${process.env.SNIPPETS_API_URL}"`)
+  process.env.VITE_SNIPPETS_API_URL = process.env.SNIPPETS_API_URL
+  proxy = {
+    "/api": {
+      target: process.env.SNIPPETS_API_URL as string,
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api/, ""),
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), apiFakePlugin()],
+  plugins,
   define: {
     global: {},
   },
-  // server: {
-  //   proxy: {
-  //     "/api": {
-  //       target: "http://localhost:9999",
-  //       changeOrigin: true,
-  //       configure: (proxy, _options) => {
-  //         proxy.on("proxyReq", (proxyReq, req, res) => {
-  //           return fakeHandler(req, res)
-  //         })
-  //       },
-  //     },
-  //   },
-  // },
+  server: {
+    proxy,
+  },
   build: {
     minify: false,
     terserOptions: {

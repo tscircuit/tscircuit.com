@@ -3,37 +3,58 @@ import { z } from "zod"
 import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
-  methods: ["POST", "PUT"],
+  methods: ["POST"],
+  auth: "session",
   jsonBody: z.object({
     snippet_id: z.string(),
-    content: z.string(),
-    snippet_name: z.string().optional(),
-    is_board: z.boolean().optional(),
-    is_package: z.boolean().optional(),
-    is_model: z.boolean().optional(),
-    is_footprint: z.boolean().optional(),
+    code: z.string().optional(),
+    description: z.string().optional(),
+    unscoped_name: z.string().optional(),
   }),
   jsonResponse: z.object({
-    snippet: snippetSchema,
+    ok: z.boolean(),
+    snippet: snippetSchema.extend({
+      snippet_type: z.enum(["board", "package", "model", "footprint"]),
+    }),
   }),
 })(async (req, ctx) => {
-  const {
-    content,
-    snippet_name,
-    snippet_id,
-    is_board,
-    is_package,
-    is_model,
-    is_footprint,
-  } = req.jsonBody
+  const { snippet_id, code, description, unscoped_name } = req.jsonBody
 
-  ctx.db.updateSnippet(snippet_id, content, new Date().toISOString(), {
-    is_board,
-    is_package,
-    is_model: is_model,
-    is_footprint,
-    snippet_name,
+  const snippetIndex = ctx.db.snippets.findIndex(
+    (s) => s.snippet_id === snippet_id,
+  )
+
+  if (snippetIndex === -1) {
+    return ctx.error(404, {
+      error_code: "snippet_not_found",
+      message: "Snippet not found",
+    })
+  }
+
+  const snippet = ctx.db.snippets[snippetIndex]
+
+  if (snippet.owner_name !== ctx.auth.github_username) {
+    return ctx.error(403, {
+      error_code: "forbidden",
+      message: "You don't have permission to update this snippet",
+    })
+  }
+
+  const updatedSnippet = {
+    ...snippet,
+    code: code ?? snippet.code,
+    description: description ?? snippet.description,
+    unscoped_name: unscoped_name ?? snippet.unscoped_name,
+    name: unscoped_name
+      ? `${ctx.auth.github_username}/${unscoped_name}`
+      : snippet.name,
+    updated_at: new Date().toISOString(),
+  }
+
+  ctx.db.snippets[snippetIndex] = updatedSnippet
+
+  return ctx.json({
+    ok: true,
+    snippet: updatedSnippet,
   })
-
-  return ctx.json({ snippet: ctx.db.getSnippetById(snippet_id)! })
 })

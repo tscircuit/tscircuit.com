@@ -28,6 +28,7 @@ export const CodeEditor = ({
         fontFamily: '"Fira code", "Fira Mono", monospace',
         fontSize: 12,
         height: 640,
+        width: "100%",
       }}
     />
   )

@@ -16,6 +16,7 @@ import { SettingsPage } from "./pages/settings"
 import { SearchPage } from "./pages/search"
 import { QuickstartPage } from "./pages/quickstart"
 import { Toaster } from "@/components/ui/toaster"
+import AuthenticatePage from "./pages/authorize"
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/newest" component={NewestPage} />
         <Route path="/settings" component={SettingsPage} />
         <Route path="/search" component={SearchPage} />
+        <Route path="/authorize" component={AuthenticatePage} />
         <Route path="/:author/:snippetName" component={ViewSnippetPage} />
       </Switch>
       <Toaster />

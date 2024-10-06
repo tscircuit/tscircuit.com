@@ -1,10 +1,11 @@
 import { HeaderLogin } from "@/components/HeaderLogin"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Menu, Search, X } from "lucide-react"
+import { Github, Menu, Search, X } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
+import { DiscordLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons"
 
 const HeaderButton = ({
   href,
@@ -51,7 +52,7 @@ export default function Header() {
         </Link>
         <div className="hidden md:flex items-center space-x-4">
           <nav>
-            <ul className="flex items-center gap-2">
+            <ul className="flex items-center gap-2 ml-2">
               <li>
                 <HeaderButton href="/dashboard">Dashboard</HeaderButton>
               </li>
@@ -73,6 +74,16 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex-grow"></div>
+        <a
+          href="https://github.com/tscircuit/tscircuit"
+          target="_blank"
+          className="mr-4"
+        >
+          <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
+        </a>
+        {/* <a href="https://tscircuit.com/join" target="_blank" className="mr-2">
+          <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
+        </a> */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="relative">
             <Search

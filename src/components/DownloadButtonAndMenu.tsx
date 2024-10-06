@@ -13,7 +13,7 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
     <div className={className}>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
+          <Button variant="ghost" size="sm" className="px-2 text-xs">
             <Download className="mr-1 h-3 w-3" />
             Download
             <ChevronDown className="ml-1 h-3 w-3" />

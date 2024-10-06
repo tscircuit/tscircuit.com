@@ -7,42 +7,45 @@ test("list snippets", async () => {
   // Add some test snippets
   const snippets = [
     {
-      snippet_name: "Snippet1",
+      unscoped_name: "Snippet1",
       owner_name: "User1",
-      content: "Content1",
+      code: "Content1",
       created_at: "2023-01-01T00:00:00Z",
       updated_at: "2023-01-01T00:00:00Z",
-      full_snippet_name: "User1/Snippet1",
+      name: "User1/Snippet1",
+      snippet_type: "board",
     },
     {
-      snippet_name: "Snippet2",
+      unscoped_name: "Snippet2",
       owner_name: "User2",
-      content: "Content2",
+      code: "Content2",
       created_at: "2023-01-02T00:00:00Z",
       updated_at: "2023-01-02T00:00:00Z",
-      full_snippet_name: "User2/Snippet2",
+      name: "User2/Snippet2",
+      snippet_type: "package",
     },
     {
-      snippet_name: "Snippet3",
+      unscoped_name: "Snippet3",
       owner_name: "User1",
-      content: "Content3",
+      code: "Content3",
       created_at: "2023-01-03T00:00:00Z",
       updated_at: "2023-01-03T00:00:00Z",
-      full_snippet_name: "User1/Snippet3",
+      name: "User1/Snippet3",
+      snippet_type: "model",
     },
   ]
 
   for (const snippet of snippets) {
-    db.addSnippet(snippet)
+    db.addSnippet(snippet as any)
   }
 
-  // Test without author_name parameter
+  // Test without owner_name parameter
   const { data: allData } = await axios.get("/api/snippets/list")
   expect(allData.snippets).toHaveLength(3)
 
-  // Test with author_name parameter
+  // Test with owner_name parameter
   const { data: user1Data } = await axios.get("/api/snippets/list", {
-    params: { author_name: "User1" },
+    params: { owner_name: "User1" },
   })
   expect(user1Data.snippets).toHaveLength(2)
   expect(
@@ -51,9 +54,9 @@ test("list snippets", async () => {
     ),
   ).toBe(true)
 
-  // Test with non-existent author
+  // Test with non-existent owner
   const { data: nonExistentData } = await axios.get("/api/snippets/list", {
-    params: { author_name: "NonExistentUser" },
+    params: { owner_name: "NonExistentUser" },
   })
   expect(nonExistentData.snippets).toHaveLength(0)
 })

@@ -1,6 +1,6 @@
 import React from "react"
 import { useQuery } from "react-query"
-import axios from "redaxios"
+import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -10,22 +10,22 @@ import { Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export const DashboardPage = () => {
+  const axios = useAxios()
+
   const {
     data: mySnippets,
     isLoading,
     error,
   } = useQuery<Snippet[]>("userSnippets", async () => {
     const currentUser = "seveibar"
-    const response = await axios.get(
-      `/api/snippets/list?author_name=${currentUser}`,
-    )
+    const response = await axios.get(`/snippets/list?owner_name=${currentUser}`)
     return response.data.snippets
   })
 
   const { data: trendingSnippets } = useQuery<Snippet[]>(
     "trendingSnippets",
     async () => {
-      const response = await axios.get("/api/snippets/list_trending")
+      const response = await axios.get("/snippets/list_trending")
       return response.data.snippets
     },
   )
@@ -33,7 +33,7 @@ export const DashboardPage = () => {
   const { data: newestSnippets } = useQuery<Snippet[]>(
     "newestSnippets",
     async () => {
-      const response = await axios.get("/api/snippets/list_newest")
+      const response = await axios.get("/snippets/list_newest")
       return response.data.snippets
     },
   )
@@ -60,7 +60,7 @@ export const DashboardPage = () => {
                           size="sm"
                           className="font-medium"
                         >
-                          {snippet.snippet_name}
+                          {snippet.unscoped_name}
                           <Edit2 className="w-3 h-3 ml-2" />
                         </Button>
                       </Link>
@@ -81,11 +81,11 @@ export const DashboardPage = () => {
                     className="border p-4 rounded-md"
                   >
                     <Link
-                      href={`/${snippet.full_snippet_name}`}
+                      href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
                       className="text-blue-600 hover:underline"
                     >
                       <h3 className="text-lg font-semibold">
-                        {snippet.snippet_name}
+                        {snippet.unscoped_name}
                       </h3>
                     </Link>
                     <p className="text-sm text-gray-500">
@@ -105,10 +105,10 @@ export const DashboardPage = () => {
                 {trendingSnippets.map((snippet) => (
                   <li key={snippet.snippet_id}>
                     <Link
-                      href={`/${snippet.full_snippet_name}`}
+                      href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
                       className="text-blue-600 hover:underline text-sm"
                     >
-                      {snippet.full_snippet_name}
+                      {snippet.owner_name}/{snippet.unscoped_name}
                     </Link>
                   </li>
                 ))}
@@ -122,10 +122,10 @@ export const DashboardPage = () => {
                 {newestSnippets.map((snippet) => (
                   <li key={snippet.snippet_id}>
                     <Link
-                      href={`/${snippet.full_snippet_name}`}
+                      href={`/${snippet.name}`}
                       className="text-blue-600 hover:underline text-sm"
                     >
-                      {snippet.full_snippet_name}
+                      {snippet.name}
                     </Link>
                   </li>
                 ))}

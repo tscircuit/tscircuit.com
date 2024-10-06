@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useUrlParams } from "./use-url-params"
-import axios from "redaxios"
+import { useAxios } from "./use-axios"
 import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { useLocation, useParams } from "wouter"
 import { useMutation } from "react-query"
@@ -16,6 +16,7 @@ export const useCurrentSnippetId = (): string | null => {
   const templateName = urlParams.template
   const wouter = useParams()
   const [location] = useLocation()
+  const axios = useAxios()
   const [snippetIdFromUrl, setSnippetId] = useState<string | null>(urlSnippetId)
 
   const { data: snippetByName } = useSnippetByName(
@@ -45,12 +46,9 @@ export const useCurrentSnippetId = (): string | null => {
       const template = getTemplate(templateName)
       const {
         data: { snippet },
-      } = await axios.post("/api/snippets/create", {
-        content: template.code,
-        is_board: template.type === "board",
-        is_package: template.type === "package",
-        is_footprint: template.type === "footprint",
-        is_model: template.type === "model",
+      } = await axios.post("/snippets/create", {
+        code: template.code,
+        snippet_type: template.type ?? "board",
         owner_name: "seveibar",
       })
       return snippet

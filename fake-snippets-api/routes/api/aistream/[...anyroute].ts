@@ -55,7 +55,7 @@ export default async (req: Request) => {
   })
 
   // Return a streaming response
-  return new Response(stream, {
+  return new Response(stream as any, {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
