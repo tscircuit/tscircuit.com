@@ -7,8 +7,18 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
+import { DownloadTSX } from "@/lib/utils/download-fn/download-tsx"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
+  const createBlobURL = (content: string) => {
+    const blob = new Blob([content], { type: "text/plain" })
+    return URL.createObjectURL(blob)
+  }
+
+  const { TSXContent, TSXFileName } = DownloadTSX()
+
+  const downloadTSX = createBlobURL(TSXContent)
+
   return (
     <div className={className}>
       <DropdownMenu>
@@ -21,11 +31,18 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem className="text-xs">
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download TSX</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              tsx
-            </span>
+            <a
+              href={downloadTSX}
+              download={TSXFileName}
+              target="_blank"
+              className="flex items-center w-full"
+            >
+              <Download className="mr-1 h-3 w-3" />
+              <span className="flex-grow mr-6">Download TSX</span>
+              <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                tsx
+              </span>
+            </a>
           </DropdownMenuItem>
           <DropdownMenuItem className="text-xs">
             <Download className="mr-1 h-3 w-3" />
