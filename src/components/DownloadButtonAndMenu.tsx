@@ -3,20 +3,20 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Download, ChevronDown } from "lucide-react";
-import { useDownloadJSON } from "@/hooks/use-download-json";
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Download, ChevronDown } from "lucide-react"
+import { useDownloadJSON } from "@/hooks/use-download-json"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
   const createBlobURL = (content: string) => {
-    const blob = new Blob([content], { type: "text/plain" });
-    return URL.createObjectURL(blob);
-  };
+    const blob = new Blob([content], { type: "text/plain" })
+    return URL.createObjectURL(blob)
+  }
 
-  const { jsonContent, jsonFileName } = useDownloadJSON();
+  const { jsonContent, jsonFileName } = useDownloadJSON()
 
-  const downloadJson = createBlobURL(jsonContent);
+  const downloadJson = createBlobURL(jsonContent)
 
   return (
     <div className={className}>
@@ -74,5 +74,5 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
+  )
 }
