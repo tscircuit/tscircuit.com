@@ -23,7 +23,7 @@ const AuthenticatePageInnerContent = () => {
       if (session_token) {
         const decodedToken = jose.decodeJwt(session_token)
         setSession({
-          ...decodedToken,
+          ...(decodedToken as any),
           token: session_token,
         })
         setLocation("/")

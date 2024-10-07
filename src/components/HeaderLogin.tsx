@@ -12,6 +12,7 @@ import { User } from "lucide-react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
+import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 
 export const HeaderLogin: React.FC = () => {
   const [, setLocation] = useLocation()
@@ -19,6 +20,7 @@ export const HeaderLogin: React.FC = () => {
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const isUsingFakeApi = useIsUsingFakeApi()
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
@@ -26,10 +28,15 @@ export const HeaderLogin: React.FC = () => {
       <div className="flex items-center space-x-2 justify-end">
         <Button
           onClick={() => {
-            if (snippetsBaseApiUrl) {
+            if (!isUsingFakeApi) {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
-              setSession({})
+              setSession({
+                account_id: "account_1234",
+                github_username: "shadcn",
+                token: "1234",
+                session_id: "session_1234",
+              })
             }
           }}
           variant="ghost"
@@ -40,10 +47,15 @@ export const HeaderLogin: React.FC = () => {
         <Button
           size="sm"
           onClick={() => {
-            if (snippetsBaseApiUrl) {
+            if (!isUsingFakeApi) {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
-              setSession({})
+              setSession({
+                account_id: "account_1234",
+                github_username: "shadcn",
+                token: "1234",
+                session_id: "session_1234",
+              })
             }
           }}
         >
