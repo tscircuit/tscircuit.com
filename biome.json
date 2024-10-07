@@ -38,6 +38,21 @@
             "requireAscii": true,
             "filenameCases": ["kebab-case", "export"]
           }
+        },
+        "useNamingConvention": {
+          "level": "error",
+          "options": {
+            "strictCase": true,
+            "requireAscii": true,
+            "conventions": [
+              {
+                "selector": {
+                  "kind": "const"
+                },
+                "formats": ["camelCase"]
+              }
+            ]
+          }
         }
       }
     }

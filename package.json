@@ -54,6 +54,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
+    "easyeda": "^0.0.32",
     "embla-carousel-react": "^8.3.0",
     "fflate": "^0.8.2",
     "immer": "^10.1.1",

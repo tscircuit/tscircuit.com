@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
@@ -8,9 +8,13 @@ import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
+import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { useNotImplementedToast } from "@/hooks/use-toast"
 
 export const QuickstartPage = () => {
   const axios = useAxios()
+  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
+  const toastNotImplemented = useNotImplementedToast()
   const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
     "userSnippets",
     async () => {
@@ -96,7 +100,7 @@ export const QuickstartPage = () => {
             ].map((template, index) => (
               <Card
                 key={index}
-                className="hover:shadow-md transition-shadow rounded-md"
+                className="hover:shadow-md transition-shadow rounded-md opacity-50"
               >
                 <CardHeader className="p-4 pb-0">
                   <CardTitle className="text-lg flex items-center justify-between">
@@ -105,12 +109,40 @@ export const QuickstartPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
-                  <Button className="w-full">Import {template.name}</Button>
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      toastNotImplemented("Kicad Imports")
+                    }}
+                  >
+                    Import {template.name}
+                  </Button>
                 </CardContent>
               </Card>
             ))}
+            <Card className="hover:shadow-md transition-shadow rounded-md">
+              <CardHeader className="p-4 pb-0">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  JLCPCB Component
+                  <TypeBadge type="package" className="ml-2" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <Button
+                  className="w-full"
+                  onClick={() => setIsJLCPCBDialogOpen(true)}
+                >
+                  Import JLCPCB Component
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
+
+        <JLCPCBImportDialog
+          open={isJLCPCBDialogOpen}
+          onOpenChange={setIsJLCPCBDialogOpen}
+        />
 
         <div>
           <h2 className="text-xl font-semibold mb-4 mt-12">

@@ -186,3 +186,23 @@ function useToast() {
 }
 
 export { useToast, toast }
+
+export function useNotImplementedToast() {
+  const { toast } = useToast()
+  return (feature: string) => {
+    toast({
+      title: "Not Implemented",
+      description: (
+        <div>
+          The {feature} feature is not implemented yet. Help us out!{" "}
+          <a
+            className="text-blue-500 hover:underline font-semibold"
+            href="https://github.com/tscircuit/snippets"
+          >
+            Check out our Github
+          </a>
+        </div>
+      ),
+    })
+  }
+}

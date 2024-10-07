@@ -59,7 +59,6 @@ export const useRunTsx = (
         } else if (type === "model") {
           const jscadGeoms: any[] = []
           const { createJSCADRoot } = createJSCADRenderer(jscadPlanner as any)
-          console.log({ jscadPlanner })
           const jscadRoot = createJSCADRoot(jscadGeoms)
           jscadRoot.render(<UserElm />)
           circuit.add(
