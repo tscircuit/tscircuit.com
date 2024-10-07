@@ -41,6 +41,8 @@ export function CodeAndPreview({ snippet }: Props) {
   const { toast } = useToast()
 
   const { message, circuitJson } = useRunTsx(code, snippet?.snippet_type)
+  console.log(circuitJson)
+
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({

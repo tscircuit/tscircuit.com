@@ -1,4 +1,3 @@
-import React from "react"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -7,7 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
-import { DownloadTSX } from "@/lib/utils/download-fn/download-tsx"
+import { useDownloadJSON } from "@/hooks/use-download-json"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
   const createBlobURL = (content: string) => {
@@ -15,9 +14,11 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
     return URL.createObjectURL(blob)
   }
 
-  const { TSXContent, TSXFileName } = DownloadTSX()
+  const { jsonContent, jsonFileName } = useDownloadJSON()
 
-  const downloadTSX = createBlobURL(TSXContent)
+  const downloadJson = createBlobURL(jsonContent)
+
+  console.log(jsonContent)
 
   return (
     <div className={className}>
@@ -32,24 +33,17 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
         <DropdownMenuContent>
           <DropdownMenuItem className="text-xs">
             <a
-              href={downloadTSX}
-              download={TSXFileName}
+              href={downloadJson}
+              download={jsonFileName}
               target="_blank"
               className="flex items-center w-full"
             >
               <Download className="mr-1 h-3 w-3" />
-              <span className="flex-grow mr-6">Download TSX</span>
+              <span className="flex-grow mr-6">Download Circuit JSON</span>
               <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                tsx
+                json
               </span>
             </a>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-xs">
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download Circuit JSON</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              json
-            </span>
           </DropdownMenuItem>
           <DropdownMenuItem className="text-xs">
             <Download className="mr-1 h-3 w-3" />
