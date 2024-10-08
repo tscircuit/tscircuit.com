@@ -1,6 +1,6 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { snippetSchema } from "fake-snippets-api/lib/db/schema"
+import { Snippet, snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST"],
@@ -25,7 +25,7 @@ export default withRouteSpec({
   if (!unscoped_name) {
     unscoped_name = `untitled-${snippet_type}-${ctx.db.idCounter + 1}`
   }
-  const newSnippet = {
+  const newSnippet: Snippet = {
     snippet_id: `snippet_${ctx.db.idCounter + 1}`,
     name: `${ctx.auth.github_username}/${unscoped_name}`,
     unscoped_name,

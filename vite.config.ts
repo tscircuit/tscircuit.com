@@ -38,6 +38,7 @@ function apiFakePlugin(): Plugin {
 let plugins: any[] = [react()]
 let proxy: any = undefined
 if (!process.env.SNIPPETS_API_URL) {
+  process.env.VITE_USE_FAKE_API = "true"
   console.log("Using fake snippets API (see ./fake-snippets-api)")
   plugins.push(apiFakePlugin())
 } else {

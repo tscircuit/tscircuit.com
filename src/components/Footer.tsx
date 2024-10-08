@@ -7,9 +7,9 @@ export default function Footer() {
         <h2 className="text-xl font-semibold mb-4 whitespace-nowrap">
           tscircuit snippets
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600">
           <div className="space-y-4">
-            <nav className="flex flex-col space-y-2">
+            <footer className="flex flex-col space-y-2">
               {[
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
@@ -26,24 +26,24 @@ export default function Footer() {
                   {item.name}
                 </Link>
               ))}
-            </nav>
+            </footer>
           </div>
 
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Explore</h3>
-            <nav className="flex flex-col space-y-2">
+            <footer className="flex flex-col space-y-2">
               <Link href="/newest" className="hover:underline">
                 Newest Snippets
               </Link>
               <a href="https://docs.tscircuit.com" className="hover:underline">
                 Docs
               </a>
-            </nav>
+            </footer>
           </div>
 
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Follow</h3>
-            <nav className="flex flex-col space-y-2">
+            <footer className="flex flex-col space-y-2">
               <a href="https://blog.tscircuit.com" className="hover:underline">
                 Blog
               </a>
@@ -65,7 +65,7 @@ export default function Footer() {
               >
                 YouTube
               </a>
-            </nav>
+            </footer>
           </div>
 
           <div className="space-y-4">

@@ -19,7 +19,7 @@ export const LandingHero = () => {
               <div className="pt-2">Onboarding Tips</div>
               <Button
                 variant="ghost"
-                className="text-gray-400 text-xl"
+                className="text-gray-400 text-2xl"
                 onClick={() => setVisible(!visible)}
               >
                 &times;
@@ -59,7 +59,7 @@ export const LandingHero = () => {
         </Card>
       )}
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div>
           <Link href="/editor?template=blank-circuit-board">
             <Button className="w-full justify-between mb-2 px-2">

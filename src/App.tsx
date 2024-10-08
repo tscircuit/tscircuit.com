@@ -10,13 +10,13 @@ import { ViewSnippetPage } from "./pages/view-snippet"
 import { LandingPage } from "./pages/landing"
 import { Route, Switch } from "wouter"
 import { AiPage } from "./pages/ai"
-import { ProfilePage } from "./pages/profile"
 import { NewestPage } from "./pages/newest"
 import { SettingsPage } from "./pages/settings"
 import { SearchPage } from "./pages/search"
 import { QuickstartPage } from "./pages/quickstart"
 import { Toaster } from "@/components/ui/toaster"
 import AuthenticatePage from "./pages/authorize"
+import { UserProfilePage } from "./pages/user-profile"
 
 function App() {
   return (
@@ -27,11 +27,11 @@ function App() {
         <Route path="/quickstart" component={QuickstartPage} />
         <Route path="/dashboard" component={DashboardPage} />
         <Route path="/ai" component={AiPage} />
-        <Route path="/profile" component={ProfilePage} />
         <Route path="/newest" component={NewestPage} />
         <Route path="/settings" component={SettingsPage} />
         <Route path="/search" component={SearchPage} />
         <Route path="/authorize" component={AuthenticatePage} />
+        <Route path="/:username" component={UserProfilePage} />
         <Route path="/:author/:snippetName" component={ViewSnippetPage} />
       </Switch>
       <Toaster />

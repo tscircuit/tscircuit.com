@@ -6,8 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Zap } from "lucide-react"
-import { Link, useLocation } from "wouter"
-import { useState } from "react"
+import { Link } from "wouter"
 
 export default function HeaderDropdown() {
   const [isOpen, setIsOpen] = useState(false) // Control dropdown visibility
@@ -31,6 +30,7 @@ export default function HeaderDropdown() {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
@@ -56,9 +56,7 @@ export default function HeaderDropdown() {
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild>
             <a
-              href={`/editor?template=${template.name
-                .toLowerCase()
-                .replace(/ /g, "-")}`}
+              href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
               className="flex items-center cursor-pointer"
             >
               <span

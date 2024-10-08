@@ -12,13 +12,17 @@ import { User } from "lucide-react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
+import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 
-export const HeaderLogin: React.FC = () => {
+interface HeaderLoginProps {}
+
+export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const [, setLocation] = useLocation()
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const isUsingFakeApi = useIsUsingFakeApi()
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
@@ -26,10 +30,15 @@ export const HeaderLogin: React.FC = () => {
       <div className="flex items-center space-x-2 justify-end">
         <Button
           onClick={() => {
-            if (snippetsBaseApiUrl) {
+            if (!isUsingFakeApi) {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
-              setSession({})
+              setSession({
+                account_id: "account-1234",
+                github_username: "testuser",
+                token: "1234",
+                session_id: "session-1234",
+              })
             }
           }}
           variant="ghost"
@@ -40,10 +49,15 @@ export const HeaderLogin: React.FC = () => {
         <Button
           size="sm"
           onClick={() => {
-            if (snippetsBaseApiUrl) {
+            if (!isUsingFakeApi) {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
-              setSession({})
+              setSession({
+                account_id: "account-1234",
+                github_username: "testuser",
+                token: "1234",
+                session_id: "session-1234",
+              })
             }
           }}
         >
@@ -71,6 +85,11 @@ export const HeaderLogin: React.FC = () => {
             AI Usage $
             {accountBalance?.monthly_ai_budget_used_usd.toFixed(2) ?? "0.00"} /
             $5.00
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setLocation(`/${session?.github_username}`)}
+          >
+            My Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
             Dashboard

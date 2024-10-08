@@ -8,7 +8,7 @@ export type Store = {
     session_id: string
     github_username: string
   } | null
-  setSession: (session: any) => any
+  setSession: (session: Store["session"]) => any
 }
 
 export const useGlobalStore = create<Store>()(

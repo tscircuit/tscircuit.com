@@ -43,6 +43,15 @@ bun run dev
 
 This command will build the fake API and start the Vite development server. Open [http://localhost:5173](http://localhost:5173) in your browser to view the application.
 
+### Testing the AI in Development
+
+Create a `.env` file with the following:
+
+```bash
+USE_DIRECT_AI_REQUESTS=true
+VITE_ANTHROPIC_API_KEY=<your-key-here>
+```
+
 ### Building for Production
 
 To build the project for production:
