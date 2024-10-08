@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Zap } from "lucide-react"
-import { Link,useLocation } from "wouter"
+import { Link, useLocation } from "wouter"
 
 export default function HeaderDropdown() {
   const [isOpen, setIsOpen] = useState(false) // Control dropdown visibility
@@ -31,7 +31,6 @@ export default function HeaderDropdown() {
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
