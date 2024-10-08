@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -6,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChevronDown, Zap } from "lucide-react"
-import { Link } from "wouter"
+import { Link,useLocation } from "wouter"
 
 export default function HeaderDropdown() {
   const [isOpen, setIsOpen] = useState(false) // Control dropdown visibility
