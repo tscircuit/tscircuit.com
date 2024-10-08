@@ -10,8 +10,9 @@ import { Link, useLocation } from "wouter"
 import { useState } from "react"
 
 export default function HeaderDropdown() {
-  const [isHovered, setIsHovered] = useState(false)
-  const [, navigate] = useLocation() // useLocation to navigate on button click
+  const [isOpen, setIsOpen] = useState(false) // Control dropdown visibility
+  const [, navigate] = useLocation()
+
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
     {
@@ -19,28 +20,32 @@ export default function HeaderDropdown() {
       type: "package",
       badgeColor: "bg-green-500",
     },
-    { name: "Blank 3D Model", type: "model", badgeColor: "bg-purple-500 " },
-    { name: "Blank Footprint", type: "footprint", badgeColor: "bg-pink-500 " },
+    { name: "Blank 3D Model", type: "model", badgeColor: "bg-purple-500" },
+    { name: "Blank Footprint", type: "footprint", badgeColor: "bg-pink-500" },
   ]
 
+  const handleClickNewButton = () => {
+    setIsOpen(false) // Close the dropdown
+    navigate("/quickstart") // Navigate to /editor
+  }
+
   return (
-    <DropdownMenu open={isHovered}>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
           variant="default"
           className="bg-blue-600 hover:bg-blue-700"
-          onMouseEnter={() => setIsHovered(true)} // Show dropdown on hover
-          onMouseLeave={() => setIsHovered(false)} // Hide dropdown when not hovering
-          onClick={() => navigate("/quickstart")} // Navigate on click
+          onMouseEnter={() => setIsOpen(true)} // Show dropdown on hover
+          onClick={handleClickNewButton} // Navigate and close dropdown on click
         >
           New <ChevronDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-fit"
-        onMouseEnter={() => setIsHovered(true)} // Keep dropdown open when hovering over content
-        onMouseLeave={() => setIsHovered(false)} // Hide dropdown when not hovering
+        className="w-fit max-h-96 overflow-auto" // Prevent scroll bar issues
+        onMouseEnter={() => setIsOpen(true)} // Keep dropdown open when hovering over content
+        onMouseLeave={() => setIsOpen(false)} // Close dropdown when not hovering
       >
         <DropdownMenuItem asChild>
           <Link href="/quickstart" className="flex items-center cursor-pointer">
