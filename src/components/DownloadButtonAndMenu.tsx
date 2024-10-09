@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
-import { useDownloadJSON } from "@/hooks/use-download-json"
+import { useDownloadCurrentSnippetCircuitJson } from "@/hooks/use-download-json"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
   const createBlobURL = (content: string) => {
@@ -14,7 +14,7 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
     return URL.createObjectURL(blob)
   }
 
-  const { jsonContent, jsonFileName } = useDownloadJSON()
+  const { jsonContent, jsonFileName } = useDownloadCurrentSnippetCircuitJson()
 
   const downloadJson = createBlobURL(jsonContent)
 

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 
-export const useDownloadJSON = () => {
+export const useDownloadCurrentSnippetCircuitJson = () => {
   const snippetId = useCurrentSnippetId()
   const { data: snippet, isLoading } = useSnippet(snippetId)
 
