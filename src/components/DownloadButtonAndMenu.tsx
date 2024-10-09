@@ -7,13 +7,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
 import { useDownloadCurrentSnippetCircuitJson } from "@/hooks/use-download-json"
+import { createBlobURL } from "@/lib/createBlobURL"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
-  const createBlobURL = (content: string) => {
-    const blob = new Blob([content], { type: "text/plain" })
-    return URL.createObjectURL(blob)
-  }
-
   const { jsonContent, jsonFileName } = useDownloadCurrentSnippetCircuitJson()
 
   const downloadJson = createBlobURL(jsonContent)
