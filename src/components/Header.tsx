@@ -66,6 +66,9 @@ export default function Header() {
                 <HeaderButton href="/ai">AI</HeaderButton>
               </li>
               <li>
+                <HeaderButton href="/my-orders">My Orders</HeaderButton>
+              </li>
+              <li>
                 <Link href="https://docs.tscircuit.com">
                   <Button variant="ghost">Docs</Button>
                 </Link>
@@ -134,6 +137,11 @@ export default function Header() {
               <li>
                 <HeaderButton className="w-full justify-start" href="/ai">
                   AI
+                </HeaderButton>
+              </li>
+              <li>
+                <HeaderButton className="w-full justify-start" href="/my-orders">
+                  My Orders
                 </HeaderButton>
               </li>
               <li>

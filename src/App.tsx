@@ -17,6 +17,7 @@ import { QuickstartPage } from "./pages/quickstart"
 import { Toaster } from "@/components/ui/toaster"
 import AuthenticatePage from "./pages/authorize"
 import { UserProfilePage } from "./pages/user-profile"
+import { MyOrdersPage } from "./pages/my-orders"
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/settings" component={SettingsPage} />
         <Route path="/search" component={SearchPage} />
         <Route path="/authorize" component={AuthenticatePage} />
+        <Route path="/my-orders" component={MyOrdersPage} />
         <Route path="/:username" component={UserProfilePage} />
         <Route path="/:author/:snippetName" component={ViewSnippetPage} />
       </Switch>
