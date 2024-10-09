@@ -11,11 +11,10 @@ import { saveAs } from "file-saver"
 import { createBlobURL } from "@/lib/createBlobURL"
 import create from "fake-snippets-api/routes/api/snippets/create"
 
-export function DownloadButtonAndMenu({ className }: { className?: string }) {
-  const { jsonContent, jsonFileName } = useDownloadCurrentSnippetCircuitJson()
+export function DownloadButtonAndMenu({ className, circuitJson }: { className?: string, circuitJson?: AnyCircuitElement[] }) {
 
   const handleDownloadClick = () => {
-    const blob = createBlobURL(jsonContent)
+    const blob = createBlobURL(JSON.stringify(circuitJson))
     saveAs(blob, jsonFileName)
   }
   return (
