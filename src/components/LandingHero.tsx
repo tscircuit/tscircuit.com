@@ -6,12 +6,11 @@ import { CreateNewSnippetHero } from "./CreateNewSnippetHero"
 import { TypeBadge } from "./TypeBadge"
 
 export const LandingHero = () => {
-   const { should_onboarding_tips_be_closed, setOnboardingTipsClosed } = useGlobalStore(
-    (state) => ({
+  const { should_onboarding_tips_be_closed, setOnboardingTipsClosed } =
+    useGlobalStore((state) => ({
       should_onboarding_tips_be_closed: state.should_onboarding_tips_be_closed,
       setOnboardingTipsClosed: state.setOnboardingTipsClosed,
-    })
-  );
+    }))
   const [, setLocation] = useLocation()
   return (
     <div className="p-6">
@@ -25,7 +24,9 @@ export const LandingHero = () => {
               <Button
                 variant="ghost"
                 className="text-gray-400 text-2xl"
-                onClick={() => setOnboardingTipsClosed(!should_onboarding_tips_be_closed)}
+                onClick={() =>
+                  setOnboardingTipsClosed(!should_onboarding_tips_be_closed)
+                }
               >
                 &times;
               </Button>
