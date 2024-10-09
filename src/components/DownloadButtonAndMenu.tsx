@@ -7,13 +7,17 @@ import {
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
 import { useDownloadCurrentSnippetCircuitJson } from "@/hooks/use-download-json"
+import { saveAs } from "file-saver"
 import { createBlobURL } from "@/lib/createBlobURL"
+import create from "fake-snippets-api/routes/api/snippets/create"
 
 export function DownloadButtonAndMenu({ className }: { className?: string }) {
   const { jsonContent, jsonFileName } = useDownloadCurrentSnippetCircuitJson()
 
-  const downloadJson = createBlobURL(jsonContent)
-
+  const handleDownloadClick = () => {
+    const blob = createBlobURL(jsonContent)
+    saveAs(blob, jsonFileName)
+  }
   return (
     <div className={className}>
       <DropdownMenu>
@@ -25,19 +29,12 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className="text-xs">
-            <a
-              href={downloadJson}
-              download={jsonFileName}
-              target="_blank"
-              className="flex items-center w-full"
-            >
-              <Download className="mr-1 h-3 w-3" />
-              <span className="flex-grow mr-6">Download Circuit JSON</span>
-              <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                json
-              </span>
-            </a>
+          <DropdownMenuItem className="text-xs" onClick={handleDownloadClick}>
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Download Circuit JSON</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              json
+            </span>
           </DropdownMenuItem>
           <DropdownMenuItem className="text-xs">
             <Download className="mr-1 h-3 w-3" />
