@@ -42,6 +42,7 @@ export type Account = z.infer<typeof accountSchema>
 
 export const orderSchema = z.object({
   order_id: z.string(),
+  account_id: z.string(),
   is_draft: z.boolean(),
   is_pending_validation_by_fab: z.boolean(),
   is_pending_review_by_fab: z.boolean(),

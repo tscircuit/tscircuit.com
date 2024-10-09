@@ -15,6 +15,7 @@ export default withRouteSpec({
   const { circuit_json } = req.jsonBody
 
   const newOrder = {
+    account_id: ctx.auth.account_id,
     is_draft: true,
     is_pending_validation_by_fab: false,
     is_pending_review_by_fab: false,
