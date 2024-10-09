@@ -11,6 +11,8 @@ import {
   Account,
   type DatabaseSchema,
   snippetSchema,
+  Order,
+  OrderFile,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -26,6 +28,44 @@ export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
 export type DbClient = ReturnType<typeof createDatabase>
 
 const initializer = combine(databaseSchema.parse({}), (set, get) => ({
+  addOrder: (order: Omit<Order, "order_id">): Order => {
+    let newOrder = { order_id: `order_${get().idCounter + 1}`, ...order }
+    set((state) => {
+      return {
+        orders: [...state.orders, newOrder],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newOrder
+  },
+  getOrderById: (orderId: string): Order | undefined => {
+    const state = get()
+    return state.orders.find((order) => order.order_id === orderId)
+  },
+  updateOrder: (orderId: string, updates: Partial<Order>) => {
+    set((state) => ({
+      orders: state.orders.map((order) =>
+        order.order_id === orderId ? { ...order, ...updates } : order,
+      ),
+    }))
+  },
+  addOrderFile: (orderFile: Omit<OrderFile, "order_file_id">): OrderFile => {
+    const newOrderFile = {
+      order_file_id: `order_file_${get().idCounter + 1}`,
+      ...orderFile,
+    }
+    set((state) => {
+      return {
+        orderFiles: [...state.orderFiles, newOrderFile],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newOrderFile
+  },
+  getOrderFileById: (orderFileId: string): OrderFile | undefined => {
+    const state = get()
+    return state.orderFiles.find((file) => file.order_file_id === orderFileId)
+  },
   addAccount: (account: Omit<Account, "account_id">) => {
     set((state) => {
       const newAccountId = `account_${state.idCounter + 1}`

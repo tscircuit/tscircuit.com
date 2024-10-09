@@ -40,11 +40,46 @@ export const accountSchema = z.object({
 })
 export type Account = z.infer<typeof accountSchema>
 
+export const orderSchema = z.object({
+  order_id: z.string(),
+  is_draft: z.boolean(),
+  is_pending_validation_by_fab: z.boolean(),
+  is_pending_review_by_fab: z.boolean(),
+  is_validated_by_fab: z.boolean(),
+  is_approved_by_fab_review: z.boolean(),
+  is_approved_by_orderer: z.boolean(),
+  is_in_production: z.boolean(),
+  is_shipped: z.boolean(),
+  is_cancelled: z.boolean(),
+  should_be_blank_pcb: z.boolean(),
+  should_include_stencil: z.boolean(),
+  jlcpcb_order_params: z.record(z.any()),
+  circuit_json: z.record(z.any()),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type Order = z.infer<typeof orderSchema>
+
+export const orderFileSchema = z.object({
+  order_file_id: z.string(),
+  order_id: z.string(),
+  is_gerbers_zip: z.boolean(),
+  file_name: z.string(),
+  file_size: z.number(),
+  file_content: z.any(),
+  content_type: z.string(),
+  for_provider: z.string().nullable(),
+  uploaded_at: z.string(),
+})
+export type OrderFile = z.infer<typeof orderFileSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
   sessions: z.array(sessionSchema).default([]),
   loginPages: z.array(loginPageSchema).default([]),
   accounts: z.array(accountSchema).default([]),
+  orders: z.array(orderSchema).default([]),
+  orderFiles: z.array(orderFileSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
