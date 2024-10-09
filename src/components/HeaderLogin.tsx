@@ -94,6 +94,9 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
           <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
             Dashboard
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setLocation("/my-orders")}>
+            My Orders
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setLocation("/settings")}>
             Settings
           </DropdownMenuItem>
