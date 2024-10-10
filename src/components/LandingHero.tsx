@@ -1,18 +1,18 @@
-import { useState } from "react"
-import { useLocation, Link } from "wouter"
-import { TypeBadge } from "./TypeBadge"
 import { Button } from "@/components/ui/button"
-import { CreateNewSnippetHero } from "./CreateNewSnippetHero"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Link, useLocation } from "wouter"
+import { useGlobalStore } from "../hooks/use-global-store"
+import { CreateNewSnippetHero } from "./CreateNewSnippetHero"
+import { TypeBadge } from "./TypeBadge"
 
 export const LandingHero = () => {
-  const [visible, setVisible] = useState(true)
+  const { should_onboarding_tips_be_closed, setOnboardingTipsClosed } = useGlobalStore()
   const [, setLocation] = useLocation()
   return (
     <div className="p-6">
       <CreateNewSnippetHero />
 
-      {visible && (
+      {!should_onboarding_tips_be_closed && (
         <Card className="mb-6 bg-gray-50 rounded-sm">
           <CardHeader className="p-3 pl-8">
             <CardTitle className="flex justify-between items-center">
@@ -20,7 +20,7 @@ export const LandingHero = () => {
               <Button
                 variant="ghost"
                 className="text-gray-400 text-2xl"
-                onClick={() => setVisible(!visible)}
+                onClick={() => setOnboardingTipsClosed(!should_onboarding_tips_be_closed)}
               >
                 &times;
               </Button>

@@ -9,6 +9,8 @@ export type Store = {
     github_username: string
   } | null
   setSession: (session: Store["session"]) => any
+  should_onboarding_tips_be_closed: boolean
+  setOnboardingTipsClosed : (closed: boolean) => any
 }
 
 export const useGlobalStore = create<Store>()(
@@ -16,6 +18,8 @@ export const useGlobalStore = create<Store>()(
     (set) => ({
       session: null,
       setSession: (session) => set({ session }),
+      should_onboarding_tips_be_closed: false,
+      setOnboardingTipsClosed: (closed) => set({should_onboarding_tips_be_closed: closed})
     }),
     {
       name: "session_store",
