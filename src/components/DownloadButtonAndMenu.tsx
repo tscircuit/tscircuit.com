@@ -6,16 +6,21 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
-import { useDownloadCurrentSnippetCircuitJson } from "@/hooks/use-download-json"
 import { saveAs } from "file-saver"
 import { createBlobURL } from "@/lib/createBlobURL"
-import create from "fake-snippets-api/routes/api/snippets/create"
 
-export function DownloadButtonAndMenu({ className, circuitJson }: { className?: string, circuitJson?: AnyCircuitElement[] }) {
-
+export function DownloadButtonAndMenu({
+  className,
+  circuitJson,
+  fileName,
+}: {
+  className?: string
+  circuitJson?: string
+  fileName?: string
+}) {
   const handleDownloadClick = () => {
-    const blob = createBlobURL(JSON.stringify(circuitJson))
-    saveAs(blob, jsonFileName)
+    const blob = createBlobURL(circuitJson as string)
+    saveAs(blob, `${fileName}.json`)
   }
   return (
     <div className={className}>
