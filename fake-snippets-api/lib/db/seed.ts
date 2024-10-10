@@ -42,7 +42,21 @@ declare module "@tsci/seveibar.a555timer" {
   }) => any;
 }
 `.trim(),
+    compiled_js: `
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.A555Timer = void 0;
+const A555Timer = ({
+  name
+}) => /*#__PURE__*/React.createElement("chip", {
+  name: name,
+  footprint: "dip8"
+});
+exports.A555Timer = A555Timer;
+    `.trim(),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     snippet_type: "package",
