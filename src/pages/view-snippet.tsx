@@ -1,5 +1,4 @@
 import { CodeEditor } from "@/components/CodeEditor"
-import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import Header from "@/components/Header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -45,7 +44,6 @@ export const ViewSnippetPage = () => {
                 <Share className="mr-1 h-3 w-3" />
                 Copy URL
               </Button>
-              <DownloadButtonAndMenu />
               <div className="flex-grow" />
               <TabsList>
                 <TabsTrigger value="code">Code</TabsTrigger>
