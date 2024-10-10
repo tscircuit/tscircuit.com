@@ -1,6 +1,7 @@
 import { createStore, type StoreApi } from "zustand/vanilla"
 import { immer } from "zustand/middleware/immer"
 import { hoist, type HoistedStoreApi } from "zustand-hoist"
+import { z } from "zod"
 
 import {
   databaseSchema,
@@ -9,24 +10,42 @@ import {
   LoginPage,
   Account,
   type DatabaseSchema,
+  snippetSchema,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
+import { seed as seedFn } from "./seed"
 
-export const createDatabase = () => {
-  return hoist(createStore(initializer))
+export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
+  const db = hoist(createStore(initializer))
+  if (seed) {
+    seedFn(db)
+  }
+  return db
 }
 
 export type DbClient = ReturnType<typeof createDatabase>
 
 const initializer = combine(databaseSchema.parse({}), (set, get) => ({
-  addSnippet: (snippet: Omit<Snippet, "snippet_id">) => {
+  addAccount: (account: Omit<Account, "account_id">) => {
     set((state) => {
-      const newSnippetId = `snippet_${state.idCounter + 1}`
+      const newAccountId = `account_${state.idCounter + 1}`
       return {
-        snippets: [...state.snippets, { snippet_id: newSnippetId, ...snippet }],
+        accounts: [...state.accounts, { account_id: newAccountId, ...account }],
         idCounter: state.idCounter + 1,
       }
     })
+  },
+  addSnippet: (snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">) => {
+    let newSnippet
+    set((state) => {
+      const newSnippetId = `snippet_${state.idCounter + 1}`
+      newSnippet = snippetSchema.parse({ ...snippet, snippet_id: newSnippetId })
+      return {
+        snippets: [...state.snippets, newSnippet],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newSnippet
   },
   getNewestSnippets: (limit: number): Snippet[] => {
     const state = get()

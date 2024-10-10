@@ -8,16 +8,18 @@ import { Link } from "wouter"
 import { CreateNewSnippetHero } from "@/components/CreateNewSnippetHero"
 import { Edit2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const DashboardPage = () => {
   const axios = useAxios()
+
+  const currentUser = useGlobalStore((s) => s.session?.github_username)
 
   const {
     data: mySnippets,
     isLoading,
     error,
   } = useQuery<Snippet[]>("userSnippets", async () => {
-    const currentUser = "seveibar"
     const response = await axios.get(`/snippets/list?owner_name=${currentUser}`)
     return response.data.snippets
   })

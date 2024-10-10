@@ -31,6 +31,7 @@ export function CodeAndPreview({ snippet }: Props) {
     return decodeUrlHashToText(window.location.toString()) ?? snippet?.code
   }, [])
   const [code, setCode] = useState(defaultCode ?? "")
+  const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
 
   useEffect(() => {
@@ -40,7 +41,10 @@ export function CodeAndPreview({ snippet }: Props) {
   }, [snippet?.code])
   const { toast } = useToast()
 
-  const { message, circuitJson } = useRunTsx(code, snippet?.snippet_type)
+  const { message, circuitJson, compiledJs } = useRunTsx(
+    code,
+    snippet?.snippet_type,
+  )
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({
@@ -49,6 +53,8 @@ export function CodeAndPreview({ snippet }: Props) {
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
         code: code,
+        dts: dts,
+        compiled_js: compiledJs,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -103,6 +109,7 @@ export function CodeAndPreview({ snippet }: Props) {
           <CodeEditor
             code={code}
             onCodeChange={(newCode) => setCode(newCode)}
+            onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
         {showPreview && (

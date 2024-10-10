@@ -10,15 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const QuickstartPage = () => {
   const axios = useAxios()
   const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
   const toastNotImplemented = useNotImplementedToast()
+  const currentUser = useGlobalStore((s) => s.session?.github_username)
   const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
     "userSnippets",
     async () => {
-      const currentUser = "seveibar"
       const response = await axios.get(
         `/snippets/list?owner_name=${currentUser}`,
       )

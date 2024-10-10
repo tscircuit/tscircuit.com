@@ -8,8 +8,12 @@ export const useSnippetByName = (fullSnippetName: string | null) => {
     ["snippet", fullSnippetName],
     async () => {
       if (!fullSnippetName) return
+      const [owner_name, unscoped_name] = fullSnippetName.split("/")
       const { data } = await axios.get("/snippets/get", {
-        params: { full_snippet_name: fullSnippetName },
+        params: {
+          owner_name,
+          unscoped_name,
+        },
       })
       return data.snippet
     },

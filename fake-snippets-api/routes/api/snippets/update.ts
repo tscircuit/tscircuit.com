@@ -10,6 +10,8 @@ export default withRouteSpec({
     code: z.string().optional(),
     description: z.string().optional(),
     unscoped_name: z.string().optional(),
+    dts: z.string().optional(),
+    compiled_js: z.string().optional().nullable(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -18,7 +20,8 @@ export default withRouteSpec({
     }),
   }),
 })(async (req, ctx) => {
-  const { snippet_id, code, description, unscoped_name } = req.jsonBody
+  const { snippet_id, code, description, unscoped_name, dts, compiled_js } =
+    req.jsonBody
 
   const snippetIndex = ctx.db.snippets.findIndex(
     (s) => s.snippet_id === snippet_id,
@@ -48,6 +51,8 @@ export default withRouteSpec({
     name: unscoped_name
       ? `${ctx.auth.github_username}/${unscoped_name}`
       : snippet.name,
+    dts: dts ?? snippet.dts,
+    compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
     updated_at: new Date().toISOString(),
   }
 

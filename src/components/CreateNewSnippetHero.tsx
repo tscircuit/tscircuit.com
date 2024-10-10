@@ -48,30 +48,34 @@ export function CreateNewSnippetHero() {
             onChange={(e) => setInputValue(e.target.value)}
           />
         </form>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-start sm:flex-row flex-col ">
           <Button
             variant="ghost"
-            className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            className="flex items-center w-full sm:gap-2 opacity-70 flex-row-reverse hover:bg-white hover:opacity-100 justify-between sm:justify-center"
             onClick={() => handleQuickPrompt("Battery-powered flashlight")}
           >
             <Battery size={20} />
-            <span>Battery-powered flashlight</span>
+            <span className="capitalize font-semibold">
+              Battery powered flashlight
+            </span>
           </Button>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            className="flex items-center w-full sm:gap-2 opacity-70 flex-row-reverse hover:bg-white hover:opacity-100 justify-between sm:justify-center"
             onClick={() => handleQuickPrompt("Motor driver module")}
           >
             <Cpu size={20} />
-            <span>Motor driver module</span>
+            <span className="capitalize font-semibold">
+              Motor driver module
+            </span>
           </Button>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 opacity-70 hover:bg-white hover:opacity-100"
+            className="flex items-center w-full sm:gap-2 opacity-70 flex-row-reverse hover:bg-white hover:opacity-100 justify-between sm:justify-center"
             onClick={() => handleQuickPrompt("NA555 Timer Chip")}
           >
             <LayoutGrid size={20} />
-            <span>NA555 Timer Chip</span>
+            <span className="capitalize font-semibold">NA555 Timer Chip</span>
           </Button>
         </div>
       </CardContent>

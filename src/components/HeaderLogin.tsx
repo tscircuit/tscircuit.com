@@ -14,7 +14,9 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 
-export const HeaderLogin: React.FC = () => {
+interface HeaderLoginProps {}
+
+export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const [, setLocation] = useLocation()
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
@@ -32,10 +34,10 @@ export const HeaderLogin: React.FC = () => {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
               setSession({
-                account_id: "account_1234",
-                github_username: "shadcn",
+                account_id: "account-1234",
+                github_username: "testuser",
                 token: "1234",
-                session_id: "session_1234",
+                session_id: "session-1234",
               })
             }
           }}
@@ -51,10 +53,10 @@ export const HeaderLogin: React.FC = () => {
               window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
             } else {
               setSession({
-                account_id: "account_1234",
-                github_username: "shadcn",
+                account_id: "account-1234",
+                github_username: "testuser",
                 token: "1234",
-                session_id: "session_1234",
+                session_id: "session-1234",
               })
             }
           }}
@@ -83,6 +85,11 @@ export const HeaderLogin: React.FC = () => {
             AI Usage $
             {accountBalance?.monthly_ai_budget_used_usd.toFixed(2) ?? "0.00"} /
             $5.00
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setLocation(`/${session?.github_username}`)}
+          >
+            My Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
             Dashboard

@@ -17,6 +17,7 @@ import { useSnippet } from "@/hooks/use-snippet"
 
 export const AiPage = () => {
   const [code, setCode] = useState("")
+  const [dts, setDts] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
   const { message: errorMessage, circuitJson } = useRunTsx(code, "board", {
     isStreaming,
@@ -81,12 +82,8 @@ export const AiPage = () => {
                       size="sm"
                       variant="outline"
                       onClick={async () => {
-                        if (snippetId) {
-                          // TODO update snippet
-                        }
-
                         try {
-                          const snippet = await saveSnippet(code, "board")
+                          const snippet = await saveSnippet(code, "board", dts)
                           navigate(`/ai?snippet_id=${snippet.snippet_id}`)
                           toast({
                             title: "Snippet saved",
@@ -114,7 +111,9 @@ export const AiPage = () => {
                   <div className="mt-4 bg-gray-50 rounded-md border border-gray-200">
                     <CodeEditor
                       code={code}
+                      isStreaming={isStreaming}
                       onCodeChange={setCode}
+                      onDtsChange={setDts}
                       readOnly={false}
                     />
                   </div>

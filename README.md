@@ -48,7 +48,7 @@ This command will build the fake API and start the Vite development server. Open
 Create a `.env` file with the following:
 
 ```bash
-USE_DIRECT_AI_REQUESTS=true
+VITE_USE_DIRECT_AI_REQUESTS=true
 VITE_ANTHROPIC_API_KEY=<your-key-here>
 ```
 

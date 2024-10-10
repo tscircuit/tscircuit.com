@@ -1,35 +1,144 @@
-import Editor from "react-simple-code-editor"
-// @ts-ignore
-import { highlight, languages } from "prismjs/components/prism-core"
-import "prismjs/components/prism-clike"
-import "prismjs/components/prism-javascript"
-import "prismjs/themes/prism.css"
-import { useState } from "react"
+import { useEffect, useRef } from "react"
+import { EditorView, basicSetup } from "codemirror"
+import { javascript } from "@codemirror/lang-javascript"
+import { EditorState } from "@codemirror/state"
+import {
+  tsFacet,
+  tsSync,
+  tsLinter,
+  tsAutocomplete,
+  tsHover,
+} from "@valtown/codemirror-ts"
+import { autocompletion } from "@codemirror/autocomplete"
+import { linter } from "@codemirror/lint"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import ts from "typescript"
+import { setupTypeAcquisition } from "@typescript/ata"
+import { ATABootstrapConfig } from "@typescript/ata"
+import { useAxios } from "@/hooks/use-axios"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 
 export const CodeEditor = ({
   onCodeChange,
+  onDtsChange,
   readOnly = false,
   code,
+  isStreaming = false,
 }: {
   onCodeChange: (code: string) => void
+  onDtsChange?: (dts: string) => void
   code: string
   readOnly?: boolean
+  isStreaming?: boolean
 }) => {
-  return (
-    <Editor
-      readOnly={readOnly}
-      value={code}
-      onValueChange={(newCode) => {
-        onCodeChange(newCode)
-      }}
-      highlight={(code) => highlight(code, languages.js)}
-      padding={10}
-      style={{
-        fontFamily: '"Fira code", "Fira Mono", monospace',
-        fontSize: 12,
-        height: 640,
-        width: "100%",
-      }}
-    />
-  )
+  const editorRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<EditorView | null>(null)
+  const apiUrl = useSnippetsBaseApiUrl()
+
+  useEffect(() => {
+    if (!editorRef.current) return
+
+    const fsMap = new Map<string, string>()
+    fsMap.set("index.tsx", code)
+
+    const system = createSystem(fsMap)
+    const env = createVirtualTypeScriptEnvironment(system, [], ts, {
+      jsx: ts.JsxEmit.ReactJSX,
+      declaration: true,
+    })
+
+    const ataConfig: ATABootstrapConfig = {
+      projectName: "my-project",
+      typescript: ts,
+      logger: console,
+      fetcher: (input: RequestInfo | URL, init?: RequestInit) => {
+        const registryPrefixes = [
+          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
+          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
+          "https://cdn.jsdelivr.net/npm/@tsci/",
+        ]
+        if (
+          typeof input === "string" &&
+          registryPrefixes.some((prefix) => input.startsWith(prefix))
+        ) {
+          const fullPackageName = input
+            .replace(registryPrefixes[0], "")
+            .replace(registryPrefixes[1], "")
+            .replace(registryPrefixes[2], "")
+          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
+          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
+          const jsdelivrPath = `${packageName}${pathInPackage ? `/${pathInPackage}` : ""}`
+          return fetch(
+            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+          )
+        }
+        // For all other cases, proceed with the original fetch
+        return fetch(input, init)
+      },
+      delegate: {
+        receivedFile: (code: string, path: string) => {
+          fsMap.set(path, code)
+          env.createFile(path, code)
+        },
+      },
+    }
+
+    const ata = setupTypeAcquisition(ataConfig)
+    ata(`
+import React from "@types/react/jsx-runtime"
+import { Circuit } from "@tscircuit/core"
+${code}
+`)
+
+    const state = EditorState.create({
+      doc: code,
+      extensions: [
+        basicSetup,
+        javascript({ typescript: true, jsx: true }),
+        tsFacet.of({ env, path: "index.tsx" }),
+        tsSync(),
+        tsLinter(),
+        autocompletion({ override: [tsAutocomplete()] }),
+        tsHover(),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            onCodeChange(update.state.doc.toString())
+
+            const { outputFiles } = env.languageService.getEmitOutput(
+              "index.tsx",
+              true,
+            )
+
+            const indexDts = outputFiles.find(
+              (file) => file.name === "index.d.ts",
+            )
+            if (indexDts?.text && onDtsChange) {
+              onDtsChange(indexDts.text)
+            }
+          }
+        }),
+        EditorState.readOnly.of(readOnly),
+      ],
+    })
+
+    const view = new EditorView({
+      state,
+      parent: editorRef.current,
+    })
+
+    viewRef.current = view
+
+    return () => {
+      view.destroy()
+    }
+  }, [code !== "", !isStreaming])
+
+  if (isStreaming) {
+    return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
+  }
+
+  return <div ref={editorRef} style={{ height: "640px", width: "100%" }} />
 }

@@ -35,12 +35,14 @@ export default function AIChatInterface({
   const { data: snippet } = useSnippet(snippetId!)
   const [currentCodeBlock, setCurrentCodeBlock] = useState<string | null>(null)
   const [location, navigate] = useLocation()
+  const isStreamingRef = useRef(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
   const addMessage = async (message: string) => {
+    console.log("adding message", message)
     const newMessages = messages.concat([
       {
         sender: "user",
@@ -130,7 +132,8 @@ export default function AIChatInterface({
     )
     const initialPrompt = searchParams.get("initial_prompt")
 
-    if (initialPrompt && messages.length === 0) {
+    if (initialPrompt && messages.length === 0 && !isStreamingRef.current) {
+      isStreamingRef.current = true
       addMessage(initialPrompt)
     }
   }, [])

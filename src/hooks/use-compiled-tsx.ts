@@ -1,6 +1,26 @@
 import { useMemo } from "react"
 import * as Babel from "@babel/standalone"
 
+export const safeCompileTsx = (
+  code: string,
+):
+  | { success: true; compiledTsx: string }
+  | { success: false; error: Error } => {
+  try {
+    return {
+      success: true,
+      compiledTsx:
+        Babel.transform(code, {
+          presets: ["react", "typescript"],
+          plugins: ["transform-modules-commonjs"],
+          filename: "virtual.tsx",
+        }).code || "",
+    }
+  } catch (error: any) {
+    return { success: false, error }
+  }
+}
+
 export const useCompiledTsx = (
   code?: string,
   { isStreaming = false }: { isStreaming?: boolean } = {},
@@ -8,16 +28,10 @@ export const useCompiledTsx = (
   return useMemo(() => {
     if (!code) return ""
     if (isStreaming) return ""
-    try {
-      const result = Babel.transform(code, {
-        presets: ["react", "typescript"],
-        plugins: ["transform-modules-commonjs"],
-        filename: "virtual.tsx",
-      })
-      return result.code || ""
-    } catch (error: any) {
-      console.error("Babel compilation error:", error)
-      return `Error: ${error.message}`
+    const result = safeCompileTsx(code)
+    if (result.success) {
+      return result.compiledTsx
     }
+    return `Error: ${result.error.message}`
   }, [code, isStreaming])
 }
