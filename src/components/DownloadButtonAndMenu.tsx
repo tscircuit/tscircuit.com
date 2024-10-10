@@ -7,8 +7,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
+import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 
-export function DownloadButtonAndMenu({ className }: { className?: string }) {
+interface DownloadButtonAndMenuProps {
+  className?: string
+  fileName: string
+  circuitJson: string
+}
+
+export function DownloadButtonAndMenu({
+  className,
+  fileName,
+  circuitJson,
+}: DownloadButtonAndMenuProps) {
   return (
     <div className={className}>
       <DropdownMenu>
@@ -20,14 +31,12 @@ export function DownloadButtonAndMenu({ className }: { className?: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className="text-xs">
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download TSX</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              tsx
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="text-xs">
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() =>
+              downloadCircuitJson(circuitJson, fileName + ".json")
+            }
+          >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Download Circuit JSON</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
