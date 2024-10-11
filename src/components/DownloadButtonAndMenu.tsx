@@ -11,13 +11,13 @@ import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn
 
 interface DownloadButtonAndMenuProps {
   className?: string
-  fileName: string
+  snippetUnscopedName: string | undefined
   circuitJson: string
 }
 
 export function DownloadButtonAndMenu({
   className,
-  fileName,
+  snippetUnscopedName,
   circuitJson,
 }: DownloadButtonAndMenuProps) {
   return (
@@ -34,7 +34,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() =>
-              downloadCircuitJson(circuitJson, fileName + ".json")
+              downloadCircuitJson(circuitJson, snippetUnscopedName || "circuit" + ".json")
             }
           >
             <Download className="mr-1 h-3 w-3" />

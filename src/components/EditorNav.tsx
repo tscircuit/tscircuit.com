@@ -115,7 +115,7 @@ export default function EditorNav({
           Edit with AI
         </Button>
         <DownloadButtonAndMenu
-          fileName={snippet.unscoped_name}
+          snippetUnscopedName={snippet.unscoped_name}
           circuitJson={circuitJson}
           className="hidden md:flex"
         />
