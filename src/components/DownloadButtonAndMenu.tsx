@@ -34,7 +34,10 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() =>
-              downloadCircuitJson(circuitJson, snippetUnscopedName || "circuit" + ".json")
+              downloadCircuitJson(
+                circuitJson,
+                snippetUnscopedName || "circuit" + ".json",
+              )
             }
           >
             <Download className="mr-1 h-3 w-3" />

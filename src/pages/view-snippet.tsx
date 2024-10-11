@@ -45,9 +45,11 @@ export const ViewSnippetPage = () => {
                 <Share className="mr-1 h-3 w-3" />
                 Copy URL
               </Button>
-              <DownloadButtonAndMenu  snippetUnscopedName={snippet?.unscoped_name}
-          circuitJson={circuitJson}
-          className="hidden md:flex" />
+              <DownloadButtonAndMenu
+                snippetUnscopedName={snippet?.unscoped_name}
+                circuitJson={circuitJson}
+                className="hidden md:flex"
+              />
               <div className="flex-grow" />
               <TabsList>
                 <TabsTrigger value="code">Code</TabsTrigger>
