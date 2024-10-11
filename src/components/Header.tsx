@@ -11,14 +11,16 @@ const HeaderButton = ({
   href,
   children,
   className,
+  alsoHighlightForUrl,
 }: {
   href: string
   children: React.ReactNode
   className?: string
+  alsoHighlightForUrl?: string
 }) => {
   const [location] = useLocation()
 
-  if (location === href) {
+  if (location === href || location === alsoHighlightForUrl) {
     return (
       <Button
         variant="ghost"
@@ -60,7 +62,9 @@ export default function Header() {
                 <HeaderButton href="/newest">Newest</HeaderButton>
               </li>
               <li>
-                <HeaderButton href="/quickstart">Editor</HeaderButton>
+                <HeaderButton href="/quickstart" alsoHighlightForUrl="/editor">
+                  Editor
+                </HeaderButton>
               </li>
               <li>
                 <HeaderButton href="/ai">AI</HeaderButton>
@@ -127,6 +131,7 @@ export default function Header() {
                 <HeaderButton
                   className="w-full justify-start"
                   href="/quickstart"
+                  alsoHighlightForUrl="/editor"
                 >
                   Editor
                 </HeaderButton>

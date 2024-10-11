@@ -51,7 +51,7 @@ export type PreviewContentProps =
 const PreviewEmptyState = ({
   triggerRunTsx,
 }: { triggerRunTsx: () => void }) => (
-  <div className="flex items-center gap-3 bg-gray-200 text-center justify-center py-10">
+  <div className="flex items-center gap-3 bg-gray-100 text-center justify-center py-10">
     No circuit json loaded
     <Button className="bg-blue-600 hover:bg-blue-500" onClick={triggerRunTsx}>
       Run Code
