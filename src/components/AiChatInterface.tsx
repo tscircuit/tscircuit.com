@@ -11,6 +11,7 @@ import { useSnippet } from "@/hooks/use-snippet"
 import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 export default function AIChatInterface({
   code,
@@ -40,6 +41,7 @@ export default function AIChatInterface({
   const [location, navigate] = useLocation()
   const isStreamingRef = useRef(false)
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const signIn = useSignIn()
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -171,7 +173,18 @@ export default function AIChatInterface({
         )}
         {!isLoggedIn && (
           <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
-            <div>Sign in use the AI chat or use the regular editor</div>
+            <div>
+              Sign in use the AI chat or{" "}
+              <Link className="text-blue-500 underline" href="/quickstart">
+                use the regular editor
+              </Link>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={() => signIn()}>Sign In</Button>
+              <Button onClick={() => signIn()} variant="outline">
+                Sign Up
+              </Button>
+            </div>
           </div>
         )}
         {messages.map((message, index) => (

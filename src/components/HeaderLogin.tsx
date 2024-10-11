@@ -13,6 +13,7 @@ import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 interface HeaderLoginProps {}
 
@@ -23,6 +24,7 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const setSession = useGlobalStore((s) => s.setSession)
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
   const isUsingFakeApi = useIsUsingFakeApi()
+  const signIn = useSignIn()
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
@@ -45,21 +47,10 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
           </Button>
         ) : (
           <>
-            <Button
-              onClick={() => {
-                window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
-              }}
-              variant="ghost"
-              size="sm"
-            >
+            <Button onClick={() => signIn()} variant="ghost" size="sm">
               Login
             </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
-              }}
-            >
+            <Button size="sm" onClick={() => signIn()}>
               Sign Up
             </Button>
           </>
