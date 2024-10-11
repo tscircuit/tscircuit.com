@@ -70,9 +70,9 @@ export default function Header() {
                 <HeaderButton href="/ai">AI</HeaderButton>
               </li>
               <li>
-                <Link href="https://docs.tscircuit.com">
+                <a href="https://docs.tscircuit.com">
                   <Button variant="ghost">Docs</Button>
-                </Link>
+                </a>
               </li>
             </ul>
           </nav>

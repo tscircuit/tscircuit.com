@@ -41,10 +41,12 @@ export default function EditorNav({
   onTogglePreview,
   previewOpen,
   onSave,
+  snippetType,
   isSaving,
 }: {
   snippet?: Snippet
   code: string
+  snippetType?: string
   hasUnsavedChanges: boolean
   previewOpen: boolean
   onTogglePreview: () => void
@@ -113,12 +115,12 @@ export default function EditorNav({
         )}
       </div>
       <div className="flex items-center space-x-1">
-        {snippet && <TypeBadge type={snippet.snippet_type} />}
+        {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
         <Button
           variant="ghost"
           size="sm"
           disabled={hasUnsavedChanges || isSaving || !snippet}
-          onClick={() => navigate(`/ai?snippet_id=${snippet.snippet_id}`)}
+          onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
         >
           <Sparkles className="mr-1 h-3 w-3" />
           Edit with AI

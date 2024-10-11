@@ -33,16 +33,22 @@ export function CodeAndPreview({ snippet }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
+  const templateFromUrl = useMemo(
+    () => getSnippetTemplate(urlParams.template),
+    [],
+  )
   const defaultCode = useMemo(() => {
     return (
       decodeUrlHashToText(window.location.toString()) ??
       snippet?.code ??
-      getSnippetTemplate(urlParams.template).code
+      templateFromUrl.code
     )
   }, [])
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
+  const snippetType: "board" | "package" | "model" | "footprint" =
+    snippet?.snippet_type ?? (templateFromUrl.type as any)
 
   useEffect(() => {
     if (snippet?.code) {
@@ -60,7 +66,7 @@ export function CodeAndPreview({ snippet }: Props) {
     tsxRunTriggerCount,
   } = useRunTsx({
     code,
-    type: snippet?.snippet_type,
+    type: snippetType,
   })
   const qc = useQueryClient()
 
@@ -109,6 +115,7 @@ export function CodeAndPreview({ snippet }: Props) {
     <div className="flex flex-col">
       <EditorNav
         snippet={snippet}
+        snippetType={snippetType}
         code={code}
         isSaving={updateSnippetMutation.isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
