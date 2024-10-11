@@ -46,7 +46,7 @@ export default function EditorNav({
   snippetType,
   isSaving,
 }: {
-  snippet?: Snippet
+  snippet?: Snippet | null
   circuitJson: any
   code: string
   snippetType?: string
@@ -129,7 +129,7 @@ export default function EditorNav({
           Edit with AI
         </Button>
         <DownloadButtonAndMenu
-          snippetUnscopedName={snippet.unscoped_name}
+          snippetUnscopedName={snippet?.unscoped_name}
           circuitJson={circuitJson}
           className="hidden md:flex"
         />
