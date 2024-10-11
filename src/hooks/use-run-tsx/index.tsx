@@ -104,13 +104,17 @@ export const useRunTsx = ({
 
         const module = evalCompiledJs(compiledJs!)
 
-        if (Object.keys(module.exports).length > 1) {
+        const componentExportKeys = Object.keys(module.exports).filter(
+          (key) => !key.startsWith("use"),
+        )
+
+        if (componentExportKeys.length > 1) {
           throw new Error(
-            `Too many exports, only export one thing. You exported: ${JSON.stringify(Object.keys(module.exports))}`,
+            `Too many exports, only export one component. You exported: ${JSON.stringify(Object.keys(module.exports))}`,
           )
         }
 
-        const primaryKey = Object.keys(module.exports)[0]
+        const primaryKey = componentExportKeys[0]
 
         const UserElm = (props: any) =>
           React.createElement(module.exports[primaryKey], props)

@@ -90,6 +90,7 @@ export const CodeEditor = ({
     ata(`
 import React from "@types/react/jsx-runtime"
 import { Circuit } from "@tscircuit/core"
+import type { CommonLayoutProps } from "@tscircuit/props"
 ${code}
 `)
 
@@ -140,5 +141,14 @@ ${code}
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
 
-  return <div ref={editorRef} style={{ height: "640px", width: "100%" }} />
+  return (
+    <div
+      ref={editorRef}
+      style={{
+        height: "640px",
+        width: "100%",
+        overflow: "auto",
+      }}
+    />
+  )
 }
