@@ -21,6 +21,9 @@ import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
 import { cn } from "@/lib/utils"
 import { PreviewContent } from "./PreviewContent"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useUrlParams } from "@/hooks/use-url-params"
+import { getSnippetTemplate } from "@/lib/get-snippet-template"
 
 interface Props {
   snippet?: Snippet | null
@@ -28,18 +31,25 @@ interface Props {
 
 export function CodeAndPreview({ snippet }: Props) {
   const axios = useAxios()
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const urlParams = useUrlParams()
   const defaultCode = useMemo(() => {
-    return decodeUrlHashToText(window.location.toString()) ?? snippet?.code
+    return (
+      decodeUrlHashToText(window.location.toString()) ??
+      snippet?.code ??
+      getSnippetTemplate(urlParams.template).code
+    )
   }, [])
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
 
   useEffect(() => {
-    if (snippet?.code && !defaultCode) {
+    if (snippet?.code) {
       setCode(snippet.code)
     }
-  }, [snippet?.code])
+  }, [Boolean(snippet)])
+
   const { toast } = useToast()
 
   const {
@@ -91,7 +101,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const hasUnsavedChanges = snippet?.code !== code
 
-  if (!snippet) {
+  if (!snippet && isLoggedIn) {
     return <div>Loading...</div>
   }
 
