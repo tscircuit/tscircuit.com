@@ -35,6 +35,7 @@ import { TypeBadge } from "./TypeBadge"
 import { SnippetLink } from "./SnippetLink"
 
 export default function EditorNav({
+  circuitJson,
   snippet,
   code,
   hasUnsavedChanges,
@@ -43,6 +44,7 @@ export default function EditorNav({
   onSave,
   isSaving,
 }: {
+  circuitJson: any
   snippet: Snippet
   code: string
   hasUnsavedChanges: boolean
@@ -52,7 +54,6 @@ export default function EditorNav({
   onSave: () => void
 }) {
   const [, navigate] = useLocation()
-  const { circuitJson } = useRunTsx(code, snippet?.snippet_type)
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="flex items-center space-x-1">
