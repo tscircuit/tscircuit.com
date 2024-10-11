@@ -15,6 +15,7 @@ import { useSaveSnippet } from "@/hooks/use-save-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { useSnippet } from "@/hooks/use-snippet"
 import { PreviewContent } from "@/components/PreviewContent"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const AiPage = () => {
   const [code, setCode] = useState("")
