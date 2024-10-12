@@ -138,6 +138,13 @@ export function CodeAndPreview({ snippet }: Props) {
             <Button
               size="sm"
               variant="ghost"
+              // onClick={() => openImportDialog()}
+            >
+              Import
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => {
                 if (window.prettier && window.prettierPlugins) {
                   try {
