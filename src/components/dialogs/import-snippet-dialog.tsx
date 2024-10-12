@@ -5,6 +5,7 @@ import { Button } from "../ui/button"
 import { useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
+import { createUseDialog } from "./create-use-dialog"
 
 export const ImportSnippetDialog = ({
   open,
@@ -12,7 +13,7 @@ export const ImportSnippetDialog = ({
   onSnippetSelected,
 }: {
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => any
   onSnippetSelected: (snippet: Snippet) => any
 }) => {
   const [searchText, setSearchText] = useState("")
@@ -56,3 +57,5 @@ export const ImportSnippetDialog = ({
     </Dialog>
   )
 }
+
+export const useImportSnippetDialog = createUseDialog(ImportSnippetDialog)
