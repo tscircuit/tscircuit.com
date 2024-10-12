@@ -46,7 +46,12 @@ export const ImportSnippetDialog = ({
           <ul>
             {snippets?.map((snippet: Snippet) => (
               <li key={snippet.snippet_id}>
-                <Button onClick={() => onSnippetSelected(snippet)}>
+                <Button
+                  onClick={() => {
+                    onSnippetSelected(snippet)
+                    onOpenChange(false)
+                  }}
+                >
                   {snippet.name}
                 </Button>
               </li>

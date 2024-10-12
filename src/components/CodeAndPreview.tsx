@@ -188,7 +188,13 @@ export function CodeAndPreview({ snippet }: Props) {
           />
         )}
       </div>
-      <ImportSnippetDialog />
+      <ImportSnippetDialog
+        onSnippetSelected={(snippet) => {
+          setCode(
+            `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${snippet.code}`,
+          )
+        }}
+      />
     </div>
   )
 }
