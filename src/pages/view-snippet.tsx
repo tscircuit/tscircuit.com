@@ -9,6 +9,7 @@ import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 import { Share } from "lucide-react"
 import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
+import Footer from "@/components/Footer"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
@@ -25,9 +26,10 @@ export const ViewSnippetPage = () => {
     <div>
       <Header />
       <ViewSnippetHeader />
-      <div className="flex">
-        <div className="flex-shrink">
+      <div className="flex h-[calc(100vh-120px)]">
+        <div className="flex-grow overflow-hidden">
           <PreviewContent
+            className="h-full"
             code={snippet?.code ?? ""}
             triggerRunTsx={triggerRunTsx}
             tsxRunTriggerCount={tsxRunTriggerCount}
@@ -67,6 +69,7 @@ export const ViewSnippetPage = () => {
         </div>
         <ViewSnippetSidebar />
       </div>
+      <Footer />
     </div>
   )
 }

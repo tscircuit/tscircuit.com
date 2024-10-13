@@ -28,11 +28,11 @@ export default function ViewSnippetSidebar({
   return (
     <div
       className={cn(
-        "w-64 min-h-[calc(100vh-120px)] bg-gray-100 text-gray-700 flex flex-col flex-shrink-0",
+        "w-64 h-full bg-gray-100 text-gray-700 flex flex-col flex-shrink-0",
         className,
       )}
     >
-      <nav className="overflow-y-auto">
+      <nav className="flex-grow overflow-y-auto">
         <ul className="p-2 space-y-2">
           {[
             {

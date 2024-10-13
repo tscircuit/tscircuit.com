@@ -89,8 +89,8 @@ export const PreviewContent = ({
   }, [circuitJson])
 
   return (
-    <div className={className}>
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+    <div className={cn("flex flex-col h-full", className)}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col">
         <div className={cn("flex items-center gap-2", headerClassName)}>
           {leftHeaderContent}
           {leftHeaderContent && <div className="flex-grow" />}
@@ -139,14 +139,16 @@ export const PreviewContent = ({
           </TabsList>
         </div>
         {showCodeTab && (
-          <TabsContent value="code">
-            <CodeEditor
-              code={code}
-              isStreaming={isStreaming}
-              onCodeChange={onCodeChange!}
-              onDtsChange={onDtsChange!}
-              readOnly={readOnly}
-            />
+          <TabsContent value="code" className="flex-grow overflow-hidden">
+            <div className="h-full">
+              <CodeEditor
+                code={code}
+                isStreaming={isStreaming}
+                onCodeChange={onCodeChange!}
+                onDtsChange={onDtsChange!}
+                readOnly={readOnly}
+              />
+            </div>
           </TabsContent>
         )}
         <TabsContent value="pcb">
