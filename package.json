@@ -9,7 +9,9 @@
   },
   "scripts": {
     "start": "bun run dev",
-    "start:playwright": "bun run build:fake-api && vite --port 5177",
+    "playwright": "bunx playwright test",
+    "playwright:update": "bunx playwright test --update-snapshots",
+    "start:playwright-server": "bun run build:fake-api && vite --port 5177",
     "dev": "bun run build:fake-api && vite",
     "dev:registry": "SNIPPETS_API_URL=http://localhost:3100 vite",
     "build": "bun run build:fake-api && tsc -b && vite build",
