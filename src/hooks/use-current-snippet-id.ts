@@ -8,7 +8,11 @@ import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { useGlobalStore } from "./use-global-store"
 import { useCreateSnippetMutation } from "./use-create-snippet-mutation"
 
-export const useCurrentSnippetId = (): string | null => {
+export const useCurrentSnippetId = (): {
+  snippetId: string | null
+  isLoading: boolean
+  error: (Error & { status: number }) | null
+} => {
   const urlParams = useUrlParams()
   const urlSnippetId = urlParams.snippet_id
   const templateName = urlParams.template
@@ -23,7 +27,11 @@ export const useCurrentSnippetId = (): string | null => {
     }
   }, [urlSnippetId])
 
-  const { data: snippetByName } = useSnippetByName(
+  const {
+    data: snippetByName,
+    isLoading: isLoadingSnippetByName,
+    error: errorSnippetByName,
+  } = useSnippetByName(
     wouter.author && wouter.snippetName
       ? `${wouter.author}/${wouter.snippetName}`
       : null,
@@ -60,5 +68,9 @@ export const useCurrentSnippetId = (): string | null => {
     }
   }, [templateName])
 
-  return snippetIdFromUrl ?? snippetByName?.snippet_id ?? null
+  return {
+    snippetId: snippetIdFromUrl ?? snippetByName?.snippet_id ?? null,
+    isLoading: isLoadingSnippetByName,
+    error: errorSnippetByName,
+  }
 }

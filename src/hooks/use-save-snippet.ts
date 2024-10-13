@@ -7,7 +7,7 @@ import { useCurrentSnippetId } from "./use-current-snippet-id"
 export const useSaveSnippet = () => {
   const axios = useAxios()
 
-  const snippetId = useCurrentSnippetId()
+  const { snippetId } = useCurrentSnippetId()
 
   const saveSnippetMutation = useMutation<
     Snippet,

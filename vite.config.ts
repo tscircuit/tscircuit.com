@@ -60,6 +60,7 @@ export default defineConfig({
     global: {},
   },
   server: {
+    host: "127.0.0.1",
     proxy,
   },
   build: {

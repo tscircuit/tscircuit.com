@@ -18,6 +18,7 @@ export const useSnippetByName = (fullSnippetName: string | null) => {
       return data.snippet
     },
     {
+      retry: false,
       enabled: Boolean(fullSnippetName),
     },
   )

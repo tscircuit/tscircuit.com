@@ -15,7 +15,6 @@ export const useUrlParams = () => {
 
   useEffect(() => {
     const updateParams = () => {
-      console.log("popstate")
       setParams(getUrlParams())
     }
 
