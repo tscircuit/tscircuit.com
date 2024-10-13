@@ -5,7 +5,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
 import { Link } from "wouter"
 
 export default function HeaderDropdown() {
@@ -16,8 +17,18 @@ export default function HeaderDropdown() {
       type: "package",
       badgeColor: "bg-green-500",
     },
-    { name: "Blank 3D Model", type: "model", badgeColor: "bg-purple-500 " },
-    { name: "Blank Footprint", type: "footprint", badgeColor: "bg-pink-500 " },
+    {
+      name: "Blank 3D Model",
+      type: "model",
+      badgeColor: "bg-purple-500 ",
+      disabled: true,
+    },
+    {
+      name: "Blank Footprint",
+      type: "footprint",
+      badgeColor: "bg-pink-500 ",
+      disabled: true,
+    },
   ]
 
   return (
@@ -39,10 +50,13 @@ export default function HeaderDropdown() {
           </Link>
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
-          <DropdownMenuItem key={index} asChild>
+          <DropdownMenuItem key={index} asChild disabled={template.disabled}>
             <a
               href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
-              className="flex items-center cursor-pointer"
+              className={cn(
+                "flex items-center cursor-pointer",
+                template.disabled && "opacity-50 cursor-not-allowed",
+              )}
             >
               <span
                 className={`w-2 h-2 rounded-full mr-2 ${template.badgeColor}`}
@@ -51,6 +65,12 @@ export default function HeaderDropdown() {
             </a>
           </DropdownMenuItem>
         ))}
+        <DropdownMenuItem asChild>
+          <Link href="/quickstart" className="flex items-center cursor-pointer">
+            <Upload className="mr-2 h-3 w-3" />
+            Import Part
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
