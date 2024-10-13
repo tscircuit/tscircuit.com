@@ -43,7 +43,7 @@ export const useCurrentSnippetId = (): string | null => {
     if (!isLoggedIn) return
     if (!urlParams.should_create_snippet) return
     ;(window as any).AUTO_CREATED_SNIPPET = true
-    createSnippetMutation.mutate()
+    createSnippetMutation.mutate({})
     return () => {
       setTimeout(() => {
         ;(window as any).AUTO_CREATED_SNIPPET = false

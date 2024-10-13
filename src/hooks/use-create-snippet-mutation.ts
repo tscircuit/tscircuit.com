@@ -14,7 +14,7 @@ export const useCreateSnippetMutation = ({
   const session = useGlobalStore((s) => s.session)
   return useMutation(
     ["createSnippet"],
-    async (code?: string) => {
+    async ({ code }: { code?: string } = {}) => {
       if (!session) throw new Error("No session")
       const template =
         typeof code === "string"

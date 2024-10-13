@@ -15,7 +15,14 @@ import { useAxios } from "@/hooks/use-axios"
 import { TypeBadge } from "./TypeBadge"
 import { useToast } from "@/hooks/use-toast"
 import { useMutation, useQueryClient } from "react-query"
-import { ClipboardIcon, Share, Eye, EyeOff, PlayIcon } from "lucide-react"
+import {
+  ClipboardIcon,
+  Share,
+  Eye,
+  EyeOff,
+  PlayIcon,
+  Loader2,
+} from "lucide-react"
 import { MagicWandIcon } from "@radix-ui/react-icons"
 import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
@@ -112,14 +119,21 @@ export function CodeAndPreview({ snippet }: Props) {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate(code)
+      createSnippetMutation.mutate({ code })
     }
   }
 
   const hasUnsavedChanges = snippet?.code !== code
 
-  if (!snippet && urlParams.should_create_snippet) {
-    return <div>Loading...</div>
+  if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-lg text-gray-500 mb-4">Loading</div>
+          <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+        </div>
+      </div>
+    )
   }
 
   return (
