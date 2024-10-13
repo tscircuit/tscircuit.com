@@ -26,7 +26,7 @@ export const ViewSnippetPage = () => {
       <Header />
       <ViewSnippetHeader />
       <div className="flex">
-        <div className="flex-grow">
+        <div className="flex-shrink">
           <PreviewContent
             code={snippet?.code ?? ""}
             triggerRunTsx={triggerRunTsx}

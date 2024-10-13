@@ -28,7 +28,7 @@ export default function ViewSnippetSidebar({
   return (
     <div
       className={cn(
-        "w-64 min-h-[calc(100vh-120px)] bg-gray-100 text-gray-700 flex flex-col",
+        "w-64 min-h-[calc(100vh-120px)] bg-gray-100 text-gray-700 flex flex-col flex-shrink-0",
         className,
       )}
     >

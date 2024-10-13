@@ -65,7 +65,7 @@
     "cmdk": "1.0.0",
     "codemirror": "^6.0.1",
     "date-fns": "^4.1.0",
-    "easyeda": "^0.0.43",
+    "easyeda": "^0.0.44",
     "embla-carousel-react": "^8.3.0",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
