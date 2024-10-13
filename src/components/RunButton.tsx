@@ -10,7 +10,7 @@ export const RunButton = ({
 }) => {
   return (
     <Button
-      className="bg-blue-600 hover:bg-blue-500"
+      className="bg-blue-600 hover:bg-blue-500 run-button"
       onClick={onClick}
       disabled={disabled}
     >

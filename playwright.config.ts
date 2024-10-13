@@ -10,4 +10,6 @@ export default defineConfig({
     stderr: "pipe",
     timeout: 5000,
   },
+  testDir: "playwright-tests",
+  testMatch: /.*\.spec\.ts/,
 })
