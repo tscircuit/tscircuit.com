@@ -4,7 +4,7 @@ import type { Snippet } from "fake-snippets-api/lib/db/schema"
 
 export const useSnippetByName = (fullSnippetName: string | null) => {
   const axios = useAxios()
-  return useQuery<Snippet, Error>(
+  return useQuery<Snippet, Error & { status: number }>(
     ["snippet", fullSnippetName],
     async () => {
       if (!fullSnippetName) return

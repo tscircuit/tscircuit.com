@@ -15,7 +15,7 @@ export const constructCircuit = (
     circuit.add(<UserElm />)
   } else if (type === "package") {
     circuit.add(
-      <board width="10mm" height="10mm">
+      <board width="50mm" height="50mm">
         <UserElm name="U1" />
       </board>,
     )
