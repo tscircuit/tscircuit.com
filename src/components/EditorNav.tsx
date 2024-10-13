@@ -80,7 +80,7 @@ export default function EditorNav({
           variant="outline"
           size="sm"
           className={"h-6 px-2 text-xs"}
-          disabled={!snippet}
+          disabled={!isLoggedIn}
           onClick={onSave}
         >
           <Save className="mr-1 h-3 w-3" />

@@ -26,6 +26,7 @@ import { useUrlParams } from "@/hooks/use-url-params"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import "@/prettier"
 import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
+import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 
 interface Props {
   snippet?: Snippet | null
@@ -105,13 +106,19 @@ export function CodeAndPreview({ snippet }: Props) {
     },
   })
 
+  const createSnippetMutation = useCreateSnippetMutation()
+
   const handleSave = () => {
-    updateSnippetMutation.mutate()
+    if (snippet) {
+      updateSnippetMutation.mutate()
+    } else {
+      createSnippetMutation.mutate(code)
+    }
   }
 
   const hasUnsavedChanges = snippet?.code !== code
 
-  if (!snippet && isLoggedIn) {
+  if (!snippet && urlParams.should_create_snippet) {
     return <div>Loading...</div>
   }
 

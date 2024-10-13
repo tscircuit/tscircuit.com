@@ -1,9 +1,10 @@
-import { MagicWandIcon } from "@radix-ui/react-icons"
+import { GitHubLogoIcon, MagicWandIcon } from "@radix-ui/react-icons"
 import { ClipboardIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAiApi } from "@/hooks/use-ai-api"
 import { useAsyncMemo } from "use-async-memo"
 import { TextBlock } from "@anthropic-ai/sdk/resources/messages.mjs"
+import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 
 export const ErrorTabContent = ({
   code,
@@ -81,6 +82,35 @@ ${errorMessage}
         >
           <ClipboardIcon className="w-4 h-4 mr-2" />
           Copy Error
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const title = `Error: ${errorMessage
+              .replace("Render Error:", "")
+              .replace(/\"_errors\":\[\]/g, "")
+              .replace(/\{,/g, "{")
+              .replace(/"_errors":\[/g, "")
+              .replace(/[^a-zA-Z0-9 ]/g, " ")
+              .replace(/\s+/g, " ")
+              .replace(/ \d+ /g, " ")
+              .slice(0, 100)}`
+            const url = encodeTextToUrlHash(code ?? "").replace(
+              "http://localhost:5173",
+              "https://snippets.tscircuit.com",
+            )
+            let body = `[Snippet code to reproduce](${url})\n\n### Error\n\`\`\`\n${errorMessage.slice(0, 600)}\n\`\`\``
+            if (body.length > 4000) {
+              body = `\`\`\`tsx\n// Please paste the code here\`\`\`\n\n### Error\n\`\`\`\n${errorMessage.slice(0, 2000)}\n\`\`\``
+            }
+            window.open(
+              `https://github.com/tscircuit/snippets/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`,
+              "_blank",
+            )
+          }}
+        >
+          <GitHubLogoIcon className="w-4 h-4 mr-2" />
+          Report Issue
         </Button>
         <Button variant="outline">
           <MagicWandIcon className="w-4 h-4 mr-2" />
