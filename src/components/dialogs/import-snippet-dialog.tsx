@@ -31,7 +31,7 @@ export const ImportSnippetDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="z-[100]">
         <DialogHeader>
           <DialogTitle>Import Snippet</DialogTitle>
         </DialogHeader>
@@ -40,24 +40,42 @@ export const ImportSnippetDialog = ({
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <ul>
-            {snippets?.map((snippet: Snippet) => (
-              <li key={snippet.snippet_id}>
-                <Button
-                  onClick={() => {
-                    onSnippetSelected(snippet)
-                    onOpenChange(false)
-                  }}
+        <div className="h-64 overflow-y-auto">
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <ul className="w-full">
+              {snippets?.map((snippet: Snippet) => (
+                <li
+                  className="flex flex-nowrap my-1 text-xs items-center w-64 overflow-x-hidden"
+                  key={snippet.snippet_id}
                 >
-                  {snippet.name}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+                  <a
+                    href={`/${snippet.name}`}
+                    target="_blank"
+                    className="whitespace-nowrap mr-2 text-blue-500 hover:underline cursor-pointer"
+                  >
+                    {snippet.name}
+                  </a>
+                  <div className="text-xs text-gray-500 flex whitespace-nowrap overflow-ellipsis">
+                    {snippet.description}
+                  </div>
+                  <Button
+                    size="sm"
+                    className="ml-2"
+                    variant="outline"
+                    onClick={() => {
+                      onSnippetSelected(snippet)
+                      onOpenChange(false)
+                    }}
+                  >
+                    Import
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

@@ -15,8 +15,13 @@ export const useCurrentSnippetId = (): string | null => {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const wouter = useParams()
   const [location] = useLocation()
-  const axios = useAxios()
   const [snippetIdFromUrl, setSnippetId] = useState<string | null>(urlSnippetId)
+
+  useEffect(() => {
+    if (urlSnippetId) {
+      setSnippetId(urlSnippetId)
+    }
+  }, [urlSnippetId])
 
   const { data: snippetByName } = useSnippetByName(
     wouter.author && wouter.snippetName

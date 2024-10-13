@@ -37,6 +37,7 @@ export const useCreateSnippetMutation = ({
         url.searchParams.delete("should_create_snippet")
         window.history.pushState({}, "", url.toString())
         onSuccess?.(snippet)
+        window.dispatchEvent(new Event("popstate"))
       },
       onError: (error: any) => {
         console.error("Error creating snippet:", error)
