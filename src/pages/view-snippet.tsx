@@ -1,6 +1,7 @@
 import { CodeEditor } from "@/components/CodeEditor"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import Header from "@/components/Header"
+import { RunButton } from "@/components/RunButton"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ViewSnippetHeader from "@/components/ViewSnippetHeader"
@@ -18,10 +19,12 @@ export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
   const { snippet } = useCurrentSnippet()
 
-  const { circuitJson, message } = useRunTsx({
-    code: snippet?.code ?? "",
-    type: snippet?.snippet_type,
-  })
+  const { circuitJson, message, triggerRunTsx, tsxRunTriggerCount } = useRunTsx(
+    {
+      code: snippet?.code ?? "",
+      type: snippet?.snippet_type,
+    },
+  )
 
   return (
     <div>
@@ -51,6 +54,10 @@ export const ViewSnippetPage = () => {
                 className="hidden md:flex"
               />
               <div className="flex-grow" />
+              <RunButton
+                onClick={triggerRunTsx}
+                disabled={tsxRunTriggerCount !== 0}
+              />
               <TabsList>
                 <TabsTrigger value="code">Code</TabsTrigger>
                 <TabsTrigger value="pcb">PCB</TabsTrigger>

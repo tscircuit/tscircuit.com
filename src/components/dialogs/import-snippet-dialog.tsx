@@ -47,22 +47,22 @@ export const ImportSnippetDialog = ({
             <ul className="w-full">
               {snippets?.map((snippet: Snippet) => (
                 <li
-                  className="flex flex-nowrap my-1 text-xs items-center w-64 overflow-x-hidden"
+                  className="flex items-center my-1 text-xs w-full"
                   key={snippet.snippet_id}
                 >
                   <a
                     href={`/${snippet.name}`}
                     target="_blank"
-                    className="whitespace-nowrap mr-2 text-blue-500 hover:underline cursor-pointer"
+                    className="whitespace-nowrap mr-2 text-blue-500 hover:underline cursor-pointer flex-shrink-0"
                   >
                     {snippet.name}
                   </a>
-                  <div className="text-xs text-gray-500 flex whitespace-nowrap overflow-ellipsis">
+                  <div className="text-xs text-gray-500 flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
                     {snippet.description}
                   </div>
                   <Button
                     size="sm"
-                    className="ml-2"
+                    className="ml-2 flex-shrink-0"
                     variant="outline"
                     onClick={() => {
                       onSnippetSelected(snippet)

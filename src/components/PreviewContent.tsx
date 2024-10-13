@@ -21,6 +21,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
 import { cn } from "@/lib/utils"
 import { useCallback } from "react"
+import { RunButton } from "./RunButton"
 
 export type PreviewContentProps =
   | {
@@ -96,14 +97,10 @@ export const PreviewContent = ({
     <div className={className}>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center gap-2">
-          <Button
-            className="bg-blue-600 hover:bg-blue-500"
+          <RunButton
             onClick={() => triggerRunTsx()}
             disabled={versionOfCodeLastRun === code && tsxRunTriggerCount !== 0}
-          >
-            Run
-            <PlayIcon className="w-3 h-3 ml-2" />
-          </Button>
+          />
           <div className="flex-grow" />
           <TabsList>
             {showCodeTab && <TabsTrigger value="code">Code</TabsTrigger>}
