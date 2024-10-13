@@ -111,10 +111,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   searchSnippets: (query: string): Snippet[] => {
     const state = get()
     const lowercaseQuery = query.toLowerCase()
-    return state.snippets.filter((snippet) =>
-      snippet.name.toLowerCase().includes(lowercaseQuery) ||
-      snippet.description?.toLowerCase().includes(lowercaseQuery) ||
-      snippet.code.toLowerCase().includes(lowercaseQuery)
+    return state.snippets.filter(
+      (snippet) =>
+        snippet.name.toLowerCase().includes(lowercaseQuery) ||
+        snippet.description?.toLowerCase().includes(lowercaseQuery) ||
+        snippet.code.toLowerCase().includes(lowercaseQuery),
     )
   },
   addSession: (session: Omit<Session, "session_id">): Session => {
