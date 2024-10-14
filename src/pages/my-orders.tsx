@@ -15,7 +15,7 @@ export const MyOrdersPage = () => {
     async () => {
       const response = await axios.get("/orders/list")
       return response.data.orders
-    }
+    },
   )
 
   return (
@@ -29,7 +29,9 @@ export const MyOrdersPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {orders?.map((order) => (
               <div key={order.order_id} className="border p-4 rounded-md">
-                <h3 className="text-lg font-semibold">Order #{order.order_id}</h3>
+                <h3 className="text-lg font-semibold">
+                  Order #{order.order_id}
+                </h3>
                 <p className="text-sm text-gray-500">
                   Created: {new Date(order.created_at).toLocaleString()}
                 </p>
@@ -37,7 +39,9 @@ export const MyOrdersPage = () => {
                   Status: {order.is_shipped ? "Shipped" : "Processing"}
                 </p>
                 <Link href={`/orders/${order.order_id}`}>
-                  <Button className="mt-2" variant="outline">View Details</Button>
+                  <Button className="mt-2" variant="outline">
+                    View Details
+                  </Button>
                 </Link>
               </div>
             ))}

@@ -10,6 +10,6 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   return ctx.json({
-    orders: ctx.db.orders.filter(o => o.account_id === ctx.auth.account_id),
+    orders: ctx.db.orders.filter((o) => o.account_id === ctx.auth.account_id),
   })
 })
