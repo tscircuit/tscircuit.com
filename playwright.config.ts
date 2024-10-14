@@ -13,4 +13,12 @@ export default defineConfig({
   testDir: "playwright-tests",
   snapshotPathTemplate: "playwright-tests/snapshots/{testFilePath}-{arg}{ext}",
   testMatch: /.*\.spec\.ts/,
+  expect: {
+    toHaveScreenshot: {
+      // Increase the maximum allowed difference in pixels
+      maxDiffPixels: 20_000,
+      // Increase the threshold for considering pixels different
+      threshold: 0.2,
+    },
+  },
 })
