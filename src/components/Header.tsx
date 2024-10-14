@@ -7,6 +7,7 @@ import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { DiscordLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { cn } from "@/lib/utils"
 
 const HeaderButton = ({
   href,
@@ -25,7 +26,7 @@ const HeaderButton = ({
     return (
       <Button
         variant="ghost"
-        className={`border-b-2 rounded-none border-blue-600 ${className}`}
+        className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
       >
         {children}
       </Button>
@@ -33,7 +34,7 @@ const HeaderButton = ({
   }
 
   return (
-    <Link className={className} href={href}>
+    <Link className={cn("header-button", className)} href={href}>
       <Button className={className} variant="ghost">
         {children}
       </Button>

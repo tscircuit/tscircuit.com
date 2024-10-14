@@ -63,7 +63,7 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
     <div className="flex justify-end items-center">
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Avatar className="w-8 h-8">
+          <Avatar className="w-8 h-8 login-avatar">
             <AvatarImage
               src={`https://github.com/${session?.github_username}.png`}
             />

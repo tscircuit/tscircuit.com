@@ -16,5 +16,5 @@ export const useAxios = () => {
         : {},
     })
     return instance
-  }, [])
+  }, [session?.token])
 }
