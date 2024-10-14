@@ -67,10 +67,24 @@ This will create a production-ready build in the `dist` directory.
 - `src/`: Contains the main React application code
 - `fake-snippets-api/`: Contains the mock API for development
 - `public/`: Static assets
-- `components/`: Reusable React components
-- `hooks/`: Custom React hooks
-- `pages/`: Main page components
-- `lib/`: Utility functions and helpers
+- `src/components/`: Reusable React components
+- `src/hooks/`: Custom React hooks
+- `src/pages/`: Main page components
+- `src/lib/`: Utility functions and helpers
+- `playwright-tests/`: Playwright test files
+- `playwright-tests/snapshots/`: Visual regression test snapshots
+
+## Snapshots
+
+We use Playwright for visual regression testing. Snapshots are stored in the `playwright-tests/snapshots/` directory.
+
+To update a single snapshot run...
+
+```bash
+bun run snapshot
+```
+
+This will prompt you to select a specific test file to update.
 
 ## Contributing
 
