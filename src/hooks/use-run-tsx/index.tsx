@@ -8,6 +8,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import { evalCompiledJs } from "./eval-compiled-js"
 import { constructCircuit } from "./construct-circuit"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
+import * as jscadFiber from "jscad-fiber"
 
 type RunTsxResult = {
   compiledModule: any
@@ -90,6 +91,8 @@ export const useRunTsx = ({
       }
 
       preSuppliedImports["@tscircuit/core"] = tscircuitCore
+      preSuppliedImports["react"] = React
+      preSuppliedImports["jscad-fiber"] = jscadFiber
 
       const __tscircuit_require = (name: string) => {
         if (!preSuppliedImports[name]) {
