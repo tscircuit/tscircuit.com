@@ -11,5 +11,6 @@ export default defineConfig({
     timeout: 5000,
   },
   testDir: "playwright-tests",
+  snapshotPathTemplate: "playwright-tests/snapshots/{testFilePath}-{arg}{ext}",
   testMatch: /.*\.spec\.ts/,
 })
