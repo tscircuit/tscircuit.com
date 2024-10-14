@@ -160,10 +160,6 @@ ${code}
     }
   }, [code])
 
-  if (isStreaming) {
-    return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
-  }
-
   const codeImports = getImportsFromCode(code)
 
   useEffect(() => {
@@ -171,6 +167,10 @@ ${code}
       ataRef.current(code)
     }
   }, [codeImports])
+
+  if (isStreaming) {
+    return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
+  }
 
   return (
     <div
