@@ -158,6 +158,18 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         snippet.code.toLowerCase().includes(lowercaseQuery),
     )
   },
+  deleteSnippet: (snippet_id: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.snippets.findIndex((s) => s.snippet_id === snippet_id)
+      if (index !== -1) {
+        state.snippets.splice(index, 1)
+        deleted = true
+      }
+      return state
+    })
+    return deleted
+  },
   addSession: (session: Omit<Session, "session_id">): Session => {
     const newSession = { session_id: `session_${Date.now()}`, ...session }
     set((state) => ({
