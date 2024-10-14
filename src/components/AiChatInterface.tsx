@@ -10,6 +10,8 @@ import { Link, useLocation } from "wouter"
 import { useSnippet } from "@/hooks/use-snippet"
 import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 export default function AIChatInterface({
   code,
@@ -19,8 +21,10 @@ export default function AIChatInterface({
   onStartStreaming,
   onStopStreaming,
   errorMessage,
+  disabled,
 }: {
   code: string
+  disabled?: boolean
   hasUnsavedChanges: boolean
   snippetId?: string | null
   onCodeChange: (code: string) => void
@@ -36,6 +40,8 @@ export default function AIChatInterface({
   const [currentCodeBlock, setCurrentCodeBlock] = useState<string | null>(null)
   const [location, navigate] = useLocation()
   const isStreamingRef = useRef(false)
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const signIn = useSignIn()
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -159,10 +165,26 @@ export default function AIChatInterface({
             </Button>
           </div>
         )}
-        {messages.length === 0 && (
+        {messages.length === 0 && isLoggedIn && (
           <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
             <div>Submit a prompt to {snippet ? "edit!" : "get started!"}</div>
             <div className="text-6xl mt-4">↓</div>
+          </div>
+        )}
+        {!isLoggedIn && (
+          <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
+            <div>
+              Sign in use the AI chat or{" "}
+              <Link className="text-blue-500 underline" href="/quickstart">
+                use the regular editor
+              </Link>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={() => signIn()}>Sign In</Button>
+              <Button onClick={() => signIn()} variant="outline">
+                Sign Up
+              </Button>
+            </div>
           </div>
         )}
         {messages.map((message, index) => (
@@ -176,6 +198,7 @@ export default function AIChatInterface({
             onClick={() => {
               addMessage(`Fix this error: ${errorMessage}`)
             }}
+            disabled={!isLoggedIn}
             className="mb-2 bg-green-50 hover:bg-green-100"
             variant="outline"
           >
@@ -191,7 +214,7 @@ export default function AIChatInterface({
         onSubmit={async (message: string) => {
           addMessage(message)
         }}
-        disabled={isStreaming}
+        disabled={isStreaming || !isLoggedIn}
       />
     </div>
   )

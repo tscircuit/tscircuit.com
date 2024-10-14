@@ -1,0 +1,2 @@
+[test]
+root = "./fake-snippets-api/tests"

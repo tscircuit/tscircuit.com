@@ -15,8 +15,6 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { jsdelivr_path, jsdelivr_resolve } = req.query
 
-  console.log({ jsdelivr_path, jsdelivr_resolve })
-
   // Parse the file path
   const [owner, packageWithVersion, ...rest] = jsdelivr_path.split("/")
   const [packageName, version] = packageWithVersion.split("@")

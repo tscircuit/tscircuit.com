@@ -15,6 +15,7 @@ import {
   CodeIcon,
   Menu,
   Sparkles,
+  Pencil,
 } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useRunTsx } from "@/hooks/use-run-tsx"
 import { OpenInNewWindowIcon } from "@radix-ui/react-icons"
 import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -32,18 +34,24 @@ import { cn } from "@/lib/utils"
 import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { TypeBadge } from "./TypeBadge"
 import { SnippetLink } from "./SnippetLink"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 
 export default function EditorNav({
+  circuitJson,
   snippet,
   code,
   hasUnsavedChanges,
   onTogglePreview,
   previewOpen,
   onSave,
+  snippetType,
   isSaving,
 }: {
-  snippet: Snippet
+  snippet?: Snippet | null
+  circuitJson: any
   code: string
+  snippetType?: string
   hasUnsavedChanges: boolean
   previewOpen: boolean
   onTogglePreview: () => void
@@ -51,19 +59,41 @@ export default function EditorNav({
   onSave: () => void
 }) {
   const [, navigate] = useLocation()
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const { Dialog: RenameDialog, openDialog: openRenameDialog } =
+    useRenameSnippetDialog()
+
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="flex items-center space-x-1">
-        <SnippetLink snippet={snippet} />
-        <Link href={`/${snippet.name}`}>
-          <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
-            <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
-          </Button>
-        </Link>
+        {snippet && (
+          <>
+            <SnippetLink snippet={snippet} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 ml-2"
+              onClick={() => openRenameDialog()}
+            >
+              <Pencil className="h-3 w-3 text-gray-700" />
+            </Button>
+            <Link href={`/${snippet.name}`}>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
+              </Button>
+            </Link>
+          </>
+        )}
+        {!isLoggedIn && (
+          <div className="bg-orange-100 text-orange-700 py-1 px-2 text-xs opacity-70">
+            Not logged in, can't save
+          </div>
+        )}
         <Button
           variant="outline"
           size="sm"
           className={"h-6 px-2 text-xs"}
+          disabled={!isLoggedIn}
           onClick={onSave}
         >
           <Save className="mr-1 h-3 w-3" />
@@ -94,24 +124,28 @@ export default function EditorNav({
             Saving...
           </div>
         )}
-        {hasUnsavedChanges && !isSaving && (
+        {hasUnsavedChanges && !isSaving && isLoggedIn && (
           <div className="animate-fadeIn bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
-            unsaved changes
+            {snippet ? "unsaved changes" : "unsaved"}
           </div>
         )}
       </div>
       <div className="flex items-center space-x-1">
-        {snippet && <TypeBadge type={snippet.snippet_type} />}
+        {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
         <Button
           variant="ghost"
           size="sm"
-          disabled={hasUnsavedChanges || isSaving}
-          onClick={() => navigate(`/ai?snippet_id=${snippet.snippet_id}`)}
+          disabled={hasUnsavedChanges || isSaving || !snippet}
+          onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
         >
           <Sparkles className="mr-1 h-3 w-3" />
           Edit with AI
         </Button>
-        <DownloadButtonAndMenu className="hidden md:flex" />
+        <DownloadButtonAndMenu
+          snippetUnscopedName={snippet?.unscoped_name}
+          circuitJson={circuitJson}
+          className="hidden md:flex"
+        />
         <Button
           variant="ghost"
           size="sm"
@@ -190,6 +224,10 @@ export default function EditorNav({
           )}
         </Button>
       </div>
+      <RenameDialog
+        snippetId={snippet?.snippet_id ?? ""}
+        currentName={snippet?.unscoped_name ?? ""}
+      />
     </nav>
   )
 }

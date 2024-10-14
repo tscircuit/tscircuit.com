@@ -37,13 +37,14 @@ function apiFakePlugin(): Plugin {
 
 let plugins: any[] = [react()]
 let proxy: any = undefined
-if (!process.env.SNIPPETS_API_URL) {
+if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
   process.env.VITE_USE_FAKE_API = "true"
   console.log("Using fake snippets API (see ./fake-snippets-api)")
   plugins.push(apiFakePlugin())
 } else {
   console.log(`Using snippets API at "${process.env.SNIPPETS_API_URL}"`)
-  process.env.VITE_SNIPPETS_API_URL = process.env.SNIPPETS_API_URL
+  process.env.VITE_SNIPPETS_API_URL =
+    process.env.VITE_SNIPPETS_API_URL || process.env.SNIPPETS_API_URL
   proxy = {
     "/api": {
       target: process.env.SNIPPETS_API_URL as string,
@@ -59,6 +60,7 @@ export default defineConfig({
     global: {},
   },
   server: {
+    host: "127.0.0.1",
     proxy,
   },
   build: {

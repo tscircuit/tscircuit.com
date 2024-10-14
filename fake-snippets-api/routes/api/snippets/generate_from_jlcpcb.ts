@@ -17,10 +17,14 @@ export default withRouteSpec({
 
   try {
     // Fetch the EasyEDA component data
-    const rawEasyJson = await fetchEasyEDAComponent(jlcpcb_part_number)
+    const rawEasyJson = await fetchEasyEDAComponent(jlcpcb_part_number).catch(
+      (e) => `Error in fetchEasyEDAComponent: ${e.toString()}`,
+    )
 
     // Convert to TypeScript React component
-    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson)
+    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson).catch(
+      (e) => `Error in convertRawEasyEdaToTs ${e.toString()}`,
+    )
 
     // Create a new snippet
     const newSnippet = {
@@ -43,7 +47,7 @@ export default withRouteSpec({
   } catch (error: any) {
     return ctx.error(500, {
       error_code: "jlcpcb_generation_failed",
-      message: `Failed to generate snippet from JLCPCB part: ${error.message}`,
+      message: `Failed to generate snippet from JLCPCB part: ${error.message}\n\n${error.stack}`,
     })
   }
 })

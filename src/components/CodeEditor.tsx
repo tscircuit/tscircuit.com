@@ -20,6 +20,7 @@ import { setupTypeAcquisition } from "@typescript/ata"
 import { ATABootstrapConfig } from "@typescript/ata"
 import { useAxios } from "@/hooks/use-axios"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 
 export const CodeEditor = ({
   onCodeChange,
@@ -36,6 +37,7 @@ export const CodeEditor = ({
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
 
   useEffect(() => {
@@ -82,6 +84,15 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
+          if (viewRef.current) {
+            viewRef.current.dispatch({
+              changes: {
+                from: 0,
+                to: viewRef.current.state.doc.length,
+                insert: viewRef.current.state.doc.toString(),
+              },
+            })
+          }
         },
       },
     }
@@ -89,9 +100,11 @@ export const CodeEditor = ({
     const ata = setupTypeAcquisition(ataConfig)
     ata(`
 import React from "@types/react/jsx-runtime"
-import { Circuit } from "@tscircuit/core"
+import { Circuit, createUseComponent } from "@tscircuit/core"
+import type { CommonLayoutProps } from "@tscircuit/props"
 ${code}
 `)
+    ataRef.current = ata
 
     const state = EditorState.create({
       doc: code,
@@ -136,9 +149,37 @@ ${code}
     }
   }, [code !== "", !isStreaming])
 
+  useEffect(() => {
+    if (viewRef.current) {
+      const state = viewRef.current.state
+      if (state.doc.toString() !== code) {
+        viewRef.current.dispatch({
+          changes: { from: 0, to: state.doc.length, insert: code },
+        })
+      }
+    }
+  }, [code])
+
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
 
-  return <div ref={editorRef} style={{ height: "640px", width: "100%" }} />
+  const codeImports = getImportsFromCode(code)
+
+  useEffect(() => {
+    if (ataRef.current) {
+      ataRef.current(code)
+    }
+  }, [codeImports])
+
+  return (
+    <div
+      ref={editorRef}
+      style={{
+        height: "640px",
+        width: "100%",
+        overflow: "auto",
+      }}
+    />
+  )
 }

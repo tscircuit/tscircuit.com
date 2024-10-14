@@ -13,6 +13,7 @@ import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 interface HeaderLoginProps {}
 
@@ -23,46 +24,37 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const setSession = useGlobalStore((s) => s.setSession)
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
   const isUsingFakeApi = useIsUsingFakeApi()
+  const signIn = useSignIn()
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
     return (
       <div className="flex items-center space-x-2 justify-end">
-        <Button
-          onClick={() => {
-            if (!isUsingFakeApi) {
-              window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
-            } else {
+        {isUsingFakeApi ? (
+          <Button
+            onClick={() => {
               setSession({
                 account_id: "account-1234",
                 github_username: "testuser",
                 token: "1234",
                 session_id: "session-1234",
               })
-            }
-          }}
-          variant="ghost"
-          size="sm"
-        >
-          Login
-        </Button>
-        <Button
-          size="sm"
-          onClick={() => {
-            if (!isUsingFakeApi) {
-              window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
-            } else {
-              setSession({
-                account_id: "account-1234",
-                github_username: "testuser",
-                token: "1234",
-                session_id: "session-1234",
-              })
-            }
-          }}
-        >
-          Sign Up
-        </Button>
+            }}
+            variant="ghost"
+            size="sm"
+          >
+            Fake testuser Login
+          </Button>
+        ) : (
+          <>
+            <Button onClick={() => signIn()} variant="ghost" size="sm">
+              Login
+            </Button>
+            <Button size="sm" onClick={() => signIn()}>
+              Sign Up
+            </Button>
+          </>
+        )}
       </div>
     )
   }

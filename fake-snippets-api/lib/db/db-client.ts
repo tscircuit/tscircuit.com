@@ -148,6 +148,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const state = get()
     return state.snippets.find((snippet) => snippet.snippet_id === snippet_id)
   },
+  searchSnippets: (query: string): Snippet[] => {
+    const state = get()
+    const lowercaseQuery = query.toLowerCase()
+    return state.snippets.filter(
+      (snippet) =>
+        snippet.name.toLowerCase().includes(lowercaseQuery) ||
+        snippet.description?.toLowerCase().includes(lowercaseQuery) ||
+        snippet.code.toLowerCase().includes(lowercaseQuery),
+    )
+  },
   addSession: (session: Omit<Session, "session_id">): Session => {
     const newSession = { session_id: `session_${Date.now()}`, ...session }
     set((state) => ({

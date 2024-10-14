@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
-import { useLocation } from "wouter"
+import { Link, useLocation } from "wouter"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface JLCPCBImportDialogProps {
   open: boolean
@@ -27,6 +28,8 @@ export function JLCPCBImportDialog({
   const axios = useAxios()
   const { toast } = useToast()
   const [, navigate] = useLocation()
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const session = useGlobalStore((s) => s.session)
 
   const handleImport = async () => {
     if (!partNumber.startsWith("C")) {
@@ -41,6 +44,31 @@ export function JLCPCBImportDialog({
     setIsLoading(true)
     setError(null)
     try {
+      // Check that module doesn't already exist
+      const existingSnippetRes = await axios.get(
+        `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`,
+        {
+          validateStatus: (status) => true,
+        },
+      )
+
+      if (existingSnippetRes.status !== 404) {
+        toast({
+          title: "JLCPCB Part Already Imported",
+          description: (
+            <div>
+              <Link
+                className="text-blue-500 hover:underline"
+                href={`/editor?snippet_id=${existingSnippetRes.data.snippet.snippet_id}`}
+              >
+                View {partNumber}
+              </Link>
+            </div>
+          ),
+        })
+        return
+      }
+
       const response = await axios
         .post("/snippets/generate_from_jlcpcb", {
           jlcpcb_part_number: partNumber,
@@ -98,7 +126,7 @@ export function JLCPCBImportDialog({
                 variant="default"
                 onClick={() => {
                   const issueTitle = `[${partNumber}] Failed to import from JLCPCB`
-                  const issueBody = `I tried to import the part number ${partNumber} from JLCPCB, but it failed. Here's the error I got:\n\`\`\`\n${error}\n\`\`\``
+                  const issueBody = `I tried to import the part number ${partNumber} from JLCPCB, but it failed. Here's the error I got:\n\`\`\`\n${error}\n\`\`\`\n\nCould be an issue in \`fetchEasyEDAComponent\` or \`convertRawEasyEdaToTs\``
                   const issueLabels = "snippets,good first issue"
                   const url = `https://github.com/tscircuit/easyeda-converter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}&labels=${encodeURIComponent(issueLabels)}`
 
@@ -112,8 +140,12 @@ export function JLCPCBImportDialog({
           )}
         </div>
         <DialogFooter>
-          <Button onClick={handleImport} disabled={isLoading}>
-            {isLoading ? "Importing..." : "Import"}
+          <Button onClick={handleImport} disabled={isLoading || !isLoggedIn}>
+            {!isLoggedIn
+              ? "Must be logged in for jlcpcb import"
+              : isLoading
+                ? "Importing..."
+                : "Import"}
           </Button>
         </DialogFooter>
       </DialogContent>

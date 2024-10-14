@@ -9,5 +9,5 @@ export function encodeTextToUrlHash(text: string): string {
   const base64Data = bytesToBase64(compressedData)
 
   // Construct the URL
-  return `${window.location.origin}#data:application/gzip;base64,${base64Data}`
+  return `${window.location.origin}/editor#data:application/gzip;base64,${base64Data}`
 }

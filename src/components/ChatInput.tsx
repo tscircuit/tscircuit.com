@@ -44,6 +44,7 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
         type="submit"
         size="icon"
         className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full"
+        disabled={disabled}
       >
         <ArrowUp className="h-5 w-5" />
       </Button>

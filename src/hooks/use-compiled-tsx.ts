@@ -4,8 +4,8 @@ import * as Babel from "@babel/standalone"
 export const safeCompileTsx = (
   code: string,
 ):
-  | { success: true; compiledTsx: string }
-  | { success: false; error: Error } => {
+  | { success: true; compiledTsx: string; error?: undefined }
+  | { success: false; error: Error; compiledTsx?: undefined } => {
   try {
     return {
       success: true,

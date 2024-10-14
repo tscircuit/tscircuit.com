@@ -6,15 +6,19 @@ import { useAxios } from "./use-axios"
 export const useCurrentSnippet = (): {
   snippet: Snippet | null
   isLoading: boolean
-  error: Error | null
+  error: (Error & { status: number }) | null
 } => {
-  const snippetId = useCurrentSnippetId()
+  const {
+    snippetId,
+    isLoading: isLoadingSnippetId,
+    error: errorSnippetId,
+  } = useCurrentSnippetId()
   const axios = useAxios()
   const { data: snippet, isLoading, error } = useSnippet(snippetId || "")
 
   return {
     snippet: snippet || null,
-    isLoading,
-    error: error || null,
+    isLoading: isLoadingSnippetId || isLoading,
+    error: errorSnippetId || error || null,
   }
 }

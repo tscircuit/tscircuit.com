@@ -1,5 +1,6 @@
 import { useQuery } from "react-query"
 import { useAxios } from "./use-axios"
+import { useGlobalStore } from "./use-global-store"
 
 interface AccountBalance {
   monthly_ai_budget_used_usd: number
@@ -7,6 +8,7 @@ interface AccountBalance {
 
 export const useAccountBalance = () => {
   const axios = useAxios()
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
 
   return useQuery<AccountBalance, Error>(
     "accountBalance",
@@ -16,6 +18,7 @@ export const useAccountBalance = () => {
     },
     {
       refetchInterval: 60000, // Refetch every minute
+      enabled: isLoggedIn,
     },
   )
 }
