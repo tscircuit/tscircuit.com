@@ -1,0 +1,49 @@
+name: Update Playwright Snapshots
+
+on:
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-snapshots:
+    if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, 'update snapshots') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: React to the triggering comment
+        run: |
+          hub api repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions --raw-field 'content=+1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Playwright browsers
+        run: bunx playwright install
+
+      - name: Run tests
+        run: bun run playwright:update
+
+      # Commit the changes
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add playwright-tests/snapshots
+          git commit -m 'chore(playwright): update snapshots'
+          git push
