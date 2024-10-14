@@ -14,7 +14,7 @@ export default withRouteSpec({
   const { snippet_id } = req.jsonBody
 
   const snippetIndex = ctx.db.snippets.findIndex(
-    (s) => s.snippet_id === snippet_id
+    (s) => s.snippet_id === snippet_id,
   )
 
   if (snippetIndex === -1) {
