@@ -6,6 +6,7 @@ import { Link, useLocation } from "wouter"
 import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { DiscordLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 const HeaderButton = ({
   href,
@@ -42,6 +43,7 @@ const HeaderButton = ({
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
 
   return (
     <header className="px-4 py-3">
@@ -55,9 +57,11 @@ export default function Header() {
         <div className="hidden md:flex items-center space-x-4">
           <nav>
             <ul className="flex items-center gap-2 ml-2">
-              <li>
-                <HeaderButton href="/dashboard">Dashboard</HeaderButton>
-              </li>
+              {isLoggedIn && (
+                <li>
+                  <HeaderButton href="/dashboard">Dashboard</HeaderButton>
+                </li>
+              )}
               <li>
                 <HeaderButton href="/newest">Newest</HeaderButton>
               </li>
@@ -114,14 +118,16 @@ export default function Header() {
         <div className="md:hidden mt-4">
           <nav className="mb-4">
             <ul className="flex flex-col gap-2 w-full">
-              <li>
-                <HeaderButton
-                  className="w-full justify-start"
-                  href="/dashboard"
-                >
-                  Dashboard
-                </HeaderButton>
-              </li>
+              {isLoggedIn && (
+                <li>
+                  <HeaderButton
+                    className="w-full justify-start"
+                    href="/dashboard"
+                  >
+                    Dashboard
+                  </HeaderButton>
+                </li>
+              )}
               <li>
                 <HeaderButton className="w-full justify-start" href="/newest">
                   Newest

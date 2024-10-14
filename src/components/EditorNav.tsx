@@ -15,6 +15,7 @@ import {
   CodeIcon,
   Menu,
   Sparkles,
+  Pencil,
 } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
@@ -34,6 +35,7 @@ import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { TypeBadge } from "./TypeBadge"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 
 export default function EditorNav({
   circuitJson,
@@ -58,14 +60,31 @@ export default function EditorNav({
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const { Dialog: RenameDialog, openDialog: openRenameDialog } =
+    useRenameSnippetDialog()
+
+  const handleRename = (newName: string) => {
+    // Update the snippet name in the UI or trigger a refetch
+    // This depends on how you're managing state in your application
+    console.log("Snippet renamed to:", newName)
+  }
+
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="flex items-center space-x-1">
         {snippet && (
           <>
             <SnippetLink snippet={snippet} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 ml-2"
+              onClick={() => openRenameDialog()}
+            >
+              <Pencil className="h-3 w-3 text-gray-700" />
+            </Button>
             <Link href={`/${snippet.name}`}>
-              <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
+              <Button variant="ghost" size="icon" className="h-6 w-6">
                 <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
               </Button>
             </Link>
@@ -211,6 +230,11 @@ export default function EditorNav({
           )}
         </Button>
       </div>
+      <RenameDialog
+        snippetId={snippet?.snippet_id ?? ""}
+        currentName={snippet?.unscoped_name ?? ""}
+        onRename={handleRename}
+      />
     </nav>
   )
 }
