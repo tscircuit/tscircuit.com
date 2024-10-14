@@ -16,6 +16,8 @@ import {
   Menu,
   Sparkles,
   Pencil,
+  Trash2,
+  MoreVertical,
 } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
@@ -167,6 +169,19 @@ export default function EditorNav({
           <Eye className="mr-1 h-3 w-3" />
           Public
         </Button>{" "}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="hidden md:flex">
+              <MoreVertical className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem className="text-xs text-red-600">
+              <Trash2 className="mr-2 h-3 w-3" />
+              Delete Snippet
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           variant="ghost"
           size="icon"
