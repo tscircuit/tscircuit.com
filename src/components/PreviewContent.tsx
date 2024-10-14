@@ -90,7 +90,11 @@ export const PreviewContent = ({
 
   return (
     <div className={cn("flex flex-col h-full", className)}>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex-grow flex flex-col"
+      >
         <div className={cn("flex items-center gap-2", headerClassName)}>
           {leftHeaderContent}
           {leftHeaderContent && <div className="flex-grow" />}
