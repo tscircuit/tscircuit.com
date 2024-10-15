@@ -9,11 +9,12 @@ import { evalCompiledJs } from "./eval-compiled-js"
 import { constructCircuit } from "./construct-circuit"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
 import * as jscadFiber from "jscad-fiber"
+import { AnyCircuitElement } from "circuit-json"
 
 type RunTsxResult = {
   compiledModule: any
   message: string
-  circuitJson: any
+  circuitJson: AnyCircuitElement[] | null
   compiledJs?: string
   isLoading: boolean
 }

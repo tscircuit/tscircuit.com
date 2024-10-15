@@ -39,6 +39,7 @@ import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 import { useConfirmDeleteSnippetDialog } from "./dialogs/confirm-delete-snippet-dialog"
+import { AnyCircuitElement } from "circuit-json"
 
 export default function EditorNav({
   circuitJson,
@@ -52,7 +53,7 @@ export default function EditorNav({
   isSaving,
 }: {
   snippet?: Snippet | null
-  circuitJson: any
+  circuitJson?: AnyCircuitElement[] | null
   code: string
   snippetType?: string
   hasUnsavedChanges: boolean
