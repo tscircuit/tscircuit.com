@@ -67,13 +67,19 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.orderFiles.find((file) => file.order_file_id === orderFileId)
   },
   addAccount: (account: Omit<Account, "account_id">) => {
+    const newAccount = {
+      account_id: `account_${get().idCounter + 1}`,
+      ...account,
+    }
+
     set((state) => {
-      const newAccountId = `account_${state.idCounter + 1}`
       return {
-        accounts: [...state.accounts, { account_id: newAccountId, ...account }],
+        accounts: [...state.accounts, newAccount],
         idCounter: state.idCounter + 1,
       }
     })
+
+    return newAccount
   },
   addSnippet: (snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">) => {
     let newSnippet
