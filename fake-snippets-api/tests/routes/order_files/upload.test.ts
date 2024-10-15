@@ -20,11 +20,7 @@ test("upload order file", async () => {
   formData.append("file", file)
   formData.append("is_gerbers_zip", "false")
 
-  const response = await axios.post("/api/order_files/upload", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  })
+  const response = await axios.post("/api/order_files/upload", formData)
 
   expect(response.status).toBe(200)
   expect(response.data.order_file).toBeDefined()

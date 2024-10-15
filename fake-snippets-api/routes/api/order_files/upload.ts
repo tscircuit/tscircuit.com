@@ -5,7 +5,7 @@ import { orderFileSchema } from "fake-snippets-api/lib/db/schema"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z.object({
+  multiPartFormData: z.object({
     order_id: z.string(),
     file: z.any(),
     is_gerbers_zip: z.boolean().optional(),
@@ -15,7 +15,7 @@ export default withRouteSpec({
     order_file: orderFileSchema,
   }),
 })(async (req, ctx) => {
-  const { order_id, file, is_gerbers_zip, for_provider } = req.jsonBody
+  const { order_id, file, is_gerbers_zip, for_provider } = req.multiPartFormData
 
   const order = ctx.db.getOrderById(order_id)
   if (!order) {

@@ -12,11 +12,12 @@ test("get order file", async () => {
   const file = new File(["test file content"], "test.txt", {
     type: "text/plain",
   })
-  const uploadResponse = await axios.post("/api/order_files/upload", {
-    order_id,
-    file,
-    is_gerbers_zip: false,
-  })
+  const formData = new FormData()
+  formData.append("order_id", order_id)
+  formData.append("file", file)
+  formData.append("is_gerbers_zip", "false")
+
+  const uploadResponse = await axios.post("/api/order_files/upload", formData)
 
   const orderFileId = uploadResponse.data.order_file.order_file_id
 
