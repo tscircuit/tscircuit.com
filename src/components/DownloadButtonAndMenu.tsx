@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
-import { useNotImplementedToast } from "@/hooks/use-toast"
+import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { AnyCircuitElement } from "circuit-json"
 
@@ -72,12 +72,18 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onClick={() =>
-              downloadFabricationFiles({
+            onClick={async () => {
+              await downloadFabricationFiles({
                 circuitJson,
                 snippetUnscopedName: snippetUnscopedName || "snippet",
+              }).catch((error) => {
+                console.error(error)
+                toast({
+                  title: "Error Downloading Fabrication Files",
+                  description: error.toString(),
+                })
               })
-            }
+            }}
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow  mr-6">Fabrication Files</span>

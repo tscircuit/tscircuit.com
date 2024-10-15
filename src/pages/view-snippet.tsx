@@ -22,8 +22,6 @@ export const ViewSnippetPage = () => {
     },
   )
 
-  console.log({ snippet, snippetError, isLoading })
-
   return (
     <div>
       <Header />
