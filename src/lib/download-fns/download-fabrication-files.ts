@@ -104,6 +104,75 @@ export const exportGerbersToZipBuffer = async (
   return buffer
 }
 
+
+import { AppContext } from "../util/app-context"
+import { soupify } from "cli/lib/soupify"
+import kleur from "kleur"
+import {
+  convertCircuitJsonToBomRows,
+  convertBomRowsToCsv,
+} from "circuit-json-to-bom-csv"
+
+export const exportBomCsvToBuffer = async (
+  params: {
+    example_file_path: string
+    export_name?: string
+  },
+  ctx: AppContext,
+) => {
+  console.log(kleur.gray("[soupifying]..."))
+  const circuitJson = await circuitJsonify(
+    {
+      filePath: params.example_file_path,
+      exportName: params.export_name,
+    },
+    ctx,
+  )
+
+  console.log(kleur.gray("[circuitJson to bom rows]..."))
+  const bom_rows = await convertCircuitJsonToBomRows({ circuitJson: circuitJson })
+
+  console.log(kleur.gray("[bom rows to csv]..."))
+  const bom_csv = await convertBomRowsToCsv(bom_rows)
+
+  return Buffer.from(bom_csv, "utf-8")
+}
+
+
+import { AppContext } from "../util/app-context"
+import { z } from "zod"
+import * as Path from "path"
+import { unlink } from "node:fs/promises"
+import { soupify } from "cli/lib/soupify"
+import { convertCircuitJsonToPickAndPlaceCsv } from "circuit-json-to-pnp-csv"
+import * as fs from "fs"
+import kleur from "kleur"
+import archiver from "archiver"
+
+export const exportPnpCsvToBuffer = async (
+  params: {
+    example_file_path: string
+    export_name?: string
+  },
+  ctx: AppContext,
+) => {
+  console.log(kleur.gray("[soupifying]..."))
+  const circuitJson = await soupify(
+    {
+      filePath: params.example_file_path,
+      exportName: params.export_name,
+    },
+    ctx,
+  )
+
+  console.log(kleur.gray("[circuitJson to pnp csv string]..."))
+  const pnp_csv = await convertCircuitJsonToPickAndPlaceCsv(circuitJson)
+
+  return Buffer.from(pnp_csv, "utf-8")
+}
+
+
+
 */
 
 import { AnyCircuitElement } from "circuit-json"
