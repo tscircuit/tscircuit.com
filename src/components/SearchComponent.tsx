@@ -41,13 +41,12 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-        {isLoading && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-4">
-        <div className="flex items-center space-x-2">
+      {isLoading && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-2 flex items-center justify-center space-x-2">
           <span className="text-gray-500">Loading...</span>
         </div>
-      </div>
       )}
+
       {searchQuery && searchResults && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10">
           {searchResults.length > 0 ? (
