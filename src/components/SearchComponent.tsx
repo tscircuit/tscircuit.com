@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Link } from "wouter"
 import { Alert } from "./ui/alert"
@@ -13,7 +13,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   onResultsFetched,
 }) => {
   const [searchQuery, setSearchQuery] = useState("")
+  const [showResults, setShowResults] = useState(false) 
   const axios = useAxios()
+  const resultsRef = useRef<HTMLDivElement>(null) 
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -30,7 +32,21 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    setShowResults(!!searchQuery) 
   }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (resultsRef.current && !resultsRef.current.contains(event.target as Node)) {
+        setShowResults(false) 
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   return (
     <form onSubmit={handleSearch} className="relative">
@@ -39,7 +55,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         placeholder="Search"
         className="pl-4 focus:border-blue-500 placeholder-gray-400"
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value)
+          setShowResults(!!e.target.value) 
+        }}
       />
       {isLoading && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-2 flex items-center justify-center space-x-2">
@@ -47,8 +66,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         </div>
       )}
 
-      {searchQuery && searchResults && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10">
+      {showResults && searchResults && (
+        <div ref={resultsRef} className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10">
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
