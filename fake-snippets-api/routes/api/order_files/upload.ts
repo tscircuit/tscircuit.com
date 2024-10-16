@@ -15,7 +15,8 @@ export default withRouteSpec({
     order_file: orderFileSchema,
   }),
 })(async (req, ctx) => {
-  const { order_id, content_base64, is_gerbers_zip, for_provider } = req.jsonBody
+  const { order_id, content_base64, is_gerbers_zip, for_provider } =
+    req.jsonBody
 
   const order = ctx.db.getOrderById(order_id)
   if (!order) {

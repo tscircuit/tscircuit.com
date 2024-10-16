@@ -9,15 +9,14 @@ test("get order file", async () => {
     },
   } = await getTestServer()
 
-  const file = new File(["test file content"], "test.txt", {
-    type: "text/plain",
-  })
-  const formData = new FormData()
-  formData.append("order_id", order_id)
-  formData.append("file", file)
-  formData.append("is_gerbers_zip", "false")
+  const fileContent = "test file content"
+  const fileContentBase64 = Buffer.from(fileContent).toString("base64")
 
-  const uploadResponse = await axios.post("/api/order_files/upload", formData)
+  const uploadResponse = await axios.post("/api/order_files/upload", {
+    order_id,
+    content_base64: fileContentBase64,
+    is_gerbers_zip: false,
+  })
 
   const orderFileId = uploadResponse.data.order_file.order_file_id
 
@@ -29,8 +28,7 @@ test("get order file", async () => {
   expect(response.data.order_file).toBeDefined()
   expect(response.data.order_file.order_file_id).toBe(orderFileId)
   expect(response.data.order_file.order_id).toBe(order_id)
-  expect(response.data.order_file.file_name).toBe("test.txt")
-  expect(response.data.order_file.file_size).toBe(18)
+  expect(response.data.order_file.content_type).toBe("base64")
   expect(response.data.order_file.is_gerbers_zip).toBe(false)
 })
 
