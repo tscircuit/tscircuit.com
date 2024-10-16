@@ -68,7 +68,7 @@ const seedDatabase = (db: DbClient) => {
       ftype: "simple_resistor",
       source_component_id: "source_component_1",
       name: "R1",
-      resistane: "1k",
+      resistance: "1k",
     },
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
