@@ -2,7 +2,6 @@ import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
-import { Link } from "wouter"
 import { Alert } from "./ui/alert"
 
 interface SearchComponentProps {
@@ -13,9 +12,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   onResultsFetched,
 }) => {
   const [searchQuery, setSearchQuery] = useState("")
-  const [showResults, setShowResults] = useState(false) 
+  const [showResults, setShowResults] = useState(false)
   const axios = useAxios()
-  const resultsRef = useRef<HTMLDivElement>(null) 
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -32,13 +31,16 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    setShowResults(!!searchQuery) 
+    setShowResults(!!searchQuery)
   }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (resultsRef.current && !resultsRef.current.contains(event.target as Node)) {
-        setShowResults(false) 
+      if (
+        resultsRef.current &&
+        !resultsRef.current.contains(event.target as Node)
+      ) {
+        setShowResults(false)
       }
     }
 
@@ -57,7 +59,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
-          setShowResults(!!e.target.value) 
+          setShowResults(!!e.target.value)
         }}
       />
       {isLoading && (
@@ -67,19 +69,27 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       )}
 
       {showResults && searchResults && (
-        <div ref={resultsRef} className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10">
+        <div
+          ref={resultsRef}
+          className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10"
+        >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
                 <li key={snippet.snippet_id} className="p-4 hover:bg-gray-50">
-                  <Link href={`/editor?snippet_id=${snippet.snippet_id}`}>
+                  <a
+                    href={`/editor?snippet_id=${snippet.snippet_id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
                     <div className="font-medium text-blue-600">
                       {snippet.name}
                     </div>
                     <div className="text-sm text-gray-500">
                       {snippet.description}
                     </div>
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
