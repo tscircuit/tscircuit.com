@@ -18,13 +18,15 @@ export default withRouteSpec({
   try {
     // Fetch the EasyEDA component data
     const rawEasyJson = await fetchEasyEDAComponent(jlcpcb_part_number).catch(
-      (e) => `Error in fetchEasyEDAComponent: ${e.toString()}`,
+      (e) => {
+        throw new Error(`Error in fetchEasyEDAComponent: ${e.toString()}`)
+      },
     )
 
     // Convert to TypeScript React component
-    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson).catch(
-      (e) => `Error in convertRawEasyEdaToTs ${e.toString()}`,
-    )
+    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson).catch((e) => {
+      throw new Error(`Error in convertRawEasyEdaToTs ${e.toString()}`)
+    })
 
     // Create a new snippet
     const newSnippet = {
