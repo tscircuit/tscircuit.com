@@ -94,7 +94,7 @@ export default function Header() {
           <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
         </a> */}
         <div className="hidden md:flex items-center space-x-4">
-          <SearchComponent/>
+          <SearchComponent />
           <HeaderDropdown />
           <HeaderLogin />
         </div>

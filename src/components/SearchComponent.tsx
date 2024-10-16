@@ -24,7 +24,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         params: { q: searchQuery },
       })
       if (onResultsFetched) {
-        onResultsFetched(data.snippets);
+        onResultsFetched(data.snippets)
       }
       return data.snippets
     },
