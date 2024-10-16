@@ -5,7 +5,7 @@ import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 
 interface SearchComponentProps {
-  onResultsFetched: (results: any[]) => void
+  onResultsFetched?: (results: any[]) => void // optional
 }
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
@@ -23,7 +23,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       const { data } = await axios.get("/snippets/search", {
         params: { q: searchQuery },
       })
-      onResultsFetched(data.snippets)
+      if (onResultsFetched) {
+        onResultsFetched(data.snippets);
+      }
       return data.snippets
     },
     { enabled: Boolean(searchQuery) },
@@ -64,7 +66,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       />
       {isLoading && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-2 flex items-center justify-center space-x-2">
-          <span className="text-gray-500">Loading...</span>
+          <span className="text-gray-500 text-sm">Loading...</span>
         </div>
       )}
 
