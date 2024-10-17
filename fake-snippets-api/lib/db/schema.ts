@@ -34,9 +34,19 @@ export const loginPageSchema = z.object({
 })
 export type LoginPage = z.infer<typeof loginPageSchema>
 
+const shippingInfoSchema = z.object({
+  fullName: z.string(),
+  address: z.string(),
+  city: z.string(),
+  state: z.string(),
+  zipCode: z.string(),
+  country: z.string(),
+})
+
 export const accountSchema = z.object({
   account_id: z.string(),
   github_username: z.string(),
+  shippingInfo: shippingInfoSchema.optional(),
 })
 export type Account = z.infer<typeof accountSchema>
 
