@@ -21,6 +21,8 @@ import { ATABootstrapConfig } from "@typescript/ata"
 import { useAxios } from "@/hooks/use-axios"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
+import { indentWithTab } from "@codemirror/commands"
+import { keymap } from "@codemirror/view"
 
 export const CodeEditor = ({
   onCodeChange,
@@ -112,6 +114,7 @@ ${code}
         basicSetup,
         javascript({ typescript: true, jsx: true }),
         tsFacet.of({ env, path: "index.tsx" }),
+        keymap.of([indentWithTab]),
         tsSync(),
         tsLinter(),
         autocompletion({ override: [tsAutocomplete()] }),
