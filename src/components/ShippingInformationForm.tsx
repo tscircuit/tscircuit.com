@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react"
+import React, { useReducer, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
@@ -6,6 +6,15 @@ import { useAxios } from "@/hooks/use-axios"
 import { useQuery, useMutation, useQueryClient } from "react-query"
 import { Loader2 } from "lucide-react"
 import { sentenceCase } from "change-case"
+import { getName, getNames } from "country-list"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 type ShippingInfo = {
   fullName: string
@@ -24,7 +33,7 @@ const initialState: ShippingInfo = {
   fullName: "",
   address: "",
   zipCode: "",
-  country: "",
+  country: "United States of America",
   city: "",
   state: "",
 }
@@ -33,7 +42,7 @@ const shippingPlaceholders: ShippingInfo = {
   fullName: "Enter your full name",
   address: "Enter your street address",
   zipCode: "Enter your zip code",
-  country: "Enter your country",
+  country: "Select your country",
   city: "Enter your city",
   state: "Enter your state",
 }
@@ -55,6 +64,7 @@ const ShippingInformationForm: React.FC = () => {
   const { toast } = useToast()
   const axios = useAxios()
   const queryClient = useQueryClient()
+  const [countries] = useState(getNames())
 
   const { data: account, isLoading: isLoadingAccount } = useQuery(
     "account",
@@ -87,14 +97,23 @@ const ShippingInformationForm: React.FC = () => {
 
   useEffect(() => {
     if (account?.shippingInfo) {
-      setField({ type: "SET_ALL", payload: account.shippingInfo })
+      setField({ type: "SET_ALL", payload: {
+        ...account.shippingInfo,
+        country: account.shippingInfo.country || "United States of America"
+      }})
     }
   }, [account])
+
+  const [showWarning, setShowWarning] = useState(form.country !== "United States of America")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     updateShippingMutation.mutate(form)
   }
+
+  useEffect(() => {
+    setShowWarning(form.country !== "United States of America")
+  }, [form.country])
 
   if (isLoadingAccount) {
     return (
@@ -123,19 +142,61 @@ const ShippingInformationForm: React.FC = () => {
           >
             {sentenceCase(key)}
           </label>
-          <Input
-            id={key}
-            value={form[key]}
-            onChange={(e) =>
-              setField({
-                type: "SET_FIELD",
-                field: key,
-                value: e.target.value,
-              })
-            }
-            placeholder={shippingPlaceholders[key]}
-            disabled={updateShippingMutation.isLoading}
-          />
+          {key === "country" ? (
+            <>
+              <Select
+                value={form[key]}
+                onValueChange={(value) => {
+                  setField({
+                    type: "SET_FIELD",
+                    field: key,
+                    value,
+                  })
+                }}
+                disabled={updateShippingMutation.isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={shippingPlaceholders[key]} />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {showWarning && (
+                <Alert variant="destructive" className="mt-2">
+                  <AlertDescription>
+                    Not available in your country yet.{" "}
+                    <a
+                      href={`https://github.com/tscircuit/snippets/issues/new?title=${encodeURIComponent("Shipping to " + form.country)}&body=${encodeURIComponent("Please add support for shipping to " + form.country + ".")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium underline"
+                    >
+                      Create An Issue
+                    </a>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
+          ) : (
+            <Input
+              id={key}
+              value={form[key]}
+              onChange={(e) =>
+                setField({
+                  type: "SET_FIELD",
+                  field: key,
+                  value: e.target.value,
+                })
+              }
+              placeholder={shippingPlaceholders[key]}
+              disabled={updateShippingMutation.isLoading}
+            />
+          )}
         </div>
       ))}
       <Button type="submit" disabled={updateShippingMutation.isLoading}>
