@@ -66,9 +66,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const state = get()
     return state.orderFiles.find((file) => file.order_file_id === orderFileId)
   },
-  addAccount: (account: Omit<Account, "account_id">) => {
+  addAccount: (
+    account: Omit<Account, "account_id"> & Partial<Pick<Account, "account_id">>,
+  ) => {
     const newAccount = {
-      account_id: `account_${get().idCounter + 1}`,
+      account_id: account.account_id || `account_${get().idCounter + 1}`,
       ...account,
     }
 
@@ -226,6 +228,33 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getAccount: (account_id: string): Account | undefined => {
     const state = get()
     return state.accounts.find((account) => account.account_id === account_id)
+  },
+  updateAccount: (
+    account_id: string,
+    updates: Partial<Account>,
+  ): Account | undefined => {
+    let updatedAccount: Account | undefined
+    set((state) => {
+      const accountIndex = state.accounts.findIndex(
+        (account) => account.account_id === account_id,
+      )
+      if (accountIndex !== -1) {
+        updatedAccount = { ...state.accounts[accountIndex] }
+        if (updates.shippingInfo) {
+          updatedAccount.shippingInfo = {
+            ...updatedAccount.shippingInfo,
+            ...updates.shippingInfo,
+          }
+          delete updates.shippingInfo
+        }
+        updatedAccount = { ...updatedAccount, ...updates }
+        const updatedAccounts = [...state.accounts]
+        updatedAccounts[accountIndex] = updatedAccount
+        return { ...state, accounts: updatedAccounts }
+      }
+      return state
+    })
+    return updatedAccount
   },
   createSession: (session: Omit<Session, "session_id">): Session => {
     const newSession = { session_id: `session_${Date.now()}`, ...session }
