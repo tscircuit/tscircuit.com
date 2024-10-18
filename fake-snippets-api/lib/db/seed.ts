@@ -4,6 +4,14 @@ export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
     account_id: "account-1234",
     github_username: "testuser",
+    shippingInfo: {
+      fullName: "Test User",
+      address: "123 Test St",
+      city: "Testville",
+      state: "NY",
+      zipCode: "10001",
+      country: "United States",
+    },
   })
   db.addAccount({
     github_username: "seveibar",
