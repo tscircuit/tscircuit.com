@@ -28,7 +28,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       }
       return data.snippets
     },
-    { enabled: Boolean(searchQuery) },
+    { enabled: Boolean(searchQuery) }
   )
 
   const handleSearch = (e: React.FormEvent) => {
@@ -73,7 +73,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10"
+          className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 w-52"
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
@@ -85,10 +85,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <div className="font-medium text-blue-600">
+                    <div className="font-medium text-blue-600 break-words">
                       {snippet.name}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 break-words">
                       {snippet.description}
                     </div>
                   </a>
