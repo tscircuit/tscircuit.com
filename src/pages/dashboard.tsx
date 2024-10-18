@@ -29,7 +29,7 @@ export const DashboardPage = () => {
     async () => {
       const response = await axios.get("/snippets/list_trending")
       return response.data.snippets
-    },
+    }
   )
 
   const { data: newestSnippets } = useQuery<Snippet[]>(
@@ -37,7 +37,7 @@ export const DashboardPage = () => {
     async () => {
       const response = await axios.get("/snippets/list_newest")
       return response.data.snippets
-    },
+    }
   )
 
   return (
@@ -45,29 +45,33 @@ export const DashboardPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-        <div className="flex">
-          <div className="w-3/4 pr-8">
+        <div className="flex md:flex-row flex-col">
+          <div className="md:w-3/4 p-0 md:pr-6">
             <div className="mt-6 mb-4">
-              <div className="flex gap-2 items-center">
-                <h2 className="text-sm text-gray-600">Edit Recent</h2>
-                {mySnippets &&
-                  mySnippets.slice(0, 3).map((snippet) => (
-                    <div key={snippet.snippet_id}>
-                      <Link
-                        href={`/editor?snippet_id=${snippet.snippet_id}`}
-                        className="text-blue-600 hover:underline"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="font-medium"
+              <div className="flex items-center">
+                <h2 className="text-sm text-gray-600 whitespace-nowrap">
+                  Edit Recent
+                </h2>
+                <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden ">
+                  {mySnippets &&
+                    mySnippets.slice(0, 3).map((snippet) => (
+                      <div key={snippet.snippet_id}>
+                        <Link
+                          href={`/editor?snippet_id=${snippet.snippet_id}`}
+                          className="text-blue-600 hover:underline"
                         >
-                          {snippet.unscoped_name}
-                          <Edit2 className="w-3 h-3 ml-2" />
-                        </Button>
-                      </Link>
-                    </div>
-                  ))}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="font-medium"
+                          >
+                            {snippet.unscoped_name}
+                            <Edit2 className="w-3 h-3 ml-2" />
+                          </Button>
+                        </Link>
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
             <CreateNewSnippetHero />
@@ -98,7 +102,7 @@ export const DashboardPage = () => {
               </div>
             )}
           </div>
-          <div className="w-1/4">
+          <div className="md:w-1/4">
             <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
               Trending Snippets
             </h2>
