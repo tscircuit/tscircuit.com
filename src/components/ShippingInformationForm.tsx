@@ -98,10 +98,13 @@ const ShippingInformationForm: React.FC = () => {
 
   useEffect(() => {
     if (account?.shippingInfo) {
-      setField({ type: "SET_ALL", payload: {
-        ...account.shippingInfo,
-        country: account.shippingInfo.country || "United States of America"
-      }})
+      setField({
+        type: "SET_ALL",
+        payload: {
+          ...account.shippingInfo,
+          country: account.shippingInfo.country || "United States of America",
+        },
+      })
     }
   }, [account])
 
@@ -121,48 +124,80 @@ const ShippingInformationForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="fullName"
+          className="block text-sm font-medium text-gray-700"
+        >
           Full Name
         </label>
         <Input
           id="fullName"
           value={form.fullName}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "fullName", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "fullName",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.fullName}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="address"
+          className="block text-sm font-medium text-gray-700"
+        >
           Address
         </label>
         <Input
           id="address"
           value={form.address}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "address", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "address",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.address}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div>
-        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="zipCode"
+          className="block text-sm font-medium text-gray-700"
+        >
           Zip Code
         </label>
         <Input
           id="zipCode"
           value={form.zipCode}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "zipCode", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "zipCode",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.zipCode}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div>
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="country"
+          className="block text-sm font-medium text-gray-700"
+        >
           Country
         </label>
         <Select
           value={form.country}
-          onValueChange={(value) => setField({ type: "SET_FIELD", field: "country", value })}
+          onValueChange={(value) =>
+            setField({ type: "SET_FIELD", field: "country", value })
+          }
           disabled={updateShippingMutation.isLoading}
         >
           <SelectTrigger className="w-full">
@@ -193,25 +228,39 @@ const ShippingInformationForm: React.FC = () => {
         )}
       </div>
       <div>
-        <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="city"
+          className="block text-sm font-medium text-gray-700"
+        >
           City
         </label>
         <Input
           id="city"
           value={form.city}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "city", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "city",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.city}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div>
-        <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="state"
+          className="block text-sm font-medium text-gray-700"
+        >
           State
         </label>
         {form.country === "United States of America" ? (
           <Select
             value={form.state}
-            onValueChange={(value) => setField({ type: "SET_FIELD", field: "state", value })}
+            onValueChange={(value) =>
+              setField({ type: "SET_FIELD", field: "state", value })
+            }
             disabled={updateShippingMutation.isLoading}
           >
             <SelectTrigger className="w-full">
@@ -229,7 +278,13 @@ const ShippingInformationForm: React.FC = () => {
           <Input
             id="state"
             value={form.state}
-            onChange={(e) => setField({ type: "SET_FIELD", field: "state", value: e.target.value })}
+            onChange={(e) =>
+              setField({
+                type: "SET_FIELD",
+                field: "state",
+                value: e.target.value,
+              })
+            }
             placeholder={shippingPlaceholders.state}
             disabled={updateShippingMutation.isLoading}
           />
@@ -237,7 +292,10 @@ const ShippingInformationForm: React.FC = () => {
       </div>
       <Button
         type="submit"
-        disabled={updateShippingMutation.isLoading || form.country !== "United States of America"}
+        disabled={
+          updateShippingMutation.isLoading ||
+          form.country !== "United States of America"
+        }
       >
         {updateShippingMutation.isLoading ? (
           <>
