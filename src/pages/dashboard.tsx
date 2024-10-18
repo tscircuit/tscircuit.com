@@ -29,7 +29,7 @@ export const DashboardPage = () => {
     async () => {
       const response = await axios.get("/snippets/list_trending")
       return response.data.snippets
-    }
+    },
   )
 
   const { data: newestSnippets } = useQuery<Snippet[]>(
@@ -37,7 +37,7 @@ export const DashboardPage = () => {
     async () => {
       const response = await axios.get("/snippets/list_newest")
       return response.data.snippets
-    }
+    },
   )
 
   return (

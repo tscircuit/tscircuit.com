@@ -28,7 +28,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       }
       return data.snippets
     },
-    { enabled: Boolean(searchQuery) }
+    { enabled: Boolean(searchQuery) },
   )
 
   const handleSearch = (e: React.FormEvent) => {
