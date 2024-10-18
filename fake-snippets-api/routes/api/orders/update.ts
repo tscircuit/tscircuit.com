@@ -20,7 +20,7 @@ export default withRouteSpec({
       should_be_blank_pcb: z.boolean().optional(),
       should_include_stencil: z.boolean().optional(),
       jlcpcb_order_params: z.record(z.any()).optional(),
-      circuit_json: z.record(z.any()).optional(),
+      circuit_json: z.array(z.record(z.any())).optional(),
     }),
   }),
   jsonResponse: z.object({

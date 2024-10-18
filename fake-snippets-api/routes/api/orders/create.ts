@@ -6,7 +6,7 @@ export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
   jsonBody: z.object({
-    circuit_json: z.record(z.any()),
+    circuit_json: z.array(z.record(z.any())),
   }),
   jsonResponse: z.object({
     order: orderSchema,

@@ -31,7 +31,7 @@ test("upload order file with for_provider", async () => {
   const { axios, db } = await getTestServer()
 
   const orderResponse = await axios.post("/api/orders/create", {
-    circuit_json: { test: "circuit data" },
+    circuit_json: [{ test: "circuit data" }],
   })
 
   const orderId = orderResponse.data.order.order_id

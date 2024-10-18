@@ -109,13 +109,15 @@ export const SquareWaveModule = () => (
     should_be_blank_pcb: false,
     should_include_stencil: false,
     jlcpcb_order_params: {},
-    circuit_json: {
-      type: "source_component",
-      ftype: "simple_resistor",
-      source_component_id: "source_component_1",
-      name: "R1",
-      resistane: "1k",
-    },
+    circuit_json: [
+      {
+        type: "source_component",
+        ftype: "simple_resistor",
+        source_component_id: "source_component_1",
+        name: "R1",
+        resistane: "1k",
+      },
+    ],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   })

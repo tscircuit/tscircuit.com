@@ -1,3 +1,4 @@
+import { AnyCircuitElement } from "circuit-json"
 import { z } from "zod"
 
 export const snippetSchema = z.object({
@@ -65,7 +66,7 @@ export const orderSchema = z.object({
   should_be_blank_pcb: z.boolean(),
   should_include_stencil: z.boolean(),
   jlcpcb_order_params: z.record(z.any()),
-  circuit_json: z.record(z.any()),
+  circuit_json: z.array(z.record(z.any())),
   created_at: z.string(),
   updated_at: z.string(),
 })
