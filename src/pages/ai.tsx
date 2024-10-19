@@ -51,8 +51,8 @@ export const AiPage = () => {
   return (
     <div>
       <Header />
-      <div className="flex bg-gray-100">
-        <div className="w-1/2">
+      <div className="flex flex-col md:flex-row bg-gray-100">
+        <div className="md:w-1/2">
           <AIChatInterface
             code={code}
             hasUnsavedChanges={hasUnsavedChanges}
@@ -67,7 +67,7 @@ export const AiPage = () => {
             }}
           />
         </div>
-        <div className="w-1/2">
+        <div className="md:w-1/2">
           <div className="p-4 h-full">
             <PreviewContent
               className="bg-white h-full p-4 rounded-lg shadow"
