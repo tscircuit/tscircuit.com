@@ -105,7 +105,7 @@
     "@anthropic-ai/sdk": "^0.27.3",
     "@babel/standalone": "^7.25.6",
     "@biomejs/biome": "^1.9.2",
-    "@playwright/test": "^1.48.0",
+    "@playwright/test": "^1.48.1",
     "@tscircuit/core": "^0.0.120",
     "@tscircuit/prompt-benchmarks": "^0.0.14",
     "@types/babel__standalone": "^7.1.7",
