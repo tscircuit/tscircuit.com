@@ -46,7 +46,7 @@ export const QuickstartPage = () => {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {mySnippets?.slice(0, 6).map((snippet) => (
                 <Link
                   key={snippet.snippet_id}
@@ -73,14 +73,16 @@ export const QuickstartPage = () => {
 
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Start Blank Snippet</h2>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {blankTemplates.map((template, index) => (
               <Link
                 key={index}
                 href={
                   template.disabled
                     ? "#"
-                    : `/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`
+                    : `/editor?template=${template.name
+                        .toLowerCase()
+                        .replace(/ /g, "-")}`
                 }
               >
                 <Card
@@ -103,7 +105,7 @@ export const QuickstartPage = () => {
 
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Import as Snippet</h2>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
@@ -159,11 +161,13 @@ export const QuickstartPage = () => {
           <h2 className="text-xl font-semibold mb-4 mt-12">
             Start from a Template
           </h2>
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {templates.map((template, index) => (
               <Link
                 key={index}
-                href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
+                href={`/editor?template=${template.name
+                  .toLowerCase()
+                  .replace(/ /g, "-")}`}
               >
                 <Card className="hover:shadow-md transition-shadow rounded-md">
                   <CardHeader className="p-4">
