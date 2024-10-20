@@ -43,7 +43,7 @@ export interface PreviewContentProps {
 const PreviewEmptyState = ({
   triggerRunTsx,
 }: { triggerRunTsx: () => void }) => (
-  <div className="flex items-center gap-3 bg-gray-100 text-center flex-wrap justify-center py-10">
+  <div className="flex items-center gap-3 bg-gray-100 text-center justify-center py-10">
     No circuit json loaded
     <Button className="bg-blue-600 hover:bg-blue-500" onClick={triggerRunTsx}>
       Run Code
@@ -103,7 +103,7 @@ export const PreviewContent = ({
             disabled={versionOfCodeLastRun === code && tsxRunTriggerCount !== 0}
           />
           {!leftHeaderContent && <div className="flex-grow" />}
-          <TabsList className="overflow-x-scroll md:overflow-hidden justify-normal">
+          <TabsList>
             {showCodeTab && <TabsTrigger value="code">Code</TabsTrigger>}
             <TabsTrigger value="pcb">
               {circuitJson && (
