@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig } from "@playwright/test"
 
 export default defineConfig({
   // Run your local dev server before starting the tests
@@ -21,4 +21,4 @@ export default defineConfig({
       threshold: 0.2,
     },
   },
-});
+})
