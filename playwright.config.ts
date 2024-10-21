@@ -8,7 +8,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
-    timeout: 5000,
+    timeout: 10000,
   },
   testDir: "playwright-tests",
   snapshotPathTemplate: "playwright-tests/snapshots/{testFilePath}-{arg}{ext}",
