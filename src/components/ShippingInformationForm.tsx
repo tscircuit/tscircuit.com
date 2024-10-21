@@ -5,17 +5,10 @@ import { useToast } from "@/hooks/use-toast"
 import { useAxios } from "@/hooks/use-axios"
 import { useQuery, useMutation, useQueryClient } from "react-query"
 import { Loader2 } from "lucide-react"
-import { sentenceCase } from "change-case"
 import { getName, getNames } from "country-list"
 import states from "states-us"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 
 type ShippingInfo = {
   fullName: string
@@ -122,7 +115,7 @@ const ShippingInformationForm: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
       <div>
         <label
           htmlFor="fullName"
@@ -193,24 +186,14 @@ const ShippingInformationForm: React.FC = () => {
         >
           Country
         </label>
-        <Select
+        <SearchableSelect
+          options={countries}
           value={form.country}
-          onValueChange={(value) =>
+          onChange={(value) =>
             setField({ type: "SET_FIELD", field: "country", value })
           }
-          disabled={updateShippingMutation.isLoading}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={shippingPlaceholders.country} />
-          </SelectTrigger>
-          <SelectContent>
-            {countries.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          placeholder={shippingPlaceholders.country}
+        />
         {form.country !== "United States of America" && (
           <Alert variant="destructive" className="mt-2">
             <AlertDescription>
@@ -256,24 +239,14 @@ const ShippingInformationForm: React.FC = () => {
           State
         </label>
         {form.country === "United States of America" ? (
-          <Select
+          <SearchableSelect
+            options={states.map((state) => state.name)}
             value={form.state}
-            onValueChange={(value) =>
+            onChange={(value) =>
               setField({ type: "SET_FIELD", field: "state", value })
             }
-            disabled={updateShippingMutation.isLoading}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={shippingPlaceholders.state} />
-            </SelectTrigger>
-            <SelectContent>
-              {states.map((state) => (
-                <SelectItem key={state.abbreviation} value={state.abbreviation}>
-                  {state.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder={shippingPlaceholders.state}
+          />
         ) : (
           <Input
             id="state"
@@ -291,7 +264,7 @@ const ShippingInformationForm: React.FC = () => {
         )}
       </div>
       <Button
-        type="submit"
+        onClick={handleSubmit}
         disabled={
           updateShippingMutation.isLoading ||
           form.country !== "United States of America"
@@ -306,7 +279,7 @@ const ShippingInformationForm: React.FC = () => {
           "Update"
         )}
       </Button>
-    </form>
+    </div>
   )
 }
 

@@ -10,7 +10,7 @@ export const seed = (db: DbClient) => {
       city: "Testville",
       state: "NY",
       zipCode: "10001",
-      country: "United States",
+      country: "United States of America",
     },
   })
   db.addAccount({
