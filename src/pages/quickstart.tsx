@@ -1,41 +1,41 @@
-import React, { useState } from "react"
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { Link } from "wouter"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TypeBadge } from "@/components/TypeBadge"
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
-import { useNotImplementedToast } from "@/hooks/use-toast"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { cn } from "@/lib/utils"
+import React, { useState } from "react";
+import { useQuery } from "react-query";
+import { useAxios } from "@/hooks/use-axios";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Snippet } from "fake-snippets-api/lib/db/schema";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TypeBadge } from "@/components/TypeBadge";
+import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog";
+import { useNotImplementedToast } from "@/hooks/use-toast";
+import { useGlobalStore } from "@/hooks/use-global-store";
+import { cn } from "@/lib/utils";
 
 export const QuickstartPage = () => {
-  const axios = useAxios()
-  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
-  const toastNotImplemented = useNotImplementedToast()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const axios = useAxios();
+  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false);
+  const toastNotImplemented = useNotImplementedToast();
+  const currentUser = useGlobalStore((s) => s.session?.github_username);
   const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
     "userSnippets",
     async () => {
       const response = await axios.get(
-        `/snippets/list?owner_name=${currentUser}`,
-      )
-      return response.data.snippets
-    },
-  )
+        `/snippets/list?owner_name=${currentUser}`
+      );
+      return response.data.snippets;
+    }
+  );
 
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board" },
     { name: "Blank Circuit Module", type: "package" },
     { name: "Blank 3D Model", type: "model", disabled: true },
     { name: "Blank Footprint", type: "footprint", disabled: true },
-  ]
+  ];
 
-  const templates = [{ name: "Blinking LED Board", type: "board" }]
+  const templates = [{ name: "Blinking LED Board", type: "board" }];
 
   return (
     <div>
@@ -46,7 +46,7 @@ export const QuickstartPage = () => {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {mySnippets?.slice(0, 6).map((snippet) => (
                 <Link
                   key={snippet.snippet_id}
@@ -73,7 +73,7 @@ export const QuickstartPage = () => {
 
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Start Blank Snippet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {blankTemplates.map((template, index) => (
               <Link
                 key={index}
@@ -88,7 +88,7 @@ export const QuickstartPage = () => {
                 <Card
                   className={cn(
                     "hover:shadow-md transition-shadow rounded-md h-full flex flex-col",
-                    template.disabled && "opacity-50 cursor-not-allowed",
+                    template.disabled && "opacity-50 cursor-not-allowed"
                   )}
                 >
                   <CardHeader className="p-4 flex-grow flex flex-col justify-between">
@@ -105,7 +105,7 @@ export const QuickstartPage = () => {
 
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Import as Snippet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
@@ -125,7 +125,7 @@ export const QuickstartPage = () => {
                   <Button
                     className="w-full"
                     onClick={() => {
-                      toastNotImplemented("Kicad Imports")
+                      toastNotImplemented("Kicad Imports");
                     }}
                   >
                     Import {template.name}
@@ -161,7 +161,7 @@ export const QuickstartPage = () => {
           <h2 className="text-xl font-semibold mb-4 mt-12">
             Start from a Template
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {templates.map((template, index) => (
               <Link
                 key={index}
@@ -184,5 +184,5 @@ export const QuickstartPage = () => {
       </div>
       <Footer />
     </div>
-  )
-}
+  );
+};
