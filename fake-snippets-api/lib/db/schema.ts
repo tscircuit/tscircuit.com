@@ -34,13 +34,17 @@ export const loginPageSchema = z.object({
 })
 export type LoginPage = z.infer<typeof loginPageSchema>
 
-const shippingInfoSchema = z.object({
-  fullName: z.string(),
+export const shippingInfoSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  companyName: z.string().optional(),
   address: z.string(),
+  apartment: z.string().optional(),
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
   country: z.string(),
+  phone: z.string(),
 })
 
 export const accountSchema = z.object({

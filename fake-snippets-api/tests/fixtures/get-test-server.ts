@@ -51,12 +51,16 @@ const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
     shippingInfo: {
-      fullName: "Test User",
+      firstName: "Test",
+      lastName: "User",
+      companyName: "Test Company",
       address: "123 Test St",
+      apartment: "Apt 4B",
       city: "Testville",
       state: "NY",
       zipCode: "10001",
-      country: "United States",
+      country: "United States of America",
+      phone: "555-123-4567",
     },
   })
   const order = db.addOrder({

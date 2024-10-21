@@ -10,13 +10,19 @@ import states from "states-us"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SearchableSelect } from "@/components/ui/searchable-select"
 
+const USA = "United States of America"
+
 type ShippingInfo = {
-  fullName: string
+  firstName: string
+  lastName: string
+  companyName: string
   address: string
+  apartment: string
   city: string
   state: string
   zipCode: string
   country: string
+  phone: string
 }
 
 type Action =
@@ -24,21 +30,29 @@ type Action =
   | { type: "SET_ALL"; payload: ShippingInfo }
 
 const initialState: ShippingInfo = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
+  companyName: "",
   address: "",
+  apartment: "",
   zipCode: "",
-  country: "United States of America",
+  country: USA,
   city: "",
   state: "",
+  phone: "",
 }
 
 const shippingPlaceholders: ShippingInfo = {
-  fullName: "Enter your full name",
+  firstName: "Enter your first name",
+  lastName: "Enter your last name",
+  companyName: "Enter company name (optional)",
   address: "Enter your street address",
+  apartment: "Apartment, suite, unit etc. (optional)",
   zipCode: "Enter your zip code",
   country: "Select your country",
   city: "Enter your city",
   state: "Enter your state",
+  phone: "Enter your phone number",
 }
 
 const ShippingInformationForm: React.FC = () => {
@@ -59,6 +73,7 @@ const ShippingInformationForm: React.FC = () => {
   const axios = useAxios()
   const queryClient = useQueryClient()
   const [countries] = useState(getNames())
+  const [isPhoneValid, setIsPhoneValid] = useState(true)
 
   const { data: account, isLoading: isLoadingAccount } = useQuery(
     "account",
@@ -95,7 +110,7 @@ const ShippingInformationForm: React.FC = () => {
         type: "SET_ALL",
         payload: {
           ...account.shippingInfo,
-          country: account.shippingInfo.country || "United States of America",
+          country: account.shippingInfo.country || USA,
         },
       })
     }
@@ -117,84 +132,16 @@ const ShippingInformationForm: React.FC = () => {
   return (
     <div className="space-y-4">
       <div>
-        <label
-          htmlFor="fullName"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Full Name
-        </label>
-        <Input
-          id="fullName"
-          value={form.fullName}
-          onChange={(e) =>
-            setField({
-              type: "SET_FIELD",
-              field: "fullName",
-              value: e.target.value,
-            })
-          }
-          placeholder={shippingPlaceholders.fullName}
-          disabled={updateShippingMutation.isLoading}
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="address"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Address
-        </label>
-        <Input
-          id="address"
-          value={form.address}
-          onChange={(e) =>
-            setField({
-              type: "SET_FIELD",
-              field: "address",
-              value: e.target.value,
-            })
-          }
-          placeholder={shippingPlaceholders.address}
-          disabled={updateShippingMutation.isLoading}
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="zipCode"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Zip Code
-        </label>
-        <Input
-          id="zipCode"
-          value={form.zipCode}
-          onChange={(e) =>
-            setField({
-              type: "SET_FIELD",
-              field: "zipCode",
-              value: e.target.value,
-            })
-          }
-          placeholder={shippingPlaceholders.zipCode}
-          disabled={updateShippingMutation.isLoading}
-        />
-      </div>
-      <div>
-        <label
-          htmlFor="country"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Country
+        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+          Country <span className="text-red-500">*</span>
         </label>
         <SearchableSelect
           options={countries}
           value={form.country}
-          onChange={(value) =>
-            setField({ type: "SET_FIELD", field: "country", value })
-          }
+          onChange={(value) => setField({ type: "SET_FIELD", field: "country", value })}
           placeholder={shippingPlaceholders.country}
         />
-        {form.country !== "United States of America" && (
+        {form.country !== USA && (
           <Alert variant="destructive" className="mt-2">
             <AlertDescription>
               Currently, only shipping to the US is supported.{" "}
@@ -211,64 +158,160 @@ const ShippingInformationForm: React.FC = () => {
         )}
       </div>
       <div>
-        <label
-          htmlFor="city"
-          className="block text-sm font-medium text-gray-700"
-        >
-          City
+        <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+          Company Name
         </label>
         <Input
-          id="city"
-          value={form.city}
-          onChange={(e) =>
-            setField({
-              type: "SET_FIELD",
-              field: "city",
-              value: e.target.value,
-            })
-          }
-          placeholder={shippingPlaceholders.city}
+          id="companyName"
+          value={form.companyName}
+          onChange={(e) => setField({ type: "SET_FIELD", field: "companyName", value: e.target.value })}
+          placeholder={shippingPlaceholders.companyName}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
-      <div>
-        <label
-          htmlFor="state"
-          className="block text-sm font-medium text-gray-700"
-        >
-          State
-        </label>
-        {form.country === "United States of America" ? (
-          <SearchableSelect
-            options={states.map((state) => state.name)}
-            value={form.state}
-            onChange={(value) =>
-              setField({ type: "SET_FIELD", field: "state", value })
-            }
-            placeholder={shippingPlaceholders.state}
-          />
-        ) : (
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            First Name <span className="text-red-500">*</span>
+          </label>
           <Input
-            id="state"
-            value={form.state}
-            onChange={(e) =>
-              setField({
-                type: "SET_FIELD",
-                field: "state",
-                value: e.target.value,
-              })
-            }
-            placeholder={shippingPlaceholders.state}
+            id="firstName"
+            value={form.firstName}
+            onChange={(e) => setField({ type: "SET_FIELD", field: "firstName", value: e.target.value })}
+            placeholder={shippingPlaceholders.firstName}
             disabled={updateShippingMutation.isLoading}
+            required
           />
-        )}
+        </div>
+        <div className="flex-1">
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+            Last Name <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="lastName"
+            value={form.lastName}
+            onChange={(e) => setField({ type: "SET_FIELD", field: "lastName", value: e.target.value })}
+            placeholder={shippingPlaceholders.lastName}
+            disabled={updateShippingMutation.isLoading}
+            required
+          />
+        </div>
+      </div>
+      <div>
+        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+          Address <span className="text-red-500">*</span>
+        </label>
+        <Input
+          id="address"
+          value={form.address}
+          onChange={(e) => setField({ type: "SET_FIELD", field: "address", value: e.target.value })}
+          placeholder={shippingPlaceholders.address}
+          disabled={updateShippingMutation.isLoading}
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="apartment" className="block text-sm font-medium text-gray-700">
+          Apartment, suite, unit etc.
+        </label>
+        <Input
+          id="apartment"
+          value={form.apartment}
+          onChange={(e) => setField({ type: "SET_FIELD", field: "apartment", value: e.target.value })}
+          placeholder={shippingPlaceholders.apartment}
+          disabled={updateShippingMutation.isLoading}
+        />
+      </div>
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+            Town / City <span className="text-red-500">*</span>
+          </label>
+          <Input
+            id="city"
+            value={form.city}
+            onChange={(e) => setField({ type: "SET_FIELD", field: "city", value: e.target.value })}
+            placeholder={shippingPlaceholders.city}
+            disabled={updateShippingMutation.isLoading}
+            required
+          />
+        </div>
+        <div className="flex-1">
+          <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+            State {form.country === USA && <span className="text-red-500">*</span>}
+          </label>
+          {form.country === USA ? (
+            <SearchableSelect
+              options={states.map((state) => state.name)}
+              value={form.state}
+              onChange={(value) => setField({ type: "SET_FIELD", field: "state", value })}
+              placeholder={shippingPlaceholders.state}
+            />
+          ) : (
+            <Input
+              id="state"
+              value={form.state}
+              onChange={(e) => setField({ type: "SET_FIELD", field: "state", value: e.target.value })}
+              placeholder={shippingPlaceholders.state}
+              disabled={updateShippingMutation.isLoading}
+            />
+          )}
+        </div>
+      </div>
+      <div>
+        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+          Postcode / Zip <span className="text-red-500">*</span>
+        </label>
+        <Input
+          id="zipCode"
+          value={form.zipCode}
+          onChange={(e) => setField({ type: "SET_FIELD", field: "zipCode", value: e.target.value })}
+          placeholder={shippingPlaceholders.zipCode}
+          disabled={updateShippingMutation.isLoading}
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+          Phone <span className="text-red-500">*</span>
+        </label>
+        <div>
+          <Input
+            id="phone"
+            type="tel"
+            value={form.phone}
+            onChange={(e) => {
+              setIsPhoneValid(true)
+              setField({ type: "SET_FIELD", field: "phone", value: e.target.value })
+            }}
+            onBlur={() => {
+              const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
+              setIsPhoneValid(phoneRegex.test(form.phone))
+            }}
+            placeholder={shippingPlaceholders.phone}
+            disabled={updateShippingMutation.isLoading}
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Format: (123) 456-7890 or +1 123-456-7890
+          </p>
+          {!isPhoneValid && form.phone && (
+            <Alert variant="destructive" className="mt-2">
+              <AlertDescription>
+                Please enter a valid phone number.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
       </div>
       <Button
-        onClick={handleSubmit}
+        type="submit"
         disabled={
           updateShippingMutation.isLoading ||
-          form.country !== "United States of America"
+          form.country !== USA ||
+          !isPhoneValid
         }
+        onClick={handleSubmit}
       >
         {updateShippingMutation.isLoading ? (
           <>
