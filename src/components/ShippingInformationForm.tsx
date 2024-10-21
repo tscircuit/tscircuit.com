@@ -132,13 +132,18 @@ const ShippingInformationForm: React.FC = () => {
   return (
     <div className="space-y-4">
       <div>
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="country"
+          className="block text-sm font-medium text-gray-700"
+        >
           Country <span className="text-red-500">*</span>
         </label>
         <SearchableSelect
           options={countries}
           value={form.country}
-          onChange={(value) => setField({ type: "SET_FIELD", field: "country", value })}
+          onChange={(value) =>
+            setField({ type: "SET_FIELD", field: "country", value })
+          }
           placeholder={shippingPlaceholders.country}
         />
         {form.country !== USA && (
@@ -158,39 +163,66 @@ const ShippingInformationForm: React.FC = () => {
         )}
       </div>
       <div>
-        <label htmlFor="companyName" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="companyName"
+          className="block text-sm font-medium text-gray-700"
+        >
           Company Name
         </label>
         <Input
           id="companyName"
           value={form.companyName}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "companyName", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "companyName",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.companyName}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div className="flex gap-4">
         <div className="flex-1">
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="firstName"
+            className="block text-sm font-medium text-gray-700"
+          >
             First Name <span className="text-red-500">*</span>
           </label>
           <Input
             id="firstName"
             value={form.firstName}
-            onChange={(e) => setField({ type: "SET_FIELD", field: "firstName", value: e.target.value })}
+            onChange={(e) =>
+              setField({
+                type: "SET_FIELD",
+                field: "firstName",
+                value: e.target.value,
+              })
+            }
             placeholder={shippingPlaceholders.firstName}
             disabled={updateShippingMutation.isLoading}
             required
           />
         </div>
         <div className="flex-1">
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="lastName"
+            className="block text-sm font-medium text-gray-700"
+          >
             Last Name <span className="text-red-500">*</span>
           </label>
           <Input
             id="lastName"
             value={form.lastName}
-            onChange={(e) => setField({ type: "SET_FIELD", field: "lastName", value: e.target.value })}
+            onChange={(e) =>
+              setField({
+                type: "SET_FIELD",
+                field: "lastName",
+                value: e.target.value,
+              })
+            }
             placeholder={shippingPlaceholders.lastName}
             disabled={updateShippingMutation.isLoading}
             required
@@ -198,60 +230,99 @@ const ShippingInformationForm: React.FC = () => {
         </div>
       </div>
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="address"
+          className="block text-sm font-medium text-gray-700"
+        >
           Address <span className="text-red-500">*</span>
         </label>
         <Input
           id="address"
           value={form.address}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "address", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "address",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.address}
           disabled={updateShippingMutation.isLoading}
           required
         />
       </div>
       <div>
-        <label htmlFor="apartment" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="apartment"
+          className="block text-sm font-medium text-gray-700"
+        >
           Apartment, suite, unit etc.
         </label>
         <Input
           id="apartment"
           value={form.apartment}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "apartment", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "apartment",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.apartment}
           disabled={updateShippingMutation.isLoading}
         />
       </div>
       <div className="flex gap-4">
         <div className="flex-1">
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="city"
+            className="block text-sm font-medium text-gray-700"
+          >
             Town / City <span className="text-red-500">*</span>
           </label>
           <Input
             id="city"
             value={form.city}
-            onChange={(e) => setField({ type: "SET_FIELD", field: "city", value: e.target.value })}
+            onChange={(e) =>
+              setField({
+                type: "SET_FIELD",
+                field: "city",
+                value: e.target.value,
+              })
+            }
             placeholder={shippingPlaceholders.city}
             disabled={updateShippingMutation.isLoading}
             required
           />
         </div>
         <div className="flex-1">
-          <label htmlFor="state" className="block text-sm font-medium text-gray-700">
-            State {form.country === USA && <span className="text-red-500">*</span>}
+          <label
+            htmlFor="state"
+            className="block text-sm font-medium text-gray-700"
+          >
+            State{" "}
+            {form.country === USA && <span className="text-red-500">*</span>}
           </label>
           {form.country === USA ? (
             <SearchableSelect
               options={states.map((state) => state.name)}
               value={form.state}
-              onChange={(value) => setField({ type: "SET_FIELD", field: "state", value })}
+              onChange={(value) =>
+                setField({ type: "SET_FIELD", field: "state", value })
+              }
               placeholder={shippingPlaceholders.state}
             />
           ) : (
             <Input
               id="state"
               value={form.state}
-              onChange={(e) => setField({ type: "SET_FIELD", field: "state", value: e.target.value })}
+              onChange={(e) =>
+                setField({
+                  type: "SET_FIELD",
+                  field: "state",
+                  value: e.target.value,
+                })
+              }
               placeholder={shippingPlaceholders.state}
               disabled={updateShippingMutation.isLoading}
             />
@@ -259,20 +330,32 @@ const ShippingInformationForm: React.FC = () => {
         </div>
       </div>
       <div>
-        <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="zipCode"
+          className="block text-sm font-medium text-gray-700"
+        >
           Postcode / Zip <span className="text-red-500">*</span>
         </label>
         <Input
           id="zipCode"
           value={form.zipCode}
-          onChange={(e) => setField({ type: "SET_FIELD", field: "zipCode", value: e.target.value })}
+          onChange={(e) =>
+            setField({
+              type: "SET_FIELD",
+              field: "zipCode",
+              value: e.target.value,
+            })
+          }
           placeholder={shippingPlaceholders.zipCode}
           disabled={updateShippingMutation.isLoading}
           required
         />
       </div>
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="phone"
+          className="block text-sm font-medium text-gray-700"
+        >
           Phone <span className="text-red-500">*</span>
         </label>
         <div>
@@ -282,10 +365,15 @@ const ShippingInformationForm: React.FC = () => {
             value={form.phone}
             onChange={(e) => {
               setIsPhoneValid(true)
-              setField({ type: "SET_FIELD", field: "phone", value: e.target.value })
+              setField({
+                type: "SET_FIELD",
+                field: "phone",
+                value: e.target.value,
+              })
             }}
             onBlur={() => {
-              const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
+              const phoneRegex =
+                /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
               setIsPhoneValid(phoneRegex.test(form.phone))
             }}
             placeholder={shippingPlaceholders.phone}

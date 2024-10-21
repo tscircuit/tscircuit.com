@@ -55,8 +55,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
         className="w-full justify-between"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className={value ? "" :
- "text-slate-500 font-normal"}>
+        <span className={value ? "" : "text-slate-500 font-normal"}>
           {value || placeholder}
         </span>
         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
