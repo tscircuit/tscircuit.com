@@ -41,32 +41,39 @@ export const QuickstartPage = () => {
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+        <div className="mb-8 hidden md:block">
           <h2 className="text-xl font-semibold mb-4">Recent Snippets</h2>
           {isLoading ? (
             <div>Loading...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {mySnippets?.slice(0, 6).map((snippet) => (
-                <Link
-                  key={snippet.snippet_id}
-                  href={`/editor?snippet_id=${snippet.snippet_id}`}
-                >
-                  <Card className="hover:shadow-md transition-shadow rounded-md">
-                    <CardHeader className="pb-0 p-4">
-                      <CardTitle className="text-md">
-                        {snippet.unscoped_name}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0">
-                      <p className="text-sm text-gray-500">
-                        Last edited:{" "}
-                        {new Date(snippet.updated_at).toLocaleDateString()}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+              {mySnippets
+                ?.sort(
+                  (a, b) =>
+                    new Date(b.created_at).getTime() -
+                    new Date(a.created_at).getTime(),
+                )
+                .slice(0, 4)
+                .map((snippet) => (
+                  <Link
+                    key={snippet.snippet_id}
+                    href={`/editor?snippet_id=${snippet.snippet_id}`}
+                  >
+                    <Card className="hover:shadow-md transition-shadow rounded-md">
+                      <CardHeader className="pb-0 p-4">
+                        <CardTitle className="text-md">
+                          {snippet.unscoped_name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-0">
+                        <p className="text-sm text-gray-500">
+                          Last edited:{" "}
+                          {new Date(snippet.updated_at).toLocaleDateString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
             </div>
           )}
         </div>
