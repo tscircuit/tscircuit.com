@@ -21,8 +21,10 @@ export const DashboardPage = () => {
     error,
   } = useQuery<Snippet[]>("userSnippets", async () => {
     const response = await axios.get(`/snippets/list?owner_name=${currentUser}`)
-    return response.data.snippets.sort((a, b) => 
-      new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime()
+    return response.data.snippets.sort(
+      (a: any, b: any) =>
+        new Date(b.updated_at || b.created_at).getTime() -
+        new Date(a.updated_at || a.created_at).getTime(),
     )
   })
 

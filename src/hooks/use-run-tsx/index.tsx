@@ -159,7 +159,7 @@ export const useRunTsx = ({
             compiledModule: module,
             compiledJs,
             message: "",
-            circuitJson,
+            circuitJson: circuitJson as AnyCircuitElement[],
             isLoading: false,
           })
         } catch (error: any) {
