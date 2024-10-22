@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { EditorView, basicSetup } from "codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 import { EditorState } from "@codemirror/state"
@@ -22,7 +22,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import { indentWithTab } from "@codemirror/commands"
-import { keymap, hoverTooltip } from "@codemirror/view"
+import { keymap, hoverTooltip, Decoration } from "@codemirror/view"
 import { useLocation } from "wouter"
 
 export const CodeEditor = ({
@@ -43,6 +43,16 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
   const [, navigate] = useLocation()
+
+  const [metaKeyDown, setMetaKeyDown] = useState(false)
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      setMetaKeyDown(event.metaKey || event.ctrlKey)
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   const handleImportClick = (importName: string) => {
     const [owner, name] = importName.replace("@tsci/", "").split(".")
@@ -187,6 +197,37 @@ ${code}
             }
             return false
           },
+        }),
+        EditorView.theme({
+          ".cm-content .cm-underline": {
+            textDecoration: "underline",
+            textDecorationColor: "rgba(0, 0, 255, 0.3)",
+            cursor: "pointer",
+          },
+        }),
+        EditorView.decorations.of((view) => {
+          if (!metaKeyDown) return Decoration.set([])
+          const decorations = []
+          for (let { from, to } of view.visibleRanges) {
+            for (let pos = from; pos < to; ) {
+              const line = view.state.doc.lineAt(pos)
+              const lineText = line.text
+              const matches = lineText.matchAll(/@tsci\/[\w.]+/g)
+              for (const match of matches) {
+                if (match.index !== undefined) {
+                  const start = line.from + match.index
+                  const end = start + match[0].length
+                  decorations.push(
+                    Decoration.mark({
+                      class: "cm-underline",
+                    }).range(start, end),
+                  )
+                }
+              }
+              pos = line.to + 1
+            }
+          }
+          return Decoration.set(decorations)
         }),
       ],
     })
