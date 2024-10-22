@@ -18,11 +18,12 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
 }) => {
   const { data: snippet } = useSnippet(snippetId)
 
-  const files = {
+  const files = Object.entries({
     "dist/index.d.ts": snippet?.dts || "",
     "index.ts": snippet?.code || "",
     "dist/index.js": snippet?.compiled_js || "",
-  }
+  }).sort(([a], [b]) => a.localeCompare(b))
+  .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
 
   const [selectedFile, setSelectedFile] = useState<string | null>("index.ts")
 
@@ -39,7 +40,7 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
                 <div
                   key={filePath}
                   className={cn(
-                    "px-4 py-2 cursor-pointer hover:bg-gray-100",
+                    "px-4 py-2 cursor-pointer hover:bg-gray-100 text-xs",
                     selectedFile === filePath && "bg-gray-200",
                   )}
                   onClick={() => setSelectedFile(filePath)}
@@ -51,8 +52,10 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
           </div>
           <div className="w-3/4 overflow-hidden">
             <ScrollArea className="h-full">
-              <pre className="p-4 text-sm">
-                {selectedFile ? files[selectedFile] : "Select a file"}
+              <pre className="p-4 text-xs whitespace-pre-wrap">
+                {selectedFile
+                  ? files[selectedFile as keyof typeof files]
+                  : "Select a file"}
               </pre>
             </ScrollArea>
           </div>

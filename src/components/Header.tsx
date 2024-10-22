@@ -2,12 +2,13 @@ import { HeaderLogin } from "@/components/HeaderLogin"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { Menu, X } from "lucide-react"
+import { GitHubLogoIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons"
+import { Menu, X, File, Pencil, Save, Sparkles, Package, Trash2, MoreVertical } from "lucide-react"
 import React, { useState } from "react"
 import { Link, useLocation } from "wouter"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
+import { useFilesDialog } from "./dialogs/files-dialog"
 
 const HeaderButton = ({
   href,
