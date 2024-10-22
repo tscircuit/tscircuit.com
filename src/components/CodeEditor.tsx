@@ -205,8 +205,7 @@ ${code}
             cursor: "pointer",
           },
         }),
-        EditorView.decorations.of((view) => {
-          if (!metaKeyDown) return Decoration.set([])
+        EditorView.decorations.of((view: any) => {
           const decorations = []
           for (let { from, to } of view.visibleRanges) {
             for (let pos = from; pos < to; ) {

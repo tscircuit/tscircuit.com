@@ -23,8 +23,10 @@ export const UserProfilePage = () => {
     },
   )
 
-  const filteredSnippets = userSnippets?.filter((snippet) =>
-    snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredSnippets = userSnippets?.filter(
+    (snippet) =>
+      !searchQuery ||
+      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   return (

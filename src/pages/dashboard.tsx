@@ -105,7 +105,7 @@ export const DashboardPage = () => {
             )}
             {mySnippets && mySnippets.length > 10 && (
               <Link
-                href="/my-snippets"
+                href={`/${currentUser}`}
                 className="text-sm text-blue-600 hover:underline mt-2 inline-block"
               >
                 View all snippets
