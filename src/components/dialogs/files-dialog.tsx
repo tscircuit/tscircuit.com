@@ -22,8 +22,9 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
     "dist/index.d.ts": snippet?.dts || "",
     "index.ts": snippet?.code || "",
     "dist/index.js": snippet?.compiled_js || "",
-  }).sort(([a], [b]) => a.localeCompare(b))
-  .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
+  })
+    .sort(([a], [b]) => a.localeCompare(b))
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})
 
   const [selectedFile, setSelectedFile] = useState<string | null>("index.ts")
 
