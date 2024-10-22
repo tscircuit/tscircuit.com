@@ -20,12 +20,12 @@ export const OrderPreviewContent: React.FC<OrderPreviewContentProps> = ({
         <TabsList>
           <TabsTrigger value="pcb">PCB</TabsTrigger>
           <TabsTrigger value="cad">3D</TabsTrigger>
-          <TabsTrigger value="table">JSON</TabsTrigger>
+          <TabsTrigger value="json-table">JSON</TabsTrigger>
         </TabsList>
         <TabsContent value="pcb">
-          <div className="h-[500px]">
+          <div className="h-[500px] shadow overflow-hidden sm:rounded-lg mb-6">
             {circuitJson ? (
-              <PCBViewer soup={circuitJson} />
+              <PCBViewer height={500} soup={circuitJson} />
             ) : (
               <div className="flex items-center justify-center h-full bg-gray-100">
                 No PCB data available
@@ -34,7 +34,7 @@ export const OrderPreviewContent: React.FC<OrderPreviewContentProps> = ({
           </div>
         </TabsContent>
         <TabsContent value="cad">
-          <div className="h-[500px]">
+          <div className="h-[500px] shadow overflow-hidden sm:rounded-lg mb-6">
             {circuitJson ? (
               <CadViewer soup={circuitJson as any} />
             ) : (
@@ -44,8 +44,8 @@ export const OrderPreviewContent: React.FC<OrderPreviewContentProps> = ({
             )}
           </div>
         </TabsContent>
-        <TabsContent value="table">
-          <div className="h-[500px] overflow-auto">
+        <TabsContent value="json-table">
+          <div className="h-[500px] shadow overflow-hidden sm:rounded-lg mb-6">
             {circuitJson ? (
               <CircuitJsonTableViewer elements={circuitJson} />
             ) : (
