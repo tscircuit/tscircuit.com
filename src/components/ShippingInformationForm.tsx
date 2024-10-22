@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useAxios } from "@/hooks/use-axios"
 import { useQuery, useMutation, useQueryClient } from "react-query"
 import { Loader2 } from "lucide-react"
-import {  getNames } from "country-list"
+import { getNames } from "country-list"
 import states from "states-us"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { SearchableSelect } from "@/components/ui/searchable-select"
@@ -139,7 +139,10 @@ const ShippingInformationForm: React.FC = () => {
           Country <span className="text-red-500">*</span>
         </label>
         <SearchableSelect
-          options={countries.map(country => ({ value: country, label: country }))}
+          options={countries.map((country) => ({
+            value: country,
+            label: country,
+          }))}
           value={form.country}
           onChange={(value) =>
             setField({ type: "SET_FIELD", field: "country", value })
@@ -305,7 +308,10 @@ const ShippingInformationForm: React.FC = () => {
           </label>
           {form.country === USA ? (
             <SearchableSelect
-              options={states.map((state) => ({ value: state.name, label: state.name }))}
+              options={states.map((state) => ({
+                value: state.name,
+                label: state.name,
+              }))}
               value={form.state}
               onChange={(value) =>
                 setField({ type: "SET_FIELD", field: "state", value })

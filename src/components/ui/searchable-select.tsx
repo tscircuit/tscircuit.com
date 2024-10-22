@@ -21,7 +21,7 @@ interface SearchableSelectProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
-  resourceType?: 'state' | 'country'
+  resourceType?: "state" | "country"
 }
 
 export const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -33,15 +33,15 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   const [open, setOpen] = React.useState(false)
 
   const getPlaceholder = () => {
-    if (resourceType === 'state') return "Select a state..."
-    if (resourceType === 'country') return "Select a country..."
+    if (resourceType === "state") return "Select a state..."
+    if (resourceType === "country") return "Select a country..."
     return "Select an option..."
   }
   const placeholder = getPlaceholder()
 
   const getEmptyMessage = () => {
-    if (resourceType === 'state') return "No state found."
-    if (resourceType === 'country') return "No country found."
+    if (resourceType === "state") return "No state found."
+    if (resourceType === "country") return "No country found."
     return "No option found."
   }
 
@@ -55,7 +55,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           className="w-full justify-between"
         >
           {value
-            ? options.find((option) => option.value === value)?.label ?? placeholder
+            ? (options.find((option) => option.value === value)?.label ??
+              placeholder)
             : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -78,7 +79,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}
