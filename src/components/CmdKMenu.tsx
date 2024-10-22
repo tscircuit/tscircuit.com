@@ -14,7 +14,13 @@ import { Snippet } from "fake-snippets-api/lib/db/schema"
 import React from "react"
 import { useQuery } from "react-query"
 
-type SnippetType = "board" | "package" | "model" | "footprint" | "snippet"
+type SnippetType =
+  | "board"
+  | "package"
+  | "model"
+  | "footprint"
+  | "snippet"
+  | "search-result"
 
 interface Template {
   name: string
@@ -35,6 +41,7 @@ interface CommandItemData {
   disabled?: boolean
   action?: () => void
   subtitle?: string
+  description?: string
 }
 
 interface CommandGroup {
@@ -76,7 +83,22 @@ const CmdKMenu: React.FC = () => {
     },
   )
 
-  // All available blank templates
+  // Add search results query
+  const { data: searchResults, isLoading: isSearching } = useQuery(
+    ["snippetSearch", searchQuery],
+    async () => {
+      if (!searchQuery) return []
+      const { data } = await axios.get("/snippets/search", {
+        params: { q: searchQuery },
+      })
+      return data.snippets
+    },
+    {
+      enabled: Boolean(searchQuery),
+    },
+  )
+
+  // Templates and import options
   const blankTemplates: Template[] = [
     { name: "Blank Circuit Board", type: "board" },
     { name: "Blank Circuit Module", type: "package" },
@@ -84,10 +106,8 @@ const CmdKMenu: React.FC = () => {
     { name: "Blank Footprint", type: "footprint", disabled: true },
   ]
 
-  // All available templates
   const templates: Template[] = [{ name: "Blinking LED Board", type: "board" }]
 
-  // Import options
   const importOptions: ImportOption[] = [
     { name: "KiCad Footprint", type: "footprint" },
     { name: "KiCad Project", type: "board" },
@@ -95,7 +115,22 @@ const CmdKMenu: React.FC = () => {
     { name: "JLCPCB Component", type: "package", special: true },
   ]
 
+  // Combine regular commands with search results
   const commands: CommandGroup[] = [
+    ...(searchResults && searchResults.length > 0
+      ? [
+          {
+            group: "Search Results",
+            items: searchResults.map((snippet: any) => ({
+              label: snippet.name,
+              href: `/editor?snippet_id=${snippet.snippet_id}`,
+              type: "search-result" as const,
+              subtitle: `By ${snippet.owner_name}`,
+              description: snippet.description,
+            })),
+          },
+        ]
+      : []),
     {
       group: "Recent Snippets",
       items: (recentSnippets?.slice(0, 6) || []).map((snippet) => ({
@@ -160,6 +195,12 @@ const CmdKMenu: React.FC = () => {
           onValueChange={setSearchQuery}
         />
         <CommandList>
+          {isSearching && (
+            <CommandGroup heading="Search">
+              <CommandItem disabled>Searching...</CommandItem>
+            </CommandGroup>
+          )}
+
           {filteredCommands.length > 0 ? (
             filteredCommands.map((group, groupIndex) => (
               <CommandGroup key={groupIndex} heading={group.group}>
@@ -184,6 +225,11 @@ const CmdKMenu: React.FC = () => {
                           {command.subtitle}
                         </span>
                       )}
+                      {command.description && (
+                        <span className="text-sm text-gray-500">
+                          {command.description}
+                        </span>
+                      )}
                     </div>
                     <span className="text-sm text-gray-500 ml-2">
                       {command.type}
@@ -193,7 +239,7 @@ const CmdKMenu: React.FC = () => {
               </CommandGroup>
             ))
           ) : (
-            <CommandEmpty>No commands found.</CommandEmpty>
+            <CommandEmpty>No results found.</CommandEmpty>
           )}
         </CommandList>
       </CommandDialog>
