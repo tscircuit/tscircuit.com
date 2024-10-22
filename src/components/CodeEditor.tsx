@@ -22,7 +22,8 @@ import { useAxios } from "@/hooks/use-axios"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import { indentWithTab } from "@codemirror/commands"
-import { keymap } from "@codemirror/view"
+import { keymap, hoverTooltip } from "@codemirror/view"
+import { useLocation } from "wouter"
 
 export const CodeEditor = ({
   onCodeChange,
@@ -41,6 +42,12 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
+  const [, navigate] = useLocation()
+
+  const handleImportClick = (importName: string) => {
+    const [owner, name] = importName.replace("@tsci/", "").split(".")
+    window.open(`/${owner}/${name}`, "_blank")
+  }
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -137,6 +144,50 @@ ${code}
           }
         }),
         EditorState.readOnly.of(readOnly),
+        hoverTooltip((view, pos, side) => {
+          const { from, to, text } = view.state.doc.lineAt(pos)
+          const line = text.slice(from, to)
+          const match = line.match(/@tsci\/[\w.]+/)
+          if (match) {
+            const importName = match[0]
+            const start = line.indexOf(importName)
+            const end = start + importName.length
+            if (pos >= from + start && pos <= from + end) {
+              return {
+                pos: from + start,
+                end: from + end,
+                above: true,
+                create() {
+                  const dom = document.createElement("div")
+                  dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                  return { dom }
+                },
+              }
+            }
+          }
+          return null
+        }),
+        EditorView.domEventHandlers({
+          click: (event, view) => {
+            if (!event.ctrlKey && !event.metaKey) return false
+            const pos = view.posAtCoords({ x: event.clientX, y: event.clientY })
+            if (pos) {
+              const { from, to, text } = view.state.doc.lineAt(pos)
+              const line = text.slice(from, to)
+              const match = line.match(/@tsci\/[\w.]+/)
+              if (match) {
+                const importName = match[0]
+                const start = line.indexOf(importName)
+                const end = start + importName.length
+                if (pos >= from + start && pos <= from + end) {
+                  handleImportClick(importName)
+                  return true
+                }
+              }
+            }
+            return false
+          },
+        }),
       ],
     })
 
