@@ -6,6 +6,7 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { Menu, X } from "lucide-react"
 import React, { useState } from "react"
 import { Link, useLocation } from "wouter"
+import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
 
@@ -155,6 +156,7 @@ export default function Header() {
           </div>
         </div>
       )}
+      <CmdKMenu />
     </header>
   )
 }
