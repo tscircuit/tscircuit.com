@@ -84,17 +84,21 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     return newAccount
   },
-  addSnippet: (snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">) => {
-    let newSnippet
+  addSnippet: (
+    snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">,
+  ): Snippet => {
+    const newSnippetId = `snippet_${get().idCounter + 1}`
+    const newSnippet = snippetSchema.parse({
+      ...snippet,
+      snippet_id: newSnippetId,
+    })
     set((state) => {
-      const newSnippetId = `snippet_${state.idCounter + 1}`
-      newSnippet = snippetSchema.parse({ ...snippet, snippet_id: newSnippetId })
       return {
         snippets: [...state.snippets, newSnippet],
         idCounter: state.idCounter + 1,
       }
     })
-    return newSnippet
+    return { ...newSnippet, snippet_id: newSnippetId }
   },
   getNewestSnippets: (limit: number): Snippet[] => {
     const state = get()
