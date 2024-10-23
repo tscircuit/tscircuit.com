@@ -19,12 +19,14 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { snippet_id, name, owner_name, unscoped_name } = req.commonParams
 
-  const foundSnippet = ctx.db.getSnippetById(snippet_id) || ctx.db.snippets.find((s) => {
-    if (name && s.name !== name) return false
-    if (owner_name && s.owner_name !== owner_name) return false
-    if (unscoped_name && s.unscoped_name !== unscoped_name) return false
-    return true
-  })
+  const foundSnippet =
+    (snippet_id && ctx.db.getSnippetById(snippet_id)) ||
+    ctx.db.snippets.find((s) => {
+      if (name && s.name !== name) return false
+      if (owner_name && s.owner_name !== owner_name) return false
+      if (unscoped_name && s.unscoped_name !== unscoped_name) return false
+      return true
+    })
 
   if (!foundSnippet) {
     return ctx.error(404, {
