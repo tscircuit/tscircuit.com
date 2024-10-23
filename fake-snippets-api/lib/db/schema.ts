@@ -1,3 +1,4 @@
+import { AnyCircuitElement } from "circuit-json"
 import { z } from "zod"
 
 export const snippetSchema = z.object({
@@ -34,13 +35,17 @@ export const loginPageSchema = z.object({
 })
 export type LoginPage = z.infer<typeof loginPageSchema>
 
-const shippingInfoSchema = z.object({
-  fullName: z.string(),
+export const shippingInfoSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  companyName: z.string().optional(),
   address: z.string(),
+  apartment: z.string().optional(),
   city: z.string(),
   state: z.string(),
   zipCode: z.string(),
   country: z.string(),
+  phone: z.string(),
 })
 
 export const accountSchema = z.object({
@@ -65,7 +70,7 @@ export const orderSchema = z.object({
   should_be_blank_pcb: z.boolean(),
   should_include_stencil: z.boolean(),
   jlcpcb_order_params: z.record(z.any()),
-  circuit_json: z.record(z.any()),
+  circuit_json: z.array(z.record(z.any())),
   created_at: z.string(),
   updated_at: z.string(),
 })

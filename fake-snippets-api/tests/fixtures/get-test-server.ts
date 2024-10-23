@@ -51,12 +51,16 @@ const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
     shippingInfo: {
-      fullName: "Test User",
+      firstName: "Test",
+      lastName: "User",
+      companyName: "Test Company",
       address: "123 Test St",
+      apartment: "Apt 4B",
       city: "Testville",
       state: "NY",
       zipCode: "10001",
-      country: "United States",
+      country: "United States of America",
+      phone: "555-123-4567",
     },
   })
   const order = db.addOrder({
@@ -73,13 +77,15 @@ const seedDatabase = (db: DbClient) => {
     should_be_blank_pcb: false,
     should_include_stencil: false,
     jlcpcb_order_params: {},
-    circuit_json: {
-      type: "source_component",
-      ftype: "simple_resistor",
-      source_component_id: "source_component_1",
-      name: "R1",
-      resistance: "1k",
-    },
+    circuit_json: [
+      {
+        type: "source_component",
+        ftype: "simple_resistor",
+        source_component_id: "source_component_1",
+        name: "R1",
+        resistance: "1k",
+      },
+    ],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   })

@@ -1,15 +1,9 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { accountSchema } from "fake-snippets-api/lib/db/schema"
-
-const shippingInfoSchema = z.object({
-  fullName: z.string(),
-  address: z.string(),
-  city: z.string(),
-  state: z.string(),
-  zipCode: z.string(),
-  country: z.string(),
-})
+import {
+  accountSchema,
+  shippingInfoSchema,
+} from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST"],

@@ -13,17 +13,20 @@ import {
   Copy,
   Hash,
   Clock,
+  File,
 } from "lucide-react"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { cn } from "@/lib/utils"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
+import { useFilesDialog } from "./dialogs/files-dialog"
 
 export default function ViewSnippetSidebar({
   className,
 }: { className?: string }) {
   const { snippet } = useCurrentSnippet()
   const { toast } = useToast()
+  const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
 
   return (
     <div
@@ -70,6 +73,15 @@ export default function ViewSnippetSidebar({
               label: "Versions",
               notImplemented: true,
             },
+            {
+              icon: <File className="w-5 h-5" />,
+              label: "Files",
+              onClick: () => {
+                if (snippet) {
+                  openFilesDialog()
+                }
+              },
+            },
             // { icon: <Settings className="w-5 h-5" />, label: "Settings" },
           ].map((item, index) => (
             <li key={index}>
@@ -94,7 +106,7 @@ export default function ViewSnippetSidebar({
                           ),
                         })
                       }
-                    : undefined
+                    : item.onClick
                 }
                 className="flex items-center gap-3 px-2 py-1.5 hover:bg-gray-200 rounded-md"
               >
@@ -131,6 +143,7 @@ export default function ViewSnippetSidebar({
           </div>
         </div>
       </div>
+      {snippet && <FilesDialog snippetId={snippet.snippet_id} />}
     </div>
   )
 }

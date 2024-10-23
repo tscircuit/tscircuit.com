@@ -186,6 +186,7 @@ const CmdKMenu: React.FC = () => {
           : group.items.filter((command) =>
               command.label.toLowerCase().includes(searchQuery.toLowerCase()),
             ),
+
     }))
     .filter((group) => group.items.length > 0)
 

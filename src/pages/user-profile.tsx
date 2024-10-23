@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { useParams } from "wouter"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -8,10 +8,12 @@ import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import { Input } from "@/components/ui/input"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
+  const [searchQuery, setSearchQuery] = useState("")
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
@@ -19,6 +21,12 @@ export const UserProfilePage = () => {
       const response = await axios.get(`/snippets/list?owner_name=${username}`)
       return response.data.snippets
     },
+  )
+
+  const filteredSnippets = userSnippets?.filter(
+    (snippet) =>
+      !searchQuery ||
+      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   return (
@@ -40,11 +48,18 @@ export const UserProfilePage = () => {
           </a>
         </div>
         <h2 className="text-2xl font-semibold mb-4">Snippets</h2>
+        <Input
+          type="text"
+          placeholder="Search snippets..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="mb-4"
+        />
         {isLoading ? (
           <div>Loading snippets...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {userSnippets?.map((snippet) => (
+            {filteredSnippets?.map((snippet) => (
               <Link
                 key={snippet.snippet_id}
                 href={`/${snippet.owner_name}/${snippet.unscoped_name}`}

@@ -18,6 +18,7 @@ import {
   Pencil,
   Trash2,
   MoreVertical,
+  File,
 } from "lucide-react"
 import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
@@ -41,6 +42,7 @@ import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 import { useConfirmDeleteSnippetDialog } from "./dialogs/confirm-delete-snippet-dialog"
 import { useCreateOrderDialog } from "./dialogs/create-order-dialog"
 import { AnyCircuitElement } from "circuit-json"
+import { useFilesDialog } from "./dialogs/files-dialog"
 
 export default function EditorNav({
   circuitJson,
@@ -71,6 +73,7 @@ export default function EditorNav({
     useConfirmDeleteSnippetDialog()
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
     useCreateOrderDialog()
+  const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
 
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
@@ -191,6 +194,13 @@ export default function EditorNav({
               Submit Order
             </DropdownMenuItem>
             <DropdownMenuItem
+              className="text-xs"
+              onClick={() => openFilesDialog()}
+            >
+              <File className="mr-2 h-3 w-3" />
+              View Files
+            </DropdownMenuItem>
+            <DropdownMenuItem
               className="text-xs text-red-600"
               onClick={() => openDeleteDialog()}
             >
@@ -265,6 +275,7 @@ export default function EditorNav({
         snippetName={snippet?.unscoped_name ?? ""}
       />
       <CreateOrderDialog />
+      <FilesDialog snippetId={snippet?.snippet_id ?? ""} />
     </nav>
   )
 }
