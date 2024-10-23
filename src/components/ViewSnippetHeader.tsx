@@ -61,7 +61,12 @@ export default function ViewSnippetHeader() {
             }}
           >
             <Star className="w-4 h-4 mr-2" />
-            Star {snippet!.star_count > 0 && `(${snippet!.star_count})`}
+            Star{" "}
+            {snippet!.star_count > 0 && (
+              <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
+                {snippet!.star_count}
+              </span>
+            )}
           </Button>
           {/* <Button variant="outline" size="sm">
             <Eye className="w-4 h-4 mr-2" />
