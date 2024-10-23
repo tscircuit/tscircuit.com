@@ -1,4 +1,4 @@
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog";
 import {
   CommandDialog,
   CommandEmpty,
@@ -6,13 +6,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
-import { useAxios } from "@/hooks/use-axios"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useNotImplementedToast } from "@/hooks/use-toast"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import React from "react"
-import { useQuery } from "react-query"
+} from "@/components/ui/command";
+import { useAxios } from "@/hooks/use-axios";
+import { useGlobalStore } from "@/hooks/use-global-store";
+import { useNotImplementedToast } from "@/hooks/use-toast";
+import { Snippet } from "fake-snippets-api/lib/db/schema";
+import React from 'react';
+import { useQuery } from "react-query";
 
 type SnippetType =
   | "board"
@@ -83,7 +83,6 @@ const CmdKMenu: React.FC = () => {
     },
   )
 
-  // Add search results query
   const { data: searchResults, isLoading: isSearching } = useQuery(
     ["snippetSearch", searchQuery],
     async () => {
@@ -115,23 +114,10 @@ const CmdKMenu: React.FC = () => {
     { name: "JLCPCB Component", type: "package", special: true },
   ]
 
-  // Combine regular commands with search results
-  const commands: CommandGroup[] = [
-    ...(searchResults && searchResults.length > 0
-      ? [
-          {
-            group: "Search Results",
-            items: searchResults.map((snippet: any) => ({
-              label: snippet.name,
-              href: `/editor?snippet_id=${snippet.snippet_id}`,
-              type: "search-result" as const,
-              subtitle: `By ${snippet.owner_name}`,
-              description: snippet.description,
-            })),
-          },
-        ]
-      : []),
-    {
+  // Build the base command groups without search results
+  const baseCommands: CommandGroup[] = [
+    // Only include Recent Snippets when there's no search query
+    ...(!searchQuery ? [{
       group: "Recent Snippets",
       items: (recentSnippets?.slice(0, 6) || []).map((snippet) => ({
         label: snippet.unscoped_name,
@@ -139,7 +125,7 @@ const CmdKMenu: React.FC = () => {
         type: "snippet" as const,
         subtitle: `Last edited: ${new Date(snippet.updated_at).toLocaleDateString()}`,
       })),
-    },
+    }] : []),
     {
       group: "Start Blank Snippet",
       items: blankTemplates.map((template) => ({
@@ -177,18 +163,43 @@ const CmdKMenu: React.FC = () => {
     },
   ]
 
-  const filteredCommands = commands
-    .map((group) => ({
-      ...group,
-      items:
-        group.group === "Search Results"
-          ? group.items
-          : group.items.filter((command) =>
-              command.label.toLowerCase().includes(searchQuery.toLowerCase()),
-            ),
+  // Filter base commands based on search query
+  const filteredBaseCommands = searchQuery
+    ? baseCommands
+        .map((group) => ({
+          ...group,
+          items: group.items.filter((command) =>
+            command.label.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
+        }))
+        .filter((group) => group.items.length > 0)
+    : baseCommands
 
-    }))
-    .filter((group) => group.items.length > 0)
+  // Combine search results with filtered base commands
+  const allCommands = [
+    ...(isSearching
+      ? [
+          {
+            group: "Search Results",
+            items: [{ label: "Searching...", type: "search-result" as const, disabled: true }],
+          },
+        ]
+      : searchResults && searchResults.length > 0
+      ? [
+          {
+            group: "Search Results",
+            items: searchResults.map((snippet: any) => ({
+              label: snippet.name,
+              href: `/editor?snippet_id=${snippet.snippet_id}`,
+              type: "search-result" as const,
+              subtitle: `By ${snippet.owner_name}`,
+              description: snippet.description,
+            })),
+          },
+        ]
+      : []),
+    ...filteredBaseCommands,
+  ]
 
   return (
     <>
@@ -199,16 +210,10 @@ const CmdKMenu: React.FC = () => {
           onValueChange={setSearchQuery}
         />
         <CommandList>
-          {isSearching && (
-            <CommandGroup heading="Search">
-              <CommandItem disabled>Searching...</CommandItem>
-            </CommandGroup>
-          )}
-
-          {filteredCommands.length > 0 ? (
-            filteredCommands.map((group, groupIndex) => (
+          {allCommands.length > 0 ? (
+            allCommands.map((group, groupIndex) => (
               <CommandGroup key={groupIndex} heading={group.group}>
-                {group.items.map((command, itemIndex) => (
+                {group.items.map((command: CommandItemData, itemIndex: number) => (
                   <CommandItem
                     key={itemIndex}
                     onSelect={() => {
