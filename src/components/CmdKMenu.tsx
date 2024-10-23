@@ -180,9 +180,12 @@ const CmdKMenu: React.FC = () => {
   const filteredCommands = commands
     .map((group) => ({
       ...group,
-      items: group.items.filter((command) =>
-        command.label.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
+      items:
+        group.group === "Search Results"
+          ? group.items
+          : group.items.filter((command) =>
+              command.label.toLowerCase().includes(searchQuery.toLowerCase()),
+            ),
     }))
     .filter((group) => group.items.length > 0)
 
