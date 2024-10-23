@@ -49,9 +49,27 @@ interface CommandGroup {
   items: CommandItemData[]
 }
 
+// Debounce helper function
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = React.useState(value);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 const CmdKMenu: React.FC = () => {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const debouncedSearchQuery = useDebounce(searchQuery, 300) // 300ms debounce
   const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = React.useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const axios = useAxios()
@@ -84,16 +102,19 @@ const CmdKMenu: React.FC = () => {
   )
 
   const { data: searchResults, isLoading: isSearching } = useQuery(
-    ["snippetSearch", searchQuery],
+    ["snippetSearch", debouncedSearchQuery], // Use debounced query
     async () => {
-      if (!searchQuery) return []
+      if (!debouncedSearchQuery) return []
       const { data } = await axios.get("/snippets/search", {
-        params: { q: searchQuery },
+        params: { q: debouncedSearchQuery },
       })
       return data.snippets
     },
     {
-      enabled: Boolean(searchQuery),
+      enabled: Boolean(debouncedSearchQuery),
+      keepPreviousData: true, 
+      staleTime: 30000, // Cache results for 30 seconds
+      retry: false, 
     },
   )
 
@@ -114,10 +135,9 @@ const CmdKMenu: React.FC = () => {
     { name: "JLCPCB Component", type: "package", special: true },
   ]
 
-  // Build the base command groups without search results
   const baseCommands: CommandGroup[] = [
     // Only include Recent Snippets when there's no search query
-    ...(!searchQuery ? [{
+    ...(!debouncedSearchQuery ? [{  
       group: "Recent Snippets",
       items: (recentSnippets?.slice(0, 6) || []).map((snippet) => ({
         label: snippet.unscoped_name,
@@ -163,13 +183,12 @@ const CmdKMenu: React.FC = () => {
     },
   ]
 
-  // Filter base commands based on search query
-  const filteredBaseCommands = searchQuery
+  const filteredBaseCommands = debouncedSearchQuery  
     ? baseCommands
         .map((group) => ({
           ...group,
           items: group.items.filter((command) =>
-            command.label.toLowerCase().includes(searchQuery.toLowerCase()),
+            command.label.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
           ),
         }))
         .filter((group) => group.items.length > 0)
@@ -181,7 +200,13 @@ const CmdKMenu: React.FC = () => {
       ? [
           {
             group: "Search Results",
-            items: [{ label: "Searching...", type: "search-result" as const, disabled: true }],
+            items: searchResult.length ? searchResults.map((snippet: any) => ({
+              label: snippet.name,
+              href: `/editor?snippet_id=${snippet.snippet_id}`,
+              type: "search-result" as const,
+              subtitle: `By ${snippet.owner_name}`,
+              description: snippet.description,
+            })) : [{ label: "Searching...", type: "search-result" as const, disabled: true }],
           },
         ]
       : searchResults && searchResults.length > 0
