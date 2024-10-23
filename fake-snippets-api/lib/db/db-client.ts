@@ -103,6 +103,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getNewestSnippets: (limit: number): Snippet[] => {
     const state = get()
     return [...state.snippets]
+      .map((snippet) => ({
+        ...snippet,
+        star_count: state.accountSnippets.filter(
+          (as) => as.snippet_id === snippet.snippet_id && as.has_starred,
+        ).length,
+      }))
       .sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
@@ -111,12 +117,15 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getSnippetsByAuthor: (authorName?: string): Snippet[] => {
     const state = get()
-    if (authorName) {
-      return state.snippets.filter(
-        (snippet) => snippet.owner_name === authorName,
-      )
-    }
-    return state.snippets
+    const snippets = authorName
+      ? state.snippets.filter((snippet) => snippet.owner_name === authorName)
+      : state.snippets
+    return snippets.map((snippet) => ({
+      ...snippet,
+      star_count: state.accountSnippets.filter(
+        (as) => as.snippet_id === snippet.snippet_id && as.has_starred,
+      ).length,
+    }))
   },
   updateSnippet: (
     snippet_id: string,
@@ -159,17 +168,33 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getSnippetById: (snippet_id: string): Snippet | undefined => {
     const state = get()
-    return state.snippets.find((snippet) => snippet.snippet_id === snippet_id)
+    const snippet = state.snippets.find(
+      (snippet) => snippet.snippet_id === snippet_id,
+    )
+    if (!snippet) return undefined
+    return {
+      ...snippet,
+      star_count: state.accountSnippets.filter(
+        (as) => as.snippet_id === snippet_id && as.has_starred,
+      ).length,
+    }
   },
   searchSnippets: (query: string): Snippet[] => {
     const state = get()
     const lowercaseQuery = query.toLowerCase()
-    return state.snippets.filter(
-      (snippet) =>
-        snippet.name.toLowerCase().includes(lowercaseQuery) ||
-        snippet.description?.toLowerCase().includes(lowercaseQuery) ||
-        snippet.code.toLowerCase().includes(lowercaseQuery),
-    )
+    return state.snippets
+      .filter(
+        (snippet) =>
+          snippet.name.toLowerCase().includes(lowercaseQuery) ||
+          snippet.description?.toLowerCase().includes(lowercaseQuery) ||
+          snippet.code.toLowerCase().includes(lowercaseQuery),
+      )
+      .map((snippet) => ({
+        ...snippet,
+        star_count: state.accountSnippets.filter(
+          (as) => as.snippet_id === snippet.snippet_id && as.has_starred,
+        ).length,
+      }))
   },
   deleteSnippet: (snippet_id: string): boolean => {
     let deleted = false

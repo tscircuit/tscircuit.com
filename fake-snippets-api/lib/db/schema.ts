@@ -14,6 +14,7 @@ export const snippetSchema = z.object({
   snippet_type: z.enum(["board", "package", "model", "footprint"]),
   description: z.string().optional(),
   version: z.string().default("0.0.1"),
+  star_count: z.number().default(0),
 })
 export type Snippet = z.infer<typeof snippetSchema>
 

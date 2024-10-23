@@ -6,7 +6,7 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { CreateNewSnippetHero } from "@/components/CreateNewSnippetHero"
-import { Edit2 } from "lucide-react"
+import { Edit2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -120,12 +120,20 @@ export const DashboardPage = () => {
               <ul className="space-y-1">
                 {trendingSnippets.map((snippet) => (
                   <li key={snippet.snippet_id}>
-                    <Link
-                      href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      {snippet.owner_name}/{snippet.unscoped_name}
-                    </Link>
+                    <div className="flex items-center">
+                      <Link
+                        href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        {snippet.owner_name}/{snippet.unscoped_name}
+                      </Link>
+                      {snippet.star_count > 0 && (
+                        <span className="ml-2 text-gray-500 text-xs flex items-center">
+                          <Star className="w-3 h-3 mr-1" />
+                          {snippet.star_count}
+                        </span>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>
