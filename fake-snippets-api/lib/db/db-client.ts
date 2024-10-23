@@ -13,6 +13,7 @@ import {
   snippetSchema,
   Order,
   OrderFile,
+  AccountSnippet,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -262,5 +263,35 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       sessions: [...state.sessions, newSession],
     }))
     return newSession
+  },
+  addStar: (account_id: string, snippet_id: string): AccountSnippet => {
+    const now = new Date().toISOString()
+    const accountSnippet = {
+      account_id,
+      snippet_id,
+      has_starred: true,
+      created_at: now,
+      updated_at: now,
+    }
+    set((state) => ({
+      accountSnippets: [...state.accountSnippets, accountSnippet],
+    }))
+    return accountSnippet
+  },
+  removeStar: (account_id: string, snippet_id: string): void => {
+    set((state) => ({
+      accountSnippets: state.accountSnippets.filter(
+        (as) => !(as.account_id === account_id && as.snippet_id === snippet_id),
+      ),
+    }))
+  },
+  hasStarred: (account_id: string, snippet_id: string): boolean => {
+    const state = get()
+    return state.accountSnippets.some(
+      (as) =>
+        as.account_id === account_id &&
+        as.snippet_id === snippet_id &&
+        as.has_starred,
+    )
   },
 }))

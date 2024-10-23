@@ -87,6 +87,15 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
+export const accountSnippetSchema = z.object({
+  account_id: z.string(),
+  snippet_id: z.string(),
+  has_starred: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type AccountSnippet = z.infer<typeof accountSnippetSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -95,5 +104,6 @@ export const databaseSchema = z.object({
   accounts: z.array(accountSchema).default([]),
   orders: z.array(orderSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
+  accountSnippets: z.array(accountSnippetSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
