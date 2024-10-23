@@ -198,9 +198,13 @@ const CmdKMenu: React.FC = () => {
 
   const filteredCommands = React.useMemo(() => {
     if (!searchQuery) return baseCommands
-
-    return baseCommands
-      .map((group) => ({
+  
+    return baseCommands.map((group) => {
+      if (group.group === "Search Results") {
+        return group
+      }
+  
+      return {
         ...group,
         items: group.items.filter((command) => {
           const searchString = [
@@ -212,13 +216,14 @@ const CmdKMenu: React.FC = () => {
             .filter(Boolean)
             .join(" ")
             .toLowerCase()
-
+  
           return fuzzySearch(searchString, searchQuery.toLowerCase())
         }),
-      }))
-      .filter((group) => group.items.length > 0)
+      }
+    }).filter((group) => 
+      group.items.length > 0 || group.group === "Search Results"
+    )
   }, [baseCommands, searchQuery])
-
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
