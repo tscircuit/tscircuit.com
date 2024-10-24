@@ -2,7 +2,7 @@ import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useNotImplementedToast } from "@/hooks/use-toast"
-import { Command } from 'cmdk'
+import { Command } from "cmdk"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import React from "react"
 import { useQuery } from "react-query"
@@ -41,7 +41,7 @@ const CmdKMenu = () => {
     },
     {
       enabled: Boolean(searchQuery),
-    }
+    },
   )
 
   // Recent snippets query
@@ -50,13 +50,13 @@ const CmdKMenu = () => {
     async () => {
       if (!currentUser) return []
       const response = await axios.get<{ snippets: Snippet[] }>(
-        `/snippets/list?owner_name=${currentUser}`
+        `/snippets/list?owner_name=${currentUser}`,
       )
       return response.data.snippets || []
     },
     {
       enabled: !!currentUser && !searchQuery,
-    }
+    },
   )
 
   React.useEffect(() => {
@@ -109,7 +109,7 @@ const CmdKMenu = () => {
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <Command.Input 
+          <Command.Input
             placeholder="Search snippets and commands..."
             value={searchQuery}
             onValueChange={setSearchQuery}
@@ -125,7 +125,10 @@ const CmdKMenu = () => {
           ) : (
             <>
               {searchQuery && searchResults.length > 0 && (
-                <Command.Group heading="Search Results" className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <Command.Group
+                  heading="Search Results"
+                  className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
+                >
                   {searchResults.map((snippet: Snippet) => (
                     <Command.Item
                       key={snippet.snippet_id}
@@ -145,9 +148,6 @@ const CmdKMenu = () => {
                             {snippet.description}
                           </span>
                         )}
-                        <span className="text-sm text-gray-500">
-                          Last edited: {new Date(snippet.updated_at).toLocaleDateString()}
-                        </span>
                       </div>
                       <span className="text-sm text-gray-500">snippet</span>
                     </Command.Item>
@@ -156,7 +156,10 @@ const CmdKMenu = () => {
               )}
 
               {!searchQuery && recentSnippets.length > 0 && (
-                <Command.Group heading="Recent Snippets" className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+                <Command.Group
+                  heading="Recent Snippets"
+                  className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
+                >
                   {recentSnippets.slice(0, 6).map((snippet) => (
                     <Command.Item
                       key={snippet.snippet_id}
@@ -172,7 +175,8 @@ const CmdKMenu = () => {
                           {snippet.unscoped_name}
                         </span>
                         <span className="text-sm text-gray-500">
-                          Last edited: {new Date(snippet.updated_at).toLocaleDateString()}
+                          Last edited:{" "}
+                          {new Date(snippet.updated_at).toLocaleDateString()}
                         </span>
                       </div>
                       <span className="text-sm text-gray-500">snippet</span>
@@ -181,7 +185,10 @@ const CmdKMenu = () => {
                 </Command.Group>
               )}
 
-              <Command.Group heading="Start Blank Snippet" className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+              <Command.Group
+                heading="Start Blank Snippet"
+                className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
+              >
                 {blankTemplates.map((template) => (
                   <Command.Item
                     key={template.name}
@@ -195,13 +202,20 @@ const CmdKMenu = () => {
                     }}
                     className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default disabled:opacity-50"
                   >
-                    <span className="text-gray-900 dark:text-gray-100">{template.name}</span>
-                    <span className="text-sm text-gray-500">{template.type}</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {template.name}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {template.type}
+                    </span>
                   </Command.Item>
                 ))}
               </Command.Group>
 
-              <Command.Group heading="Start from Template" className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+              <Command.Group
+                heading="Start from Template"
+                className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
+              >
                 {templates.map((template) => (
                   <Command.Item
                     key={template.name}
@@ -212,13 +226,20 @@ const CmdKMenu = () => {
                     }}
                     className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
                   >
-                    <span className="text-gray-900 dark:text-gray-100">{template.name}</span>
-                    <span className="text-sm text-gray-500">{template.type}</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      {template.name}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {template.type}
+                    </span>
                   </Command.Item>
                 ))}
               </Command.Group>
 
-              <Command.Group heading="Import" className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+              <Command.Group
+                heading="Import"
+                className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
+              >
                 {importOptions.map((option) => (
                   <Command.Item
                     key={option.name}
@@ -234,7 +255,9 @@ const CmdKMenu = () => {
                     }}
                     className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
                   >
-                    <span className="text-gray-900 dark:text-gray-100">Import {option.name}</span>
+                    <span className="text-gray-900 dark:text-gray-100">
+                      Import {option.name}
+                    </span>
                     <span className="text-sm text-gray-500">{option.type}</span>
                   </Command.Item>
                 ))}
@@ -254,7 +277,6 @@ const CmdKMenu = () => {
         open={isJLCPCBDialogOpen}
         onOpenChange={setIsJLCPCBDialogOpen}
       />
-
     </>
   )
 }
