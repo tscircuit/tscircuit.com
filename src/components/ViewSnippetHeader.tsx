@@ -1,16 +1,71 @@
-import { Button } from "@/components/ui/button"
-import { useCurrentSnippet } from "@/hooks/use-current-snippet"
-import { ChevronLeft, Star, Eye, GitFork } from "lucide-react"
-import { Link } from "wouter"
 import { TypeBadge } from "@/components/TypeBadge"
+import { Button } from "@/components/ui/button"
 import { useAxios } from "@/hooks/use-axios"
+import { useCurrentSnippet } from "@/hooks/use-current-snippet"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import { toast, useToast } from "@/hooks/use-toast"
-import { useQueryClient } from "react-query"
+import { Snippet } from "fake-snippets-api/lib/db/schema"
+import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useMutation, useQueryClient } from "react-query"
+import { Link } from "wouter"
+import { navigate } from "wouter/use-browser-location"
 
 export default function ViewSnippetHeader() {
   const { snippet } = useCurrentSnippet()
   const axios = useAxios()
   const qc = useQueryClient()
+
+  const useForkSnippetMutation = ({
+    snippet,
+    onSuccess,
+  }: {
+    snippet: Snippet
+    onSuccess?: (forkedSnippet: Snippet) => void
+  }) => {
+    const axios = useAxios()
+    const session = useGlobalStore((s) => s.session)
+
+    return useMutation(
+      ["createForkSnippet"],
+      async () => {
+        if (!session) throw new Error("No session")
+        if (!snippet) throw new Error("No snippet to fork")
+
+        const { data } = await axios.post("/snippets/create", {
+          unscoped_name: snippet.unscoped_name,
+          snippet_type: snippet.snippet_type,
+          owner_name: session.github_username,
+          code: snippet.code,
+        })
+        return data.snippet
+      },
+      {
+        onSuccess: (forkedSnippet: Snippet) => {
+          console.log(
+            "Forked successfully at snippet_id:",
+            forkedSnippet.snippet_id,
+          )
+          toast({
+            title: `Forked snippet`,
+            description: `You have successfully forked the snippet. Redirecting...`,
+          })
+          onSuccess?.(forkedSnippet)
+        },
+        onError: (error: any) => {
+          console.error("Error forking snippet:", error)
+        },
+      },
+    )
+  }
+
+  const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
+    snippet: snippet!,
+    onSuccess: (forkedSnippet) => {
+      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
+    },
+  })
+
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6">
       <div className="flex items-center justify-between">
@@ -72,7 +127,8 @@ export default function ViewSnippetHeader() {
             <Eye className="w-4 h-4 mr-2" />
             Watch
           </Button> */}
-          <Button variant="outline" size="sm">
+
+          <Button variant="outline" size="sm" onClick={() => forkSnippet()}>
             <GitFork className="w-4 h-4 mr-2" />
             Fork
           </Button>
