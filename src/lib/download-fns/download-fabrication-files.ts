@@ -211,7 +211,7 @@ export const downloadFabricationFiles = async ({
 
   // Generate Drill files
   const drillCmds = convertSoupToExcellonDrillCommands({
-    soup: circuitJson,
+    circuitJson,
     is_plated: true,
     flip_y_axis: false,
   })
