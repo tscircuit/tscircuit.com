@@ -120,7 +120,7 @@
     "@typescript/vfs": "^1.6.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
-    "circuit-to-svg": "^0.0.40",
+    "circuit-to-svg": "^0.0.55",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
     "prismjs": "^1.29.0",
