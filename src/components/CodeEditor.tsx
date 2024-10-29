@@ -22,7 +22,7 @@ import {
 import { EditorView, basicSetup } from "codemirror"
 import { useEffect, useRef, useState } from "react"
 import ts from "typescript"
-import CodeEditorHeader from "./ CodeEditorHeader"
+import CodeEditorHeader from "./CodeEditorHeader"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
