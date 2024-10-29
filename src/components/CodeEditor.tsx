@@ -1,13 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { autocompletion } from "@codemirror/autocomplete"
 import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
@@ -15,8 +6,8 @@ import { json } from "@codemirror/lang-json"
 import { EditorState } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import { setupTypeAcquisition } from "@typescript/ata"
 import type { ATABootstrapConfig } from "@typescript/ata"
+import { setupTypeAcquisition } from "@typescript/ata"
 import {
   createSystem,
   createVirtualTypeScriptEnvironment,
@@ -29,10 +20,11 @@ import {
   tsSync,
 } from "@valtown/codemirror-ts"
 import { EditorView, basicSetup } from "codemirror"
+import { useEffect, useRef, useState } from "react"
 import ts from "typescript"
-import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
+import CodeEditorHeader from "./ CodeEditorHeader"
 
-const DEFAULT_IMPORTS = `
+const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
@@ -42,7 +34,7 @@ export const CodeEditor = ({
   onCodeChange,
   onDtsChange,
   readOnly = false,
-  code = "",
+  code: initialCode = "",
   isStreaming = false,
 }: {
   onCodeChange: (code: string, filename?: string) => void
@@ -54,24 +46,24 @@ export const CodeEditor = ({
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
-  const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
-    useImportSnippetDialog()
-  const { toast } = useToast()
+  const apiUrl = useSnippetsBaseApiUrl()
 
   const [files, setFiles] = useState<Record<string, string>>({
-    "index.tsx": code,
+    "index.tsx": initialCode,
     "manual-edits.json": "",
   })
   const [currentFile, setCurrentFile] = useState("index.tsx")
 
+  const { ["index.tsx"]: code } = files
+
   useEffect(() => {
-    if (code !== files["index.tsx"]) {
+    if (initialCode !== code) {
       setFiles((prev) => ({
         ...prev,
-        "index.tsx": code,
+        "index.tsx": initialCode,
       }))
     }
-  }, [code])
+  }, [initialCode])
 
   const handleImportClick = (importName: string) => {
     const [owner, name] = importName.replace("@tsci/", "").split(".")
@@ -117,7 +109,7 @@ export const CodeEditor = ({
           const pathInPackage = fullPackageName.split("/").slice(1).join("/")
           const jsdelivrPath = `${packageName}${pathInPackage ? `/${pathInPackage}` : ""}`
           return fetch(
-            `/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
           )
         }
         return fetch(input, init)
@@ -278,7 +270,7 @@ export const CodeEditor = ({
 
     // Initial ATA run for index.tsx
     if (currentFile === "index.tsx") {
-      ata(`${DEFAULT_IMPORTS}${files["index.tsx"]}`)
+      ata(`${defaultImports}${code}`)
     }
 
     return () => {
@@ -296,13 +288,13 @@ export const CodeEditor = ({
         })
       }
     }
-  }, [files, currentFile])
+  }, [files[currentFile]])
 
-  const codeImports = getImportsFromCode(files["index.tsx"])
+  const codeImports = getImportsFromCode(code)
 
   useEffect(() => {
     if (ataRef.current && currentFile === "index.tsx") {
-      ataRef.current(`${DEFAULT_IMPORTS}${files["index.tsx"]}`)
+      ataRef.current(`${defaultImports}${code}`)
     }
   }, [codeImports])
 
@@ -331,43 +323,6 @@ export const CodeEditor = ({
     }
   }
 
-  const formatCurrentFile = () => {
-    if (!window.prettier || !window.prettierPlugins) return
-
-    try {
-      const currentContent = files[currentFile]
-
-      if (currentFile.endsWith(".json")) {
-        try {
-          const jsonObj = JSON.parse(currentContent)
-          const formattedJson = JSON.stringify(jsonObj, null, 2)
-          updateFileContent(currentFile, formattedJson)
-        } catch (jsonError) {
-          throw new Error("Invalid JSON content")
-        }
-        return
-      }
-
-      const formattedCode = window.prettier.format(currentContent, {
-        semi: false,
-        parser: "typescript",
-        plugins: window.prettierPlugins,
-      })
-
-      updateFileContent(currentFile, formattedCode)
-    } catch (error) {
-      console.error("Formatting error:", error)
-      toast({
-        title: "Formatting error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to format the code. Please check for syntax errors.",
-        variant: "destructive",
-      })
-    }
-  }
-
   if (isStreaming) {
     return (
       <div className="font-mono whitespace-pre-wrap text-xs">
@@ -378,35 +333,13 @@ export const CodeEditor = ({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200">
-        <Select value={currentFile} onValueChange={handleFileChange}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select file" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.keys(files).map((filename) => (
-              <SelectItem key={filename} value={filename}>
-                {filename}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="flex items-center gap-2 px-2 py-1 ml-auto">
-          <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
-            Import
-          </Button>
-          <Button size="sm" variant="ghost" onClick={formatCurrentFile}>
-            Format
-          </Button>
-        </div>
-      </div>
-      <div ref={editorRef} className="flex-1 overflow-auto" />
-      <ImportSnippetDialog
-        onSnippetSelected={(snippet) => {
-          const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
-          updateFileContent(currentFile, newContent)
-        }}
+      <CodeEditorHeader
+        currentFile={currentFile}
+        files={files}
+        handleFileChange={handleFileChange}
+        updateFileContent={updateFileContent}
       />
+      <div ref={editorRef} className="flex-1 overflow-auto" />
     </div>
   )
 }
