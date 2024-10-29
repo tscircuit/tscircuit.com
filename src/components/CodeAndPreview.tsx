@@ -1,38 +1,19 @@
 import { useEffect, useMemo, useState } from "react"
 import { CodeEditor } from "@/components/CodeEditor"
-import { PCBViewer } from "@tscircuit/pcb-viewer"
-import { CadViewer } from "@tscircuit/3d-viewer"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
-import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
-import { Button } from "@/components/ui/button"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import EditorNav from "./EditorNav"
-import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useAxios } from "@/hooks/use-axios"
-import { TypeBadge } from "./TypeBadge"
 import { useToast } from "@/hooks/use-toast"
 import { useMutation, useQueryClient } from "react-query"
-import {
-  ClipboardIcon,
-  Share,
-  Eye,
-  EyeOff,
-  PlayIcon,
-  Loader2,
-} from "lucide-react"
-import { MagicWandIcon } from "@radix-ui/react-icons"
-import { ErrorBoundary } from "react-error-boundary"
-import { ErrorTabContent } from "./ErrorTabContent"
+import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PreviewContent } from "./PreviewContent"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import "@/prettier"
-import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 
 interface Props {
@@ -60,6 +41,10 @@ export function CodeAndPreview({ snippet }: Props) {
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ?? (templateFromUrl.type as any)
 
+  const [files, setFiles] = useState<Record<string, string>>({
+    "index.tsx": defaultCode,
+    "manual-edits.json": "",
+  })
   useEffect(() => {
     if (snippet?.code) {
       setCode(snippet.code)
@@ -79,8 +64,6 @@ export function CodeAndPreview({ snippet }: Props) {
     type: snippetType,
   })
   const qc = useQueryClient()
-  const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
-    useImportSnippetDialog()
 
   const updateSnippetMutation = useMutation({
     mutationFn: async () => {
@@ -156,45 +139,17 @@ export function CodeAndPreview({ snippet }: Props) {
             showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
-          <div className="flex items-center px-2 py-1 border-b border-gray-200">
-            <div className="font-mono text-xs">index.tsx</div>
-            <div className="flex-grow" />
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => openImportDialog()}
-            >
-              Import
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                if (window.prettier && window.prettierPlugins) {
-                  try {
-                    const formattedCode = window.prettier.format(code, {
-                      semi: false,
-                      parser: "typescript",
-                      plugins: window.prettierPlugins,
-                    })
-                    setCode(formattedCode)
-                  } catch (error) {
-                    toast({
-                      title: "Formatting error",
-                      description:
-                        "Failed to format the code. Please check for syntax errors.",
-                      variant: "destructive",
-                    })
-                  }
-                }
-              }}
-            >
-              Format
-            </Button>
-          </div>
           <CodeEditor
-            code={code}
-            onCodeChange={(newCode) => setCode(newCode)}
+            code={files["index.tsx"]}
+            onCodeChange={(newCode, filename) => {
+              if (filename === "index.tsx") {
+                setCode(newCode)
+              }
+              setFiles((prev) => ({
+                ...prev,
+                [filename ?? "index.tsx"]: newCode,
+              }))
+            }}
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
@@ -209,13 +164,6 @@ export function CodeAndPreview({ snippet }: Props) {
           />
         )}
       </div>
-      <ImportSnippetDialog
-        onSnippetSelected={(snippet) => {
-          setCode(
-            `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${code}`,
-          )
-        }}
-      />
     </div>
   )
 }

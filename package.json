@@ -24,6 +24,7 @@
   "dependencies": {
     "@codemirror/autocomplete": "^6.18.1",
     "@codemirror/lang-javascript": "^6.2.2",
+    "@codemirror/lang-json": "^6.0.1",
     "@codemirror/lint": "^6.8.2",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.34.1",
