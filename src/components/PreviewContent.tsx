@@ -135,7 +135,7 @@ export const PreviewContent = ({
           <TabsContent value="code" className="flex-grow overflow-hidden">
             <div className="h-full">
               <CodeEditor
-                code={code}
+                initialCode={code}
                 isStreaming={isStreaming}
                 onCodeChange={onCodeChange!}
                 onDtsChange={onDtsChange!}

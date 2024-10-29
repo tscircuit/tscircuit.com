@@ -35,16 +35,13 @@ export function CodeAndPreview({ snippet }: Props) {
       templateFromUrl.code
     )
   }, [])
+  const [manualEditsText, setManualEditsText] = useState("")
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ?? (templateFromUrl.type as any)
 
-  const [files, setFiles] = useState<Record<string, string>>({
-    "index.tsx": defaultCode,
-    "manual-edits.json": "",
-  })
   useEffect(() => {
     if (snippet?.code) {
       setCode(snippet.code)
@@ -140,15 +137,13 @@ export function CodeAndPreview({ snippet }: Props) {
           )}
         >
           <CodeEditor
-            code={files["index.tsx"]}
+            initialCode={code}
             onCodeChange={(newCode, filename) => {
               if (filename === "index.tsx") {
                 setCode(newCode)
+              } else if (filename === "manual-edits.json") {
+                setManualEditsText(newCode)
               }
-              setFiles((prev) => ({
-                ...prev,
-                [filename ?? "index.tsx"]: newCode,
-              }))
             }}
             onDtsChange={(newDts) => setDts(newDts)}
           />
