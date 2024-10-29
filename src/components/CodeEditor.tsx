@@ -32,6 +32,12 @@ import { EditorView, basicSetup } from "codemirror"
 import ts from "typescript"
 import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 
+const DEFAULT_IMPORTS = `
+import React from "@types/react/jsx-runtime"
+import { Circuit, createUseComponent } from "@tscircuit/core"
+import type { CommonLayoutProps } from "@tscircuit/props"
+`
+
 export const CodeEditor = ({
   onCodeChange,
   onDtsChange,
@@ -272,12 +278,7 @@ export const CodeEditor = ({
 
     // Initial ATA run for index.tsx
     if (currentFile === "index.tsx") {
-      ata(`
-import React from "@types/react/jsx-runtime"
-import { Circuit, createUseComponent } from "@tscircuit/core"
-import type { CommonLayoutProps } from "@tscircuit/props"
-${files["index.tsx"]}
-`)
+      ata(`${DEFAULT_IMPORTS}${files["index.tsx"]}`)
     }
 
     return () => {
@@ -301,12 +302,7 @@ ${files["index.tsx"]}
 
   useEffect(() => {
     if (ataRef.current && currentFile === "index.tsx") {
-      ataRef.current(`
-import React from "@types/react/jsx-runtime"
-import { Circuit, createUseComponent } from "@tscircuit/core"
-import type { CommonLayoutProps } from "@tscircuit/props"
-${files["index.tsx"]}
-`)
+      ataRef.current(`${DEFAULT_IMPORTS}${files["index.tsx"]}`)
     }
   }, [codeImports])
 
