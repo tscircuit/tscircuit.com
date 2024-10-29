@@ -276,7 +276,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [currentFile, !isStreaming])
+  }, [code !== "", !isStreaming])
 
   useEffect(() => {
     if (viewRef.current) {
@@ -288,7 +288,7 @@ export const CodeEditor = ({
         })
       }
     }
-  }, [files[currentFile]])
+  }, [code])
 
   const codeImports = getImportsFromCode(code)
 
