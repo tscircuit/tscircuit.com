@@ -18,7 +18,12 @@ export const useCreateSnippetMutation = ({
       if (!session) throw new Error("No session")
       const template =
         typeof code === "string"
-          ? { code, type: code.includes("<board") ? "board" : "package" }
+          ? {
+              code,
+              type:
+                urlParams.type ||
+                (code.includes("<board") ? "board" : "package"),
+            }
           : getSnippetTemplate(templateName)
       const {
         data: { snippet },
