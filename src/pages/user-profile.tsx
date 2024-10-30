@@ -9,11 +9,14 @@ import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
   const [searchQuery, setSearchQuery] = useState("")
+  const session = useGlobalStore((s) => s.session)
+  const isCurrentUserProfile = username === session?.github_username;
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
@@ -33,7 +36,7 @@ export const UserProfilePage = () => {
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">{username}'s Profile</h1>
+        <h1 className="text-3xl font-bold mb-6">{isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}</h1>
         <div className="mb-6">
           <a
             href={`https://github.com/${username}`}
