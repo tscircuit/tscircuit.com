@@ -3,7 +3,7 @@ import { Link } from "wouter"
 
 export default function Footer() {
   const session = useGlobalStore((s) => s.session)
-  const isLoggedIn = Boolean(session);
+  const isLoggedIn = Boolean(session)
 
   return (
     <footer className="bg-white text-black py-12 border-t mt-8">
@@ -19,17 +19,23 @@ export default function Footer() {
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
                 { name: "Create with AI", href: "/ai" },
-                { name: "My Profile", href: `/${session?.github_username}`, hidden: !isLoggedIn },
+                {
+                  name: "My Profile",
+                  href: `/${session?.github_username}`,
+                  hidden: !isLoggedIn,
+                },
                 { name: "Settings", href: "/settings" },
-              ].filter(item => !item.hidden).map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="hover:underline"
-                >
-                  {item.name}
-                </Link>
-              ))}
+              ]
+                .filter((item) => !item.hidden)
+                .map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="hover:underline"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
             </footer>
           </div>
 
