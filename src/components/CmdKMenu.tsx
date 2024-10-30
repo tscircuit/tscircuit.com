@@ -93,7 +93,7 @@ const CmdKMenu = () => {
         open={open}
         onOpenChange={setOpen}
         label="Command Menu"
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+        className="fixed top-32 left-1/2 -translate-x-1/2 max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
       >
         <div className="flex items-center border-b border-gray-200 dark:border-gray-700 px-3">
           <svg
@@ -117,7 +117,7 @@ const CmdKMenu = () => {
           />
         </div>
 
-        <Command.List className="max-h-[300px] overflow-y-auto p-2">
+        <Command.List className="max-h-96 overflow-y-auto p-2">
           {isSearching ? (
             <Command.Loading className="p-4 text-sm text-gray-500">
               Loading results...
