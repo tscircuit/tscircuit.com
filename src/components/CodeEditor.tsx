@@ -1,34 +1,34 @@
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { autocompletion } from "@codemirror/autocomplete"
-import { indentWithTab } from "@codemirror/commands"
-import { javascript } from "@codemirror/lang-javascript"
-import { json } from "@codemirror/lang-json"
-import { EditorState } from "@codemirror/state"
-import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import type { ATABootstrapConfig } from "@typescript/ata"
-import { setupTypeAcquisition } from "@typescript/ata"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url";
+import { autocompletion } from "@codemirror/autocomplete";
+import { indentWithTab } from "@codemirror/commands";
+import { javascript } from "@codemirror/lang-javascript";
+import { json } from "@codemirror/lang-json";
+import { EditorState } from "@codemirror/state";
+import { Decoration, hoverTooltip, keymap } from "@codemirror/view";
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils";
+import type { ATABootstrapConfig } from "@typescript/ata";
+import { setupTypeAcquisition } from "@typescript/ata";
 import {
   createSystem,
   createVirtualTypeScriptEnvironment,
-} from "@typescript/vfs"
+} from "@typescript/vfs";
 import {
   tsAutocomplete,
   tsFacet,
   tsHover,
   tsLinter,
   tsSync,
-} from "@valtown/codemirror-ts"
-import { EditorView, basicSetup } from "codemirror"
-import { useEffect, useRef, useState } from "react"
-import ts from "typescript"
-import CodeEditorHeader from "./CodeEditorHeader"
+} from "@valtown/codemirror-ts";
+import { EditorView, basicSetup } from "codemirror";
+import { useEffect, useRef, useState } from "react";
+import ts from "typescript";
+import CodeEditorHeader from "./CodeEditorHeader";
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
-`
+`;
 
 export const CodeEditor = ({
   onCodeChange,
@@ -36,55 +36,57 @@ export const CodeEditor = ({
   readOnly = false,
   initialCode = "",
   isStreaming = false,
+  hasUnsavedChanges,
 }: {
-  onCodeChange: (code: string, filename?: string) => void
-  onDtsChange?: (dts: string) => void
-  initialCode: string
-  readOnly?: boolean
-  isStreaming?: boolean
+  onCodeChange: (code: string, filename?: string) => void;
+  onDtsChange?: (dts: string) => void;
+  initialCode: string;
+  readOnly?: boolean;
+  isStreaming?: boolean;
+  hasUnsavedChanges?: boolean;
 }) => {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const viewRef = useRef<EditorView | null>(null)
-  const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
-  const apiUrl = useSnippetsBaseApiUrl()
+  const editorRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null);
+  const apiUrl = useSnippetsBaseApiUrl();
 
   const [files, setFiles] = useState<Record<string, string>>({
     "index.tsx": initialCode,
     "manual-edits.json": "",
-  })
-  const [currentFile, setCurrentFile] = useState("index.tsx")
+  });
+  const [currentFile, setCurrentFile] = useState("index.tsx");
 
-  const { ["index.tsx"]: code } = files
+  const { ["index.tsx"]: code } = files;
 
   useEffect(() => {
     if (initialCode !== code) {
       setFiles((prev) => ({
         ...prev,
         "index.tsx": initialCode,
-      }))
+      }));
     }
-  }, [initialCode])
+  }, [initialCode]);
 
   const handleImportClick = (importName: string) => {
-    const [owner, name] = importName.replace("@tsci/", "").split(".")
-    window.open(`/${owner}/${name}`, "_blank")
-  }
+    const [owner, name] = importName.replace("@tsci/", "").split(".");
+    window.open(`/${owner}/${name}`, "_blank");
+  };
 
   useEffect(() => {
-    if (!editorRef.current) return
+    if (!editorRef.current) return;
 
-    const fsMap = new Map<string, string>()
+    const fsMap = new Map<string, string>();
     Object.entries(files).forEach(([filename, content]) => {
-      fsMap.set(filename, content)
-    })
+      fsMap.set(filename, content);
+    });
 
-    const system = createSystem(fsMap)
+    const system = createSystem(fsMap);
     const env = createVirtualTypeScriptEnvironment(system, [], ts, {
       jsx: ts.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
       resolveJsonModule: true,
-    })
+    });
 
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
@@ -96,7 +98,7 @@ export const CodeEditor = ({
           "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
           "https://data.jsdelivr.com/v1/package/npm/@tsci/",
           "https://cdn.jsdelivr.net/npm/@tsci/",
-        ]
+        ];
         if (
           typeof input === "string" &&
           registryPrefixes.some((prefix) => input.startsWith(prefix))
@@ -104,20 +106,24 @@ export const CodeEditor = ({
           const fullPackageName = input
             .replace(registryPrefixes[0], "")
             .replace(registryPrefixes[1], "")
-            .replace(registryPrefixes[2], "")
-          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${pathInPackage ? `/${pathInPackage}` : ""}`
+            .replace(registryPrefixes[2], "");
+          const packageName = fullPackageName.split("/")[0].replace(/\./, "/");
+          const pathInPackage = fullPackageName.split("/").slice(1).join("/");
+          const jsdelivrPath = `${packageName}${
+            pathInPackage ? `/${pathInPackage}` : ""
+          }`;
           return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
+            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
+              "/resolve/"
+            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`
+          );
         }
-        return fetch(input, init)
+        return fetch(input, init);
       },
       delegate: {
         receivedFile: (code: string, path: string) => {
-          fsMap.set(path, code)
-          env.createFile(path, code)
+          fsMap.set(path, code);
+          env.createFile(path, code);
           if (viewRef.current) {
             viewRef.current.dispatch({
               changes: {
@@ -125,14 +131,14 @@ export const CodeEditor = ({
                 to: viewRef.current.state.doc.length,
                 insert: viewRef.current.state.doc.toString(),
               },
-            })
+            });
           }
         },
       },
-    }
+    };
 
-    const ata = setupTypeAcquisition(ataConfig)
-    ataRef.current = ata
+    const ata = setupTypeAcquisition(ataConfig);
+    ataRef.current = ata;
 
     // Set up base extensions
     const baseExtensions = [
@@ -144,28 +150,28 @@ export const CodeEditor = ({
       EditorState.readOnly.of(readOnly),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          const newContent = update.state.doc.toString()
+          const newContent = update.state.doc.toString();
           setFiles((prev) => ({
             ...prev,
             [currentFile]: newContent,
-          }))
-          onCodeChange(newContent, currentFile)
+          }));
+          onCodeChange(newContent, currentFile);
 
           if (currentFile === "index.tsx") {
             const { outputFiles } = env.languageService.getEmitOutput(
               currentFile,
-              true,
-            )
+              true
+            );
             const indexDts = outputFiles.find(
-              (file) => file.name === "index.d.ts",
-            )
+              (file) => file.name === "index.d.ts"
+            );
             if (indexDts?.text && onDtsChange) {
-              onDtsChange(indexDts.text)
+              onDtsChange(indexDts.text);
             }
           }
         }
       }),
-    ]
+    ];
 
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
@@ -177,50 +183,50 @@ export const CodeEditor = ({
             autocompletion({ override: [tsAutocomplete()] }),
             tsHover(),
             hoverTooltip((view, pos, side) => {
-              const { from, to, text } = view.state.doc.lineAt(pos)
-              const line = text.slice(from, to)
-              const match = line.match(/@tsci\/[\w.]+/)
+              const { from, to, text } = view.state.doc.lineAt(pos);
+              const line = text.slice(from, to);
+              const match = line.match(/@tsci\/[\w.]+/);
               if (match) {
-                const importName = match[0]
-                const start = line.indexOf(importName)
-                const end = start + importName.length
+                const importName = match[0];
+                const start = line.indexOf(importName);
+                const end = start + importName.length;
                 if (pos >= from + start && pos <= from + end) {
                   return {
                     pos: from + start,
                     end: from + end,
                     above: true,
                     create() {
-                      const dom = document.createElement("div")
-                      dom.textContent = "Ctrl/Cmd+Click to open snippet"
-                      return { dom }
+                      const dom = document.createElement("div");
+                      dom.textContent = "Ctrl/Cmd+Click to open snippet";
+                      return { dom };
                     },
-                  }
+                  };
                 }
               }
-              return null
+              return null;
             }),
             EditorView.domEventHandlers({
               click: (event, view) => {
-                if (!event.ctrlKey && !event.metaKey) return false
+                if (!event.ctrlKey && !event.metaKey) return false;
                 const pos = view.posAtCoords({
                   x: event.clientX,
                   y: event.clientY,
-                })
+                });
                 if (pos) {
-                  const { from, to, text } = view.state.doc.lineAt(pos)
-                  const line = text.slice(from, to)
-                  const match = line.match(/@tsci\/[\w.]+/)
+                  const { from, to, text } = view.state.doc.lineAt(pos);
+                  const line = text.slice(from, to);
+                  const match = line.match(/@tsci\/[\w.]+/);
                   if (match) {
-                    const importName = match[0]
-                    const start = line.indexOf(importName)
-                    const end = start + importName.length
+                    const importName = match[0];
+                    const start = line.indexOf(importName);
+                    const end = start + importName.length;
                     if (pos >= from + start && pos <= from + end) {
-                      handleImportClick(importName)
-                      return true
+                      handleImportClick(importName);
+                      return true;
                     }
                   }
                 }
-                return false
+                return false;
               },
             }),
             EditorView.theme({
@@ -231,85 +237,121 @@ export const CodeEditor = ({
               },
             }),
             EditorView.decorations.of((view) => {
-              const decorations = []
+              const decorations = [];
               for (const { from, to } of view.visibleRanges) {
                 for (let pos = from; pos < to; ) {
-                  const line = view.state.doc.lineAt(pos)
-                  const lineText = line.text
-                  const matches = lineText.matchAll(/@tsci\/[\w.]+/g)
+                  const line = view.state.doc.lineAt(pos);
+                  const lineText = line.text;
+                  const matches = lineText.matchAll(/@tsci\/[\w.]+/g);
                   for (const match of matches) {
                     if (match.index !== undefined) {
-                      const start = line.from + match.index
-                      const end = start + match[0].length
+                      const start = line.from + match.index;
+                      const end = start + match[0].length;
                       decorations.push(
                         Decoration.mark({
                           class: "cm-underline",
-                        }).range(start, end),
-                      )
+                        }).range(start, end)
+                      );
                     }
                   }
-                  pos = line.to + 1
+                  pos = line.to + 1;
                 }
               }
-              return Decoration.set(decorations)
+              return Decoration.set(decorations);
             }),
           ]
-        : []
+        : [];
 
     const state = EditorState.create({
       doc: files[currentFile],
       extensions: [...baseExtensions, ...tsExtensions],
-    })
+    });
 
     const view = new EditorView({
       state,
       parent: editorRef.current,
-    })
+    });
 
-    viewRef.current = view
+    viewRef.current = view;
 
     // Initial ATA run for index.tsx
     if (currentFile === "index.tsx") {
-      ata(`${defaultImports}${code}`)
+      ata(`${defaultImports}${code}`);
     }
 
     return () => {
-      view.destroy()
-    }
-  }, [code !== "", !isStreaming])
+      view.destroy();
+    };
+  }, [code !== "", !isStreaming]);
 
   useEffect(() => {
     if (viewRef.current) {
-      const state = viewRef.current.state
-      const currentContent = files[currentFile] || ""
+      const state = viewRef.current.state;
+      const currentContent = files[currentFile] || "";
       if (state.doc.toString() !== currentContent) {
         viewRef.current.dispatch({
           changes: { from: 0, to: state.doc.length, insert: currentContent },
-        })
+        });
       }
     }
-  }, [code])
+  }, [code]);
 
-  const codeImports = getImportsFromCode(code)
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = ""; // Shows the confirmation dialog on reload or close if there are unsaved changes
+      }
+    };
+
+    const handlePopState = (event: PopStateEvent) => {
+      if (hasUnsavedChanges) {
+        const userConfirmed = window.confirm(
+          "Are you sure you want to go back? Unsaved changes may be lost."
+        );
+        if (!userConfirmed) {
+          // Push the state again to stay on the same page
+          window.history.pushState(null, "", window.location.href);
+        }
+      }
+    };
+
+    // Attach event listeners
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    // Push the initial state only once, when component mounts
+    if (hasUnsavedChanges) {
+      window.history.pushState(null, "", window.location.href);
+    }
+
+    // Cleanup event listeners on component unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [hasUnsavedChanges]);
+
+  const codeImports = getImportsFromCode(code);
 
   useEffect(() => {
     if (ataRef.current && currentFile === "index.tsx") {
-      ataRef.current(`${defaultImports}${code}`)
+      ataRef.current(`${defaultImports}${code}`);
     }
-  }, [codeImports])
+  }, [codeImports]);
 
   const handleFileChange = (filename: string) => {
-    setCurrentFile(filename)
-  }
+    setCurrentFile(filename);
+  };
 
   const updateFileContent = (filename: string, newContent: string) => {
     setFiles((prev) => ({
       ...prev,
       [filename]: newContent,
-    }))
+    }));
 
     if (filename === "index.tsx") {
-      onCodeChange(newContent, filename)
+      onCodeChange(newContent, filename);
     }
 
     if (viewRef.current && currentFile === filename) {
@@ -319,16 +361,16 @@ export const CodeEditor = ({
           to: viewRef.current.state.doc.length,
           insert: newContent,
         },
-      })
+      });
     }
-  }
+  };
 
   if (isStreaming) {
     return (
       <div className="font-mono whitespace-pre-wrap text-xs">
         {files[currentFile]}
       </div>
-    )
+    );
   }
 
   return (
@@ -341,5 +383,5 @@ export const CodeEditor = ({
       />
       <div ref={editorRef} className="flex-1 overflow-auto" />
     </div>
-  )
-}
+  );
+};
