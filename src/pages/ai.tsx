@@ -19,6 +19,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const AiPage = () => {
   const [code, setCode] = useState("")
+  const [manualEditsJson, setManualEditsJson] = useState("")
   const [dts, setDts] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
   const {
@@ -79,6 +80,10 @@ export const AiPage = () => {
               triggerRunTsx={triggerRunTsx}
               errorMessage={errorMessage}
               circuitJson={circuitJson}
+              manualEditsJson={manualEditsJson}
+              onManualEditsJsonChange={(newManualEditsJson: string) => {
+                setManualEditsJson(newManualEditsJson)
+              }}
               tsxRunTriggerCount={tsxRunTriggerCount}
             />
           </div>

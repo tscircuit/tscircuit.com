@@ -63,19 +63,21 @@ export const CodeEditorHeader = ({
     }
   }
   return (
-    <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200">
-      <Select value={currentFile} onValueChange={handleFileChange}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Select file" />
-        </SelectTrigger>
-        <SelectContent>
-          {Object.keys(files).map((filename) => (
-            <SelectItem key={filename} value={filename}>
-              {filename}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="flex items-center gap-2 px-2 border-b border-gray-200">
+      <div>
+        <Select value={currentFile} onValueChange={handleFileChange}>
+          <SelectTrigger className="h-7 px-3 bg-white">
+            <SelectValue placeholder="Select file" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(files).map((filename) => (
+              <SelectItem className="py-1" key={filename} value={filename}>
+                <span className="text-xs pr-1">{filename}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex items-center gap-2 px-2 py-1 ml-auto">
         <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
           Import

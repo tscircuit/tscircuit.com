@@ -163,7 +163,7 @@ export default function EditorNav({
           size="sm"
           className="hidden md:flex px-2 text-xs"
           onClick={() => {
-            const url = encodeTextToUrlHash(code)
+            const url = encodeTextToUrlHash(code, snippetType)
             navigator.clipboard.writeText(url)
             alert("URL copied to clipboard!")
           }}
