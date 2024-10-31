@@ -29,7 +29,6 @@ import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-
 export const CodeEditor = ({
   onCodeChange,
   onDtsChange,
@@ -209,7 +208,7 @@ export const CodeEditor = ({
             hoverTooltip((view, pos, side) => {
               const { from, to, text } = view.state.doc.lineAt(pos)
               const line = text.slice(from, to)
-              const match = line.match(/@tsci\/[\w.]+/)
+              const match = line.match(/@tsci\/[\w\-.]+/)
               if (match) {
                 const importName = match[0]
                 const start = line.indexOf(importName)
@@ -266,7 +265,7 @@ export const CodeEditor = ({
                 for (let pos = from; pos < to; ) {
                   const line = view.state.doc.lineAt(pos)
                   const lineText = line.text
-                  const matches = lineText.matchAll(/@tsci\/[\w.]+/g)
+                  const matches = lineText.matchAll(/@tsci\/[\w\-.]+/g)
                   for (const match of matches) {
                     if (match.index !== undefined) {
                       const start = line.from + match.index

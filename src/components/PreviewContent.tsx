@@ -70,7 +70,7 @@ export const PreviewContent = ({
   }, [circuitJson])
 
   return (
-    <div className={cn("flex flex-col h-full relative", className)}>
+    <div className={cn("flex flex-col relative", className)}>
       <div className="md:sticky md:top-2">
         <Tabs
           value={activeTab}

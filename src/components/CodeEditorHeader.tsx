@@ -66,7 +66,7 @@ export const CodeEditorHeader = ({
     <div className="flex items-center gap-2 px-2 border-b border-gray-200">
       <div>
         <Select value={currentFile} onValueChange={handleFileChange}>
-          <SelectTrigger className="h-7 px-3">
+          <SelectTrigger className="h-7 px-3 bg-white">
             <SelectValue placeholder="Select file" />
           </SelectTrigger>
           <SelectContent>
