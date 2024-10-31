@@ -20,10 +20,11 @@ import {
   tsLinter,
   tsSync,
 } from "@valtown/codemirror-ts"
-import { EditorView, basicSetup } from "codemirror"
+import { EditorView } from "codemirror"
 import { useEffect, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
