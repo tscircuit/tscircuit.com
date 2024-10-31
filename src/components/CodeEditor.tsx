@@ -9,6 +9,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
 import {
+  createDefaultMapFromCDN,
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
@@ -107,11 +108,23 @@ export const CodeEditor = ({
       fsMap.set(filename, content)
     })
 
+    createDefaultMapFromCDN(
+      { target: ts.ScriptTarget.ES2022 },
+      "5.6.3",
+      true,
+      ts,
+    ).then((defaultFsMap) => {
+      defaultFsMap.forEach((content, filename) => {
+        fsMap.set(filename, content)
+      })
+    })
+
     const system = createSystem(fsMap)
     const env = createVirtualTypeScriptEnvironment(system, [], ts, {
       jsx: ts.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
+      target: ts.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
 
