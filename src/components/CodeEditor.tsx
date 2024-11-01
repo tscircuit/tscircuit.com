@@ -37,6 +37,7 @@ export const CodeEditor = ({
   initialCode = "",
   manualEditsJson,
   isStreaming = false,
+  showImportAndFormatButtons = true,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -44,6 +45,7 @@ export const CodeEditor = ({
   readOnly?: boolean
   isStreaming?: boolean
   manualEditsJson: string
+  showImportAndFormatButtons?: boolean
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -372,12 +374,14 @@ export const CodeEditor = ({
 
   return (
     <div className="flex flex-col h-full">
-      <CodeEditorHeader
-        currentFile={currentFile}
-        files={files}
-        handleFileChange={handleFileChange}
-        updateFileContent={updateFileContent}
-      />
+      {showImportAndFormatButtons && (
+        <CodeEditorHeader
+          currentFile={currentFile}
+          files={files}
+          handleFileChange={handleFileChange}
+          updateFileContent={updateFileContent}
+        />
+      )}
       <div ref={editorRef} className="flex-1 overflow-auto" />
     </div>
   )
