@@ -25,7 +25,7 @@ import { useEffect, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
-
+import useWarnUserForUnsavedChanges from "@/hooks/useWarnUserForUnsavedChanges"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -110,7 +110,6 @@ export const CodeEditor = ({
     Object.entries(files).forEach(([filename, content]) => {
       fsMap.set(filename, content)
     })
-
     createDefaultMapFromCDN(
       { target: ts.ScriptTarget.ES2022 },
       "5.6.3",
@@ -228,7 +227,7 @@ export const CodeEditor = ({
             hoverTooltip((view, pos, side) => {
               const { from, to, text } = view.state.doc.lineAt(pos)
               const line = text.slice(from, to)
-              const match = line.match(/@tsci\/[\w.]+/)
+              const match = line.match(/@tsci\/[\w\-.]+/)
               if (match) {
                 const importName = match[0]
                 const start = line.indexOf(importName)
@@ -327,6 +326,10 @@ export const CodeEditor = ({
     }
   }, [!isStreaming, currentFile, code !== ""])
 
+  useWarnUserForUnsavedChanges({
+    hasUnsavedChanges: hasUnsavedChanges ?? false,
+  })
+
   useEffect(() => {
     if (viewRef.current) {
       const state = viewRef.current.state
@@ -338,42 +341,6 @@ export const CodeEditor = ({
       }
     }
   }, [files[currentFile], currentFile])
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        event.preventDefault()
-        event.returnValue = "" // Shows the confirmation dialog on reload or close if there are unsaved changes
-      }
-    }
-
-    const handlePopState = (event: PopStateEvent) => {
-      if (hasUnsavedChanges) {
-        const userConfirmed = window.confirm(
-          "Are you sure you want to go back? Unsaved changes may be lost.",
-        )
-        if (!userConfirmed) {
-          // Push the state again to stay on the same page
-          window.history.pushState(null, "", window.location.href)
-        }
-      }
-    }
-
-    // Attach event listeners
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    window.addEventListener("popstate", handlePopState)
-
-    // Push the initial state only once, when component mounts
-    if (hasUnsavedChanges) {
-      window.history.pushState(null, "", window.location.href)
-    }
-
-    // Cleanup event listeners on component unmount
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-      window.removeEventListener("popstate", handlePopState)
-    }
-  }, [hasUnsavedChanges])
 
   const codeImports = getImportsFromCode(code)
 
