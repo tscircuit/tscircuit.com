@@ -137,7 +137,7 @@ export const applyPcbEditEvents = ({
 }
 
 // Helper function to ensure we have a valid state
-const ensureValidState = (manualEditsFileContent: string): ManualEditState => {
+const ensureValidState = (manualEditsFileContent?: string): ManualEditState => {
   if (!manualEditsFileContent) return createInitialManualEditState()
 
   const manualEditState = JSON.parse(manualEditsFileContent)
