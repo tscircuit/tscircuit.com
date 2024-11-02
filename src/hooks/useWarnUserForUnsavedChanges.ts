@@ -12,31 +12,31 @@ export default function useWarnUserForUnsavedChanges({
       }
     }
 
-    const handlePopState = (event: PopStateEvent) => {
-      if (hasUnsavedChanges) {
-        const userConfirmed = window.confirm(
-          "Are you sure you want to go back? Unsaved changes may be lost.",
-        )
-        if (!userConfirmed) {
-          // Push the state again to stay on the same page
-          window.history.pushState(null, "", window.location.href)
-        }
-      }
-    }
+    // const handlePopState = (event: PopStateEvent) => {
+    //   if (hasUnsavedChanges) {
+    //     const userConfirmed = window.confirm(
+    //       "Are you sure you want to go back? Unsaved changes may be lost.",
+    //     )
+    //     if (!userConfirmed) {
+    //       // Push the state again to stay on the same page
+    //       window.history.pushState(null, "", window.location.href)
+    //     }
+    //   }
+    // }
 
     // Attach event listeners
     window.addEventListener("beforeunload", handleBeforeUnload)
-    window.addEventListener("popstate", handlePopState)
+    // window.addEventListener("popstate", handlePopState)
 
     // Push the initial state only once, when component mounts
-    if (hasUnsavedChanges) {
-      window.history.pushState(null, "", window.location.href)
-    }
+    // if (hasUnsavedChanges) {
+    //   window.history.pushState(null, "", window.location.href)
+    // }
 
     // Cleanup event listeners on component unmount
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
-      window.removeEventListener("popstate", handlePopState)
+      // window.removeEventListener("popstate", handlePopState)
     }
   }, [hasUnsavedChanges])
 }
