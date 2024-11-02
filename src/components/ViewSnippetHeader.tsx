@@ -42,10 +42,6 @@ export default function ViewSnippetHeader() {
       },
       {
         onSuccess: (forkedSnippet: Snippet) => {
-          console.log(
-            "Forked successfully at snippet_id:",
-            forkedSnippet.snippet_id,
-          )
           toast({
             title: `Forked snippet`,
             description: `You have successfully forked the snippet. Redirecting...`,

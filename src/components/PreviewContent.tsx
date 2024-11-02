@@ -52,11 +52,14 @@ export const PreviewContent = ({
   onManualEditsFileContentChange,
 }: PreviewContentProps) => {
   const [activeTab, setActiveTab] = useState(showCodeTab ? "code" : "pcb")
-  const [versionOfCodeLastRun, setVersionOfCodeLastRun] = useState("")
+  const [lastRunHash, setLastRunHash] = useState("")
+
+  const currentCodeHash = code + "\n" + manualEditsFileContent
+  const hasCodeChangedSinceLastRun = lastRunHash !== currentCodeHash
 
   useEffect(() => {
     if (tsxRunTriggerCount === 0) return
-    setVersionOfCodeLastRun(code)
+    setLastRunHash(currentCodeHash)
   }, [tsxRunTriggerCount])
 
   useEffect(() => {
@@ -84,9 +87,7 @@ export const PreviewContent = ({
             {leftHeaderContent && <div className="flex-grow" />}
             <RunButton
               onClick={() => triggerRunTsx()}
-              disabled={
-                versionOfCodeLastRun === code && tsxRunTriggerCount !== 0
-              }
+              disabled={!hasCodeChangedSinceLastRun && tsxRunTriggerCount !== 0}
             />
             {!leftHeaderContent && <div className="flex-grow" />}
             <TabsList>
@@ -96,7 +97,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}
@@ -109,7 +110,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}
@@ -122,7 +123,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}

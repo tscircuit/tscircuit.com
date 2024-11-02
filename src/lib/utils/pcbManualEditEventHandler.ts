@@ -34,6 +34,7 @@ export const applyPcbEditEvents = (
   try {
     // Ensure we have a valid state to work with
     const validState = ensureValidState(manualEditsFileContent)
+    console.log("validState", validState)
 
     // Create a new state object with properly initialized arrays
     const newManualEditState: ManualEditState = {
@@ -134,17 +135,19 @@ export const applyPcbEditEvents = (
 
 // Helper function to ensure we have a valid state
 const ensureValidState = (
-  state: Partial<ManualEditState> | null | undefined,
+  manualEditState: Partial<ManualEditState> | null | undefined,
 ): ManualEditState => {
-  if (!state) return createInitialManualEditState()
+  if (!manualEditState) return createInitialManualEditState()
 
   return {
-    pcb_placements: Array.isArray(state.pcb_placements)
-      ? state.pcb_placements
+    pcb_placements: Array.isArray(manualEditState.pcb_placements)
+      ? manualEditState.pcb_placements
       : [],
-    edit_events: Array.isArray(state.edit_events) ? state.edit_events : [],
-    manual_trace_hints: Array.isArray(state.manual_trace_hints)
-      ? state.manual_trace_hints
+    edit_events: Array.isArray(manualEditState.edit_events)
+      ? manualEditState.edit_events
+      : [],
+    manual_trace_hints: Array.isArray(manualEditState.manual_trace_hints)
+      ? manualEditState.manual_trace_hints
       : [],
   }
 }

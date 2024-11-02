@@ -9,11 +9,13 @@ import {
 import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
 
+type FileName = "index.tsx" | "manual-edits.json"
+
 interface CodeEditorHeaderProps {
-  currentFile: string
-  files: Record<string, string>
-  handleFileChange: (filename: string) => void
-  updateFileContent: (filename: string, content: string) => void
+  currentFile: FileName
+  files: Record<FileName, string>
+  handleFileChange: (filename: FileName) => void
+  updateFileContent: (filename: FileName, content: string) => void
 }
 
 export const CodeEditorHeader = ({

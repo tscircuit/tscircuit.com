@@ -150,12 +150,11 @@ export function CodeAndPreview({ snippet }: Props) {
           <CodeEditor
             initialCode={code}
             manualEditsFileContent={manualEditsFileContent}
-            onCodeChange={(newCode, filename) => {
-              if (filename === "index.tsx") {
-                setCode(newCode)
-              } else if (filename === "manual-edits.json") {
-                setManualEditsFileContent(newCode)
-              }
+            onManualEditsFileContentChanged={(newContent) => {
+              setManualEditsFileContent(newContent)
+            }}
+            onCodeChange={(newCode) => {
+              setCode(newCode)
             }}
             onDtsChange={(newDts) => setDts(newDts)}
           />
