@@ -22,6 +22,7 @@ export interface PreviewContentProps {
   className?: string
   showCodeTab?: boolean
   showJsonTab?: boolean
+  showImportAndFormatButtons?: boolean
   headerClassName?: string
   leftHeaderContent?: React.ReactNode
   isStreaming?: boolean
@@ -39,6 +40,7 @@ export const PreviewContent = ({
   circuitJson,
   showCodeTab = false,
   showJsonTab = true,
+  showImportAndFormatButtons = true,
   className,
   headerClassName,
   leftHeaderContent,
@@ -149,6 +151,7 @@ export const PreviewContent = ({
                   onCodeChange={onCodeChange!}
                   onDtsChange={onDtsChange!}
                   readOnly={readOnly}
+                  showImportAndFormatButtons={showImportAndFormatButtons}
                 />
               </div>
             </TabsContent>

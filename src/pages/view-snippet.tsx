@@ -53,6 +53,7 @@ export const ViewSnippetPage = () => {
                   circuitJson={circuitJson}
                   showCodeTab={true}
                   showJsonTab={false}
+                  showImportAndFormatButtons={false}
                   readOnly
                   headerClassName="p-4 border-b border-gray-200"
                   leftHeaderContent={
