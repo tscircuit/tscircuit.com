@@ -33,6 +33,9 @@ export function CodeAndPreview({ snippet }: Props) {
     return (
       decodeUrlHashToText(window.location.toString()) ??
       snippet?.code ??
+      // If the snippet_id is in the url, use an empty string as the default
+      // code until the snippet code is loaded
+      (urlParams.snippet_id && "") ??
       templateFromUrl.code
     )
   }, [])

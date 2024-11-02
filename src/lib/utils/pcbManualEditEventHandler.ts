@@ -26,21 +26,24 @@ export const createInitialManualEditState = (): ManualEditState => ({
   manual_trace_hints: [],
 })
 
-export const applyPcbEditEvents = (
-  changedEditEvents: EditEvent[],
-  circuitJson: AnyCircuitElement[],
-  manualEditsFileContent: Partial<ManualEditState> | null | undefined,
-): ManualEditState => {
+export const applyPcbEditEvents = ({
+  editEvents,
+  circuitJson,
+  manualEditsFileContent,
+}: {
+  editEvents: EditEvent[]
+  circuitJson: AnyCircuitElement[]
+  manualEditsFileContent?: string
+}): ManualEditState => {
   try {
     // Ensure we have a valid state to work with
-    const validState = ensureValidState(manualEditsFileContent)
-    console.log("validState", validState)
+    const validatedManualEdits = ensureValidState(manualEditsFileContent)
 
     // Create a new state object with properly initialized arrays
     const newManualEditState: ManualEditState = {
-      pcb_placements: [...validState.pcb_placements],
-      edit_events: [...validState.edit_events],
-      manual_trace_hints: [...validState.manual_trace_hints],
+      pcb_placements: [...validatedManualEdits.pcb_placements],
+      edit_events: [...validatedManualEdits.edit_events],
+      manual_trace_hints: [...validatedManualEdits.manual_trace_hints],
     }
 
     // Create a set of handled event IDs
@@ -60,7 +63,7 @@ export const applyPcbEditEvents = (
     })
 
     // Process new edit events
-    for (const editEvent of changedEditEvents) {
+    for (const editEvent of editEvents) {
       if (
         (editEvent.in_progress && !editEvent.edit_event_id) ||
         handledEventIds.has(editEvent.edit_event_id)
@@ -134,10 +137,10 @@ export const applyPcbEditEvents = (
 }
 
 // Helper function to ensure we have a valid state
-const ensureValidState = (
-  manualEditState: Partial<ManualEditState> | null | undefined,
-): ManualEditState => {
-  if (!manualEditState) return createInitialManualEditState()
+const ensureValidState = (manualEditsFileContent: string): ManualEditState => {
+  if (!manualEditsFileContent) return createInitialManualEditState()
+
+  const manualEditState = JSON.parse(manualEditsFileContent)
 
   return {
     pcb_placements: Array.isArray(manualEditState.pcb_placements)

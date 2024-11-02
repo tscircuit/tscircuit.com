@@ -164,13 +164,15 @@ export const PreviewContent = ({
                   <PCBViewer
                     key={tsxRunTriggerCount}
                     soup={circuitJson}
-                    onEditEventsChanged={(changedEditEvents) => {
+                    onEditEventsChanged={(editEvents) => {
+                      if (editEvents.some((editEvent) => editEvent.in_progress))
+                        return
                       // Update state with new edit events
-                      const newManualEditsFileContent = applyPcbEditEvents(
-                        changedEditEvents,
+                      const newManualEditsFileContent = applyPcbEditEvents({
+                        editEvents,
                         circuitJson,
-                        manualEditsFileContent as any,
-                      )
+                        manualEditsFileContent,
+                      })
                       onManualEditsFileContentChange?.(
                         JSON.stringify(newManualEditsFileContent, null, 2),
                       )
