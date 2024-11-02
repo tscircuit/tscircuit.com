@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
-
+import useWarnUser from "@/hooks/use-warn-user"
 interface Props {
   snippet?: Snippet | null
 }
@@ -118,6 +118,7 @@ export function CodeAndPreview({ snippet }: Props) {
   }
 
   const hasUnsavedChanges = snippet?.code !== code
+  useWarnUser({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
