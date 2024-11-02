@@ -48,7 +48,6 @@ export default function AIChatInterface({
   }, [messages])
 
   const addMessage = async (message: string) => {
-    console.log("adding message", message)
     const newMessages = messages.concat([
       {
         sender: "user",

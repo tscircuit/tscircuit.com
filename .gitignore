@@ -30,3 +30,6 @@ dist-ssr
 .env.*
 package-lock.json
 test-results
+
+.yalc
+yalc.lock

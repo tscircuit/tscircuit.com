@@ -1,15 +1,13 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react"
-import * as React from "react"
-import { safeCompileTsx, useCompiledTsx } from "../use-compiled-tsx"
 import * as tscircuitCore from "@tscircuit/core"
-import { createJSCADRenderer } from "jscad-fiber"
-import { jscadPlanner } from "jscad-planner"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import { evalCompiledJs } from "./eval-compiled-js"
-import { constructCircuit } from "./construct-circuit"
-import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
+import type { AnyCircuitElement } from "circuit-json"
 import * as jscadFiber from "jscad-fiber"
-import { AnyCircuitElement } from "circuit-json"
+import * as React from "react"
+import { useEffect, useReducer, useRef, useState } from "react"
+import { safeCompileTsx } from "../use-compiled-tsx"
+import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
+import { constructCircuit } from "./construct-circuit"
+import { evalCompiledJs } from "./eval-compiled-js"
 
 type RunTsxResult = {
   compiledModule: any
@@ -21,10 +19,12 @@ type RunTsxResult = {
 
 export const useRunTsx = ({
   code,
+  userImports,
   type,
   isStreaming = false,
 }: {
   code?: string
+  userImports?: Record<string, object>
   type?: "board" | "footprint" | "package" | "model"
   isStreaming?: boolean
 } = {}): RunTsxResult & {
@@ -64,6 +64,12 @@ export const useRunTsx = ({
       const preSuppliedImports: Record<string, any> =
         preSuppliedImportsRef.current
 
+      for (const [importName, importValue] of Object.entries(
+        userImports ?? {},
+      )) {
+        preSuppliedImports[importName] = importValue
+      }
+
       const __tscircuit_require = (name: string) => {
         if (!preSuppliedImports[name]) {
           throw new Error(
@@ -78,7 +84,7 @@ export const useRunTsx = ({
       preSuppliedImports["jscad-fiber"] = jscadFiber
       globalThis.React = React
 
-      async function addImport(importName: string, depth: number = 0) {
+      async function addImport(importName: string, depth = 0) {
         if (!importName.startsWith("@tsci/")) return
         if (preSuppliedImports[importName]) return
         if (depth > 5) {

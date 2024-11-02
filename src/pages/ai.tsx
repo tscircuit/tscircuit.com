@@ -1,25 +1,16 @@
 import AIChatInterface from "@/components/AiChatInterface"
-import { CodeEditor } from "@/components/CodeEditor"
 import Header from "@/components/Header"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MagicWandIcon } from "@radix-ui/react-icons"
-import { CadViewer } from "@tscircuit/3d-viewer"
-import { PCBViewer } from "@tscircuit/pcb-viewer"
-import { ArrowRight, ClipboardIcon, Save, Edit2 } from "lucide-react"
-import { useState, useEffect } from "react"
-import { useRunTsx } from "@/hooks/use-run-tsx"
-import { ErrorTabContent } from "@/components/ErrorTabContent"
-import { useLocation } from "wouter"
-import { useSaveSnippet } from "@/hooks/use-save-snippet"
-import { useToast } from "@/hooks/use-toast"
-import { useSnippet } from "@/hooks/use-snippet"
 import { PreviewContent } from "@/components/PreviewContent"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useRunTsx } from "@/hooks/use-run-tsx"
+import { useSaveSnippet } from "@/hooks/use-save-snippet"
+import { useSnippet } from "@/hooks/use-snippet"
+import { useToast } from "@/hooks/use-toast"
+import { useEffect, useState } from "react"
+import { useLocation } from "wouter"
 
 export const AiPage = () => {
   const [code, setCode] = useState("")
-  const [manualEditsJson, setManualEditsJson] = useState("")
+  const [manualEditsFileContent, setManualEditsFileContent] = useState("")
   const [dts, setDts] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
   const {
@@ -80,9 +71,11 @@ export const AiPage = () => {
               triggerRunTsx={triggerRunTsx}
               errorMessage={errorMessage}
               circuitJson={circuitJson}
-              manualEditsJson={manualEditsJson}
-              onManualEditsJsonChange={(newManualEditsJson: string) => {
-                setManualEditsJson(newManualEditsJson)
+              manualEditsFileContent={manualEditsFileContent}
+              onManualEditsFileContentChange={(
+                newManualEditsFileContent: string,
+              ) => {
+                setManualEditsFileContent(newManualEditsFileContent)
               }}
               tsxRunTriggerCount={tsxRunTriggerCount}
             />

@@ -1,4 +1,6 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
+import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { autocompletion } from "@codemirror/autocomplete"
 import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
@@ -21,11 +23,10 @@ import {
   tsSync,
 } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
-import { basicSetup } from "@/lib/codemirror/basic-setup"
-import useWarnUserForUnsavedChanges from "@/hooks/useWarnUserForUnsavedChanges"
+
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -36,10 +37,10 @@ export const CodeEditor = ({
   onDtsChange,
   readOnly = false,
   initialCode = "",
-  manualEditsJson,
+  manualEditsFileContent,
   isStreaming = false,
-  hasUnsavedChanges,
   showImportAndFormatButtons = true,
+  onManualEditsFileContentChanged,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -47,63 +48,37 @@ export const CodeEditor = ({
   readOnly?: boolean
   manualEditsJson?: string
   isStreaming?: boolean
-  hasUnsavedChanges?: boolean
+  manualEditsFileContent: string
   showImportAndFormatButtons?: boolean
+  onManualEditsFileContentChanged?: (newContent: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
 
-  const [files, setFiles] = useState<Record<string, string>>({
-    "index.tsx": initialCode,
-    "manual-edits.json": JSON.stringify(
-      {
-        pcb_placements: [],
-        edit_events: [],
-        manual_trace_hints: [],
-      },
-      null,
-      2,
-    ),
-  })
-  const [currentFile, setCurrentFile] = useState("index.tsx")
+  const [code, setCode] = useState(initialCode)
 
-  const { ["index.tsx"]: code } = files
+  const files = useMemo(
+    () => ({
+      "index.tsx": code,
+      "manual-edits.json": manualEditsFileContent,
+    }),
+    [code, manualEditsFileContent],
+  )
+  const [currentFile, setCurrentFile] =
+    useState<keyof typeof files>("index.tsx")
+
+  const isInitialCodeLoaded = Boolean(initialCode)
 
   useEffect(() => {
     if (initialCode !== code) {
-      setFiles((prev) => ({
-        ...prev,
-        "index.tsx": initialCode,
-      }))
-    }
-  }, [initialCode])
-
-  useEffect(() => {
-    if (manualEditsJson) {
-      setFiles((prev) => ({
-        ...prev,
-        "manual-edits.json": manualEditsJson,
-      }))
-
-      // If currently viewing manual-edits.json, update editor content
-      if (currentFile === "manual-edits.json" && viewRef.current) {
-        viewRef.current.dispatch({
-          changes: {
-            from: 0,
-            to: viewRef.current.state.doc.length,
-            insert: manualEditsJson,
-          },
-        })
+      setCode(initialCode)
+      if (currentFile === "index.tsx") {
+        updateCurrentEditorContent(initialCode)
       }
     }
-  }, [manualEditsJson])
-
-  const handleImportClick = (importName: string) => {
-    const [owner, name] = importName.replace("@tsci/", "").split(".")
-    window.open(`/${owner}/${name}`, "_blank")
-  }
+  }, [isInitialCodeLoaded])
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -195,11 +170,14 @@ export const CodeEditor = ({
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
-          setFiles((prev) => ({
-            ...prev,
-            [currentFile]: newContent,
-          }))
-          onCodeChange(newContent, currentFile)
+          if (newContent === files[currentFile]) return
+
+          if (currentFile === "index.tsx") {
+            setCode(newContent)
+            onCodeChange(newContent)
+          } else if (currentFile === "manual-edits.json") {
+            onManualEditsFileContentChanged?.(newContent)
+          }
 
           if (currentFile === "index.tsx") {
             const { outputFiles } = env.languageService.getEmitOutput(
@@ -265,7 +243,10 @@ export const CodeEditor = ({
                     const start = line.indexOf(importName)
                     const end = start + importName.length
                     if (pos >= from + start && pos <= from + end) {
-                      handleImportClick(importName)
+                      const [owner, name] = importName
+                        .replace("@tsci/", "")
+                        .split(".")
+                      window.open(`/${owner}/${name}`, "_blank")
                       return true
                     }
                   }
@@ -328,21 +309,21 @@ export const CodeEditor = ({
     }
   }, [!isStreaming, currentFile, code !== ""])
 
-  useWarnUserForUnsavedChanges({
-    hasUnsavedChanges: hasUnsavedChanges ?? false,
-  })
-
-  useEffect(() => {
+  const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
       const state = viewRef.current.state
-      const currentContent = files[currentFile] || ""
-      if (state.doc.toString() !== currentContent) {
+      if (state.doc.toString() !== newContent) {
         viewRef.current.dispatch({
-          changes: { from: 0, to: state.doc.length, insert: currentContent },
+          changes: { from: 0, to: state.doc.length, insert: newContent },
         })
       }
     }
-  }, [files[currentFile], currentFile])
+  }
+
+  const updateEditorToMatchCurrentFile = () => {
+    const currentContent = files[currentFile] || ""
+    updateCurrentEditorContent(currentContent)
+  }
 
   const codeImports = getImportsFromCode(code)
 
@@ -352,17 +333,20 @@ export const CodeEditor = ({
     }
   }, [codeImports])
 
-  const handleFileChange = (filename: string) => {
+  const handleFileChange = (filename: keyof typeof files) => {
     setCurrentFile(filename)
   }
 
-  const updateFileContent = (filename: string, newContent: string) => {
-    setFiles((prev) => ({
-      ...prev,
-      [filename]: newContent,
-    }))
-
-    onCodeChange(newContent, filename)
+  const updateFileContent = (
+    filename: keyof typeof files,
+    newContent: string,
+  ) => {
+    if (filename === "index.tsx") {
+      setCode(newContent)
+      onCodeChange(newContent)
+    } else if (filename === "manual-edits.json") {
+      onManualEditsFileContentChanged?.(newContent)
+    }
 
     if (viewRef.current && currentFile === filename) {
       viewRef.current.dispatch({
@@ -374,6 +358,19 @@ export const CodeEditor = ({
       })
     }
   }
+
+  // Whenever the current file changes, updated the editor content
+  useEffect(() => {
+    updateEditorToMatchCurrentFile()
+  }, [currentFile])
+
+  // Whenever the manual edits json content changes, update the editor if
+  // it's currently viewing the manual edits file
+  useEffect(() => {
+    if (currentFile === "manual-edits.json") {
+      updateEditorToMatchCurrentFile()
+    }
+  }, [manualEditsFileContent])
 
   if (isStreaming) {
     return (
@@ -390,7 +387,9 @@ export const CodeEditor = ({
           currentFile={currentFile}
           files={files}
           handleFileChange={handleFileChange}
-          updateFileContent={updateFileContent}
+          updateFileContent={(...args) => {
+            return updateFileContent(...args)
+          }}
         />
       )}
       <div ref={editorRef} className="flex-1 overflow-auto" />

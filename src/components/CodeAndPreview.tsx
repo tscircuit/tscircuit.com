@@ -9,12 +9,14 @@ import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import "@/prettier"
+import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
+import useWarnUserForUnsavedChanges from "@/hooks/useWarnUserForUnsavedChanges"
 
 interface Props {
   snippet?: Snippet | null
@@ -32,10 +34,15 @@ export function CodeAndPreview({ snippet }: Props) {
     return (
       decodeUrlHashToText(window.location.toString()) ??
       snippet?.code ??
+      // If the snippet_id is in the url, use an empty string as the default
+      // code until the snippet code is loaded
+      (urlParams.snippet_id && "") ??
       templateFromUrl.code
     )
   }, [])
-  const [manualEditsJson, setManualEditsJson] = useState("")
+  const [manualEditsFileContent, setManualEditsFileContent] = useState(
+    JSON.stringify(manualEditsTemplate, null, 2) ?? "",
+  )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -50,6 +57,13 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const { toast } = useToast()
 
+  const userImports = useMemo(
+    () => ({
+      "./manual-edits.json": JSON.parse(manualEditsFileContent),
+    }),
+    [manualEditsFileContent],
+  )
+
   const {
     message,
     circuitJson,
@@ -58,6 +72,7 @@ export function CodeAndPreview({ snippet }: Props) {
     tsxRunTriggerCount,
   } = useRunTsx({
     code,
+    userImports,
     type: snippetType,
   })
   const qc = useQueryClient()
@@ -104,6 +119,7 @@ export function CodeAndPreview({ snippet }: Props) {
   }
 
   const hasUnsavedChanges = snippet?.code !== code
+  useWarnUserForUnsavedChanges({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
@@ -138,16 +154,14 @@ export function CodeAndPreview({ snippet }: Props) {
         >
           <CodeEditor
             initialCode={code}
-            manualEditsJson={manualEditsJson}
-            onCodeChange={(newCode, filename) => {
-              if (filename === "index.tsx") {
-                setCode(newCode)
-              } else if (filename === "manual-edits.json") {
-                setManualEditsJson(newCode)
-              }
+            manualEditsFileContent={manualEditsFileContent}
+            onManualEditsFileContentChanged={(newContent) => {
+              setManualEditsFileContent(newContent)
+            }}
+            onCodeChange={(newCode) => {
+              setCode(newCode)
             }}
             onDtsChange={(newDts) => setDts(newDts)}
-            hasUnsavedChanges={hasUnsavedChanges}
           />
         </div>
         {showPreview && (
@@ -158,9 +172,9 @@ export function CodeAndPreview({ snippet }: Props) {
             tsxRunTriggerCount={tsxRunTriggerCount}
             errorMessage={message}
             circuitJson={circuitJson}
-            manualEditsJson={manualEditsJson}
-            onManualEditsJsonChange={(newManualEditsJson) => {
-              setManualEditsJson(newManualEditsJson)
+            manualEditsFileContent={manualEditsFileContent}
+            onManualEditsFileContentChange={(newManualEditsFileContent) => {
+              setManualEditsFileContent(newManualEditsFileContent)
             }}
           />
         )}

@@ -28,8 +28,8 @@ export interface PreviewContentProps {
   isStreaming?: boolean
   onCodeChange?: (code: string) => void
   onDtsChange?: (dts: string) => void
-  manualEditsJson?: string
-  onManualEditsJsonChange?: (newManualEditsJson: string) => void
+  manualEditsFileContent?: string
+  onManualEditsFileContentChange?: (newmanualEditsFileContent: string) => void
 }
 
 export const PreviewContent = ({
@@ -48,15 +48,18 @@ export const PreviewContent = ({
   isStreaming,
   onCodeChange,
   onDtsChange,
-  manualEditsJson,
-  onManualEditsJsonChange,
+  manualEditsFileContent,
+  onManualEditsFileContentChange,
 }: PreviewContentProps) => {
   const [activeTab, setActiveTab] = useState(showCodeTab ? "code" : "pcb")
-  const [versionOfCodeLastRun, setVersionOfCodeLastRun] = useState("")
+  const [lastRunHash, setLastRunHash] = useState("")
+
+  const currentCodeHash = code + "\n" + manualEditsFileContent
+  const hasCodeChangedSinceLastRun = lastRunHash !== currentCodeHash
 
   useEffect(() => {
     if (tsxRunTriggerCount === 0) return
-    setVersionOfCodeLastRun(code)
+    setLastRunHash(currentCodeHash)
   }, [tsxRunTriggerCount])
 
   useEffect(() => {
@@ -84,9 +87,7 @@ export const PreviewContent = ({
             {leftHeaderContent && <div className="flex-grow" />}
             <RunButton
               onClick={() => triggerRunTsx()}
-              disabled={
-                versionOfCodeLastRun === code && tsxRunTriggerCount !== 0
-              }
+              disabled={!hasCodeChangedSinceLastRun && tsxRunTriggerCount !== 0}
             />
             {!leftHeaderContent && <div className="flex-grow" />}
             <TabsList>
@@ -96,7 +97,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}
@@ -109,7 +110,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}
@@ -122,7 +123,7 @@ export const PreviewContent = ({
                   <span
                     className={cn(
                       "inline-flex items-center justify-center w-2 h-2 mr-1 text-xs font-bold text-white rounded-full",
-                      versionOfCodeLastRun === code
+                      !hasCodeChangedSinceLastRun
                         ? "bg-blue-500"
                         : "bg-gray-500",
                     )}
@@ -146,7 +147,7 @@ export const PreviewContent = ({
               <div className="h-full">
                 <CodeEditor
                   initialCode={code}
-                  manualEditsJson={manualEditsJson ?? ""}
+                  manualEditsFileContent={manualEditsFileContent ?? ""}
                   isStreaming={isStreaming}
                   onCodeChange={onCodeChange!}
                   onDtsChange={onDtsChange!}
@@ -163,15 +164,17 @@ export const PreviewContent = ({
                   <PCBViewer
                     key={tsxRunTriggerCount}
                     soup={circuitJson}
-                    onEditEventsChanged={(changedEditEvents) => {
+                    onEditEventsChanged={(editEvents) => {
+                      if (editEvents.some((editEvent) => editEvent.in_progress))
+                        return
                       // Update state with new edit events
-                      const newState = applyPcbEditEvents(
-                        changedEditEvents,
+                      const newManualEditsFileContent = applyPcbEditEvents({
+                        editEvents,
                         circuitJson,
-                        manualEditsJson as any,
-                      )
-                      onManualEditsJsonChange?.(
-                        JSON.stringify(newState, null, 2),
+                        manualEditsFileContent,
+                      })
+                      onManualEditsFileContentChange?.(
+                        JSON.stringify(newManualEditsFileContent, null, 2),
                       )
                     }}
                   />

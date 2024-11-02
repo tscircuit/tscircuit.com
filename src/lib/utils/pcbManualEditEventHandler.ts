@@ -26,33 +26,37 @@ export const createInitialManualEditState = (): ManualEditState => ({
   manual_trace_hints: [],
 })
 
-export const applyPcbEditEvents = (
-  editEvents: EditEvent[],
-  circuitJson: AnyCircuitElement[],
-  currentState: Partial<ManualEditState> | null | undefined,
-): ManualEditState => {
+export const applyPcbEditEvents = ({
+  editEvents,
+  circuitJson,
+  manualEditsFileContent,
+}: {
+  editEvents: EditEvent[]
+  circuitJson: AnyCircuitElement[]
+  manualEditsFileContent?: string
+}): ManualEditState => {
   try {
     // Ensure we have a valid state to work with
-    const validState = ensureValidState(currentState)
+    const validatedManualEdits = ensureValidState(manualEditsFileContent)
 
     // Create a new state object with properly initialized arrays
-    const newState: ManualEditState = {
-      pcb_placements: [...validState.pcb_placements],
-      edit_events: [...validState.edit_events],
-      manual_trace_hints: [...validState.manual_trace_hints],
+    const newManualEditState: ManualEditState = {
+      pcb_placements: [...validatedManualEdits.pcb_placements],
+      edit_events: [...validatedManualEdits.edit_events],
+      manual_trace_hints: [...validatedManualEdits.manual_trace_hints],
     }
 
     // Create a set of handled event IDs
     const handledEventIds = new Set<string>()
 
     // Add existing event IDs to the set
-    newState.pcb_placements.forEach((placement) => {
+    newManualEditState.pcb_placements.forEach((placement) => {
       if (placement._edit_event_id) {
         handledEventIds.add(placement._edit_event_id)
       }
     })
 
-    newState.edit_events.forEach((event) => {
+    newManualEditState.edit_events.forEach((event) => {
       if (event.edit_event_id) {
         handledEventIds.add(event.edit_event_id)
       }
@@ -61,7 +65,7 @@ export const applyPcbEditEvents = (
     // Process new edit events
     for (const editEvent of editEvents) {
       if (
-        !editEvent.edit_event_id ||
+        (editEvent.in_progress && !editEvent.edit_event_id) ||
         handledEventIds.has(editEvent.edit_event_id)
       )
         continue
@@ -86,9 +90,10 @@ export const applyPcbEditEvents = (
         ) as SourceComponentBase
 
         // Update or add placement
-        const existingPlacementIndex = newState.pcb_placements.findIndex(
-          (p) => p.selector === nameofComponent.name,
-        )
+        const existingPlacementIndex =
+          newManualEditState.pcb_placements.findIndex(
+            (p) => p.selector === nameofComponent.name,
+          )
 
         const newPlacement: PCBPlacement = {
           selector: nameofComponent.name,
@@ -99,16 +104,17 @@ export const applyPcbEditEvents = (
 
         if (existingPlacementIndex !== -1) {
           // Update existing placement
-          newState.pcb_placements[existingPlacementIndex] = newPlacement
+          newManualEditState.pcb_placements[existingPlacementIndex] =
+            newPlacement
         } else {
           // Add new placement
-          newState.pcb_placements.push(newPlacement)
+          newManualEditState.pcb_placements.push(newPlacement)
         }
       } else if (editEvent.pcb_edit_event_type === "edit_trace_hint") {
         const newTraceHint = getManualTraceHintFromEvent(circuitJson, editEvent)
         if (newTraceHint) {
-          newState.manual_trace_hints = [
-            ...newState.manual_trace_hints.filter(
+          newManualEditState.manual_trace_hints = [
+            ...newManualEditState.manual_trace_hints.filter(
               (th) => th.pcb_port_selector !== newTraceHint.pcb_port_selector,
             ),
             newTraceHint,
@@ -116,13 +122,13 @@ export const applyPcbEditEvents = (
         }
       } else {
         // Add any other type of event to edit_events array
-        newState.edit_events.push(editEvent)
+        newManualEditState.edit_events.push(editEvent)
       }
 
       handledEventIds.add(editEvent.edit_event_id)
     }
 
-    return newState
+    return newManualEditState
   } catch (error) {
     console.error("Error handling edit events:", error)
     // Return a fresh state if there's an error
@@ -131,18 +137,20 @@ export const applyPcbEditEvents = (
 }
 
 // Helper function to ensure we have a valid state
-const ensureValidState = (
-  state: Partial<ManualEditState> | null | undefined,
-): ManualEditState => {
-  if (!state) return createInitialManualEditState()
+const ensureValidState = (manualEditsFileContent?: string): ManualEditState => {
+  if (!manualEditsFileContent) return createInitialManualEditState()
+
+  const manualEditState = JSON.parse(manualEditsFileContent)
 
   return {
-    pcb_placements: Array.isArray(state.pcb_placements)
-      ? state.pcb_placements
+    pcb_placements: Array.isArray(manualEditState.pcb_placements)
+      ? manualEditState.pcb_placements
       : [],
-    edit_events: Array.isArray(state.edit_events) ? state.edit_events : [],
-    manual_trace_hints: Array.isArray(state.manual_trace_hints)
-      ? state.manual_trace_hints
+    edit_events: Array.isArray(manualEditState.edit_events)
+      ? manualEditState.edit_events
+      : [],
+    manual_trace_hints: Array.isArray(manualEditState.manual_trace_hints)
+      ? manualEditState.manual_trace_hints
       : [],
   }
 }
