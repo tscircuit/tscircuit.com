@@ -200,24 +200,28 @@ export const CodeEditor = ({
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
             tsHover(),
-            hoverTooltip((view, pos, side) => {
-              const { from, to, text } = view.state.doc.lineAt(pos)
-              const line = text.slice(from, to)
-              const match = line.match(/@tsci\/[\w\-.]+/)
-              if (match) {
-                const importName = match[0]
-                const start = line.indexOf(importName)
-                const end = start + importName.length
-                if (pos >= from + start && pos <= from + end) {
-                  return {
-                    pos: from + start,
-                    end: from + end,
-                    above: true,
-                    create() {
-                      const dom = document.createElement("div")
-                      dom.textContent = "Ctrl/Cmd+Click to open snippet"
-                      return { dom }
-                    },
+            hoverTooltip((view, pos) => {
+              const line = view.state.doc.lineAt(pos)
+              const lineStart = line.from
+              const lineEnd = line.to
+              const lineText = view.state.sliceDoc(lineStart, lineEnd)
+              const matches = Array.from(lineText.matchAll(/@tsci\/[\w\-.]+/g))
+
+              for (const match of matches) {
+                if (match.index !== undefined) {
+                  const start = lineStart + match.index
+                  const end = start + match[0].length
+                  if (pos >= start && pos <= end) {
+                    return {
+                      pos: start,
+                      end: end,
+                      above: true,
+                      create() {
+                        const dom = document.createElement("div")
+                        dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                        return { dom }
+                      },
+                    }
                   }
                 }
               }
@@ -230,15 +234,21 @@ export const CodeEditor = ({
                   x: event.clientX,
                   y: event.clientY,
                 })
-                if (pos) {
-                  const { from, to, text } = view.state.doc.lineAt(pos)
-                  const line = text.slice(from, to)
-                  const match = line.match(/@tsci\/[\w.\-]+/)
-                  if (match) {
-                    const importName = match[0]
-                    const start = line.indexOf(importName)
-                    const end = start + importName.length
-                    if (pos >= from + start && pos <= from + end) {
+                if (pos === null) return false
+
+                const line = view.state.doc.lineAt(pos)
+                const lineStart = line.from
+                const lineEnd = line.to
+                const lineText = view.state.sliceDoc(lineStart, lineEnd)
+                const matches = Array.from(
+                  lineText.matchAll(/@tsci\/[\w\-.]+/g),
+                )
+                for (const match of matches) {
+                  if (match.index !== undefined) {
+                    const start = lineStart + match.index
+                    const end = start + match[0].length
+                    if (pos >= start && pos <= end) {
+                      const importName = match[0]
                       const [owner, name] = importName
                         .replace("@tsci/", "")
                         .split(".")
