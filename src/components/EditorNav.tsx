@@ -1,48 +1,48 @@
-import {
-  ChevronDown,
-  Copy,
-  Download,
-  Edit2,
-  Eye,
-  Maximize2,
-  Package,
-  Share,
-  Share2,
-  Sidebar,
-  SidebarClose,
-  Save,
-  EyeIcon,
-  CodeIcon,
-  Menu,
-  Sparkles,
-  Pencil,
-  Trash2,
-  MoreVertical,
-  File,
-} from "lucide-react"
-import { Link, useLocation } from "wouter"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useRunTsx } from "@/hooks/use-run-tsx"
-import { OpenInNewWindowIcon } from "@radix-ui/react-icons"
-import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { useState, useEffect } from "react"
-import { cn } from "@/lib/utils"
-import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
-import { TypeBadge } from "./TypeBadge"
-import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
+import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
+import { cn } from "@/lib/utils"
+import { OpenInNewWindowIcon } from "@radix-ui/react-icons"
+import { AnyCircuitElement } from "circuit-json"
+import { Snippet } from "fake-snippets-api/lib/db/schema"
+import {
+  ChevronDown,
+  CodeIcon,
+  Download,
+  Edit2,
+  Eye,
+  EyeIcon,
+  File,
+  MoreVertical,
+  Package,
+  Pencil,
+  Save,
+  Share,
+  Sidebar,
+  Sparkles,
+  Trash2,
+} from "lucide-react"
+import { useEffect, useState } from "react"
+import { useQueryClient } from "react-query"
+import { Link, useLocation } from "wouter"
+import { useAxios } from "../hooks/use-axios"
+import { useToast } from "../hooks/use-toast"
 import { useConfirmDeleteSnippetDialog } from "./dialogs/confirm-delete-snippet-dialog"
 import { useCreateOrderDialog } from "./dialogs/create-order-dialog"
-import { AnyCircuitElement } from "circuit-json"
 import { useFilesDialog } from "./dialogs/files-dialog"
+import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
+import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
+import { SnippetLink } from "./SnippetLink"
+import { TypeBadge } from "./TypeBadge"
 
 export default function EditorNav({
   circuitJson,
@@ -74,6 +74,69 @@ export default function EditorNav({
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
     useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
+
+  const [isChangingType, setIsChangingType] = useState(false)
+  const [currentType, setCurrentType] = useState(
+    snippetType ?? snippet?.snippet_type,
+  )
+  const axios = useAxios()
+  const { toast } = useToast()
+  const qc = useQueryClient()
+
+  // Update currentType when snippet or snippetType changes
+  useEffect(() => {
+    setCurrentType(snippetType ?? snippet?.snippet_type)
+  }, [snippetType, snippet?.snippet_type])
+
+  const handleTypeChange = async (newType: string) => {
+    if (!snippet || newType === currentType) return
+
+    try {
+      setIsChangingType(true)
+      const response = await axios.post("/snippets/update", {
+        snippet_id: snippet.snippet_id,
+        snippet_type: newType,
+      })
+
+      if (response.status === 200) {
+        setCurrentType(newType)
+        toast({
+          title: "Snippet type changed",
+          description: `Successfully changed type to "${newType}"`,
+        })
+
+        // Immediately update the local cache
+        qc.setQueryData(["snippets", snippet.snippet_id], (oldData: any) => ({
+          ...oldData,
+          snippet_type: newType,
+        }))
+
+        // Then invalidate to fetch fresh data
+        // await Promise.all([
+        //   qc.invalidateQueries({ queryKey: ["snippets"] }),
+        //   qc.invalidateQueries({ queryKey: ["snippets", snippet.snippet_id] }),
+        // ])
+
+        // Force reload the page to ensure all components reflect the new type
+        // window.location.reload()
+      } else {
+        throw new Error("Failed to update snippet type")
+      }
+    } catch (error: any) {
+      console.error("Error changing snippet type:", error)
+      toast({
+        title: "Error",
+        description:
+          error.response?.data?.error?.message ||
+          "Failed to change the snippet type. Please try again.",
+        variant: "destructive",
+      })
+      // Reset to previous type on error
+      setCurrentType(snippet.snippet_type)
+    } finally {
+      setIsChangingType(false)
+    }
+  }
 
   return (
     <nav className="flex items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
@@ -178,7 +241,7 @@ export default function EditorNav({
         >
           <Eye className="mr-1 h-3 w-3" />
           Public
-        </Button>{" "}
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="hidden md:flex">
@@ -200,6 +263,31 @@ export default function EditorNav({
               <File className="mr-2 h-3 w-3" />
               View Files
             </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger
+                className="text-xs"
+                disabled={isChangingType || hasUnsavedChanges}
+              >
+                <Edit2 className="mr-2 h-3 w-3" />
+                {isChangingType ? "Changing..." : "Change Type"}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={currentType === "board" || isChangingType}
+                  onClick={() => handleTypeChange("board")}
+                >
+                  Board {currentType === "board" && "✓"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs"
+                  disabled={currentType === "package" || isChangingType}
+                  onClick={() => handleTypeChange("package")}
+                >
+                  Module {currentType === "package" && "✓"}
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuItem
               className="text-xs text-red-600"
               onClick={() => openDeleteDialog()}
