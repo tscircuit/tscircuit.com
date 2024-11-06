@@ -49,8 +49,7 @@ export default withRouteSpec({
     })
   }
 
-  const updatedSnippet = {
-    ...snippet,
+  const updatedSnippet = ctx.db.updateSnippet(snippet_id, {
     code: code ?? snippet.code,
     description: description ?? snippet.description,
     unscoped_name: unscoped_name ?? snippet.unscoped_name,
@@ -61,9 +60,14 @@ export default withRouteSpec({
     compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
     snippet_type: snippet_type ?? snippet.snippet_type,
     updated_at: new Date().toISOString(),
-  }
+  })
 
-  ctx.db.snippets[snippetIndex] = updatedSnippet
+  if (!updatedSnippet) {
+    return ctx.error(500, {
+      error_code: "update_failed",
+      message: "Failed to update snippet",
+    })
+  }
 
   return ctx.json({
     ok: true,
