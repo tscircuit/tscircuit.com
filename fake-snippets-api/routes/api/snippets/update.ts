@@ -1,6 +1,6 @@
-import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { snippetSchema } from "fake-snippets-api/lib/db/schema"
+import { snippetSchema } from "../../../lib/db/schema"
+import { withRouteSpec } from "../../../lib/middleware/with-winter-spec"
 
 export default withRouteSpec({
   methods: ["POST"],
@@ -12,16 +12,22 @@ export default withRouteSpec({
     unscoped_name: z.string().optional(),
     dts: z.string().optional(),
     compiled_js: z.string().optional().nullable(),
+    snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    snippet: snippetSchema.extend({
-      snippet_type: z.enum(["board", "package", "model", "footprint"]),
-    }),
+    snippet: snippetSchema,
   }),
 })(async (req, ctx) => {
-  const { snippet_id, code, description, unscoped_name, dts, compiled_js } =
-    req.jsonBody
+  const {
+    snippet_id,
+    code,
+    description,
+    unscoped_name,
+    dts,
+    compiled_js,
+    snippet_type,
+  } = req.jsonBody
 
   const snippetIndex = ctx.db.snippets.findIndex(
     (s) => s.snippet_id === snippet_id,
@@ -53,6 +59,7 @@ export default withRouteSpec({
       : snippet.name,
     dts: dts ?? snippet.dts,
     compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
+    snippet_type: snippet_type ?? snippet.snippet_type,
     updated_at: new Date().toISOString(),
   }
 

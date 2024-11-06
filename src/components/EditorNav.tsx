@@ -93,10 +93,18 @@ export default function EditorNav({
 
     try {
       setIsChangingType(true)
+
+      console.log("[Debug] Before update - Current type:", currentType)
+
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
         snippet_type: newType,
       })
+
+      console.log(
+        "[Debug] New snippet type:",
+        response.data.snippet.snippet_type,
+      )
 
       if (response.status === 200) {
         setCurrentType(newType)
@@ -105,19 +113,13 @@ export default function EditorNav({
           description: `Successfully changed type to "${newType}"`,
         })
 
-        // Immediately update the local cache
-        qc.setQueryData(["snippets", snippet.snippet_id], (oldData: any) => ({
-          ...oldData,
-          snippet_type: newType,
-        }))
+        // Invalidate queries to refetch data
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: ["snippets"] }),
+          qc.invalidateQueries({ queryKey: ["snippets", snippet.snippet_id] }),
+        ])
 
-        // Then invalidate to fetch fresh data
-        // await Promise.all([
-        //   qc.invalidateQueries({ queryKey: ["snippets"] }),
-        //   qc.invalidateQueries({ queryKey: ["snippets", snippet.snippet_id] }),
-        // ])
-
-        // Force reload the page to ensure all components reflect the new type
+        // Reload the page to ensure all components reflect the new type
         // window.location.reload()
       } else {
         throw new Error("Failed to update snippet type")
