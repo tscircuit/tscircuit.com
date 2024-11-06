@@ -63,7 +63,7 @@
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.10.16",
     "@tscircuit/props": "^0.0.78",
-    "@tscircuit/schematic-viewer": "^1.4.2",
+    "@tscircuit/schematic-viewer": "^1.4.3",
     "@types/file-saver": "^2.0.7",
     "@types/ms": "^0.7.34",
     "@typescript/ata": "^0.9.7",
@@ -103,6 +103,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "use-async-memo": "^1.2.5",
+    "use-mouse-matrix-transform": "^1.1.13",
     "vaul": "^0.9.9",
     "wouter": "^3.3.5"
   },

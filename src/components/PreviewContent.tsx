@@ -11,6 +11,7 @@ import { ErrorTabContent } from "./ErrorTabContent"
 import PreviewEmptyState from "./PreviewEmptyState"
 import { RunButton } from "./RunButton"
 import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
+import { CircuitToSvgWithMouseControl } from "./CircuitToSvgWithMouseControl"
 
 export interface PreviewContentProps {
   code: string
@@ -188,11 +189,16 @@ export const PreviewContent = ({
             <div className="mt-4 h-[500px]">
               <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
                 {circuitJson ? (
-                  <Schematic
-                    style={{ height: "500px" }}
+                  <CircuitToSvgWithMouseControl
                     key={tsxRunTriggerCount}
-                    soup={circuitJson}
+                    circuitJson={circuitJson}
                   />
+                  // Waiting for Schematic Viewer to stablize
+                  // <Schematic
+                  //   style={{ height: "500px" }}
+                  //   key={tsxRunTriggerCount}
+                  //   soup={circuitJson}
+                  // />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
