@@ -94,8 +94,6 @@ export default function EditorNav({
     try {
       setIsChangingType(true)
 
-      console.log("[Debug] Before update - Current type:", currentType)
-
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
         snippet_type: newType,
