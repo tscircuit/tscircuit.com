@@ -99,11 +99,6 @@ export default function EditorNav({
         snippet_type: newType,
       })
 
-      console.log(
-        "[Debug] New snippet type:",
-        response.data.snippet.snippet_type,
-      )
-
       if (response.status === 200) {
         setCurrentType(newType)
         toast({
