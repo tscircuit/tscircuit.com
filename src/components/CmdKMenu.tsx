@@ -73,7 +73,7 @@ const CmdKMenu = () => {
 
   const blankTemplates: Template[] = [
     { name: "New Circuit Board", type: "board" },
-    { name: "Create Circuit Module", type: "package" },
+    { name: "Create New Circuit Module", type: "package" },
     { name: "Create New 3D Model", type: "model", disabled: true },
     { name: "Create New Footprint", type: "footprint", disabled: true },
   ]
@@ -150,7 +150,7 @@ const CmdKMenu = () => {
                           </span>
                         )}
                       </div>
-                      <span className="text-sm text-gray-500">snippet</span>
+                        <span className="text-sm text-gray-500">snippet</span>
                     </Command.Item>
                   ))}
                 </Command.Group>
@@ -272,6 +272,19 @@ const CmdKMenu = () => {
             </>
           )}
         </Command.List>
+
+        <div className="border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+          <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex space-x-4">
+              <span>↑↓ to navigate</span>
+              <span>↵ to select</span>
+              <span>esc to close</span>
+            </div>
+            <div>
+              <span>⌘K to toggle</span>
+            </div>
+          </div>
+        </div>
       </Command.Dialog>
 
       <JLCPCBImportDialog
