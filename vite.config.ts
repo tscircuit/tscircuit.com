@@ -3,6 +3,7 @@ import { defineConfig, Plugin } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
+import { loadFeaturedSnippets } from "./src/lib/loadFeaturedSnippets"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -18,12 +19,21 @@ const fakeHandler = getNodeHandler(winterspecBundle as any, {
   ],
 })
 
+async function loadSnippets() {
+  const snippets = await loadFeaturedSnippets() // Load snippets here
+  return snippets
+}
+
 function apiFakePlugin(): Plugin {
   return {
     name: "api-fake",
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url?.startsWith("/api/")) {
+        if (req.url?.startsWith("/api/snippets")) {
+          const snippets = await loadSnippets() // Serve snippets on this endpoint
+          res.setHeader("Content-Type", "application/json")
+          res.end(JSON.stringify({ ok: true, snippets }))
+        } else if (req.url?.startsWith("/api/")) {
           // simulate slow responses
           await new Promise((resolve) => setTimeout(resolve, 500))
           fakeHandler(req, res)

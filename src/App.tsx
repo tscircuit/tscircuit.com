@@ -16,7 +16,6 @@ import { UserProfilePage } from "./pages/user-profile"
 import { ViewOrderPage } from "./pages/view-order"
 import { ViewSnippetPage } from "./pages/view-snippet"
 import { useEffect, useState } from "react"
-import { loadFeaturedSnippets } from "./lib/loadFeaturedSnippets"
 
 // Define the type for a snippet
 interface Snippet {
@@ -28,11 +27,13 @@ function App() {
   const [snippets, setSnippets] = useState<Snippet[]>([])
 
   useEffect(() => {
-    // Only load featured snippets in development
+    // Fetch snippets from the API instead of loading them directly
     if (import.meta.env.DEV) {
-      loadFeaturedSnippets().then((loadedSnippets: Snippet[]) => {
-        setSnippets(loadedSnippets)
-      })
+      fetch("/api/snippets")
+        .then((response) => response.json())
+        .then((data) => {
+          setSnippets(data.snippets)
+        })
     }
   }, [])
 
