@@ -2,12 +2,12 @@ import { type AnyCircuitElement } from "circuit-json"
 import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
 import { convertCircuitJsonToSchematicSvg } from "circuit-to-svg"
 import { useEffect, useMemo, useRef, useState, useCallback } from "react"
-import { 
-  toString as transformToString, 
+import {
+  toString as transformToString,
   Matrix,
   scale,
   translate,
-  compose
+  compose,
 } from "transformation-matrix"
 
 interface Props {
@@ -19,8 +19,8 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
   const [containerWidth, setContainerWidth] = useState(0)
   const containerBoundsRef = useRef({ width: 0, x: 0, y: 0 })
 
-  const { 
-    ref: containerRef, 
+  const {
+    ref: containerRef,
     transform: currentTransform,
     setTransform,
   } = useMouseMatrixTransform({
@@ -29,11 +29,11 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
 
       // Get the current container bounds
       const bounds = containerBoundsRef.current
-      
+
       if (event) {
         const mousePoint = {
           x: event.clientX - bounds.x,
-          y: event.clientY - bounds.y
+          y: event.clientY - bounds.y,
         }
 
         const prevScale = currentTransform.a
@@ -45,7 +45,7 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
           translate(mousePoint.x, mousePoint.y),
           scale(scaleFactor, scaleFactor),
           translate(-mousePoint.x, -mousePoint.y),
-          currentTransform
+          currentTransform,
         )
 
         svgDivRef.current.style.transform = transformToString(zoomTransform)
@@ -63,26 +63,26 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
     containerBoundsRef.current = {
       width: rect.width,
       x: rect.left,
-      y: rect.top
+      y: rect.top,
     }
     setContainerWidth(rect.width)
   }, [])
 
   useEffect(() => {
     if (!containerRef.current) return
-    
+
     updateContainerBounds()
-    
+
     const resizeObserver = new ResizeObserver(() => {
       updateContainerBounds()
     })
-    
+
     resizeObserver.observe(containerRef.current)
-    window.addEventListener('resize', updateContainerBounds)
-    
+    window.addEventListener("resize", updateContainerBounds)
+
     return () => {
       resizeObserver.disconnect()
-      window.removeEventListener('resize', updateContainerBounds)
+      window.removeEventListener("resize", updateContainerBounds)
     }
   }, [updateContainerBounds])
 
