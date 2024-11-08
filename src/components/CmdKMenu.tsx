@@ -73,9 +73,9 @@ const CmdKMenu = () => {
 
   const blankTemplates: Template[] = [
     { name: "New Circuit Board", type: "board" },
-    { name: "Create New Circuit Module", type: "package" },
-    { name: "Create New 3D Model", type: "model", disabled: true },
-    { name: "Create New Footprint", type: "footprint", disabled: true },
+    { name: "New Circuit Module", type: "package" },
+    { name: "New 3D Model", type: "model", disabled: true },
+    { name: "New Footprint", type: "footprint", disabled: true },
   ]
 
   const templates: Template[] = [{ name: "Blinking LED Board", type: "board" }]
@@ -150,7 +150,7 @@ const CmdKMenu = () => {
                           </span>
                         )}
                       </div>
-                        <span className="text-sm text-gray-500">snippet</span>
+                      <span className="text-sm text-gray-500">snippet</span>
                     </Command.Item>
                   ))}
                 </Command.Group>
