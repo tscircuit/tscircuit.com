@@ -72,10 +72,10 @@ const CmdKMenu = () => {
   }, [])
 
   const blankTemplates: Template[] = [
-    { name: "Blank Circuit Board", type: "board" },
-    { name: "Blank Circuit Module", type: "package" },
-    { name: "Blank 3D Model", type: "model", disabled: true },
-    { name: "Blank Footprint", type: "footprint", disabled: true },
+    { name: "New Circuit Board", type: "board" },
+    { name: "Create Circuit Module", type: "package" },
+    { name: "Create New 3D Model", type: "model", disabled: true },
+    { name: "Create New Footprint", type: "footprint", disabled: true },
   ]
 
   const templates: Template[] = [{ name: "Blinking LED Board", type: "board" }]
