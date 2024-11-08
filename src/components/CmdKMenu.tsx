@@ -272,6 +272,19 @@ const CmdKMenu = () => {
             </>
           )}
         </Command.List>
+
+        <div className="border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+          <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex space-x-4">
+              <span>↑↓ to navigate</span>
+              <span>↵ to select</span>
+              <span>esc to close</span>
+            </div>
+            <div>
+              <span>⌘K to toggle</span>
+            </div>
+          </div>
+        </div>
       </Command.Dialog>
 
       <JLCPCBImportDialog
