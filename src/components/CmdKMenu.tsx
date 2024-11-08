@@ -94,6 +94,7 @@ const CmdKMenu = () => {
         onOpenChange={setOpen}
         label="Command Menu"
         className="fixed top-32 left-1/2 -translate-x-1/2 max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+        loop
       >
         <div className="flex items-center border-b border-gray-200 dark:border-gray-700 px-3">
           <svg
@@ -137,7 +138,7 @@ const CmdKMenu = () => {
                         window.location.href = `/editor?snippet_id=${snippet.snippet_id}`
                         setOpen(false)
                       }}
-                      className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
+                      className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                     >
                       <div className="flex flex-col">
                         <span className="text-gray-900 dark:text-gray-100">
@@ -168,7 +169,7 @@ const CmdKMenu = () => {
                         window.location.href = `/editor?snippet_id=${snippet.snippet_id}`
                         setOpen(false)
                       }}
-                      className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
+                      className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                     >
                       <div className="flex flex-col">
                         <span className="text-gray-900 dark:text-gray-100">
@@ -200,7 +201,7 @@ const CmdKMenu = () => {
                         setOpen(false)
                       }
                     }}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default disabled:opacity-50"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default disabled:opacity-50 aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                   >
                     <span className="text-gray-900 dark:text-gray-100">
                       {template.name}
@@ -224,7 +225,7 @@ const CmdKMenu = () => {
                       window.location.href = `/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`
                       setOpen(false)
                     }}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                   >
                     <span className="text-gray-900 dark:text-gray-100">
                       {template.name}
@@ -253,7 +254,7 @@ const CmdKMenu = () => {
                         toastNotImplemented(`${option.name} Import`)
                       }
                     }}
-                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default"
+                    className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                   >
                     <span className="text-gray-900 dark:text-gray-100">
                       Import {option.name}
