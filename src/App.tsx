@@ -1,34 +1,40 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Route, Switch } from "wouter";
-import "./components/CmdKMenu";
-import { ContextProviders } from "./ContextProviders";
-import { AiPage } from "./pages/ai";
-import AuthenticatePage from "./pages/authorize";
-import { DashboardPage } from "./pages/dashboard";
-import { EditorPage } from "./pages/editor";
-import { LandingPage } from "./pages/landing";
-import { MyOrdersPage } from "./pages/my-orders";
-import { NewestPage } from "./pages/newest";
-import { QuickstartPage } from "./pages/quickstart";
-import { SearchPage } from "./pages/search";
-import { SettingsPage } from "./pages/settings";
-import { UserProfilePage } from "./pages/user-profile";
-import { ViewOrderPage } from "./pages/view-order";
-import { ViewSnippetPage } from "./pages/view-snippet";
-import { useEffect, useState } from "react";
-import { loadFeaturedSnippets } from "./lib/loadFeaturedSnippets";
+import { Toaster } from "@/components/ui/toaster"
+import { Route, Switch } from "wouter"
+import "./components/CmdKMenu"
+import { ContextProviders } from "./ContextProviders"
+import { AiPage } from "./pages/ai"
+import AuthenticatePage from "./pages/authorize"
+import { DashboardPage } from "./pages/dashboard"
+import { EditorPage } from "./pages/editor"
+import { LandingPage } from "./pages/landing"
+import { MyOrdersPage } from "./pages/my-orders"
+import { NewestPage } from "./pages/newest"
+import { QuickstartPage } from "./pages/quickstart"
+import { SearchPage } from "./pages/search"
+import { SettingsPage } from "./pages/settings"
+import { UserProfilePage } from "./pages/user-profile"
+import { ViewOrderPage } from "./pages/view-order"
+import { ViewSnippetPage } from "./pages/view-snippet"
+import { useEffect, useState } from "react"
+import { loadFeaturedSnippets } from "./lib/loadFeaturedSnippets"
+
+// Define the type for a snippet
+interface Snippet {
+  code: string
+  // Add other properties as needed
+}
 
 function App() {
-  const [snippets, setSnippets] = useState([]);
+  const [snippets, setSnippets] = useState<Snippet[]>([])
 
   useEffect(() => {
     // Only load featured snippets in development
     if (import.meta.env.DEV) {
-      loadFeaturedSnippets().then((loadedSnippets) => {
-        setSnippets(loadedSnippets);
-      });
+      loadFeaturedSnippets().then((loadedSnippets: Snippet[]) => {
+        setSnippets(loadedSnippets)
+      })
     }
-  }, []);
+  }, [])
 
   return (
     <ContextProviders>
@@ -49,7 +55,7 @@ function App() {
       </Switch>
       <Toaster />
     </ContextProviders>
-  );
+  )
 }
 
-export default App;
+export default App
