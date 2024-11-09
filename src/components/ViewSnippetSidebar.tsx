@@ -1,15 +1,7 @@
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import {
-  AtSign,
-  Bot,
-  Clock,
-  Code,
-  File,
-  GitFork,
-  Package
-} from "lucide-react"
+import { AtSign, Bot, Clock, Code, File, GitFork, Package } from "lucide-react"
 import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
 
