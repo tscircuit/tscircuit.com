@@ -1,24 +1,16 @@
-import { Link } from "wouter"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Code,
-  Monitor,
-  Bot,
-  GitFork,
-  AtSign,
-  Package,
-  Settings,
-  Link as LinkIcon,
-  Copy,
-  Hash,
-  Clock,
-  File,
-} from "lucide-react"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { cn } from "@/lib/utils"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
+import {
+  AtSign,
+  Bot,
+  Clock,
+  Code,
+  File,
+  GitFork,
+  Package
+} from "lucide-react"
+import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
 
 export default function ViewSnippetSidebar({
@@ -126,8 +118,18 @@ export default function ViewSnippetSidebar({
       <div className="p-4 border-t border-gray-200 space-y-4">
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy embed code</div>
-          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
-            {`<iframe src="https://snippets.tscircuit.com/embed/seveibar/circuitmodule" width="100%" height="100%"></iframe>`}
+          <div
+            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
+            onClick={() => {
+              const embedCode = `<iframe src="${window.location.origin}/preview?snippet_id=${snippet?.snippet_id}" width="100%" height="500" frameborder="0"></iframe>`
+              navigator.clipboard.writeText(embedCode)
+              toast({
+                title: "Copied!",
+                description: "Embed code copied to clipboard",
+              })
+            }}
+          >
+            {`<iframe src="${window.location.origin}/preview?snippet_id=${snippet?.snippet_id}" width="100%" height="500" frameborder="0"></iframe>`}
           </div>
         </div>
         <div className="space-y-1">
