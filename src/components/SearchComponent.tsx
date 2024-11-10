@@ -57,7 +57,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       <Input
         type="search"
         placeholder="Search"
-        className="pl-4 focus:border-blue-500 placeholder-gray-400"
+        className="pl-4 text-[12px] focus:border-blue-500 placeholder-gray-400"
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
