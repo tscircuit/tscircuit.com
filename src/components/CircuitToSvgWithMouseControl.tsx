@@ -2,13 +2,7 @@ import { type AnyCircuitElement } from "circuit-json"
 import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
 import { convertCircuitJsonToSchematicSvg } from "circuit-to-svg"
 import { useEffect, useMemo, useRef, useState, useCallback } from "react"
-import {
-  toString as transformToString,
-  Matrix,
-  scale,
-  translate,
-  compose,
-} from "transformation-matrix"
+import { toString as transformToString } from "transformation-matrix"
 
 interface Props {
   circuitJson: AnyCircuitElement[]
@@ -19,40 +13,10 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
   const [containerWidth, setContainerWidth] = useState(0)
   const containerBoundsRef = useRef({ width: 0, x: 0, y: 0 })
 
-  const {
-    ref: containerRef,
-    transform: currentTransform,
-    setTransform,
-  } = useMouseMatrixTransform({
-    onSetTransform(matrix: Matrix, event?: MouseEvent) {
-      if (!svgDivRef.current || !containerRef.current) return
-
-      // Get the current container bounds
-      const bounds = containerBoundsRef.current
-
-      if (event) {
-        const mousePoint = {
-          x: event.clientX - bounds.x,
-          y: event.clientY - bounds.y,
-        }
-
-        const prevScale = currentTransform.a
-        const newScale = matrix.a
-        const scaleFactor = newScale / prevScale
-
-        // tranformation to scale around the mouse point
-        const zoomTransform = compose(
-          translate(mousePoint.x, mousePoint.y),
-          scale(scaleFactor, scaleFactor),
-          translate(-mousePoint.x, -mousePoint.y),
-          currentTransform,
-        )
-
-        svgDivRef.current.style.transform = transformToString(zoomTransform)
-        setTransform(zoomTransform)
-      } else {
-        svgDivRef.current.style.transform = transformToString(matrix)
-      }
+  const { ref: containerRef } = useMouseMatrixTransform({
+    onSetTransform(transform) {
+      if (!svgDivRef.current) return
+      svgDivRef.current.style.transform = transformToString(transform)
     },
   })
 
@@ -111,7 +75,6 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
         style={{
           pointerEvents: "none",
           transformOrigin: "0 0",
-          width: "100%",
         }}
         dangerouslySetInnerHTML={{ __html: svg }}
       />
