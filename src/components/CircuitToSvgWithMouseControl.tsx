@@ -1,7 +1,7 @@
 import { type AnyCircuitElement } from "circuit-json"
 import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
 import { convertCircuitJsonToSchematicSvg } from "circuit-to-svg"
-import { useEffect, useMemo, useRef, useState, useCallback } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { toString as transformToString } from "transformation-matrix"
 
 interface Props {
@@ -10,45 +10,34 @@ interface Props {
 
 export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
   const svgDivRef = useRef<HTMLDivElement>(null)
-  const [containerWidth, setContainerWidth] = useState(0)
-  const containerBoundsRef = useRef({ width: 0, x: 0, y: 0 })
-
   const { ref: containerRef } = useMouseMatrixTransform({
     onSetTransform(transform) {
       if (!svgDivRef.current) return
       svgDivRef.current.style.transform = transformToString(transform)
     },
   })
-
-  // updating the container bounds when the window is resized
-  const updateContainerBounds = useCallback(() => {
-    if (!containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    containerBoundsRef.current = {
-      width: rect.width,
-      x: rect.left,
-      y: rect.top,
-    }
-    setContainerWidth(rect.width)
-  }, [])
+  const [containerWidth, setContainerWidth] = useState(0)
 
   useEffect(() => {
     if (!containerRef.current) return
 
-    updateContainerBounds()
+    const updateWidth = () => {
+      setContainerWidth(
+        containerRef.current?.getBoundingClientRect().width || 0,
+      )
+    }
 
-    const resizeObserver = new ResizeObserver(() => {
-      updateContainerBounds()
-    })
+    // Set initial width
+    updateWidth()
 
+    // Add resize listener
+    const resizeObserver = new ResizeObserver(updateWidth)
     resizeObserver.observe(containerRef.current)
-    window.addEventListener("resize", updateContainerBounds)
 
     return () => {
       resizeObserver.disconnect()
-      window.removeEventListener("resize", updateContainerBounds)
     }
-  }, [updateContainerBounds])
+  }, [])
 
   const svg = useMemo(() => {
     if (!containerWidth) return ""
@@ -62,12 +51,10 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full"
       style={{
         backgroundColor: "#F5F1ED",
         overflow: "hidden",
         cursor: "grab",
-        touchAction: "none",
       }}
     >
       <div
