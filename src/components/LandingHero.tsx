@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useLocation } from "wouter"
 import { useGlobalStore } from "../hooks/use-global-store"
-import { CreateNewSnippetHero } from "./CreateNewSnippetHero"
+import { CreateNewSnippetWithAiHero } from "./CreateNewSnippetWithAiHero"
 import { TypeBadge } from "./TypeBadge"
 
 export const LandingHero = () => {
@@ -14,7 +14,7 @@ export const LandingHero = () => {
   const [, setLocation] = useLocation()
   return (
     <div className="p-6">
-      <CreateNewSnippetHero />
+      {/* <CreateNewSnippetWithAiHero /> */}
 
       {!should_onboarding_tips_be_closed && (
         <Card className="mb-6 bg-gray-50 rounded-sm">

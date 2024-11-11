@@ -14,7 +14,7 @@ import {
 import { useState } from "react"
 import { useLocation } from "wouter"
 
-export function CreateNewSnippetHero() {
+export function CreateNewSnippetWithAiHero() {
   const [inputValue, setInputValue] = useState("")
   const [, navigate] = useLocation()
 
