@@ -61,6 +61,7 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
         ref={svgDivRef}
         style={{
           pointerEvents: "none",
+          transformOrigin: "0 0",
         }}
         dangerouslySetInnerHTML={{ __html: svg }}
       />
