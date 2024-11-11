@@ -20,30 +20,17 @@ import { cn } from "@/lib/utils"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { useFilesDialog } from "./dialogs/files-dialog"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 export default function ViewSnippetSidebar({
   className,
 }: {
-  className?: string;
+  className?: string
 }) {
-  const { snippet } = useCurrentSnippet();
-  const { toast } = useToast();
-  const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog();
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copied to clipboard!",
-        description: "The text has been copied successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to copy",
-        description: "There was an error copying the text.",
-      });
-    }
-  };
+  const { snippet } = useCurrentSnippet()
+  const { toast } = useToast()
+  const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
+  const { copyToClipboard } = useCopyToClipboard()
 
   return (
     <div
@@ -147,7 +134,7 @@ export default function ViewSnippetSidebar({
             className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
             onClick={() =>
               copyToClipboard(
-                `<iframe src="https://snippets.tscircuit.com/embed/seveibar/circuitmodule" width="100%" height="100%"></iframe>`
+                `<iframe src="https://snippets.tscircuit.com/embed/seveibar/circuitmodule" width="100%" height="100%"></iframe>`,
               )
             }
           >
@@ -160,7 +147,7 @@ export default function ViewSnippetSidebar({
             className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
             onClick={() =>
               copyToClipboard(
-                `import CircuitModule from "@tsci/${snippet?.owner_name}.${snippet?.unscoped_name}"`
+                `import CircuitModule from "@tsci/${snippet?.owner_name}.${snippet?.unscoped_name}"`,
               )
             }
           >
@@ -174,7 +161,7 @@ export default function ViewSnippetSidebar({
             className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
             onClick={() =>
               copyToClipboard(
-                `tsci add @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`
+                `tsci add @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`,
               )
             }
           >
