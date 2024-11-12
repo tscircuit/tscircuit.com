@@ -1,2 +1,2 @@
 [test]
-root = "./fake-snippets-api/tests"
+root = "./bun-tests"
