@@ -12,6 +12,14 @@ import PreviewEmptyState from "./PreviewEmptyState"
 import { RunButton } from "./RunButton"
 import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { CircuitToSvgWithMouseControl } from "./CircuitToSvgWithMouseControl"
+import { BomTable } from "./BomTable"
+import { CheckIcon, EllipsisIcon, EllipsisVerticalIcon } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 
 export interface PreviewContentProps {
   code: string
@@ -93,7 +101,7 @@ export const PreviewContent = ({
             {!leftHeaderContent && <div className="flex-grow" />}
             <TabsList>
               {showCodeTab && <TabsTrigger value="code">Code</TabsTrigger>}
-              <TabsTrigger value="pcb">
+              <TabsTrigger value="pcb" className="whitespace-nowrap">
                 {circuitJson && (
                   <span
                     className={cn(
@@ -106,7 +114,7 @@ export const PreviewContent = ({
                 )}
                 PCB
               </TabsTrigger>
-              <TabsTrigger value="schematic">
+              <TabsTrigger value="schematic" className="whitespace-nowrap">
                 {circuitJson && (
                   <span
                     className={cn(
@@ -132,8 +140,7 @@ export const PreviewContent = ({
                 )}
                 3D
               </TabsTrigger>
-              {showJsonTab && <TabsTrigger value="table">JSON</TabsTrigger>}
-              <TabsTrigger value="error">
+              <TabsTrigger value="error" className="whitespace-nowrap">
                 Errors
                 {errorMessage && (
                   <span className="inline-flex items-center justify-center w-5 h-5 ml-2 text-xs font-bold text-white bg-red-500 rounded-full">
@@ -141,6 +148,35 @@ export const PreviewContent = ({
                   </span>
                 )}
               </TabsTrigger>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="whitespace-nowrap p-2 mr-1 cursor-pointer">
+                    <EllipsisIcon className="w-4 h-4" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="*:text-xs">
+                  <DropdownMenuItem onSelect={() => setActiveTab("bom")}>
+                    <CheckIcon
+                      className={cn(
+                        "w-3 h-3 mr-2",
+                        activeTab !== "bom" && "invisible",
+                      )}
+                    />
+                    Bill of Materials
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => setActiveTab("circuitjson")}
+                  >
+                    <CheckIcon
+                      className={cn(
+                        "w-3 h-3 mr-2",
+                        activeTab !== "circuitjson" && "invisible",
+                      )}
+                    />
+                    JSON
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </TabsList>
           </div>
           {showCodeTab && (
@@ -216,9 +252,20 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
-          <TabsContent value="table">
+          <TabsContent value="bom">
+            <div className="mt-4 h-[500px] overflow-auto">
+              <ErrorBoundary fallback={<div>Error loading BOM</div>}>
+                {circuitJson ? (
+                  <BomTable circuitJson={circuitJson} />
+                ) : (
+                  <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
+                )}
+              </ErrorBoundary>
+            </div>
+          </TabsContent>
+          <TabsContent value="circuitjson">
             <div className="mt-4 h-[500px]">
-              <ErrorBoundary fallback={<div>Error loading 3D viewer</div>}>
+              <ErrorBoundary fallback={<div>Error loading JSON viewer</div>}>
                 {circuitJson ? (
                   <CircuitJsonTableViewer elements={circuitJson as any} />
                 ) : (
