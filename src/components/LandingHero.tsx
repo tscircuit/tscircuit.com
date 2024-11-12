@@ -36,12 +36,13 @@ export const LandingHero = () => {
         <p className="text-lg text-gray-600 mb-8 max-w-2xl">
           tscircuit is an open-source library for creating and sharing
           electronic designs using TypeScript and React. Design functional
-          circuit boards you can actually order using code.
+          circuit boards you can actually order using code, completely in your
+          browser!
         </p>
 
         {trendingSnippets && trendingSnippets.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Trending Designs</h2>
+            <h2 className="text-xl font-semibold mb-4">Trending Snippets</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {trendingSnippets.slice(0, 6).map((snippet) => (
                 <Link
