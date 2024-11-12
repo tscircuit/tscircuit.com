@@ -13,6 +13,9 @@ export default withRouteSpec({
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-  const trendingSnippets = ctx.db.getTrendingSnippets(20, sevenDaysAgo.toISOString())
+  const trendingSnippets = ctx.db.getTrendingSnippets(
+    20,
+    sevenDaysAgo.toISOString(),
+  )
   return ctx.json({ snippets: trendingSnippets })
 })
