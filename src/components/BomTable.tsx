@@ -1,19 +1,34 @@
 import { AnyCircuitElement } from "circuit-json"
+import { Link } from "wouter"
 
 interface BomTableProps {
   circuitJson: AnyCircuitElement[]
 }
 
+export const linkify = (supplier: string, partNumber: string) => {
+  if (supplier === "jlcpcb") {
+    return (
+      <a
+        className="underline text-blue-500"
+        href={`https://jlcpcb.com/partdetail/${partNumber}`}
+      >
+        {partNumber}
+      </a>
+    )
+  }
+  return partNumber
+}
+
 export const BomTable: React.FC<BomTableProps> = ({ circuitJson }) => {
   const sourceComponents = circuitJson.filter(
-    (el) => el.type === "source_component"
+    (el) => el.type === "source_component",
   )
 
   const supplierColumns = new Set<string>()
   sourceComponents.forEach((comp) => {
     if (comp.supplier_part_numbers) {
       Object.keys(comp.supplier_part_numbers).forEach((supplier) =>
-        supplierColumns.add(supplier)
+        supplierColumns.add(supplier),
       )
     }
   })
@@ -37,7 +52,10 @@ export const BomTable: React.FC<BomTableProps> = ({ circuitJson }) => {
               <td className="p-2">{comp.name}</td>
               {Array.from(supplierColumns).map((supplier) => (
                 <td key={supplier} className="p-2">
-                  {comp.supplier_part_numbers?.[supplier]?.[0] || ""}
+                  {linkify(
+                    supplier,
+                    comp.supplier_part_numbers?.[supplier]?.[0] || "",
+                  )}
                 </td>
               ))}
             </tr>

@@ -140,21 +140,33 @@ export const PreviewContent = ({
                 )}
                 3D
               </TabsTrigger>
-              <TabsTrigger value="error" className="whitespace-nowrap">
-                Errors
-                {errorMessage && (
-                  <span className="inline-flex items-center justify-center w-5 h-5 ml-2 text-xs font-bold text-white bg-red-500 rounded-full">
-                    1
-                  </span>
-                )}
-              </TabsTrigger>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="whitespace-nowrap p-2 mr-1 cursor-pointer">
+                  <div className="whitespace-nowrap p-2 mr-1 cursor-pointer relative">
                     <EllipsisIcon className="w-4 h-4" />
+                    {errorMessage && (
+                      <span className="inline-flex absolute top-[6px] right-[4px] items-center justify-center w-1 h-1 ml-2 text-[8px] font-bold text-white bg-red-500 rounded-full" />
+                    )}
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="*:text-xs">
+                  <DropdownMenuItem
+                    onSelect={() => setActiveTab("error")}
+                    className="flex"
+                  >
+                    <CheckIcon
+                      className={cn(
+                        "w-3 h-3 mr-2",
+                        activeTab !== "error" && "invisible",
+                      )}
+                    />
+                    <div className="flex-grow">Errors</div>
+                    {errorMessage && (
+                      <span className="inline-flex items-center justify-center w-3 h-3 ml-2 text-[8px] font-bold text-white bg-red-500 rounded-full">
+                        1
+                      </span>
+                    )}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => setActiveTab("bom")}>
                     <CheckIcon
                       className={cn(
