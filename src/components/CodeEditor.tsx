@@ -79,6 +79,19 @@ export const CodeEditor = ({
     }
   }, [isInitialCodeLoaded])
 
+  // Whenever streaming completes, reset the code to the initial code
+  useEffect(() => {
+    if (!isStreaming && code !== initialCode && initialCode) {
+      console.log("Resetting code to initial code", initialCode)
+      setCode(initialCode)
+
+      // HACK: Timeout because we need to wait for the editor to mount again
+      setTimeout(() => {
+        updateCurrentEditorContent(initialCode)
+      }, 200)
+    }
+  }, [isStreaming])
+
   useEffect(() => {
     if (!editorRef.current) return
 
@@ -380,9 +393,7 @@ export const CodeEditor = ({
 
   if (isStreaming) {
     return (
-      <div className="font-mono whitespace-pre-wrap text-xs">
-        {files[currentFile]}
-      </div>
+      <div className="font-mono whitespace-pre-wrap text-xs">{initialCode}</div>
     )
   }
 

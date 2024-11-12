@@ -81,6 +81,7 @@
     "date-fns": "^4.1.0",
     "easyeda": "^0.0.62",
     "embla-carousel-react": "^8.3.0",
+    "extract-codefence": "^0.0.4",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
     "immer": "^10.1.1",

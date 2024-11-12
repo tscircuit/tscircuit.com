@@ -12,6 +12,7 @@ import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
+import { extractCodefence } from "extract-codefence"
 
 export default function AIChatInterface({
   code,
@@ -92,13 +93,10 @@ export default function AIChatInterface({
             if (isInCodeBlock) {
               setCurrentCodeBlock("")
             } else {
-              const codeContent = accumulatedContent
-                .split("```")
-                .slice(-2, -1)[0]
-                .trim()
-                .replace(/^tsx/, "")
-                .trim()
-              onCodeChange(codeContent)
+              const codeContent = extractCodefence(accumulatedContent)
+              if (codeContent) {
+                onCodeChange(codeContent)
+              }
               setCurrentCodeBlock(null)
             }
           } else if (isInCodeBlock) {
