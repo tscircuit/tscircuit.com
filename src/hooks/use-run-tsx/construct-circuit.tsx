@@ -13,6 +13,12 @@ export const constructCircuit = (
 
   if (type === "board") {
     circuit.add(<UserElm />)
+    const board = circuit.selectOne("board")
+    if (board) {
+      board.setProps({
+        partsEngine: jlcPartsEngine,
+      })
+    }
   } else if (type === "package") {
     circuit.add(
       <board width="50mm" height="50mm">
