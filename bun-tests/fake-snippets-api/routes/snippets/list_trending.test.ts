@@ -1,4 +1,4 @@
-import { getTestServer } from "fake-snippets-api/tests/fixtures/get-test-server"
+import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
 test("list trending snippets", async () => {

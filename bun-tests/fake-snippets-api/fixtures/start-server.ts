@@ -13,7 +13,7 @@ export const startServer = async ({
   testDbName,
 }: { port: number; testDbName: string }) => {
   const winterspecBundle = await createWinterSpecBundleFromDir(
-    join(import.meta.dir, "../../routes"),
+    join(import.meta.dir, "../../../fake-snippets-api/routes"),
   )
 
   const db = createDatabase()

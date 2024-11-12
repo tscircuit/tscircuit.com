@@ -7,6 +7,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "bun-tests/*": ["./bun-tests/*"],
       "fake-snippets-api/*": ["./fake-snippets-api/*"]
     },
     "skipLibCheck": true,
