@@ -1,3 +1,4 @@
+import { SupplierName } from "@tscircuit/props"
 import { AnyCircuitElement } from "circuit-json"
 import { Link } from "wouter"
 
@@ -24,11 +25,11 @@ export const BomTable: React.FC<BomTableProps> = ({ circuitJson }) => {
     (el) => el.type === "source_component",
   )
 
-  const supplierColumns = new Set<string>()
+  const supplierColumns = new Set<SupplierName>()
   sourceComponents.forEach((comp) => {
     if (comp.supplier_part_numbers) {
       Object.keys(comp.supplier_part_numbers).forEach((supplier) =>
-        supplierColumns.add(supplier),
+        supplierColumns.add(supplier as SupplierName),
       )
     }
   })
