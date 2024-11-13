@@ -86,28 +86,24 @@ export default function ViewSnippetHeader() {
             size="sm"
             onClick={async () => {
               try {
-                await axios.post("/snippets/add_star", {
+                const { data } = await axios.post("/snippets/add_star", {
                   snippet_id: snippet!.snippet_id,
                 })
                 toast({
-                  title: "Starred!",
-                  description: "You've starred this snippet",
+                  title: data.account_snippet.has_starred
+                    ? "Starred!"
+                    : "Unstarred!",
+                  description: data.account_snippet.has_starred
+                    ? "You've starred this snippet"
+                    : "You've unstarred this snippet",
                 })
                 qc.invalidateQueries(["snippets", snippet!.snippet_id])
               } catch (error: any) {
-                if (error?.status === 400) {
-                  toast({
-                    title: "Already starred",
-                    description: "You've already starred this snippet",
-                    variant: "destructive",
-                  })
-                } else {
-                  toast({
-                    title: "Error",
-                    description: "Failed to star snippet",
-                    variant: "destructive",
-                  })
-                }
+                toast({
+                  title: "Error",
+                  description: "Failed to star snippet",
+                  variant: "destructive",
+                })
               }
             }}
           >

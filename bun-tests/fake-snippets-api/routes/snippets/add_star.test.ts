@@ -78,7 +78,7 @@ test("add star to already starred snippet", async () => {
   }
   const addedSnippet = db.addSnippet(snippet as any)
 
-  // Star the snippet first time
+  // Star the snippet for the first time
   await axios.post(
     "/api/snippets/add_star",
     {
@@ -91,24 +91,21 @@ test("add star to already starred snippet", async () => {
     },
   )
 
-  // Try to star again
-  try {
-    await axios.post(
-      "/api/snippets/add_star",
-      {
-        snippet_id: addedSnippet.snippet_id,
+  // Try to star it again (should toggle or fail)
+  const response = await axios.post(
+    "/api/snippets/add_star",
+    {
+      snippet_id: addedSnippet.snippet_id,
+    },
+    {
+      headers: {
+        Authorization: "Bearer 1234",
       },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
-    expect(true).toBe(false) // Should not reach here
-  } catch (error: any) {
-    expect(error.status).toBe(400)
-    expect(error.data.error.message).toBe(
-      "You have already starred this snippet",
-    )
-  }
+    },
+  )
+
+  expect(response.status).toBe(200)
+  expect(response.data.ok).toBe(true)
+  expect(response.data.account_snippet.snippet_id).toBe(addedSnippet.snippet_id)
+  expect(response.data.account_snippet.has_starred).toBe(false)
 })

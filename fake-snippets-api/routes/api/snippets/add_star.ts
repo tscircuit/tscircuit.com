@@ -14,6 +14,7 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { snippet_id } = req.jsonBody
+  const { account_id } = ctx.auth
 
   // Check if snippet exists
   const snippet = ctx.db.getSnippetById(snippet_id)
@@ -24,19 +25,35 @@ export default withRouteSpec({
     })
   }
 
-  // Check if already starred
-  if (ctx.db.hasStarred(ctx.auth.account_id, snippet_id)) {
-    return ctx.error(400, {
-      error_code: "already_starred",
-      message: "You have already starred this snippet",
+  try {
+    // Check current star status
+    const hasStarred = ctx.db.hasStarred(account_id, snippet_id)
+    let accountSnippet
+
+    const now = new Date().toISOString()
+
+    if (hasStarred) {
+      ctx.db.removeStar(account_id, snippet_id)
+      accountSnippet = {
+        account_id,
+        snippet_id,
+        has_starred: false,
+        created_at: now,
+        updated_at: now,
+      }
+    } else {
+      accountSnippet = ctx.db.addStar(account_id, snippet_id)
+    }
+
+    return ctx.json({
+      ok: true,
+      account_snippet: accountSnippetSchema.parse(accountSnippet),
+    })
+  } catch (error) {
+    console.error("Error toggling star:", error)
+    return ctx.error(500, {
+      error_code: "star_operation_failed",
+      message: "Failed to update star status",
     })
   }
-
-  // Add star
-  const accountSnippet = ctx.db.addStar(ctx.auth.account_id, snippet_id)
-
-  return ctx.json({
-    ok: true,
-    account_snippet: accountSnippet,
-  })
 })
