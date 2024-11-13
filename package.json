@@ -62,7 +62,7 @@
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.10.16",
-    "@tscircuit/props": "^0.0.93",
+    "@tscircuit/props": "^0.0.96",
     "@tscircuit/schematic-viewer": "^1.4.3",
     "@types/file-saver": "^2.0.7",
     "@types/ms": "^0.7.34",
