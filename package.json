@@ -58,7 +58,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tscircuit/3d-viewer": "^0.0.36",
-    "@tscircuit/footprinter": "^0.0.70",
+    "@tscircuit/footprinter": "^0.0.86",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.10.16",
