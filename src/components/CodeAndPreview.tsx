@@ -110,7 +110,15 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const createSnippetMutation = useCreateSnippetMutation()
 
-  const handleSave = () => {
+  const handleSave = async () => {
+
+    // If code has changed but hasn't been run yet, run it first                                                 
+   if (hasUnsavedChanges ) {                                                         
+    triggerRunTsx()                                                                                            
+    // Wait a short moment for the run to complete                                                             
+    await new Promise(resolve => setTimeout(resolve, 100))                                                     
+  } 
+    console.log(circuitJson);
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
