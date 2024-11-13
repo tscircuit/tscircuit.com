@@ -14,9 +14,12 @@ export const constructCircuit = (
 
   if (type === "board") {
     circuit.add(<UserElm />)
-    const board = circuit.selectOne("board")
+    // HACK: switch to selectOne when root fixes bug with selecting board
+    const board = circuit.root?.children[0]
+    // const board = circuit.selectOne("board")
     if (board) {
       board.setProps({
+        ...board.props,
         partsEngine: jlcPartsEngine,
       })
     }

@@ -158,9 +158,23 @@ export const useRunTsx = ({
 
         try {
           const circuit = constructCircuit(UserElm, type as any)
-          circuit.render()
-          const circuitJson = circuit.getCircuitJson()
+          const renderPromise = circuit.renderUntilSettled()
 
+          // wait one tick to allow a single render pass
+          await new Promise((resolve) => setTimeout(resolve, 1))
+
+          let circuitJson = circuit.getCircuitJson()
+          setTsxResult({
+            compiledModule: module,
+            compiledJs,
+            message: "",
+            circuitJson: circuitJson as AnyCircuitElement[],
+            isLoading: false,
+          })
+
+          await renderPromise
+
+          circuitJson = circuit.getCircuitJson()
           setTsxResult({
             compiledModule: module,
             compiledJs,
