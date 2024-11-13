@@ -4,7 +4,7 @@ import { viewports } from "./viewports"
 for (const [size, viewport] of Object.entries(viewports)) {
   test(`search test for ${size} viewport`, async ({ page }) => {
     await page.setViewportSize(viewport)
-    await page.goto("http://127.0.0.1:5173/")
+    await page.goto("http://127.0.0.1:5177/")
 
     const searchInput = page.getByRole("searchbox", { name: "Search" }).first()
 
