@@ -114,7 +114,7 @@
     "@biomejs/biome": "^1.9.2",
     "@playwright/test": "^1.48.0",
     "@tscircuit/core": "^0.0.171",
-    "@tscircuit/prompt-benchmarks": "^0.0.14",
+    "@tscircuit/prompt-benchmarks": "^0.0.15",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
     "@types/country-list": "^2.1.4",
