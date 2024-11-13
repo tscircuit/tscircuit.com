@@ -114,7 +114,7 @@ export function CodeAndPreview({ snippet }: Props) {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate({ code })
+      createSnippetMutation.mutate({ code, circuit_json: circuitJson as any })
     }
   }
 
