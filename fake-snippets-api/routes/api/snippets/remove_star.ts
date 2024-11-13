@@ -1,6 +1,6 @@
+import { accountSnippetSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { accountSnippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST"],
@@ -24,11 +24,20 @@ export default withRouteSpec({
     })
   }
 
-  // Add star
-  const accountSnippet = ctx.db.addStar(ctx.auth.account_id, snippet_id)
+  // Remove star
+  ctx.db.removeStar(ctx.auth.account_id, snippet_id)
+
+  // parse account snippet
+  const accountSnippet = {
+    account_id: ctx.auth.account_id,
+    snippet_id,
+    has_starred: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
 
   return ctx.json({
     ok: true,
-    account_snippet: accountSnippet,
+    account_snippet: accountSnippetSchema.parse(accountSnippet),
   })
 })

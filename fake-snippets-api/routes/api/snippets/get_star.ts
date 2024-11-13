@@ -1,19 +1,18 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { accountSnippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
-  methods: ["POST"],
+  methods: ["GET"],
   auth: "session",
-  jsonBody: z.object({
+  commonParams: z.object({
     snippet_id: z.string(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    account_snippet: accountSnippetSchema,
+    is_starred: z.boolean(),
   }),
 })(async (req, ctx) => {
-  const { snippet_id } = req.jsonBody
+  const { snippet_id } = req.commonParams
 
   // Check if snippet exists
   const snippet = ctx.db.getSnippetById(snippet_id)
@@ -24,11 +23,11 @@ export default withRouteSpec({
     })
   }
 
-  // Add star
-  const accountSnippet = ctx.db.addStar(ctx.auth.account_id, snippet_id)
+  // Check if snippet is already starred
+  const isStarred = ctx.db.hasStarred(ctx.auth.account_id, snippet_id)
 
   return ctx.json({
     ok: true,
-    account_snippet: accountSnippet,
+    is_starred: isStarred,
   })
 })

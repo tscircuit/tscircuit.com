@@ -62,6 +62,23 @@ export default function ViewSnippetHeader() {
     },
   })
 
+  const [isStarred, setIsStarred] = useState(false)
+
+  useEffect(() => {
+    if (!snippet) return
+    const fetchStar = async () => {
+      try {
+        const { data } = await axios.get(
+          `/snippets/get_star?snippet_id=${snippet.snippet_id}`,
+        )
+        setIsStarred(data.is_starred)
+      } catch (error: any) {
+        console.error("Error fetching star:", error)
+      }
+    }
+    fetchStar()
+  }, [snippet])
+
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6">
       <div className="flex items-center justify-between">
@@ -86,17 +103,25 @@ export default function ViewSnippetHeader() {
             size="sm"
             onClick={async () => {
               try {
-                const { data } = await axios.post("/snippets/add_star", {
-                  snippet_id: snippet!.snippet_id,
-                })
-                toast({
-                  title: data.account_snippet.has_starred
-                    ? "Starred!"
-                    : "Unstarred!",
-                  description: data.account_snippet.has_starred
-                    ? "You've starred this snippet"
-                    : "You've unstarred this snippet",
-                })
+                if (isStarred) {
+                  await axios.post("/snippets/remove_star", {
+                    snippet_id: snippet!.snippet_id,
+                  })
+
+                  toast({
+                    title: "Unstarred",
+                    description: "You've unstarred this snippet",
+                  })
+                } else {
+                  await axios.post("/snippets/add_star", {
+                    snippet_id: snippet!.snippet_id,
+                  })
+
+                  toast({
+                    title: "Starred",
+                    description: "You've starred this snippet",
+                  })
+                }
                 qc.invalidateQueries(["snippets", snippet!.snippet_id])
               } catch (error: any) {
                 toast({
