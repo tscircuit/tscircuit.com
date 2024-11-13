@@ -12,6 +12,7 @@ export default withRouteSpec({
     unscoped_name: z.string().optional(),
     dts: z.string().optional(),
     compiled_js: z.string().optional().nullable(),
+    circuit_json: z.array(z.record(z.any())).optional(),
     snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   }),
   jsonResponse: z.object({
@@ -26,6 +27,7 @@ export default withRouteSpec({
     unscoped_name,
     dts,
     compiled_js,
+    circuit_json,
     snippet_type,
   } = req.jsonBody
 
@@ -58,6 +60,7 @@ export default withRouteSpec({
       : snippet.name,
     dts: dts ?? snippet.dts,
     compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
+    circuit_json: circuit_json !== undefined ? circuit_json : snippet.circuit_json,
     snippet_type: snippet_type ?? snippet.snippet_type,
     updated_at: new Date().toISOString(),
   })

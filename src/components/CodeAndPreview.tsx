@@ -5,18 +5,18 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
+import useWarnUser from "@/hooks/use-warn-user"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
+import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { cn } from "@/lib/utils"
 import "@/prettier"
-import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
-import useWarnUser from "@/hooks/use-warn-user"
 interface Props {
   snippet?: Snippet | null
 }
@@ -84,6 +84,7 @@ export function CodeAndPreview({ snippet }: Props) {
         code: code,
         dts: dts,
         compiled_js: compiledJs,
+        circuit_json: circuitJson
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")

@@ -1,4 +1,3 @@
-import { AnyCircuitElement } from "circuit-json"
 import { z } from "zod"
 
 export const snippetSchema = z.object({
@@ -9,6 +8,7 @@ export const snippetSchema = z.object({
   code: z.string(),
   dts: z.string().optional(),
   compiled_js: z.string().optional().nullable(),
+  circuit_json: z.array(z.record(z.any())).optional(),
   created_at: z.string(),
   updated_at: z.string(),
   snippet_type: z.enum(["board", "package", "model", "footprint"]),
