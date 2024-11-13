@@ -3,7 +3,6 @@ import { useMutation } from "react-query"
 import { useAxios } from "./use-axios"
 import { safeCompileTsx } from "./use-compiled-tsx"
 import { useCurrentSnippetId } from "./use-current-snippet-id"
-import { useRunTsx } from "./use-run-tsx"
 
 export const useSaveSnippet = () => {
   const axios = useAxios()
@@ -13,11 +12,10 @@ export const useSaveSnippet = () => {
   const saveSnippetMutation = useMutation<
     Snippet,
     Error,
-    { code: string; snippet_type: string; dts?: string }
+    { code: string; snippet_type: string; dts?: string, circuit_json?: any[] }
   >({
-    mutationFn: async ({ code, snippet_type, dts }) => {
+    mutationFn: async ({ code, snippet_type, dts, circuit_json }) => {
       const compileResult = safeCompileTsx(code)
-      const runResult = useRunTsx({ code })
 
       if (snippetId) {
         const response = await axios.post("/snippets/update", {
@@ -27,7 +25,7 @@ export const useSaveSnippet = () => {
           compiled_js: compileResult.success
             ? compileResult.compiledTsx
             : undefined,
-          circuit_json: runResult.circuitJson,
+          circuit_json: circuit_json,
           dts,
         })
         return response.data.snippet
@@ -50,8 +48,9 @@ export const useSaveSnippet = () => {
     code: string,
     snippet_type: string,
     dts?: string,
+    circuit_json? :any[]
   ) => {
-    return saveSnippetMutation.mutateAsync({ code, snippet_type, dts })
+    return saveSnippetMutation.mutateAsync({ code, snippet_type, dts, circuit_json })
   }
 
   return {
