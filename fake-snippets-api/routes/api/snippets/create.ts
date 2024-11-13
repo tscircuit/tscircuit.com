@@ -11,7 +11,7 @@ export default withRouteSpec({
     snippet_type: z.enum(["board", "package", "model", "footprint"]),
     description: z.string().optional(),
     compiled_js: z.string().optional(),
-    circuit_json: z.array(z.record(z.any())).optional(),
+    circuit_json: z.array(z.record(z.any())).optional().nullable(),
     dts: z.string().optional(),
   }),
   jsonResponse: z.object({

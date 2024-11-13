@@ -17,7 +17,7 @@ export const useSaveSnippet = () => {
   >({
     mutationFn: async ({ code, snippet_type, dts }) => {
       const compileResult = safeCompileTsx(code)
-      const runResult = useRunTsx({code})
+      const runResult = useRunTsx({ code })
 
       if (snippetId) {
         const response = await axios.post("/snippets/update", {

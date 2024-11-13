@@ -84,7 +84,7 @@ export function CodeAndPreview({ snippet }: Props) {
         code: code,
         dts: dts,
         compiled_js: compiledJs,
-        circuit_json: circuitJson
+        circuit_json: circuitJson,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
