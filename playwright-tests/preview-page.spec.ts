@@ -1,15 +1,20 @@
 import { expect, test } from "@playwright/test"
-import { viewports } from "./viewports"
 
-for (const [size, viewport] of Object.entries(viewports)) {
-  test(`preview-snippet Page on ${size} screen`, async ({ page }) => {
-    await page.setViewportSize(viewport)
-    await page.goto("http://127.0.0.1:5177/preview?snippet_id=snippet_3")
+test(`preview-snippet Page`, async ({ page }) => {
+  // Now test preview pages
+  await page.goto("http://127.0.0.1:5177/preview?snippet_id=snippet_5&view=pcb")
+  await page.waitForTimeout(1000) // Give time for rendering
+  await expect(page).toHaveScreenshot(`preview-snippet-pcb.png`)
 
-    await page.waitForSelector(".run-button")
-    await expect(page).toHaveScreenshot(`preview-snippet-before-${size}.png`)
-    await page.click(".run-button")
-    await page.waitForTimeout(1000)
-    await expect(page).toHaveScreenshot(`preview-snippet-after-${size}.png`)
-  })
-}
+  await page.goto(
+    "http://127.0.0.1:5177/preview?snippet_id=snippet_5&view=schematic",
+  )
+  // Wait for schematic viewer to load
+  await page.waitForTimeout(1000)
+  await expect(page).toHaveScreenshot(`preview-snippet-schematic.png`)
+
+  await page.goto("http://127.0.0.1:5177/preview?snippet_id=snippet_5&view=3d")
+  // Wait for 3D viewer to load
+  await page.waitForTimeout(1000)
+  await expect(page).toHaveScreenshot(`preview-snippet-3d.png`)
+})
