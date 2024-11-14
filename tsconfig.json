@@ -7,6 +7,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "bun-tests/*": ["./bun-tests/*"],
       "fake-snippets-api/*": ["./fake-snippets-api/*"]
     },
     "skipLibCheck": true,
@@ -25,5 +26,5 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src", "fake-snippets-api"]
+  "include": ["src", "fake-snippets-api", "bun-tests"]
 }

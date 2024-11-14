@@ -115,6 +115,29 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       )
       .slice(0, limit)
   },
+  getTrendingSnippets: (limit: number, since: string): Snippet[] => {
+    const state = get()
+    const sinceDate = new Date(since).getTime()
+
+    // Get star counts within time period
+    const recentStars = new Map<string, number>()
+    state.accountSnippets.forEach((as) => {
+      if (as.has_starred && new Date(as.created_at).getTime() >= sinceDate) {
+        recentStars.set(
+          as.snippet_id,
+          (recentStars.get(as.snippet_id) || 0) + 1,
+        )
+      }
+    })
+
+    return [...state.snippets]
+      .map((snippet) => ({
+        ...snippet,
+        star_count: recentStars.get(snippet.snippet_id) || 0,
+      }))
+      .sort((a, b) => b.star_count - a.star_count)
+      .slice(0, limit)
+  },
   getSnippetsByAuthor: (authorName?: string): Snippet[] => {
     const state = get()
     const snippets = authorName

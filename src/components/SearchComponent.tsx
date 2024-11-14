@@ -57,7 +57,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       <Input
         type="search"
         placeholder="Search"
-        className="pl-4 focus:border-blue-500 placeholder-gray-400"
+        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
@@ -78,17 +78,17 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
-                <li key={snippet.snippet_id} className="p-4 hover:bg-gray-50">
+                <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
                   <a
                     href={`/editor?snippet_id=${snippet.snippet_id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <div className="font-medium text-blue-600 break-words">
+                    <div className="font-medium text-blue-600 break-words text-sm">
                       {snippet.name}
                     </div>
-                    <div className="text-sm text-gray-500 break-words">
+                    <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
                       {snippet.description}
                     </div>
                   </a>

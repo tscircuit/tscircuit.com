@@ -4,5 +4,27 @@
       "source": "/(.*)",
       "destination": "/"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/community/join-redirect",
+      "destination": "https://discord.gg/V7FGE5ZCbA",
+      "permanent": false
+    },
+    {
+      "source": "/join",
+      "destination": "https://discord.gg/V7FGE5ZCbA",
+      "permanent": false
+    },
+    {
+      "source": "/legal/terms-of-service",
+      "destination": "https://registry.tscircuit.com/legal/terms-of-service.html",
+      "permanent": false
+    },
+    {
+      "source": "/legal/privacy-policy",
+      "destination": "https://registry.tscircuit.com/legal/privacy-policy.html",
+      "permanent": false
+    }
   ]
 }

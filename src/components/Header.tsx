@@ -2,8 +2,12 @@ import { HeaderLogin } from "@/components/HeaderLogin"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import { GitHubLogoIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons"
-import { Menu, X } from "lucide-react"
+import {
+  GitHubLogoIcon,
+  OpenInNewWindowIcon,
+  ChatBubbleIcon,
+} from "@radix-ui/react-icons"
+import { Menu, MessageCircleMoreIcon, X } from "lucide-react"
 import React, { useState } from "react"
 import { Link, useLocation } from "wouter"
 import CmdKMenu from "./CmdKMenu"
@@ -53,8 +57,7 @@ export default function Header() {
         <Link href="/" className="text-lg font-semibold whitespace-nowrap">
           <span className="bg-blue-500 px-2 py-1 rounded-md text-white">
             tscircuit
-          </span>{" "}
-          <span className="text-gray-800">snippets</span>
+          </span>
         </Link>
         <div className="hidden md:flex items-center space-x-4">
           <nav>
@@ -78,6 +81,13 @@ export default function Header() {
               <li>
                 <a href="https://docs.tscircuit.com">
                   <Button variant="ghost">Docs</Button>
+                </a>
+              </li>
+              <li>
+                <a href="https://tscircuit.com/join">
+                  <Button variant="ghost" className="text-gray-500">
+                    <MessageCircleMoreIcon className="w-4 h-4" />
+                  </Button>
                 </a>
               </li>
             </ul>

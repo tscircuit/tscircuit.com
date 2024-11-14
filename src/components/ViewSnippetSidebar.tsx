@@ -1,3 +1,4 @@
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -7,10 +8,13 @@ import { useFilesDialog } from "./dialogs/files-dialog"
 
 export default function ViewSnippetSidebar({
   className,
-}: { className?: string }) {
+}: {
+  className?: string
+}) {
   const { snippet } = useCurrentSnippet()
   const { toast } = useToast()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
+  const { copyToClipboard } = useCopyToClipboard()
 
   return (
     <div
@@ -112,28 +116,39 @@ export default function ViewSnippetSidebar({
           <div className="text-xs font-medium">Copy embed code</div>
           <div
             className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
-            onClick={() => {
-              const embedCode = `<iframe src="${window.location.origin}/preview?snippet_id=${snippet?.snippet_id}" width="100%" height="500" frameborder="0"></iframe>`
-              navigator.clipboard.writeText(embedCode)
-              toast({
-                title: "Copied!",
-                description: "Embed code copied to clipboard",
-              })
-            }}
+            onClick={() =>
+              copyToClipboard(
+                `<iframe src="https://snippets.tscircuit.com/embed/seveibar/circuitmodule" width="100%" height="100%"></iframe>`,
+              )
+            }
           >
-            {`<iframe src="${window.location.origin}/preview?snippet_id=${snippet?.snippet_id}" width="100%" height="500" frameborder="0"></iframe>`}
+            {`<iframe src="https://snippets.tscircuit.com/embed/seveibar/circuitmodule" width="100%" height="100%"></iframe>`}
           </div>
         </div>
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy import code</div>
-          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+          <div
+            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
+            onClick={() =>
+              copyToClipboard(
+                `import CircuitModule from "@tsci/${snippet?.owner_name}.${snippet?.unscoped_name}"`,
+              )
+            }
+          >
             import CircuitModule from "@tsci/{snippet?.owner_name}.
             {snippet?.unscoped_name}"
           </div>
         </div>
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy install command</div>
-          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+          <div
+            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
+            onClick={() =>
+              copyToClipboard(
+                `tsci add @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`,
+              )
+            }
+          >
             tsci add @tsci/{snippet?.owner_name}.{snippet?.unscoped_name}
           </div>
         </div>

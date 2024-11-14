@@ -60,7 +60,7 @@ export default function Footer() {
               <a href="https://x.com/tscircuit" className="hover:underline">
                 Twitter
               </a>
-              <a href="#" className="hover:underline">
+              <a href="https://tscircuit.com/join" className="hover:underline">
                 Discord
               </a>
               <a

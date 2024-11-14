@@ -5,7 +5,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
-import { CreateNewSnippetHero } from "@/components/CreateNewSnippetHero"
+import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiHero"
 import { Edit2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -78,7 +78,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <CreateNewSnippetHero />
+            <CreateNewSnippetWithAiHero />
             <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
               Your Recent Snippets
             </h2>

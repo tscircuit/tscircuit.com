@@ -5,18 +5,19 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
+import useWarnUser from "@/hooks/use-warn-user"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
+import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { cn } from "@/lib/utils"
 import "@/prettier"
-import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
-import useWarnUser from "@/hooks/use-warn-user"
+
 interface Props {
   snippet?: Snippet | null
 }
@@ -45,12 +46,15 @@ export function CodeAndPreview({ snippet }: Props) {
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
+  const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
+
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ?? (templateFromUrl.type as any)
 
   useEffect(() => {
     if (snippet?.code) {
       setCode(snippet.code)
+      setLastRunCode(snippet.code)
     }
   }, [Boolean(snippet)])
 
@@ -74,6 +78,12 @@ export function CodeAndPreview({ snippet }: Props) {
     userImports,
     type: snippetType,
   })
+
+  // Update lastRunCode whenever the code is run
+  useEffect(() => {
+    setLastRunCode(code)
+  }, [tsxRunTriggerCount])
+
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({
@@ -84,6 +94,7 @@ export function CodeAndPreview({ snippet }: Props) {
         code: code,
         dts: dts,
         compiled_js: compiledJs,
+        circuit_json: circuitJson,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -109,15 +120,16 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const createSnippetMutation = useCreateSnippetMutation()
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate({ code })
+      createSnippetMutation.mutate({ code, circuit_json: circuitJson as any })
     }
   }
 
   const hasUnsavedChanges = snippet?.code !== code
+  const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
@@ -143,6 +155,7 @@ export function CodeAndPreview({ snippet }: Props) {
         onSave={() => handleSave()}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
+        canSave={!hasUnrunChanges} // Disable save if there are unrun changes
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div

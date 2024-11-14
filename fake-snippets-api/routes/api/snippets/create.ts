@@ -1,6 +1,6 @@
+import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { Snippet, snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST"],
@@ -11,6 +11,7 @@ export default withRouteSpec({
     snippet_type: z.enum(["board", "package", "model", "footprint"]),
     description: z.string().optional(),
     compiled_js: z.string().optional(),
+    circuit_json: z.array(z.record(z.any())).optional().nullable(),
     dts: z.string().optional(),
   }),
   jsonResponse: z.object({
@@ -24,6 +25,7 @@ export default withRouteSpec({
     snippet_type,
     description = "",
     compiled_js,
+    circuit_json,
     dts,
   } = req.jsonBody
   if (!unscoped_name) {
@@ -40,6 +42,7 @@ export default withRouteSpec({
     snippet_type,
     description,
     compiled_js,
+    circuit_json,
     dts,
   }
 

@@ -1,9 +1,9 @@
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
-import { useUrlParams } from "./use-url-params"
-import { useGlobalStore } from "./use-global-store"
 import { useAxios } from "./use-axios"
+import { useGlobalStore } from "./use-global-store"
+import { useUrlParams } from "./use-url-params"
 
 export const useCreateSnippetMutation = ({
   onSuccess,
@@ -14,7 +14,10 @@ export const useCreateSnippetMutation = ({
   const session = useGlobalStore((s) => s.session)
   return useMutation(
     ["createSnippet"],
-    async ({ code }: { code?: string } = {}) => {
+    async ({
+      code,
+      circuit_json,
+    }: { code?: string; circuit_json?: any[] } = {}) => {
       if (!session) throw new Error("No session")
       const template =
         typeof code === "string"
@@ -31,6 +34,7 @@ export const useCreateSnippetMutation = ({
         code: template.code,
         snippet_type: template.type ?? "board",
         owner_name: session?.github_username,
+        circuit_json,
       })
       return snippet
     },
