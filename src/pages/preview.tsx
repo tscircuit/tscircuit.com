@@ -46,9 +46,11 @@ export const PreviewPage = () => {
   const validViews = ["pcb", "3d", "schematic"]
   if (!validViews.includes(view)) {
     return (
-      <div className="w-full h-screen flex items-center justify-center text-gray-500">
-        Invalid view type. Valid views are: {validViews.join(", ")}
-      </div>
+      <div className="w-full h-screen">
+      {view === "pcb" && (
+        <PCBViewer soup={snippet.circuit_json} height={window.innerHeight} />
+      )}
+    </div>
     )
   }
 
