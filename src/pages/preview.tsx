@@ -59,7 +59,9 @@ export const PreviewPage = () => {
       )}
       {view === "3d" && <CadViewer soup={snippet.circuit_json as any} />}
       {view === "schematic" && (
-        <CircuitToSvgWithMouseControl circuitJson={snippet.circuit_json as any} />
+        <CircuitToSvgWithMouseControl
+          circuitJson={snippet.circuit_json as any}
+        />
       )}
     </div>
   )
