@@ -12,7 +12,7 @@ export const useSaveSnippet = () => {
   const saveSnippetMutation = useMutation<
     Snippet,
     Error,
-    { code: string; snippet_type: string; dts?: string, circuit_json?: any[] }
+    { code: string; snippet_type: string; dts?: string; circuit_json?: any[] }
   >({
     mutationFn: async ({ code, snippet_type, dts, circuit_json }) => {
       const compileResult = safeCompileTsx(code)
@@ -48,9 +48,14 @@ export const useSaveSnippet = () => {
     code: string,
     snippet_type: string,
     dts?: string,
-    circuit_json? :any[]
+    circuit_json?: any[],
   ) => {
-    return saveSnippetMutation.mutateAsync({ code, snippet_type, dts, circuit_json })
+    return saveSnippetMutation.mutateAsync({
+      code,
+      snippet_type,
+      dts,
+      circuit_json,
+    })
   }
 
   return {

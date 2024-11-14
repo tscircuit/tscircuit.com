@@ -54,6 +54,7 @@ export default function EditorNav({
   onSave,
   snippetType,
   isSaving,
+  canSave,
 }: {
   snippet?: Snippet | null
   circuitJson?: AnyCircuitElement[] | null
@@ -64,6 +65,7 @@ export default function EditorNav({
   onTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
+  canSave: boolean
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -163,7 +165,7 @@ export default function EditorNav({
           variant="outline"
           size="sm"
           className={"h-6 px-2 text-xs"}
-          disabled={!isLoggedIn}
+          disabled={!isLoggedIn || !canSave}
           onClick={onSave}
         >
           <Save className="mr-1 h-3 w-3" />

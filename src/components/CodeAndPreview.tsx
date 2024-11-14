@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
+
 interface Props {
   snippet?: Snippet | null
 }
@@ -45,12 +46,15 @@ export function CodeAndPreview({ snippet }: Props) {
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
+  const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
+
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ?? (templateFromUrl.type as any)
 
   useEffect(() => {
     if (snippet?.code) {
       setCode(snippet.code)
+      setLastRunCode(snippet.code)
     }
   }, [Boolean(snippet)])
 
@@ -74,6 +78,12 @@ export function CodeAndPreview({ snippet }: Props) {
     userImports,
     type: snippetType,
   })
+
+  // Update lastRunCode whenever the code is run
+  useEffect(() => {
+    setLastRunCode(code)
+  }, [tsxRunTriggerCount])
+
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({
@@ -119,6 +129,7 @@ export function CodeAndPreview({ snippet }: Props) {
   }
 
   const hasUnsavedChanges = snippet?.code !== code
+  const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
@@ -144,6 +155,7 @@ export function CodeAndPreview({ snippet }: Props) {
         onSave={() => handleSave()}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
+        canSave={!hasUnrunChanges} // Disable save if there are unrun changes
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div
