@@ -58,12 +58,11 @@ export const useRunTsx = ({
       })
     }
     if (!code) return
-    const error = getSyntaxError(code);
-    console.log("Syntax error: ", error)
-    if (error) {
+    const syntaxError = getSyntaxError(code)
+    if (syntaxError) {
       setTsxResult({
         compiledModule: null,
-        message: error,
+        message: syntaxError,
         circuitJson: null,
         isLoading: false,
       })
