@@ -3,7 +3,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { AnyCircuitElement } from "circuit-json"
 import * as jscadFiber from "jscad-fiber"
 import * as React from "react"
-import { useEffect, useReducer, useRef, useState } from "react"
+import { useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { safeCompileTsx } from "../use-compiled-tsx"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
 import { constructCircuit } from "./construct-circuit"
@@ -28,6 +28,7 @@ export const useRunTsx = ({
   type?: "board" | "footprint" | "package" | "model"
   isStreaming?: boolean
 } = {}): RunTsxResult & {
+  circuitJsonKey: string
   triggerRunTsx: () => void
   tsxRunTriggerCount: number
 } => {
@@ -57,6 +58,13 @@ export const useRunTsx = ({
     }
     if (!code) return
     async function run() {
+      setTsxResult({
+        compiledModule: null,
+        message: "",
+        circuitJson: null,
+        isLoading: true,
+      })
+
       const userCodeTsciImports = getImportsFromCode(code!).filter((imp) =>
         imp.startsWith("@tsci/"),
       )
@@ -169,7 +177,7 @@ export const useRunTsx = ({
             compiledJs,
             message: "",
             circuitJson: circuitJson as AnyCircuitElement[],
-            isLoading: false,
+            isLoading: true,
           })
 
           await renderPromise
@@ -204,8 +212,14 @@ export const useRunTsx = ({
     run()
   }, [tsxRunTriggerCount])
 
+  const circuitJsonKey: string = useMemo(() => {
+    if (!tsxResult.circuitJson) return ""
+    return `cj-${Math.random().toString(36).substring(2, 15)}`
+  }, [tsxResult.circuitJson])
+
   return {
     ...tsxResult,
+    circuitJsonKey: circuitJsonKey,
     triggerRunTsx: incTsxRunTriggerCount,
     tsxRunTriggerCount,
   }

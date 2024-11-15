@@ -73,6 +73,7 @@ export function CodeAndPreview({ snippet }: Props) {
     compiledJs,
     triggerRunTsx,
     tsxRunTriggerCount,
+    circuitJsonKey,
   } = useRunTsx({
     code,
     userImports,
@@ -183,6 +184,7 @@ export function CodeAndPreview({ snippet }: Props) {
             triggerRunTsx={triggerRunTsx}
             tsxRunTriggerCount={tsxRunTriggerCount}
             errorMessage={message}
+            circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             manualEditsFileContent={manualEditsFileContent}
             onManualEditsFileContentChange={(newManualEditsFileContent) => {

@@ -28,6 +28,7 @@ export interface PreviewContentProps {
   tsxRunTriggerCount: number
   errorMessage: string | null
   circuitJson: any
+  circuitJsonKey: string
   className?: string
   showCodeTab?: boolean
   showJsonTab?: boolean
@@ -46,6 +47,7 @@ export const PreviewContent = ({
   triggerRunTsx,
   tsxRunTriggerCount,
   errorMessage,
+  circuitJsonKey,
   circuitJson,
   showCodeTab = false,
   showJsonTab = true,
@@ -211,7 +213,7 @@ export const PreviewContent = ({
               <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
                 {circuitJson ? (
                   <PCBViewer
-                    key={tsxRunTriggerCount}
+                    key={circuitJsonKey}
                     soup={circuitJson}
                     onEditEventsChanged={(editEvents) => {
                       if (editEvents.some((editEvent) => editEvent.in_progress))
