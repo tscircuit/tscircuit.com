@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
+import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { AnyCircuitElement } from "circuit-json"
@@ -125,6 +126,18 @@ export function DownloadButtonAndMenu({
             <span className="flex-grow mr-6">Download Schematic SVG</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               svg
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() => {
+              downloadDsnFile(circuitJson, snippetUnscopedName || "circuit")
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Download DSN file</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              dsn
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
