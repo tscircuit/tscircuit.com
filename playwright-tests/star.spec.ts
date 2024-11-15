@@ -28,7 +28,7 @@ test("test for removing a star from a repo", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Star" })).toBeVisible()
 
   // remove star
-  await page.click('button:has-text("Star")')
+  await page.click('button:has-text("Starred")')
   await page.waitForTimeout(3000)
 
   await expect(page).toHaveScreenshot("remove-star-button.png")
