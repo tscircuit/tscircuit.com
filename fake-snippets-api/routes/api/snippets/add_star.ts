@@ -24,6 +24,14 @@ export default withRouteSpec({
     })
   }
 
+  // Check if already starred
+  if (ctx.db.hasStarred(ctx.auth.account_id, snippet_id)) {
+    return ctx.error(400, {
+      error_code: "already_starred",
+      message: "You have already starred this snippet",
+    })
+  }
+
   // Add star
   const accountSnippet = ctx.db.addStar(ctx.auth.account_id, snippet_id)
 

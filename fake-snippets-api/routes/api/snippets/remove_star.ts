@@ -10,7 +10,7 @@ export default withRouteSpec({
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    account_snippet: accountSnippetSchema,
+    is_starred: z.boolean(),
   }),
 })(async (req, ctx) => {
   const { snippet_id } = req.jsonBody
@@ -24,20 +24,19 @@ export default withRouteSpec({
     })
   }
 
+  // check if not already starred
+  if (!ctx.db.hasStarred(ctx.auth.account_id, snippet_id)) {
+    return ctx.error(400, {
+      error_code: "not_starred",
+      message: "You have not starred this snippet",
+    })
+  }
+
   // Remove star
   ctx.db.removeStar(ctx.auth.account_id, snippet_id)
 
-  // parse account snippet
-  const accountSnippet = {
-    account_id: ctx.auth.account_id,
-    snippet_id,
-    has_starred: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-
   return ctx.json({
     ok: true,
-    account_snippet: accountSnippetSchema.parse(accountSnippet),
+    is_starred: false,
   })
 })
