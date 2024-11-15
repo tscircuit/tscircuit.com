@@ -18,6 +18,7 @@ export const AiPage = () => {
     circuitJson,
     triggerRunTsx,
     tsxRunTriggerCount,
+    circuitJsonKey,
   } = useRunTsx({
     code,
     type: "board",
@@ -71,6 +72,7 @@ export const AiPage = () => {
               triggerRunTsx={triggerRunTsx}
               errorMessage={errorMessage}
               circuitJson={circuitJson}
+              circuitJsonKey={circuitJsonKey}
               manualEditsFileContent={manualEditsFileContent}
               onManualEditsFileContentChange={(
                 newManualEditsFileContent: string,

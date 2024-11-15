@@ -28,7 +28,7 @@ export interface PreviewContentProps {
   tsxRunTriggerCount: number
   errorMessage: string | null
   circuitJson: any
-  circuitJsonKey: string
+  circuitJsonKey?: string
   className?: string
   showCodeTab?: boolean
   showJsonTab?: boolean
@@ -47,7 +47,7 @@ export const PreviewContent = ({
   triggerRunTsx,
   tsxRunTriggerCount,
   errorMessage,
-  circuitJsonKey,
+  circuitJsonKey = "",
   circuitJson,
   showCodeTab = false,
   showJsonTab = true,

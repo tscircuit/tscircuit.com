@@ -16,12 +16,16 @@ export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
   const { snippet, error: snippetError, isLoading } = useCurrentSnippet()
 
-  const { circuitJson, message, triggerRunTsx, tsxRunTriggerCount } = useRunTsx(
-    {
-      code: snippet?.code ?? "",
-      type: snippet?.snippet_type,
-    },
-  )
+  const {
+    circuitJson,
+    message,
+    triggerRunTsx,
+    tsxRunTriggerCount,
+    circuitJsonKey,
+  } = useRunTsx({
+    code: snippet?.code ?? "",
+    type: snippet?.snippet_type,
+  })
 
   return (
     <>
@@ -51,6 +55,7 @@ export const ViewSnippetPage = () => {
                   tsxRunTriggerCount={tsxRunTriggerCount}
                   errorMessage={message}
                   circuitJson={circuitJson}
+                  circuitJsonKey={circuitJsonKey}
                   showCodeTab={true}
                   showJsonTab={false}
                   showImportAndFormatButtons={false}
