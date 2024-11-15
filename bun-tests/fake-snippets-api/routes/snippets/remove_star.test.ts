@@ -105,8 +105,6 @@ test("remove star from unstarred snippet", async () => {
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(400)
-    expect(error.data.error.message).toBe(
-      "You have not starred this snippet",
-    )
+    expect(error.data.error.message).toBe("You have not starred this snippet")
   }
 })
