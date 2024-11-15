@@ -62,8 +62,6 @@ export default function ViewSnippetHeader() {
     },
   })
 
-  const [isStarred, setIsStarred] = useState(false)
-
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6">
       <div className="flex items-center justify-between">
