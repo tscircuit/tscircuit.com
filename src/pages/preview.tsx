@@ -47,10 +47,10 @@ export const PreviewPage = () => {
   if (!validViews.includes(view)) {
     return (
       <div className="w-full h-screen">
-      {view === "pcb" && (
-        <PCBViewer soup={snippet.circuit_json} height={window.innerHeight} />
-      )}
-    </div>
+        {view === "pcb" && (
+          <PCBViewer soup={snippet.circuit_json} height={window.innerHeight} />
+        )}
+      </div>
     )
   }
 
