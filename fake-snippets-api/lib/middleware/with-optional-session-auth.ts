@@ -16,19 +16,19 @@ export const withOptionalSessionAuth: Middleware<
   },
   {}
 > = async (req, ctx, next) => {
-    if (req.method === "OPTIONS") return next(req, ctx)
-    
-    const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
-    
-    if (token) {
-        ctx.auth = {
-            type: "session",
-            account_id: "account-1234",
-            personal_org_id: "org-1234",
-            github_username: "testuser",
-            session_id: "session-1234",
-        }
-    }
+  if (req.method === "OPTIONS") return next(req, ctx)
 
-    return next(req, ctx)
+  const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
+
+  if (token) {
+    ctx.auth = {
+      type: "session",
+      account_id: "account-1234",
+      personal_org_id: "org-1234",
+      github_username: "testuser",
+      session_id: "session-1234",
+    }
+  }
+
+  return next(req, ctx)
 }

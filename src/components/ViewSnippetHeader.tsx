@@ -55,7 +55,6 @@ export default function ViewSnippetHeader() {
     )
   }
 
-
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
     onSuccess: (forkedSnippet) => {

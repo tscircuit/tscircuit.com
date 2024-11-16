@@ -35,10 +35,13 @@ export default withRouteSpec({
     })
   }
 
-    if (ctx.auth) {
-      const starred = ctx.db.hasStarred(ctx.auth.account_id, foundSnippet.snippet_id)
-      foundSnippet.is_starred = starred
-    }
+  if (ctx.auth) {
+    const starred = ctx.db.hasStarred(
+      ctx.auth.account_id,
+      foundSnippet.snippet_id,
+    )
+    foundSnippet.is_starred = starred
+  }
 
   return ctx.json({
     ok: true,
