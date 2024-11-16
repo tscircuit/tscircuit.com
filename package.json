@@ -116,7 +116,7 @@
     "@babel/standalone": "^7.26.2",
     "@biomejs/biome": "^1.9.2",
     "@playwright/test": "^1.48.0",
-    "@tscircuit/core": "^0.0.181",
+    "@tscircuit/core": "^0.0.182",
     "@tscircuit/prompt-benchmarks": "^0.0.15",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
