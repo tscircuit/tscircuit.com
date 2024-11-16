@@ -9,6 +9,7 @@ import { EditorPage } from "./pages/editor"
 import { LandingPage } from "./pages/landing"
 import { MyOrdersPage } from "./pages/my-orders"
 import { NewestPage } from "./pages/newest"
+import { PreviewPage } from "./pages/preview"
 import { QuickstartPage } from "./pages/quickstart"
 import { SearchPage } from "./pages/search"
 import { SettingsPage } from "./pages/settings"
@@ -31,6 +32,7 @@ function App() {
         <Route path="/authorize" component={AuthenticatePage} />
         <Route path="/my-orders" component={MyOrdersPage} />
         <Route path="/orders/:orderId" component={ViewOrderPage} />
+        <Route path="/preview" component={PreviewPage} />
         <Route path="/:username" component={UserProfilePage} />
         <Route path="/:author/:snippetName" component={ViewSnippetPage} />
       </Switch>

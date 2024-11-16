@@ -1,26 +1,10 @@
-import { Link } from "wouter"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Code,
-  Monitor,
-  Bot,
-  GitFork,
-  AtSign,
-  Package,
-  Settings,
-  Link as LinkIcon,
-  Copy,
-  Hash,
-  Clock,
-  File,
-} from "lucide-react"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { cn } from "@/lib/utils"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
+import { AtSign, Bot, Clock, Code, File, GitFork, Package } from "lucide-react"
+import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 export default function ViewSnippetSidebar({
   className,
