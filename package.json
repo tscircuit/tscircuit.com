@@ -88,7 +88,7 @@
     "immer": "^10.1.1",
     "input-otp": "^1.2.4",
     "jose": "^5.9.3",
-    "jscad-electronics": "^0.0.20",
+    "jscad-electronics": "^0.0.21",
     "jszip": "^3.10.1",
     "lucide-react": "^0.445.0",
     "ms": "^2.1.3",
