@@ -55,22 +55,6 @@ export default function ViewSnippetHeader() {
     )
   }
 
-  const [isStarred, setIsStarred] = useState(false)
-
-  useEffect(() => {
-    const fetchStarStatus = async () => {
-      if (!snippet) return
-      try {
-        const { data } = await axios.post("/snippets/get_star", {
-          snippet_id: snippet.snippet_id,
-        })
-        setIsStarred(data.is_starred)
-      } catch (error: any) {
-        console.error("Error fetching star status:", error)
-      }
-    }
-    fetchStarStatus()
-  }, [snippet])
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
@@ -117,6 +101,7 @@ export default function ViewSnippetHeader() {
                     await axios.post("/snippets/remove_star", {
                       snippet_id: snippet!.snippet_id,
                     })
+                    snippet!.is_starred = false
                     toast({
                       title: "Unstarred!",
                       description: "You've unstarred this snippet",
@@ -140,9 +125,9 @@ export default function ViewSnippetHeader() {
             }}
           >
             <Star
-              className={`w-4 h-4 mr-2 ${isStarred ? "fill-yellow-500 text-yellow-500" : ""}`}
+              className={`w-4 h-4 mr-2 ${snippet!.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
             />
-            {isStarred ? "Starred" : "Star"}
+            {snippet!.is_starred ? "Starred" : "Star"}
             {snippet!.star_count > 0 && (
               <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
                 {snippet!.star_count}
