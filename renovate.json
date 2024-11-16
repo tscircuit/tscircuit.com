@@ -7,13 +7,16 @@
       "excludePackagePatterns": [
         "@tscircuit/*",
         "circuit-to-svg",
-        "jscad-electronics"
+        "jscad-electronics",
+        "circuit-json"
       ],
       "enabled": false
     },
     {
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "automerge": true
+      "automerge": true,
+      "groupName": "dependency updates",
+      "groupSlug": "all-updates"
     }
   ]
 }
