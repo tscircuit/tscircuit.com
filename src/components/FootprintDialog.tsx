@@ -55,7 +55,7 @@ export const FootprintDialog = ({
     }
   }, [copied])
 
-  const params = useMemo(() => {
+  const params: any = useMemo(() => {
     try {
       return fp.string(footprinterString).json()
     } catch (error) {
@@ -84,7 +84,7 @@ export const FootprintDialog = ({
     }
   }
 
-  const updateParam = (paramName: string, value: string | number) => {
+  const updateParam = (paramName: string, value: string | number | boolean) => {
     try {
       const currentParams = params
       if (paramName === "num_pins") {
@@ -114,14 +114,6 @@ export const FootprintDialog = ({
       setFootprintNameError(true)
       setPreviewSvg(null)
     }
-  }
-  const handleFootprinterNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const newName = e.target.value
-    setFootprinterName(newName)
-    setFootprinterString(newName)
-    handleFootprinterPreview(newName)
   }
 
   const handleInsertFootprint = () => {

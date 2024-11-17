@@ -12,7 +12,7 @@ import { FootprintDialog } from "./FootprintDialog"
 import { useState } from "react"
 import { Dialog } from "./ui/dialog"
 
-type FileName = "index.tsx" | "manual-edits.json"
+export type FileName = "index.tsx" | "manual-edits.json"
 
 interface CodeEditorHeaderProps {
   currentFile: FileName
