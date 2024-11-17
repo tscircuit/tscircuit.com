@@ -52,11 +52,11 @@ export default withRouteSpec({
   let svg: string
   if (type === "schematic") {
     svg = convertCircuitJsonToSchematicSvg(
-      snippet.circuit_json as AnyCircuitElement[]
+      snippet.circuit_json as AnyCircuitElement[],
     )
   } else if (type === "pcb") {
     svg = convertCircuitJsonToPcbSvg(
-      snippet.circuit_json as AnyCircuitElement[]
+      snippet.circuit_json as AnyCircuitElement[],
     )
   } else {
     return ctx.error(500, {
