@@ -59,13 +59,8 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
-<<<<<<< HEAD
     "@tscircuit/3d-viewer": "^0.0.39",
     "@tscircuit/footprinter": "^0.0.87",
-=======
-    "@tscircuit/3d-viewer": "^0.0.33",
-    "@tscircuit/footprinter": "^0.0.84",
->>>>>>> feature-test-branch
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.10.16",
@@ -92,6 +87,7 @@
     "extract-codefence": "^0.0.4",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
+    "html-react-parser": "^5.1.18",
     "immer": "^10.1.1",
     "input-otp": "^1.2.4",
     "jose": "^5.9.3",
