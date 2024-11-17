@@ -4,7 +4,7 @@ import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-ser
 test("get schematic svg of a snippet", async () => {
   const { axios, seed } = await getTestServer()
 
-  const addedSnippet = seed.snippet
+  const addedSnippet = seed.snippets[0]
 
   const snippetName = addedSnippet.name.replace(
     addedSnippet.owner_name + "/",
@@ -23,7 +23,7 @@ test("get schematic svg of a snippet", async () => {
 test("get pcb svg of a snippet", async () => {
   const { axios, seed } = await getTestServer()
 
-  const addedSnippet = seed.snippet
+  const addedSnippet = seed.snippets[0]
 
   const snippetName = addedSnippet.name.replace(
     addedSnippet.owner_name + "/",
