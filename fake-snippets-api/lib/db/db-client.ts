@@ -150,7 +150,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ).length,
     }))
   },
-  getSnipppetByAuthorAndName: (
+  getSnippetByAuthorAndName: (
     authorName: string,
     snippetName: string,
   ): Snippet | undefined => {

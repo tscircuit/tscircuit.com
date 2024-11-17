@@ -14,15 +14,13 @@ export default withRouteSpec({
     snippet_name: z.string(),
     typeFormat: z.string(),
   }),
-  jsonResponse: z.any(),
+  rawResponse: true,
 })(async (req, ctx) => {
-  // Extract dynamic route params
   const { author, snippet_name, typeFormat } = req.routeParams
-  console.log(author, snippet_name, typeFormat)
 
   // Get the snippet
   const name = author + "/" + snippet_name
-  const snippet = ctx.db.getSnipppetByAuthorAndName(author, name)
+  const snippet = ctx.db.getSnippetByAuthorAndName(author, name)
 
   // If snippet is not found, return 404
   if (!snippet) {
@@ -51,27 +49,26 @@ export default withRouteSpec({
   }
 
   // Convert circuit json to svg
+  let svg: string
   if (type === "schematic") {
-    const circuitJson = snippet.circuit_json as AnyCircuitElement[]
-    const svg = convertCircuitJsonToSchematicSvg(circuitJson)
-    return ctx.json({
-      ok: true,
-      svg,
-    })
-  }
-
-  if (type === "pcb") {
-    const svg = convertCircuitJsonToPcbSvg(
-      snippet.circuit_json as AnyCircuitElement[],
+    svg = convertCircuitJsonToSchematicSvg(
+      snippet.circuit_json as AnyCircuitElement[]
     )
-    return ctx.json({
-      ok: true,
-      svg,
+  } else if (type === "pcb") {
+    svg = convertCircuitJsonToPcbSvg(
+      snippet.circuit_json as AnyCircuitElement[]
+    )
+  } else {
+    return ctx.error(500, {
+      error_code: "unknown_error",
+      message: "Unknown error",
     })
   }
 
-  return ctx.error(500, {
-    error_code: "unknown_error",
-    message: "Unknown error",
+  return new Response(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=31536000",
+    },
   })
 })
