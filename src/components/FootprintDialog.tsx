@@ -41,6 +41,10 @@ export const FootprintDialog = ({
   const [copied, setCopied] = useState(false)
   const footprintNames = fp.getFootprintNames()
   const { toast } = useToast()
+  const [position, setPosition] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  })
 
   useEffect(() => {
     if (copied) {
@@ -53,28 +57,15 @@ export const FootprintDialog = ({
 
   const params = useMemo(() => {
     try {
-      return fp.string(footprinterName).json()
+      return fp.string(footprinterString).json()
     } catch (error) {
       return null
     }
-  }, [footprinterName])
+  }, [footprinterName, footprinterString])
 
-  const updateParam = (paramName: string, value: string | number) => {
+  const updateFootprintString = (baseName: string, currentParams: any) => {
     try {
-      const currentParams = params
-      if (paramName === "num_pins") {
-        const baseNameWithoutNumber = footprinterName.replace(/\d+$/, "")
-        const newName = `${baseNameWithoutNumber}${value}`
-        setFootprinterName(newName)
-        setFootprinterString(newName)
-        handleFootprinterPreview(newName)
-        return
-      }
-      const baseName = footprinterName
-
-      currentParams[paramName] = value
-
-      const newParamsString = Object.entries(currentParams)
+      const paramsString = Object.entries(currentParams)
         .filter(([key]) => key !== "fn" && key !== "num_pins")
         .map(([key, val]) => {
           if (typeof val === "boolean") return val ? key : ""
@@ -83,9 +74,31 @@ export const FootprintDialog = ({
         .filter((item) => item !== "")
         .join("_")
 
-      const newFootprinterString = `${baseName}_${newParamsString}`
+      const newFootprinterString = paramsString
+        ? `${baseName}_${paramsString}`
+        : baseName
       setFootprinterString(newFootprinterString)
       handleFootprinterPreview(newFootprinterString)
+    } catch (error) {
+      console.error("Error updating footprint string:", error)
+    }
+  }
+
+  const updateParam = (paramName: string, value: string | number) => {
+    try {
+      const currentParams = params
+      if (paramName === "num_pins") {
+        if (Number(value) < 1) value = 1
+        if (Number(value) > 4000) value = 4000
+        const baseNameWithoutNumber = footprinterName.replace(/\d+$/, "")
+        const newName = `${baseNameWithoutNumber}${value}`
+        setFootprinterName(newName)
+        updateFootprintString(newName, currentParams)
+        return
+      }
+
+      currentParams[paramName] = value
+      updateFootprintString(footprinterName, currentParams)
     } catch (error) {
       console.error("Error updating parameter:", error)
     }
@@ -113,10 +126,13 @@ export const FootprintDialog = ({
 
   const handleInsertFootprint = () => {
     try {
-      const tsxCode = `\n<chip                                                                                  
-    name="${chipName}"                                                                                                 
-    footprint="${footprinterString}"                                                                                   
-  />`
+      const tsxCode = `\n
+    <chip
+      name="${chipName}"
+      footprint="${footprinterString}"
+      pcbX={${position.x}}
+      pcbY={${position.y}}
+    />`
       const currentContent = files[currentFile]
 
       if (cursorPosition !== undefined && cursorPosition !== null) {
@@ -152,9 +168,7 @@ export const FootprintDialog = ({
         }
       }
 
-      setFootprinterString("")
       setChipName("")
-      setPreviewSvg(null)
     } catch (error) {
       console.error("Error inserting footprint:", error)
       toast({
@@ -176,9 +190,9 @@ export const FootprintDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1160px] min-h-[870px] flex flex-col">
+      <DialogContent className="max-w-[1160px] h-full flex flex-col">
         <DialogHeader>
-          <DialogTitle>Insert Footprint</DialogTitle>
+          <DialogTitle>Insert Chip</DialogTitle>
           <DialogDescription>
             Choose a footprint type and configure its parameters. The footprint
             will be inserted at your cursor position.
@@ -197,13 +211,53 @@ export const FootprintDialog = ({
             </div>
 
             <div>
+              <label className="text-sm font-medium">Position</label>
+              <div className="flex gap-2 mt-1">
+                <div className="flex gap-2 items-center flex-1">
+                  <label className="text-sm">x:</label>
+                  <Input
+                    type="number"
+                    value={position?.x ?? 0}
+                    onChange={(e) =>
+                      setPosition((prev) => ({
+                        ...prev,
+                        x: Number(e.target.value),
+                      }))
+                    }
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex gap-2 items-center flex-1">
+                  <label className="text-sm">y:</label>
+                  <Input
+                    type="number"
+                    value={position?.y ?? 0}
+                    onChange={(e) =>
+                      setPosition((prev) => ({
+                        ...prev,
+                        y: Number(e.target.value),
+                      }))
+                    }
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
               <label className="text-sm font-medium">Footprinter Name</label>
               <Combobox
                 value={footprinterName}
                 onChange={(value) => {
                   setFootprinterName(value)
-                  setFootprinterString(value)
-                  handleFootprinterPreview(value)
+                  try {
+                    const newParams = fp.string(value).json()
+                    updateFootprintString(value, newParams)
+                  } catch (error) {
+                    console.error("Error updating footprint string:", error)
+                    setFootprinterString(value)
+                    handleFootprinterPreview(value)
+                  }
                 }}
                 options={footprintNames}
                 placeholder="Select footprint..."
@@ -222,7 +276,7 @@ export const FootprintDialog = ({
                     setFootprinterString(e.target.value)
                     handleFootprinterPreview(e.target.value)
                   }}
-                  placeholder="Complete footprinter strrng..."
+                  placeholder="Complete footprinter string..."
                   className={`bg-gray-50 text-gray-500 ${footprintNameError && "bg-red-50 border-red-200"}`}
                 />
                 <Button
@@ -240,31 +294,59 @@ export const FootprintDialog = ({
                 </Button>
               </div>
             </div>
+            <div>
+              <label className="text-sm font-medium">Number of Pins</label>
+              <Input
+                type="number"
+                min="1"
+                max="10000"
+                onChange={(e) => {
+                  let value = Number(e.target.value)
+                  if(value < 1)
+                      value = 0 
+                  if (value > 4000) value = 4000
+                  if (footprinterName.match(/\d+$/)) return
+                  const newName = `${footprinterName}${value ? value : ''}`
+                  try {
+                    const newParams = fp.string(newName).json()
+                    updateFootprintString(newName, newParams)
+                  } catch (error) {
+                    console.error("Error updating footprint string:", error)
+                    setFootprinterString(newName)
+                    handleFootprinterPreview(newName)
+                  }
+                }}
+                placeholder="Enter number of pins..."
+                className="mt-1"
+              />
+            </div>
             {params && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Parameters</label>
-                {Object.entries(params).map(([key]) => (
-                  <div key={key} className="flex gap-2 items-center">
-                    <label className="text-sm">{key}:</label>
-                    {typeof params[key] === "boolean" ? (
-                      <input
-                        type="checkbox"
-                        checked={params[key]}
-                        onChange={(e) => updateParam(key, e.target.checked)}
-                        className="h-4 w-4"
-                      />
-                    ) : (
-                      <Input
-                        type={
-                          typeof params[key] === "number" ? "number" : "text"
-                        }
-                        value={params[key]}
-                        onChange={(e) => updateParam(key, e.target.value)}
-                        className="flex-1"
-                      />
-                    )}
-                  </div>
-                ))}
+                {Object.entries(params)
+                  .filter(([key]) => key !== "fn")
+                  .map(([key]) => (
+                    <div key={key} className="flex gap-2 items-center">
+                      <label className="text-sm">{key}:</label>
+                      {typeof params[key] === "boolean" ? (
+                        <input
+                          type="checkbox"
+                          checked={params[key]}
+                          onChange={(e) => updateParam(key, e.target.checked)}
+                          className="h-4 w-4"
+                        />
+                      ) : (
+                        <Input
+                          type={
+                            typeof params[key] === "number" ? "number" : "text"
+                          }
+                          value={params[key]}
+                          onChange={(e) => updateParam(key, e.target.value)}
+                          className="flex-1"
+                        />
+                      )}
+                    </div>
+                  ))}
               </div>
             )}
             <Button
@@ -278,11 +360,13 @@ export const FootprintDialog = ({
               Insert Footprint
             </Button>
           </div>
+            <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
           {previewSvg && (
-            <div className="rounded-xl border overflow-hidden w-[800px] h-[600px]">
+              <div>
               {parse(previewSvg)}
-            </div>
+              </div>
           )}
+            </div>
         </div>
       </DialogContent>
     </Dialog>
