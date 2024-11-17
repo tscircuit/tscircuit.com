@@ -599,7 +599,7 @@ const seedDatabase = (db: DbClient) => {
         },
       ],
     }),
-  
+
     // Define the @tsci/seveibar.a555timer package
     db.addSnippet({
       name: "seveibar/a555timer",
@@ -1128,9 +1128,9 @@ const seedDatabase = (db: DbClient) => {
         },
       ],
     }),
-  
+
     // Add a snippet that outputs a square waveform using the a555timer
-  
+
     db.addSnippet({
       name: "testuser/a555timer-square-wave",
       unscoped_name: "a555timer-square-wave",
@@ -1641,7 +1641,7 @@ const seedDatabase = (db: DbClient) => {
           footprinter_string: "dip8",
         },
       ],
-    })
+    }),
   ]
 
   return { account, order, snippets }
