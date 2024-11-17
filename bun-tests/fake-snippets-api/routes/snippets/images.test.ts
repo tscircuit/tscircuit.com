@@ -14,10 +14,10 @@ test("get schematic svg of a snippet", async () => {
   const response = await axios.get(
     `/api/snippets/images/${addedSnippet.owner_name}/${snippetName}/schematic.svg`,
   )
+  console.log(response.data)
 
   expect(response.status).toBe(200)
-  expect(response.data.ok).toBe(true)
-  expect(response.data.svg).toContain("<svg")
+  expect(response.data).toContain("<svg")
 })
 
 test("get pcb svg of a snippet", async () => {
@@ -34,6 +34,5 @@ test("get pcb svg of a snippet", async () => {
   )
 
   expect(response.status).toBe(200)
-  expect(response.data.ok).toBe(true)
-  expect(response.data.svg).toContain("<svg")
+  expect(response.data).toContain("<svg")
 })
