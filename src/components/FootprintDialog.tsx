@@ -302,11 +302,10 @@ export const FootprintDialog = ({
                 max="10000"
                 onChange={(e) => {
                   let value = Number(e.target.value)
-                  if(value < 1)
-                      value = 0 
+                  if (value < 1) value = 0
                   if (value > 4000) value = 4000
                   if (footprinterName.match(/\d+$/)) return
-                  const newName = `${footprinterName}${value ? value : ''}`
+                  const newName = `${footprinterName}${value ? value : ""}`
                   try {
                     const newParams = fp.string(newName).json()
                     updateFootprintString(newName, newParams)
@@ -360,13 +359,9 @@ export const FootprintDialog = ({
               Insert Footprint
             </Button>
           </div>
-            <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
-          {previewSvg && (
-              <div>
-              {parse(previewSvg)}
-              </div>
-          )}
-            </div>
+          <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
+            {previewSvg && <div>{parse(previewSvg)}</div>}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
