@@ -181,7 +181,7 @@ export const FootprintDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1160px] h-full flex flex-col">
+      <DialogContent className="max-w-[1160px] h-full flex flex-col overflow-x-scroll">
         <DialogHeader>
           <DialogTitle>Insert Chip</DialogTitle>
           <DialogDescription>

@@ -3,13 +3,20 @@ import { viewports } from "./viewports"
 
 for (const [size, viewport] of Object.entries(viewports)) {
   test.describe(`FootprintDialog tests - ${size} viewport`, () => {
+    let isMobileOrTablet: boolean
+
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize(viewport)
       await page.goto("http://127.0.0.1:5177/editor")
       await page.waitForSelector("button.run-button")
+      isMobileOrTablet = page.viewportSize()?.width! <= 768
     })
 
     test("opens footprint dialog and shows preview", async ({ page }) => {
+      if (isMobileOrTablet) {
+        await page.click('button:has-text("Show Code")')
+      }
+
       await page.click('button:has-text("Insert")')
 
       await expect(page.getByRole("dialog")).toBeVisible()
@@ -18,6 +25,10 @@ for (const [size, viewport] of Object.entries(viewports)) {
     })
 
     test("footprint selection and preview updates", async ({ page }) => {
+      if (isMobileOrTablet) {
+        await page.click('button:has-text("Show Code")')
+      }
+
       await page.click('button:has-text("Insert")')
 
       await page.getByRole("combobox").click()
@@ -31,6 +42,10 @@ for (const [size, viewport] of Object.entries(viewports)) {
     })
 
     test("chip name and position inputs", async ({ page }) => {
+      if (isMobileOrTablet) {
+        await page.click('button:has-text("Show Code")')
+      }
+
       await page.click('button:has-text("Insert")')
 
       await page.fill(
@@ -49,6 +64,10 @@ for (const [size, viewport] of Object.entries(viewports)) {
     })
 
     test("inserts footprint into code", async ({ page }) => {
+      if (isMobileOrTablet) {
+        await page.click('button:has-text("Show Code")')
+      }
+
       await page.click('button:has-text("Insert")')
 
       await page.fill(
@@ -70,11 +89,15 @@ for (const [size, viewport] of Object.entries(viewports)) {
     })
 
     test("parameter controls update preview", async ({ page }) => {
+      if (isMobileOrTablet) {
+        await page.click('button:has-text("Show Code")')
+      }
+
       await page.click('button:has-text("Insert")')
       await expect(page.getByRole("dialog")).toBeVisible()
 
       await page.getByRole("combobox").click()
-      await page.getByRole("option", { name: "tssop" }).click()
+      await page.getByRole("option", { name: "dip" }).click()
 
       await page.fill('label:has-text("Number of Pins") + input', "16")
       const previewContainer = page.locator(".rounded-xl.overflow-hidden svg")
