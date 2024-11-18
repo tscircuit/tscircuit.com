@@ -352,7 +352,13 @@ export const FootprintDialog = ({
             </Button>
           </div>
           <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
-            {previewSvg && <div>{parse(previewSvg)}</div>}
+            {previewSvg && (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: previewSvg,
+                }}
+              />
+            )}
           </div>
         </div>
       </DialogContent>

@@ -87,7 +87,6 @@
     "extract-codefence": "^0.0.4",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
-    "html-react-parser": "^5.1.18",
     "immer": "^10.1.1",
     "input-otp": "^1.2.4",
     "jose": "^5.9.3",
