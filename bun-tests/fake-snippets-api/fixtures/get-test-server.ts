@@ -89,6 +89,6 @@ const seedDatabase = (db: DbClient) => {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   })
-  
+
   return { account, order }
 }

@@ -7,8 +7,21 @@ test("get schematic svg of a snippet", async () => {
 
   const addedSnippet = db.addSnippet({
     name: "testuser/my-test-board",
-      unscoped_name: "my-test-board",
-      owner_name: "testuser",
+    unscoped_name: "my-test-board",
+    owner_name: "testuser",
+    code: `
+  import { A555Timer } from "@tsci/seveibar.a555timer"
+  
+  export default () => (
+    <board width="10mm" height="10mm">
+      <A555Timer name="U1" />
+    </board>
+  )`.trim(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    snippet_type: "board",
+    description: "A simple board with an A555 Timer component",
+    circuit_json: await generateCircuitJson({
       code: `
   import { A555Timer } from "@tsci/seveibar.a555timer"
   
@@ -17,21 +30,8 @@ test("get schematic svg of a snippet", async () => {
       <A555Timer name="U1" />
     </board>
   )`.trim(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      snippet_type: "board",
-      description: "A simple board with an A555 Timer component",
-      circuit_json: await generateCircuitJson({
-        code: `
-  import { A555Timer } from "@tsci/seveibar.a555timer"
-  
-  export default () => (
-    <board width="10mm" height="10mm">
-      <A555Timer name="U1" />
-    </board>
-  )`.trim(),
-        type: "board",
-        compiled_js: `
+      type: "board",
+      compiled_js: `
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.A555Timer = void 0;
@@ -41,7 +41,7 @@ test("get schematic svg of a snippet", async () => {
     });
     exports.A555Timer = A555Timer;
     `.trim(),
-      }),
+    }),
   })
 
   const snippetName = addedSnippet.name.replace(
@@ -62,8 +62,21 @@ test("get pcb svg of a snippet", async () => {
 
   const addedSnippet = db.addSnippet({
     name: "testuser/my-test-board",
-      unscoped_name: "my-test-board",
-      owner_name: "testuser",
+    unscoped_name: "my-test-board",
+    owner_name: "testuser",
+    code: `
+  import { A555Timer } from "@tsci/seveibar.a555timer"
+  
+  export default () => (
+    <board width="10mm" height="10mm">
+      <A555Timer name="U1" />
+    </board>
+  )`.trim(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    snippet_type: "board",
+    description: "A simple board with an A555 Timer component",
+    circuit_json: await generateCircuitJson({
       code: `
   import { A555Timer } from "@tsci/seveibar.a555timer"
   
@@ -72,21 +85,8 @@ test("get pcb svg of a snippet", async () => {
       <A555Timer name="U1" />
     </board>
   )`.trim(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      snippet_type: "board",
-      description: "A simple board with an A555 Timer component",
-      circuit_json: await generateCircuitJson({
-        code: `
-  import { A555Timer } from "@tsci/seveibar.a555timer"
-  
-  export default () => (
-    <board width="10mm" height="10mm">
-      <A555Timer name="U1" />
-    </board>
-  )`.trim(),
-        type: "board",
-        compiled_js: `
+      type: "board",
+      compiled_js: `
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.A555Timer = void 0;
@@ -96,9 +96,8 @@ test("get pcb svg of a snippet", async () => {
     });
     exports.A555Timer = A555Timer;
     `.trim(),
-      }),
+    }),
   })
-    
 
   const snippetName = addedSnippet.name.replace(
     addedSnippet.owner_name + "/",
