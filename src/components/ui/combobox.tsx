@@ -23,6 +23,7 @@ interface ComboboxProps {
   searchPlaceholder?: string
   emptyText?: string
   className?: string
+  name?: string
 }
 
 export function Combobox({
@@ -33,6 +34,7 @@ export function Combobox({
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
   className,
+  name,
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [searchValue, setSearchValue] = React.useState("")
@@ -84,6 +86,7 @@ export function Combobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          name={name}
           variant="outline"
           role="combobox"
           aria-expanded={open}
