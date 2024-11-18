@@ -56,7 +56,6 @@ async function processImport(
         compiled_js,
       )
     }
-
     // Set React in the global scope before evaluation
     ;(globalThis as any).React = React
     const exports = evalCompiledJs(compiled_js).exports
@@ -84,7 +83,6 @@ export const generateCircuitJson = async ({
     react: React,
     "jscad-fiber": jscadFiber,
   }
-
   ;(globalThis as any).React = React
   ;(globalThis as any).createElement = React.createElement
 
