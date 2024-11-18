@@ -6,7 +6,7 @@ test.describe("ErrorFallback Component", () => {
     await page.goto("https://tscircuit.com/seveibar/smd-usb-c");
 
     // Wait for the ErrorFallback component to appear
-    await page.waitForSelector(".error-container", { timeout: 60000 });
+    await page.waitForSelector('[data-testid="error-container"]', { timeout: 60000 });
 
     // Verify that the error message is displayed
     const errorMessage = await page.locator(".error-container p").textContent();
