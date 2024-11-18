@@ -5,7 +5,6 @@ import { fp } from "@tscircuit/footprinter"
 import { useToast } from "../hooks/use-toast"
 import { Button } from "./ui/button"
 import { FileName } from "./CodeEditorHeader"
-import parse from "html-react-parser"
 import {
   Dialog,
   DialogContent,
@@ -33,8 +32,8 @@ export const FootprintDialog = ({
   files,
   cursorPosition,
 }: FootprintDialogProps) => {
-  const [footprinterString, setFootprinterString] = useState("")
-  const [footprinterName, setFootprinterName] = useState("")
+  const [footprintString, setFootprintString] = useState("")
+  const [footprintName, setFootprintName] = useState("")
   const [previewSvg, setPreviewSvg] = useState<string | null>(null)
   const [chipName, setChipName] = useState("")
   const [footprintNameError, setFootprintNameError] = useState(false)
@@ -57,11 +56,11 @@ export const FootprintDialog = ({
 
   const params: any = useMemo(() => {
     try {
-      return fp.string(footprinterString).json()
+      return fp.string(footprintString).json()
     } catch (error) {
       return null
     }
-  }, [footprinterName, footprinterString])
+  }, [footprintName, footprintString])
 
   const updateFootprintString = (baseName: string, currentParams: any) => {
     try {
@@ -74,11 +73,11 @@ export const FootprintDialog = ({
         .filter((item) => item !== "")
         .join("_")
 
-      const newFootprinterString = paramsString
+      const newFootprintString = paramsString
         ? `${baseName}_${paramsString}`
         : baseName
-      setFootprinterString(newFootprinterString)
-      handleFootprinterPreview(newFootprinterString)
+      setFootprintString(newFootprintString)
+      handleFootprintPreview(newFootprintString)
     } catch (error) {
       console.error("Error updating footprint string:", error)
     }
@@ -90,21 +89,21 @@ export const FootprintDialog = ({
       if (paramName === "num_pins") {
         if (Number(value) < 1) value = 1
         if (Number(value) > 4000) value = 4000
-        const baseNameWithoutNumber = footprinterName.replace(/\d+$/, "")
+        const baseNameWithoutNumber = footprintName.replace(/\d+$/, "")
         const newName = `${baseNameWithoutNumber}${value}`
-        setFootprinterName(newName)
+        setFootprintName(newName)
         updateFootprintString(newName, currentParams)
         return
       }
 
       currentParams[paramName] = value
-      updateFootprintString(footprinterName, currentParams)
+      updateFootprintString(footprintName, currentParams)
     } catch (error) {
       console.error("Error updating parameter:", error)
     }
   }
 
-  const handleFootprinterPreview = async (str: string) => {
+  const handleFootprintPreview = async (str: string) => {
     try {
       const circuitJson = fp.string(str).circuitJson()
       const svg = convertCircuitJsonToPcbSvg(circuitJson)
@@ -121,7 +120,7 @@ export const FootprintDialog = ({
       const tsxCode = `\n
     <chip
       name="${chipName}"
-      footprint="${footprinterString}"
+      footprint="${footprintString}"
       pcbX={${position.x}}
       pcbY={${position.y}}
     />`
@@ -173,7 +172,7 @@ export const FootprintDialog = ({
 
   const handleCopyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(footprinterString)
+      await navigator.clipboard.writeText(footprintString)
       setCopied(true)
     } catch (err) {
       console.error("Failed to copy to clipboard:", err)
@@ -237,18 +236,18 @@ export const FootprintDialog = ({
             </div>
 
             <div>
-              <label className="text-sm font-medium">Footprinter Name</label>
+              <label className="text-sm font-medium">Footprint Name</label>
               <Combobox
-                value={footprinterName}
+                value={footprintName}
                 onChange={(value) => {
-                  setFootprinterName(value)
+                  setFootprintName(value)
                   try {
                     const newParams = fp.string(value).json()
                     updateFootprintString(value, newParams)
                   } catch (error) {
                     console.error("Error updating footprint string:", error)
-                    setFootprinterString(value)
-                    handleFootprinterPreview(value)
+                    setFootprintString(value)
+                    handleFootprintPreview(value)
                   }
                 }}
                 options={footprintNames}
@@ -259,16 +258,16 @@ export const FootprintDialog = ({
               />
             </div>
             <div>
-              <label className="text-sm font-medium">Footprinter String</label>
+              <label className="text-sm font-medium">Footprint String</label>
               <div className="flex items-center justify-center mt-1 gap-1">
                 <Input
                   readOnly
-                  value={footprinterString}
+                  value={footprintString}
                   onChange={(e) => {
-                    setFootprinterString(e.target.value)
-                    handleFootprinterPreview(e.target.value)
+                    setFootprintString(e.target.value)
+                    handleFootprintPreview(e.target.value)
                   }}
-                  placeholder="Complete footprinter string..."
+                  placeholder="Complete footprint string..."
                   className={`bg-gray-50 text-gray-500 ${footprintNameError && "bg-red-50 border-red-200"}`}
                 />
                 <Button
@@ -296,15 +295,15 @@ export const FootprintDialog = ({
                   let value = Number(e.target.value)
                   if (value < 1) value = 0
                   if (value > 4000) value = 4000
-                  if (footprinterName.match(/\d+$/)) return
-                  const newName = `${footprinterName}${value ? value : ""}`
+                  if (footprintName.match(/\d+$/)) return
+                  const newName = `${footprintName}${value ? value : ""}`
                   try {
                     const newParams = fp.string(newName).json()
                     updateFootprintString(newName, newParams)
                   } catch (error) {
                     console.error("Error updating footprint string:", error)
-                    setFootprinterString(newName)
-                    handleFootprinterPreview(newName)
+                    setFootprintString(newName)
+                    handleFootprintPreview(newName)
                   }
                 }}
                 placeholder="Enter number of pins..."
@@ -345,7 +344,7 @@ export const FootprintDialog = ({
                 handleInsertFootprint()
                 onOpenChange(false)
               }}
-              disabled={!footprinterString || !chipName}
+              disabled={!footprintString || !chipName}
               className="w-full"
             >
               Insert Footprint
