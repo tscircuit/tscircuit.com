@@ -17,7 +17,12 @@ export const useCreateSnippetMutation = ({
     async ({
       code,
       circuit_json,
-    }: { code?: string; circuit_json?: any[] } = {}) => {
+      manual_edits_json,
+    }: {
+      code?: string
+      circuit_json?: any[]
+      manual_edits_json?: string
+    } = {}) => {
       if (!session) throw new Error("No session")
       const template =
         typeof code === "string"
@@ -33,6 +38,7 @@ export const useCreateSnippetMutation = ({
       } = await axios.post("/snippets/create", {
         code: template.code,
         snippet_type: template.type ?? "board",
+        manual_edits_json,
         owner_name: session?.github_username,
         circuit_json,
       })

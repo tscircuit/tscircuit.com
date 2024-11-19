@@ -71,26 +71,6 @@ export function CodeAndPreview({ snippet }: Props) {
     [manualEditsFileContent],
   )
 
-  const handleManualEditsFileContentChange = async (newContent: string) => {
-    try {
-      const response = await axios.post("/snippets/update", {
-        snippet_id: snippet?.snippet_id,
-        manual_edits_json: newContent,
-      })
-      if (response.status !== 200) {
-        throw new Error("Failed to save manual edits")
-      }
-      setManualEditsFileContent(response.data.snippet.manual_edits_json)
-    } catch (error) {
-      console.error("Error updating manual edits:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save manual edits. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
   const {
     message,
     circuitJson,
@@ -120,6 +100,7 @@ export function CodeAndPreview({ snippet }: Props) {
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
+        manual_edits_json: manualEditsFileContent,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -149,11 +130,17 @@ export function CodeAndPreview({ snippet }: Props) {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate({ code, circuit_json: circuitJson as any })
+      createSnippetMutation.mutate({
+        code,
+        circuit_json: circuitJson as any,
+        manual_edits_json: manualEditsFileContent,
+      })
     }
   }
 
-  const hasUnsavedChanges = snippet?.code !== code
+  const hasUnsavedChanges =
+    snippet?.code !== code ||
+    snippet?.manual_edits_json !== manualEditsFileContent
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
@@ -211,7 +198,7 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             manualEditsFileContent={manualEditsFileContent}
-            onManualEditsFileContentChange={handleManualEditsFileContentChange}
+            onManualEditsFileContentChange={setManualEditsFileContent}
           />
         )}
       </div>
