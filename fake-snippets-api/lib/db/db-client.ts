@@ -150,6 +150,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ).length,
     }))
   },
+  getSnippetByAuthorAndName: (
+    authorName: string,
+    snippetName: string,
+  ): Snippet | undefined => {
+    const state = get()
+    return state.snippets.find(
+      (snippet) =>
+        snippet.owner_name === authorName && snippet.name === snippetName,
+    )
+  },
   updateSnippet: (
     snippet_id: string,
     updates: Partial<Snippet>,
