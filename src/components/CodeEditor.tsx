@@ -56,6 +56,7 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
 
+  const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
 
   const files = useMemo(
@@ -152,15 +153,6 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
-          if (viewRef.current) {
-            viewRef.current.dispatch({
-              changes: {
-                from: 0,
-                to: viewRef.current.state.doc.length,
-                insert: viewRef.current.state.doc.toString(),
-              },
-            })
-          }
         },
       },
     }
@@ -200,6 +192,10 @@ export const CodeEditor = ({
               onDtsChange(indexDts.text)
             }
           }
+        }
+        if (update.selectionSet) {
+          const pos = update.state.selection.main.head
+          setCursorPosition(pos)
         }
       }),
     ]
@@ -407,6 +403,7 @@ export const CodeEditor = ({
           updateFileContent={(...args) => {
             return updateFileContent(...args)
           }}
+          cursorPosition={cursorPosition}
         />
       )}
       <div ref={editorRef} className="flex-1 overflow-auto" />
