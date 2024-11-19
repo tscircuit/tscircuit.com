@@ -61,7 +61,7 @@ test("download snippet files and directory listing", async () => {
   expect(flatResponse.status).toBe(200)
   const flatData = flatResponse.data
   expect(flatData.default).toBe("/index.ts")
-  expect(flatData.files).toHaveLength(3)
+  expect(flatData.files).toHaveLength(4)
   expect(flatData.files[0].name).toMatch(/^\//)
 
   // Test downloading non-existent file

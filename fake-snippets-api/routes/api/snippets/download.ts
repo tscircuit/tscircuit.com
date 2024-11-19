@@ -76,6 +76,13 @@ export default withRouteSpec({
       },
       {
         type: "file",
+        name: "manual-edits.json",
+        hash: "placeholder_hash",
+        time: snippet.updated_at,
+        size: snippet.manual_edits_json?.length,
+      },
+      {
+        type: "file",
         name: "package.json",
         hash: "placeholder_hash",
         time: snippet.updated_at,
@@ -133,6 +140,9 @@ export default withRouteSpec({
         null,
         2,
       )
+      break
+    case "manual-edits.json":
+      content = JSON.stringify(snippet.manual_edits_json, null, 2)
       break
     default:
       return ctx.error(404, {

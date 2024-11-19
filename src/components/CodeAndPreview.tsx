@@ -40,8 +40,12 @@ export function CodeAndPreview({ snippet }: Props) {
       templateFromUrl.code
     )
   }, [])
+
+  // Initialize with template or snippet's manual edits if available
   const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    JSON.stringify(manualEditsTemplate, null, 2) ?? "",
+    snippet?.manual_edits_json ??
+      JSON.stringify(manualEditsTemplate, null, 2) ??
+      "",
   )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
@@ -66,6 +70,26 @@ export function CodeAndPreview({ snippet }: Props) {
     }),
     [manualEditsFileContent],
   )
+
+  const handleManualEditsFileContentChange = async (newContent: string) => {
+    try {
+      const response = await axios.post("/snippets/update", {
+        snippet_id: snippet?.snippet_id,
+        manual_edits_json: newContent,
+      })
+      if (response.status !== 200) {
+        throw new Error("Failed to save manual edits")
+      }
+      setManualEditsFileContent(response.data.snippet.manual_edits_json)
+    } catch (error) {
+      console.error("Error updating manual edits:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save manual edits. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const {
     message,
@@ -187,9 +211,7 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             manualEditsFileContent={manualEditsFileContent}
-            onManualEditsFileContentChange={(newManualEditsFileContent) => {
-              setManualEditsFileContent(newManualEditsFileContent)
-            }}
+            onManualEditsFileContentChange={handleManualEditsFileContentChange}
           />
         )}
       </div>
