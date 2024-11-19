@@ -71,7 +71,7 @@
     "@typescript/ata": "^0.9.7",
     "@valtown/codemirror-ts": "^2.2.0",
     "change-case": "^5.4.4",
-    "circuit-json": "^0.0.104",
+    "circuit-json": "^0.0.105",
     "circuit-json-to-bom-csv": "^0.0.6",
     "circuit-json-to-gerber": "^0.0.16",
     "circuit-json-to-pnp-csv": "^0.0.6",
