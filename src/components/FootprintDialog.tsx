@@ -24,6 +24,16 @@ interface FootprintDialogProps {
   cursorPosition?: number | null
 }
 
+const PARAM_NAMES: any = {
+  p: "Pitch",
+  w: "Width",
+  num_pins: "Number of Pins",
+  pl: "Pad Length",
+  pw: "Pad Width",
+  id: "Inner Diameter",
+  od: "Outer Diameter",
+}
+
 export const FootprintDialog = ({
   currentFile,
   open,
@@ -39,11 +49,8 @@ export const FootprintDialog = ({
   const [footprintNameError, setFootprintNameError] = useState(false)
   const [copied, setCopied] = useState(false)
   const footprintNames = fp.getFootprintNames()
+  const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
-  const [position, setPosition] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  })
 
   useEffect(() => {
     if (copied) {
@@ -96,8 +103,19 @@ export const FootprintDialog = ({
         return
       }
 
+      if (typeof value === "string" && !isNaN(Number(value))) {
+        value = Number(Number(value).toFixed(2))
+      }
+
       currentParams[paramName] = value
-      updateFootprintString(footprintName, currentParams)
+      const pinMatch = footprintString.match(/\d+(?=(_|$))/)
+      const pinNumber = pinMatch ? pinMatch[0] : ""
+      const baseNameWithoutNumber = footprintName.replace(/\d+$/, "")
+      const nameWithNumber = pinNumber
+        ? `${baseNameWithoutNumber}${pinNumber}`
+        : footprintName
+
+      updateFootprintString(nameWithNumber, currentParams)
     } catch (error) {
       console.error("Error updating parameter:", error)
     }
@@ -109,9 +127,15 @@ export const FootprintDialog = ({
       const svg = convertCircuitJsonToPcbSvg(circuitJson)
       setFootprintNameError(false)
       setPreviewSvg(svg)
+      setError(null)
     } catch (error) {
       setFootprintNameError(true)
       setPreviewSvg(null)
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Invalid footprint configuration",
+      )
     }
   }
 
@@ -121,9 +145,7 @@ export const FootprintDialog = ({
     <chip
       name="${chipName}"
       footprint="${footprintString}"
-      pcbX={${position.x}}
-      pcbY={${position.y}}
-    />`
+    />\n`
       const currentContent = files[currentFile]
 
       if (cursorPosition !== undefined && cursorPosition !== null) {
@@ -200,41 +222,6 @@ export const FootprintDialog = ({
                 className="mt-1"
               />
             </div>
-
-            <div>
-              <label className="text-sm font-medium">Position</label>
-              <div className="flex gap-2 mt-1">
-                <div className="flex gap-2 items-center flex-1">
-                  <label className="text-sm">x:</label>
-                  <Input
-                    type="number"
-                    value={position?.x ?? 0}
-                    onChange={(e) =>
-                      setPosition((prev) => ({
-                        ...prev,
-                        x: Number(e.target.value),
-                      }))
-                    }
-                    className="flex-1"
-                  />
-                </div>
-                <div className="flex gap-2 items-center flex-1">
-                  <label className="text-sm">y:</label>
-                  <Input
-                    type="number"
-                    value={position?.y ?? 0}
-                    onChange={(e) =>
-                      setPosition((prev) => ({
-                        ...prev,
-                        y: Number(e.target.value),
-                      }))
-                    }
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-            </div>
-
             <div>
               <label className="text-sm font-medium">Footprint Name</label>
               <Combobox
@@ -317,7 +304,12 @@ export const FootprintDialog = ({
                   .filter(([key]) => key !== "fn")
                   .map(([key]) => (
                     <div key={key} className="flex gap-2 items-center">
-                      <label className="text-sm">{key}:</label>
+                      <label className="text-sm">
+                        {PARAM_NAMES[key]
+                          ? `${PARAM_NAMES[key]} (${key})`
+                          : key}
+                        :
+                      </label>
                       {typeof params[key] === "boolean" ? (
                         <input
                           type="checkbox"
@@ -350,13 +342,20 @@ export const FootprintDialog = ({
               Insert Footprint
             </Button>
           </div>
-          <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
-            {previewSvg && (
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: previewSvg,
-                }}
-              />
+          <div className="flex flex-col">
+            <div className="rounded-xl overflow-hidden w-[800px] h-[600px]">
+              {previewSvg && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: previewSvg,
+                  }}
+                />
+              )}
+            </div>
+            {error && (
+              <div className="mt-2 p-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
+                {error}
+              </div>
             )}
           </div>
         </div>
