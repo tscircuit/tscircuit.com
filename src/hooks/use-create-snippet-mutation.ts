@@ -17,7 +17,8 @@ export const useCreateSnippetMutation = ({
     async ({
       code,
       circuit_json,
-    }: { code?: string; circuit_json?: any[] } = {}) => {
+      pcb_route_cache,
+    }: { code?: string; circuit_json?: any[]; pcb_route_cache?: any } = {}) => {
       if (!session) throw new Error("No session")
       const template =
         typeof code === "string"
@@ -35,6 +36,7 @@ export const useCreateSnippetMutation = ({
         snippet_type: template.type ?? "board",
         owner_name: session?.github_username,
         circuit_json,
+        pcb_route_cache,
       })
       return snippet
     },

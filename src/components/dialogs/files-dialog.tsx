@@ -22,6 +22,7 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
     "dist/index.d.ts": snippet?.dts || "",
     "index.ts": snippet?.code || "",
     "dist/index.js": snippet?.compiled_js || "",
+    "pcb-route-cache.json": snippet?.pcb_route_cache || "",
   })
     .sort(([a], [b]) => a.localeCompare(b))
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {})

@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
+import emptyCacheTemplate from "@/lib/templates/empty-cache-template"
 
 interface Props {
   snippet?: Snippet | null
@@ -43,6 +44,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const [manualEditsFileContent, setManualEditsFileContent] = useState(
     JSON.stringify(manualEditsTemplate, null, 2) ?? "",
   )
+  const [pcbRouteCacheFileContent, setPcbRouteCacheFileContent] = useState(
+    JSON.stringify(emptyCacheTemplate, null, 2) ?? "",
+  )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -63,8 +67,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const userImports = useMemo(
     () => ({
       "./manual-edits.json": JSON.parse(manualEditsFileContent),
+      "./pcb-route-cache.json": JSON.parse(pcbRouteCacheFileContent),
     }),
-    [manualEditsFileContent],
+    [manualEditsFileContent, pcbRouteCacheFileContent],
   )
 
   const {
@@ -96,6 +101,7 @@ export function CodeAndPreview({ snippet }: Props) {
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
+        pcb_route_cache: pcbRouteCacheFileContent,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -125,7 +131,11 @@ export function CodeAndPreview({ snippet }: Props) {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate({ code, circuit_json: circuitJson as any })
+      createSnippetMutation.mutate({
+        code,
+        circuit_json: circuitJson as any,
+        pcb_route_cache: pcbRouteCacheFileContent,
+      })
     }
   }
 

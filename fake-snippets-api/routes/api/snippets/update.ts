@@ -13,6 +13,7 @@ export default withRouteSpec({
     dts: z.string().optional(),
     compiled_js: z.string().optional().nullable(),
     circuit_json: z.array(z.record(z.any())).optional().nullable(),
+    pcb_route_cache: z.string().optional().nullable(),
     snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   }),
   jsonResponse: z.object({
@@ -28,6 +29,7 @@ export default withRouteSpec({
     dts,
     compiled_js,
     circuit_json,
+    pcb_route_cache,
     snippet_type,
   } = req.jsonBody
 
@@ -62,6 +64,7 @@ export default withRouteSpec({
     compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
     circuit_json:
       circuit_json !== undefined ? circuit_json : snippet.circuit_json,
+    pcb_route_cache: pcb_route_cache !== undefined ? pcb_route_cache : snippet.pcb_route_cache,
     snippet_type: snippet_type ?? snippet.snippet_type,
     updated_at: new Date().toISOString(),
   })

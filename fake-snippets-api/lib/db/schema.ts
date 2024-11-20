@@ -9,6 +9,7 @@ export const snippetSchema = z.object({
   dts: z.string().optional(),
   compiled_js: z.string().optional().nullable(),
   circuit_json: z.array(z.record(z.any())).optional().nullable(),
+  pcb_route_cache: z.string().optional().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
   snippet_type: z.enum(["board", "package", "model", "footprint"]),

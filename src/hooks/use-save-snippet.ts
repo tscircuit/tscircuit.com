@@ -1,4 +1,4 @@
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
 import { useAxios } from "./use-axios"
 import { safeCompileTsx } from "./use-compiled-tsx"
@@ -12,9 +12,9 @@ export const useSaveSnippet = () => {
   const saveSnippetMutation = useMutation<
     Snippet,
     Error,
-    { code: string; snippet_type: string; dts?: string; circuit_json?: any[] }
+    { code: string; snippet_type: string; dts?: string; circuit_json?: any[]; pcb_route_cache?: any }
   >({
-    mutationFn: async ({ code, snippet_type, dts, circuit_json }) => {
+    mutationFn: async ({ code, snippet_type, dts, circuit_json, pcb_route_cache }) => {
       const compileResult = safeCompileTsx(code)
 
       if (snippetId) {
@@ -26,6 +26,7 @@ export const useSaveSnippet = () => {
             ? compileResult.compiledTsx
             : undefined,
           circuit_json: circuit_json,
+          pcb_route_cache,
           dts,
         })
         return response.data.snippet
@@ -38,6 +39,7 @@ export const useSaveSnippet = () => {
             ? compileResult.compiledTsx
             : undefined,
           dts,
+          pcb_route_cache,
         })
         return response.data.snippet
       }
@@ -49,12 +51,14 @@ export const useSaveSnippet = () => {
     snippet_type: string,
     dts?: string,
     circuit_json?: any[],
+    pcb_route_cache?: any,
   ) => {
     return saveSnippetMutation.mutateAsync({
       code,
       snippet_type,
       dts,
       circuit_json,
+      pcb_route_cache,
     })
   }
 

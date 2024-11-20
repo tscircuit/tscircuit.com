@@ -12,6 +12,7 @@ export default withRouteSpec({
     description: z.string().optional(),
     compiled_js: z.string().optional(),
     circuit_json: z.array(z.record(z.any())).optional().nullable(),
+    pcb_route_cache: z.any().optional().nullable(),
     dts: z.string().optional(),
   }),
   jsonResponse: z.object({
@@ -26,6 +27,7 @@ export default withRouteSpec({
     description = "",
     compiled_js,
     circuit_json,
+    pcb_route_cache,
     dts,
   } = req.jsonBody
   if (!unscoped_name) {
@@ -43,6 +45,7 @@ export default withRouteSpec({
     description,
     compiled_js,
     circuit_json,
+    pcb_route_cache,
     dts,
   }
 
