@@ -15,7 +15,7 @@ type RunTsxResult = {
   message: string
   circuitJson: AnyCircuitElement[] | null
   compiledJs?: string
-  isLoading: boolean
+  isRunningCode: boolean
 }
 
 export const useRunTsx = ({
@@ -42,7 +42,7 @@ export const useRunTsx = ({
     compiledModule: null,
     message: "",
     circuitJson: null,
-    isLoading: false,
+    isRunningCode: false,
   })
   const apiBaseUrl = useSnippetsBaseApiUrl()
   const preSuppliedImportsRef = useRef<Record<string, any>>({})
@@ -54,7 +54,7 @@ export const useRunTsx = ({
         compiledModule: null,
         message: "",
         circuitJson: null,
-        isLoading: false,
+        isRunningCode: false,
       })
     }
     if (!code) return
@@ -64,7 +64,7 @@ export const useRunTsx = ({
         compiledModule: null,
         message: syntaxError,
         circuitJson: null,
-        isLoading: false,
+        isRunningCode: false,
       })
       return
     }
@@ -73,7 +73,7 @@ export const useRunTsx = ({
         compiledModule: null,
         message: "",
         circuitJson: null,
-        isLoading: true,
+        isRunningCode: true,
       })
 
       const userCodeTsciImports = getImportsFromCode(code!).filter((imp) =>
@@ -153,7 +153,7 @@ export const useRunTsx = ({
           compiledModule: null,
           message: `Compile Error: ${error.message}`,
           circuitJson: null,
-          isLoading: false,
+          isRunningCode: false,
         })
       }
 
@@ -188,7 +188,7 @@ export const useRunTsx = ({
             compiledJs,
             message: "",
             circuitJson: circuitJson as AnyCircuitElement[],
-            isLoading: true,
+            isRunningCode: true,
           })
 
           await renderPromise
@@ -199,7 +199,7 @@ export const useRunTsx = ({
             compiledJs,
             message: "",
             circuitJson: circuitJson as AnyCircuitElement[],
-            isLoading: false,
+            isRunningCode: false,
           })
         } catch (error: any) {
           console.error("Evaluation error:", error)
@@ -207,7 +207,7 @@ export const useRunTsx = ({
             compiledModule: module,
             message: `Render Error: ${error.message}`,
             circuitJson: null,
-            isLoading: false,
+            isRunningCode: false,
           })
         }
       } catch (error: any) {
@@ -216,7 +216,7 @@ export const useRunTsx = ({
           compiledModule: null,
           message: `Eval Error: ${error.message}\n\n${error.stack}`,
           circuitJson: null,
-          isLoading: false,
+          isRunningCode: false,
         })
       }
     }
