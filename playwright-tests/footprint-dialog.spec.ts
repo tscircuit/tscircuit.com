@@ -18,9 +18,9 @@ for (const [size, viewport] of Object.entries(viewports)) {
       }
 
       await page.click('button:has-text("Insert")')
+      await page.click("text=Footprint")
 
       await expect(page.getByRole("dialog")).toBeVisible()
-
       await expect(page.getByRole("heading", { name: "Insert" })).toBeVisible()
     })
 
@@ -30,6 +30,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       }
 
       await page.click('button:has-text("Insert")')
+      await page.click("text=Footprint")
 
       await page.getByRole("combobox").click()
       await page.getByRole("option", { name: "ms012" }).click()
@@ -41,26 +42,22 @@ for (const [size, viewport] of Object.entries(viewports)) {
       await expect(page).toHaveScreenshot(`footprint-preview-${size}.png`)
     })
 
-    test("chip name and position inputs", async ({ page }) => {
+    test("chip name input", async ({ page }) => {
       if (isMobileOrTablet) {
         await page.click('button:has-text("Show Code")')
       }
 
       await page.click('button:has-text("Insert")')
+      await page.click("text=Footprint")
 
       await page.fill(
         'input[placeholder="Enter chip name (e.g., U1)..."]',
         "U1",
       )
 
-      await page.locator('label:text("x:") + input').fill("100")
-      await page.locator('label:text("y:") + input').fill("50")
-
       await expect(
         page.locator('input[placeholder="Enter chip name (e.g., U1)..."]'),
       ).toHaveValue("U1")
-      await expect(page.locator('label:text("x:") + input')).toHaveValue("100")
-      await expect(page.locator('label:text("y:") + input')).toHaveValue("50")
     })
 
     test("inserts footprint into code", async ({ page }) => {
@@ -69,6 +66,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       }
 
       await page.click('button:has-text("Insert")')
+      await page.click("text=Footprint")
 
       await page.fill(
         'input[placeholder="Enter chip name (e.g., U1)..."]',
@@ -94,6 +92,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       }
 
       await page.click('button:has-text("Insert")')
+      await page.click("text=Footprint")
       await expect(page.getByRole("dialog")).toBeVisible()
 
       await page.getByRole("combobox").click()
