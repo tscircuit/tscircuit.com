@@ -25,6 +25,11 @@
       "source": "/legal/privacy-policy",
       "destination": "https://registry.tscircuit.com/legal/privacy-policy.html",
       "permanent": false
+    },
+    {
+      "source": "/playground",
+      "destination": "https://tscircuit.com/editor?template=blank-circuit-board",
+      "permanent": false
     }
   ]
 }
