@@ -40,8 +40,12 @@ export function CodeAndPreview({ snippet }: Props) {
       templateFromUrl.code
     )
   }, [])
+
+  // Initialize with template or snippet's manual edits if available
   const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    JSON.stringify(manualEditsTemplate, null, 2) ?? "",
+    snippet?.manual_edits_json ??
+      JSON.stringify(manualEditsTemplate, null, 2) ??
+      "",
   )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
@@ -96,6 +100,7 @@ export function CodeAndPreview({ snippet }: Props) {
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
+        manual_edits_json: manualEditsFileContent,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -125,11 +130,17 @@ export function CodeAndPreview({ snippet }: Props) {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
-      createSnippetMutation.mutate({ code, circuit_json: circuitJson as any })
+      createSnippetMutation.mutate({
+        code,
+        circuit_json: circuitJson as any,
+        manual_edits_json: manualEditsFileContent,
+      })
     }
   }
 
-  const hasUnsavedChanges = snippet?.code !== code
+  const hasUnsavedChanges =
+    snippet?.code !== code ||
+    snippet?.manual_edits_json !== manualEditsFileContent
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
@@ -187,9 +198,7 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             manualEditsFileContent={manualEditsFileContent}
-            onManualEditsFileContentChange={(newManualEditsFileContent) => {
-              setManualEditsFileContent(newManualEditsFileContent)
-            }}
+            onManualEditsFileContentChange={setManualEditsFileContent}
           />
         )}
       </div>
