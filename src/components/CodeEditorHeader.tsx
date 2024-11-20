@@ -11,6 +11,12 @@ import { useToast } from "@/hooks/use-toast"
 import { FootprintDialog } from "./FootprintDialog"
 import { useState } from "react"
 import { Dialog } from "./ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 
 export type FileName = "index.tsx" | "manual-edits.json"
 
@@ -87,13 +93,18 @@ export const CodeEditorHeader = ({
         </Select>
       </div>
       <div className="flex items-center gap-2 px-2 py-1 ml-auto">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setFootprintDialogOpen(true)}
-        >
-          Insert
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="ghost">
+              Insert
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setFootprintDialogOpen(true)}>
+              Footprint
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
           Import
         </Button>
