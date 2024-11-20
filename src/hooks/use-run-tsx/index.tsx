@@ -226,7 +226,7 @@ export const useRunTsx = ({
   const circuitJsonKey: string = useMemo(() => {
     if (!tsxResult.circuitJson) return ""
     return `cj-${Math.random().toString(36).substring(2, 15)}`
-  }, [tsxResult.circuitJson])
+  }, [tsxResult.circuitJson, tsxResult.circuitJson?.length])
 
   return {
     ...tsxResult,
