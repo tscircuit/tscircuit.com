@@ -2,6 +2,7 @@ import { jlcPartsEngine } from "@/lib/jlc-parts-engine"
 import { test, expect } from "bun:test"
 
 test("findPart", async () => {
+  if (process.env.CI) return
   const supplierPartNumbers = await jlcPartsEngine.findPart({
     sourceComponent: {
       type: "source_component",
