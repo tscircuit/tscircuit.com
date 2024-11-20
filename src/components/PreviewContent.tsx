@@ -36,6 +36,7 @@ export interface PreviewContentProps {
   showImportAndFormatButtons?: boolean
   headerClassName?: string
   leftHeaderContent?: React.ReactNode
+  isRunningCode?: boolean
   isStreaming?: boolean
   onCodeChange?: (code: string) => void
   onDtsChange?: (dts: string) => void
@@ -58,6 +59,7 @@ export const PreviewContent = ({
   leftHeaderContent,
   readOnly,
   isStreaming,
+  isRunningCode,
   onCodeChange,
   onDtsChange,
   manualEditsFileContent,
@@ -100,6 +102,7 @@ export const PreviewContent = ({
             <RunButton
               onClick={() => triggerRunTsx()}
               disabled={!hasCodeChangedSinceLastRun && tsxRunTriggerCount !== 0}
+              isRunningCode={isRunningCode}
             />
             {!leftHeaderContent && <div className="flex-grow" />}
             <TabsList>

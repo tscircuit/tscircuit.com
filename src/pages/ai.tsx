@@ -17,6 +17,7 @@ export const AiPage = () => {
     message: errorMessage,
     circuitJson,
     triggerRunTsx,
+    isRunningCode,
     tsxRunTriggerCount,
     circuitJsonKey,
   } = useRunTsx({
@@ -66,6 +67,7 @@ export const AiPage = () => {
               className="bg-white h-full p-4 rounded-lg shadow"
               code={code}
               isStreaming={isStreaming}
+              isRunningCode={isRunningCode}
               onCodeChange={setCode}
               onDtsChange={setDts}
               showCodeTab

@@ -20,6 +20,7 @@ export const ViewSnippetPage = () => {
     circuitJson,
     message,
     triggerRunTsx,
+    isRunningCode,
     tsxRunTriggerCount,
     circuitJsonKey,
   } = useRunTsx({
@@ -56,6 +57,7 @@ export const ViewSnippetPage = () => {
                   errorMessage={message}
                   circuitJson={circuitJson}
                   circuitJsonKey={circuitJsonKey}
+                  isRunningCode={isRunningCode}
                   showCodeTab={true}
                   showJsonTab={false}
                   showImportAndFormatButtons={false}
