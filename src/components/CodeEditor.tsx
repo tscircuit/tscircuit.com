@@ -153,6 +153,15 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
+          if (viewRef.current) {
+            viewRef.current.dispatch({
+              changes: {
+                from: 0,
+                to: viewRef.current.state.doc.length,
+                insert: viewRef.current.state.doc.toString(),
+              },
+            })
+          }
         },
       },
     }
