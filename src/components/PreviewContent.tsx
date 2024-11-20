@@ -99,6 +99,7 @@ export const PreviewContent = ({
             <RunButton
               onClick={() => triggerRunTsx()}
               disabled={!hasCodeChangedSinceLastRun && tsxRunTriggerCount !== 0}
+              isLoading={isStreaming}
             />
             {!leftHeaderContent && <div className="flex-grow" />}
             <TabsList>
