@@ -34,10 +34,20 @@ export const LandingHero = () => {
           Design Circuit Boards with Code
         </h1>
         <p className="text-lg text-gray-600 mb-8 max-w-2xl">
-          tscircuit is an open-source library for creating and sharing
-          electronic designs using TypeScript and React. Design functional
-          circuit boards you can actually order using code, completely in your
-          browser!
+          tscircuit is an open-source library
+          <a
+            href="https://github.com/tscircuit/tscircuit"
+            className="inline-flex items-center translate-y-[3px]"
+          >
+            <img
+              src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+              alt="GitHub stars"
+              className="mx-1"
+            />
+          </a>
+          for creating and sharing electronic designs using TypeScript and
+          React. Design functional circuit boards you can actually order using
+          code, completely in your browser!
         </p>
 
         {trendingSnippets && trendingSnippets.length > 0 && (
@@ -105,9 +115,7 @@ export const LandingHero = () => {
                   </a>
                   , and other formats
                 </li>
-                <li>
-                  Type <b>@</b> when coding to import other snippets
-                </li>
+                <li>Press "import" when coding to import other snippets</li>
               </ul>
             </CardContent>
           </Card>
