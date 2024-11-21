@@ -43,7 +43,7 @@ jobs:
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
                                                                                                                            
        - name: Update comment                                                                                              
-         uses: marocchino/sticky-pull-request-comment@v2                                                                   
+         uses: marocchino/sticky-pull-request-comment
          with:                                                                                                             
            header: Bundle Size Report                                                                                      
            message: |                                                                                                      
