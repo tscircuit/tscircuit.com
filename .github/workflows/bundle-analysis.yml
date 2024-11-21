@@ -1,6 +1,7 @@
-name: Size Analysis                                                                                                       
+                                                                                                                          
+ name: Size Analysis                                                                                                       
                                                                                                                            
-on:                                                                                                                       
+ on:                                                                                                                       
    pull_request_target:                                                                                                    
      branches:                                                                                                             
        - main                                                                                                              
@@ -9,11 +10,11 @@ on:
      branches:                                                                                                             
        - main                                                                                                              
                                                                                                                            
-permissions:                                                                                                              
+ permissions:                                                                                                              
    pull-requests: write                                                                                                    
    contents: read                                                                                                          
                                                                                                                            
-jobs:                                                                                                                     
+ jobs:                                                                                                                     
    size:                                                                                                                   
      name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
@@ -50,13 +51,46 @@ jobs:
            echo '```' >> $GITHUB_OUTPUT                                                                                    
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
                                                                                                                            
-       - name: Update comment                                                                                              
+       - name: Find Comment                                                                                                
          if: github.event_name == 'pull_request_target'                                                                    
-         uses: marocchino/sticky-pull-request-comment@v2                                                                   
+         uses: actions/github-script@v6                                                                                    
+         id: find-comment                                                                                                  
          with:                                                                                                             
-           header: Bundle Size Report                                                                                      
-           issue-number: ${{ github.event.pull_request.number }}                                                           
-           message: |                                                                                                      
-             ## Bundle Size Report                                                                                         
+           script: |                                                                                                       
+             const { data: comments } = await github.rest.issues.listComments({                                            
+               owner: context.repo.owner,                                                                                  
+               repo: context.repo.repo,                                                                                    
+               issue_number: context.issue.number,                                                                         
+             });                                                                                                           
+             const botComment = comments.find(comment => {                                                                 
+               return comment.user.type === 'Bot' && comment.body.includes('Bundle Size Report');                          
+             });                                                                                                           
+             return botComment ? botComment.id : null;                                                                     
+           result-encoding: string                                                                                         
+                                                                                                                           
+       - name: Comment on PR                                                                                               
+         if: github.event_name == 'pull_request_target'                                                                    
+         uses: actions/github-script@v6                                                                                    
+         with:                                                                                                             
+           script: |                                                                                                       
+             const commentBody = `## Bundle Size Report                                                                    
              Showing modules larger than 1KB:                                                                              
-             ${{ steps.bundle-analysis.outputs.stats }}    
+             ${{ steps.bundle-analysis.outputs.stats }}`;                                                                  
+                                                                                                                           
+             const commentId = '${{ steps.find-comment.outputs.result }}';                                                 
+                                                                                                                           
+             if (commentId) {                                                                                              
+               await github.rest.issues.updateComment({                                                                    
+                 owner: context.repo.owner,                                                                                
+                 repo: context.repo.repo,                                                                                  
+                 comment_id: parseInt(commentId),                                                                          
+                 body: commentBody                                                                                         
+               });                                                                                                         
+             } else {                                                                                                      
+               await github.rest.issues.createComment({                                                                    
+                 owner: context.repo.owner,                                                                                
+                 repo: context.repo.repo,                                                                                  
+                 issue_number: context.issue.number,                                                                       
+                 body: commentBody                                                                                         
+               });                                                                                                         
+             }                   

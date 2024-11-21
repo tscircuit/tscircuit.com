@@ -3,7 +3,7 @@ import { defineConfig, Plugin } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
-import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer } from "rollup-plugin-visualizer"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -38,16 +38,16 @@ function apiFakePlugin(): Plugin {
 
 let plugins: any[] = [react()]
 let proxy: any = undefined
- if (process.env.VITE_BUNDLE_ANALYZE === 'true') {                                                                         
-   plugins.push(                                                                                                           
-     visualizer({                                                                                                          
-       filename: 'stats.html',                                                                                             
-       gzipSize: true,                                                                                                     
-       brotliSize: true,                                                                                                   
-       open: false,                                                                                                        
-     })                                                                                                                    
-   )                                                                                                                       
- }
+if (process.env.VITE_BUNDLE_ANALYZE === "true") {
+  plugins.push(
+    visualizer({
+      filename: "stats.html",
+      gzipSize: true,
+      brotliSize: true,
+      open: false,
+    }),
+  )
+}
 if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
   process.env.VITE_USE_FAKE_API = "true"
   console.log("Using fake snippets API (see ./fake-snippets-api)")
