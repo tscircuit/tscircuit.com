@@ -1,12 +1,14 @@
 name: Size Analysis                                                                                                       
                                                                                                                            
 on:                                                                                                                       
-   pull_request:                                                                                                           
+   pull_request_target:                                                                                                    
      branches:                                                                                                             
        - main                                                                                                              
+     types: [opened, synchronize]                                                                                          
                                                                                                                            
 permissions:                                                                                                              
    pull-requests: write                                                                                                    
+   contents: read                                                                                                          
                                                                                                                            
 jobs:                                                                                                                     
    size:                                                                                                                   
@@ -14,8 +16,12 @@ jobs:
      runs-on: ubuntu-latest                                                                                                
      timeout-minutes: 30                                                                                                   
      steps:                                                                                                                
-       - name: Checkout PR branch                                                                                          
+       - name: Checkout PR                                                                                                 
          uses: actions/checkout@v3                                                                                         
+         with:                                                                                                             
+           ref: ${{ github.event.pull_request.head.sha }}                                                                  
+           # Important: This makes it safe to run on forks                                                                 
+           persist-credentials: false                                                                                      
                                                                                                                            
        - name: Setup Bun                                                                                                   
          uses: oven-sh/setup-bun@v1                                                                                        
@@ -43,10 +49,10 @@ jobs:
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
                                                                                                                            
        - name: Update comment                                                                                              
-         uses: marocchino/sticky-pull-request-comment
+         uses: marocchino/sticky-pull-request-comment@v2                                                                   
          with:                                                                                                             
            header: Bundle Size Report                                                                                      
            message: |                                                                                                      
              ## Bundle Size Report                                                                                         
              Showing modules larger than 1KB:                                                                              
-             ${{ steps.bundle-analysis.outputs.stats }}         
+             ${{ steps.bundle-analysis.outputs.stats }}            
