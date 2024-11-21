@@ -1,6 +1,6 @@
- name: Size Analysis                                                                                                       
+name: Size Analysis                                                                                                       
                                                                                                                            
- on:                                                                                                                       
+on:                                                                                                                       
    pull_request_target:                                                                                                    
      branches:                                                                                                             
        - main                                                                                                              
@@ -9,11 +9,11 @@
      branches:                                                                                                             
        - main                                                                                                              
                                                                                                                            
- permissions:                                                                                                              
+permissions:                                                                                                              
    pull-requests: write                                                                                                    
    contents: read                                                                                                          
                                                                                                                            
- jobs:                                                                                                                     
+jobs:                                                                                                                     
    size:                                                                                                                   
      name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
@@ -55,7 +55,8 @@
          uses: marocchino/sticky-pull-request-comment@v2                                                                   
          with:                                                                                                             
            header: Bundle Size Report                                                                                      
+           issue-number: ${{ github.event.pull_request.number }}                                                           
            message: |                                                                                                      
              ## Bundle Size Report                                                                                         
              Showing modules larger than 1KB:                                                                              
-             ${{ steps.bundle-analysis.outputs.stats }} 
+             ${{ steps.bundle-analysis.outputs.stats }}    
