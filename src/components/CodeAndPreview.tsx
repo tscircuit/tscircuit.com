@@ -41,12 +41,12 @@ export function CodeAndPreview({ snippet }: Props) {
     )
   }, [])
 
-  // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    snippet?.manual_edits_json ??
-      JSON.stringify(manualEditsTemplate, null, 2) ??
-      "",
-  )
+    // Initialize with template or snippet's manual edits if available
+    const [manualEditsFileContent, setManualEditsFileContent] = useState(
+      snippet?.manual_edits_json ??
+        JSON.stringify(manualEditsTemplate, null, 2) ??
+        "",
+    )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -63,6 +63,13 @@ export function CodeAndPreview({ snippet }: Props) {
   }, [Boolean(snippet)])
 
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (snippet?.manual_edits_json) {
+      console.log('Setting manual edits from snippet:', snippet.manual_edits_json);
+      setManualEditsFileContent(snippet.manual_edits_json);
+    }
+  }, [snippet?.manual_edits_json])
 
   const userImports = useMemo(
     () => ({
