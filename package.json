@@ -130,6 +130,7 @@
     "autoprefixer": "^10.4.20",
     "circuit-to-svg": "^0.0.82",
     "globals": "^15.9.0",
+    "howfat": "^0.3.8",
     "postcss": "^8.4.47",
     "prismjs": "^1.29.0",
     "prompts": "^2.4.2",
