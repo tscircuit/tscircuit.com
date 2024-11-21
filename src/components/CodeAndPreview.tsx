@@ -66,13 +66,9 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useEffect(() => {
     if (snippet?.manual_edits_json) {
-      console.log(
-        "Setting manual edits from snippet:",
-        snippet.manual_edits_json,
-      )
       setManualEditsFileContent(snippet.manual_edits_json)
     }
-  }, [snippet?.manual_edits_json])
+  }, [Boolean(snippet?.manual_edits_json)])
 
   const userImports = useMemo(
     () => ({
