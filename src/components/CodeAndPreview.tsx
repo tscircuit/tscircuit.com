@@ -64,6 +64,12 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const { toast } = useToast()
 
+  useEffect(() => {
+    if (snippet?.manual_edits_json) {
+      setManualEditsFileContent(snippet.manual_edits_json)
+    }
+  }, [Boolean(snippet?.manual_edits_json)])
+
   const userImports = useMemo(
     () => ({
       "./manual-edits.json": JSON.parse(manualEditsFileContent),
