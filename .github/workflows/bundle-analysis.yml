@@ -1,8 +1,8 @@
 name: Size Analysis                                                                                                       
                                                                                                                            
-on:
-  pull_request:
-    branches:                                                                                                             
+on:                                                                                                                       
+   pull_request:                                                                                                           
+     branches:                                                                                                             
        - main                                                                                                              
                                                                                                                            
 permissions:                                                                                                              
@@ -10,113 +10,43 @@ permissions:
                                                                                                                            
 jobs:                                                                                                                     
    size:                                                                                                                   
-     name: Report bundle and install size                                                                                  
+     name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
      timeout-minutes: 30                                                                                                   
      steps:                                                                                                                
-       - name: Checkout base branch                                                                                        
+       - name: Checkout PR branch                                                                                          
          uses: actions/checkout@v3                                                                                         
-         with:                                                                                                             
-           ref: ${{ github.base_ref }}                                                                                     
                                                                                                                            
        - name: Setup Bun                                                                                                   
          uses: oven-sh/setup-bun@v1                                                                                        
          with:                                                                                                             
            bun-version: latest                                                                                             
                                                                                                                            
-       - name: Install dependencies (base)                                                                                 
+       - name: Install dependencies                                                                                        
          run: bun install                                                                                                  
                                                                                                                            
-       - name: Build (base)                                                                                                
-         run: bun run build                                                                                                
+       - name: Build with bundle analysis                                                                                  
+         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
                                                                                                                            
-       - name: Get base bundle size                                                                                        
-         id: base-bundle-size                                                                                              
-         run: |                                                                                                            
-           echo "base=$(du -sh .next/static | cut -f1)" >> $GITHUB_OUTPUT                                                  
-                                                                                                                           
-       - name: Get base install size                                                                                       
-         id: base-install-size                                                                                             
-         run: |                                                                                                            
-           echo "base=$(bunx howfat -r simple . | grep 'Size:' | awk '{print $2}')" >> $GITHUB_OUTPUT                      
-                                                                                                                           
-       - name: Checkout PR branch                                                                                          
-         uses: actions/checkout@v3                                                                                         
-                                                                                                                           
-       - name: Install dependencies (PR)                                                                                   
-         run: bun install                                                                                                  
-                                                                                                                           
-       - name: Build (PR)                                                                                                  
-         run: bun run build                                                                                                
-                                                                                                                           
-       - name: Get PR bundle size                                                                                          
-         id: pr-bundle-size                                                                                                
-         run: |                                                                                                            
-           echo "pr=$(du -sh .next/static | cut -f1)" >> $GITHUB_OUTPUT                                                    
-                                                                                                                           
-       - name: Get PR install size and full howfat output                                                                  
-         id: pr-install-size                                                                                               
-         run: |                                                                                                            
-           echo "pr=$(bunx howfat -r simple . | grep 'Size:' | awk '{print $2}')" >> $GITHUB_OUTPUT                        
-           echo "full_output<<EOF" >> $GITHUB_OUTPUT                                                                       
-           bunx howfat -r table . >> $GITHUB_OUTPUT                                                                        
-           echo "EOF" >> $GITHUB_OUTPUT                                                                                    
-                                                                                                                           
-       - name: Get detailed bundle analysis                                                                                
+       - name: Analyze bundle                                                                                              
          id: bundle-analysis                                                                                               
          run: |                                                                                                            
-           echo "details<<EOF" >> $GITHUB_OUTPUT                                                                           
-           echo "### Client Bundles (.next/static/chunks):" >> $GITHUB_OUTPUT                                              
-           find .next/static/chunks -type f -name "*.js" -exec du -h {} \; | sort -hr >> $GITHUB_OUTPUT                    
+           echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                             
+           echo '```' >> $GITHUB_OUTPUT                                                                                    
+           jq -r '                                                                                                         
+             .children[] |                                                                                                 
+             select(.size > 1000) |                                                                                        
+             "\(.name): \(.size/1024|floor)KB"                                                                             
+           ' stats.html.json |                                                                                             
+           sort -rn -t: -k2 >> $GITHUB_OUTPUT                                                                              
+           echo '```' >> $GITHUB_OUTPUT                                                                                    
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
-                                                                                                                           
-       - name: Calculate bundle size difference                                                                            
-         id: bundle-size-diff                                                                                              
-         run: |                                                                                                            
-           base_size=$(echo ${{ steps.base-bundle-size.outputs.base }} | sed 's/[^0-9.]*//g')                              
-           pr_size=$(echo ${{ steps.pr-bundle-size.outputs.pr }} | sed 's/[^0-9.]*//g')                                    
-           diff=$(echo "$pr_size - $base_size" | bc)                                                                       
-           if (( $(echo "$diff > 0" | bc -l) )); then                                                                      
-             echo "diff=+$diff" >> $GITHUB_OUTPUT                                                                          
-           else                                                                                                            
-             echo "diff=$diff" >> $GITHUB_OUTPUT                                                                           
-           fi                                                                                                              
-                                                                                                                           
-       - name: Calculate install size difference                                                                           
-         id: install-size-diff                                                                                             
-         run: |                                                                                                            
-           base_size=$(echo ${{ steps.base-install-size.outputs.base }} | sed 's/[^0-9.]*//g')                             
-           pr_size=$(echo ${{ steps.pr-install-size.outputs.pr }} | sed 's/[^0-9.]*//g')                                   
-           diff=$(echo "$pr_size - $base_size" | bc)                                                                       
-           if (( $(echo "$diff > 0" | bc -l) )); then                                                                      
-             echo "diff=+$diff" >> $GITHUB_OUTPUT                                                                          
-           else                                                                                                            
-             echo "diff=$diff" >> $GITHUB_OUTPUT                                                                           
-           fi                                                                                                              
                                                                                                                            
        - name: Update comment                                                                                              
          uses: marocchino/sticky-pull-request-comment@v2                                                                   
          with:                                                                                                             
-           header: Size Report                                                                                             
+           header: Bundle Size Report                                                                                      
            message: |                                                                                                      
-             ## Size Report                                                                                                
-             ### Bundle Size                                                                                               
-             - Base branch size: ${{ steps.base-bundle-size.outputs.base }}                                                
-             - PR branch size: ${{ steps.pr-bundle-size.outputs.pr }}                                                      
-             - Difference: ${{ steps.bundle-size-diff.outputs.diff }}MB                                                    
-                                                                                                                           
-             ### Install Size                                                                                              
-             - Base branch size: ${{ steps.base-install-size.outputs.base }}                                               
-             - PR branch size: ${{ steps.pr-install-size.outputs.pr }}                                                     
-             - Difference: ${{ steps.install-size-diff.outputs.diff }}MB                                                   
-                                                                                                                           
-             ### Detailed Bundle Analysis (PR Branch)                                                                      
-             ```                                                                                                           
-             ${{ steps.bundle-analysis.outputs.details }}                                                                  
-             ```                                                                                                           
-                                                                                                                           
-             ### Full Dependency Analysis (PR Branch)                                                                      
-             ```                                                                                                           
-             ${{ steps.pr-install-size.outputs.full_output }}                                                              
-             ```                                                                                                           
-                      
+             ## Bundle Size Report                                                                                         
+             Showing modules larger than 1KB:                                                                              
+             ${{ steps.bundle-analysis.outputs.stats }}         
