@@ -15,7 +15,6 @@
                                                                                                                            
  jobs:                                                                                                                     
    size:                                                                                                                   
-     if: github.event_name == 'pull_request_target'                                                                        
      name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
      timeout-minutes: 30                                                                                                   
@@ -23,7 +22,7 @@
        - name: Checkout PR                                                                                                 
          uses: actions/checkout@v3                                                                                         
          with:                                                                                                             
-           ref: ${{ github.event.pull_request.head.sha }}                                                                  
+           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}      
            persist-credentials: false                                                                                      
                                                                                                                            
        - name: Setup Bun                                                                                                   
@@ -52,10 +51,11 @@
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
                                                                                                                            
        - name: Update comment                                                                                              
+         if: github.event_name == 'pull_request_target'                                                                    
          uses: marocchino/sticky-pull-request-comment@v2                                                                   
          with:                                                                                                             
            header: Bundle Size Report                                                                                      
            message: |                                                                                                      
              ## Bundle Size Report                                                                                         
              Showing modules larger than 1KB:                                                                              
-             ${{ steps.bundle-analysis.outputs.stats }}     
+             ${{ steps.bundle-analysis.outputs.stats }} 
