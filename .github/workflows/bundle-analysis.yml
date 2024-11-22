@@ -62,30 +62,45 @@
              });                                                                                                           
              return botComment ? botComment.id : null;                                                                     
            result-encoding: string                                                                                         
-                                                                                                                           
-       - name: Comment on PR                                                                                               
-         uses: actions/github-script@v6                                                                                    
-         with:                                                                                                             
-           script: |                                                                                                       
-             const commentBody = `## Bundle Size Report                                                                          
+           
+                                                                                                                                      
+       - name: Comment on PR                                                                                                     
+         uses: actions/github-script@v6                                                                                          
+         env:                                                                                                                    
+           BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}                                                              
+         with:                                                                                                                   
+           script: |                                                                                                             
+             const commentBody = `Bundle Size Report                                                                          
+                                                                                                                                 
              Showing modules larger than 1KB:                                                                                    
-             ${process.env.BUNDLE_STATS}`;                                                                                       
-             const commentId = '${{ steps.find-comment.outputs.result }}';                                                 
-                                                                                                                           
-             if (commentId) {                                                                                              
-               await github.rest.issues.updateComment({                                                                    
-                 owner: context.repo.owner,                                                                                
-                 repo: context.repo.repo,                                                                                  
-                 comment_id: parseInt(commentId),                                                                          
-                 body: commentBody                                                                                         
-               });                                                                                                         
-             } else {                                                                                                      
-               await github.rest.issues.createComment({                                                                    
-                 owner: context.repo.owner,                                                                                
-                 repo: context.repo.repo,                                                                                  
-                 issue_number: context.issue.number,                                                                       
-                 body: commentBody                                                                                         
-               });                                                                                                         
-             }                   
-         env:                                                                                                                  
-           BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}
+                                                                                                                                 
+             ${process.env.BUNDLE_STATS || 'No bundle stats available'}`;                                                        
+                                                                                                                                 
+             const commentId = ${{ steps.find-comment.outputs.result }};  // Remove quotes, let it be null if not found          
+                                                                                                                                 
+             if (commentId) {                                                                                                    
+               try {                                                                                                             
+                 await github.rest.issues.updateComment({                                                                        
+                   owner: context.repo.owner,                                                                                    
+                   repo: context.repo.repo,                                                                                      
+                   comment_id: commentId,                                                                                        
+                   body: commentBody                                                                                             
+                 });                                                                                                             
+               } catch (error) {                                                                                                 
+                 console.log('Error updating comment:', error);                                                                  
+                 // If update fails, try to create a new comment                                                                 
+                 await github.rest.issues.createComment({                                                                        
+                   owner: context.repo.owner,                                                                                    
+                   repo: context.repo.repo,                                                                                      
+                   issue_number: context.issue.number,                                                                           
+                   body: commentBody                                                                                             
+                 });                                                                                                             
+               }                                                                                                                 
+             } else {                                                                                                            
+               await github.rest.issues.createComment({                                                                          
+                 owner: context.repo.owner,                                                                                      
+                 repo: context.repo.repo,                                                                                        
+                 issue_number: context.issue.number,                                                                             
+                 body: commentBody                                                                                               
+               });                                                                                                               
+             }
