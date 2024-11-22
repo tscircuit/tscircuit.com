@@ -36,9 +36,6 @@
                                                                                                                            
        - name: Build with bundle analysis                                                                                  
          run: VITE_BUNDLE_ANALYZE=true bun run build   
-
-       - name: List files                                                                                                        
-         run: ls -la
                                                                                                                            
        - name: Analyze bundle                                                                                              
          id: bundle-analysis                                                                                               
@@ -49,7 +46,7 @@
              .children[] |                                                                                                 
              select(.size > 1000) |                                                                                        
              "\(.name): \(.size/1024|floor)KB"                                                                             
-           ' stats.html.json |                                                                                             
+           ' stats.html |                                                                                             
            sort -rn -t: -k2 >> $GITHUB_OUTPUT                                                                              
            echo '```' >> $GITHUB_OUTPUT                                                                                    
            echo "EOF" >> $GITHUB_OUTPUT                                                                                    
@@ -74,7 +71,7 @@
          uses: actions/github-script@v6                                                                                    
          with:                                                                                                             
            script: |                                                                                                       
-             const commentBody = `## Bundle Size Report                                                                    
+             const commentBody = '## Bundle Size Report'
              Showing modules larger than 1KB:                                                                              
              ${{ steps.bundle-analysis.outputs.stats }}`;                                                                  
                                                                                                                            
