@@ -4,14 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened]
 
 permissions:
   pull-requests: write
-  contents: read
-  statuses: write
-  issues: write
-
 jobs:
   size:
     name: Report bundle size
@@ -19,8 +14,10 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout code
+      - name: Checkout base branch
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -43,11 +40,8 @@ jobs:
           done >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Checkout PR
+      - name: Checkout PR branch
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          clean: true
 
       - name: Install dependencies (PR)
         run: bun install
@@ -98,4 +92,4 @@ jobs:
             ### PR Branch Breakdown
             ```
             ${{ steps.pr-size.outputs.breakdown }}
-            ```
+            ``` 
