@@ -1,7 +1,7 @@
 name: Size
 
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - synchronize
@@ -13,7 +13,6 @@ permissions:
   pull-requests: write
 jobs:
   size:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     name: Report bundle size
     runs-on: ubuntu-latest
     timeout-minutes: 15
