@@ -66,30 +66,30 @@
              });                                                                                                           
              return botComment ? botComment.id : null;                                                                     
            result-encoding: string                                                                                         
-  
-       - name: Comment on PR                                                                                                     
-   uses: actions/github-script@v6                                                                                          
-   with:                                                                                                                   
-     script: |                                                                                                             
-       const commentBody = `## Bundle Size Report                                                                          
-       Showing modules larger than 1KB:                                                                                    
-       ${{ steps.bundle-analysis.outputs.stats }}`;                                                                        
                                                                                                                            
-       const commentId = '${{ steps.find-comment.outputs.result }}';                                                       
+       - name: Comment on PR                                                                                               
+         uses: actions/github-script@v6                                                                                    
+         with:                                                                                                             
+           script: |                                                                                                       
+             const commentBody = `
+             Bundle Size Report
+             Showing modules larger than 1KB:                                                                              
+             ${{ steps.bundle-analysis.outputs.stats }}`;                                                                  
                                                                                                                            
-       if (commentId) {                                                                                                    
-         await github.rest.issues.updateComment({                                                                          
-           owner: context.repo.owner,                                                                                      
-           repo: context.repo.repo,                                                                                        
-           comment_id: parseInt(commentId),                                                                                
-           body: commentBody                                                                                               
-         });                                                                                                               
-       } else {                                                                                                            
-         await github.rest.issues.createComment({                                                                          
-           owner: context.repo.owner,                                                                                      
-           repo: context.repo.repo,                                                                                        
-           issue_number: context.issue.number,                                                                             
-           body: commentBody                                                                                               
-         });                                                                                                               
-       }                                                                                                                   
-
+             const commentId = '${{ steps.find-comment.outputs.result }}';                                                 
+                                                                                                                           
+             if (commentId) {                                                                                              
+               await github.rest.issues.updateComment({                                                                    
+                 owner: context.repo.owner,                                                                                
+                 repo: context.repo.repo,                                                                                  
+                 comment_id: parseInt(commentId),                                                                          
+                 body: commentBody                                                                                         
+               });                                                                                                         
+             } else {                                                                                                      
+               await github.rest.issues.createComment({                                                                    
+                 owner: context.repo.owner,                                                                                
+                 repo: context.repo.repo,                                                                                  
+                 issue_number: context.issue.number,                                                                       
+                 body: commentBody                                                                                         
+               });                                                                                                         
+             }                   
