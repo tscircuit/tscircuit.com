@@ -37,20 +37,16 @@
        - name: Build with bundle analysis                                                                                  
          run: VITE_BUNDLE_ANALYZE=true bun run build   
                                                                                                                            
-       - name: Analyze bundle                                                                                              
-         id: bundle-analysis                                                                                               
-         run: |                                                                                                            
-           echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                             
-           echo '```' >> $GITHUB_OUTPUT                                                                                    
-           jq -r '                                                                                                         
-             .children[] |                                                                                                 
-             select(.size > 1000) |                                                                                        
-             "\(.name): \(.size/1024|floor)KB"                                                                             
-           ' stats.html |                                                                                             
-           sort -rn -t: -k2 >> $GITHUB_OUTPUT                                                                              
-           echo '```' >> $GITHUB_OUTPUT                                                                                    
-           echo "EOF" >> $GITHUB_OUTPUT                                                                                    
-                                                                                                                           
+                                                                                                                                    
+       - name: Analyze bundle                                                                                                    
+         id: bundle-analysis                                                                                                     
+         run: |                                                                                                                  
+           echo "stats=$(jq -r '                                                                                                 
+             .children[] |                                                                                                       
+             select(.size > 1000) |                                                                                              
+             "\(.name): \(.size/1024|floor)KB"                                                                                   
+           ' stats.html | sort -rn -t: -k2)" >> $GITHUB_OUTPUT                                          
+
        - name: Find Comment                                                                                                
          uses: actions/github-script@v6                                                                                    
          id: find-comment                                                                                                  
@@ -71,11 +67,9 @@
          uses: actions/github-script@v6                                                                                    
          with:                                                                                                             
            script: |                                                                                                       
-             const commentBody = `
-             Bundle Size Report
-             Showing modules larger than 1KB:                                                                              
-             ${{ steps.bundle-analysis.outputs.stats }}`;                                                                  
-                                                                                                                           
+             const commentBody = `## Bundle Size Report                                                                          
+             Showing modules larger than 1KB:                                                                                    
+             ${process.env.BUNDLE_STATS}`;                                                                                       
              const commentId = '${{ steps.find-comment.outputs.result }}';                                                 
                                                                                                                            
              if (commentId) {                                                                                              
