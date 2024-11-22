@@ -1,7 +1,7 @@
 name: Size
 
 on:
-  pull_request_target:
+  pull_request:
     branches:
       - main
     types: [opened, synchronize, reopened]
@@ -19,11 +19,8 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      # First checkout the base branch
-      - name: Checkout base branch
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -46,13 +43,11 @@ jobs:
           done >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # Then checkout the PR branch
-      - name: Checkout PR branch
+      - name: Checkout PR
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          # Important: This allows checking out PR branches from forks
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          clean: true
 
       - name: Install dependencies (PR)
         run: bun install
@@ -60,7 +55,6 @@ jobs:
       - name: Build (PR)
         run: bun run build
 
-      # Rest of the steps remain the same
       - name: Get PR bundle size breakdown
         id: pr-size
         run: |
@@ -85,6 +79,8 @@ jobs:
 
       - name: Update comment
         uses: marocchino/sticky-pull-request-comment@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           header: Bundle Size Report
           message: |
