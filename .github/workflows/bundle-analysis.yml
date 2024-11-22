@@ -68,7 +68,8 @@
          uses: actions/github-script@v6                                                                                          
          env:                                                                                                                    
            BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}                                                              
-         with:                                                                                                                   
+         with:
+           github-token: ${{ secrets.GITHUB_TOKEN }}
            script: |                                                                                                             
              const commentBody = `Bundle Size Report                                                                          
                                                                                                                                  
