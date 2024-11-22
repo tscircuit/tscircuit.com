@@ -4,6 +4,7 @@ on:
   pull_request_target:
     branches:
       - main
+    types: [opened, synchronize, reopened]
 
 permissions:
   pull-requests: write
@@ -16,6 +17,8 @@ jobs:
     name: Report bundle size
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
 
     steps:
       - name: Checkout base branch
