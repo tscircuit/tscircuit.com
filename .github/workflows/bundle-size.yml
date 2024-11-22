@@ -9,6 +9,7 @@ permissions:
   pull-requests: write
   contents: read
   statuses: write
+  issues: write
 
 jobs:
   size:
