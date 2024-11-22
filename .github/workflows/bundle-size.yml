@@ -75,6 +75,8 @@ jobs:
 
       - name: Update comment
         uses: marocchino/sticky-pull-request-comment@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           header: Bundle Size Report
           message: |
