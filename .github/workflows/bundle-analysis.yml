@@ -87,5 +87,5 @@
                  body: commentBody                                                                                         
                });                                                                                                         
              }                   
-           env:                                                                                                                  
-             BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}
+         env:                                                                                                                  
+           BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}
