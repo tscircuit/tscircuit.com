@@ -1,3 +1,10 @@
+# Reports bundle size changes in pull requests.
+# To find the report:
+# 1. Go to the PR page
+# 2. Click on the "Checks" tab
+# 3. Click on the "Size" workflow
+# 4. The bundle size report will be shown at the top of the job summary
+
 name: Size
 
 on:
@@ -10,7 +17,6 @@ on:
       - main
 
 permissions:
-  pull-requests: write
   contents: read
 jobs:
   size:
@@ -78,6 +84,7 @@ jobs:
 
       - name: Generate Bundle Size Report
         run: |
+          # Write to job summary
           echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
           echo "### Total Size" >> $GITHUB_STEP_SUMMARY
           echo "- Base branch: ${{ steps.base-size.outputs.total }}" >> $GITHUB_STEP_SUMMARY
@@ -92,4 +99,18 @@ jobs:
           echo "### PR Branch Breakdown" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.pr-size.outputs.breakdown }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY 
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          # Also echo to logs for immediate visibility
+          echo "=============== BUNDLE SIZE REPORT ==============="
+          echo "Total Size:"
+          echo "- Base branch: ${{ steps.base-size.outputs.total }}"
+          echo "- PR branch: ${{ steps.pr-size.outputs.total }}"
+          echo "- Difference: ${{ steps.size-diff.outputs.total }}MB"
+          echo ""
+          echo "Base Branch Breakdown:"
+          echo "${{ steps.base-size.outputs.breakdown }}"
+          echo ""
+          echo "PR Branch Breakdown:"
+          echo "${{ steps.pr-size.outputs.breakdown }}"
+          echo "================================================" 
