@@ -11,6 +11,7 @@ on:
 
 permissions:
   pull-requests: write
+  contents: read
 jobs:
   size:
     name: Report bundle size
@@ -75,25 +76,20 @@ jobs:
             echo "total=$diff" >> $GITHUB_OUTPUT
           fi
 
-      - name: Update comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          header: Bundle Size Report
-          message: |
-            ## Bundle Size Report
-            ### Total Size
-            - Base branch: ${{ steps.base-size.outputs.total }}
-            - PR branch: ${{ steps.pr-size.outputs.total }}
-            - Difference: ${{ steps.size-diff.outputs.total }}MB
-
-            ### Base Branch Breakdown
-            ```
-            ${{ steps.base-size.outputs.breakdown }}
-            ```
-
-            ### PR Branch Breakdown
-            ```
-            ${{ steps.pr-size.outputs.breakdown }}
-            ``` 
+      - name: Generate Bundle Size Report
+        run: |
+          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+          echo "### Total Size" >> $GITHUB_STEP_SUMMARY
+          echo "- Base branch: ${{ steps.base-size.outputs.total }}" >> $GITHUB_STEP_SUMMARY
+          echo "- PR branch: ${{ steps.pr-size.outputs.total }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Difference: ${{ steps.size-diff.outputs.total }}MB" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Base Branch Breakdown" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.base-size.outputs.breakdown }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### PR Branch Breakdown" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.pr-size.outputs.breakdown }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY 
