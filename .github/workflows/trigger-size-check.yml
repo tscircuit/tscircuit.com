@@ -32,7 +32,39 @@ jobs:
         run: |
           VITE_BUNDLE_ANALYZE=true bun run build --mode production
 
-      - name: Upload stats
+      - name: Read and post stats
+        if: success()
+        run: |
+          if [ -f dist/stats.html ]; then
+            # Extract size information between <pre> tags
+            STATS=$(sed -n '/<pre>/,/<\/pre>/p' dist/stats.html | sed 's/<[^>]*>//g')
+            
+            # Create comment body with formatted stats
+            cat << EOF > comment.md
+          ## 📊 Bundle Size Analysis
+
+          \`\`\`
+          ${STATS}
+          \`\`\`
+
+          <details>
+          <summary>What is this?</summary>
+          This is an automated bundle size report generated during the build process. It shows the size of each chunk in the bundle.
+          </details>
+          EOF
+            
+            # Post comment to PR using gh cli
+            gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+          else
+            echo "Stats file not found at dist/stats.html"
+            echo "Current directory contents:"
+            ls -la dist/
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload stats artifact
         uses: actions/upload-artifact@v4
         with:
           name: bundle-stats
