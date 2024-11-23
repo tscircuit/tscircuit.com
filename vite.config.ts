@@ -1,6 +1,6 @@
 import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
-import type { PluginOption } from 'vite'
+import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
@@ -40,16 +40,16 @@ export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
   const plugins: PluginOption[] = [react()]
-  
-  if (process.env.VITE_BUNDLE_ANALYZE === 'true') {
-    const { visualizer } = await import('rollup-plugin-visualizer')
+
+  if (process.env.VITE_BUNDLE_ANALYZE === "true") {
+    const { visualizer } = await import("rollup-plugin-visualizer")
     plugins.push(
       visualizer({
-        filename: 'dist/stats.html',
+        filename: "dist/stats.html",
         open: false,
         gzipSize: true,
         brotliSize: true,
-      })
+      }),
     )
   }
 
