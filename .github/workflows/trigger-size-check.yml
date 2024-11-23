@@ -9,6 +9,11 @@ on:
       - 'vite.config.ts'
       - 'bun.lockb'
 
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
 jobs:
   trigger:
     runs-on: ubuntu-latest
@@ -29,8 +34,3 @@ jobs:
                 head_ref: context.payload.pull_request.head.ref
               }
             }) 
-
-permissions:
-  contents: read
-  pull-requests: read
-  actions: write 
