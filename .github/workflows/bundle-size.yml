@@ -20,6 +20,9 @@ on:
       head_ref:
         description: 'Head Branch Reference'
         required: true
+      head_sha:
+        description: 'Head Commit SHA'
+        required: true
 
 permissions:
   contents: read

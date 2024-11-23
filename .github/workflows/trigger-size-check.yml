@@ -1,7 +1,7 @@
 name: Trigger Size Check
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
     paths:
       - 'src/**'
@@ -9,12 +9,10 @@ on:
       - 'vite.config.ts'
       - 'bun.lockb'
 
-# Grant elevated permissions to GITHUB_TOKEN
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
   actions: write
-  id-token: write
 
 jobs:
   trigger:
@@ -23,17 +21,17 @@ jobs:
       - name: Trigger Bundle Size Check
         uses: actions/github-script@v6
         with:
-          # Use default GITHUB_TOKEN with elevated permissions
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'bundle-size.yml',
-              ref: context.payload.pull_request.head.ref,
+              ref: 'main',
               inputs: {
                 pr_number: context.payload.pull_request.number.toString(),
                 base_ref: context.payload.pull_request.base.ref,
-                head_ref: context.payload.pull_request.head.ref
+                head_ref: context.payload.pull_request.head.ref,
+                head_sha: context.payload.pull_request.head.sha
               }
             }) 
