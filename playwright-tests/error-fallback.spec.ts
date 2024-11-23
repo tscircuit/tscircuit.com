@@ -13,19 +13,29 @@ for (const [size, viewport] of Object.entries(viewports)) {
       await page.click('button:has-text("Show Code")')
     }
 
-    // Click editor and insert the invalid chip code
-    await page.locator(".cm-content").click()
-    await page.keyboard.press("Home")
-
-    await page.keyboard.type(`    <chip                                                                                   
+    // Insert the invalid chip code using evaluate
+    const invalidChipCode = `
+export default () => (
+  <board width="10mm" height="10mm">
+     <chip                                                                                    
        name="3"                                                                                                            
        cadModel={{                                                                                                         
          jscad: {                                                                                                          
            type: "cube",                                                                                                   
            size: -1,                                                                                                       
          }}}                                                                                                               
-       footprint="ms012"                                                                                                   
-     />`)
+       footprint="ms012"   
+        />
+  </board>
+)
+     `
+
+    await page.evaluate((code) => {
+      const cm = document.querySelector(".cm-content")
+      if (cm) {
+        cm.textContent = code
+      }
+    }, invalidChipCode)
 
     if (isMobileOrTablet) {
       await page.click('button:has-text("Show Preview")')
