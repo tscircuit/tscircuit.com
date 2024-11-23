@@ -69,6 +69,23 @@ export default defineConfig({
       compress: false,
       mangle: false,
     },
+    reportCompressedSize: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom"],
+          codemirror: [
+            "@codemirror/autocomplete",
+            "@codemirror/lang-javascript",
+            "@codemirror/lang-json",
+            "@codemirror/lint",
+            "@codemirror/state",
+            "@codemirror/view",
+          ],
+          // Add other manual chunks as needed
+        },
+      },
+    },
   },
   resolve: {
     alias: {

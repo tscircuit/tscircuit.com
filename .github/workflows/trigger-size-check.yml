@@ -1,0 +1,36 @@
+name: Trigger Size Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'bun.lockb'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Bundle Size Check
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'bundle-size.yml',
+              ref: context.payload.pull_request.head.ref,
+              inputs: {
+                pr_number: context.payload.pull_request.number.toString(),
+                base_ref: context.payload.pull_request.base.ref,
+                head_ref: context.payload.pull_request.head.ref
+              }
+            }) 
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write 

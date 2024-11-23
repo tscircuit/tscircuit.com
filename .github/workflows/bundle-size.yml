@@ -7,17 +7,24 @@
 
 name: Size
 
+# Change trigger to workflow_dispatch
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull Request Number'
+        required: true
+      base_ref:
+        description: 'Base Branch Reference'
+        required: true
+      head_ref:
+        description: 'Head Branch Reference'
+        required: true
 
 permissions:
   contents: read
+  pull-requests: write
+
 jobs:
   size:
     name: Report bundle size
@@ -28,7 +35,7 @@ jobs:
       - name: Checkout base branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.base_ref }}
+          ref: ${{ github.event.inputs.base_ref }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -38,79 +45,47 @@ jobs:
       - name: Install dependencies (base)
         run: bun install
 
-      - name: Build (base)
-        run: bun run build
-
-      - name: Get base bundle size breakdown
-        id: base-size
+      - name: Build with stats (base)
         run: |
-          echo "total=$(du -sh dist | cut -f1)" >> $GITHUB_OUTPUT
-          echo "breakdown<<EOF" >> $GITHUB_OUTPUT
-          find dist -type f -name "*.js" -o -name "*.css" | while read file; do
-            echo "$(du -sh $file | cut -f1) - $(basename $file)"
-          done >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production
+          mv dist/stats.html dist/base-stats.html
 
       - name: Checkout PR branch
         uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.head_ref }}
 
       - name: Install dependencies (PR)
         run: bun install
 
-      - name: Build (PR)
-        run: bun run build
-
-      - name: Get PR bundle size breakdown
-        id: pr-size
+      - name: Build with stats (PR)
         run: |
-          echo "total=$(du -sh dist | cut -f1)" >> $GITHUB_OUTPUT
-          echo "breakdown<<EOF" >> $GITHUB_OUTPUT
-          find dist -type f -name "*.js" -o -name "*.css" | while read file; do
-            echo "$(du -sh $file | cut -f1) - $(basename $file)"
-          done >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Calculate size difference
-        id: size-diff
-        run: |
-          base_size=$(echo ${{ steps.base-size.outputs.total }} | sed 's/[^0-9.]*//g')
-          pr_size=$(echo ${{ steps.pr-size.outputs.total }} | sed 's/[^0-9.]*//g')
-          diff=$(echo "$pr_size - $base_size" | bc)
-          if (( $(echo "$diff > 0" | bc -l) )); then
-            echo "total=+$diff" >> $GITHUB_OUTPUT
-          else
-            echo "total=$diff" >> $GITHUB_OUTPUT
-          fi
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production
 
       - name: Generate Bundle Size Report
+        id: report
         run: |
-          # Write to job summary
-          echo "## Bundle Size Report" >> $GITHUB_STEP_SUMMARY
-          echo "### Total Size" >> $GITHUB_STEP_SUMMARY
-          echo "- Base branch: ${{ steps.base-size.outputs.total }}" >> $GITHUB_STEP_SUMMARY
-          echo "- PR branch: ${{ steps.pr-size.outputs.total }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Difference: ${{ steps.size-diff.outputs.total }}MB" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Base Branch Breakdown" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.base-size.outputs.breakdown }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### PR Branch Breakdown" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.pr-size.outputs.breakdown }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Base Branch Stats" >> $GITHUB_OUTPUT
+          cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### PR Branch Stats" >> $GITHUB_OUTPUT
+          cat dist/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-          # Also echo to logs for immediate visibility
-          echo "=============== BUNDLE SIZE REPORT ==============="
-          echo "Total Size:"
-          echo "- Base branch: ${{ steps.base-size.outputs.total }}"
-          echo "- PR branch: ${{ steps.pr-size.outputs.total }}"
-          echo "- Difference: ${{ steps.size-diff.outputs.total }}MB"
-          echo ""
-          echo "Base Branch Breakdown:"
-          echo "${{ steps.base-size.outputs.breakdown }}"
-          echo ""
-          echo "PR Branch Breakdown:"
-          echo "${{ steps.pr-size.outputs.breakdown }}"
-          echo "================================================" 
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.inputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '## 📦 Bundle Size Report'
+
+      - name: Create or Update Comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.inputs.pr_number }}
+          body: ${{ steps.report.outputs.report }}
+          edit-mode: replace 
