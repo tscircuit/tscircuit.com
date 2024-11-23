@@ -50,14 +50,25 @@ jobs:
       - name: Generate Bundle Size Report
         id: report
         run: |
+          # Add error handling for file reads
+          if [ ! -f "dist/base-stats.html" ]; then
+            echo "Error: Base stats file not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          if [ ! -f "pr-stats/stats.html" ]; then
+            echo "Error: PR stats file not found" >> $GITHUB_STEP_SUMMARY 
+            exit 1
+          fi
+
           echo "report<<EOF" >> $GITHUB_OUTPUT
           echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### Base Branch Stats" >> $GITHUB_OUTPUT
-          cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
+          cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT || echo "No stats found in base branch"
           echo "" >> $GITHUB_OUTPUT
           echo "### PR Branch Stats" >> $GITHUB_OUTPUT
-          cat pr-stats/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
+          cat pr-stats/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT || echo "No stats found in PR branch"
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR
@@ -67,42 +78,55 @@ jobs:
           script: |
             const fs = require('fs');
             
-            // Get PR number from workflow run
-            const pr = await github.rest.search.issuesAndPullRequests({
-              q: `sha:${context.payload.workflow_run.head_sha}`
-            });
-            
-            const prNumber = pr.data.items[0].number;
-            const report = process.env.REPORT;
-
-            // Find existing comment
-            const comments = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber
-            });
-
-            const existingComment = comments.data.find(comment => 
-              comment.body.includes('## 📦 Bundle Size Analysis')
-            );
-
-            // Update or create comment
-            const commentBody = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: report
-            };
-
-            if (existingComment) {
-              await github.rest.issues.updateComment({
-                ...commentBody,
-                comment_id: existingComment.id
+            try {
+              // Get PR number from workflow run with error handling
+              const pr = await github.rest.search.issuesAndPullRequests({
+                q: `sha:${context.payload.workflow_run.head_sha}`
               });
-            } else {
-              await github.rest.issues.createComment({
-                ...commentBody,
+              
+              if (!pr.data.items?.length) {
+                throw new Error('No PR found for this commit');
+              }
+              
+              const prNumber = pr.data.items[0].number;
+              const report = process.env.REPORT;
+
+              if (!report) {
+                throw new Error('No report data found');
+              }
+
+              // Find existing comment
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 issue_number: prNumber
               });
+
+              const existingComment = comments.data.find(comment => 
+                comment.body.includes('## 📦 Bundle Size Analysis')
+              );
+
+              // Update or create comment
+              const commentBody = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: report
+              };
+
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  ...commentBody,
+                  comment_id: existingComment.id
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  ...commentBody,
+                  issue_number: prNumber
+                });
+              }
+            } catch (error) {
+              console.error('Error in PR comment creation:', error);
+              core.setFailed(error.message);
             }
         env:
           REPORT: ${{ steps.report.outputs.report }}
