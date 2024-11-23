@@ -86,11 +86,11 @@ export default defineConfig(async (): Promise<UserConfig> => {
         compress: false,
         mangle: false,
       },
-      reportCompressedSize: true,
+      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
         output: {
           manualChunks: {
-            "react-vendor": ["react", "react-dom"],
+            "react-vendor": ["react", "react-dom"], 
             codemirror: [
               "@codemirror/autocomplete",
               "@codemirror/lang-javascript",
