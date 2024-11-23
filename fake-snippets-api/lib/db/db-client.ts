@@ -88,15 +88,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">,
   ): Snippet => {
     const newSnippetId = `snippet_${get().idCounter + 1}`
-    const manualEditsJsonTemplate = {
-      pcb_placements: [],
-      edit_events: [],
-      manual_trace_hints: [],
-    }
-
     const newSnippet = snippetSchema.parse({
       ...snippet,
-      manual_edits_json: JSON.stringify(manualEditsJsonTemplate, null, 2),
       snippet_id: newSnippetId,
     })
     set((state) => {
