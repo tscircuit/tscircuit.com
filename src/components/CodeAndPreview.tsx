@@ -26,6 +26,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
+  const { toast } = useToast()
   const templateFromUrl = useMemo(
     () => getSnippetTemplate(urlParams.template),
     [],
@@ -41,12 +42,18 @@ export function CodeAndPreview({ snippet }: Props) {
     )
   }, [])
 
-  // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    snippet?.manual_edits_json ??
-      JSON.stringify(manualEditsTemplate, null, 2) ??
-      "",
-  )
+  // Initialize manualEditsFileContent with proper validation
+  const [manualEditsFileContent, setManualEditsFileContent] = useState(() => {
+    try {
+      const initialContent = snippet?.manual_edits_json ?? JSON.stringify(manualEditsTemplate, null, 2)
+      // Validate that it's parseable JSON
+      JSON.parse(initialContent)
+      return initialContent
+    } catch (e) {
+      console.warn('Invalid initial manual edits content, using default template')
+      return JSON.stringify(manualEditsTemplate, null, 2)
+    }
+  })
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -62,14 +69,37 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }, [Boolean(snippet)])
 
-  const { toast } = useToast()
+  // Update manual edits when snippet changes, with validation
+  useEffect(() => {
+    if (snippet?.manual_edits_json) {
+      try {
+        JSON.parse(snippet.manual_edits_json)
+        setManualEditsFileContent(snippet.manual_edits_json)
+      } catch (e) {
+        console.warn('Invalid manual edits JSON from snippet')
+        toast({
+          title: "Warning",
+          description: "Invalid manual edits format in snippet. Using default template.",
+          variant: "destructive",
+        })
+        setManualEditsFileContent(JSON.stringify(manualEditsTemplate, null, 2))
+      }
+    }
+  }, [snippet?.manual_edits_json])
 
-  const userImports = useMemo(
-    () => ({
-      "./manual-edits.json": JSON.parse(manualEditsFileContent),
-    }),
-    [manualEditsFileContent],
-  )
+  // Safely parse userImports with error handling
+  const userImports = useMemo(() => {
+    try {
+      return {
+        "./manual-edits.json": JSON.parse(manualEditsFileContent),
+      }
+    } catch (e) {
+      console.warn('Error parsing manual edits for imports, using empty object')
+      return {
+        "./manual-edits.json": {},
+      }
+    }
+  }, [manualEditsFileContent])
 
   const {
     message,
@@ -95,6 +125,14 @@ export function CodeAndPreview({ snippet }: Props) {
   const updateSnippetMutation = useMutation({
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
+      
+      // Validate manual edits before sending
+      try {
+        JSON.parse(manualEditsFileContent)
+      } catch (e) {
+        throw new Error("Invalid manual edits JSON")
+      }
+
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
         code: code,
@@ -119,7 +157,7 @@ export function CodeAndPreview({ snippet }: Props) {
       console.error("Error saving snippet:", error)
       toast({
         title: "Error",
-        description: "Failed to save the snippet. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save the snippet. Please try again.",
         variant: "destructive",
       })
     },
