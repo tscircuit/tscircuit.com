@@ -128,7 +128,7 @@ test("delete snippet without authorization", async () => {
     })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
-    expect(error.response.status).toBe(403) // Fix: Access error.response.status instead of error.status
-    expect(error.response.data.error.message).toBe("Unauthorized")
+    expect(error.status).toBe(403)
+    expect(error.data.error.message).toBe("Unauthorized")
   }
 })
