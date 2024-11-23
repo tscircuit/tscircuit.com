@@ -45,12 +45,16 @@ export function CodeAndPreview({ snippet }: Props) {
   // Initialize manualEditsFileContent with proper validation
   const [manualEditsFileContent, setManualEditsFileContent] = useState(() => {
     try {
-      const initialContent = snippet?.manual_edits_json ?? JSON.stringify(manualEditsTemplate, null, 2)
+      const initialContent =
+        snippet?.manual_edits_json ??
+        JSON.stringify(manualEditsTemplate, null, 2)
       // Validate that it's parseable JSON
       JSON.parse(initialContent)
       return initialContent
     } catch (e) {
-      console.warn('Invalid initial manual edits content, using default template')
+      console.warn(
+        "Invalid initial manual edits content, using default template",
+      )
       return JSON.stringify(manualEditsTemplate, null, 2)
     }
   })
@@ -76,10 +80,11 @@ export function CodeAndPreview({ snippet }: Props) {
         JSON.parse(snippet.manual_edits_json)
         setManualEditsFileContent(snippet.manual_edits_json)
       } catch (e) {
-        console.warn('Invalid manual edits JSON from snippet')
+        console.warn("Invalid manual edits JSON from snippet")
         toast({
           title: "Warning",
-          description: "Invalid manual edits format in snippet. Using default template.",
+          description:
+            "Invalid manual edits format in snippet. Using default template.",
           variant: "destructive",
         })
         setManualEditsFileContent(JSON.stringify(manualEditsTemplate, null, 2))
@@ -94,7 +99,7 @@ export function CodeAndPreview({ snippet }: Props) {
         "./manual-edits.json": JSON.parse(manualEditsFileContent),
       }
     } catch (e) {
-      console.warn('Error parsing manual edits for imports, using empty object')
+      console.warn("Error parsing manual edits for imports, using empty object")
       return {
         "./manual-edits.json": {},
       }
@@ -125,7 +130,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const updateSnippetMutation = useMutation({
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
-      
+
       // Validate manual edits before sending
       try {
         JSON.parse(manualEditsFileContent)
@@ -157,7 +162,10 @@ export function CodeAndPreview({ snippet }: Props) {
       console.error("Error saving snippet:", error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save the snippet. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to save the snippet. Please try again.",
         variant: "destructive",
       })
     },
