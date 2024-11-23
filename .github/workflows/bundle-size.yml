@@ -5,65 +5,53 @@
 # 3. Click on the "Size" workflow
 # 4. The bundle size report will be shown at the top of the job summary
 
-name: Size
+name: Bundle Size Report
 
-# Change trigger to workflow_dispatch
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'Pull Request Number'
-        required: true
-      base_ref:
-        description: 'Base Branch Reference'
-        required: true
-      head_ref:
-        description: 'Head Branch Reference'
-        required: true
-      head_sha:
-        description: 'Head Commit SHA'
-        required: true
+  workflow_run:
+    workflows: ["Trigger Size Check"]
+    types:
+      - completed
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  size:
-    name: Report bundle size
+  report:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
     steps:
-      - name: Checkout base branch
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Get PR number
+        uses: potiuk/get-workflow-origin@v1_5
+        id: workflow-origin
         with:
-          ref: ${{ github.event.inputs.base_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: bundle-stats
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
-      - name: Install dependencies (base)
+      - name: Install dependencies
         run: bun install
 
-      - name: Build with stats (base)
+      - name: Build base stats
         run: |
           VITE_BUNDLE_ANALYZE=true bun run build --mode production
           mv dist/stats.html dist/base-stats.html
-
-      - name: Checkout PR branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.head_ref }}
-
-      - name: Install dependencies (PR)
-        run: bun install
-
-      - name: Build with stats (PR)
-        run: |
-          VITE_BUNDLE_ANALYZE=true bun run build --mode production
 
       - name: Generate Bundle Size Report
         id: report
@@ -75,20 +63,20 @@ jobs:
           cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "### PR Branch Stats" >> $GITHUB_OUTPUT
-          cat dist/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
+          cat stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
         id: find-comment
         with:
-          issue-number: ${{ github.event.inputs.pr_number }}
+          issue-number: ${{ steps.workflow-origin.outputs.pull_request_number }}
           comment-author: 'github-actions[bot]'
           body-includes: '## 📦 Bundle Size Report'
 
       - name: Create or Update Comment
         uses: peter-evans/create-or-update-comment@v3
         with:
-          issue-number: ${{ github.event.inputs.pr_number }}
+          issue-number: ${{ steps.workflow-origin.outputs.pull_request_number }}
           body: ${{ steps.report.outputs.report }}
-          edit-mode: replace 
+          edit-mode: replace
