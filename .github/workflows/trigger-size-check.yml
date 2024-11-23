@@ -13,6 +13,7 @@ permissions:
   contents: read
   pull-requests: read
   actions: write
+  id-token: write
 
 jobs:
   trigger:
@@ -21,7 +22,7 @@ jobs:
       - name: Trigger Bundle Size Check
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
