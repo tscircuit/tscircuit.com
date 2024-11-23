@@ -13,7 +13,6 @@ permissions:
   contents: read
   pull-requests: read
   actions: write
-  workflows: write
 
 jobs:
   trigger:
