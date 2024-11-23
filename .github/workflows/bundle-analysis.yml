@@ -1,7 +1,6 @@
-                                                                                                                          
- name: Size Analysis                                                                                                       
+name: Size Analysis                                                                                                       
                                                                                                                            
- on:                                                                                                                       
+on:                                                                                                                       
    pull_request_target:                                                                                                    
      branches:                                                                                                             
        - main                                                                                                              
@@ -10,11 +9,11 @@
      branches:                                                                                                             
        - main                                                                                                              
                                                                                                                            
- permissions:                                                                                                              
+permissions:                                                                                                              
    pull-requests: write                                                                                                    
    contents: read                                                                                                          
                                                                                                                            
- jobs:                                                                                                                     
+jobs:                                                                                                                     
    size:                                                                                                                   
      name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
@@ -35,73 +34,26 @@
          run: bun install                                                                                                  
                                                                                                                            
        - name: Build with bundle analysis                                                                                  
-         run: VITE_BUNDLE_ANALYZE=true bun run build   
+         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
                                                                                                                            
-                                                                                                                                    
-       - name: Analyze bundle                                                                                                    
-         id: bundle-analysis                                                                                                     
-         run: |                                                                                                                  
-           echo "stats=$(jq -r '                                                                                                 
-             .children[] |                                                                                                       
-             select(.size > 1000) |                                                                                              
-             "\(.name): \(.size/1024|floor)KB"                                                                                   
-           ' stats.html | sort -rn -t: -k2)" >> $GITHUB_OUTPUT                                          
-
-       - name: Find Comment                                                                                                
-         uses: actions/github-script@v6                                                                                    
-         id: find-comment                                                                                                  
+       - name: Analyze bundle                                                                                              
+         id: bundle-analysis                                                                                               
+         run: |                                                                                                            
+           echo "stats=$(jq -r '                                                                                           
+             .children[] |                                                                                                 
+             select(.size > 1000) |                                                                                        
+             "\(.name): \(.size/1024|floor)KB"                                                                             
+           ' stats.html | sort -rn -t: -k2)" >> $GITHUB_OUTPUT                                                             
+                                                                                                                           
+       - name: Add PR Comment                                                                                              
+         uses: mshick/add-pr-comment@v2                                                                                    
          with:                                                                                                             
-           script: |                                                                                                       
-             const { data: comments } = await github.rest.issues.listComments({                                            
-               owner: context.repo.owner,                                                                                  
-               repo: context.repo.repo,                                                                                    
-               issue_number: context.issue.number,                                                                         
-             });                                                                                                           
-             const botComment = comments.find(comment => {                                                                 
-               return comment.user.type === 'Bot' && comment.body.includes('Bundle Size Report');                          
-             });                                                                                                           
-             return botComment ? botComment.id : null;                                                                     
-           result-encoding: string                                                                                         
-           
-                                                                                                                                      
-       - name: Comment on PR                                                                                                     
-         uses: actions/github-script@v6                                                                                          
-         env:                                                                                                                    
-           BUNDLE_STATS: ${{ steps.bundle-analysis.outputs.stats }}                                                              
-         with:
-           github-token: ${{ secrets.GITHUB_TOKEN }}
-           script: |                                                                                                             
-             const commentBody = `Bundle Size Report                                                                          
-                                                                                                                                 
-             Showing modules larger than 1KB:                                                                                    
-                                                                                                                                 
-             ${process.env.BUNDLE_STATS || 'No bundle stats available'}`;                                                        
-                                                                                                                                 
-             const commentId = ${{ steps.find-comment.outputs.result }};  // Remove quotes, let it be null if not found          
-                                                                                                                                 
-             if (commentId) {                                                                                                    
-               try {                                                                                                             
-                 await github.rest.issues.updateComment({                                                                        
-                   owner: context.repo.owner,                                                                                    
-                   repo: context.repo.repo,                                                                                      
-                   comment_id: commentId,                                                                                        
-                   body: commentBody                                                                                             
-                 });                                                                                                             
-               } catch (error) {                                                                                                 
-                 console.log('Error updating comment:', error);                                                                  
-                 // If update fails, try to create a new comment                                                                 
-                 await github.rest.issues.createComment({                                                                        
-                   owner: context.repo.owner,                                                                                    
-                   repo: context.repo.repo,                                                                                      
-                   issue_number: context.issue.number,                                                                           
-                   body: commentBody                                                                                             
-                 });                                                                                                             
-               }                                                                                                                 
-             } else {                                                                                                            
-               await github.rest.issues.createComment({                                                                          
-                 owner: context.repo.owner,                                                                                      
-                 repo: context.repo.repo,                                                                                        
-                 issue_number: context.issue.number,                                                                             
-                 body: commentBody                                                                                               
-               });                                                                                                               
-             }
+           message: |                                                                                                      
+             Bundle Size Report                                                                                            
+                                                                                                                           
+             Showing modules larger than 1KB:                                                                              
+                                                                                                                           
+             ${{ steps.bundle-analysis.outputs.stats }}                                                                    
+           repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+           allow-repeats: false                                                                                            
+                                 
