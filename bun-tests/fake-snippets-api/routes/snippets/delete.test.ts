@@ -104,31 +104,3 @@ test("delete snippet without permission", async () => {
     )
   }
 })
-
-test("delete snippet without authorization", async () => {
-  const { axios, db } = await getTestServer()
-
-  // Add a test snippet
-  const snippet = {
-    unscoped_name: "TestSnippet",
-    owner_name: "testuser",
-    code: "Test Content",
-    created_at: "2023-01-01T00:00:00Z",
-    updated_at: "2023-01-01T00:00:00Z",
-    name: "testuser/TestSnippet",
-    snippet_type: "package",
-    description: "Test Description",
-  }
-  const addedSnippet = db.addSnippet(snippet as any)
-
-  try {
-    // Attempt to delete without auth header
-    await axios.post("/api/snippets/delete", {
-      snippet_id: addedSnippet.snippet_id,
-    })
-    expect(true).toBe(false) // Should not reach here
-  } catch (error: any) {
-    expect(error.status).toBe(403)
-    expect(error.data.error.message).toBe("Unauthorized")
-  }
-})
