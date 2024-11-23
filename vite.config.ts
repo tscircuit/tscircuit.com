@@ -8,6 +8,7 @@ import { getNodeHandler } from "winterspec/adapters/node"
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
 
+// Create database instance with seed data for development
 const db = createDatabase({ seed: true })
 
 const fakeHandler = getNodeHandler(winterspecBundle as any, {
