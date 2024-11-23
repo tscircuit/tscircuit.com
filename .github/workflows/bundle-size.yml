@@ -85,15 +85,20 @@ jobs:
               });
               
               if (!pr.data.items?.length) {
-                throw new Error('No PR found for this commit');
+                console.log('No PR found for this commit');
+                return;
               }
               
               const prNumber = pr.data.items[0].number;
               const report = process.env.REPORT;
 
               if (!report) {
-                throw new Error('No report data found');
+                console.log('No report data found');
+                return;
               }
+
+              console.log('Attempting to comment on PR:', prNumber);
+              console.log('Report content:', report);
 
               // Find existing comment
               const comments = await github.rest.issues.listComments({
@@ -114,11 +119,13 @@ jobs:
               };
 
               if (existingComment) {
+                console.log('Updating existing comment:', existingComment.id);
                 await github.rest.issues.updateComment({
                   ...commentBody,
                   comment_id: existingComment.id
                 });
               } else {
+                console.log('Creating new comment');
                 await github.rest.issues.createComment({
                   ...commentBody,
                   issue_number: prNumber
@@ -126,7 +133,7 @@ jobs:
               }
             } catch (error) {
               console.error('Error in PR comment creation:', error);
-              core.setFailed(error.message);
+              core.setFailed(`Failed to comment on PR: ${error.message}`);
             }
         env:
           REPORT: ${{ steps.report.outputs.report }}
