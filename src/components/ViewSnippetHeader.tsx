@@ -96,11 +96,23 @@ export default function ViewSnippetHeader() {
                 qc.invalidateQueries(["snippets", snippet!.snippet_id])
               } catch (error: any) {
                 if (error?.status === 400) {
-                  toast({
-                    title: "Already starred",
-                    description: "You've already starred this snippet",
-                    variant: "destructive",
-                  })
+                  try {
+                    await axios.post("/snippets/remove_star", {
+                      snippet_id: snippet!.snippet_id,
+                    })
+                    snippet!.is_starred = false
+                    toast({
+                      title: "Unstarred!",
+                      description: "You've unstarred this snippet",
+                    })
+                    qc.invalidateQueries(["snippets", snippet!.snippet_id])
+                  } catch (error: any) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to unstar snippet",
+                      variant: "destructive",
+                    })
+                  }
                 } else {
                   toast({
                     title: "Error",
@@ -111,8 +123,10 @@ export default function ViewSnippetHeader() {
               }
             }}
           >
-            <Star className="w-4 h-4 mr-2" />
-            Star{" "}
+            <Star
+              className={`w-4 h-4 mr-2 ${snippet!.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
+            />
+            {snippet!.is_starred ? "Starred" : "Star"}
             {snippet!.star_count > 0 && (
               <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
                 {snippet!.star_count}

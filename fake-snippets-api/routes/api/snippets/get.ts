@@ -4,7 +4,7 @@ import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
-  auth: "none",
+  auth: "optional_session",
   commonParams: z.object({
     snippet_id: z.string().optional(),
     name: z.string().optional(),
@@ -33,6 +33,14 @@ export default withRouteSpec({
       error_code: "snippet_not_found",
       message: `Snippet not found (searched using ${JSON.stringify(req.commonParams)})`,
     })
+  }
+
+  if (ctx.auth) {
+    const starred = ctx.db.hasStarred(
+      ctx.auth.account_id,
+      foundSnippet.snippet_id,
+    )
+    foundSnippet.is_starred = starred
   }
 
   return ctx.json({

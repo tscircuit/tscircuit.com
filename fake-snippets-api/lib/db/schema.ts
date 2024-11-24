@@ -5,6 +5,7 @@ export const snippetSchema = z.object({
   name: z.string(),
   unscoped_name: z.string(),
   owner_name: z.string(),
+  is_starred: z.boolean().default(false),
   code: z.string(),
   dts: z.string().optional(),
   compiled_js: z.string().optional().nullable(),

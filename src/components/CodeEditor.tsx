@@ -160,6 +160,7 @@ export const CodeEditor = ({
                 to: viewRef.current.state.doc.length,
                 insert: viewRef.current.state.doc.toString(),
               },
+              selection: viewRef.current.state.selection,
             })
           }
         },
