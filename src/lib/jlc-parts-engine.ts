@@ -42,6 +42,27 @@ export const jlcPartsEngine: PartsEngine = {
       return {
         jlcpcb: capacitors.map((c: any) => `C${c.lcsc}`).slice(0, 3),
       }
+    } else if (sourceComponent.ftype === "simple_pin_header") {
+      let pitch
+      if (footprinterString?.includes("_p")) {
+        pitch = footprinterString.split("_p")[1]
+      }
+      const { headers } = await getJlcPartsCached(
+        "headers",
+        pitch
+          ? {
+              pitch: pitch,
+              num_pins: sourceComponent.pin_count,
+              gender: sourceComponent.gender,
+            }
+          : {
+              num_pins: sourceComponent.pin_count,
+              gender: sourceComponent.gender,
+            },
+      )
+      return {
+        jlcpcb: headers.map((h: any) => `C${h.lcsc}`).slice(0, 3),
+      }
     }
     return {}
   },
