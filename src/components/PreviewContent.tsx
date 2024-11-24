@@ -6,6 +6,7 @@ import { CadViewer } from "@tscircuit/3d-viewer"
 import { PCBViewer } from "@tscircuit/pcb-viewer"
 import { Schematic } from "@tscircuit/schematic-viewer"
 import { useEffect, useState } from "react"
+import { ErrorFallback } from "./ErrorFallback"
 import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
 import PreviewEmptyState from "./PreviewEmptyState"
@@ -260,7 +261,7 @@ export const PreviewContent = ({
           </TabsContent>
           <TabsContent value="cad">
             <div className="mt-4 h-[500px]">
-              <ErrorBoundary fallback={<div>Error loading 3D viewer</div>}>
+              <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
                   <CadViewer soup={circuitJson as any} />
                 ) : (
