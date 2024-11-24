@@ -90,7 +90,7 @@ export function CodeAndPreview({ snippet }: Props) {
         setManualEditsFileContent(JSON.stringify(manualEditsTemplate, null, 2))
       }
     }
-  }, [snippet?.manual_edits_json])
+  }, [Boolean(snippet?.manual_edits_json)])
 
   // Safely parse userImports with error handling
   const userImports = useMemo(() => {
