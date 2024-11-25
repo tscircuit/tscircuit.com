@@ -1,4 +1,4 @@
- name: Size Analysis                                                                                                       
+ name: Bundle Size Analysis                                                                                                
                                                                                                                            
  on:                                                                                                                       
    pull_request_target:                                                                                                    
@@ -14,15 +14,16 @@
    contents: read                                                                                                          
                                                                                                                            
  jobs:                                                                                                                     
-   size:                                                                                                                   
-     name: Report bundle size                                                                                              
+   analyze:                                                                                                                
+     name: Analyze Bundle Size                                                                                             
      runs-on: ubuntu-latest                                                                                                
      timeout-minutes: 30                                                                                                   
      steps:                                                                                                                
-       - name: Checkout PR                                                                                                 
+       # First checkout and build main                                                                                     
+       - name: Checkout main                                                                                               
          uses: actions/checkout@v3                                                                                         
          with:                                                                                                             
-           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}      
+           ref: main                                                                                                       
            persist-credentials: false                                                                                      
                                                                                                                            
        - name: Setup Bun                                                                                                   
@@ -30,31 +31,111 @@
          with:                                                                                                             
            bun-version: latest                                                                                             
                                                                                                                            
-       - name: Install dependencies                                                                                        
+       - name: Install dependencies (main)                                                                                 
          run: bun install                                                                                                  
                                                                                                                            
-       - name: Build with bundle analysis                                                                                  
+       - name: Build main branch                                                                                           
          run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
                                                                                                                            
-       - name: Analyze bundle                                                                                              
-         id: bundle-analysis                                                                                               
+       - name: Save main stats                                                                                             
+         run: cp stats.html main-stats.html                                                                                
+                                                                                                                           
+       # Now checkout and build PR                                                                                         
+       - name: Checkout PR                                                                                                 
+         uses: actions/checkout@v3                                                                                         
+         with:                                                                                                             
+           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}      
+           persist-credentials: false                                                                                      
+                                                                                                                           
+       - name: Install dependencies (PR)                                                                                   
+         run: bun install                                                                                                  
+                                                                                                                           
+       - name: Build PR branch                                                                                             
+         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
+                                                                                                                           
+       - name: Generate Size Report                                                                                        
+         id: size-report                                                                                                   
          run: |                                                                                                            
-           echo "stats=$(jq -r '                                                                                           
+           # Get total sizes and calculate difference                                                                      
+           main_total=$(jq -r '.size' main-stats.html)                                                                     
+           pr_total=$(jq -r '.size' stats.html)                                                                            
+           main_total_kb=$((main_total / 1024))                                                                            
+           pr_total_kb=$((pr_total / 1024))                                                                                
+           diff_kb=$((pr_total_kb - main_total_kb))                                                                        
+           diff_percent=$(( (diff_kb * 100) / main_total_kb ))                                                             
+                                                                                                                           
+           # Format the difference with sign                                                                               
+           if [ $diff_kb -ge 0 ]; then                                                                                     
+             diff_formatted="+${diff_kb}"                                                                                  
+             diff_percent_formatted="+${diff_percent}"                                                                     
+           else                                                                                                            
+             diff_formatted="${diff_kb}"                                                                                   
+             diff_percent_formatted="${diff_percent}"                                                                      
+           fi                                                                                                              
+                                                                                                                           
+           echo "main_total=$main_total_kb" >> $GITHUB_OUTPUT                                                              
+           echo "pr_total=$pr_total_kb" >> $GITHUB_OUTPUT                                                                  
+           echo "diff=$diff_formatted" >> $GITHUB_OUTPUT                                                                   
+           echo "diff_percent=$diff_percent_formatted" >> $GITHUB_OUTPUT                                                   
+                                                                                                                           
+           # Get breakdown of major chunks and dependencies                                                                
+           echo "breakdown=$(jq -r '                                                                                       
              .children[] |                                                                                                 
-             select(.size > 1000) |                                                                                        
-             "\(.name): \(.size/1024|floor)KB"                                                                             
-           ' stats.html | sort -rn -t: -k2)" >> $GITHUB_OUTPUT                                                             
+             select(.size > 5000) |                                                                                        
+             {                                                                                                             
+               name: .name,                                                                                                
+               size: (.size/1024|floor),                                                                                   
+               percent: ((.size/.parent.size)*100|floor)                                                                   
+             } |                                                                                                           
+             "\(.name): \(.size)KB (\(.percent)%)"                                                                         
+           ' stats.html | sort -rn -t: -k2 | head -n 10)" >> $GITHUB_OUTPUT                                                
+                                                                                                                           
+           # Get asset types breakdown                                                                                     
+           echo "assets=$(jq -r '                                                                                          
+             .children[] |                                                                                                 
+             select(.name | endswith(".js") or endswith(".css") or endswith(".html")) |                                    
+             {                                                                                                             
+               type: (.name | split(".") | last),                                                                          
+               size: .size                                                                                                 
+             }                                                                                                             
+           ' stats.html | jq -s 'group_by(.type) | map({                                                                   
+             type: .[0].type,                                                                                              
+             total_size: (map(.size) | add | . / 1024 | floor)                                                             
+           }) | map("\(.type): \(.total_size)KB")[]' | sort -r)" >> $GITHUB_OUTPUT                                         
                                                                                                                            
        - name: Add PR Comment                                                                                              
          uses: mshick/add-pr-comment@v2                                                                                    
          with:                                                                                                             
            message: |                                                                                                      
-             Bundle Size Report                                                                                            
+             # 📦 Bundle Size Report                                                                                       
                                                                                                                            
-             Showing modules larger than 1KB:                                                                              
+             ## Total Bundle Size                                                                                          
+             Current: **${{ steps.size-report.outputs.pr_total }}KB**                                                      
+             Diff from main: **${{ steps.size-report.outputs.diff }}KB (${{ steps.size-report.outputs.diff_percent }}%)**  
                                                                                                                            
-             ${{ steps.bundle-analysis.outputs.stats }}                                                                    
+             > Base size (main): ${{ steps.size-report.outputs.main_total }}KB                                             
+                                                                                                                           
+             ## Top Chunks by Size                                                                                         
+             Showing modules larger than 5KB:                                                                              
+             ```                                                                                                           
+             ${{ steps.size-report.outputs.breakdown }}                                                                    
+             ```                                                                                                           
+                                                                                                                           
+             ## Assets by Type                                                                                             
+             ```                                                                                                           
+             ${{ steps.size-report.outputs.assets }}                                                                       
+             ```                                                                                                           
+                                                                                                                           
+             <details>                                                                                                     
+             <summary>ℹ️ About this report</summary>                                                                       
+                                                                                                                           
+             - Sizes are shown in kilobytes (KB)                                                                           
+             - Percentages show relative size compared to total bundle                                                     
+             - Only modules larger than 5KB are listed                                                                     
+             - Asset types include .js, .css, and .html files                                                              
+             - Diff shows size change compared to main branch                                                              
+             </details>                                                                                                    
            proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
            repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
            allow-repeats: false                                                                                            
-                                       
+
