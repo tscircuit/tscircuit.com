@@ -40,7 +40,7 @@ let proxy: any = undefined
  let plugins: any[] = [                                                                                                    
    react(),                                                                                                                
    visualizer({                                                                                                            
-     filename: "dist/stats.html",                                                                                          
+     filename: "stats.html",                                                                                          
      gzipSize: true,                                                                                                       
      brotliSize: true,                                                                                                     
      open: false,                                                                                                          
