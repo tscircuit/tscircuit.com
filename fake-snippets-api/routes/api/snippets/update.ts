@@ -13,7 +13,7 @@ export default withRouteSpec({
     dts: z.string().optional(),
     compiled_js: z.string().optional().nullable(),
     circuit_json: z.array(z.record(z.any())).optional().nullable(),
-    manual_edits_json: z.string().optional().nullable(),
+    manual_edits_json_content: z.string().optional().nullable(),
     snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   }),
   jsonResponse: z.object({
@@ -30,7 +30,7 @@ export default withRouteSpec({
     compiled_js,
     circuit_json,
     snippet_type,
-    manual_edits_json,
+    manual_edits_json_content,
   } = req.jsonBody
 
   const snippetIndex = ctx.db.snippets.findIndex(
@@ -62,10 +62,10 @@ export default withRouteSpec({
       : snippet.name,
     dts: dts ?? snippet.dts,
     compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
-    manual_edits_json:
-      manual_edits_json !== undefined
-        ? manual_edits_json
-        : snippet.manual_edits_json,
+    manual_edits_json_content:
+      manual_edits_json_content !== undefined
+        ? manual_edits_json_content
+        : snippet.manual_edits_json_content,
     circuit_json:
       circuit_json !== undefined ? circuit_json : snippet.circuit_json,
     snippet_type: snippet_type ?? snippet.snippet_type,

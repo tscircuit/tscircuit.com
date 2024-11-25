@@ -8,7 +8,6 @@ import { useUrlParams } from "@/hooks/use-url-params"
 import useWarnUser from "@/hooks/use-warn-user"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
-import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { cn } from "@/lib/utils"
 import "@/prettier"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -17,6 +16,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
+import { parseJsonOrString } from "@/lib/utils/parseJson"
 
 interface Props {
   snippet?: Snippet | null
@@ -26,7 +26,6 @@ export function CodeAndPreview({ snippet }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
-  const { toast } = useToast()
   const templateFromUrl = useMemo(
     () => getSnippetTemplate(urlParams.template),
     [],
@@ -42,22 +41,7 @@ export function CodeAndPreview({ snippet }: Props) {
     )
   }, [])
 
-  // Initialize manualEditsFileContent with proper validation
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(() => {
-    try {
-      const initialContent =
-        snippet?.manual_edits_json ??
-        JSON.stringify(manualEditsTemplate, null, 2)
-      // Validate that it's parseable JSON
-      JSON.parse(initialContent)
-      return initialContent
-    } catch (e) {
-      console.warn(
-        "Invalid initial manual edits content, using default template",
-      )
-      return JSON.stringify(manualEditsTemplate, null, 2)
-    }
-  })
+  const [manualEditsFileContent, setManualEditsFileContent] = useState("{}")
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -73,38 +57,20 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }, [Boolean(snippet)])
 
-  // Update manual edits when snippet changes, with validation
-  useEffect(() => {
-    if (snippet?.manual_edits_json) {
-      try {
-        JSON.parse(snippet.manual_edits_json)
-        setManualEditsFileContent(snippet.manual_edits_json)
-      } catch (e) {
-        console.warn("Invalid manual edits JSON from snippet")
-        toast({
-          title: "Warning",
-          description:
-            "Invalid manual edits format in snippet. Using default template.",
-          variant: "destructive",
-        })
-        setManualEditsFileContent(JSON.stringify(manualEditsTemplate, null, 2))
-      }
-    }
-  }, [Boolean(snippet?.manual_edits_json)])
+  const { toast } = useToast()
 
-  // Safely parse userImports with error handling
-  const userImports = useMemo(() => {
-    try {
-      return {
-        "./manual-edits.json": JSON.parse(manualEditsFileContent),
-      }
-    } catch (e) {
-      console.warn("Error parsing manual edits for imports, using empty object")
-      return {
-        "./manual-edits.json": {},
-      }
+  useEffect(() => {
+    if (snippet?.manual_edits_json_content) {
+      setManualEditsFileContent(snippet.manual_edits_json_content)
     }
-  }, [manualEditsFileContent])
+  }, [Boolean(snippet?.manual_edits_json_content)])
+
+  const userImports = useMemo(
+    () => ({
+      "./manual-edits.json": parseJsonOrString(manualEditsFileContent),
+    }),
+    [manualEditsFileContent],
+  )
 
   const {
     message,
@@ -144,7 +110,7 @@ export function CodeAndPreview({ snippet }: Props) {
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
-        manual_edits_json: manualEditsFileContent,
+        manual_edits_json_content: manualEditsFileContent,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -180,14 +146,14 @@ export function CodeAndPreview({ snippet }: Props) {
       createSnippetMutation.mutate({
         code,
         circuit_json: circuitJson as any,
-        manual_edits_json: manualEditsFileContent,
+        manual_edits_json_content: manualEditsFileContent,
       })
     }
   }
 
   const hasUnsavedChanges =
     snippet?.code !== code ||
-    snippet?.manual_edits_json !== manualEditsFileContent
+    snippet?.manual_edits_json_content !== manualEditsFileContent
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 

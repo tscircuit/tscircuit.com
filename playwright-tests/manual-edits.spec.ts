@@ -19,7 +19,7 @@ test("Manual edits test", async ({ page }) => {
   // Wait for file content to load
   await page.waitForLoadState("networkidle")
 
-  const emptyPlacementsText = page.getByText('"pcb_placements": []')
+  const emptyPlacementsText = page.getByText("{}")
   await emptyPlacementsText.waitFor({ state: "visible" })
   await emptyPlacementsText.click()
 
