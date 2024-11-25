@@ -38,7 +38,7 @@
          env:                                                                                                              
            VITE_BUNDLE_ANALYZE: "true"
          run: |                                                                                                            
-           VITE_BUNDLE_ANALYZE=true bun run build
+           bun run build
            ls dist
            ls -la dist/stats.html || echo "Stats file not found"
                                                                                                                            
@@ -61,7 +61,7 @@
        - name: Build PR branch 
          env:                                                                                                              
            VITE_BUNDLE_ANALYZE: "true"
-         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                                   
+         run: bun run build                                                                                   
                                                                                                                            
        - name: Generate Size Report                                                                                        
          id: size-report                                                                                                   
