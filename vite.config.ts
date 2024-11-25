@@ -36,20 +36,17 @@ function apiFakePlugin(): Plugin {
   }
 }
 
-let plugins: any[] = [react()]
 let proxy: any = undefined
-if (process.env.VITE_BUNDLE_ANALYZE === "true") {
-  console.log('env worked')
-  plugins.push(
-    visualizer({
-      filename: "dist/stats.html",
-      gzipSize: true,
-      brotliSize: true,
-      open: false,
-      json: true,
-    }),
-  )
-}
+ let plugins: any[] = [                                                                                                    
+   react(),                                                                                                                
+   visualizer({                                                                                                            
+     filename: "dist/stats.html",                                                                                          
+     gzipSize: true,                                                                                                       
+     brotliSize: true,                                                                                                     
+     open: false,                                                                                                          
+     json: true,                                                                                                           
+   })                                                                                                                      
+ ]
 
 if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
   process.env.VITE_USE_FAKE_API = "true"
