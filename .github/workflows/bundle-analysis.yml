@@ -1,6 +1,6 @@
-name: Size Analysis                                                                                                       
+ name: Size Analysis                                                                                                       
                                                                                                                            
-on:                                                                                                                       
+ on:                                                                                                                       
    pull_request_target:                                                                                                    
      branches:                                                                                                             
        - main                                                                                                              
@@ -9,11 +9,11 @@ on:
      branches:                                                                                                             
        - main                                                                                                              
                                                                                                                            
-permissions:                                                                                                              
+ permissions:                                                                                                              
    pull-requests: write                                                                                                    
    contents: read                                                                                                          
                                                                                                                            
-jobs:                                                                                                                     
+ jobs:                                                                                                                     
    size:                                                                                                                   
      name: Report bundle size                                                                                              
      runs-on: ubuntu-latest                                                                                                
@@ -54,6 +54,7 @@ jobs:
              Showing modules larger than 1KB:                                                                              
                                                                                                                            
              ${{ steps.bundle-analysis.outputs.stats }}                                                                    
+           proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
            repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
            allow-repeats: false                                                                                            
-                                 
+                                       
