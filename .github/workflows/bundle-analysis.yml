@@ -38,12 +38,14 @@
          env:                                                                                                              
            VITE_BUNDLE_ANALYZE: "true"
          run: |                                                                                                            
-           VITE_BUNDLE_ANALYZE=true bun run build                                                                                      
-           ls -la dist/stats.html || echo "Stats file not found"                                                           
+           VITE_BUNDLE_ANALYZE=true bun run build
+           ls dist
+           ls -la dist/stats.html || echo "Stats file not found"
                                                                                                                            
        - name: Save main stats                                                                                             
          run: |                                                                                                            
-           mkdir -p /tmp/stats                                                                                             
+           mkdir -p /tmp/stats
+           ls dist
            cp dist/stats.html /tmp/stats/main-stats.html                                                                   
                                                                                                                            
        # Now checkout and build PR                                                                                         
