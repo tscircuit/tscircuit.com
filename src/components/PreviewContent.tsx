@@ -13,13 +13,20 @@ import { RunButton } from "./RunButton"
 import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { CircuitToSvgWithMouseControl } from "./CircuitToSvgWithMouseControl"
 import { BomTable } from "./BomTable"
-import { CheckIcon, EllipsisIcon, EllipsisVerticalIcon } from "lucide-react"
+import {
+  CheckIcon,
+  EllipsisIcon,
+  EllipsisVerticalIcon,
+  FullscreenIcon,
+  MinimizeIcon,
+} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
+import { Button } from "./ui/button"
 
 export interface PreviewContentProps {
   code: string
@@ -37,6 +44,8 @@ export interface PreviewContentProps {
   leftHeaderContent?: React.ReactNode
   isRunningCode?: boolean
   isStreaming?: boolean
+  onFullScreen?: () => void
+  isFullScreen?: boolean
   onCodeChange?: (code: string) => void
   onDtsChange?: (dts: string) => void
   manualEditsFileContent?: string
@@ -58,6 +67,8 @@ export const PreviewContent = ({
   leftHeaderContent,
   readOnly,
   isStreaming,
+  onFullScreen,
+  isFullScreen,
   isRunningCode,
   onCodeChange,
   onDtsChange,
@@ -195,6 +206,18 @@ export const PreviewContent = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </TabsList>
+            {onFullScreen && (
+              <Button
+                onClick={onFullScreen}
+                className="rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
+              >
+                {isFullScreen ? (
+                  <MinimizeIcon size={16} />
+                ) : (
+                  <FullscreenIcon size={16} />
+                )}
+              </Button>
+            )}
           </div>
           {showCodeTab && (
             <TabsContent value="code" className="flex-grow overflow-hidden">
