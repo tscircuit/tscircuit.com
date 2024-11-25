@@ -39,6 +39,7 @@ function apiFakePlugin(): Plugin {
 let plugins: any[] = [react()]
 let proxy: any = undefined
 if (process.env.VITE_BUNDLE_ANALYZE === "true") {
+  console.log('env worked')
   plugins.push(
     visualizer({
       filename: "dist/stats.html",
