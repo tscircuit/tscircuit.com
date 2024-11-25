@@ -35,10 +35,14 @@
          run: bun install                                                                                                  
                                                                                                                            
        - name: Build main branch                                                                                           
-         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
+         run: |                                                                                                            
+           ANALYZE=true bun run build                                                                                      
+           ls -la dist/stats.html || echo "Stats file not found"                                                           
                                                                                                                            
        - name: Save main stats                                                                                             
-         run: cp stats.html main-stats.html                                                                                
+         run: |                                                                                                            
+           mkdir -p /tmp/stats                                                                                             
+           cp dist/stats.html /tmp/stats/main-stats.html                                                                   
                                                                                                                            
        # Now checkout and build PR                                                                                         
        - name: Checkout PR                                                                                                 
@@ -51,14 +55,14 @@
          run: bun install                                                                                                  
                                                                                                                            
        - name: Build PR branch                                                                                             
-         run: VITE_BUNDLE_ANALYZE=true bun run build                                                                       
+         run: ANALYZE=true bun run build                                                                                   
                                                                                                                            
        - name: Generate Size Report                                                                                        
          id: size-report                                                                                                   
          run: |                                                                                                            
            # Get total sizes and calculate difference                                                                      
-           main_total=$(jq -r '.size' main-stats.html)                                                                     
-           pr_total=$(jq -r '.size' stats.html)                                                                            
+           main_total=$(jq -r '.size' /tmp/stats/main-stats.html)                                                          
+           pr_total=$(jq -r '.size' dist/stats.html)                                                                       
            main_total_kb=$((main_total / 1024))                                                                            
            pr_total_kb=$((pr_total / 1024))                                                                                
            diff_kb=$((pr_total_kb - main_total_kb))                                                                        
@@ -88,7 +92,7 @@
                percent: ((.size/.parent.size)*100|floor)                                                                   
              } |                                                                                                           
              "\(.name): \(.size)KB (\(.percent)%)"                                                                         
-           ' stats.html | sort -rn -t: -k2 | head -n 10)" >> $GITHUB_OUTPUT                                                
+           ' dist/stats.html | sort -rn -t: -k2 | head -n 10)" >> $GITHUB_OUTPUT                                           
                                                                                                                            
            # Get asset types breakdown                                                                                     
            echo "assets=$(jq -r '                                                                                          
@@ -98,7 +102,7 @@
                type: (.name | split(".") | last),                                                                          
                size: .size                                                                                                 
              }                                                                                                             
-           ' stats.html | jq -s 'group_by(.type) | map({                                                                   
+           ' dist/stats.html | jq -s 'group_by(.type) | map({                                                              
              type: .[0].type,                                                                                              
              total_size: (map(.size) | add | . / 1024 | floor)                                                             
            }) | map("\(.type): \(.total_size)KB")[]' | sort -r)" >> $GITHUB_OUTPUT                                         
@@ -138,4 +142,3 @@
            proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
            repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
            allow-repeats: false                                                                                            
-

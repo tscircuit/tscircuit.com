@@ -36,18 +36,20 @@ function apiFakePlugin(): Plugin {
   }
 }
 
-let plugins: any[] = [react()]
-let proxy: any = undefined
-if (process.env.VITE_BUNDLE_ANALYZE === "true") {
-  plugins.push(
-    visualizer({
-      filename: "stats.html",
-      gzipSize: true,
-      brotliSize: true,
-      open: false,
-    }),
-  )
-}
+ let plugins: any[] = [react()]                                                                                            
+ let proxy: any = undefined                                                                                                
+ if (process.env.VITE_BUNDLE_ANALYZE === "true") {                                                                         
+   plugins.push(                                                                                                           
+     visualizer({                                                                                                          
+       filename: "stats.html",                                               
+       gzipSize: true,                                                                                                     
+       brotliSize: true,                                                                                                   
+       open: false,                                                                                                        
+       json: true,
+     }),                                                                                                                   
+   )                                                                                                                       
+ }                                                                                                                         
+        
 if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
   process.env.VITE_USE_FAKE_API = "true"
   console.log("Using fake snippets API (see ./fake-snippets-api)")
