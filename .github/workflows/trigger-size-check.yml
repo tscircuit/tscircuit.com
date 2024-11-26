@@ -32,6 +32,15 @@ jobs:
         run: |
           VITE_BUNDLE_ANALYZE=true bun run build --mode production
 
+      - name: Save stats as artifact                                                                                      
+        if: success()                                                                                                     
+        uses: actions/upload-artifact@v3                                                                                  
+        with:                                                                                                             
+          name: bundle-stats                                                                                              
+          path: dist/stats.html                                                                                           
+                                                                                                                           
+
+
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
         uses: mshick/add-pr-comment@v2                                                                                    
