@@ -44,42 +44,49 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Calculate total size                                                                                        
-            TOTAL_BYTES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ sum += $1 } END { print sum }')                                                                                           
+            # Debug total size calculation                                                                                
+            echo "Calculating total size..."                                                                              
+            SIZES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://')                
+            TOTAL_BYTES=$(echo "$SIZES" | awk '{ sum += $1 } END { print sum }')                                          
             TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
+            echo "Total MB: $TOTAL_MB"                                                                                    
                                                                                                                           
-            echo "Extracting package information..."                                                                      
-                                                                                                                          
-            # Extract the data section and node_modules entries                                                           
-            echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
-            echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
-            echo "" >> $GITHUB_OUTPUT                                                                                     
-            echo "Total Bundle Size: **${TOTAL_MB} MB**" >> $GITHUB_OUTPUT                                                
-            echo "" >> $GITHUB_OUTPUT                                                                                     
-            echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
-            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
-                                                                                                                          
-            # Debug: Show what we're finding                                                                              
+            # Debug dependency extraction                                                                                 
             echo "Finding node_modules entries..."                                                                        
+            # Store the node modules data in a temporary file to avoid pipe issues                                        
+            cat dist/stats.html | grep -A1 'node_modules' | grep -B1 '"renderedLength"' > temp_modules.txt                
                                                                                                                           
-            cat dist/stats.html | grep -o '"name":"[^"]*node_modules[^"]*"' | \                                           
-              sed 's/"name":"//g' | \                                                                                     
-              sed 's/"$//g' | \                                                                                           
-            while read -r path; do                                                                                        
-              if [[ $path == *"node_modules/"* ]]; then                                                                   
-                PKG_NAME=$(echo "$path" | grep -o 'node_modules/[^/]*' | sed 's|node_modules/||')                         
-                SIZE=$(cat dist/stats.html | grep -A1 "\"$path\"" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)    
-                if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                           
-                  KB_SIZE=$((SIZE/1024))                                                                                  
-                  echo "$PKG_NAME $KB_SIZE"                                                                               
+            # Create the output                                                                                           
+            {                                                                                                             
+              echo "stats<<EOF"                                                                                           
+              echo "## 📦 Bundle Size Analysis"                                                                           
+              echo ""                                                                                                     
+              echo "Total Bundle Size: **${TOTAL_MB} MB**"                                                                
+              echo ""                                                                                                     
+              echo "### Top Dependencies"                                                                                 
+              echo "\`\`\`"                                                                                               
+                                                                                                                          
+              # Process dependencies                                                                                      
+              while IFS= read -r NAME || [ -n "$NAME" ]; do                                                               
+                IFS= read -r SIZE_LINE || [ -n "$SIZE_LINE" ]                                                             
+                if [[ $NAME == *"node_modules"* ]]; then                                                                  
+                  PKG_NAME=$(echo "$NAME" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///')                     
+                  SIZE=$(echo "$SIZE_LINE" | grep -o '[0-9]*')                                                            
+                  if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                         
+                    KB_SIZE=$((SIZE/1024))                                                                                
+                    printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                        
+                  fi                                                                                                      
                 fi                                                                                                        
-              fi                                                                                                          
-            done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
+              done < temp_modules.txt | sort -k2 -nr | head -n 10                                                         
                                                                                                                           
-            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
-            echo "EOF" >> $GITHUB_OUTPUT                                                                                  
+              echo "\`\`\`"                                                                                               
+              echo "EOF"                                                                                                  
+            } >> $GITHUB_OUTPUT                                                                                           
                                                                                                                           
-            # Debug: Show the final output                                                                                
+            # Clean up                                                                                                    
+            rm temp_modules.txt                                                                                           
+                                                                                                                          
+            # Show final output for debugging                                                                             
             echo "Final output:"                                                                                          
             cat $GITHUB_OUTPUT                                                                                            
           else                                                                                                            
