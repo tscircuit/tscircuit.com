@@ -44,23 +44,11 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Debug total size calculation                                                                                
-            echo "Calculating total size..."                                                                              
-            SIZES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://')                
-            echo "Found sizes:"                                                                                           
-            echo "$SIZES"                                                                                                 
-            TOTAL_BYTES=$(echo "$SIZES" | awk '{ sum += $1 } END { print sum }')                                          
-            echo "Total bytes: $TOTAL_BYTES"                                                                              
+            # Calculate total size                                                                                        
+            TOTAL_BYTES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ sum += $1 } END { print sum }')                                                                                           
             TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
-            echo "Total MB: $TOTAL_MB"                                                                                    
                                                                                                                           
-            # Debug dependency extraction                                                                                 
-            echo "Finding node_modules entries..."                                                                        
-            NODE_MODULES=$(cat dist/stats.html | grep -A1 'node_modules' | grep -B1 '"renderedLength"')                   
-            echo "Node modules entries found:"                                                                            
-            echo "$NODE_MODULES"                                                                                          
-                                                                                                                          
-            # Start building output                                                                                       
+            # Extract node_modules entries and their sizes                                                                
             echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
             echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
             echo "" >> $GITHUB_OUTPUT                                                                                     
@@ -69,25 +57,23 @@ jobs:
             echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
                                                                                                                           
-            # Process dependencies                                                                                        
-            echo "$NODE_MODULES" | while read -r NAME; do                                                                 
-              read -r SIZE_LINE                                                                                           
-              if [[ $NAME == *"node_modules"* ]]; then                                                                    
-                PKG_NAME=$(echo "$NAME" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///')                       
-                SIZE=$(echo "$SIZE_LINE" | grep -o '[0-9]*')                                                              
-                if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                           
-                  KB_SIZE=$((SIZE/1024))                                                                                  
-                  printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                          
-                fi                                                                                                        
+            # Process the JSON data to extract package sizes                                                              
+            cat dist/stats.html | grep -o '"name":"[^"]*node_modules/[^"]*","renderedLength":[0-9]*' | while read -r line 
+            do                                                                                                                        
+              PKG_PATH=$(echo "$line" | grep -o 'node_modules/[^"]*' | cut -d'"' -f1)                                     
+              SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                    
+                                                                                                                          
+              # Extract the package name (first part after node_modules/)                                                 
+              PKG_NAME=$(echo "$PKG_PATH" | sed 's|node_modules/||' | cut -d'/' -f1)                                      
+                                                                                                                          
+              # Accumulate sizes for each package                                                                         
+              if [ ! -z "$PKG_NAME" ] && [ ! -z "$SIZE" ]; then                                                           
+                echo "$PKG_NAME $SIZE"                                                                                    
               fi                                                                                                          
-            done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
+            done | awk '{size[$1] += $2} END {for (pkg in size) if (size[pkg] > 5120) printf "%-20s %6d KB\n", pkg, size[pkg]/1024}' | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
                                                                                                                           
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
             echo "EOF" >> $GITHUB_OUTPUT                                                                                  
-                                                                                                                          
-            # Show final output for debugging                                                                             
-            echo "Final output:"                                                                                          
-            cat $GITHUB_OUTPUT                                                                                            
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
