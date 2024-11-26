@@ -45,12 +45,7 @@ jobs:
             chunk in the bundle.\n</details>"                                                                                         
                                                                                                                           
             # Post comment through proxy                                                                                  
-            curl -X POST \                                                                                                
-              "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/${{ github.repository_owner }}/${{             
-              github.event.repository.name }}/issues/${{ github.event.pull_request.number }}/comments" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d "{\"body\": \"$COMMENT_BODY\"}"                                                                          
+            curl -X POST "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/tscircuit/snippets/issues/291/comments" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -d "{\"body\": \"$COMMENT_BODY\"}"
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             echo "Current directory contents:"                                                                            
