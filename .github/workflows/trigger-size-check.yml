@@ -57,7 +57,7 @@ jobs:
             cat dist/stats.html | grep -A2 '"nodeParts"' | head -n 10                                                     
                                                                                                                           
             # Store the node modules data in a temporary file                                                             
-            cat dist/stats.html | grep -A1 '"name":".*node_modules.*"' | grep -B1 '"renderedLength":[0-9]*' > temp_modules.txt 
+            cat dist/stats.html | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' > temp_modules.txt
                                                                                                                           
             echo "Contents of temp_modules.txt:"                                                                          
             head -n 10 temp_modules.txt                                                                                   
