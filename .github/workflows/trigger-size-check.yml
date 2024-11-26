@@ -44,16 +44,21 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Debug total size calculation                                                                                
-            echo "Calculating total size..."                                                                              
-            SIZES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://')                
-            TOTAL_BYTES=$(echo "$SIZES" | awk '{ sum += $1 } END { print sum }')                                          
-            TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
-            echo "Total MB: $TOTAL_MB"                                                                                    
+            # Extract the JSON data between 'const data = ' and the next semicolon                                        
+            echo "Extracting JSON data..."                                                                                
+            sed -n '/const data = {/,/};/p' dist/stats.html > temp_data.json                                              
                                                                                                                           
-            # Store the node modules data in a temporary file                                                             
-            cat dist/stats.html | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' > temp_modules.txt
-                  
+            # Debug: Show structure                                                                                       
+            echo "Data structure:"                                                                                        
+            cat temp_data.json | grep -A 10 '"nodeParts"' | head -n 20                                                    
+                                                                                                                          
+            # Calculate total size                                                                                        
+            TOTAL_BYTES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ sum += $1 } END { print sum }')                                                                                           
+            TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
+                                                                                                                          
+            # Store node modules data in a temporary file                                                                 
+            cat dist/stats.html | grep -o '"nodeParts":{[^}]*}' > temp_modules.txt                                        
+                                                                                                                          
             {                                                                                                             
               echo "stats<<EOF"                                                                                           
               echo "## 📦 Bundle Size Analysis"                                                                           
@@ -65,25 +70,21 @@ jobs:
                                                                                                                           
               # Process dependencies with debugging                                                                       
               echo "Processing dependencies..."                                                                           
-              while IFS= read -r line || [ -n "$line" ]; do                                                                             
-                if [[ $line == *"node_modules"* ]]; then                                                                                
-                  PKG_NAME=$(echo "$line" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///' | head -n 1)                       
-                  SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                              
-                  if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                                       
-                    KB_SIZE=$((SIZE/1024))                                                                                              
-                    echo "$PKG_NAME $KB_SIZE"                                                                                           
-                  fi                                                                                                                    
-                fi                                                                                                                      
-              done < temp_modules.txt | sort -k2 -nr | head -n 10                                                                       
-
-
+              cat temp_data.json | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' | while read -r line;  
+                PKG_NAME=$(echo "$line" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///' | head -n 1)           
+                SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                  
+                if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                           
+                  KB_SIZE=$((SIZE/1024))                                                                                  
+                  printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                          
+                fi                                                                                                        
+              done | sort -k2 -nr | head -n 10                                                                            
                                                                                                                           
               echo "\`\`\`"                                                                                               
               echo "EOF"                                                                                                  
             } >> $GITHUB_OUTPUT                                                                                           
                                                                                                                           
             # Clean up                                                                                                    
-            rm temp_modules.txt                                                                                           
+            rm temp_data.json temp_modules.txt                                                                            
                                                                                                                           
             # Show final output for debugging                                                                             
             echo "Final output:"                                                                                          
@@ -92,7 +93,9 @@ jobs:
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
           fi                                                                                                              
-                                                                                                                           
+
+
+
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
         uses: mshick/add-pr-comment@v2                                                                                    
