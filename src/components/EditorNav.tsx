@@ -206,154 +206,158 @@ export default function EditorNav({
           )}
         </div>
       </div>
-      <div className="flex items-center -space-x-1">
-        {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={hasUnsavedChanges || isSaving || !snippet}
-          onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
-        >
-          <Sparkles className="mr-1 h-3 w-3" />
-          Edit with AI
-        </Button>
-        <DownloadButtonAndMenu
-          snippetUnscopedName={snippet?.unscoped_name}
-          circuitJson={circuitJson}
-          className="hidden md:flex"
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          className="hidden md:flex px-2 text-xs"
-          onClick={() => {
-            const url = encodeTextToUrlHash(code, snippetType)
-            navigator.clipboard.writeText(url)
-            alert("URL copied to clipboard!")
-          }}
-        >
-          <Share className="mr-1 h-3 w-3" />
-          Copy URL
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="hidden md:flex px-2 text-xs"
-        >
-          <Eye className="mr-1 h-3 w-3" />
-          Public
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <MoreVertical className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              className="text-xs"
-              onClick={() => openCreateOrderDialog()}
-            >
-              <Package className="mr-2 h-3 w-3" />
-              Submit Order
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-xs"
-              onClick={() => openFilesDialog()}
-            >
-              <File className="mr-2 h-3 w-3" />
-              View Files
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger
+      <div className="flex items-center justify-between -space-x-1">
+        <div className="flex mx-2 items-center space-x-1">
+          {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={hasUnsavedChanges || isSaving || !snippet}
+            onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
+          >
+            <Sparkles className="mr-1 h-3 w-3" />
+            Edit with AI
+          </Button>
+          <DownloadButtonAndMenu
+            snippetUnscopedName={snippet?.unscoped_name}
+            circuitJson={circuitJson}
+            className="hidden md:flex"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden md:flex px-2 text-xs"
+            onClick={() => {
+              const url = encodeTextToUrlHash(code, snippetType)
+              navigator.clipboard.writeText(url)
+              alert("URL copied to clipboard!")
+            }}
+          >
+            <Share className="mr-1 h-3 w-3" />
+            Copy URL
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden md:flex px-2 text-xs"
+          >
+            <Eye className="mr-1 h-3 w-3" />
+            Public
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                <MoreVertical className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
                 className="text-xs"
-                disabled={isChangingType || hasUnsavedChanges}
+                onClick={() => openCreateOrderDialog()}
               >
-                <Edit2 className="mr-2 h-3 w-3" />
-                {isChangingType ? "Changing..." : "Change Type"}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem
+                <Package className="mr-2 h-3 w-3" />
+                Submit Order
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => openFilesDialog()}
+              >
+                <File className="mr-2 h-3 w-3" />
+                View Files
+              </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger
                   className="text-xs"
-                  disabled={currentType === "board" || isChangingType}
-                  onClick={() => handleTypeChange("board")}
+                  disabled={isChangingType || hasUnsavedChanges}
                 >
-                  Board {currentType === "board" && "✓"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  disabled={currentType === "package" || isChangingType}
-                  onClick={() => handleTypeChange("package")}
-                >
-                  Module {currentType === "package" && "✓"}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuItem
-              className="text-xs text-red-600"
-              onClick={() => openDeleteDialog()}
-            >
-              <Trash2 className="mr-2 h-3 w-3" />
-              Delete Snippet
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "hidden md:flex",
-            !previewOpen
-              ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
-              : "",
-          )}
-          onClick={() => onTogglePreview()}
-        >
-          {previewOpen ? (
-            <Sidebar className="h-3 w-3" />
-          ) : (
-            <EyeIcon className="h-3 w-3" />
-          )}
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button className="md:hidden" variant="secondary" size="sm">
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem className="text-xs">
-              <Download className="mr-1 h-3 w-3" />
-              Download
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-xs">
-              <Share className="mr-1 h-3 w-3" />
-              Copy URL
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-xs">
-              <Eye className="mr-1 h-3 w-3" />
-              Public
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="md:hidden"
-          onClick={() => onTogglePreview()}
-        >
-          {previewOpen ? (
-            <div className="flex items-center">
-              <CodeIcon className="h-3 w-3 mr-1" />
-              Show Code
-            </div>
-          ) : (
-            <div className="flex items-center">
-              <EyeIcon className="h-3 w-3 mr-1" />
-              Show Preview
-            </div>
-          )}
-        </Button>
+                  <Edit2 className="mr-2 h-3 w-3" />
+                  {isChangingType ? "Changing..." : "Change Type"}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    disabled={currentType === "board" || isChangingType}
+                    onClick={() => handleTypeChange("board")}
+                  >
+                    Board {currentType === "board" && "✓"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    disabled={currentType === "package" || isChangingType}
+                    onClick={() => handleTypeChange("package")}
+                  >
+                    Module {currentType === "package" && "✓"}
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuItem
+                className="text-xs text-red-600"
+                onClick={() => openDeleteDialog()}
+              >
+                <Trash2 className="mr-2 h-3 w-3" />
+                Delete Snippet
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "hidden md:flex",
+              !previewOpen
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "",
+            )}
+            onClick={() => onTogglePreview()}
+          >
+            {previewOpen ? (
+              <Sidebar className="h-3 w-3" />
+            ) : (
+              <EyeIcon className="h-3 w-3" />
+            )}
+          </Button>
+        </div>
+        <div className="flex items-center ">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button className="md:hidden" variant="secondary" size="sm">
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem className="text-xs">
+                <Download className="mr-1 h-3 w-3" />
+                Download
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-xs">
+                <Share className="mr-1 h-3 w-3" />
+                Copy URL
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-xs">
+                <Eye className="mr-1 h-3 w-3" />
+                Public
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden"
+            onClick={() => onTogglePreview()}
+          >
+            {previewOpen ? (
+              <div className="flex items-center">
+                <CodeIcon className="h-3 w-3 mr-1" />
+                Show Code
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <EyeIcon className="h-3 w-3 mr-1" />
+                Show Preview
+              </div>
+            )}
+          </Button>
+        </div>
       </div>
       <RenameDialog
         snippetId={snippet?.snippet_id ?? ""}
