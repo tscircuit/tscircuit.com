@@ -51,14 +51,6 @@ jobs:
             TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
             echo "Total MB: $TOTAL_MB"                                                                                    
                                                                                                                           
-            echo "Finding node_modules entries..."                                                                        
-            # Debug: Show what we're finding                                                                              
-            echo "Sample of raw data:"                                                                                    
-            cat dist/stats.html | grep -A2 '"nodeParts"' | head -n 10                                                     
-                                                                                                                          
-            echo "Looking for nodeParts section:"                                                                                     
-            cat dist/stats.html | grep -A5 '"nodeParts"' | head -n 20
-                                                                                                                          
             # Store the node modules data in a temporary file                                                             
             cat dist/stats.html | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' > temp_modules.txt
                   
@@ -79,10 +71,11 @@ jobs:
                   SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                              
                   if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                                       
                     KB_SIZE=$((SIZE/1024))                                                                                              
-                    printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                                      
+                    echo "$PKG_NAME $KB_SIZE"                                                                                           
                   fi                                                                                                                    
                 fi                                                                                                                      
               done < temp_modules.txt | sort -k2 -nr | head -n 10                                                                       
+
 
                                                                                                                           
               echo "\`\`\`"                                                                                               
