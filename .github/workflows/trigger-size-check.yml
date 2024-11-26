@@ -50,10 +50,7 @@ jobs:
                                                                                                                           
             echo "Extracting package information..."                                                                      
                                                                                                                           
-            # Extract the data section                                                                                    
-            DATA=$(cat dist/stats.html | grep -o 'const data = {.*}' | sed 's/const data = //')                           
-                                                                                                                          
-            # Extract node_modules entries and their sizes                                                                
+            # Extract the data section and node_modules entries                                                           
             echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
             echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
             echo "" >> $GITHUB_OUTPUT                                                                                     
@@ -62,31 +59,29 @@ jobs:
             echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
                                                                                                                           
-            # First find all node_modules paths                                                                           
-            PATHS=$(echo "$DATA" | grep -o '"name":"[^"]*node_modules/[^"]*"' | grep -v "\u0000" | sed 's/"name":"//' | s 's/"$//')                                                                                                                 
+            # Debug: Show what we're finding                                                                              
+            echo "Finding node_modules entries..."                                                                        
                                                                                                                           
-            # Then match them with sizes from nodeParts                                                                   
-            echo "$PATHS" | while read -r path; do                                                                        
+            cat dist/stats.html | grep -o '"name":"[^"]*node_modules[^"]*"' | \                                           
+              sed 's/"name":"//g' | \                                                                                     
+              sed 's/"$//g' | \                                                                                           
+            while read -r path; do                                                                                        
               if [[ $path == *"node_modules/"* ]]; then                                                                   
-                PKG_NAME=$(echo "$path" | sed 's|.*/node_modules/||' | cut -d'/' -f1)                                     
-                # Find the corresponding size in nodeParts                                                                
-                SIZE=$(echo "$DATA" | grep -o "\"$path\".*\"renderedLength\":[0-9]*" | grep -o '"renderedLength":[0-9]*' cut -d':' -f2)                                                                                                            
-                if [ ! -z "$SIZE" ]; then                                                                                 
-                  echo "$PKG_NAME $SIZE"                                                                                  
+                PKG_NAME=$(echo "$path" | grep -o 'node_modules/[^/]*' | sed 's|node_modules/||')                         
+                SIZE=$(cat dist/stats.html | grep -A1 "\"$path\"" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)    
+                if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                           
+                  KB_SIZE=$((SIZE/1024))                                                                                  
+                  echo "$PKG_NAME $KB_SIZE"                                                                               
                 fi                                                                                                        
               fi                                                                                                          
-            done | awk '                                                                                                  
-              { size[$1] += $2 }                                                                                          
-              END {                                                                                                       
-                for (pkg in size) {                                                                                       
-                  if (size[pkg] > 5120) {                                                                                 
-                    printf "%-20s %6d KB\n", pkg, size[pkg]/1024                                                          
-                  }                                                                                                       
-                }                                                                                                         
-              }' | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
+            done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
                                                                                                                           
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
             echo "EOF" >> $GITHUB_OUTPUT                                                                                  
+                                                                                                                          
+            # Debug: Show the final output                                                                                
+            echo "Final output:"                                                                                          
+            cat $GITHUB_OUTPUT                                                                                            
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
