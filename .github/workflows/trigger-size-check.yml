@@ -44,19 +44,28 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Extract the stats data from the script tag                                                                  
-            STATS=$(cat dist/stats.html | grep -o 'data = {.*}' | sed 's/data = //')                                      
+            # Extract and process the stats data                                                                          
+            echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
+            echo "## Bundle Size Analysis" >> $GITHUB_OUTPUT                                                              
+            echo "" >> $GITHUB_OUTPUT                                                                                     
                                                                                                                           
-            if [ -n "$STATS" ]; then                                                                                      
-              # Create formatted output                                                                                   
-              echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                         
-              echo "Bundle size analysis:" >> $GITHUB_OUTPUT                                                              
-              echo "$STATS" >> $GITHUB_OUTPUT                                                                             
-              echo "EOF" >> $GITHUB_OUTPUT                                                                                
-            else                                                                                                          
-              echo "No stats data found in the file"                                                                      
-              echo "stats=No bundle size data available" >> $GITHUB_OUTPUT                                                
-            fi                                                                                                            
+            # Extract sizes from the stats file                                                                           
+            SIZES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | while read SIZE; do                                                                                                                  
+              echo $((SIZE/1024))                                                                                         
+            done)                                                                                                         
+                                                                                                                          
+            # Extract chunk names                                                                                         
+            CHUNKS=$(cat dist/stats.html | grep -o '"name":"[^"]*"' | sed 's/"name":"//' | sed 's/"$//')                  
+                                                                                                                          
+            echo "### Bundle Chunks" >> $GITHUB_OUTPUT                                                                    
+            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
+            paste <(echo "$CHUNKS") <(echo "$SIZES") | while read -r CHUNK SIZE; do                                       
+              if [[ $CHUNK == assets/* ]]; then                                                                           
+                printf "%-50s %6d KB\n" "$CHUNK" "$SIZE" >> $GITHUB_OUTPUT                                                
+              fi                                                                                                          
+            done                                                                                                          
+            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
+            echo "EOF" >> $GITHUB_OUTPUT                                                                                  
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
