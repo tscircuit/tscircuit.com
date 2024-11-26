@@ -44,32 +44,50 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Extract and process the stats data                                                                          
             echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
-            echo "## Bundle Size Analysis" >> $GITHUB_OUTPUT                                                              
+            echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
             echo "" >> $GITHUB_OUTPUT                                                                                     
                                                                                                                           
-            # Extract sizes from the stats file                                                                           
-            SIZES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | while read SIZE; do                                                                                                                  
-              echo $((SIZE/1024))                                                                                         
-            done)                                                                                                         
+            # Extract total bundle size                                                                                   
+            TOTAL_SIZE=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ s += $1 } END { print sum/1024/1024 }')                                                                                     
+            echo "Total Bundle Size: **${TOTAL_SIZE:.1f} MB**" >> $GITHUB_OUTPUT                                          
+            echo "" >> $GITHUB_OUTPUT                                                                                     
                                                                                                                           
-            # Extract chunk names                                                                                         
-            CHUNKS=$(cat dist/stats.html | grep -o '"name":"[^"]*"' | sed 's/"name":"//' | sed 's/"$//')                  
-                                                                                                                          
-            echo "### Bundle Chunks" >> $GITHUB_OUTPUT                                                                    
+            echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
-            paste <(echo "$CHUNKS") <(echo "$SIZES") | while read -r CHUNK SIZE; do                                       
-              if [[ $CHUNK == assets/* ]]; then                                                                           
-                printf "%-50s %6d KB\n" "$CHUNK" "$SIZE" >> $GITHUB_OUTPUT                                                
+                                                                                                                          
+            # Extract dependency sizes (looking for node_modules entries)                                                 
+            cat dist/stats.html | grep -o '"name":"[^"]*","renderedLength":[0-9]*' | grep "node_modules" | sed 's/"name":"//' | sed 's/","renderedLength":/\t/' | while read -r DEP SIZE; do                                             
+              if [ $SIZE -gt 5120 ]; then  # Only show deps > 5KB                                                         
+                KB_SIZE=$((SIZE/1024))                                                                                    
+                DEP_NAME=$(echo $DEP | sed 's/.*node_modules\///' | cut -d'/' -f1)                                        
+                printf "%-20s %6d KB\n" "$DEP_NAME" "$KB_SIZE"                                                            
               fi                                                                                                          
-            done                                                                                                          
+            done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
+                                                                                                                          
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
             echo "EOF" >> $GITHUB_OUTPUT                                                                                  
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
           fi                                                                                                              
+                                                                                                                          
+      - name: Read and post stats                                                                                         
+        if: success()                                                                                                     
+        uses: mshick/add-pr-comment@v2                                                                                    
+        with:                                                                                                             
+          message: |                                                                                                      
+            ${{ steps.stats-extract.outputs.stats }}                                                                      
+                                                                                                                          
+            <details>                                                                                                     
+            <summary>ℹ️ About this report</summary>                                                                       
+            - Shows the total bundle size and top dependencies by size                                                    
+            - Only dependencies larger than 5KB are listed                                                                
+            - Sizes are shown in kilobytes (KB)                                                                           
+            </details>                                                                                                    
+          proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
+          repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+          allow-repeats: false                                                                                            
 
                                                                                                                           
       - name: Read and post stats                                                                                         
