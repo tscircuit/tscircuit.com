@@ -44,23 +44,32 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # More robust extraction of content between pre tags                                                          
-            STATS=$(awk '/<pre>/,/<\/pre>/' dist/stats.html | sed 's/<pre>//g' | sed 's/<\/pre>//g')                      
+            # Debug: show file content                                                                                    
+            echo "Content of stats.html:"                                                                                 
+            cat dist/stats.html                                                                                           
                                                                                                                           
-            # Debug output                                                                                                
-            echo "Extracted stats:"                                                                                       
+            # Try different extraction method                                                                             
+            STATS=$(cat dist/stats.html | grep -A 1000 '<pre>' | grep -B 1000 '</pre>' | grep -v '<pre>' | grep -v '</pre>')                                                                                                                 
+            # Debug: show extracted content                                                                               
+            echo "Extracted content:"                                                                                     
             echo "$STATS"                                                                                                 
                                                                                                                           
-            # Set the output with proper escaping                                                                         
-            {                                                                                                             
-              echo "stats<<STATSEOF"                                                                                      
-              echo "$STATS"                                                                                               
-              echo "STATSEOF"                                                                                             
-            } >> $GITHUB_OUTPUT                                                                                           
+            # Escape the content for GitHub Actions output                                                                
+            ESCAPED_STATS="${STATS//'%'/'%25'}"                                                                           
+            ESCAPED_STATS="${ESCAPED_STATS//$'\n'/'%0A'}"                                                                 
+            ESCAPED_STATS="${ESCAPED_STATS//$'\r'/'%0D'}"                                                                 
+                                                                                                                          
+            # Set output                                                                                                  
+            echo "stats=$ESCAPED_STATS" >> $GITHUB_OUTPUT                                                                 
+                                                                                                                          
+            # Debug: verify output                                                                                        
+            echo "Output set to GITHUB_OUTPUT"                                                                            
           else                                                                                                            
-            echo "Stats file not found at dist/stats.html"                                                                
+            echo "Error: stats.html not found"                                                                            
+            ls -la dist/                                                                                                  
             exit 1                                                                                                        
           fi                                                                                                              
+
                                                                                                                           
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
