@@ -56,12 +56,12 @@ jobs:
             echo "Sample of raw data:"                                                                                    
             cat dist/stats.html | grep -A2 '"nodeParts"' | head -n 10                                                     
                                                                                                                           
+            echo "Looking for nodeParts section:"                                                                                     
+            cat dist/stats.html | grep -A5 '"nodeParts"' | head -n 20
+                                                                                                                          
             # Store the node modules data in a temporary file                                                             
             cat dist/stats.html | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' > temp_modules.txt
-                                                                                                                          
-            echo "Contents of temp_modules.txt:"                                                                          
-            head -n 10 temp_modules.txt                                                                                   
-                                                                                                                          
+                  
             {                                                                                                             
               echo "stats<<EOF"                                                                                           
               echo "## 📦 Bundle Size Analysis"                                                                           
