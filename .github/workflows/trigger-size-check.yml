@@ -50,27 +50,10 @@ jobs:
                                                                                                                           
             echo "Extracting package information..."                                                                      
                                                                                                                           
-            # Debug: Show what we're finding                                                                              
-            echo "Found node_modules entries:"                                                                            
-            cat dist/stats.html | grep -o '"name":"[^"]*node_modules/[^"]*","renderedLength":[0-9]*' | head -n 5          
+            # Extract the data section                                                                                    
+            DATA=$(cat dist/stats.html | grep -o 'const data = {.*}' | sed 's/const data = //')                           
                                                                                                                           
-            echo "Processing entries..."                                                                                  
-            PACKAGES=$(cat dist/stats.html | grep -o '"name":"[^"]*node_modules/[^"]*","renderedLength":[0-9]*' | while read -r line; do                                                                                                          
-              echo "Processing line: $line"                                                                               
-              PKG_PATH=$(echo "$line" | grep -o 'node_modules/[^"]*' | cut -d'"' -f1)                                     
-              echo "Package path: $PKG_PATH"                                                                              
-              SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                    
-              echo "Size: $SIZE"                                                                                          
-              PKG_NAME=$(echo "$PKG_PATH" | sed 's|node_modules/||' | cut -d'/' -f1)                                      
-              echo "Package name: $PKG_NAME"                                                                              
-              if [ ! -z "$PKG_NAME" ] && [ ! -z "$SIZE" ]; then                                                           
-                echo "$PKG_NAME $SIZE"                                                                                    
-              fi                                                                                                          
-            done)                                                                                                         
-                                                                                                                          
-            echo "Package data found:"                                                                                    
-            echo "$PACKAGES"                                                                                              
-                                                                                                                          
+            # Extract node_modules entries and their sizes                                                                
             echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
             echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
             echo "" >> $GITHUB_OUTPUT                                                                                     
@@ -79,30 +62,31 @@ jobs:
             echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
                                                                                                                           
-            if [ ! -z "$PACKAGES" ]; then                                                                                 
-              echo "$PACKAGES" | awk '                                                                                    
-                BEGIN { print "Processing package sizes..." }                                                             
-                {                                                                                                         
-                  size[$1] += $2                                                                                          
-                  print "Adding " $2 " to " $1 ", total now: " size[$1]                                                   
-                }                                                                                                         
-                END {                                                                                                     
-                  print "Final package sizes:"                                                                            
-                  for (pkg in size) {                                                                                     
-                    if (size[pkg] > 5120) {                                                                               
-                      printf "%-20s %6d KB\n", pkg, size[pkg]/1024                                                        
-                    }                                                                                                     
+            # First find all node_modules paths                                                                           
+            PATHS=$(echo "$DATA" | grep -o '"name":"[^"]*node_modules/[^"]*"' | grep -v "\u0000" | sed 's/"name":"//' | s 's/"$//')                                                                                                                 
+                                                                                                                          
+            # Then match them with sizes from nodeParts                                                                   
+            echo "$PATHS" | while read -r path; do                                                                        
+              if [[ $path == *"node_modules/"* ]]; then                                                                   
+                PKG_NAME=$(echo "$path" | sed 's|.*/node_modules/||' | cut -d'/' -f1)                                     
+                # Find the corresponding size in nodeParts                                                                
+                SIZE=$(echo "$DATA" | grep -o "\"$path\".*\"renderedLength\":[0-9]*" | grep -o '"renderedLength":[0-9]*' cut -d':' -f2)                                                                                                            
+                if [ ! -z "$SIZE" ]; then                                                                                 
+                  echo "$PKG_NAME $SIZE"                                                                                  
+                fi                                                                                                        
+              fi                                                                                                          
+            done | awk '                                                                                                  
+              { size[$1] += $2 }                                                                                          
+              END {                                                                                                       
+                for (pkg in size) {                                                                                       
+                  if (size[pkg] > 5120) {                                                                                 
+                    printf "%-20s %6d KB\n", pkg, size[pkg]/1024                                                          
                   }                                                                                                       
-                }' | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                          
-            else                                                                                                          
-              echo "No package data found" >> $GITHUB_OUTPUT                                                              
-            fi                                                                                                            
+                }                                                                                                         
+              }' | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
                                                                                                                           
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
             echo "EOF" >> $GITHUB_OUTPUT                                                                                  
-                                                                                                                          
-            echo "Final GITHUB_OUTPUT content:"                                                                           
-            cat $GITHUB_OUTPUT                                                                                            
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
