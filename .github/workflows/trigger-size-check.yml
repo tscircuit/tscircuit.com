@@ -44,29 +44,21 @@ jobs:
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Debug: show file content                                                                                    
-            echo "Content of stats.html:"                                                                                 
-            cat dist/stats.html                                                                                           
+            # Extract the stats data from the script tag                                                                  
+            STATS=$(cat dist/stats.html | grep -o 'data = {.*}' | sed 's/data = //')                                      
                                                                                                                           
-            # Try different extraction method                                                                             
-            STATS=$(cat dist/stats.html | grep -A 1000 '<pre>' | grep -B 1000 '</pre>' | grep -v '<pre>' | grep -v '</pre>')                                                                                                                 
-            # Debug: show extracted content                                                                               
-            echo "Extracted content:"                                                                                     
-            echo "$STATS"                                                                                                 
-                                                                                                                          
-            # Escape the content for GitHub Actions output                                                                
-            ESCAPED_STATS="${STATS//'%'/'%25'}"                                                                           
-            ESCAPED_STATS="${ESCAPED_STATS//$'\n'/'%0A'}"                                                                 
-            ESCAPED_STATS="${ESCAPED_STATS//$'\r'/'%0D'}"                                                                 
-                                                                                                                          
-            # Set output                                                                                                  
-            echo "stats=$ESCAPED_STATS" >> $GITHUB_OUTPUT                                                                 
-                                                                                                                          
-            # Debug: verify output                                                                                        
-            echo "Output set to GITHUB_OUTPUT"                                                                            
+            if [ -n "$STATS" ]; then                                                                                      
+              # Create formatted output                                                                                   
+              echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                         
+              echo "Bundle size analysis:" >> $GITHUB_OUTPUT                                                              
+              echo "$STATS" >> $GITHUB_OUTPUT                                                                             
+              echo "EOF" >> $GITHUB_OUTPUT                                                                                
+            else                                                                                                          
+              echo "No stats data found in the file"                                                                      
+              echo "stats=No bundle size data available" >> $GITHUB_OUTPUT                                                
+            fi                                                                                                            
           else                                                                                                            
-            echo "Error: stats.html not found"                                                                            
-            ls -la dist/                                                                                                  
+            echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
           fi                                                                                                              
 
