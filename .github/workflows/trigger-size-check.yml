@@ -1,0 +1,62 @@
+name: Trigger Size Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'vite.config.ts'
+      - 'bun.lockb'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build with stats
+        run: |
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production
+
+      - name: Read and post stats                                                                                         
+        if: success()                                                                                                     
+        run: |                                                                                                            
+          if [ -f dist/stats.html ]; then                                                                                 
+            # Extract size information between <pre> tags                                                                 
+            STATS=$(sed -n '/<pre>/,/<\/pre>/p' dist/stats.html | sed 's/<[^>]*>//g')                                     
+                                                                                                                          
+            # Create comment body                                                                                         
+            COMMENT_BODY="## 📊 Bundle Size Analysis\n\n\`\`\`\n${STATS}\n\`\`\`\n\n<details>\n<summary>What is           
+            this?</summary>\nThis is an automated bundle size report generated during the build process. It shows the size of each    
+            chunk in the bundle.\n</details>"                                                                                         
+                                                                                                                          
+            # Post comment through proxy                                                                                  
+            curl -X POST \                                                                                                
+              "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/${{ github.repository_owner }}/${{             
+              github.event.repository.name }}/issues/${{ github.event.pull_request.number }}/comments" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT_BODY\"}"                                                                          
+          else                                                                                                            
+            echo "Stats file not found at dist/stats.html"                                                                
+            echo "Current directory contents:"                                                                            
+            ls -la dist/                                                                                                  
+            exit 1                                                                                                        
+          fi                                                                                                              
+        env:                                                                                                              
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                                                                       
+ 

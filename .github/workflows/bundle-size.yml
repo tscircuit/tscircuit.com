@@ -1,0 +1,94 @@
+# Reports bundle size changes in pull requests.
+# To find the report:
+# 1. Go to the PR page
+# 2. Click on the "Checks" tab
+# 3. Click on the "Size" workflow
+# 4. The bundle size report will be shown at the top of the job summary
+
+name: Bundle Size Report
+
+on:
+  workflow_run:
+    workflows: ["Trigger Size Check"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get PR number
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: ${{ github.event.workflow.id }}
+          run_id: ${{ github.event.workflow_run.id }}
+          name: bundle-stats
+          path: pr-stats
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build base stats
+        run: |
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production
+          mv dist/stats.html dist/base-stats.html
+
+      - name: Generate Bundle Size Report
+        id: report
+        run: |
+          # Add error handling for file reads
+          if [ ! -f "dist/base-stats.html" ]; then
+            echo "Error: Base stats file not found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          if [ ! -f "pr-stats/stats.html" ]; then
+            echo "Error: PR stats file not found" >> $GITHUB_STEP_SUMMARY 
+            exit 1
+          fi
+
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "### Base Branch Stats" >> $GITHUB_OUTPUT
+          cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT || echo "No stats found in base branch"
+          echo "" >> $GITHUB_OUTPUT
+          echo "### PR Branch Stats" >> $GITHUB_OUTPUT
+          cat pr-stats/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" >> $GITHUB_OUTPUT || echo "No stats found in PR branch"
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR                                                                                               
+        run: |                                                                                                            
+          REPORT="${{ steps.report.outputs.report }}"                                                                     
+                                                                                                                          
+          # Get PR number from workflow run                                                                               
+          PR_NUMBER=$(gh api search/issues -q "${{ github.event.workflow_run.head_sha }}" --jq '.items[0].number')        
+                                                                                                                          
+          if [ -z "$PR_NUMBER" ]; then                                                                                    
+            echo "No PR found for this commit"                                                                            
+            exit 1                                                                                                        
+          fi                                                                                                              
+                                                                                                                          
+          # Send comment through proxy                                                                                    
+          curl -X POST \
+            "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/${{ github.repository_owner }}/${{github.event.repository.name }}/issues/${PR_NUMBER}/comments" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"body\": \"$REPORT\"}"                                                                                  
+        env:                                                                                                              
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                                                                       
+
