@@ -90,7 +90,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       rollupOptions: {
         output: {
           manualChunks: {
-            "react-vendor": ["react", "react-dom"], 
+            "react-vendor": ["react", "react-dom"],
             codemirror: [
               "@codemirror/autocomplete",
               "@codemirror/lang-javascript",
