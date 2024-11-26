@@ -38,9 +38,30 @@ jobs:
         with:                                                                                                             
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
-                                                                                                                           
 
-
+      - name: Extract stats                                                                                               
+        id: stats-extract                                                                                                 
+        if: success()                                                                                                     
+        run: |                                                                                                            
+          if [ -f dist/stats.html ]; then                                                                                 
+            # More robust extraction of content between pre tags                                                          
+            STATS=$(awk '/<pre>/,/<\/pre>/' dist/stats.html | sed 's/<pre>//g' | sed 's/<\/pre>//g')                      
+                                                                                                                          
+            # Debug output                                                                                                
+            echo "Extracted stats:"                                                                                       
+            echo "$STATS"                                                                                                 
+                                                                                                                          
+            # Set the output with proper escaping                                                                         
+            {                                                                                                             
+              echo "stats<<STATSEOF"                                                                                      
+              echo "$STATS"                                                                                               
+              echo "STATSEOF"                                                                                             
+            } >> $GITHUB_OUTPUT                                                                                           
+          else                                                                                                            
+            echo "Stats file not found at dist/stats.html"                                                                
+            exit 1                                                                                                        
+          fi                                                                                                              
+                                                                                                                          
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
         uses: mshick/add-pr-comment@v2                                                                                    
@@ -59,18 +80,4 @@ jobs:
           proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
           repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
           allow-repeats: false                                                                                            
-                                                                                                                          
-      - name: Extract stats                                                                                               
-        id: stats-extract                                                                                                 
-        if: success()                                                                                                     
-        run: |                                                                                                            
-          if [ -f dist/stats.html ]; then                                                                                 
-            STATS=$(sed -n '/<pre>/,/<\/pre>/p' dist/stats.html | sed 's/<[^>]*>//g')                                     
-            echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
-            echo "$STATS" >> $GITHUB_OUTPUT                                                                               
-            echo "EOF" >> $GITHUB_OUTPUT                                                                                  
-          else                                                                                                            
-            echo "Stats file not found at dist/stats.html"                                                                
-            exit 1                                                                                                        
-          fi                                                                                                              
-
+ 
