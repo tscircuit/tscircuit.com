@@ -39,63 +39,44 @@ jobs:
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
 
-                                                                                                                           
-
       - name: Extract stats                                                                                               
         id: stats-extract                                                                                                 
         if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            echo "File exists, showing first 100 lines:"                                                                  
-            head -n 100 dist/stats.html                                                                                   
-                                                                                                                          
-            echo "\n--- Extracting rendered lengths ---"                                                                  
-            RENDERED_LENGTHS=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*')                                   
-            echo "Found rendered lengths:"                                                                                
-            echo "$RENDERED_LENGTHS"                                                                                      
-                                                                                                                          
-            echo "\n--- Calculating total size ---"                                                                       
-            TOTAL_SIZE=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ s  += $1 } END { printf "%.1f", sum/1024/1024 }')                                                                            
-            echo "Total size calculated: $TOTAL_SIZE MB"                                                                  
-                                                                                                                          
-            echo "\n--- Looking for dependencies ---"                                                                     
-            DEPS=$(cat dist/stats.html | grep -o '"name":"[^"]*","renderedLength":[0-9]*' | grep "node_modules")          
-            echo "Found dependencies:"                                                                                    
-            echo "$DEPS"                                                                                                  
-                                                                                                                          
-            echo "\n--- Creating output ---"                                                                              
             echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
             echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
             echo "" >> $GITHUB_OUTPUT                                                                                     
+                                                                                                                          
+            # Calculate total size (sum of all rendered lengths)                                                          
+            TOTAL_SIZE=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ s += $1 } END { printf "%.1f", sum/1024/1024 }')                                                                            
             echo "Total Bundle Size: **${TOTAL_SIZE} MB**" >> $GITHUB_OUTPUT                                              
             echo "" >> $GITHUB_OUTPUT                                                                                     
+                                                                                                                          
             echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
                                                                                                                           
-            if [ -n "$DEPS" ]; then                                                                                       
-              echo "$DEPS" | sed 's/"name":"//' | sed 's/","renderedLength":/\t/' | while read -r DEP SIZE; do            
-                if [ $SIZE -gt 5120 ]; then                                                                               
-                  KB_SIZE=$((SIZE/1024))                                                                                  
-                  DEP_NAME=$(echo $DEP | sed 's/.*node_modules\///' | cut -d'/' -f1)                                      
-                  printf "%-20s %6d KB\n" "$DEP_NAME" "$KB_SIZE"                                                          
+            # Extract node_modules dependencies with their sizes                                                          
+            cat dist/stats.html | grep -B1 '"renderedLength":[0-9]*' | grep -A1 'node_modules' | paste -d ' ' - - | while read -r LINE; do                                                                                                          
+              NAME=$(echo "$LINE" | grep -o '"name":"[^"]*"' | cut -d'"' -f4)                                             
+              SIZE=$(echo "$LINE" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                    
+                                                                                                                          
+              if [ ! -z "$NAME" ] && [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                         
+                # Extract the package name from the path                                                                  
+                PKG_NAME=$(echo "$NAME" | sed -n 's/.*node_modules\/\([^/]*\).*/\1/p')                                    
+                KB_SIZE=$((SIZE/1024))                                                                                    
+                if [ ! -z "$PKG_NAME" ]; then                                                                             
+                  printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                          
                 fi                                                                                                        
-              done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                          
-            else                                                                                                          
-              echo "No dependencies found over 5KB" >> $GITHUB_OUTPUT                                                     
-            fi                                                                                                            
+              fi                                                                                                          
+            done | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                            
                                                                                                                           
             echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
             echo "EOF" >> $GITHUB_OUTPUT                                                                                  
-                                                                                                                          
-            echo "\n--- Final GITHUB_OUTPUT content ---"                                                                  
-            cat $GITHUB_OUTPUT                                                                                            
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
-            echo "Current directory contents:"                                                                            
-            ls -la dist/                                                                                                  
             exit 1                                                                                                        
           fi                                                                                                              
-
 
                                                                                                                           
       - name: Read and post stats                                                                                         
