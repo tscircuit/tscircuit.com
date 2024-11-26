@@ -51,12 +51,17 @@ jobs:
             TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
             echo "Total MB: $TOTAL_MB"                                                                                    
                                                                                                                           
-            # Debug dependency extraction                                                                                 
             echo "Finding node_modules entries..."                                                                        
-            # Store the node modules data in a temporary file to avoid pipe issues                                        
-            cat dist/stats.html | grep -A1 'node_modules' | grep -B1 '"renderedLength"' > temp_modules.txt                
+            # Debug: Show what we're finding                                                                              
+            echo "Sample of raw data:"                                                                                    
+            cat dist/stats.html | grep -A2 '"nodeParts"' | head -n 10                                                     
                                                                                                                           
-            # Create the output                                                                                           
+            # Store the node modules data in a temporary file                                                             
+            cat dist/stats.html | grep -A1 '"name":".*node_modules.*"' | grep -B1 '"renderedLength":[0-9]*' > temp_modules.txt                                                                                                          
+                                                                                                                          
+            echo "Contents of temp_modules.txt:"                                                                          
+            head -n 10 temp_modules.txt                                                                                   
+                                                                                                                          
             {                                                                                                             
               echo "stats<<EOF"                                                                                           
               echo "## 📦 Bundle Size Analysis"                                                                           
@@ -66,12 +71,16 @@ jobs:
               echo "### Top Dependencies"                                                                                 
               echo "\`\`\`"                                                                                               
                                                                                                                           
-              # Process dependencies                                                                                      
-              while IFS= read -r NAME || [ -n "$NAME" ]; do                                                               
-                IFS= read -r SIZE_LINE || [ -n "$SIZE_LINE" ]                                                             
-                if [[ $NAME == *"node_modules"* ]]; then                                                                  
-                  PKG_NAME=$(echo "$NAME" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///')                     
-                  SIZE=$(echo "$SIZE_LINE" | grep -o '[0-9]*')                                                            
+              # Process dependencies with debugging                                                                       
+              echo "Processing dependencies..."                                                                           
+              while IFS= read -r line || [ -n "$line" ]; do                                                               
+                if [[ $line == *"node_modules"* ]]; then                                                                  
+                  echo "Found module line: $line"                                                                         
+                  PKG_NAME=$(echo "$line" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///')                     
+                  read -r size_line                                                                                       
+                  echo "Size line: $size_line"                                                                            
+                  SIZE=$(echo "$size_line" | grep -o '[0-9]*')                                                            
+                  echo "Extracted: $PKG_NAME = $SIZE"                                                                     
                   if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                         
                     KB_SIZE=$((SIZE/1024))                                                                                
                     printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                        
@@ -93,8 +102,7 @@ jobs:
             echo "Stats file not found at dist/stats.html"                                                                
             exit 1                                                                                                        
           fi                                                                                                              
-
-                                                                                                                          
+                                                                                                                           
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
         uses: mshick/add-pr-comment@v2                                                                                    
