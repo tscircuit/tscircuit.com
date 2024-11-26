@@ -34,24 +34,34 @@ jobs:
 
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
+        uses: mshick/add-pr-comment@v2                                                                                    
+        with:                                                                                                             
+          message: |                                                                                                      
+            ## 📊 Bundle Size Analysis                                                                                    
+                                                                                                                          
+            ```                                                                                                           
+            ${{ steps.stats-extract.outputs.stats }}                                                                      
+            ```                                                                                                           
+                                                                                                                          
+            <details>                                                                                                     
+            <summary>What is this?</summary>                                                                              
+            This is an automated bundle size report generated during the build process. It shows the size of each chunk in the bundle.                                                                                                               
+            </details>                                                                                                    
+          proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
+          repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+          allow-repeats: false                                                                                            
+                                                                                                                          
+      - name: Extract stats                                                                                               
+        id: stats-extract                                                                                                 
+        if: success()                                                                                                     
         run: |                                                                                                            
           if [ -f dist/stats.html ]; then                                                                                 
-            # Extract size information between <pre> tags                                                                 
             STATS=$(sed -n '/<pre>/,/<\/pre>/p' dist/stats.html | sed 's/<[^>]*>//g')                                     
-                                                                                                                          
-            # Create comment body                                                                                         
-            COMMENT_BODY="## 📊 Bundle Size Analysis\n\n\`\`\`\n${STATS}\n\`\`\`\n\n<details>\n<summary>What is           
-            this?</summary>\nThis is an automated bundle size report generated during the build process. It shows the size of each    
-            chunk in the bundle.\n</details>"                                                                                         
-                                                                                                                          
-            # Post comment through proxy                                                                                  
-            curl -X POST "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/tscircuit/snippets/issues/291/comments" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -d "{\"body\": \"$COMMENT_BODY\"}"
+            echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
+            echo "$STATS" >> $GITHUB_OUTPUT                                                                               
+            echo "EOF" >> $GITHUB_OUTPUT                                                                                  
           else                                                                                                            
             echo "Stats file not found at dist/stats.html"                                                                
-            echo "Current directory contents:"                                                                            
-            ls -la dist/                                                                                                  
             exit 1                                                                                                        
           fi                                                                                                              
-        env:                                                                                                              
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                                                                       
- 
+

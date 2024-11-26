@@ -72,23 +72,10 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR                                                                                               
-        run: |                                                                                                            
-          REPORT="${{ steps.report.outputs.report }}"                                                                     
-                                                                                                                          
-          # Get PR number from workflow run                                                                               
-          PR_NUMBER=$(gh api search/issues -q "${{ github.event.workflow_run.head_sha }}" --jq '.items[0].number')        
-                                                                                                                          
-          if [ -z "$PR_NUMBER" ]; then                                                                                    
-            echo "No PR found for this commit"                                                                            
-            exit 1                                                                                                        
-          fi                                                                                                              
-                                                                                                                          
-          # Send comment through proxy                                                                                    
-          curl -X POST \
-            "https://add-pr-comment-proxy-tscircuit.vercel.app/api/repos/${{ github.repository_owner }}/${{github.event.repository.name }}/issues/${PR_NUMBER}/comments" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"body\": \"$REPORT\"}"                                                                                  
-        env:                                                                                                              
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}                                                                       
-
+        uses: mshick/add-pr-comment@v2                                                                                    
+        with:                                                                                                             
+          message: |                                                                                                      
+            ${{ steps.report.outputs.report }}                                                                            
+          proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
+          repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+          allow-repeats: false                                                                                            
