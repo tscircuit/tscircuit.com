@@ -72,17 +72,33 @@ function generateMarkdown(data, dependencies) {
 
   let markdown = `# Bundle Size Analysis\n\n`
   markdown += `Total Bundle Size: **${formatBytes(totalSize)}**\n\n`
-  markdown += `## Top Dependencies\n\n`
-  markdown += `| Package | Size | Files |\n`
-  markdown += `|---------|------|-------|\n`
+  markdown += `## Top 10 Dependencies\n\n`
+  markdown += `| Package | Size |\n`
+  markdown += `|---------|------|\n`
 
-  const sortedDeps = Object.entries(depStats)
-    .sort(([, a], [, b]) => b.size - a.size)
-    .slice(0, 10)
+  const sortedDeps = Object.entries(depStats).sort(
+    ([, a], [, b]) => b.size - a.size,
+  )
+  const top10Deps = sortedDeps.slice(0, 10)
+  const remainingDeps = sortedDeps.slice(10)
 
-  for (const [name, stats] of sortedDeps) {
+  for (const [name, stats] of top10Deps) {
     const version = dependencies[name]
-    markdown += `| ${name}@${version} | ${formatBytes(stats.size)} | ${stats.files} |\n`
+    markdown += `| ${name}@${version} | ${formatBytes(stats.size)} |\n`
+  }
+
+  if (remainingDeps.length > 0) {
+    markdown += `\n<details>\n`
+    markdown += `<summary>View All Dependencies</summary>\n\n`
+    markdown += `| Package | Size |\n`
+    markdown += `|---------|------|\n`
+
+    for (const [name, stats] of remainingDeps) {
+      const version = dependencies[name]
+      markdown += `| ${name}@${version} | ${formatBytes(stats.size)} |\n`
+    }
+
+    markdown += `\n</details>\n`
   }
 
   return markdown
