@@ -101,22 +101,13 @@ function compareSizes(prData, mainData, dependencies) {
 }
 
 function generateDiffMarkdown(prData, mainData, dependencies) {
-  const comparison = compareSizes(prData, mainData, dependencies)
-
-  let markdown = `# Bundle Size Comparison\n\n`
-
-  // Total size comparison
   const totalDiffSymbol = comparison.totalDiff > 0 ? "📈" : "📉"
   markdown += `## Total Bundle Size\n\n`
   markdown += `- Before: **${formatBytes(comparison.totalBefore)}**\n`
   markdown += `- After: **${formatBytes(comparison.totalAfter)}**\n`
-  markdown += `- Change: ${totalDiffSymbol} **${formatBytes(Math.abs(comparison.totalDiff))}**                            
- (${comparison.totalPercentChange.toFixed(2)}%)\n\n`
+  markdown += `- Change: ${totalDiffSymbol} **${formatBytes(Math.abs(comparison.totalDiff))}** (${comparison.totalPercentChange.toFixed(2)}%)\n\n`
 
-  // Changes in dependencies
-  markdown += `## Significant Changes\n\n`
-  markdown += `| Package | Before | After | Diff | Change |\n`
-  markdown += `|---------|---------|--------|------|--------|\n`
+  markdown += `## Diff\n\n`
 
   const sortedDiffs = Object.entries(comparison.diffStats).sort(
     ([, a], [, b]) => Math.abs(b.diff) - Math.abs(a.diff),
@@ -124,32 +115,39 @@ function generateDiffMarkdown(prData, mainData, dependencies) {
 
   const significantChanges = sortedDiffs.filter(
     ([, stats]) =>
-      Math.abs(stats.percentChange) > 1 || Math.abs(stats.diff) > 1024, // Show if >1% change or >1KB
+      Math.abs(stats.percentChange) > 1 || Math.abs(stats.diff) > 1024,
   )
 
-  for (const [name, stats] of significantChanges) {
-    const version = dependencies[name]
-    const symbol = stats.diff > 0 ? "📈" : "📉"
-    markdown += `| ${name}@${version} | ${formatBytes(stats.before)} | ${formatBytes(stats.after)} | ${symbol}            
- ${formatBytes(Math.abs(stats.diff))} | ${stats.percentChange.toFixed(2)}% |\n`
-  }
-
-  if (sortedDiffs.length > significantChanges.length) {
-    markdown += `\n<details>\n`
-    markdown += `<summary>View All Changes</summary>\n\n`
+  if (significantChanges.length > 0) {
     markdown += `| Package | Before | After | Diff | Change |\n`
-    markdown += `|---------|---------|--------|------|--------|\n`
+    markdown += `|---------|--------|-------|------|--------|\n`
 
-    for (const [name, stats] of sortedDiffs) {
-      if (Math.abs(stats.percentChange) <= 1 && Math.abs(stats.diff) <= 1024) {
-        const version = dependencies[name]
-        const symbol = stats.diff > 0 ? "📈" : "📉"
-        markdown += `| ${name}@${version} | ${formatBytes(stats.before)} | ${formatBytes(stats.after)} | ${symbol}        
- ${formatBytes(Math.abs(stats.diff))} | ${stats.percentChange.toFixed(2)}% |\n`
-      }
+    for (const [name, stats] of significantChanges) {
+      const version = dependencies[name]
+      const symbol = stats.diff > 0 ? "📈" : "📉"
+      markdown += `| ${name}@${version} | ${formatBytes(stats.before)} | ${formatBytes(stats.after)} | ${symbol} ${formatBytes(Math.abs(stats.diff))} |     
+ ${stats.percentChange.toFixed(2)}% |\n`
     }
-    markdown += `\n</details>\n`
+  } else {
+    markdown += "No significant changes in bundle size.\n"
   }
+
+  markdown += `\n<details>\n`
+  markdown += `<summary>View Dependencies</summary>\n\n`
+  markdown += `| Package | Size |\n`
+  markdown += `|---------|------|\n`
+
+  const prStats = processData(prData, dependencies)
+  const prDependencies = Object.entries(prStats.depStats).sort(
+    ([, a], [, b]) => b.size - a.size,
+  )
+
+  for (const [name, stats] of prDependencies) {
+    const version = dependencies[name]
+    markdown += `| ${name}@${version} | ${formatBytes(stats.size)} |\n`
+  }
+
+  markdown += `\n</details>\n`
 
   return markdown
 }
