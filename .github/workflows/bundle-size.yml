@@ -1,0 +1,91 @@
+ name: Bundle Size Report                                                                                                  
+                                                                                                                           
+ on:                                                                                                                       
+   workflow_run:                                                                                                           
+     workflows: ["Trigger Size Check"]                                                                                     
+     types:                                                                                                                
+       - completed                                                                                                         
+                                                                                                                           
+ permissions:                                                                                                              
+   contents: read                                                                                                          
+   pull-requests: write                                                                                                    
+                                                                                                                           
+ jobs:                                                                                                                     
+   report:                                                                                                                 
+     runs-on: ubuntu-latest                                                                                                
+     if: >                                                                                                                 
+       github.event.workflow_run.event == 'pull_request' &&                                                                
+       github.event.workflow_run.conclusion == 'success'                                                                   
+     steps:                                                                                                                
+       - uses: actions/checkout@v3                                                                                         
+                                                                                                                           
+       - name: Get PR number                                                                                               
+         uses: dawidd6/action-download-artifact@v3                                                                         
+         with:                                                                                                             
+           workflow: ${{ github.event.workflow.id }}                                                                       
+           run_id: ${{ github.event.workflow_run.id }}                                                                     
+           name: bundle-stats                                                                                              
+           path: pr-stats                                                                                                  
+                                                                                                                           
+       - name: Setup Bun                                                                                                   
+         uses: oven-sh/setup-bun@v1                                                                                        
+         with:                                                                                                             
+           bun-version: latest                                                                                             
+                                                                                                                           
+       - name: Install dependencies                                                                                        
+         run: bun install                                                                                                  
+                                                                                                                           
+       - name: Build base stats                                                                                            
+         run: |                                                                                                            
+           VITE_BUNDLE_ANALYZE=true bun run build --mode production                                                        
+           mv dist/stats.html dist/base-stats.html                                                                         
+                                                                                                                           
+       - name: Debug Files                                                                                                 
+         run: |                                                                                                            
+           echo "Contents of dist directory:"                                                                              
+           ls -la dist/                                                                                                    
+           echo "Contents of pr-stats directory:"                                                                          
+           ls -la pr-stats/                                                                                                
+           echo "Base stats content:"                                                                                      
+           cat dist/base-stats.html || echo "No base stats file"                                                           
+           echo "PR stats content:"                                                                                        
+           cat pr-stats/stats.html || echo "No PR stats file"                                                              
+                                                                                                                           
+       - name: Generate Bundle Size Report                                                                                 
+         id: report                                                                                                        
+         run: |                                                                                                            
+           if [ ! -f "dist/base-stats.html" ]; then                                                                        
+             echo "Error: Base stats file not found" >> $GITHUB_STEP_SUMMARY                                               
+             exit 1                                                                                                        
+           fi                                                                                                              
+                                                                                                                           
+           if [ ! -f "pr-stats/stats.html" ]; then                                                                         
+             echo "Error: PR stats file not found" >> $GITHUB_STEP_SUMMARY                                                 
+             exit 1                                                                                                        
+           fi                                                                                                              
+                                                                                                                           
+           echo "report<<EOF" >> $GITHUB_OUTPUT                                                                            
+           echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                             
+           echo "" >> $GITHUB_OUTPUT                                                                                       
+           echo "### Base Branch Stats" >> $GITHUB_OUTPUT                                                                  
+           echo "\`\`\`" >> $GITHUB_OUTPUT                                                                                 
+           cat dist/base-stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" | sed 's/<[^>]*>//g' >> $GITHUB_OUTPUT ||   
+           echo "No stats found in base branch"                                                                                      
+           echo "\`\`\`" >> $GITHUB_OUTPUT                                                                                 
+           echo "" >> $GITHUB_OUTPUT                                                                                       
+           echo "### PR Branch Stats" >> $GITHUB_OUTPUT                                                                    
+           echo "\`\`\`" >> $GITHUB_OUTPUT                                                                                 
+           cat pr-stats/stats.html | grep -A 50 "<pre>" | grep -B 50 "</pre>" | sed 's/<[^>]*>//g' >> $GITHUB_OUTPUT || 
+           echo "No stats found in PR branch"                                                                                             
+           echo "\`\`\`" >> $GITHUB_OUTPUT                                                                                 
+           echo "EOF" >> $GITHUB_OUTPUT                                                                                    
+                                                                                                                           
+       - name: Comment on PR                                                                                               
+         uses: mshick/add-pr-comment@v2                                                                                    
+         with:                                                                                                             
+           message: |                                                                                                      
+             ${{ steps.report.outputs.report }}                                                                            
+           proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
+           repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+           allow-repeats: false                                                                                            
+

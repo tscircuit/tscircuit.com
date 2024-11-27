@@ -1,5 +1,6 @@
 import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
-import { defineConfig, Plugin } from "vite"
+import { defineConfig, Plugin, UserConfig } from "vite"
+import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
@@ -7,6 +8,7 @@ import { getNodeHandler } from "winterspec/adapters/node"
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
 
+// Create database instance with seed data for development
 const db = createDatabase({ seed: true })
 
 const fakeHandler = getNodeHandler(winterspecBundle as any, {
@@ -35,45 +37,77 @@ function apiFakePlugin(): Plugin {
   }
 }
 
-let plugins: any[] = [react()]
-let proxy: any = undefined
-if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
-  process.env.VITE_USE_FAKE_API = "true"
-  console.log("Using fake snippets API (see ./fake-snippets-api)")
-  plugins.push(apiFakePlugin())
-} else {
-  console.log(`Using snippets API at "${process.env.SNIPPETS_API_URL}"`)
-  process.env.VITE_SNIPPETS_API_URL =
-    process.env.VITE_SNIPPETS_API_URL || process.env.SNIPPETS_API_URL
-  proxy = {
-    "/api": {
-      target: process.env.SNIPPETS_API_URL as string,
-      changeOrigin: true,
-      rewrite: (path) => path.replace(/^\/api/, ""),
-    },
-  }
-}
+export default defineConfig(async (): Promise<UserConfig> => {
+  let proxyConfig: Record<string, any> | undefined
 
-export default defineConfig({
-  plugins,
-  define: {
-    global: {},
-  },
-  server: {
-    host: "127.0.0.1",
-    proxy,
-  },
-  build: {
-    minify: false,
-    terserOptions: {
-      compress: false,
-      mangle: false,
+  const plugins: PluginOption[] = [react()]
+
+  if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
+    const { visualizer } = await import("rollup-plugin-visualizer")
+    plugins.push(
+      visualizer({
+        filename: "dist/stats.html",
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+    )
+  }
+
+  if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
+    process.env.VITE_USE_FAKE_API = "true"
+    console.log("Using fake snippets API (see ./fake-snippets-api)")
+    plugins.push(apiFakePlugin())
+  } else {
+    console.log(`Using snippets API at "${process.env.SNIPPETS_API_URL}"`)
+    process.env.VITE_SNIPPETS_API_URL =
+      process.env.VITE_SNIPPETS_API_URL || process.env.SNIPPETS_API_URL
+    proxyConfig = {
+      "/api": {
+        target: process.env.SNIPPETS_API_URL as string,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    }
+  }
+
+  return {
+    plugins,
+    define: {
+      global: {},
     },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+    server: {
+      host: "127.0.0.1",
+      proxy: proxyConfig,
     },
-  },
-  logLevel: "info",
+    build: {
+      minify: false,
+      terserOptions: {
+        compress: false,
+        mangle: false,
+      },
+      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            "react-vendor": ["react", "react-dom"],
+            codemirror: [
+              "@codemirror/autocomplete",
+              "@codemirror/lang-javascript",
+              "@codemirror/lang-json",
+              "@codemirror/lint",
+              "@codemirror/state",
+              "@codemirror/view",
+            ],
+          },
+        },
+      },
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
+    logLevel: "info",
+  }
 })
