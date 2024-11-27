@@ -43,9 +43,9 @@ jobs:
         id: bundle-stats
         run: |
           node scripts/generate_bundle_stats.js dist/stats.html
-          echo "stats<<EOF" >> $GITHUB_OUTPUT
-          cat dist/bundle_stats.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo 'STATS_CONTENT<<EOF' >> $GITHUB_ENV
+          cat dist/bundle_stats.md >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
@@ -54,7 +54,7 @@ jobs:
           message: |                                                                                                      
             ## 📊 Bundle Size Analysis                                                                                    
                                                                                                                           
-            ${{ steps.stats-extract.outputs.stats }}                                                                      
+            ${{ env.STATS_CONTENT }}                                                                      
                                                                                                                           
             <details>                                                                                                     
             <summary>What is this?</summary>                                                                              
