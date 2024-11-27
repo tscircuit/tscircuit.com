@@ -8,6 +8,8 @@ on:
       - 'package.json'
       - 'vite.config.ts'
       - 'bun.lockb'
+      - '.github/workflows/**'
+      - 'scripts/**'
 
 permissions:
   contents: read
