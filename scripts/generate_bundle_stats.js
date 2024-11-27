@@ -89,7 +89,7 @@ function generateMarkdown(data, dependencies) {
 
   if (remainingDeps.length > 0) {
     markdown += `\n<details>\n`
-    markdown += `<summary>View All Dependencies</summary>\n\n`
+    markdown += `<summary>View More</summary>\n\n`
     markdown += `| Package | Size |\n`
     markdown += `|---------|------|\n`
 
