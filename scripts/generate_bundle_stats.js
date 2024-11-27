@@ -82,13 +82,11 @@ function compareSizes(prData, mainData, dependencies) {
     const mainSize = mainStats.depStats[dep]?.size || 0
     const diff = prSize - mainSize
 
-    if (diff !== 0) {
-      diffStats[dep] = {
-        before: mainSize,
-        after: prSize,
-        diff,
-        percentChange: (diff / mainSize) * 100 || 0,
-      }
+    diffStats[dep] = {
+      before: mainSize,
+      after: prSize,
+      diff,
+      percentChange: (diff / mainSize) * 100 || 0,
     }
   })
 
