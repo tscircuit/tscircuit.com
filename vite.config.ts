@@ -53,25 +53,22 @@ export default defineConfig(async (): Promise<UserConfig> => {
       }),
     )
     plugins.push({
-         name: 'generate-bundle-stats',
-         closeBundle: async () => {
-           const { exec } = require('child_process');
-           exec('node scripts/generate_bundle_stats.js dist/stats.html', (error, stdout, stderr) => {
-             if (error) {
-               console.error(`Error generating bundle stats:
- ${error.message}`);
-               return;
-             }
-             if (stderr) {
-               console.error(`Bundle stats generation stderr:        
- ${stderr}`);
-               return;
-             }
-             console.log(stdout);
-           });
-         },
-       });
-     
+      name: 'generate-bundle-stats',
+      closeBundle: async () => {
+        const { exec } = require('child_process');
+        exec('node scripts/generate_bundle_stats.js dist/stats.html', (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error generating bundle stats: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            console.error(`Bundle stats generation stderr: ${stderr}`);
+            return;
+          }
+          console.log(stdout);
+        });
+      },
+    });
   }
 
   if (!process.env.SNIPPETS_API_URL && !process.env.VERCEL) {
