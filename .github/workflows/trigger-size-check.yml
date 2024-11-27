@@ -39,59 +39,13 @@ jobs:
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
 
-      - name: Extract stats                                                                                               
-        id: stats-extract                                                                                                 
-        if: success()                                                                                                     
-        run: |                                                                                                            
-          if [ -f dist/stats.html ]; then                                                                                 
-            # Extract the JSON data between 'const data = ' and the next semicolon                                        
-            echo "Extracting JSON data..."                                                                                
-            sed -n '/const data = {/,/};/p' dist/stats.html > temp_data.json                                              
-                                                                                                                          
-            # Debug: Show structure                                                                                       
-            echo "Data structure:"                                                                                        
-            cat temp_data.json | grep -A 10 '"nodeParts"' | head -n 20                                                    
-                                                                                                                          
-            # Calculate total size                                                                                        
-            TOTAL_BYTES=$(cat dist/stats.html | grep -o '"renderedLength":[0-9]*' | sed 's/"renderedLength"://' | awk '{ sum += $1 } END { print sum }')                                                                                           
-            TOTAL_MB=$(echo "scale=1; $TOTAL_BYTES/1024/1024" | bc)                                                       
-                                                                                                                          
-            echo "stats<<EOF" >> $GITHUB_OUTPUT                                                                           
-            echo "## 📦 Bundle Size Analysis" >> $GITHUB_OUTPUT                                                           
-            echo "" >> $GITHUB_OUTPUT                                                                                     
-            echo "Total Bundle Size: **${TOTAL_MB} MB**" >> $GITHUB_OUTPUT                                                
-            echo "" >> $GITHUB_OUTPUT                                                                                     
-            echo "### Top Dependencies" >> $GITHUB_OUTPUT                                                                 
-            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
-                                                                                                                          
-            # Process dependencies                                                                                        
-            echo "Processing dependencies..."                                                                             
-            {                                                                                                             
-              cat temp_data.json | grep -o '"id":"[^"]*node_modules[^"]*","renderedLength":[0-9]*' | \                    
-              while read -r line; do                                                                                      
-                PKG_NAME=$(echo "$line" | grep -o 'node_modules/[^/"]*' | sed 's/node_modules\///' | head -n 1)           
-                SIZE=$(echo "$line" | grep -o '"renderedLength":[0-9]*' | cut -d':' -f2)                                  
-                if [ ! -z "$SIZE" ] && [ $SIZE -gt 5120 ]; then                                                           
-                  KB_SIZE=$((SIZE/1024))                                                                                  
-                  printf "%-20s %6d KB\n" "$PKG_NAME" "$KB_SIZE"                                                          
-                fi                                                                                                        
-              done                                                                                                        
-            } | sort -k2 -nr | head -n 10 >> $GITHUB_OUTPUT                                                               
-                                                                                                                          
-            echo "\`\`\`" >> $GITHUB_OUTPUT                                                                               
-            echo "EOF" >> $GITHUB_OUTPUT                                                                                  
-                                                                                                                          
-            # Clean up                                                                                                    
-            rm temp_data.json                                                                                             
-                                                                                                                          
-            # Show final output for debugging                                                                             
-            echo "Final output:"                                                                                          
-            cat $GITHUB_OUTPUT                                                                                            
-          else                                                                                                            
-            echo "Stats file not found at dist/stats.html"                                                                
-            exit 1                                                                                                        
-          fi                                                                                                              
- 
+      - name: Generate bundle stats
+        id: bundle-stats
+        run: |
+          node scripts/generate_bundle_stats.js dist/stats.html
+          echo "stats<<EOF" >> $GITHUB_OUTPUT
+          cat dist/bundle_stats.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Read and post stats                                                                                         
         if: success()                                                                                                     
@@ -100,9 +54,7 @@ jobs:
           message: |                                                                                                      
             ## 📊 Bundle Size Analysis                                                                                    
                                                                                                                           
-            ```                                                                                                           
             ${{ steps.stats-extract.outputs.stats }}                                                                      
-            ```                                                                                                           
                                                                                                                           
             <details>                                                                                                     
             <summary>What is this?</summary>                                                                              
