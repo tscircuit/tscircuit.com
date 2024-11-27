@@ -101,6 +101,8 @@ function compareSizes(prData, mainData, dependencies) {
 }
 
 function generateDiffMarkdown(prData, mainData, dependencies) {
+  const comparison = compareSizes(prData, mainData, dependencies)
+  let markdown = ""
   const totalDiffSymbol = comparison.totalDiff > 0 ? "📈" : "📉"
   markdown += `## Total Bundle Size\n\n`
   markdown += `- Before: **${formatBytes(comparison.totalBefore)}**\n`
