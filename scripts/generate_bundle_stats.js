@@ -67,76 +67,123 @@ function processData(data, dependencies) {
   return { totalSize, depStats }
 }
 
-function generateMarkdown(data, dependencies) {
-  const { totalSize, depStats } = processData(data, dependencies)
-
-  let markdown = `# Bundle Size Analysis\n\n`
-  markdown += `Total Bundle Size: **${formatBytes(totalSize)}**\n\n`
-  markdown += `## Top 10 Dependencies\n\n`
-  markdown += `| Package | Size |\n`
-  markdown += `|---------|------|\n`
-
-  const sortedDeps = Object.entries(depStats).sort(
-    ([, a], [, b]) => b.size - a.size,
-  )
-  const top10Deps = sortedDeps.slice(0, 10)
-  const remainingDeps = sortedDeps.slice(10)
-
-  for (const [name, stats] of top10Deps) {
-    const version = dependencies[name]
-    markdown += `| ${name}@${version} | ${formatBytes(stats.size)} |\n`
-  }
-
-  if (remainingDeps.length > 0) {
-    markdown += `\n<details>\n`
-    markdown += `<summary>View More</summary>\n\n`
-    markdown += `| Package | Size |\n`
-    markdown += `|---------|------|\n`
-
-    for (const [name, stats] of remainingDeps) {
-      const version = dependencies[name]
-      markdown += `| ${name}@${version} | ${formatBytes(stats.size)} |\n`
-    }
-
-    markdown += `\n</details>\n`
-  }
-
-  return markdown
-}
-
-function main() {
-  const args = process.argv.slice(2)
-  if (args.length !== 1) {
-    console.error("Usage: node generate_bundle_stats.js <path_to_stats.html>")
-    process.exit(1)
-  }
-
-  const inputFile = args[0]
-  const outputFile = path.join(path.dirname(inputFile), "bundle_stats.md")
-
-  try {
-    console.log(`Processing file: ${inputFile}`)
-    if (!fs.existsSync(inputFile)) {
-      console.error(`File not found: ${inputFile}`)
-      process.exit(1)
-    }
-    const data = parseStatsHtml(inputFile)
-    if (!data) {
-      console.error("Failed to parse stats.html")
-      process.exit(1)
-    }
-    const dependencies = getDependencies()
-    const markdown = generateMarkdown(data, dependencies)
-    if (!markdown) {
-      console.error("Failed to generate markdown")
-      process.exit(1)
-    }
-    fs.writeFileSync(outputFile, markdown)
-    console.log(`Bundle stats markdown generated: ${outputFile}`)
-  } catch (error) {
-    console.error("Error:", error.message)
-    process.exit(1)
-  }
-}
+ function compareSizes(prData, mainData, dependencies) {                                                                   
+   const prStats = processData(prData, dependencies)                                                                       
+   const mainStats = processData(mainData, dependencies)                                                                   
+                                                                                                                           
+   const diffStats = {}                                                                                                    
+   const allDeps = new Set([                                                                                               
+     ...Object.keys(prStats.depStats),                                                                                     
+     ...Object.keys(mainStats.depStats)                                                                                    
+   ])                                                                                                                      
+                                                                                                                           
+   allDeps.forEach(dep => {                                                                                                
+     const prSize = prStats.depStats[dep]?.size || 0                                                                       
+     const mainSize = mainStats.depStats[dep]?.size || 0                                                                   
+     const diff = prSize - mainSize                                                                                        
+                                                                                                                           
+     if (diff !== 0) {                                                                                                     
+       diffStats[dep] = {                                                                                                  
+         before: mainSize,                                                                                                 
+         after: prSize,                                                                                                    
+         diff,                                                                                                             
+         percentChange: ((diff / mainSize) * 100) || 0                                                                     
+       }                                                                                                                   
+     }                                                                                                                     
+   })                                                                                                                      
+                                                                                                                           
+   return {                                                                                                                
+     totalBefore: mainStats.totalSize,                                                                                     
+     totalAfter: prStats.totalSize,                                                                                        
+     totalDiff: prStats.totalSize - mainStats.totalSize,                                                                   
+     totalPercentChange: ((prStats.totalSize - mainStats.totalSize) / mainStats.totalSize * 100),                          
+     diffStats                                                                                                             
+   }                                                                                                                       
+ }                                                                                                                         
+                                                                                                                           
+ function generateDiffMarkdown(prData, mainData, dependencies) {                                                           
+   const comparison = compareSizes(prData, mainData, dependencies)                                                         
+                                                                                                                           
+   let markdown = `# Bundle Size Comparison\n\n`                                                                           
+                                                                                                                           
+   // Total size comparison                                                                                                
+   const totalDiffSymbol = comparison.totalDiff > 0 ? '📈' : '📉'                                                          
+   markdown += `## Total Bundle Size\n\n`                                                                                  
+   markdown += `- Before: **${formatBytes(comparison.totalBefore)}**\n`                                                    
+   markdown += `- After: **${formatBytes(comparison.totalAfter)}**\n`                                                      
+   markdown += `- Change: ${totalDiffSymbol} **${formatBytes(Math.abs(comparison.totalDiff))}**                            
+ (${comparison.totalPercentChange.toFixed(2)}%)\n\n`                                                                       
+                                                                                                                           
+   // Changes in dependencies                                                                                              
+   markdown += `## Significant Changes\n\n`                                                                                
+   markdown += `| Package | Before | After | Diff | Change |\n`                                                            
+   markdown += `|---------|---------|--------|------|--------|\n`                                                          
+                                                                                                                           
+   const sortedDiffs = Object.entries(comparison.diffStats)                                                                
+     .sort(([, a], [, b]) => Math.abs(b.diff) - Math.abs(a.diff))                                                          
+                                                                                                                           
+   const significantChanges = sortedDiffs.filter(([, stats]) =>                                                            
+     Math.abs(stats.percentChange) > 1 || Math.abs(stats.diff) > 1024 // Show if >1% change or >1KB                        
+   )                                                                                                                       
+                                                                                                                           
+   for (const [name, stats] of significantChanges) {                                                                       
+     const version = dependencies[name]                                                                                    
+     const symbol = stats.diff > 0 ? '📈' : '📉'                                                                           
+     markdown += `| ${name}@${version} | ${formatBytes(stats.before)} | ${formatBytes(stats.after)} | ${symbol}            
+ ${formatBytes(Math.abs(stats.diff))} | ${stats.percentChange.toFixed(2)}% |\n`                                            
+   }                                                                                                                       
+                                                                                                                           
+   if (sortedDiffs.length > significantChanges.length) {                                                                   
+     markdown += `\n<details>\n`                                                                                           
+     markdown += `<summary>View All Changes</summary>\n\n`                                                                 
+     markdown += `| Package | Before | After | Diff | Change |\n`                                                          
+     markdown += `|---------|---------|--------|------|--------|\n`                                                        
+                                                                                                                           
+     for (const [name, stats] of sortedDiffs) {                                                                            
+       if (Math.abs(stats.percentChange) <= 1 && Math.abs(stats.diff) <= 1024) {                                           
+         const version = dependencies[name]                                                                                
+         const symbol = stats.diff > 0 ? '📈' : '📉'                                                                       
+         markdown += `| ${name}@${version} | ${formatBytes(stats.before)} | ${formatBytes(stats.after)} | ${symbol}        
+ ${formatBytes(Math.abs(stats.diff))} | ${stats.percentChange.toFixed(2)}% |\n`                                            
+       }                                                                                                                   
+     }                                                                                                                     
+     markdown += `\n</details>\n`                                                                                          
+   }                                                                                                                       
+                                                                                                                           
+   return markdown                                                                                                         
+ }                                                                                                                         
+                                                                                                                           
+ function main() {                                                                                                         
+   const args = process.argv.slice(2)                                                                                      
+   if (args.length !== 2) {                                                                                                
+     console.error("Usage: node generate_bundle_stats.js <pr_stats.html> <main_stats.html>")                               
+     process.exit(1)                                                                                                       
+   }                                                                                                                       
+                                                                                                                           
+   const [prStatsFile, mainStatsFile] = args                                                                               
+                                                                                                                           
+   try {                                                                                                                   
+     console.log(`Processing PR stats: ${prStatsFile}`)                                                                    
+     console.log(`Processing main stats: ${mainStatsFile}`)                                                                
+                                                                                                                           
+     const prData = parseStatsHtml(prStatsFile)                                                                            
+     const mainData = parseStatsHtml(mainStatsFile)                                                                        
+                                                                                                                           
+     if (!prData || !mainData) {                                                                                           
+       console.error("Failed to parse stats files")                                                                        
+       process.exit(1)                                                                                                     
+     }                                                                                                                     
+                                                                                                                           
+     const dependencies = getDependencies()                                                                                
+     const markdown = generateDiffMarkdown(prData, mainData, dependencies)                                                 
+                                                                                                                           
+     const outputFile = path.join(path.dirname(prStatsFile), "bundle_stats.md")                                            
+     fs.writeFileSync(outputFile, markdown)                                                                                
+     console.log(`Bundle stats comparison markdown generated: ${outputFile}`)                                              
+   } catch (error) {                                                                                                       
+     console.error("Error:", error.message)                                                                                
+     process.exit(1)                                                                                                       
+   }                                                                                                                       
+ }                                                                                                                         
 
 main()

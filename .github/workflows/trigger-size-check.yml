@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build with stats
+      - name: Build PR branch with stats
         run: |
           VITE_BUNDLE_ANALYZE=true bun run build --mode production
 
@@ -39,10 +39,24 @@ jobs:
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
 
+      - name: Checkout main branch                                                                                        
+        uses: actions/checkout@v4                                                                                         
+        with:                                                                                                             
+          ref: main                                                                                                       
+          path: main-branch                                                                                               
+                                                                                                                          
+      - name: Build main branch stats                                                                                     
+        run: |                                                                                                            
+          cd main-branch                                                                                                  
+          bun install                                                                                                     
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production                                                        
+          cd ..                                                                                                           
+
+
       - name: Generate bundle stats
         id: bundle-stats
         run: |
-          node scripts/generate_bundle_stats.js dist/stats.html
+          node scripts/generate_bundle_stats.js dist/stats.html main-branch/dist/stats.html
           echo 'STATS_CONTENT<<EOF' >> $GITHUB_ENV
           cat dist/bundle_stats.md >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
