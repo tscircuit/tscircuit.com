@@ -27,15 +27,18 @@ export const RenameSnippetDialog = ({
   const [pending, setPending] = useState(false)
 
   const handleRename = async () => {
+    // Prevent multiple submissions while pending
+    if (pending) return
     try {
       setPending(true)
+      // timeout to prevent rapid calls
+      await new Promise((resolve) => setTimeout(resolve, 500))
       await axios.post("/snippets/update", {
         snippet_id: snippetId,
         unscoped_name: newName,
       })
       onRename?.(newName)
       onOpenChange(false)
-      setPending(false)
       toast({
         title: "Snippet renamed",
         description: `Successfully renamed to "${newName}"`,
@@ -48,6 +51,8 @@ export const RenameSnippetDialog = ({
         description: "Failed to rename the snippet. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setPending(false)
     }
   }
 
@@ -61,6 +66,7 @@ export const RenameSnippetDialog = ({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Enter new name"
+          disabled={pending}
         />
         <Button disabled={pending} onClick={handleRename}>
           {pending ? "Renaming..." : "Rename"}
