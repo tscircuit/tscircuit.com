@@ -16,7 +16,6 @@
     "dev": "bun run build:fake-api && vite",
     "dev:registry": "SNIPPETS_API_URL=http://localhost:3100 vite",
     "build": "bun run build:fake-api && tsc -b && vite build",
-    "postbuild": "node scripts/generate_bundle_stats.js dist/stats.html",
     "preview": "vite preview",
     "format": "biome format --write .",
     "lint": "biome format .",
