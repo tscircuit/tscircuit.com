@@ -8,7 +8,8 @@ export const useSignIn = () => {
   const setSession = useGlobalStore((s) => s.setSession)
   return () => {
     if (!isUsingFakeApi) {
-      window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${window.location.origin}/authorize`
+      const nextUrl = window.location.origin.replace("127.0.0.1", "localhost")
+      window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}/authorize`
     } else {
       setSession({
         account_id: "account-1234",
