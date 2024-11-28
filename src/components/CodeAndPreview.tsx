@@ -51,6 +51,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
+  const [fullScreen, setFullScreen] = useState(false)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ?? (templateFromUrl.type as any)
@@ -197,7 +198,12 @@ export function CodeAndPreview({ snippet }: Props) {
         </div>
         {showPreview && (
           <PreviewContent
-            className="w-full md:w-1/2 p-2 min-h-[640px]"
+            className={cn(
+              "flex p-2 flex-col min-h-[640px]",
+              fullScreen
+                ? "h-screen fixed inset-0 z-50 bg-white p-4 overflow-auto"
+                : "w-full md:w-1/2",
+            )}
             code={code}
             triggerRunTsx={triggerRunTsx}
             tsxRunTriggerCount={tsxRunTriggerCount}
@@ -207,6 +213,8 @@ export function CodeAndPreview({ snippet }: Props) {
             isRunningCode={isRunningCode}
             manualEditsFileContent={manualEditsFileContent}
             onManualEditsFileContentChange={setManualEditsFileContent}
+            onToggleFullScreen={() => setFullScreen(!fullScreen)}
+            isFullScreen={fullScreen}
           />
         )}
       </div>
