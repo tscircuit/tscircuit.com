@@ -44,7 +44,7 @@ export interface PreviewContentProps {
   leftHeaderContent?: React.ReactNode
   isRunningCode?: boolean
   isStreaming?: boolean
-  onFullScreen?: () => void
+  onToggleFullScreen?: () => void
   isFullScreen?: boolean
   onCodeChange?: (code: string) => void
   onDtsChange?: (dts: string) => void
@@ -67,7 +67,7 @@ export const PreviewContent = ({
   leftHeaderContent,
   readOnly,
   isStreaming,
-  onFullScreen,
+  onToggleFullScreen,
   isFullScreen,
   isRunningCode,
   onCodeChange,
@@ -206,9 +206,9 @@ export const PreviewContent = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </TabsList>
-            {onFullScreen && (
+            {onToggleFullScreen && (
               <Button
-                onClick={onFullScreen}
+                onClick={onToggleFullScreen}
                 className="rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
               >
                 {isFullScreen ? (

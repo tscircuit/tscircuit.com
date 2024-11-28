@@ -213,7 +213,7 @@ export function CodeAndPreview({ snippet }: Props) {
             isRunningCode={isRunningCode}
             manualEditsFileContent={manualEditsFileContent}
             onManualEditsFileContentChange={setManualEditsFileContent}
-            onFullScreen={() => setFullScreen(!fullScreen)}
+            onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}
           />
         )}
