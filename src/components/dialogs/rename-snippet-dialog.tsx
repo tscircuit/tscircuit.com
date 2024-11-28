@@ -2,10 +2,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useState } from "react"
+import { useMutation, useQueryClient } from "react-query"
 import { createUseDialog } from "./create-use-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
-import { useQueryClient } from "react-query"
 
 export const RenameSnippetDialog = ({
   open,
@@ -24,36 +24,39 @@ export const RenameSnippetDialog = ({
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
-  const [pending, setPending] = useState(false)
 
-  const handleRename = async () => {
-    // Prevent multiple submissions while pending
-    if (pending) return
-    try {
-      setPending(true)
-      // timeout to prevent rapid calls
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      await axios.post("/snippets/update", {
+  const renameSnippetMutation = useMutation({
+    mutationFn: async () => {
+      const response = await axios.post("/snippets/update", {
         snippet_id: snippetId,
         unscoped_name: newName,
       })
+      if (response.status !== 200) {
+        throw new Error("Failed to rename snippet")
+      }
+      return response.data
+    },
+    onSuccess: () => {
       onRename?.(newName)
       onOpenChange(false)
       toast({
         title: "Snippet renamed",
         description: `Successfully renamed to "${newName}"`,
       })
-      qc.invalidateQueries({ queryKey: ["snippets"] })
-    } catch (error) {
+      qc.invalidateQueries({ queryKey: ["snippets", snippetId] })
+    },
+    onError: (error) => {
       console.error("Error renaming snippet:", error)
       toast({
         title: "Error",
         description: "Failed to rename the snippet. Please try again.",
         variant: "destructive",
       })
-    } finally {
-      setPending(false)
-    }
+    },
+  })
+
+  const handleRename = () => {
+    renameSnippetMutation.mutate()
   }
 
   return (
@@ -66,10 +69,13 @@ export const RenameSnippetDialog = ({
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Enter new name"
-          disabled={pending}
+          disabled={renameSnippetMutation.isLoading}
         />
-        <Button disabled={pending} onClick={handleRename}>
-          {pending ? "Renaming..." : "Rename"}
+        <Button
+          disabled={renameSnippetMutation.isLoading}
+          onClick={handleRename}
+        >
+          {renameSnippetMutation.isLoading ? "Renaming..." : "Rename"}
         </Button>
       </DialogContent>
     </Dialog>
