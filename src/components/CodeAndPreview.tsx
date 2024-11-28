@@ -16,7 +16,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
-import { parseJsonOrString } from "@/lib/utils/parseJson"
+import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 
 interface Props {
   snippet?: Snippet | null
@@ -41,7 +41,7 @@ export function CodeAndPreview({ snippet }: Props) {
     )
   }, [])
 
-  const [manualEditsFileContent, setManualEditsFileContent] = useState("{}")
+  const [manualEditsFileContent, setManualEditsFileContent] = useState("")
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -67,7 +67,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const userImports = useMemo(
     () => ({
-      "./manual-edits.json": parseJsonOrString(manualEditsFileContent),
+      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? "",
     }),
     [manualEditsFileContent],
   )

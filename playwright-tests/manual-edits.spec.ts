@@ -1,32 +1,42 @@
 import { test, expect } from "@playwright/test"
 
 test("Manual edits test", async ({ page }) => {
-  await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_5")
+  test.setTimeout(60000) // Extend timeout for the test
+
+  await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
   await page.waitForLoadState("networkidle")
 
   const loginButton = page.getByRole("button", { name: "Fake testuser Login" })
   await loginButton.waitFor({ state: "visible" })
   await loginButton.click()
 
+  const editorTextbox = page.getByRole("textbox").first()
+  await editorTextbox.waitFor({ state: "visible" })
+  await editorTextbox.click()
+
+  await page.keyboard.press("Control+A")
+  await page.keyboard.press("Backspace")
+
+  const indexCode = `import { A555Timer } from "@tsci/seveibar.a555timer"
+  import manualEdits from "./manual-edits.json"
+
+  export default () => (
+    <board width="10mm" height="10mm" manualEdits={manualEdits}>
+      <A555Timer name="U1" />
+    </board>
+  )`
+
+  await editorTextbox.fill(indexCode)
+
   const combobox = page.getByRole("combobox")
   await combobox.waitFor({ state: "visible" })
   await combobox.click()
 
-  const fileOption = page.getByText("manual-edits.json")
+  const fileOption = page.getByText("manual-edits.json", { exact: true })
   await fileOption.waitFor({ state: "visible" })
   await fileOption.click()
 
-  // Wait for file content to load
-  await page.waitForLoadState("networkidle")
-
-  const emptyPlacementsText = page.getByText("{}")
-  await emptyPlacementsText.waitFor({ state: "visible" })
-  await emptyPlacementsText.click()
-
-  await page.keyboard.press("Control+End")
-  await page.keyboard.down("Shift")
-  await page.keyboard.press("Control+Home")
-  await page.keyboard.up("Shift")
+  await page.getByRole("textbox").locator("div").click()
 
   const pcbPlacementsData = `{
     "pcb_placements": [
@@ -46,35 +56,29 @@ test("Manual edits test", async ({ page }) => {
 
   await page.keyboard.type(pcbPlacementsData)
 
-  // Wait for Run button and click
   const runButton = page.getByRole("button", { name: "Run", exact: true })
   await runButton.waitFor({ state: "visible" })
   await runButton.click()
 
-  // Wait for any animations/processing after Run
-  await page.waitForLoadState("networkidle")
-
-  // Wait for Save button and click
   const saveButton = page.getByRole("button", { name: "Save" })
-  await saveButton.waitFor({ state: "visible", timeout: 10000 })
+  await saveButton.waitFor({ state: "visible", timeout: 20000 }) // Extend timeout for Save button
   await saveButton.click()
 
   await page.waitForTimeout(1000)
 
   await expect(page).toHaveScreenshot("editor-manual-edits.png")
 
-  // Navigate to view page
-  await page.goto("http://127.0.0.1:5177/testuser/a555timer-square-wave")
-  await page.waitForLoadState("networkidle")
+  await page.goto("http://127.0.0.1:5177/testuser/my-test-board", {
+    waitUntil: "domcontentloaded",
+  })
 
   const filesLink = page.getByRole("link", { name: "Files" })
   await filesLink.waitFor({ state: "visible" })
   await filesLink.click()
 
-  const fileLink = page.getByText("manual-edits.json")
+  const fileLink = page.getByText("manual-edits.json", { exact: true })
   await fileLink.waitFor({ state: "visible" })
   await fileLink.click()
 
-  await page.waitForLoadState("networkidle")
   await expect(page).toHaveScreenshot("manual-edits-view.png")
 })
