@@ -12,10 +12,10 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/a.b.c",
     "@tsci/package-with-numbers123",
     "@tsci/package123-with-numbers",
-    "@tsci/core.utils-helper"
+    "@tsci/core.utils-helper",
   ]
 
-  validPackages.forEach(pkg => {
+  validPackages.forEach((pkg) => {
     test(`should match valid package: ${pkg}`, () => {
       const matches = Array.from(pkg.matchAll(TSCI_PACKAGE_PATTERN))
       expect(matches).toHaveLength(1)
@@ -42,19 +42,23 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/@invalid", // Invalid character
   ]
 
-  invalidPackages.forEach(pkg => {
+  invalidPackages.forEach((pkg) => {
     test(`should not match invalid package: ${pkg}`, () => {
       const matches = Array.from(pkg.matchAll(TSCI_PACKAGE_PATTERN))
-      console.log(Array.from(pkg.matchAll(TSCI_PACKAGE_PATTERN)));
+      console.log(Array.from(pkg.matchAll(TSCI_PACKAGE_PATTERN)))
       expect(matches).toHaveLength(0)
     })
   })
 
   // Test import statements
   test("should match package names in import statements", () => {
-    const importStatement = 'import { something } from "@tsci/valid-package" import { other } from "@tsci/other-package.sub"'
+    const importStatement =
+      'import { something } from "@tsci/valid-package" import { other } from "@tsci/other-package.sub"'
     const matches = Array.from(importStatement.matchAll(TSCI_PACKAGE_PATTERN))
     expect(matches).toHaveLength(2)
-    expect(matches.map(m => m[0])).toEqual(["@tsci/valid-package", "@tsci/other-package.sub"])
+    expect(matches.map((m) => m[0])).toEqual([
+      "@tsci/valid-package",
+      "@tsci/other-package.sub",
+    ])
   })
 })

@@ -297,9 +297,7 @@ export const CodeEditor = ({
                 for (let pos = from; pos < to; ) {
                   const line = view.state.doc.lineAt(pos)
                   const lineText = line.text
-                  const matches = lineText.matchAll(
-                    TSCI_PACKAGE_PATTERN,
-                  )
+                  const matches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
                   for (const match of matches) {
                     if (match.index !== undefined) {
                       const start = line.from + match.index

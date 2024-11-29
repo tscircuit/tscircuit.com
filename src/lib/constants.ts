@@ -8,4 +8,5 @@
  * - Cannot end with dots or dashes
  * - Cannot have consecutive dots or dashes
  */
-export const TSCI_PACKAGE_PATTERN = /@tsci\/[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*)*$/g
+export const TSCI_PACKAGE_PATTERN =
+  /@tsci\/[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*)*$/g
