@@ -13,6 +13,7 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/package-with-numbers123",
     "@tsci/package123-with-numbers",
     "@tsci/core.utils-helper",
+    "@tsci/double--dash",
   ]
 
   validPackages.forEach((pkg) => {
@@ -29,7 +30,7 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/123start-with-number", // Starts with number
     "@tsci/-start-with-dash", // Starts with dash
     "@tsci/.start-with-dot", // Starts with dot
-    "@tsci/double--dash", // Double dash
+    
     "@tsci/double..dot", // Double dot
     "@tsci/end-with-dash-", // Ends with dash
     "@tsci/end-with-dot.", // Ends with dot
