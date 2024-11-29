@@ -1,4 +1,4 @@
-name: Trigger Size Check
+name: Bundle Size Analysis
 
 on:
   pull_request:
