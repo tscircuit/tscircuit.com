@@ -30,7 +30,7 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/123start-with-number", // Starts with number
     "@tsci/-start-with-dash", // Starts with dash
     "@tsci/.start-with-dot", // Starts with dot
-    
+
     "@tsci/double..dot", // Double dot
     "@tsci/end-with-dash-", // Ends with dash
     "@tsci/end-with-dot.", // Ends with dot
