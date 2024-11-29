@@ -10,6 +10,7 @@ import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
+import { TSCI_PACKAGE_PATTERN } from "../lib/constants"
 import {
   createDefaultMapFromCDN,
   createSystem,
@@ -225,7 +226,7 @@ export const CodeEditor = ({
               const lineEnd = line.to
               const lineText = view.state.sliceDoc(lineStart, lineEnd)
               const matches = Array.from(
-                lineText.matchAll(/@tsci\/[\w.-]+(?:\.[\w-]+)*/g),
+                lineText.matchAll(TSCI_PACKAGE_PATTERN),
               )
 
               for (const match of matches) {
@@ -262,7 +263,7 @@ export const CodeEditor = ({
                 const lineEnd = line.to
                 const lineText = view.state.sliceDoc(lineStart, lineEnd)
                 const matches = Array.from(
-                  lineText.matchAll(/@tsci\/[\w.-]+(?:\.[\w-]+)*/g),
+                  lineText.matchAll(TSCI_PACKAGE_PATTERN),
                 )
                 for (const match of matches) {
                   if (match.index !== undefined) {
@@ -297,7 +298,7 @@ export const CodeEditor = ({
                   const line = view.state.doc.lineAt(pos)
                   const lineText = line.text
                   const matches = lineText.matchAll(
-                    /@tsci\/[\w.-]+(?:\.[\w-]+)*/g,
+                    TSCI_PACKAGE_PATTERN,
                   )
                   for (const match of matches) {
                     if (match.index !== undefined) {
