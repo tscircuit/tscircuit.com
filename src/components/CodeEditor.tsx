@@ -10,6 +10,7 @@ import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
+import { TSCI_PACKAGE_PATTERN } from "../lib/constants"
 import {
   createDefaultMapFromCDN,
   createSystem,
@@ -224,7 +225,9 @@ export const CodeEditor = ({
               const lineStart = line.from
               const lineEnd = line.to
               const lineText = view.state.sliceDoc(lineStart, lineEnd)
-              const matches = Array.from(lineText.matchAll(/@tsci\/[\w\-.]+/g))
+              const matches = Array.from(
+                lineText.matchAll(TSCI_PACKAGE_PATTERN),
+              )
 
               for (const match of matches) {
                 if (match.index !== undefined) {
@@ -260,7 +263,7 @@ export const CodeEditor = ({
                 const lineEnd = line.to
                 const lineText = view.state.sliceDoc(lineStart, lineEnd)
                 const matches = Array.from(
-                  lineText.matchAll(/@tsci\/[\w\-.]+/g),
+                  lineText.matchAll(TSCI_PACKAGE_PATTERN),
                 )
                 for (const match of matches) {
                   if (match.index !== undefined) {
@@ -268,9 +271,11 @@ export const CodeEditor = ({
                     const end = start + match[0].length
                     if (pos >= start && pos <= end) {
                       const importName = match[0]
-                      const [owner, name] = importName
+                      // Handle potential dots and dashes in package names
+                      const [owner, ...nameParts] = importName
                         .replace("@tsci/", "")
                         .split(".")
+                      const name = nameParts.join(".")
                       window.open(`/${owner}/${name}`, "_blank")
                       return true
                     }
@@ -292,7 +297,7 @@ export const CodeEditor = ({
                 for (let pos = from; pos < to; ) {
                   const line = view.state.doc.lineAt(pos)
                   const lineText = line.text
-                  const matches = lineText.matchAll(/@tsci\/[\w\-.]+/g)
+                  const matches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
                   for (const match of matches) {
                     if (match.index !== undefined) {
                       const start = line.from + match.index
