@@ -54,7 +54,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     }
   }, [])
 
-  const openInNewTab = location === "/editor" || location === "/ai"
+  const shouldOpenInNewTab = location === "/editor" || location === "/ai"
 
   return (
     <form onSubmit={handleSearch} className="relative">
@@ -83,7 +83,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
                 <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
-                  {openInNewTab ? (
+                  {shouldOpenInNewTab ? (
                     <a
                       href={`/editor?snippet_id=${snippet.snippet_id}`}
                       target="_blank"
