@@ -4,12 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'src/**'
       - 'package.json'
-      - 'vite.config.ts'
       - 'bun.lockb'
-      - '.github/workflows/**'
-      - 'scripts/**'
+      - '.github/workflows/bundle-size-analysis.yml'
 
 permissions:
   contents: read
