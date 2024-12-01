@@ -7,17 +7,17 @@ test("Editor loads snippet correctly", async ({ page }) => {
 
   await expect(page.getByText("SquareWaveModule")).toBeVisible()
 
-  const pagePromise = page.waitForEvent('popup');
+  const pagePromise = page.waitForEvent("popup")
 
-  await page.getByText('@tsci/seveibar.a555timer').click({
-    modifiers: ['ControlOrMeta']
-  });
-  const page1 = await pagePromise;
+  await page.getByText("@tsci/seveibar.a555timer").click({
+    modifiers: ["ControlOrMeta"],
+  })
+  const page1 = await pagePromise
 
   // Wait for the new page to be fully loaded
-  await page1.waitForLoadState('load')
-  await page1.waitForLoadState('domcontentloaded')
-  await page1.waitForLoadState('networkidle')
+  await page1.waitForLoadState("load")
+  await page1.waitForLoadState("domcontentloaded")
+  await page1.waitForLoadState("networkidle")
 
   await expect(page1).toHaveScreenshot("ctrl-click-definition.png")
 })
