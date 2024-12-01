@@ -208,10 +208,7 @@ export const PreviewContent = ({
               </DropdownMenu>
             </TabsList>
             {onToggleFullScreen && (
-              <Button
-                onClick={onToggleFullScreen}
-                className="rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600"
-              >
+              <Button onClick={onToggleFullScreen} variant="ghost">
                 {isFullScreen ? (
                   <MinimizeIcon size={16} />
                 ) : (
