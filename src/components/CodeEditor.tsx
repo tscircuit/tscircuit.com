@@ -272,10 +272,9 @@ export const CodeEditor = ({
                     if (pos >= start && pos <= end) {
                       const importName = match[0]
                       // Handle potential dots and dashes in package names
-                      const [owner, ...nameParts] = importName
+                      const [owner, name] = importName
                         .replace("@tsci/", "")
                         .split(".")
-                      const name = nameParts.join(".")
                       window.open(`/${owner}/${name}`, "_blank")
                       return true
                     }
