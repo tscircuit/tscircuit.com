@@ -27,18 +27,31 @@ export default function StaticPreviewLoading() {
       <div className="md:sticky md:top-2">
         <Tabs defaultValue="code" className="flex-grow flex flex-col">
           <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-6 px-2 text-xs">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-6 px-2 text-xs loading-placeholder" 
+              disabled
+              aria-label="Loading placeholder"
+            >
               <Share className="mr-1 h-3 w-3" />
               Copy URL
             </Button>
-            <Button disabled variant="ghost" size="sm" className="px-2 text-xs">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="px-2 text-xs loading-placeholder"
+              disabled
+              aria-label="Loading placeholder"
+            >
               <Download className="mr-1 h-3 w-3" />
               Download
             </Button>
             <div className="flex-grow" />
             <Button
               disabled
-              className="bg-blue-600 hover:bg-blue-500 cursor-not-allowed"
+              className="bg-blue-600 hover:bg-blue-500 cursor-not-allowed loading-placeholder"
+              aria-label="Loading placeholder"
             >
               Run
               <PlayIcon className="w-3 h-3 ml-2" />

@@ -44,19 +44,24 @@ export default function StaticViewSnippetHeader({
           )}
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Star
-              className={`w-4 h-4 mr-2 ${snippet_data.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
-            />
-            {snippet_data.is_starred ? "Starred" : "Star"}
-            {snippet_data.star_count > 0 && (
-              <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
-                {snippet_data.star_count}
-              </span>
-            )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            disabled
+            aria-label="Loading placeholder"
+            className="loading-placeholder"
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Star
           </Button>
 
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            disabled
+            aria-label="Loading placeholder"
+            className="loading-placeholder"
+          >
             <GitFork className="w-4 h-4 mr-2" />
             Fork
           </Button>
