@@ -285,6 +285,12 @@ export const PreviewContent = ({
                     key={tsxRunTriggerCount}
                     circuitJson={circuitJson}
                   />
+                  // Waiting for Schematic Viewer to stablize
+                  // <Schematic
+                  //   style={{ height: "500px" }}
+                  //   key={tsxRunTriggerCount}
+                  //   soup={circuitJson}
+                  // />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
@@ -342,7 +348,6 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
-
           <TabsContent value="error">
             {circuitJson || errorMessage ? (
               <ErrorTabContent code={code} errorMessage={errorMessage} />
