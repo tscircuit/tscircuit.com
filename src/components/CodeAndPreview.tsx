@@ -134,18 +134,6 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const createSnippetMutation = useCreateSnippetMutation()
 
-  const handleSave = () => {
-    if (snippet) {
-      updateSnippetMutation.mutate()
-    } else {
-      createSnippetMutation.mutate({
-        code,
-        circuit_json: circuitJson as any,
-        manual_edits_json: manualEditsFileContent,
-      })
-    }
-  }
-
   const isNewUnsavedSnippet = !snippet && code !== ""
   const hasModifiedExistingSnippet =
     snippet &&
@@ -184,7 +172,17 @@ export function CodeAndPreview({ snippet }: Props) {
           updateSnippetMutation.isLoading || createSnippetMutation.isLoading
         }
         hasUnsavedChanges={hasUnsavedChanges}
-        onSave={() => handleSave()}
+        onSave={() => {
+          if (snippet) {
+            updateSnippetMutation.mutate()
+          } else {
+            createSnippetMutation.mutate({
+              code,
+              circuit_json: circuitJson as any,
+              manual_edits_json: manualEditsFileContent,
+            })
+          }
+        }}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
         canSave={!hasUnrunChanges}
