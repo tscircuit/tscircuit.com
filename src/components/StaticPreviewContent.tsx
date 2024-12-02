@@ -27,19 +27,19 @@ export default function StaticPreviewLoading() {
       <div className="md:sticky md:top-2">
         <Tabs defaultValue="code" className="flex-grow flex flex-col">
           <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="h-6 px-2 text-xs loading-placeholder" 
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-6 px-2 text-xs loading-placeholder"
               disabled
               aria-label="Loading placeholder"
             >
               <Share className="mr-1 h-3 w-3" />
               Copy URL
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="px-2 text-xs loading-placeholder"
               disabled
               aria-label="Loading placeholder"
