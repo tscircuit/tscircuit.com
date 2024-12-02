@@ -1,7 +1,7 @@
 import React from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Share, PlayIcon, Download } from "lucide-react"
+import { Share, PlayIcon, Download, EllipsisIcon } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const SkeletonContent = () => (
@@ -52,6 +52,9 @@ export default function StaticPreviewLoading() {
                 Schematic
               </TabsTrigger>
               <TabsTrigger value="cad">3D</TabsTrigger>
+              <div className="whitespace-nowrap p-2 mr-1 cursor-pointer relative">
+                <EllipsisIcon className="w-4 h-4" />
+              </div>
             </TabsList>
           </div>
           <TabsContent value="code" className="flex-grow overflow-hidden">
