@@ -174,7 +174,7 @@ export default function EditorNav({
             size="sm"
             className={"h-6 px-2 text-xs save-button"}
             disabled={!isLoggedIn || !canSave}
-            onClick={handleSave}
+            onClick={onSave}
           >
             <Save className="mr-1 h-3 w-3" />
             Save
