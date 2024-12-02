@@ -135,6 +135,11 @@ export default function EditorNav({
     }
   }
 
+  const handleSave = async () => {
+    if (!canSave || !isLoggedIn) return
+    onSave()
+  }
+
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -169,7 +174,7 @@ export default function EditorNav({
             size="sm"
             className={"h-6 px-2 text-xs save-button"}
             disabled={!isLoggedIn || !canSave}
-            onClick={onSave}
+            onClick={handleSave}
           >
             <Save className="mr-1 h-3 w-3" />
             Save
@@ -199,7 +204,7 @@ export default function EditorNav({
               Saving...
             </div>
           )}
-          {hasUnsavedChanges && !isSaving && isLoggedIn && (
+          {hasUnsavedChanges && !isSaving && isLoggedIn && canSave && (
             <div className="animate-fadeIn bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
               {snippet ? "unsaved changes" : "unsaved"}
             </div>

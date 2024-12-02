@@ -134,7 +134,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
   const createSnippetMutation = useCreateSnippetMutation()
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
@@ -146,9 +146,19 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }
 
-  const hasUnsavedChanges =
-    snippet?.code !== code ||
-    snippet?.manual_edits_json !== manualEditsFileContent
+  const hasUnsavedChanges = Boolean(
+    (!snippet && code !== "") ||
+    (!updateSnippetMutation.isLoading &&
+      !updateSnippetMutation.isSuccess &&
+      snippet &&
+      (snippet.code !== code ||
+        snippet.manual_edits_json !== manualEditsFileContent))
+  )
+
+  useEffect(() => {
+    updateSnippetMutation.reset()
+  }, [code, manualEditsFileContent])
+
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
@@ -170,12 +180,12 @@ export function CodeAndPreview({ snippet }: Props) {
         snippet={snippet}
         snippetType={snippetType}
         code={code}
-        isSaving={updateSnippetMutation.isLoading}
+        isSaving={updateSnippetMutation.isLoading || createSnippetMutation.isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={() => handleSave()}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
-        canSave={!hasUnrunChanges} // Disable save if there are unrun changes
+        canSave={!hasUnrunChanges}
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div
