@@ -99,6 +99,15 @@ export const PreviewContent = ({
     }
   }, [circuitJson])
 
+  const getTabContentHeight = () => {
+    if (isFullScreen) {
+      return "h-[calc(100vh-80px)]"
+    }
+    return "h-[620px]"
+  }
+
+  const tabContentHeight = getTabContentHeight()
+
   return (
     <div className={cn("flex flex-col relative", className)}>
       <div className="md:sticky md:top-2">
@@ -232,17 +241,18 @@ export const PreviewContent = ({
               </div>
             </TabsContent>
           )}
+
           <TabsContent value="pcb">
-            <div className="mt-4 h-[500px]">
+            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
               <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
                 {circuitJson ? (
                   <PCBViewer
                     key={circuitJsonKey}
                     soup={circuitJson}
+                    height={isFullScreen ? 946 : 620}
                     onEditEventsChanged={(editEvents) => {
                       if (editEvents.some((editEvent) => editEvent.in_progress))
                         return
-                      // Update state with new edit events
                       const newManualEditsFileContent = applyPcbEditEvents({
                         editEvents,
                         circuitJson,
@@ -259,28 +269,24 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
+
           <TabsContent value="schematic">
-            <div className="mt-4 h-[500px]">
-              <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
+            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+              <ErrorBoundary fallback={<div>Error loading Schematic</div>}>
                 {circuitJson ? (
                   <CircuitToSvgWithMouseControl
                     key={tsxRunTriggerCount}
                     circuitJson={circuitJson}
                   />
-                  // Waiting for Schematic Viewer to stablize
-                  // <Schematic
-                  //   style={{ height: "500px" }}
-                  //   key={tsxRunTriggerCount}
-                  //   soup={circuitJson}
-                  // />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
               </ErrorBoundary>
             </div>
           </TabsContent>
+
           <TabsContent value="cad">
-            <div className="mt-4 h-[500px]">
+            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
                   <CadViewer soup={circuitJson as any} />
@@ -290,8 +296,9 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
+
           <TabsContent value="bom">
-            <div className="mt-4 h-[500px] overflow-auto">
+            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
               <ErrorBoundary fallback={<div>Error loading BOM</div>}>
                 {circuitJson ? (
                   <BomTable circuitJson={circuitJson} />
@@ -301,8 +308,9 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
+
           <TabsContent value="circuitjson">
-            <div className="mt-4 h-[500px]">
+            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
               <ErrorBoundary fallback={<div>Error loading JSON viewer</div>}>
                 {circuitJson ? (
                   <CircuitJsonTableViewer elements={circuitJson as any} />
@@ -312,6 +320,7 @@ export const PreviewContent = ({
               </ErrorBoundary>
             </div>
           </TabsContent>
+
           <TabsContent value="error">
             {circuitJson || errorMessage ? (
               <ErrorTabContent code={code} errorMessage={errorMessage} />
