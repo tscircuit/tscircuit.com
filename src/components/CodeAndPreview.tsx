@@ -201,7 +201,7 @@ export function CodeAndPreview({ snippet }: Props) {
             className={cn(
               "flex p-2 flex-col min-h-[640px]",
               fullScreen
-                ? "h-screen fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
                 : "w-full md:w-1/2",
             )}
             code={code}

@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 import { Button } from "./ui/button"
+import { PcbViewerWithContainerHeight } from "./PcbViewerWithContainerHeight"
 
 export interface PreviewContentProps {
   code: string
@@ -236,17 +237,21 @@ export const PreviewContent = ({
           <TabsContent value="pcb">
             <div
               className={cn(
-                "mt-4 overflow-auto",
+                "mt-4 overflow-hidden",
                 isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
               )}
             >
               <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
-                {/* TODO: issues with the height of the PCBViewer */}
                 {circuitJson ? (
-                  <PCBViewer
+                  <PcbViewerWithContainerHeight
                     key={circuitJsonKey}
                     soup={circuitJson}
-                    height={isFullScreen ? 760 : 620}
+                    containerClassName={cn(
+                      "h-full w-full",
+                      isFullScreen
+                        ? "min-h-[calc(100vh-240px)]"
+                        : "min-h-[620px]",
+                    )}
                     onEditEventsChanged={(editEvents) => {
                       if (editEvents.some((editEvent) => editEvent.in_progress))
                         return
