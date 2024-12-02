@@ -45,7 +45,6 @@ export default function StaticViewSnippetHeader({
         </div>
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
             size="sm"
             disabled
             aria-label="Loading placeholder"
@@ -56,7 +55,6 @@ export default function StaticViewSnippetHeader({
           </Button>
 
           <Button
-            variant="outline"
             size="sm"
             disabled
             aria-label="Loading placeholder"
