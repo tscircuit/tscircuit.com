@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react"
 import { cn } from "@/lib/utils"
 import { Code, Bot, GitFork, AtSign, Package, Clock, File } from "lucide-react"
 
@@ -77,25 +77,21 @@ export default function StaticViewSnippetSidebar({
       <div className="p-4 border-t border-gray-200 space-y-4">
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy embed code</div>
-          <div
-            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
-          >
-            {"<iframe src=\"/preview?snippet_id=example\" width=\"100%\" height=\"500\" frameborder=\"0\"></iframe>"}
+          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+            {
+              '<iframe src="/preview?snippet_id=example" width="100%" height="500" frameborder="0"></iframe>'
+            }
           </div>
         </div>
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy import code</div>
-          <div
-            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
-          >
-            {"import CircuitModule from \"@tsci/example.snippet\""}
+          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
+            {'import CircuitModule from "@tsci/example.snippet"'}
           </div>
         </div>
         <div className="space-y-1">
           <div className="text-xs font-medium">Copy install command</div>
-          <div
-            className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis"
-          >
+          <div className="text-[0.5em] p-2 rounded-sm bg-blue-50 border border-blue-200 cursor-pointer font-mono whitespace-nowrap overflow-hidden text-ellipsis">
             {"tsci add @tsci/example.snippet"}
           </div>
         </div>

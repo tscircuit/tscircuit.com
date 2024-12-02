@@ -32,7 +32,6 @@ export const ViewSnippetPage = () => {
     type: snippet?.snippet_type,
   })
 
-
   return (
     <>
       <Helmet>
@@ -43,14 +42,15 @@ export const ViewSnippetPage = () => {
         {/* {isLoading && <div>Loading...</div>} */}
         {isLoading && (
           <>
-            <StaticViewSnippetHeader/>
+            <StaticViewSnippetHeader />
             <div className="flex flex-row min-h-full">
               <div className="flex-grow overflow-auto">
-                <StaticPreviewContent/>
-                </div>
-                <StaticViewSnippetSidebar/>
-                </div>
-          </>)}
+                <StaticPreviewContent />
+              </div>
+              <StaticViewSnippetSidebar />
+            </div>
+          </>
+        )}
         {snippetError && snippetError.status === 404 && (
           <div className="text-gray-500 flex items-center justify-center h-64">
             Snippet not found: {author}/{snippetName}

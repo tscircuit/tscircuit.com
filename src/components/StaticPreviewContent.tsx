@@ -1,8 +1,8 @@
-import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Share, PlayIcon, Download } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Share, PlayIcon, Download } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const SkeletonContent = () => (
   <div className="h-full p-4 space-y-4">
@@ -19,7 +19,7 @@ const SkeletonContent = () => (
       <Skeleton className="h-4 w-1/2" />
     </div>
   </div>
-);
+)
 
 export default function StaticPreviewLoading() {
   return (
@@ -32,21 +32,25 @@ export default function StaticPreviewLoading() {
               Copy URL
             </Button>
             <Button disabled variant="ghost" size="sm" className="px-2 text-xs">
-        <Download className="mr-1 h-3 w-3" />
-        Download
-      </Button>
+              <Download className="mr-1 h-3 w-3" />
+              Download
+            </Button>
             <div className="flex-grow" />
             <Button
               disabled
               className="bg-blue-600 hover:bg-blue-500 cursor-not-allowed"
             >
-                Run 
+              Run
               <PlayIcon className="w-3 h-3 ml-2" />
             </Button>
             <TabsList>
               <TabsTrigger value="code">Code</TabsTrigger>
-              <TabsTrigger value="pcb" className="whitespace-nowrap">PCB</TabsTrigger>
-              <TabsTrigger value="schematic" className="whitespace-nowrap">Schematic</TabsTrigger>
+              <TabsTrigger value="pcb" className="whitespace-nowrap">
+                PCB
+              </TabsTrigger>
+              <TabsTrigger value="schematic" className="whitespace-nowrap">
+                Schematic
+              </TabsTrigger>
               <TabsTrigger value="cad">3D</TabsTrigger>
             </TabsList>
           </div>
@@ -65,5 +69,5 @@ export default function StaticPreviewLoading() {
         </Tabs>
       </div>
     </div>
-  );
+  )
 }

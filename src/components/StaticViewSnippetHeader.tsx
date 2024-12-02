@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react"
 import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
@@ -11,7 +11,7 @@ export default function StaticViewSnippetHeader() {
     unscoped_name: "react-component",
     snippet_type: "react",
     is_starred: false,
-    star_count: 42
+    star_count: 42,
   }
 
   return (
@@ -33,10 +33,7 @@ export default function StaticViewSnippetHeader() {
           {snippet.snippet_type && <TypeBadge type={snippet.snippet_type} />}
         </div>
         <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-          >
+          <Button variant="outline" size="sm">
             <Star
               className={`w-4 h-4 mr-2 ${snippet.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
             />
