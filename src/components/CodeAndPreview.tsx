@@ -146,18 +146,18 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }
 
-  const hasUnsavedChanges = Boolean(
-    (!snippet && code !== "") ||
-    (!updateSnippetMutation.isLoading &&
-      !updateSnippetMutation.isSuccess &&
-      snippet &&
-      (snippet.code !== code ||
-        snippet.manual_edits_json !== manualEditsFileContent))
-  )
+  const isNewUnsavedSnippet = !snippet && code !== ""
+  const hasModifiedExistingSnippet =
+    snippet &&
+    (snippet.code !== code ||
+      snippet.manual_edits_json !== manualEditsFileContent)
+  const isMutationInProgress =
+    updateSnippetMutation.isLoading || updateSnippetMutation.isSuccess
 
-  useEffect(() => {
-    updateSnippetMutation.reset()
-  }, [code, manualEditsFileContent])
+  const hasUnsavedChanges = Boolean(
+    isNewUnsavedSnippet ||
+      (!isMutationInProgress && hasModifiedExistingSnippet),
+  )
 
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
@@ -180,7 +180,9 @@ export function CodeAndPreview({ snippet }: Props) {
         snippet={snippet}
         snippetType={snippetType}
         code={code}
-        isSaving={updateSnippetMutation.isLoading || createSnippetMutation.isLoading}
+        isSaving={
+          updateSnippetMutation.isLoading || createSnippetMutation.isLoading
+        }
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={() => handleSave()}
         onTogglePreview={() => setShowPreview(!showPreview)}
