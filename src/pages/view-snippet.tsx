@@ -39,10 +39,12 @@ export const ViewSnippetPage = () => {
       </Helmet>
       <div>
         <Header />
-        {/* {isLoading && <div>Loading...</div>} */}
         {isLoading && (
           <>
-            <StaticViewSnippetHeader />
+            <StaticViewSnippetHeader
+              author={author as string}
+              snippetName={snippetName as string}
+            />
             <div className="flex flex-row min-h-full">
               <div className="flex-grow overflow-auto">
                 <StaticPreviewContent />
