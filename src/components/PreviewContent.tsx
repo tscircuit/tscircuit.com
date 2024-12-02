@@ -255,6 +255,7 @@ export const PreviewContent = ({
                     onEditEventsChanged={(editEvents) => {
                       if (editEvents.some((editEvent) => editEvent.in_progress))
                         return
+                      // Update state with new edit events
                       const newManualEditsFileContent = applyPcbEditEvents({
                         editEvents,
                         circuitJson,
