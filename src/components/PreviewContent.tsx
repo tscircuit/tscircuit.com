@@ -99,15 +99,6 @@ export const PreviewContent = ({
     }
   }, [circuitJson])
 
-  const getTabContentHeight = () => {
-    if (isFullScreen) {
-      return "h-[calc(100vh-80px)]"
-    }
-    return "h-[620px]"
-  }
-
-  const tabContentHeight = getTabContentHeight()
-
   return (
     <div className={cn("flex flex-col relative", className)}>
       <div className="md:sticky md:top-2">
@@ -243,13 +234,19 @@ export const PreviewContent = ({
           )}
 
           <TabsContent value="pcb">
-            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+            <div
+              className={cn(
+                "mt-4 overflow-auto",
+                isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
+              )}
+            >
               <ErrorBoundary fallback={<div>Error loading PCB viewer</div>}>
+                {/* TODO: issues with the height of the PCBViewer */}
                 {circuitJson ? (
                   <PCBViewer
                     key={circuitJsonKey}
                     soup={circuitJson}
-                    height={isFullScreen ? 946 : 620}
+                    height={isFullScreen ? 760 : 620}
                     onEditEventsChanged={(editEvents) => {
                       if (editEvents.some((editEvent) => editEvent.in_progress))
                         return
@@ -271,7 +268,12 @@ export const PreviewContent = ({
           </TabsContent>
 
           <TabsContent value="schematic">
-            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+            <div
+              className={cn(
+                "mt-4 overflow-auto",
+                isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
+              )}
+            >
               <ErrorBoundary fallback={<div>Error loading Schematic</div>}>
                 {circuitJson ? (
                   <CircuitToSvgWithMouseControl
@@ -286,7 +288,12 @@ export const PreviewContent = ({
           </TabsContent>
 
           <TabsContent value="cad">
-            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+            <div
+              className={cn(
+                "mt-4 overflow-auto",
+                isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
+              )}
+            >
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
                   <CadViewer soup={circuitJson as any} />
@@ -298,7 +305,12 @@ export const PreviewContent = ({
           </TabsContent>
 
           <TabsContent value="bom">
-            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+            <div
+              className={cn(
+                "mt-4 overflow-auto",
+                isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
+              )}
+            >
               <ErrorBoundary fallback={<div>Error loading BOM</div>}>
                 {circuitJson ? (
                   <BomTable circuitJson={circuitJson} />
@@ -310,7 +322,12 @@ export const PreviewContent = ({
           </TabsContent>
 
           <TabsContent value="circuitjson">
-            <div className={cn("mt-4", tabContentHeight, "overflow-auto")}>
+            <div
+              className={cn(
+                "mt-4 overflow-auto",
+                isFullScreen ? "h-[calc(100vh-96px)]" : "h-[620px]",
+              )}
+            >
               <ErrorBoundary fallback={<div>Error loading JSON viewer</div>}>
                 {circuitJson ? (
                   <CircuitJsonTableViewer elements={circuitJson as any} />
