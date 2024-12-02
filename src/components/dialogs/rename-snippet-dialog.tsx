@@ -55,10 +55,6 @@ export const RenameSnippetDialog = ({
     },
   })
 
-  const handleRename = () => {
-    renameSnippetMutation.mutate()
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -73,7 +69,7 @@ export const RenameSnippetDialog = ({
         />
         <Button
           disabled={renameSnippetMutation.isLoading}
-          onClick={handleRename}
+          onClick={() => renameSnippetMutation.mutate()}
         >
           {renameSnippetMutation.isLoading ? "Renaming..." : "Rename"}
         </Button>
