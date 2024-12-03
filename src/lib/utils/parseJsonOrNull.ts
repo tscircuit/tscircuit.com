@@ -1,6 +1,6 @@
-export const parseJsonOrNull = (jsonString: string): any | null => {
+export const parseJsonOrNull = (string: string): any => {
   try {
-    return JSON.parse(jsonString)
+    return JSON.parse(string)
   } catch {
     return null
   }

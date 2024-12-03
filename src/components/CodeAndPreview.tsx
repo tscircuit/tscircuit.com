@@ -41,7 +41,10 @@ export function CodeAndPreview({ snippet }: Props) {
     )
   }, [])
 
-  const [manualEditsFileContent, setManualEditsFileContent] = useState("")
+  // Initialize with template or snippet's manual edits if available
+  const [manualEditsFileContent, setManualEditsFileContent] = useState(
+    parseJsonOrNull(""),
+  )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -61,7 +64,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useEffect(() => {
     if (snippet?.manual_edits_json_content) {
-      setManualEditsFileContent(snippet.manual_edits_json_content)
+      setManualEditsFileContent(snippet.manual_edits_json_content ?? "")
     }
   }, [Boolean(snippet?.manual_edits_json_content)])
 
@@ -99,7 +102,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
       // Validate manual edits before sending
       try {
-        JSON.parse(manualEditsFileContent)
+        parseJsonOrNull(manualEditsFileContent)
       } catch (e) {
         throw new Error("Invalid manual edits JSON")
       }
