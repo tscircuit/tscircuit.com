@@ -94,6 +94,10 @@ export const PreviewContent = ({
   }, [errorMessage])
 
   useEffect(() => {
+    triggerRunTsx()
+  }, [])
+
+  useEffect(() => {
     if (activeTab === "code" && circuitJson && !errorMessage) {
       setActiveTab("pcb")
     }
