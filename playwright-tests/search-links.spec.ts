@@ -23,6 +23,5 @@ test("Search links open correctly", async ({ page }) => {
   await popup.waitForLoadState("networkidle")
 
   const popupUrl = popup.url()
-  console.log(popupUrl)
   expect(popupUrl).toMatch("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
 })
