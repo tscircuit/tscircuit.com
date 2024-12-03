@@ -5,11 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16">
     <title>tscircuit Snippets</title>
+    
+    <!-- Load Prettier -->
+    <script async src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+    <script async src="https://unpkg.com/prettier@2.8.8/parser-typescript.js"></script>
+
+    <!-- Load TypeScript Standalone from CDN -->
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/typescript/5.0.4/typescript.min.js"></script>
+
+    <!-- Load Babel Standalone from CDN -->
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.5/babel.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Main script for your app -->
     <script type="module" src="/src/main.tsx"></script>
-    <script async src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
-    <script async src="https://unpkg.com/prettier@2.8.8/parser-typescript.js"></script>
+
+    <script>
+      // Function to wait for TypeScript and Babel to load
+      function waitForLibraries() {
+        return new Promise((resolve, reject) => {
+          const checkInterval = setInterval(() => {
+            // Check if both TypeScript and Babel are loaded
+            if (typeof window.ts !== 'undefined' && typeof window.Babel !== 'undefined') {
+              clearInterval(checkInterval); // Stop checking once both are loaded
+              resolve(); // Resolve the promise once both are available
+            }
+          }, 100); // Check every 100ms if both are loaded
+        });
+      }
+
+      // When the page loads, we wait for TypeScript and Babel to be available
+      window.onload = async () => {
+        try {
+          // Wait until TypeScript and Babel are available
+          await waitForLibraries(); 
+          console.log('TypeScript and Babel are loaded!');
+
+          // Example usage of TypeScript in the browser
+          const tsCode = `
+            let message: string = "Hello from TypeScript!";
+            console.log(message);
+          `;
+          
+          // Transpile TypeScript to JavaScript using TypeScript compiler
+          const jsCode = window.ts.transpile(tsCode);
+
+          // Create a new script tag to execute the transpiled JavaScript
+          const script = document.createElement('script');
+          script.textContent = jsCode;
+          document.body.appendChild(script); // Inject and execute the JavaScript
+
+        } catch (error) {
+          console.error('Failed to load TypeScript or Babel:', error);
+        }
+
+        // Debugging: Check if TypeScript and Babel are available
+        if (typeof window.ts !== 'undefined' && typeof window.Babel !== 'undefined') {
+          console.log("Both TypeScript and Babel are loaded successfully!");
+        } else {
+          console.log("Error: TypeScript and/or Babel are not loaded.");
+        }
+      };
+    </script>
   </body>
 </html>
