@@ -11,11 +11,13 @@ import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
 import Footer from "@/components/Footer"
 import { Helmet } from "react-helmet"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import type { AnyCircuitElement } from "circuit-json"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
   const { snippet, error: snippetError, isLoading } = useCurrentSnippet()
+  const [initialCircuitJson, setInitialCircuitJson] = useState<any>(null)
 
   const {
     circuitJson,
@@ -23,6 +25,7 @@ export const ViewSnippetPage = () => {
     triggerRunTsx,
     isRunningCode,
     tsxRunTriggerCount,
+    setTsxResult,
     circuitJsonKey,
   } = useRunTsx({
     code: snippet?.code ?? "",
@@ -30,8 +33,16 @@ export const ViewSnippetPage = () => {
   })
 
   useEffect(() => {
-    triggerRunTsx()
-  }, [])
+    if (snippet?.circuit_json && !initialCircuitJson) {
+      setInitialCircuitJson(snippet.circuit_json)
+      setTsxResult({
+        compiledModule: null,
+        message: "",
+        circuitJson: snippet.circuit_json as AnyCircuitElement[],
+        isRunningCode: false,
+      })
+    }
+  }, [snippet, initialCircuitJson, setTsxResult])
 
   return (
     <>
