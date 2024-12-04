@@ -13,6 +13,9 @@ import Footer from "@/components/Footer"
 import { Helmet } from "react-helmet"
 import { useEffect, useState } from "react"
 import type { AnyCircuitElement } from "circuit-json"
+import StaticViewSnippetHeader from "../components/StaticViewSnippetHeader"
+import StaticPreviewContent from "../components/StaticPreviewContent"
+import StaticViewSnippetSidebar from "../components/StaticViewSnippetSidebar"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
@@ -51,7 +54,20 @@ export const ViewSnippetPage = () => {
       </Helmet>
       <div>
         <Header />
-        {isLoading && <div>Loading...</div>}
+        {isLoading && (
+          <>
+            <StaticViewSnippetHeader
+              author={author as string}
+              snippetName={snippetName as string}
+            />
+            <div className="flex flex-row min-h-full">
+              <div className="flex-grow overflow-auto">
+                <StaticPreviewContent />
+              </div>
+              <StaticViewSnippetSidebar />
+            </div>
+          </>
+        )}
         {snippetError && snippetError.status === 404 && (
           <div className="text-gray-500 flex items-center justify-center h-64">
             Snippet not found: {author}/{snippetName}
