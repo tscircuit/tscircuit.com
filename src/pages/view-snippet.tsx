@@ -11,6 +11,7 @@ import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
 import Footer from "@/components/Footer"
 import { Helmet } from "react-helmet"
+import { useEffect } from "react"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
@@ -27,6 +28,10 @@ export const ViewSnippetPage = () => {
     code: snippet?.code ?? "",
     type: snippet?.snippet_type,
   })
+
+  useEffect(() => {
+    triggerRunTsx()
+  }, [])
 
   return (
     <>
