@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
+import { Link, useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
@@ -15,6 +16,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const [showResults, setShowResults] = useState(false)
   const axios = useAxios()
   const resultsRef = useRef<HTMLDivElement>(null)
+  const [location] = useLocation()
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -52,6 +54,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     }
   }, [])
 
+  const shouldOpenInNewTab = location === "/editor" || location === "/ai"
+
   return (
     <form onSubmit={handleSearch} className="relative">
       <Input
@@ -79,19 +83,33 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
                 <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
-                  <a
-                    href={`/editor?snippet_id=${snippet.snippet_id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block"
-                  >
-                    <div className="font-medium text-blue-600 break-words text-sm">
-                      {snippet.name}
-                    </div>
-                    <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                      {snippet.description}
-                    </div>
-                  </a>
+                  {shouldOpenInNewTab ? (
+                    <a
+                      href={`/editor?snippet_id=${snippet.snippet_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className="font-medium text-blue-600 break-words text-sm">
+                        {snippet.name}
+                      </div>
+                      <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
+                        {snippet.description}
+                      </div>
+                    </a>
+                  ) : (
+                    <Link
+                      href={`/editor?snippet_id=${snippet.snippet_id}`}
+                      className="block"
+                    >
+                      <div className="font-medium text-blue-600 break-words text-sm">
+                        {snippet.name}
+                      </div>
+                      <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
+                        {snippet.description}
+                      </div>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
