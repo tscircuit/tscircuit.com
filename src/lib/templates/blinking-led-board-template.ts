@@ -1,5 +1,3 @@
-
-
 export const blinkingLedBoardTemplate = {
   type: "board",
   code: `
