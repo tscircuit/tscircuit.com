@@ -39,7 +39,7 @@ export function CodeAndPreview({ snippet }: Props) {
       (urlParams.snippet_id && "") ??
       templateFromUrl.code
     )
-  }, [])
+  }, [snippet, urlParams, templateFromUrl])
 
   // Initialize with template or snippet's manual edits if available
   const [manualEditsFileContent, setManualEditsFileContent] = useState(
@@ -61,7 +61,7 @@ export function CodeAndPreview({ snippet }: Props) {
       setCode(snippet.code)
       setLastRunCode(snippet.code)
     }
-  }, [Boolean(snippet)])
+  }, [snippet])
 
   const { toast } = useToast()
 
@@ -121,6 +121,7 @@ export function CodeAndPreview({ snippet }: Props) {
         title: "Snippet saved",
         description: "Your changes have been saved successfully.",
       })
+      setHasUnsavedChanges(false)
     },
     onError: (error) => {
       console.error("Error saving snippet:", error)
@@ -152,15 +153,32 @@ export function CodeAndPreview({ snippet }: Props) {
     (snippet.code !== code ||
       snippet.manual_edits_json !== manualEditsFileContent)
   const isMutationInProgress =
-    updateSnippetMutation.isLoading || updateSnippetMutation.isSuccess
+    updateSnippetMutation.isLoading || createSnippetMutation.isLoading
 
-  const hasUnsavedChanges = Boolean(
-    isNewUnsavedSnippet ||
-      (!isMutationInProgress && hasModifiedExistingSnippet),
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(
+    Boolean(
+      isNewUnsavedSnippet ||
+        (!isMutationInProgress && hasModifiedExistingSnippet),
+    ),
   )
 
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
+
+  useEffect(() => {
+    setHasUnsavedChanges(
+      Boolean(
+        isNewUnsavedSnippet ||
+          (!isMutationInProgress && hasModifiedExistingSnippet),
+      ),
+    )
+  }, [
+    code,
+    manualEditsFileContent,
+    isMutationInProgress,
+    isNewUnsavedSnippet,
+    hasModifiedExistingSnippet,
+  ])
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
@@ -203,9 +221,11 @@ export function CodeAndPreview({ snippet }: Props) {
             manualEditsFileContent={manualEditsFileContent}
             onManualEditsFileContentChanged={(newContent) => {
               setManualEditsFileContent(newContent)
+              setHasUnsavedChanges(true)
             }}
             onCodeChange={(newCode) => {
               setCode(newCode)
+              setHasUnsavedChanges(true)
             }}
             onDtsChange={(newDts) => setDts(newDts)}
           />
@@ -226,7 +246,10 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJson={circuitJson}
             isRunningCode={isRunningCode}
             manualEditsFileContent={manualEditsFileContent}
-            onManualEditsFileContentChange={setManualEditsFileContent}
+            onManualEditsFileContentChange={(newContent) => {
+              setManualEditsFileContent(newContent)
+              setHasUnsavedChanges(true)
+            }}
             onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}
           />
