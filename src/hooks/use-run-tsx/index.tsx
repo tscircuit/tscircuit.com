@@ -3,15 +3,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { AnyCircuitElement } from "circuit-json"
 import * as jscadFiber from "jscad-fiber"
 import * as React from "react"
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react"
+import { useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { safeCompileTsx } from "../use-compiled-tsx"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
 import { constructCircuit } from "./construct-circuit"
