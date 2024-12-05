@@ -14,6 +14,7 @@ describe("TSCI_PACKAGE_PATTERN", () => {
     "@tsci/package123-with-numbers",
     "@tsci/core.utils-helper",
     "@tsci/double--dash",
+    "@tsci/seveibar.ABM8_272_T3",
   ]
 
   validPackages.forEach((pkg) => {
