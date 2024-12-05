@@ -40,7 +40,6 @@ export const useRunTsx = ({
   circuitJsonKey: string
   triggerRunTsx: () => void
   tsxRunTriggerCount: number
-  setTsxResult: Dispatch<SetStateAction<RunTsxResult>>
 } => {
   type ??= "board"
   const [tsxRunTriggerCount, incTsxRunTriggerCount] = useReducer(
@@ -241,7 +240,6 @@ export const useRunTsx = ({
     ...tsxResult,
     circuitJsonKey: circuitJsonKey,
     triggerRunTsx: incTsxRunTriggerCount,
-    setTsxResult: setTsxResult,
     tsxRunTriggerCount,
   }
 }
