@@ -1,7 +1,6 @@
 import { defineConfig } from "@playwright/test"
 
 export default defineConfig({
-  timeout: 60000,
   // Run your local dev server before starting the tests
   webServer: {
     command: "npm run start:playwright-server",
