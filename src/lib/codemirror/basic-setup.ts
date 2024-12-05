@@ -31,7 +31,7 @@ export const basicSetup: Extension = (() => [
   foldGutter(),
   drawSelection(),
   dropCursor(),
-  EditorState.allowMultipleSelections.of(true),
+  EditorState.allowMultipleSelections.of(false),
   indentOnInput(),
   syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   bracketMatching(),

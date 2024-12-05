@@ -17,36 +17,42 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
     },
   })
   const [containerWidth, setContainerWidth] = useState(0)
+  const [containerHeight, setContainerHeight] = useState(0)
 
   useEffect(() => {
     if (!containerRef.current) return
 
-    const updateWidth = () => {
-      setContainerWidth(
-        containerRef.current?.getBoundingClientRect().width || 0,
-      )
+    const updateDimensions = () => {
+      const rect = containerRef.current?.getBoundingClientRect()
+
+      setContainerWidth(rect?.width || 0)
+      setContainerHeight(rect?.height || 0)
     }
 
-    // Set initial width
-    updateWidth()
+    // Set initial dimensions
+    updateDimensions()
 
     // Add resize listener
-    const resizeObserver = new ResizeObserver(updateWidth)
+    const resizeObserver = new ResizeObserver(updateDimensions)
     resizeObserver.observe(containerRef.current)
+
+    // Fallback to window resize
+    window.addEventListener("resize", updateDimensions)
 
     return () => {
       resizeObserver.disconnect()
+      window.removeEventListener("resize", updateDimensions)
     }
   }, [])
 
   const svg = useMemo(() => {
-    if (!containerWidth) return ""
+    if (!containerWidth || !containerHeight) return ""
 
     return convertCircuitJsonToSchematicSvg(circuitJson, {
       width: containerWidth,
-      height: 500,
+      height: containerHeight || 720,
     })
-  }, [circuitJson, containerWidth])
+  }, [circuitJson, containerWidth, containerHeight])
 
   return (
     <div
@@ -55,6 +61,8 @@ export const CircuitToSvgWithMouseControl = ({ circuitJson }: Props) => {
         backgroundColor: "#F5F1ED",
         overflow: "hidden",
         cursor: "grab",
+        minHeight: "300px", // minimum height
+        height: "100%", // Try to fill parent height
       }}
     >
       <div
