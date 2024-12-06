@@ -42,9 +42,9 @@ export function CodeAndPreview({ snippet }: Props) {
   }, [])
 
   // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    parseJsonOrNull(""),
-  )
+  const [manualEditsFileContent, setManualEditsFileContent] = useState<
+    string | null
+  >(null)
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -101,11 +101,7 @@ export function CodeAndPreview({ snippet }: Props) {
       if (!snippet) throw new Error("No snippet to update")
 
       // Validate manual edits before sending
-      try {
-        parseJsonOrNull(manualEditsFileContent)
-      } catch (e) {
-        throw new Error("Invalid manual edits JSON")
-      }
+      parseJsonOrNull(manualEditsFileContent)
 
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
@@ -149,7 +145,7 @@ export function CodeAndPreview({ snippet }: Props) {
       createSnippetMutation.mutate({
         code,
         circuit_json: circuitJson as any,
-        manual_edits_json_content: manualEditsFileContent,
+        manual_edits_json_content: manualEditsFileContent ?? "",
       })
     }
   }
@@ -194,7 +190,7 @@ export function CodeAndPreview({ snippet }: Props) {
         >
           <CodeEditor
             initialCode={code}
-            manualEditsFileContent={manualEditsFileContent}
+            manualEditsFileContent={manualEditsFileContent ?? ""}
             onManualEditsFileContentChanged={(newContent) => {
               setManualEditsFileContent(newContent)
             }}
@@ -214,7 +210,7 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             isRunningCode={isRunningCode}
-            manualEditsFileContent={manualEditsFileContent}
+            manualEditsFileContent={manualEditsFileContent ?? ""}
             onManualEditsFileContentChange={setManualEditsFileContent}
           />
         )}
