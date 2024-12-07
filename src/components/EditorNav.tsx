@@ -77,7 +77,8 @@ export default function EditorNav({
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
     useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
-  const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } = useViewTsFilesDialog()
+  const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
+    useViewTsFilesDialog()
 
   const [isChangingType, setIsChangingType] = useState(false)
   const [currentType, setCurrentType] = useState(
