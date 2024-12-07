@@ -11,26 +11,33 @@ import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
 import Footer from "@/components/Footer"
 import { Helmet } from "react-helmet"
+import type { AnyCircuitElement } from "circuit-json"
 import StaticViewSnippetHeader from "../components/StaticViewSnippetHeader"
 import StaticPreviewContent from "../components/StaticPreviewContent"
 import StaticViewSnippetSidebar from "../components/StaticViewSnippetSidebar"
-import { snippet } from "@codemirror/autocomplete"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
   const { snippet, error: snippetError, isLoading } = useCurrentSnippet()
 
   const {
-    circuitJson,
+    circuitJson: tsxResultCircuitJson,
     message,
     triggerRunTsx,
     isRunningCode,
     tsxRunTriggerCount,
-    circuitJsonKey,
+    circuitJsonKey: tsxResultCircuitJsonKey,
   } = useRunTsx({
     code: snippet?.code ?? "",
     type: snippet?.snippet_type,
   })
+
+  const circuitJsonForPreview = tsxResultCircuitJson ?? snippet?.circuit_json
+  const circuitJsonKeyForPreview = tsxResultCircuitJson
+    ? tsxResultCircuitJsonKey
+    : snippet?.circuit_json
+      ? "snippet"
+      : ""
 
   return (
     <>
@@ -72,8 +79,8 @@ export const ViewSnippetPage = () => {
                   triggerRunTsx={triggerRunTsx}
                   tsxRunTriggerCount={tsxRunTriggerCount}
                   errorMessage={message}
-                  circuitJson={circuitJson}
-                  circuitJsonKey={circuitJsonKey}
+                  circuitJson={circuitJsonForPreview}
+                  circuitJsonKey={circuitJsonKeyForPreview}
                   isRunningCode={isRunningCode}
                   showCodeTab={true}
                   showJsonTab={false}
@@ -98,7 +105,9 @@ export const ViewSnippetPage = () => {
                       </Button>
                       <DownloadButtonAndMenu
                         snippetUnscopedName={snippet?.unscoped_name}
-                        circuitJson={circuitJson}
+                        circuitJson={
+                          circuitJsonForPreview as AnyCircuitElement[]
+                        }
                         className="hidden md:flex"
                       />
                     </>
