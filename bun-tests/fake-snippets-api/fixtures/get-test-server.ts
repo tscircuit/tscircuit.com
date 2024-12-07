@@ -4,6 +4,8 @@ import defaultAxios from "redaxios"
 import { startServer } from "./start-server"
 import { DbClient } from "fake-snippets-api/lib/db/db-client"
 
+let testNumber = 1
+
 interface TestFixture {
   url: string
   server: any
@@ -13,7 +15,7 @@ interface TestFixture {
 }
 
 export const getTestServer = async (): Promise<TestFixture> => {
-  const port = 3001 + Math.floor(Math.random() * 999)
+  const port = 3000 + testNumber++
   const testInstanceId = Math.random().toString(36).substring(2, 15)
   const testDbName = `testdb${testInstanceId}`
 

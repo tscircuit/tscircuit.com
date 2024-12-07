@@ -62,7 +62,6 @@ export const useCurrentSnippetId = (): {
   useEffect(() => {
     if (templateName) {
       const url = new URL(window.location.href)
-      url.searchParams.delete("template")
       url.searchParams.delete("should_create_snippet")
       window.history.replaceState({}, "", url.toString())
     }

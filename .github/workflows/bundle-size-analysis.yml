@@ -1,0 +1,79 @@
+name: Bundle Size Analysis
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'bun.lockb'
+      - '.github/workflows/bundle-size-analysis.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build PR branch with stats
+        run: |
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production
+
+      - name: Save stats as artifact                                                                                      
+        if: success()                                                                                                     
+        uses: actions/upload-artifact@v3                                                                                  
+        with:                                                                                                             
+          name: bundle-stats                                                                                              
+          path: dist/stats.html                                                                                           
+
+      - name: Checkout main branch                                                                                        
+        uses: actions/checkout@v4                                                                                         
+        with:                                                                                                             
+          ref: main                                                                                                       
+          path: main-branch                                                                                               
+                                                                                                                          
+      - name: Build main branch stats                                                                                     
+        run: |                                                                                                            
+          cd main-branch                                                                                                  
+          bun install                                                                                                     
+          VITE_BUNDLE_ANALYZE=true bun run build --mode production                                                        
+          cd ..                                                                                                           
+
+
+      - name: Generate bundle stats
+        id: bundle-stats
+        run: |
+          node scripts/generate_bundle_stats.js dist/stats.html main-branch/dist/stats.html
+          echo 'STATS_CONTENT<<EOF' >> $GITHUB_ENV
+          cat dist/bundle_stats.md >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Read and post stats                                                                                         
+        if: success()                                                                                                     
+        uses: mshick/add-pr-comment@v2                                                                                    
+        with:                                                                                                             
+          message: |                                                                                                      
+            ## 📊 Bundle Size Analysis                                                                                    
+                                                                                                                          
+            ${{ env.STATS_CONTENT }}                                                                      
+                                                                                                                          
+            <details>                                                                                                     
+            <summary>What is this?</summary>                                                                              
+            This is an automated bundle size report generated during the build process.
+            </details>                                                                                                    
+          proxy-url: https://add-pr-comment-proxy-tscircuit.vercel.app/api                                                
+          repo-token: ${{ secrets.GITHUB_TOKEN }}                                                                         
+          allow-repeats: false                                                                                            
+ 

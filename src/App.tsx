@@ -16,6 +16,7 @@ import { SettingsPage } from "./pages/settings"
 import { UserProfilePage } from "./pages/user-profile"
 import { ViewOrderPage } from "./pages/view-order"
 import { ViewSnippetPage } from "./pages/view-snippet"
+import { DevLoginPage } from "./pages/dev-login"
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/my-orders" component={MyOrdersPage} />
         <Route path="/orders/:orderId" component={ViewOrderPage} />
         <Route path="/preview" component={PreviewPage} />
+        <Route path="/dev-login" component={DevLoginPage} />
         <Route path="/:username" component={UserProfilePage} />
         <Route path="/:author/:snippetName" component={ViewSnippetPage} />
       </Switch>
