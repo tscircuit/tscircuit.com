@@ -81,7 +81,7 @@
     "codemirror": "^6.0.1",
     "country-list": "^2.3.0",
     "date-fns": "^4.1.0",
-    "dsn-converter": "^0.0.8",
+    "dsn-converter": "^0.0.38",
     "easyeda": "^0.0.62",
     "embla-carousel-react": "^8.3.0",
     "extract-codefence": "^0.0.4",
