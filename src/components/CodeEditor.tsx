@@ -101,6 +101,7 @@ export const CodeEditor = ({
     Object.entries(files).forEach(([filename, content]) => {
       fsMap.set(filename, content)
     })
+    ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     createDefaultMapFromCDN(
       { target: ts.ScriptTarget.ES2022 },
