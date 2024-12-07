@@ -39,6 +39,7 @@ import { useToast } from "../hooks/use-toast"
 import { useConfirmDeleteSnippetDialog } from "./dialogs/confirm-delete-snippet-dialog"
 import { useCreateOrderDialog } from "./dialogs/create-order-dialog"
 import { useFilesDialog } from "./dialogs/files-dialog"
+import { useViewTsFilesDialog } from "./dialogs/view-ts-files-dialog"
 import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { SnippetLink } from "./SnippetLink"
@@ -76,6 +77,7 @@ export default function EditorNav({
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
     useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
+  const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } = useViewTsFilesDialog()
 
   const [isChangingType, setIsChangingType] = useState(false)
   const [currentType, setCurrentType] = useState(
@@ -265,6 +267,13 @@ export default function EditorNav({
                 <File className="mr-2 h-3 w-3" />
                 View Files
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => openViewTsFilesDialog()}
+              >
+                <File className="mr-2 h-3 w-3" />
+                [Debug] View TS Files
+              </DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger
                   className="text-xs"
@@ -369,6 +378,7 @@ export default function EditorNav({
       />
       <CreateOrderDialog />
       <FilesDialog snippetId={snippet?.snippet_id ?? ""} />
+      <ViewTsFilesDialog />
     </nav>
   )
 }
