@@ -205,7 +205,7 @@ export const useRunTsx = ({
           console.error("Evaluation error:", error)
           setTsxResult({
             compiledModule: module,
-            message: `Render Error: ${error.message}`,
+            message: `Render Error: ${error.message}\n\n${error.stack}`,
             circuitJson: null,
             isRunningCode: false,
           })
