@@ -8,7 +8,6 @@ import { useUrlParams } from "@/hooks/use-url-params"
 import useWarnUser from "@/hooks/use-warn-user"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
-import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { cn } from "@/lib/utils"
 import "@/prettier"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -17,6 +16,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
+import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 
 interface Props {
   snippet?: Snippet | null
@@ -42,11 +42,9 @@ export function CodeAndPreview({ snippet }: Props) {
   }, [])
 
   // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    snippet?.manual_edits_json ??
-      JSON.stringify(manualEditsTemplate, null, 2) ??
-      "",
-  )
+  const [manualEditsFileContent, setManualEditsFileContent] = useState<
+    string | null
+  >(null)
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -66,14 +64,14 @@ export function CodeAndPreview({ snippet }: Props) {
   const { toast } = useToast()
 
   useEffect(() => {
-    if (snippet?.manual_edits_json) {
-      setManualEditsFileContent(snippet.manual_edits_json)
+    if (snippet?.manual_edits_json_content) {
+      setManualEditsFileContent(snippet.manual_edits_json_content ?? "")
     }
-  }, [Boolean(snippet?.manual_edits_json)])
+  }, [Boolean(snippet?.manual_edits_json_content)])
 
   const userImports = useMemo(
     () => ({
-      "./manual-edits.json": JSON.parse(manualEditsFileContent),
+      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? "",
     }),
     [manualEditsFileContent],
   )
@@ -102,13 +100,17 @@ export function CodeAndPreview({ snippet }: Props) {
   const updateSnippetMutation = useMutation({
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
+
+      // Validate manual edits before sending
+      parseJsonOrNull(manualEditsFileContent)
+
       const response = await axios.post("/snippets/update", {
         snippet_id: snippet.snippet_id,
         code: code,
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
-        manual_edits_json: manualEditsFileContent,
+        manual_edits_json_content: manualEditsFileContent,
       })
       if (response.status !== 200) {
         throw new Error("Failed to save snippet")
@@ -126,7 +128,10 @@ export function CodeAndPreview({ snippet }: Props) {
       console.error("Error saving snippet:", error)
       toast({
         title: "Error",
-        description: "Failed to save the snippet. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to save the snippet. Please try again.",
         variant: "destructive",
       })
     },
@@ -141,14 +146,14 @@ export function CodeAndPreview({ snippet }: Props) {
       createSnippetMutation.mutate({
         code,
         circuit_json: circuitJson as any,
-        manual_edits_json: manualEditsFileContent,
+        manual_edits_json_content: manualEditsFileContent ?? "",
       })
     }
   }
 
   const hasUnsavedChanges =
     snippet?.code !== code ||
-    snippet?.manual_edits_json !== manualEditsFileContent
+    snippet?.manual_edits_json_content !== manualEditsFileContent
   const hasUnrunChanges = code !== lastRunCode
   useWarnUser({ hasUnsavedChanges })
 
@@ -186,7 +191,7 @@ export function CodeAndPreview({ snippet }: Props) {
         >
           <CodeEditor
             initialCode={code}
-            manualEditsFileContent={manualEditsFileContent}
+            manualEditsFileContent={manualEditsFileContent ?? ""}
             onManualEditsFileContentChanged={(newContent) => {
               setManualEditsFileContent(newContent)
             }}
@@ -211,7 +216,7 @@ export function CodeAndPreview({ snippet }: Props) {
             circuitJsonKey={circuitJsonKey}
             circuitJson={circuitJson}
             isRunningCode={isRunningCode}
-            manualEditsFileContent={manualEditsFileContent}
+            manualEditsFileContent={manualEditsFileContent ?? ""}
             onManualEditsFileContentChange={setManualEditsFileContent}
             onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}

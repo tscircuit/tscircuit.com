@@ -15,10 +15,29 @@ import type { AnyCircuitElement } from "circuit-json"
 import StaticViewSnippetHeader from "../components/StaticViewSnippetHeader"
 import StaticPreviewContent from "../components/StaticPreviewContent"
 import StaticViewSnippetSidebar from "../components/StaticViewSnippetSidebar"
+import { useEffect, useMemo, useState } from "react"
+import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 
 export const ViewSnippetPage = () => {
   const { author, snippetName } = useParams()
   const { snippet, error: snippetError, isLoading } = useCurrentSnippet()
+
+  const [manualEditsFileContent, setManualEditsFileContent] = useState<
+    string | null
+  >(null)
+
+  useEffect(() => {
+    if (snippet?.manual_edits_json_content) {
+      setManualEditsFileContent(snippet.manual_edits_json_content ?? "")
+    }
+  }, [Boolean(snippet?.manual_edits_json_content)])
+
+  const userImports = useMemo(
+    () => ({
+      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? "",
+    }),
+    [manualEditsFileContent],
+  )
 
   const {
     circuitJson: tsxResultCircuitJson,
@@ -30,6 +49,7 @@ export const ViewSnippetPage = () => {
   } = useRunTsx({
     code: snippet?.code ?? "",
     type: snippet?.snippet_type,
+    userImports,
   })
 
   const circuitJsonForPreview = tsxResultCircuitJson ?? snippet?.circuit_json
