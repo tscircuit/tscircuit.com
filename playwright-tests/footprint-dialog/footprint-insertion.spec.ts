@@ -8,6 +8,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize(viewport)
       await page.goto("http://127.0.0.1:5177/editor")
+      await page.waitForLoadState("networkidle")
       await page.waitForSelector("button.run-button")
       isMobileOrTablet = page.viewportSize()?.width! <= 768
     })

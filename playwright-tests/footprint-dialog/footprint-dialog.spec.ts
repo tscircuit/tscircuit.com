@@ -20,6 +20,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       await page.click("text=Footprint")
       await expect(page.getByRole("dialog")).toBeVisible()
       await expect(page.getByRole("heading", { name: "Insert" })).toBeVisible()
+      await expect(page).toHaveScreenshot(`footprint-preview-${size}.png`)
     })
   })
 }
