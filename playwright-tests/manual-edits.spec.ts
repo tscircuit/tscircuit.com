@@ -72,6 +72,8 @@ test("Manual edits test", async ({ page }) => {
     waitUntil: "domcontentloaded",
   })
 
+  await page.waitForLoadState("networkidle")
+
   const filesLink = page.getByRole("link", { name: "Files" })
   await filesLink.waitFor({ state: "visible" })
   await filesLink.click()
