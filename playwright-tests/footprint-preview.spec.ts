@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test"
 import { viewports } from "./viewports"
 
 for (const [size, viewport] of Object.entries(viewports)) {
-  test.describe(`FootprintDialog tests - ${size} viewport`, () => {
+  test.describe(`Footprint Preview tests - ${size} viewport`, () => {
     let isMobileOrTablet: boolean
 
     test.beforeEach(async ({ page }) => {
@@ -12,14 +12,22 @@ for (const [size, viewport] of Object.entries(viewports)) {
       isMobileOrTablet = page.viewportSize()?.width! <= 768
     })
 
-    test("opens footprint dialog and shows preview", async ({ page }) => {
+    test("parameter controls update preview", async ({ page }) => {
       if (isMobileOrTablet) {
         await page.click('button:has-text("Show Code")')
       }
       await page.click('button:has-text("Insert")')
       await page.click("text=Footprint")
       await expect(page.getByRole("dialog")).toBeVisible()
-      await expect(page.getByRole("heading", { name: "Insert" })).toBeVisible()
+      await page.getByRole("combobox").click()
+      await page.getByRole("option", { name: "dip" }).click()
+      await page.fill('label:has-text("Number of Pins") + input', "16")
+      const previewContainer = page.locator(".rounded-xl.overflow-hidden svg")
+      const initialPreview = await previewContainer.innerHTML()
+      await page.fill('label:has-text("Number of Pins") + input', "22")
+      await page.waitForTimeout(500)
+      const updatedPreview = await previewContainer.innerHTML()
+      expect(initialPreview).not.toEqual(updatedPreview)
     })
   })
 }
