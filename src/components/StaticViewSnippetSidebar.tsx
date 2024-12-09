@@ -61,7 +61,7 @@ export default function StaticViewSnippetSidebar({
             <li key={index}>
               <a
                 href={item.href ?? "#"}
-                className="flex items-center gap-3 px-2 py-1.5 hover:bg-gray-200 rounded-md"
+                className="flex items-center gap-3 px-2 py-1.5 hover:bg-gray-200 rounded-md disabled opacity-50 cursor-not-allowed"
               >
                 {item.icon}
                 <span className="text-sm">{item.label}</span>
