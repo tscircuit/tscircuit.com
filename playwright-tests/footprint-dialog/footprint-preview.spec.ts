@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { viewports } from "./viewports"
+import { viewports } from "../viewports"
 
 for (const [size, viewport] of Object.entries(viewports)) {
   test.describe(`Footprint Preview tests - ${size} viewport`, () => {
@@ -28,6 +28,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       await page.waitForTimeout(500)
       const updatedPreview = await previewContainer.innerHTML()
       expect(initialPreview).not.toEqual(updatedPreview)
+      await expect(page).toHaveScreenshot(`footprint-preview-${size}.png`)
     })
   })
 }
