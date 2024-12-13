@@ -17,6 +17,7 @@ export const snippetSchema = z.object({
   description: z.string().optional(),
   version: z.string().default("0.0.1"),
   star_count: z.number().default(0),
+  datasheet_url: z.string().url().optional().nullable(),
 })
 export type Snippet = z.infer<typeof snippetSchema>
 

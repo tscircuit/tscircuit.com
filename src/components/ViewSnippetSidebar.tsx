@@ -2,9 +2,10 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { AtSign, Bot, Clock, Code, File, GitFork, Package } from "lucide-react"
+import { AtSign, Bot, Clock, Code, File, GitFork, Link2, Package } from "lucide-react"
 import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
+import { useEditDatasheetUrlDialog } from "./dialogs/edit-datasheet-url-dialog"
 
 export default function ViewSnippetSidebar({
   className,
@@ -14,6 +15,7 @@ export default function ViewSnippetSidebar({
   const { snippet } = useCurrentSnippet()
   const { toast } = useToast()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
+  const { Dialog: DatasheetDialog, openDialog: openDatasheetDialog } = useEditDatasheetUrlDialog()
   const { copyToClipboard } = useCopyToClipboard()
 
   return (
@@ -38,10 +40,19 @@ export default function ViewSnippetSidebar({
               badge: "AI",
               href: `/ai?snippet_id=${snippet?.snippet_id}`,
             },
-            // {
-            //   icon: <GitHubLogoIcon className="w-5 h-5" />,
-            //   label: "Github",
-            // },
+            {
+              icon: <Link2 className="w-5 h-5" />,
+              label: "Datasheet",
+              onClick: () => {
+                if (snippet) {
+                  openDatasheetDialog({
+                    snippetId: snippet.snippet_id,
+                    currentUrl: snippet.datasheet_url ?? null
+                  })
+                }
+              },
+              badge: snippet?.datasheet_url ? "URL" : undefined,
+            },
             {
               icon: <GitFork className="w-5 h-5" />,
               label: "Forks",
@@ -71,7 +82,6 @@ export default function ViewSnippetSidebar({
                 }
               },
             },
-            // { icon: <Settings className="w-5 h-5" />, label: "Settings" },
           ].map((item, index) => (
             <li key={index}>
               <Link
@@ -157,6 +167,7 @@ export default function ViewSnippetSidebar({
         </div>
       </div>
       {snippet && <FilesDialog snippetId={snippet.snippet_id} />}
+      {snippet && <DatasheetDialog snippetId={snippet.snippet_id} currentUrl={snippet.datasheet_url ?? null} />}
     </div>
   )
 }
