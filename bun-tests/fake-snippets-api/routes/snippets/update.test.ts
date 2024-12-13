@@ -114,3 +114,45 @@ test("update snippet with null compiled_js", async () => {
   const updatedSnippet = db.snippets[0]
   expect(updatedSnippet.compiled_js).toBeNull()
 })
+
+test("update snippet datasheet URL", async () => {
+  const { axios, db } = await getTestServer()
+
+  // Add a test snippet
+  const snippet = {
+    unscoped_name: "TestSnippet",
+    owner_name: "testuser",
+    code: "Original Content",
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+    name: "testuser/TestSnippet",
+    snippet_type: "package",
+    description: "Original Description",
+    datasheet_url: null
+  }
+  db.addSnippet(snippet as any)
+
+  const addedSnippet = db.snippets[0]
+
+  // Update the datasheet URL
+  const newUrl = "https://example.com/datasheet.pdf"
+  const response = await axios.post(
+    "/api/snippets/update",
+    {
+      snippet_id: addedSnippet.snippet_id,
+      datasheet_url: newUrl,
+    },
+    {
+      headers: {
+        Authorization: "Bearer 1234",
+      },
+    },
+  )
+
+  expect(response.status).toBe(200)
+  expect(response.data.snippet.datasheet_url).toBe(newUrl)
+
+  // Verify the snippet was updated in the database
+  const updatedSnippet = db.snippets[0]
+  expect(updatedSnippet.datasheet_url).toBe(newUrl)
+})
