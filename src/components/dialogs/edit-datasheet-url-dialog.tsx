@@ -9,6 +9,8 @@ import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 
 type EditDatasheetUrlDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   snippetId: string
   currentUrl: string | null
 }
@@ -18,10 +20,7 @@ export const EditDatasheetUrlDialog = ({
   onOpenChange,
   snippetId,
   currentUrl,
-}: EditDatasheetUrlDialogProps & {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) => {
+}: EditDatasheetUrlDialogProps) => {
   const [url, setUrl] = useState(currentUrl ?? "")
   const axios = useAxios()
   const { toast } = useToast()

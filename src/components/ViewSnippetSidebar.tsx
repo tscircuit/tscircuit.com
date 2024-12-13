@@ -7,6 +7,7 @@ import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
 import { useEditDatasheetUrlDialog } from "./dialogs/edit-datasheet-url-dialog"
 import { Button } from "./ui/button"
+import { useState } from "react"
 
 export default function ViewSnippetSidebar({
   className,
@@ -16,8 +17,9 @@ export default function ViewSnippetSidebar({
   const { snippet } = useCurrentSnippet()
   const { toast } = useToast()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
-  const editDatasheetUrl = useEditDatasheetUrlDialog()
+  const { Dialog: DatasheetUrlDialog, openDialog: openDatasheetUrlDialog } = useEditDatasheetUrlDialog()
   const { copyToClipboard } = useCopyToClipboard()
+  const [datasheetUrlDialogProps, setDatasheetUrlDialogProps] = useState<{ snippetId: string; currentUrl: string | null } | null>(null)
 
   return (
     <div
@@ -57,10 +59,12 @@ export default function ViewSnippetSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => snippet && editDatasheetUrl.open({
-                      snippetId: snippet.snippet_id,
-                      currentUrl: snippet.datasheet_url ?? null
-                    })}
+                    onClick={() => {
+                      if (snippet) {
+                        setDatasheetUrlDialogProps({ snippetId: snippet.snippet_id, currentUrl: snippet.datasheet_url ?? null })
+                        openDatasheetUrlDialog()
+                      }
+                    }}
                   >
                     Edit
                   </Button>
@@ -69,10 +73,12 @@ export default function ViewSnippetSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => snippet && editDatasheetUrl.open({
-                    snippetId: snippet.snippet_id,
-                    currentUrl: null
-                  })}
+                  onClick={() => {
+                    if (snippet) {
+                      setDatasheetUrlDialogProps({ snippetId: snippet.snippet_id, currentUrl: null })
+                      openDatasheetUrlDialog()
+                    }
+                  }}
                 >
                   Add Datasheet URL
                 </Button>
@@ -193,7 +199,7 @@ export default function ViewSnippetSidebar({
         </div>
       </div>
       {snippet && <FilesDialog snippetId={snippet.snippet_id} />}
-      {snippet && <editDatasheetUrl.Dialog snippetId={snippet.snippet_id} currentUrl={snippet.datasheet_url ?? null} />}
+      {snippet && datasheetUrlDialogProps && <DatasheetUrlDialog {...datasheetUrlDialogProps} />}
     </div>
   )
 }
