@@ -6,6 +6,7 @@ import { AtSign, Bot, Clock, Code, File, GitFork, Link2, Package } from "lucide-
 import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
 import { useEditDatasheetUrlDialog } from "./dialogs/edit-datasheet-url-dialog"
+import { Button } from "./ui/button"
 
 export default function ViewSnippetSidebar({
   className,
@@ -15,7 +16,7 @@ export default function ViewSnippetSidebar({
   const { snippet } = useCurrentSnippet()
   const { toast } = useToast()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
-  const { Dialog: DatasheetDialog, openDialog: openDatasheetDialog } = useEditDatasheetUrlDialog()
+  const editDatasheetUrl = useEditDatasheetUrlDialog()
   const { copyToClipboard } = useCopyToClipboard()
 
   return (
@@ -43,14 +44,39 @@ export default function ViewSnippetSidebar({
             {
               icon: <Link2 className="w-5 h-5" />,
               label: "Datasheet",
-              onClick: () => {
-                if (snippet) {
-                  openDatasheetDialog({
+              content: snippet?.datasheet_url ? (
+                <div className="flex items-center gap-2 mt-2">
+                  <a
+                    href={snippet.datasheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline text-sm truncate max-w-[150px]"
+                  >
+                    View Datasheet
+                  </a>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => snippet && editDatasheetUrl.open({
+                      snippetId: snippet.snippet_id,
+                      currentUrl: snippet.datasheet_url ?? null
+                    })}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => snippet && editDatasheetUrl.open({
                     snippetId: snippet.snippet_id,
-                    currentUrl: snippet.datasheet_url ?? null
-                  })
-                }
-              },
+                    currentUrl: null
+                  })}
+                >
+                  Add Datasheet URL
+                </Button>
+              ),
               badge: snippet?.datasheet_url ? "URL" : undefined,
             },
             {
@@ -167,7 +193,7 @@ export default function ViewSnippetSidebar({
         </div>
       </div>
       {snippet && <FilesDialog snippetId={snippet.snippet_id} />}
-      {snippet && <DatasheetDialog snippetId={snippet.snippet_id} currentUrl={snippet.datasheet_url ?? null} />}
+      {snippet && <editDatasheetUrl.Dialog snippetId={snippet.snippet_id} currentUrl={snippet.datasheet_url ?? null} />}
     </div>
   )
 }
