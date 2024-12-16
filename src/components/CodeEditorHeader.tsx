@@ -9,7 +9,7 @@ import {
 import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { FootprintDialog } from "./FootprintDialog"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,10 +96,7 @@ export const CodeEditorHeader = ({
         </Select>
       </div>
       <div className="flex items-center gap-2 px-2 py-1 ml-auto">
-        {checkIfManualEditsImported(
-          files,
-          files["manual-edits.json"].length > 0,
-        ) && (
+        {checkIfManualEditsImported(files) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
