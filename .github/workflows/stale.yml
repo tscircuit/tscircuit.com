@@ -1,0 +1,40 @@
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          # Issues config
+          days-before-stale: 60
+          days-before-close: 7
+          stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+          close-issue-message: 'This issue has been automatically closed due to inactivity. Please feel free to reopen it if you believe it still needs attention.'
+
+          # PR config
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-message: 'This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+          close-pr-message: 'This pull request has been automatically closed due to inactivity. Please feel free to reopen it if you believe it still needs attention.'
+
+          # Labels
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+
+          # Exempt labels
+          exempt-issue-labels: 'pinned,security,help wanted,good first issue,bug'
+          exempt-pr-labels: 'pinned,security,work in progress'
+
+          # Additional settings
+          exempt-all-milestones: true  # Don't mark issues/PRs with milestones as stale
+          operations-per-run: 100  # Limit operations per run to avoid hitting API limits
+          remove-stale-when-updated: true  # Remove stale label when updated
