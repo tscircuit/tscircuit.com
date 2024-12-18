@@ -1,5 +1,4 @@
 import { useMemo } from "react"
-import * as Babel from "@babel/standalone"
 
 export const safeCompileTsx = (
   code: string,
@@ -10,7 +9,7 @@ export const safeCompileTsx = (
     return {
       success: true,
       compiledTsx:
-        Babel.transform(code, {
+        window.Babel.transform(code, {
           presets: ["react", "typescript"],
           plugins: ["transform-modules-commonjs"],
           filename: "virtual.tsx",

@@ -1,8 +1,6 @@
-import * as Babel from "@babel/standalone"
-
 export function getSyntaxError(code: string): string | null {
   try {
-    Babel.transform(code, {
+    window.Babel.transform(code, {
       filename: "index.tsx",
       presets: ["react", "typescript"],
     })

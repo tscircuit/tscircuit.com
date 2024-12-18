@@ -25,7 +25,6 @@ import {
 } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 
 const defaultImports = `
@@ -95,7 +94,7 @@ export const CodeEditor = ({
   }, [isStreaming])
 
   useEffect(() => {
-    if (!editorRef.current) return
+    if (!editorRef.current && !window.ts) return
 
     const fsMap = new Map<string, string>()
     Object.entries(files).forEach(([filename, content]) => {
@@ -104,10 +103,10 @@ export const CodeEditor = ({
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     createDefaultMapFromCDN(
-      { target: ts.ScriptTarget.ES2022 },
-      ts.version,
+      { target: window.ts.ScriptTarget.ES2022 },
+      window.ts.version,
       true,
-      ts,
+      window.ts,
     ).then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
@@ -115,18 +114,18 @@ export const CodeEditor = ({
     })
 
     const system = createSystem(fsMap)
-    const env = createVirtualTypeScriptEnvironment(system, [], ts, {
-      jsx: ts.JsxEmit.ReactJSX,
+    const env = createVirtualTypeScriptEnvironment(system, [], window.ts, {
+      jsx: window.ts.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
-      target: ts.ScriptTarget.ES2022,
+      target: window.ts.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
 
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
-      typescript: ts,
+      typescript: window.ts,
       logger: console,
       fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
         const registryPrefixes = [

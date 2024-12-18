@@ -88,13 +88,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       },
       reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
-        external: ["typescript", "@babel/standalone"],
         output: {
-          paths: {
-            typescript: "https://cdn.jsdelivr.net/npm/typescript/+esm",
-            "@babel/standalone":
-              "https://cdn.jsdelivr.net/npm/@babel/standalone/+esm",
-          },
           manualChunks: {
             "react-vendor": ["react", "react-dom"],
             codemirror: [
