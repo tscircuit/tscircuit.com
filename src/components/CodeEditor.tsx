@@ -323,7 +323,7 @@ export const CodeEditor = ({
 
     const view = new EditorView({
       state,
-      parent: editorRef.current,
+      parent: editorRef.current!,
     })
 
     viewRef.current = view
