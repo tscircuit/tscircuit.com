@@ -99,6 +99,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
               "@codemirror/state",
               "@codemirror/view",
             ],
+            typescript: ["typescript"],
+            "@babel/standalone": ["@babel/standalone"],
           },
         },
       },
