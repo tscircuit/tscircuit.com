@@ -105,7 +105,7 @@ export const CodeEditor = ({
 
     createDefaultMapFromCDN(
       { target: ts.ScriptTarget.ES2022 },
-      "5.6.3",
+      ts.version,
       true,
       ts,
     ).then((defaultFsMap) => {
