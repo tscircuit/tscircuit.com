@@ -80,7 +80,7 @@ const CmdKMenu = () => {
 
   const templates: Template[] = [
     { name: "Blinking LED Board", type: "board" },
-    { name: "USB-C LED Flashlight", type: "board" }
+    { name: "USB-C LED Flashlight", type: "board" },
   ]
 
   const importOptions: ImportOption[] = [

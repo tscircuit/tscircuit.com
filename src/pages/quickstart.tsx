@@ -37,7 +37,7 @@ export const QuickstartPage = () => {
 
   const templates = [
     { name: "Blinking LED Board", type: "board" },
-    { name: "USB-C LED Flashlight", type: "board" }
+    { name: "USB-C LED Flashlight", type: "board" },
   ]
 
   return (
