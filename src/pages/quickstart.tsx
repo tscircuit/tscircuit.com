@@ -35,7 +35,10 @@ export const QuickstartPage = () => {
     { name: "Blank Footprint", type: "footprint", disabled: true },
   ]
 
-  const templates = [{ name: "Blinking LED Board", type: "board" }]
+  const templates = [
+    { name: "Blinking LED Board", type: "board" },
+    { name: "USB-C LED Flashlight", type: "board" }
+  ]
 
   return (
     <div>
