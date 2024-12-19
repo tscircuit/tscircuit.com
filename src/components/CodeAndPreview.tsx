@@ -25,6 +25,8 @@ interface Props {
 export function CodeAndPreview({ snippet }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const guestSnippet = useGlobalStore((s) => s.guestSnippet)
+  const setGuestSnippet = useGlobalStore((s) => s.setGuestSnippet)
   const urlParams = useUrlParams()
   const templateFromUrl = useMemo(
     () => getSnippetTemplate(urlParams.template),
@@ -50,14 +52,19 @@ export function CodeAndPreview({ snippet }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
-
-  const snippetType: "board" | "package" | "model" | "footprint" =
-    snippet?.snippet_type ?? (templateFromUrl.type as any)
+  const [snippetType, setSnippetType] = useState<
+    "board" | "package" | "model" | "footprint" | string | undefined
+  >(snippet?.snippet_type ?? (templateFromUrl.type as any))
 
   useEffect(() => {
     if (snippet?.code) {
       setCode(snippet.code)
       setLastRunCode(snippet.code)
+    } else if (!isLoggedIn && guestSnippet) {
+      setCode(guestSnippet.code)
+      setSnippetType(guestSnippet.snippetType)
+      setGuestSnippet(null)
+      setManualEditsFileContent(guestSnippet.manual_edits_json_content)
     }
   }, [Boolean(snippet)])
 
@@ -172,6 +179,7 @@ export function CodeAndPreview({ snippet }: Props) {
     <div className="flex flex-col">
       <EditorNav
         circuitJson={circuitJson}
+        manual_edits_json_content={manualEditsFileContent}
         snippet={snippet}
         snippetType={snippetType}
         code={code}

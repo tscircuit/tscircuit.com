@@ -10,6 +10,7 @@ import { useLocation } from "wouter"
 const AuthenticatePageInnerContent = () => {
   const [location, setLocation] = useLocation()
   const setSession = useGlobalStore((s) => s.setSession)
+  const guestSnippet = useGlobalStore((s) => s.guestSnippet)
   const [message, setMessage] = useState("logging you in...")
   const searchParams = new URLSearchParams(window.location.search.split("?")[1])
   const session_token = searchParams.get("session_token")
@@ -26,7 +27,9 @@ const AuthenticatePageInnerContent = () => {
           ...(decodedToken as any),
           token: session_token,
         })
-        setLocation("/")
+        if (guestSnippet) {
+          setLocation("/editor")
+        } else setLocation("/")
         return
       }
     }
