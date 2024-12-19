@@ -4,6 +4,7 @@ import { blankCircuitBoardTemplate } from "@/lib/templates/blank-circuit-board-t
 import { blank3dModelTemplate } from "@/lib/templates/blank-3d-model-template"
 import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { blinkingLedBoardTemplate } from "@/lib/templates/blinking-led-board-template"
+import { usbCLedFlashlightTemplate } from "@/lib/templates/usb-c-led-flashlight-template"
 
 export const getSnippetTemplate = (template: string | undefined) => {
   switch (template) {
@@ -17,6 +18,8 @@ export const getSnippetTemplate = (template: string | undefined) => {
       return blank3dModelTemplate
     case "blinking-led-board":
       return blinkingLedBoardTemplate
+    case "usb-c-led-flashlight":
+      return usbCLedFlashlightTemplate
     default:
       return { code: defaultCodeForBlankPage, type: "board" }
   }
