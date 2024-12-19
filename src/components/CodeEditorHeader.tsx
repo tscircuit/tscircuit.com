@@ -10,13 +10,15 @@ import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { FootprintDialog } from "./FootprintDialog"
 import { useState } from "react"
-import { Dialog } from "./ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
+import { AlertTriangle } from "lucide-react"
+import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
 
 export type FileName = "index.tsx" | "manual-edits.json"
 
@@ -76,6 +78,7 @@ export const CodeEditorHeader = ({
       })
     }
   }
+
   return (
     <div className="flex items-center gap-2 px-2 border-b border-gray-200">
       <div>
@@ -93,6 +96,30 @@ export const CodeEditorHeader = ({
         </Select>
       </div>
       <div className="flex items-center gap-2 px-2 py-1 ml-auto">
+        {checkIfManualEditsImported(files) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-red-500 hover:bg-red-50"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                Error
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                className="text-red-600 cursor-pointer"
+                onClick={() =>
+                  handleManualEditsImport(files, updateFileContent, toast)
+                }
+              >
+                Manual edits exist but have not been imported. (Click to fix)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" variant="ghost">
