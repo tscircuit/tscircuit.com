@@ -10,16 +10,16 @@ export const MyBlinkingLedCircuit = () => {
   const Led = useRedLed("LED")
 
   return (
-    <board width="12mm" height="30mm" schAutoLayoutEnabled>
-      <USBC GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={0} />
+    <board width="30mm" height="30mm" schAutoLayoutEnabled>
+      <USBC GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={-10} />
       <A555Timer
         name="B1"
-        pin8="net.VBUS" // VCC
-        pin1="net.GND" // GND
-        pin3="net.OUT" // Output
-        pin2="net.TRIG" // Trigger
-        pin6="net.THRES" // Threshold
-        pin7="net.DIS" // Discharge
+        pin8="net.VBUS"
+        pin1="net.GND"
+        pin3="net.OUT"
+        pin2="net.TRIG"
+        pin6="net.THRES"
+        pin7="net.DIS"
       />
       <resistor name="R1" resistance="1K" footprint="0805" pcbX={-8} pcbY={8} />
       <resistor
@@ -31,7 +31,7 @@ export const MyBlinkingLedCircuit = () => {
       />
       <resistor
         name="R3"
-        resistance="1K"
+        resistance="1k"
         footprint="0805"
         pcbX={2.5}
         pcbY={8}
