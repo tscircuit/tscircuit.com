@@ -268,9 +268,7 @@ export default function EditorNav({
                 <File className="mr-2 h-3 w-3" />
                 View Files
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-xs"
-              >
+              <DropdownMenuItem className="text-xs">
                 <File className="mr-2 h-3 w-3" />
                 Edit Description
               </DropdownMenuItem>
