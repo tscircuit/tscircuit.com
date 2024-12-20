@@ -36,6 +36,15 @@ export const UpdateDescriptionDialog = ({
       }
       return response.data
     },
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ["snippets", snippetId] })
+      const previousSnippet = qc.getQueryData(["snippets", snippetId])
+      qc.setQueryData(["snippets", snippetId], (old: any) => ({
+        ...old,
+        description: newDescription,
+      }))
+      return { previousSnippet }
+    },
     onSuccess: () => {
       onUpdate?.(newDescription)
       onOpenChange(false)
@@ -43,15 +52,18 @@ export const UpdateDescriptionDialog = ({
         title: "Description updated",
         description: "Successfully updated snippet description",
       })
-      qc.invalidateQueries({ queryKey: ["snippets", snippetId] })
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      qc.setQueryData(["snippets", snippetId], context?.previousSnippet)
       console.error("Error updating description:", error)
       toast({
         title: "Error",
         description: "Failed to update the description. Please try again.",
         variant: "destructive",
       })
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ["snippets", snippetId] })
     },
   })
 
