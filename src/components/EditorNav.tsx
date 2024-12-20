@@ -270,6 +270,12 @@ export default function EditorNav({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
+              >
+                <File className="mr-2 h-3 w-3" />
+                Edit Description
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
                 onClick={() => openViewTsFilesDialog()}
               >
                 <File className="mr-2 h-3 w-3" />
