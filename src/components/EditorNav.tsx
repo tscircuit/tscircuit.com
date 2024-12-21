@@ -22,6 +22,7 @@ import {
   Eye,
   EyeIcon,
   File,
+  FilePenLine,
   MoreVertical,
   Package,
   Pencil,
@@ -44,6 +45,7 @@ import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { SnippetLink } from "./SnippetLink"
 import { TypeBadge } from "./TypeBadge"
+import { useUpdateDescriptionDialog } from "./dialogs/edit-description-dialog"
 
 export default function EditorNav({
   circuitJson,
@@ -72,6 +74,10 @@ export default function EditorNav({
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
     useRenameSnippetDialog()
+  const {
+    Dialog: UpdateDescriptionDialog,
+    openDialog: openupdateDescriptionDialog,
+  } = useUpdateDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeleteSnippetDialog()
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
@@ -209,7 +215,7 @@ export default function EditorNav({
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between -space-x-1">
+      <div className="flex items-center justify-end md:justify-between -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
           {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
           <Button
@@ -267,6 +273,13 @@ export default function EditorNav({
               >
                 <File className="mr-2 h-3 w-3" />
                 View Files
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => openupdateDescriptionDialog()}
+              >
+                <FilePenLine className="mr-2 h-3 w-3" />
+                Edit Description
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
@@ -369,6 +382,10 @@ export default function EditorNav({
           </Button>
         </div>
       </div>
+      <UpdateDescriptionDialog
+        snippetId={snippet?.snippet_id ?? ""}
+        currentDescription={snippet?.description ?? ""}
+      />
       <RenameDialog
         snippetId={snippet?.snippet_id ?? ""}
         currentName={snippet?.unscoped_name ?? ""}
