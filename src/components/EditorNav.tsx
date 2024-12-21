@@ -45,7 +45,7 @@ import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { SnippetLink } from "./SnippetLink"
 import { TypeBadge } from "./TypeBadge"
 import { useSignIn } from "@/hooks/use-sign-in"
-
+type CodeSnippetType = "board" | "package" | "model" | "footprint"
 export default function EditorNav({
   circuitJson,
   snippet,
@@ -62,7 +62,7 @@ export default function EditorNav({
   snippet?: Snippet | null
   circuitJson?: AnyCircuitElement[] | null
   code: string
-  snippetType?: string
+  snippetType?: "board" | "package" | "model" | "footprint"
   manual_edits_json_content: string | null
   hasUnsavedChanges: boolean
   previewOpen: boolean
@@ -99,7 +99,7 @@ export default function EditorNav({
       const guestSnippet = {
         code,
         circuitJson,
-        snippetType,
+        snippetType: snippetType as CodeSnippetType,
         manual_edits_json_content,
       }
       setGuestSnippet(guestSnippet)
@@ -112,7 +112,9 @@ export default function EditorNav({
     setCurrentType(snippetType ?? snippet?.snippet_type)
   }, [snippetType, snippet?.snippet_type])
 
-  const handleTypeChange = async (newType: string) => {
+  const handleTypeChange = async (
+    newType: "board" | "package" | "model" | "footprint",
+  ) => {
     if (!snippet || newType === currentType) return
 
     try {

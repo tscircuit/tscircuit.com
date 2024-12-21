@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware"
 interface snippetInfo {
   circuitJson?: AnyCircuitElement[] | null
   code: string
-  snippetType: "board" | "package" | "model" | "footprint" | string | undefined
+  snippetType: "board" | "package" | "model" | "footprint"
   manual_edits_json_content: string | null
 }
 export type Store = {

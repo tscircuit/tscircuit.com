@@ -26,7 +26,7 @@ export const useRunTsx = ({
 }: {
   code?: string
   userImports?: Record<string, object>
-  type?: "board" | "footprint" | "package" | "model" | string
+  type?: "board" | "footprint" | "package" | "model"
   isStreaming?: boolean
 } = {}): RunTsxResult & {
   circuitJsonKey: string

@@ -53,7 +53,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
   const [snippetType, setSnippetType] = useState<
-    "board" | "package" | "model" | "footprint" | string | undefined
+    "board" | "package" | "model" | "footprint"
   >(snippet?.snippet_type ?? (templateFromUrl.type as any))
 
   useEffect(() => {
