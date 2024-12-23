@@ -43,8 +43,11 @@ export function CodeAndPreview({ snippet }: Props) {
   }, [])
 
   // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState<string | null>(
-    snippet?.manual_edits_json_content ?? JSON.stringify(manualEditsTemplate, null, 2)
+  const [manualEditsFileContent, setManualEditsFileContent] = useState<
+    string | null
+  >(
+    snippet?.manual_edits_json_content ??
+      JSON.stringify(manualEditsTemplate, null, 2),
   )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
