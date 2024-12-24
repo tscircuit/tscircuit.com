@@ -99,8 +99,11 @@ export const ViewSnippetPage = () => {
                   code={snippet?.code ?? ""}
                   errorMessage={message}
                   circuitJson={circuitJsonForPreview}
-                  showCodeTab={false}
-                  showJsonTab={true}
+                  circuitJsonKey={circuitJsonKeyForPreview}
+                  isRunningCode={isRunningCode}
+                  showCodeTab={true}
+                  showJsonTab={false}
+                  showImportAndFormatButtons={false}
                   readOnly
                   headerClassName="p-4 border-b border-gray-200"
                   leftHeaderContent={
