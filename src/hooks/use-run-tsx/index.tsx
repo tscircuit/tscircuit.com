@@ -90,6 +90,12 @@ export const useRunTsx = ({
       }
 
       const __tscircuit_require = (name: string) => {
+        if (
+          name === "./manual-edits.json" &&
+          preSuppliedImports["./manual-edits.json"] === ""
+        ) {
+          return preSuppliedImports["./manual-edits.json"]
+        }
         if (!preSuppliedImports[name]) {
           throw new Error(
             `Import "${name}" not found (imports available: ${Object.keys(preSuppliedImports).join(",")})`,
