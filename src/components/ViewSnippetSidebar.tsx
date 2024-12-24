@@ -30,7 +30,10 @@ export default function ViewSnippetSidebar({
             {
               icon: <Code className="w-5 h-5" />,
               label: "Edit Code",
-              href: `/editor?snippet_id=${snippet?.snippet_id}`,
+              onClick: () => {
+                window.location.href = `/editor?snippet_id=${snippet?.snippet_id}`
+                return false
+              }
             },
             {
               icon: <Bot className="w-5 h-5" />,
