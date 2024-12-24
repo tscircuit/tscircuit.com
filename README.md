@@ -90,6 +90,11 @@ This will prompt you to select a specific test file to update.
 
 We welcome contributions to TSCircuit Snippets! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
+## Example Snippets
+
+
+- [Arduino Nano Servo Breakout Board](https://tscircuit.com/Abse2001/Arduino-Nano-Servo-Breakout)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
