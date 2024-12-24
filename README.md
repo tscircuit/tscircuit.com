@@ -90,6 +90,21 @@ This will prompt you to select a specific test file to update.
 
 We welcome contributions to TSCircuit Snippets! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
+## Example Snippets
+
+### Arduino Nano Servo Breakout Board
+
+A versatile breakout board designed for Arduino Nano that supports multiple servo motors. Features include:
+- 6 servo motor headers with power distribution
+- USB-C power input
+- Reset button
+- Power terminal block
+- UART interface via 5-pin header
+- Full Arduino Nano pin breakout with labeled headers
+- Compact size: 44.9mm x 42.4mm
+
+[View the design in Tscircuit](https://tscircuit.com/Abse2001/Arduino-Nano-Servo-Breakout)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
