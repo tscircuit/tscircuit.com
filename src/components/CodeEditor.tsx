@@ -1,5 +1,6 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
+import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 import { autocompletion } from "@codemirror/autocomplete"
 import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
