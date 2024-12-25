@@ -215,7 +215,7 @@ export default function EditorNav({
           )}
         </div>
       </div>
-      <div className="flex items-center justify-end md:justify-between -space-x-1">
+      <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
           {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
           <Button
