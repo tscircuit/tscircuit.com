@@ -17,7 +17,6 @@ import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
-import manualEditsTemplate from "@/lib/templates/manual-edits-template"
 
 interface Props {
   snippet?: Snippet | null
@@ -45,10 +44,7 @@ export function CodeAndPreview({ snippet }: Props) {
   // Initialize with template or snippet's manual edits if available
   const [manualEditsFileContent, setManualEditsFileContent] = useState<
     string | null
-  >(
-    snippet?.manual_edits_json_content ??
-      JSON.stringify(manualEditsTemplate, null, 2),
-  )
+  >(null)
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
