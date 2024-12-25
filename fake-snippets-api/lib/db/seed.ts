@@ -1,7 +1,7 @@
 import { DbClient } from "./db-client"
 
 const loadAutoloadSnippets = async (db: DbClient) => {
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.VITE_USE_FAKE_API === "true") {
     const { loadAutoloadSnippets } = await import("./autoload-dev-snippets")
     await loadAutoloadSnippets(db)
   }

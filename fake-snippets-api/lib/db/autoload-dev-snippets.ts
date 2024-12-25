@@ -44,7 +44,6 @@ const loadSnippetWithDependencies = async (
     const snippet = await fetchSnippetFromRegistry(owner, name)
     db.addSnippet(snippet)
     loadedSnippets.add(snippetKey)
-    console.log(`✓ Loaded ${snippetKey}`)
 
     const dependencies = extractTsciDependencies(snippet.code)
     for (const dep of dependencies) {
