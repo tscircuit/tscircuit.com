@@ -36,7 +36,7 @@ test("Manual edits test", async ({ page }) => {
   await fileOption.waitFor({ state: "visible" })
   await fileOption.click()
 
-  await page.getByRole("textbox").locator("div.cm-activeLine").click()
+  await page.getByRole("textbox").locator("div").click()
 
   const pcbPlacementsData = `{
     "pcb_placements": [
