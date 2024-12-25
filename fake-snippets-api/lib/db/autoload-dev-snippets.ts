@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "redaxios"
 import fs from "fs"
 import path from "path"
 import { DbClient } from "./db-client"
