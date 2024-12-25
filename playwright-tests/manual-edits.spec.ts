@@ -36,7 +36,7 @@ test("Manual edits test", async ({ page }) => {
   await fileOption.waitFor({ state: "visible" })
   await fileOption.click()
 
-  await page.getByRole("textbox").locator("div.cm-line").first().click()
+  await page.getByRole("textbox").locator("div").click()
 
   const pcbPlacementsData = `{
     "pcb_placements": [
@@ -69,23 +69,17 @@ test("Manual edits test", async ({ page }) => {
   await expect(page).toHaveScreenshot("editor-manual-edits.png")
 
   await page.goto("http://127.0.0.1:5177/testuser/my-test-board", {
-    waitUntil: "networkidle",
+    waitUntil: "domcontentloaded",
   })
 
-  // Wait for navigation and content to be stable
-  await page.waitForLoadState("domcontentloaded")
-  await page.waitForTimeout(1000) // Give extra time for UI to stabilize
+  await page.waitForLoadState("networkidle")
 
   const filesLink = page.getByRole("link", { name: "Files" })
-  await filesLink.waitFor({ state: "visible", timeout: 10000 })
+  await filesLink.waitFor({ state: "visible" })
   await filesLink.click()
 
-  // Wait for file list to load
-  await page.waitForLoadState("networkidle")
-  await page.waitForTimeout(1000) // Give extra time for file list to render
-
   const fileLink = page.getByText("manual-edits.json", { exact: true })
-  await fileLink.waitFor({ state: "visible", timeout: 10000 })
+  await fileLink.waitFor({ state: "visible" })
   await fileLink.click()
 
   await expect(page).toHaveScreenshot("manual-edits-view.png")
