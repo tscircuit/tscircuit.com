@@ -42,6 +42,9 @@ const loadSnippetWithDependencies = async (
 
   try {
     const snippet = await fetchSnippetFromRegistry(owner, name)
+
+    if (db.getSnippetByAuthorAndName(owner, name)) return
+
     db.addSnippet(snippet)
     loadedSnippets.add(snippetKey)
 
