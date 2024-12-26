@@ -13,6 +13,14 @@ export const AiPage = () => {
   const [manualEditsFileContent, setManualEditsFileContent] = useState("")
   const [dts, setDts] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
+  const { saveSnippet, isLoading: isSaving } = useSaveSnippet()
+  const snippetIdFromUrl = new URLSearchParams(window.location.search).get(
+    "snippet_id",
+  )
+  const [snippetId, setSnippetId] = useState<string | null>(snippetIdFromUrl)
+  const { data: snippet } = useSnippet(snippetId)
+  const { toast } = useToast()
+  const [, navigate] = useLocation()
   const {
     message: errorMessage,
     circuitJson,
@@ -24,15 +32,8 @@ export const AiPage = () => {
     code,
     type: "board",
     isStreaming,
+    circuitDisplayName: snippet?.name,
   })
-  const { saveSnippet, isLoading: isSaving } = useSaveSnippet()
-  const snippetIdFromUrl = new URLSearchParams(window.location.search).get(
-    "snippet_id",
-  )
-  const [snippetId, setSnippetId] = useState<string | null>(snippetIdFromUrl)
-  const { data: snippet } = useSnippet(snippetId)
-  const { toast } = useToast()
-  const [, navigate] = useLocation()
 
   useEffect(() => {
     if (!code && snippet && snippetIdFromUrl) {

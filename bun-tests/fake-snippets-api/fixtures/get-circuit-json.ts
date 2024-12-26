@@ -136,7 +136,7 @@ export const generateCircuitJson = async ({
     }
 
     // Construct and render the circuit
-    const circuit = constructCircuit(UserElm, type)
+    const circuit = constructCircuit({ UserElm, type })
 
     // Wait for the circuit to settle
     await circuit.renderUntilSettled()

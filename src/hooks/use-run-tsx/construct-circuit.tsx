@@ -6,11 +6,20 @@ import { createJSCADRenderer } from "jscad-fiber"
 import { jscadPlanner } from "jscad-planner"
 import { jlcPartsEngine } from "@/lib/jlc-parts-engine"
 
-export const constructCircuit = (
-  UserElm: any,
-  type: "board" | "footprint" | "package" | "model",
-) => {
+export const constructCircuit = ({
+  UserElm,
+  type,
+  circuitDisplayName,
+}: {
+  UserElm: any
+  type: "board" | "footprint" | "package" | "model"
+  circuitDisplayName?: string
+}) => {
   const circuit = new Circuit()
+
+  if (circuitDisplayName) {
+    circuit.name = circuitDisplayName
+  }
 
   if (type === "board") {
     circuit.add(<UserElm />)
