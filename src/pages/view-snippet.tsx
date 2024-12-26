@@ -50,6 +50,7 @@ export const ViewSnippetPage = () => {
     code: snippet?.code ?? "",
     type: snippet?.snippet_type,
     userImports,
+    circuitDisplayName: snippet?.name,
   })
 
   const circuitJsonForPreview = tsxResultCircuitJson ?? snippet?.circuit_json

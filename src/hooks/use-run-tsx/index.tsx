@@ -23,11 +23,13 @@ export const useRunTsx = ({
   userImports,
   type,
   isStreaming = false,
+  circuitDisplayName,
 }: {
   code?: string
   userImports?: Record<string, object>
   type?: "board" | "footprint" | "package" | "model"
   isStreaming?: boolean
+  circuitDisplayName?: string
 } = {}): RunTsxResult & {
   circuitJsonKey: string
   triggerRunTsx: () => void
@@ -182,7 +184,11 @@ export const useRunTsx = ({
           React.createElement(module.exports[primaryKey], props)
 
         try {
-          const circuit = constructCircuit(UserElm, type as any)
+          const circuit = constructCircuit({
+            UserElm,
+            type: type as any,
+            circuitDisplayName,
+          })
           const renderPromise = circuit.renderUntilSettled()
 
           // wait one tick to allow a single render pass
