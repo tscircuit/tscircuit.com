@@ -1,11 +1,5 @@
 import { DbClient } from "./db-client"
-
-const loadAutoloadSnippets = async (db: DbClient) => {
-  if (process.env.AUTOLOAD_SNIPPETS === "true") {
-    const { loadAutoloadSnippets } = await import("./autoload-dev-snippets")
-    await loadAutoloadSnippets(db)
-  }
-}
+import { loadAutoloadSnippets } from "./autoload-dev-snippets"
 
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
@@ -28,8 +22,9 @@ export const seed = (db: DbClient) => {
     github_username: "seveibar",
   })
 
-  // Only load development snippets in development mode
-  loadAutoloadSnippets(db)
+  if (process.env.AUTOLOAD_SNIPPETS === "true") {
+    loadAutoloadSnippets(db)
+  }
 
   db.addSnippet({
     name: "testuser/my-test-board",
