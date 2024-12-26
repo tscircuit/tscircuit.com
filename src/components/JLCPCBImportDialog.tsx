@@ -86,13 +86,23 @@ export function JLCPCBImportDialog({
       })
       onOpenChange(false)
       navigate(`/editor?snippet_id=${snippet.snippet_id}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error importing JLCPCB component:", error)
-      toast({
-        title: "Import Failed",
-        description: "Failed to import the JLCPCB component. Please try again.",
-        variant: "destructive",
-      })
+      if (error.message.includes("already imported")) {
+        toast({
+          title: "Import Failed",
+          description:
+            "The component you are trying to import is already in the system. Please check the existing components before importing.",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Import Failed",
+          description:
+            "Failed to import the JLCPCB component. Please try again.",
+          variant: "destructive",
+        })
+      }
     } finally {
       setIsLoading(false)
     }
