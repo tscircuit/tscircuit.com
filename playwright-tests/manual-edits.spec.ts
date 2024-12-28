@@ -7,11 +7,11 @@ test("Manual edits test", async ({ page }) => {
   await page.waitForLoadState("networkidle")
 
   const loginButton = page.getByRole("button", { name: "Fake testuser Login" })
-  await loginButton.waitFor({ state: "visible" })
+  // await loginButton.waitFor({ state: "visible" })
   await loginButton.click()
 
   const editorTextbox = page.getByRole("textbox").first()
-  await editorTextbox.waitFor({ state: "visible" })
+  // await editorTextbox.waitFor({ state: "visible" })
   await editorTextbox.click()
 
   await page.keyboard.press("Control+A")
@@ -29,14 +29,15 @@ test("Manual edits test", async ({ page }) => {
   await editorTextbox.fill(indexCode)
 
   const combobox = page.getByRole("combobox")
-  await combobox.waitFor({ state: "visible" })
   await combobox.click()
 
   const fileOption = page.getByText("manual-edits.json", { exact: true })
-  await fileOption.waitFor({ state: "visible" })
+  // await fileOption.waitFor({ state: "visible" })
   await fileOption.click()
 
-  await page.getByRole("textbox").locator("div").click()
+  await page.getByRole("textbox").first().click()
+  await page.keyboard.press("Control+A")
+  await page.keyboard.press("Backspace")
 
   const pcbPlacementsData = `{
     "pcb_placements": [
@@ -52,16 +53,17 @@ test("Manual edits test", async ({ page }) => {
     ],
     "edit_events": [],
     "manual_trace_hints": []
-  }`
+  }
+`
 
   await page.keyboard.type(pcbPlacementsData)
 
   const runButton = page.getByRole("button", { name: "Run", exact: true })
-  await runButton.waitFor({ state: "visible" })
+  // await runButton.waitFor({ state: "visible" })
   await runButton.click()
 
   const saveButton = page.getByRole("button", { name: "Save" })
-  await saveButton.waitFor({ state: "visible", timeout: 20000 }) // Extend timeout for Save button
+  // await saveButton.waitFor({ state: "visible", timeout: 20000 }) // Extend timeout for Save button
   await saveButton.click()
 
   await page.waitForTimeout(1000)
@@ -75,11 +77,11 @@ test("Manual edits test", async ({ page }) => {
   await page.waitForLoadState("networkidle")
 
   const filesLink = page.getByRole("link", { name: "Files" })
-  await filesLink.waitFor({ state: "visible" })
+  // await filesLink.waitFor({ state: "visible" })
   await filesLink.click()
 
   const fileLink = page.getByText("manual-edits.json", { exact: true })
-  await fileLink.waitFor({ state: "visible" })
+  // await fileLink.waitFor({ state: "visible" })
   await fileLink.click()
 
   await expect(page).toHaveScreenshot("manual-edits-view.png")

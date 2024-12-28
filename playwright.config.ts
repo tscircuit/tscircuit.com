@@ -20,6 +20,11 @@ export default defineConfig({
       maxDiffPixelRatio: 0.2,
       // Increase the threshold for considering pixels different
       threshold: 0.2,
+      animations: "disabled",
     },
+  },
+  use: {
+    actionTimeout: 10000,
+    navigationTimeout: 10000,
   },
 })
