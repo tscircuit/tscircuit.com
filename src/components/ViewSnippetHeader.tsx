@@ -15,6 +15,7 @@ export default function ViewSnippetHeader() {
   const { snippet } = useCurrentSnippet()
   const axios = useAxios()
   const qc = useQueryClient()
+  const session = useGlobalStore((s) => s.session)
 
   const useForkSnippetMutation = ({
     snippet,
@@ -124,7 +125,9 @@ export default function ViewSnippetHeader() {
             }}
           >
             <Star
-              className={`w-4 h-4 mr-2 ${snippet!.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
+              className={`w-4 h-4 mr-2 ${
+                snippet!.is_starred ? "fill-yellow-500 text-yellow-500" : ""
+              }`}
             />
             {snippet!.is_starred ? "Starred" : "Star"}
             {snippet!.star_count > 0 && (
@@ -140,7 +143,7 @@ export default function ViewSnippetHeader() {
 
           <Button variant="outline" size="sm" onClick={() => forkSnippet()}>
             <GitFork className="w-4 h-4 mr-2" />
-            Fork
+            {snippet?.owner_name === session?.github_username ? "Save" : "Fork"}
           </Button>
         </div>
       </div>
