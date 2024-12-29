@@ -1,4 +1,4 @@
-import { convertCircuitJsonToReadableNetlist } from "circuit-json-to-readable-netlist"
+import { convertCircuitJsonToReadableNetlist } from "../circuit-json-to-readable-netlist"
 import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
 
