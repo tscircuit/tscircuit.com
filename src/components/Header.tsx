@@ -85,7 +85,11 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <a href="https://tscircuit.com/join" target="_blank" className="mr-2">
+                <a
+                  href="https://tscircuit.com/join"
+                  target="_blank"
+                  className="mr-2"
+                >
                   <Button variant="ghost">
                     <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
                   </Button>
