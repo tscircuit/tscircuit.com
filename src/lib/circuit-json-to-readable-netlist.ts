@@ -8,7 +8,6 @@ export function convertCircuitJsonToReadableNetlist(params: {
 
   // Group elements by net
   const netGroups = new Map<string, AnyCircuitElement[]>()
-  
   elements.forEach((element) => {
     const net = (element as any).net
     if (typeof net === "string") {
@@ -28,7 +27,6 @@ export function convertCircuitJsonToReadableNetlist(params: {
         return `${type}:${id}`
       })
       .join(", ")
-    
     netlist.push(`Net ${net}: ${components}`)
   })
 
