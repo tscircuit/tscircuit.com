@@ -27,11 +27,31 @@ export const BomTable: React.FC<BomTableProps> = ({ circuitJson }) => {
   )
 
   const supplierColumns = new Set<SupplierName>()
+  const partNumbersGrouped: Record<
+    string,
+    { names: string[]; quantity: number; suppliers: Set<SupplierName> }
+  > = {}
+
   sourceComponents.forEach((comp) => {
     if (comp.supplier_part_numbers) {
-      Object.keys(comp.supplier_part_numbers).forEach((supplier) =>
-        supplierColumns.add(supplier as SupplierName),
-      )
+      Object.keys(comp.supplier_part_numbers).forEach((supplier) => {
+        const partNumber =
+          comp.supplier_part_numbers![supplier as SupplierName]?.[0] || ""
+
+        if (partNumbersGrouped[partNumber]) {
+          partNumbersGrouped[partNumber].names.push(comp.name)
+          partNumbersGrouped[partNumber].quantity++
+          partNumbersGrouped[partNumber].suppliers.add(supplier as SupplierName)
+        } else {
+          partNumbersGrouped[partNumber] = {
+            names: [comp.name],
+            quantity: 1,
+            suppliers: new Set([supplier as SupplierName]),
+          }
+        }
+
+        supplierColumns.add(supplier as SupplierName)
+      })
     }
   })
 
@@ -42,26 +62,52 @@ export const BomTable: React.FC<BomTableProps> = ({ circuitJson }) => {
           <tr className="border-b">
             <th className="p-2">Name</th>
             {Array.from(supplierColumns).map((supplier) => (
-              <th key={supplier} className="p-2 capitalize">
-                {supplier}
-              </th>
+              <>
+                <th key={`${supplier}-part`} className="p-2 capitalize">
+                  {supplier}
+                </th>
+                <th key={`${supplier}-quantity`} className="p-2 capitalize">
+                  Quantity
+                </th>
+              </>
             ))}
           </tr>
         </thead>
         <tbody>
-          {sourceComponents.map((comp) => (
-            <tr key={comp.source_component_id} className="border-b">
-              <td className="p-2">{comp.name}</td>
-              {Array.from(supplierColumns).map((supplier) => (
-                <td key={supplier} className="p-2">
-                  {linkify(
-                    supplier,
-                    comp.supplier_part_numbers?.[supplier]?.[0] || "",
-                  )}
+          {Object.keys(partNumbersGrouped).map((partNumber) => {
+            const partGroup = partNumbersGrouped[partNumber]
+
+            return (
+              <tr key={partNumber} className="border-b">
+                <td
+                  className="p-2"
+                  style={{ wordWrap: "break-word", maxWidth: "200px" }}
+                >
+                  {partGroup.names.join(", ")}
                 </td>
-              ))}
-            </tr>
-          ))}
+
+                {Array.from(supplierColumns).map((supplier) => {
+                  const partNumberForSupplier = partGroup.suppliers.has(
+                    supplier,
+                  )
+                    ? partNumber
+                    : ""
+                  return (
+                    <>
+                      <td key={`${supplier}-part`} className="p-2">
+                        {linkify(supplier, partNumberForSupplier)}
+                      </td>
+                      <td key={`${supplier}-quantity`} className="p-2">
+                        {partGroup.suppliers.has(supplier)
+                          ? partGroup.quantity
+                          : 0}
+                      </td>
+                    </>
+                  )
+                })}
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
