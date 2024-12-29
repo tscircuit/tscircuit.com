@@ -6,8 +6,9 @@ import {
   GitHubLogoIcon,
   OpenInNewWindowIcon,
   ChatBubbleIcon,
+  DiscordLogoIcon,
 } from "@radix-ui/react-icons"
-import { Menu, MessageCircleMoreIcon, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import React, { useState } from "react"
 import { Link, useLocation } from "wouter"
 import CmdKMenu from "./CmdKMenu"
@@ -84,9 +85,13 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <a href="https://tscircuit.com/join">
-                  <Button variant="ghost" className="text-gray-500">
-                    <MessageCircleMoreIcon className="w-4 h-4" />
+                <a
+                  href="https://tscircuit.com/join"
+                  target="_blank"
+                  className="mr-2"
+                >
+                  <Button variant="ghost">
+                    <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
                   </Button>
                 </a>
               </li>
