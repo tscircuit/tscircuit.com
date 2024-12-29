@@ -146,7 +146,7 @@ export function DownloadButtonAndMenu({
             onSelect={() => {
               downloadReadableNetlist(
                 circuitJson,
-                (snippetUnscopedName || "circuit") + ".netlist.txt"
+                (snippetUnscopedName || "circuit") + ".netlist.txt",
               )
             }}
           >
