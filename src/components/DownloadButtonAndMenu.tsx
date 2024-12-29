@@ -10,6 +10,7 @@ import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn
 import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
+import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
@@ -138,6 +139,21 @@ export function DownloadButtonAndMenu({
             <span className="flex-grow mr-6">Download DSN file</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               dsn
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onClick={() => {
+              downloadReadableNetlist(
+                circuitJson,
+                snippetUnscopedName || "circuit",
+              )
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Download Readable Netlist</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              txt
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>
