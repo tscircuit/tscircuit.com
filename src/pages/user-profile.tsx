@@ -7,7 +7,7 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import { GitHubLogoIcon, StarIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -70,9 +70,15 @@ export const UserProfilePage = () => {
                 href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
               >
                 <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                  <h3 className="text-lg font-semibold">
-                    {snippet.unscoped_name}
-                  </h3>
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-semibold">
+                      {snippet.unscoped_name}
+                    </h3>
+                    <div className="flex items-center text-gray-600">
+                      <StarIcon className="w-4 h-4 mr-1" />
+                      <span>{snippet.star_count || 0}</span>
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-500">
                     Created: {new Date(snippet.created_at).toLocaleString()}
                   </p>
