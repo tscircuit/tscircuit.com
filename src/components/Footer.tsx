@@ -15,7 +15,7 @@ export default function Footer() {
             <span className="text-lg font-bold">tscircuit</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            The New Foundation for Electronic Desig n
+            The New Foundation for Electronic Design
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600 mt-8">
