@@ -21,8 +21,6 @@ test("test for removing a star from a repo", async ({ page }) => {
   await page.goto("http://127.0.0.1:5177/testuser/my-test-board")
   await page.getByRole("button", { name: "Log in" }).click()
 
-
-
   // Check for initial page content
   await expect(page.getByText("testuser/my-test-boardBOARD")).toBeVisible()
   await expect(page.getByRole("button", { name: "Star" })).toBeVisible()
