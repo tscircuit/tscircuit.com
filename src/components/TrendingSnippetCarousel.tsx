@@ -16,6 +16,12 @@ export const TrendingSnippetCarousel = () => {
       const response = await axios.get("/snippets/list_trending")
       return response.data.snippets
     },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    },
   )
 
   if (!trendingSnippets?.length) return null
@@ -43,9 +49,13 @@ export const TrendingSnippetCarousel = () => {
                 <div className="font-medium text-blue-600 mb-1 truncate text-sm">
                   {snippet.owner_name}/{snippet.unscoped_name}
                 </div>
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-                  {snippet.description || "No description provided"}
-                </p>
+                <div className="mb-2 h-24 w-full bg-gray-100 rounded">
+                  <img
+                    src={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                    alt="PCB preview"
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
                 <div className="flex items-center text-xs text-gray-500">
                   <StarFilledIcon className="w-3 h-3 mr-1" />
                   {snippet.star_count || 0} stars

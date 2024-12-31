@@ -39,7 +39,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "carousel-left": "slide-left 60s linear infinite",
+        "carousel-left": "slide-left 120s linear infinite",
       },
     },
   },
