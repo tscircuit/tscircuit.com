@@ -197,14 +197,14 @@ export default function EditorNav({
                 : () => forkSnippet()
             }
           >
-            {snippet?.owner_name === session?.github_username ? (
+            {!snippet || snippet?.owner_name === session?.github_username ? (
               <>
-                <Save className="mr-1 h-3 w-3" />
+                <Save className="ml-1 h-3 w-3" />
                 Save
               </>
             ) : (
               <>
-                <GitFork className="mr-1 h-3 w-3" />
+                <GitFork className="ml-1 h-3 w-3" />
                 Fork
               </>
             )}
