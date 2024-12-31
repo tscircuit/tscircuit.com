@@ -2,9 +2,8 @@ import { test, expect } from "@playwright/test"
 
 test("Handle manual edits test", async ({ page }) => {
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
-  await page.waitForLoadState("networkidle")
 
-  await page.getByRole("button", { name: "Fake testuser Login" }).click()
+  await page.getByRole("button", { name: "Log in" }).click()
 
   const combobox = page.getByRole("combobox")
   await combobox.waitFor({ state: "visible" })

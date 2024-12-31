@@ -6,7 +6,7 @@ test("Manual edits test", async ({ page }) => {
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
   await page.waitForLoadState("networkidle")
 
-  const loginButton = page.getByRole("button", { name: "Fake testuser Login" })
+  const loginButton = page.getByRole("button", { name: "Log in" })
   // await loginButton.waitFor({ state: "visible" })
   await loginButton.click()
 
