@@ -22,8 +22,10 @@ import editorExampleImage1 from "@/assets/editor_example_1.png"
 import editorExampleImage1MoreSquare from "@/assets/editor_example_1_more_square.png"
 import editorExampleImage2 from "@/assets/editor_example_2.png"
 import schematicExampleImage from "@/assets/schematic_example.png"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 export function LandingPage() {
+  const signIn = useSignIn()
   return (
     <div className="flex min-h-screen flex-col">
       <Header2 />
@@ -51,10 +53,14 @@ export function LandingPage() {
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                    <Button size="lg">Get Started</Button>
-                    <Button size="lg" variant="outline">
-                      Open Online Example
+                    <Button onClick={signIn} size="lg">
+                      Get Started
                     </Button>
+                    <Link href="/quickstart">
+                      <Button size="lg" variant="outline">
+                        Open Online Example
+                      </Button>
+                    </Link>
                   </div>
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
@@ -204,7 +210,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section
+        {/* <section
           className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
           id="pricing"
         >
@@ -307,7 +313,7 @@ export function LandingPage() {
               </Card>
             </div>
           </div>
-        </section>
+        </section> */}
         <section className="w-full py-12 md:py-24 lg:py-32" id="faq">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">

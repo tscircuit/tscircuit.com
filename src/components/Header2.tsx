@@ -34,7 +34,7 @@ export const Header2 = () => (
         </Link>
         <Link
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="/editor"
+          href="/quickstart"
         >
           Editor
         </Link>
