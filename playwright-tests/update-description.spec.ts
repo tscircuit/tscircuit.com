@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test"
 
 test("test", async ({ page }) => {
   await page.goto("http://localhost:5177/editor?snippet_id=snippet_3")
-  await page.getByRole("button", { name: "Fake testuser Login" }).click()
+  await page.getByRole("button", { name: "Log in" }).click()
   await page.locator('[id="radix-\\:rm\\:"]').click()
   await page.waitForTimeout(2000)
   await page.getByRole("menuitem", { name: "Edit Description" }).click()
