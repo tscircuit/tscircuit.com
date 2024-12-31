@@ -28,7 +28,8 @@ const QUESTIONS = [
   },
   {
     question: "What exactly is tscircuit?",
-    answer: "tscircuit is ",
+    answer:
+      "tscircuit is first and foremost a framework, but it also can be used to refer to the tscircuit platform, the tscircuit company, the tscircuit registry or ecosystem of components and packages for working with tscircuit. When you use tscircuit, you're becoming compatible with a growing ecosystem of web-first electronics technologies.",
   },
   {
     question: "Can I use tscircuit programmatically?",
