@@ -1,4 +1,5 @@
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { CircuitBoard } from "lucide-react"
 import { Link } from "wouter"
 
 export default function Footer() {
@@ -8,10 +9,16 @@ export default function Footer() {
   return (
     <footer className="bg-white text-black py-12 border-t mt-8">
       <div className="container mx-auto px-4">
-        <h2 className="text-xl font-semibold mb-4 whitespace-nowrap">
-          tscircuit snippets
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <CircuitBoard className="h-6 w-6" />
+            <span className="text-lg font-bold">tscircuit</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            The New Foundation for Electronic Design
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600 mt-8">
           <div className="space-y-4">
             <footer className="flex flex-col space-y-2">
               {[

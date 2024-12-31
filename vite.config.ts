@@ -88,6 +88,10 @@ export default defineConfig(async (): Promise<UserConfig> => {
       },
       reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, "index.html"),
+          landing: path.resolve(__dirname, "landing.html"),
+        },
         output: {
           manualChunks: {
             "react-vendor": ["react", "react-dom"],

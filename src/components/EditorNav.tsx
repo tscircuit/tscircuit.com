@@ -157,6 +157,9 @@ export default function EditorNav({
     }
   }
 
+  const canSaveSnippet =
+    !snippet || snippet.owner_name === session?.github_username
+
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -189,15 +192,11 @@ export default function EditorNav({
           <Button
             variant="outline"
             size="sm"
-            className={"h-6 px-2 text-xs save-button"}
-            disabled={!isLoggedIn || !canSave}
-            onClick={
-              snippet?.owner_name === session?.github_username
-                ? onSave
-                : () => forkSnippet()
-            }
+            className={"ml-1 h-6 px-2 text-xs save-button"}
+            disabled={!isLoggedIn}
+            onClick={canSaveSnippet ? onSave : () => forkSnippet()}
           >
-            {snippet?.owner_name === session?.github_username ? (
+            {canSaveSnippet ? (
               <>
                 <Save className="mr-1 h-3 w-3" />
                 Save
