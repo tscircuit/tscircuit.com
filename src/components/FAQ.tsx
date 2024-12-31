@@ -26,6 +26,63 @@ const QUESTIONS = [
     answer:
       "tscircuit always renders both a schematic and PCB. Unlike traditional EDA where the schematic capture and PCB layout are separate processes, tscircuit combines them by allowing a user to specify constraints and automations. This means that you can design a schematic and then immediately see a PCB layout or vice versa.",
   },
+  {
+    question: "What exactly is tscircuit?",
+    answer:
+      "tscircuit is first and foremost a framework, but it also can be used to refer to the tscircuit platform, the tscircuit company, the tscircuit registry or ecosystem of components and packages for working with tscircuit. When you use tscircuit, you're becoming compatible with a growing ecosystem of web-first electronics technologies.",
+  },
+  {
+    question: "Can I use tscircuit programmatically?",
+    answer: (
+      <span>
+        Yes, use the{" "}
+        <a href="https://github.com/tscircuit/core">@tscircuit/core</a> module
+        to use classes and/or React and build to various formats. If you'd like
+        to dynamically evaluate tscircuit code with automatic import handling,
+        you can use{" "}
+        <a href="https://github.com/tscircuit/eval-webworker">
+          @tscircuit/eval-webworker
+        </a>
+        . You can use{" "}
+        <a href="https://github.com/tscircuit/runframe">@tscircuit/runframe</a>{" "}
+        to any view (schematic, PCB etc.) of your compiled Circuit JSON.
+      </span>
+    ),
+  },
+  {
+    question: "How do I display tscircuit circuits on my website?",
+    answer: (
+      <span>
+        You can use our React components to display tscircuit on a webpage. For
+        simple cases, you can use{" "}
+        <a href="https://github.com/tscircuit/pcb-viewer">
+          @tscircuit/pcb-viewer
+        </a>
+        ,{" "}
+        <a href="https://github.com/tscircuit/schematic-viewer">
+          @tscircuit/schematic-viewer
+        </a>
+        , or{" "}
+        <a href="https://github.com/tscircuit/3d-viewer">
+          @tscircuit/3d-viewer
+        </a>{" "}
+        directly. For more complex use cases,{" "}
+        <a href="https://github.com/tscircuit/runframe">@tscircuit/runframe</a>{" "}
+        is recommended as it provides a unified interface for all viewers.
+      </span>
+    ),
+  },
+  {
+    question: "What is Circuit JSON?",
+    answer: (
+      <span>
+        <a href="https://github.com/tscircuit/circuit-json">Circuit JSON</a> is
+        a JSON format for representing electronic circuits. It is a sort of
+        assembly language electronic circuits. All tscircuit designs are
+        compiled to Circuit JSON as the intermediary format.
+      </span>
+    ),
+  },
 ]
 
 export const FAQ = () => (

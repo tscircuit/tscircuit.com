@@ -26,6 +26,7 @@ import { useSignIn } from "@/hooks/use-sign-in"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
+import { TrendingSnippetCarousel } from "@/components/TrendingSnippetCarousel"
 
 export function LandingPage() {
   const signIn = useSignIn()
@@ -47,16 +48,13 @@ export function LandingPage() {
                       The New Foundation for Electronic Design
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      {/* Transform your electronic design workflow with AI-powered
-                      tools. Design electronics faster, smarter, and more
-                      efficiently than ever before. */}
                       Build electronics with code, AI, and drag'n'drop tools.
                       <br />
                       Render code into schematics, PCBs, 3D, fabrication files,
                       and more.
                     </p>
                   </div>
-                  <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <div className="flex flex-col items-center gap-2 min-[400px]:flex-row">
                     <Button
                       onClick={() => {
                         if (!isLoggedIn) {
@@ -74,8 +72,18 @@ export function LandingPage() {
                         Open Online Example
                       </Button>
                     </Link>
+                    <a
+                      href="https://github.com/tscircuit/tscircuit"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        alt="GitHub stars"
+                        src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+                      />
+                    </a>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex flex-col sm:flex-row items-center space-x-4 sm:space-y-0 space-y-2 text-sm">
                     <div className="flex items-center space-x-1">
                       <Zap className="h-4 w-4" />
                       <span>Lightning Fast Autorouting</span>
@@ -101,6 +109,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+        <TrendingSnippetCarousel />
         <section
           className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
           id="features"
