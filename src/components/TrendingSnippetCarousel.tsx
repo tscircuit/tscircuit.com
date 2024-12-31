@@ -42,29 +42,31 @@ export const TrendingSnippetCarousel = () => {
           ref={scrollRef}
           className="flex gap-6 transition-transform duration-1000 animate-carousel-left"
         >
-          {[...(trendingSnippets ?? [])].map((snippet, i) => (
-            <Link
-              key={`${snippet.snippet_id}-${i}`}
-              href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-            >
-              <div className="flex-shrink-0 w-[200px] bg-white p-3 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
-                <div className="font-medium text-blue-600 mb-1 truncate text-sm">
-                  {snippet.owner_name}/{snippet.unscoped_name}
+          {[...(trendingSnippets ?? []), ...(trendingSnippets ?? [])].map(
+            (snippet, i) => (
+              <Link
+                key={`${snippet.snippet_id}-${i}`}
+                href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
+              >
+                <div className="flex-shrink-0 w-[200px] bg-white p-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
+                  <div className="font-medium text-blue-600 mb-1 truncate text-sm">
+                    {snippet.owner_name}/{snippet.unscoped_name}
+                  </div>
+                  <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
+                    <img
+                      src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                      alt="PCB preview"
+                      className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+                    />
+                  </div>
+                  <div className="flex items-center text-xs text-gray-500">
+                    <StarFilledIcon className="w-3 h-3 mr-1" />
+                    {snippet.star_count || 0} stars
+                  </div>
                 </div>
-                <div className="mb-2 h-24 w-full bg-gray-100 rounded">
-                  <img
-                    src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
-                    alt="PCB preview"
-                    className="w-full h-full object-contain p-2"
-                  />
-                </div>
-                <div className="flex items-center text-xs text-gray-500">
-                  <StarFilledIcon className="w-3 h-3 mr-1" />
-                  {snippet.star_count || 0} stars
-                </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ),
+          )}
         </div>
       </div>
     </div>
