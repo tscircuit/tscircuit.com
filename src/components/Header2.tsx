@@ -16,6 +16,7 @@ import {
   Zap,
 } from "lucide-react"
 import { Link } from "wouter"
+import { HeaderLogin } from "./HeaderLogin"
 
 export const Header2 = () => (
   <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -27,37 +28,37 @@ export const Header2 = () => (
       <nav className="hidden md:flex gap-6">
         <Link
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="#features"
+          href="/dashboard"
         >
-          Features
+          Dashboard
         </Link>
         <Link
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="#pricing"
+          href="/editor"
         >
-          Pricing
+          Editor
         </Link>
-        <Link
+        <a
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="#testimonials"
+          href="https://github.com/tscircuit/tscircuit"
         >
-          Testimonials
-        </Link>
-        <Link
+          Github
+        </a>
+        <a
           className="text-sm font-medium hover:underline underline-offset-4"
-          href="#contact"
+          href="https://docs.tscircuit.com"
+        >
+          Docs
+        </a>
+        <a
+          className="text-sm font-medium hover:underline underline-offset-4"
+          href="mailto:hello@tscircuit.com"
         >
           Contact
-        </Link>
+        </a>
       </nav>
       <div className="flex items-center gap-4">
-        <Link
-          className="text-sm font-medium hover:underline underline-offset-4"
-          href="#login"
-        >
-          Log in
-        </Link>
-        <Button>Get Started</Button>
+        <HeaderLogin />
       </div>
     </div>
   </header>

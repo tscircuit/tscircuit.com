@@ -17,6 +17,11 @@ import {
 } from "lucide-react"
 import { Link } from "wouter"
 import { Header2 } from "@/components/Header2"
+import Footer from "@/components/Footer"
+import editorExampleImage1 from "@/assets/editor_example_1.png"
+import editorExampleImage1MoreSquare from "@/assets/editor_example_1_more_square.png"
+import editorExampleImage2 from "@/assets/editor_example_2.png"
+import schematicExampleImage from "@/assets/schematic_example.png"
 
 export function LandingPage() {
   return (
@@ -30,35 +35,39 @@ export function LandingPage() {
                 <div className="flex flex-col justify-center space-y-4">
                   <div className="space-y-2">
                     <Badge variant="secondary" className="w-fit">
-                      Now in Public Beta
+                      Open-Source, MIT Licensed
                     </Badge>
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                      Electronic Design, Reimagined
+                      The New Foundation for Electronic Design
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      Transform your electronic design workflow with AI-powered
-                      tools. Design circuits faster, smarter, and more
-                      efficiently than ever before.
+                      {/* Transform your electronic design workflow with AI-powered
+                      tools. Design electronics faster, smarter, and more
+                      efficiently than ever before. */}
+                      Build electronics with code, AI, and drag'n'drop tools.
+                      <br />
+                      Render code into schematics, PCBs, 3D, fabrication files,
+                      and more.
                     </p>
                   </div>
                   <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                    <Button size="lg">Start Free Trial</Button>
+                    <Button size="lg">Get Started</Button>
                     <Button size="lg" variant="outline">
-                      Watch Demo
+                      Open Online Example
                     </Button>
                   </div>
                   <div className="flex items-center space-x-4 text-sm">
                     <div className="flex items-center space-x-1">
                       <Zap className="h-4 w-4" />
-                      <span>Lightning fast</span>
+                      <span>Lightning Fast Autorouting</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Cpu className="h-4 w-4" />
-                      <span>AI-powered</span>
+                      <span>Designed for AI</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Layers className="h-4 w-4" />
-                      <span>Multi-layer support</span>
+                      <span>Export &amp; Manufacture</span>
                     </div>
                   </div>
                 </div>
@@ -66,7 +75,7 @@ export function LandingPage() {
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
                   height="310"
-                  src="/placeholder.svg?height=310&width=550"
+                  src={editorExampleImage1MoreSquare}
                   width="550"
                 />
               </div>
@@ -131,7 +140,7 @@ export function LandingPage() {
                   Trusted by Industry Leaders
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  See what our customers are saying about CircuitForge.
+                  See what our users are saying about tscircuit.
                 </p>
               </div>
             </div>
@@ -139,7 +148,7 @@ export function LandingPage() {
               <Card>
                 <CardContent className="p-6">
                   <p className="mb-4 italic">
-                    "CircuitForge has revolutionized how we approach electronic
+                    "tscircuit has revolutionized how we approach electronic
                     design. The AI-powered features have cut our design time in
                     half."
                   </p>
@@ -330,7 +339,7 @@ export function LandingPage() {
                     Can I import designs from other software?
                   </AccordionTrigger>
                   <AccordionContent>
-                    Yes, CircuitForge supports importing designs from major EDA
+                    Yes, tscircuit supports importing designs from major EDA
                     software formats. We currently support Gerber, ODB++, and
                     IPC-2581 formats, with more coming soon.
                   </AccordionContent>
@@ -366,8 +375,8 @@ export function LandingPage() {
                   Ready to Transform Your Design Workflow?
                 </h2>
                 <p className="max-w-[600px] text-primary-foreground/80 md:text-xl">
-                  Join thousands of engineers who are already using CircuitForge
-                  to design the future.
+                  Join thousands of engineers who are already using tscircuit to
+                  design the future.
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -386,111 +395,8 @@ export function LandingPage() {
           </div>
         </section>
       </main>
-      <footer className="w-full py-6 bg-background">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <CircuitBoard className="h-6 w-6" />
-                <span className="text-lg font-bold">tscircuit</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Transforming electronic design with AI-powered tools.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold">Product</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Tutorials
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Careers
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-muted-foreground hover:underline"
-                    href="#"
-                  >
-                    Cookie Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} CircuitForge. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
+      {/* <Footer2 /> */}
     </div>
   )
 }
