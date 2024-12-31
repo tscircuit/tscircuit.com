@@ -4,11 +4,13 @@ import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef, useState } from "react"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 
 export const TrendingSnippetCarousel = () => {
   const axios = useAxios()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
+  const apiBaseUrl = useSnippetsBaseApiUrl()
 
   const { data: trendingSnippets } = useQuery<Snippet[]>(
     "trendingSnippets",
@@ -51,7 +53,7 @@ export const TrendingSnippetCarousel = () => {
                 </div>
                 <div className="mb-2 h-24 w-full bg-gray-100 rounded">
                   <img
-                    src={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                    src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                     alt="PCB preview"
                     className="w-full h-full object-contain p-2"
                   />
