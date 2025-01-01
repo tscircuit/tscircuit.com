@@ -15,6 +15,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
     test("opens footprint dialog and shows preview", async ({ page }) => {
       if (isMobileOrTablet) {
         await page.click('button:has-text("Show Code")')
+        await page.waitForSelector('button:has-text("Show Preview")')
       }
       await page.click('button:has-text("Insert")')
       await page.click("text=Footprint")
