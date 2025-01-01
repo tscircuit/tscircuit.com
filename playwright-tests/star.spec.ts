@@ -11,7 +11,7 @@ test("test for starring a repo", async ({ page }) => {
   const starButton = page.getByRole("button", { name: "Star" })
   await expect(starButton).toBeVisible()
 
-  // Add starring
+  // Add starr
   await starButton.click()
   await page.waitForTimeout(1000) // Allow time for the action to complete
 
