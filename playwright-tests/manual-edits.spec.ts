@@ -4,7 +4,7 @@ test("Manual edits test", async ({ page }) => {
   test.setTimeout(60000) // Extend timeout for the test
 
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
-  await page.waitForLoadState("networkidle")
+  // await page.waitForLoadState("networkidle")
 
   const loginButton = page.getByRole("button", { name: "Log in" })
   // await loginButton.waitFor({ state: "visible" })
@@ -79,6 +79,7 @@ test("Manual edits test", async ({ page }) => {
   const filesLink = page.getByRole("link", { name: "Files" })
   // await filesLink.waitFor({ state: "visible" })
   await filesLink.click()
+  await page.getByLabel("Files").click()
 
   const fileLink = page.getByText("manual-edits.json", { exact: true })
   // await fileLink.waitFor({ state: "visible" })
