@@ -11,6 +11,7 @@ export default defineConfig({
     stderr: "pipe",
     timeout: 10000,
   },
+  workers: 2,
   testDir: "playwright-tests",
   snapshotPathTemplate: "playwright-tests/snapshots/{testFilePath}-{arg}{ext}",
   testMatch: /.*\.spec\.ts/,
