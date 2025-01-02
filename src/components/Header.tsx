@@ -14,6 +14,7 @@ import { Link, useLocation } from "wouter"
 import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
+import { Analytics } from "./Analytics"
 
 const HeaderButton = ({
   href,
@@ -172,6 +173,7 @@ export default function Header() {
         </div>
       )}
       <CmdKMenu />
+      <Analytics />
     </header>
   )
 }
