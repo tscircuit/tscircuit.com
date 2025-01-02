@@ -97,29 +97,30 @@ export const Header2 = () => {
           >
             Github
           </a> */}
-          <a
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="https://docs.tscircuit.com"
-          >
-            Docs
-          </a>
-          <a
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="https://github.com/tscircuit/tscircuit"
-          >
-            Discord
-          </a>
-          <a
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="mailto:hello@tscircuit.com"
-          >
-            Contact
-          </a>
-        </nav>
-        <div className="flex items-center gap-4">
-          <SearchButtonComponent />
-          {isLoggedIn && <div className="hidden sm:block"><HeaderDropdown /></div>}
-          <HeaderLogin />
+            <a
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="https://docs.tscircuit.com"
+            >
+              Docs
+            </a>
+            <a
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="https://github.com/tscircuit/tscircuit"
+            >
+              Discord
+            </a>
+            <a
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="mailto:hello@tscircuit.com"
+            >
+              Contact
+            </a>
+          </nav>
+          <div className="flex items-center gap-4">
+            <SearchButtonComponent />
+            {isLoggedIn && <div className="hidden sm:block"><HeaderDropdown /></div>}
+            <HeaderLogin />
+          </div>
         </div>
       </header>
       <Analytics />
