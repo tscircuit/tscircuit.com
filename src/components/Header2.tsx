@@ -56,7 +56,7 @@ const SearchButtonComponent = () => {
           <Search className="h-4 w-4" />
         </Button>
       )}
-      <div className="">{isLoggedIn && <HeaderDropdown />}</div>
+      <div className="sm:block hidden">{isLoggedIn && <HeaderDropdown />}</div>
     </div>
   )
 }
