@@ -5,11 +5,9 @@ import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { toast, useToast } from "@/hooks/use-toast"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Eye, GitFork, Star, File } from "lucide-react"
 import { useMutation, useQueryClient } from "react-query"
 import { Link } from "wouter"
-import { navigate } from "wouter/use-browser-location"
 
 export default function ViewSnippetHeader() {
   const { snippet } = useCurrentSnippet()
@@ -59,9 +57,15 @@ export default function ViewSnippetHeader() {
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
     onSuccess: (forkedSnippet) => {
-      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
+      window.location.href = `/editor?snippet_id=${forkedSnippet.snippet_id}`
     },
   })
+
+  const handleAssemblyView = () => {
+    if (snippet?.snippet_id) {
+      window.open(`/snippets/images/${snippet.snippet_id}`, "_blank")
+    }
+  }
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6">
@@ -144,6 +148,10 @@ export default function ViewSnippetHeader() {
           <Button variant="outline" size="sm" onClick={() => forkSnippet()}>
             <GitFork className="w-4 h-4 mr-2" />
             {snippet?.owner_name === session?.github_username ? "Save" : "Fork"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleAssemblyView}>
+            <File className="w-4 h-4 mr-2" />
+            Assembly View
           </Button>
         </div>
       </div>

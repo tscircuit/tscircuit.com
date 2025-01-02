@@ -71,7 +71,18 @@ export default function ViewSnippetSidebar({
                 }
               },
             },
-            // { icon: <Settings className="w-5 h-5" />, label: "Settings" },
+            {
+              icon: <File className="w-5 h-5" />,
+              label: "Assembly View",
+              onClick: () => {
+                if (snippet?.snippet_id) {
+                  window.open(
+                    `/snippets/images/${snippet.snippet_id}`,
+                    "_blank",
+                  )
+                }
+              },
+            },
           ].map((item, index) => (
             <li key={index}>
               <Link

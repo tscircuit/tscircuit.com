@@ -6,7 +6,7 @@ import ViewSnippetSidebar from "@/components/ViewSnippetSidebar"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
-import { Share } from "lucide-react"
+import { Share, File } from "lucide-react"
 import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
 import Footer from "@/components/Footer"
@@ -59,6 +59,12 @@ export const ViewSnippetPage = () => {
     : snippet?.circuit_json
       ? "snippet"
       : ""
+
+  const handleAssemblyView = () => {
+    if (snippet?.snippet_id) {
+      window.open(`/snippets/images/${snippet.snippet_id}`, "_blank")
+    }
+  }
 
   return (
     <>
@@ -131,6 +137,14 @@ export const ViewSnippetPage = () => {
                         }
                         className="hidden md:flex"
                       />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAssemblyView}
+                      >
+                        <File className="mr-1 h-4 w-4" />
+                        Assembly View
+                      </Button>
                     </>
                   }
                   isStreaming={false}
