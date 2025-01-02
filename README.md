@@ -110,4 +110,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by [val.town](https://val.town), [codesandbox.io](https://codesandbox.io/), and [v0.dev](https://v0.dev)
 - Built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tailwind CSS](https://tailwindcss.com/)
 
-For more information, visit [tscircuit.com](https://tscircuit.com). And we have distributed this much bounties in open source via algora.io in our product for solving issues to contributors.
+For more information, visit [tscircuit.com](https://tscircuit.com).
