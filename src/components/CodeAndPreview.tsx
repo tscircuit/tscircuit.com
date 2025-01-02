@@ -5,7 +5,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
-import useWarnUser from "@/hooks/use-warn-user"
+import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
@@ -139,8 +139,10 @@ export function CodeAndPreview({ snippet }: Props) {
   })
 
   const createSnippetMutation = useCreateSnippetMutation()
+  const [lastSavedAt, setLastSavedAt] = useState(Date.now())
 
   const handleSave = async () => {
+    setLastSavedAt(Date.now())
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
@@ -152,11 +154,18 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }
 
+  const hasManualEditsChanged =
+    (snippet?.manual_edits_json_content ?? "") !==
+    (manualEditsFileContent ?? "")
+
   const hasUnsavedChanges =
-    snippet?.code !== code ||
-    snippet?.manual_edits_json_content !== manualEditsFileContent
+    !updateSnippetMutation.isLoading &&
+    Date.now() - lastSavedAt > 1000 &&
+    (snippet?.code !== code || hasManualEditsChanged)
+
   const hasUnrunChanges = code !== lastRunCode
-  useWarnUser({ hasUnsavedChanges })
+
+  useWarnUserOnPageChange({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (

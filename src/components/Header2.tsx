@@ -23,6 +23,7 @@ import SearchComponent from "./SearchComponent"
 import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { Analytics } from "./Analytics"
 
 const SearchButtonComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -60,36 +61,37 @@ const SearchButtonComponent = () => {
 export const Header2 = () => {
   const isLoggedIn = useGlobalStore((state) => Boolean(state.session))
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
-        <div className="flex items-center gap-2">
-          <CircuitBoard className="h-6 w-6" />
-          <span className="text-lg font-bold">tscircuit</span>
-        </div>
-        <nav className="flex md:hidden">
-          {isLoggedIn && (
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
+          <div className="flex items-center gap-2">
+            <CircuitBoard className="h-6 w-6" />
+            <span className="text-lg font-bold">tscircuit</span>
+          </div>
+          <nav className="flex md:hidden">
+            {isLoggedIn && (
+              <Link
+                className="text-sm font-medium hover:underline underline-offset-4"
+                href="/dashboard"
+              >
+                Dashboard
+              </Link>
+            )}
+          </nav>
+          <nav className="hidden md:flex gap-6">
             <Link
               className="text-sm font-medium hover:underline underline-offset-4"
               href="/dashboard"
             >
               Dashboard
             </Link>
-          )}
-        </nav>
-        <nav className="hidden md:flex gap-6">
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/dashboard"
-          >
-            Dashboard
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/quickstart"
-          >
-            Editor
-          </Link>
-          {/* <a
+            <Link
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="/quickstart"
+            >
+              Editor
+            </Link>
+            {/* <a
             className="text-sm font-medium hover:underline underline-offset-4"
             href="https://github.com/tscircuit/tscircuit"
           >
@@ -119,7 +121,8 @@ export const Header2 = () => {
           {isLoggedIn && <div className="hidden sm:block"><HeaderDropdown /></div>}
           <HeaderLogin />
         </div>
-      </div>
-    </header>
+      </header>
+      <Analytics />
+    </>
   )
 }
