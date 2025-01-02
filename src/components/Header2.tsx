@@ -20,6 +20,7 @@ import {
 import { Link } from "wouter"
 import { HeaderLogin } from "./HeaderLogin"
 import SearchComponent from "./SearchComponent"
+import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -115,6 +116,7 @@ export const Header2 = () => {
         </nav>
         <div className="flex items-center gap-4">
           <SearchButtonComponent />
+          {isLoggedIn && <HeaderDropdown />}
           <HeaderLogin />
         </div>
       </div>
