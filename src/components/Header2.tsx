@@ -29,8 +29,6 @@ const SearchButtonComponent = () => {
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
 
-
-
   return (
     <div className="relative flex gap-2">
       {isExpanded ? (
@@ -57,12 +55,7 @@ const SearchButtonComponent = () => {
           <Search className="h-4 w-4" />
         </Button>
       )}
-      <div className="">
-        {isLoggedIn && (
-          <HeaderDropdown />
-        )}
-      </div>
-
+      <div className="">{isLoggedIn && <HeaderDropdown />}</div>
     </div>
   )
 }
