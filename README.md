@@ -1,4 +1,11 @@
 # TSCircuit Snippets
+<a href="https://console.algora.io/org/tscircuit/bounties?status=completed">
+       <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Ftscircuit%2Fbounties%3Fstatus%3Dcompleted" alt="Rewarded Bounties">
+   </a>
+   <a href="https://console.algora.io/org/tscircuit/bounties?status=open">
+       <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Ftscircuit%2Fbounties%3Fstatus%3Dopen" alt="Open Bounties">
+   </a>
+
 
 [Docs](https://docs.tscircuit.com) &middot; [Website](https://tscircuit.com) &middot; [Twitter](https://x.com/tscircuit) &middot; [discord](https://tscircuit.com/community/join-redirect) &middot; [Quickstart](https://docs.tscircuit.com/quickstart) &middot; [Online Playground](https://tscircuit.com/playground)
 
@@ -92,7 +99,6 @@ We welcome contributions to TSCircuit Snippets! Please read our [Contributing Gu
 
 ## Example Snippets
 
-
 - [Arduino Nano Servo Breakout Board](https://tscircuit.com/Abse2001/Arduino-Nano-Servo-Breakout)
 
 ## License
@@ -104,4 +110,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by [val.town](https://val.town), [codesandbox.io](https://codesandbox.io/), and [v0.dev](https://v0.dev)
 - Built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tailwind CSS](https://tailwindcss.com/)
 
-For more information, visit [tscircuit.com](https://tscircuit.com).
+For more information, visit [tscircuit.com](https://tscircuit.com). And we have distributed this much bounties in open source via algora.io in our product for solving issues to contributors.
