@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-export default function useWarnUser({
+export default function useWarnUserOnPageChange({
   hasUnsavedChanges,
 }: {
   hasUnsavedChanges: boolean
