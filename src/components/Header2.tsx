@@ -22,12 +22,17 @@ import { HeaderLogin } from "./HeaderLogin"
 import SearchComponent from "./SearchComponent"
 import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import HeaderDropdown from "@/components/HeaderDropdown"
 
 const SearchButtonComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const session = useGlobalStore((s) => s.session)
+  const isLoggedIn = Boolean(session)
+
+
 
   return (
-    <div className="relative">
+    <div className="relative flex gap-2">
       {isExpanded ? (
         <div className="flex items-center gap-2">
           <div className="w-32 bg-white">
@@ -52,6 +57,12 @@ const SearchButtonComponent = () => {
           <Search className="h-4 w-4" />
         </Button>
       )}
+      <div className="">
+        {isLoggedIn && (
+          <HeaderDropdown />
+        )}
+      </div>
+
     </div>
   )
 }
