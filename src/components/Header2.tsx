@@ -118,7 +118,11 @@ export const Header2 = () => {
           </nav>
           <div className="flex items-center gap-4">
             <SearchButtonComponent />
-            {isLoggedIn && <div className="hidden sm:block"><HeaderDropdown /></div>}
+            {isLoggedIn && (
+              <div className="hidden sm:block">
+                <HeaderDropdown />
+              </div>
+            )}
             <HeaderLogin />
           </div>
         </div>
