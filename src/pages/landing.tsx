@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/accordion"
 import {
   CircuitBoard,
+  Code2,
   Cpu,
   Layers,
   CloudLightningIcon as Lightning,
@@ -83,7 +84,7 @@ export function LandingPage() {
                       />
                     </a>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-center space-x-4 sm:space-y-0 space-y-2 text-sm">
+                  <div className="grid grid-cols-2 gap-4 sm:flex items-center w-full text-sm">
                     <div className="flex items-center space-x-1">
                       <Zap className="h-4 w-4" />
                       <span>Lightning Fast Autorouting</span>
@@ -95,6 +96,10 @@ export function LandingPage() {
                     <div className="flex items-center space-x-1">
                       <Layers className="h-4 w-4" />
                       <span>Export &amp; Manufacture</span>
+                    </div>
+                    <div className="flex items-center space-x-1 sm:hidden">
+                      <Code2 className="h-4 w-4" />
+                      <span>Open Web Standards</span>
                     </div>
                   </div>
                 </div>
