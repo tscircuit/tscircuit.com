@@ -111,14 +111,14 @@ export function DownloadButtonAndMenu({
             onSelect={() => {
               downloadKiCadPcbFile(
                 circuitJson,
-                snippetUnscopedName || "kicad_pcb", // Default file name for the KiCad PCB file
+                snippetUnscopedName || "kicad_project",
               )
             }}
           >
             <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download KiCad PCB</span>
+            <span className="flex-grow mr-6">Download KiCad Project</span>
             <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              zip
+              kicad_*.zip
             </span>
           </DropdownMenuItem>
 
