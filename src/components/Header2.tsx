@@ -20,6 +20,7 @@ import {
 import { Link } from "wouter"
 import { HeaderLogin } from "./HeaderLogin"
 import SearchComponent from "./SearchComponent"
+import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Analytics } from "./Analytics"
@@ -117,6 +118,11 @@ export const Header2 = () => {
           </nav>
           <div className="flex items-center gap-4">
             <SearchButtonComponent />
+            {isLoggedIn && (
+              <div className="hidden sm:block">
+                <HeaderDropdown />
+              </div>
+            )}
             <HeaderLogin />
           </div>
         </div>
