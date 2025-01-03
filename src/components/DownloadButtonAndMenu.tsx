@@ -133,10 +133,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadAssemblySvg(
-                circuitJson,
-                snippetUnscopedName || "circuit",
-              )
+              downloadAssemblySvg(circuitJson, snippetUnscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
