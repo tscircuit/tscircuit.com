@@ -1,6 +1,7 @@
 import { saveAs } from "file-saver"
 import { convertCircuitJsonToKiCadPcb } from "kicad-converter"
 import { AnyCircuitElement } from "circuit-json"
+import JSZip from "jszip"
 
 export const downloadKiCadPcbFile = (
   circuitJson: AnyCircuitElement[],
@@ -15,6 +16,13 @@ export const downloadKiCadPcbFile = (
       ? JSON.stringify(kicadPcbString)
       : kicadPcbString
 
-  const blob = new Blob([pcbContent], { type: "text/plain" })
-  saveAs(blob, `${fileName}.kicad_pcb`)
+  const zip = new JSZip()
+
+  // Add the PCB file content to the zip file
+  zip.file(`${fileName}.kicad_pcb`, pcbContent)
+
+  // Generate the zip file and trigger download
+  zip.generateAsync({ type: "blob" }).then((content) => {
+    saveAs(content, `${fileName}.zip`)
+  })
 }
