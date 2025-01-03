@@ -12,6 +12,7 @@ import { downloadFabricationFiles } from "@/lib/download-fns/download-fabricatio
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadGltfFile } from "@/lib/download-fns/download-gltf-model"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
@@ -66,12 +67,14 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onClick={() => notImplemented("3d model downloads")}
+            onSelect={() => {
+              downloadGltfFile(circuitJson, snippetUnscopedName || "model")
+            }}
           >
             <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow  mr-6">Download 3D Model</span>
+            <span className="flex-grow mr-6">Download 3D Model</span>
             <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              stl
+              gltf
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
