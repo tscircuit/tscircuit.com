@@ -3,7 +3,7 @@ import { convertCircuitJsonToKiCadPcb } from "kicad-converter"
 import { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
 
-export const downloadKiCadPcbFile = (
+export const downloadKicadFiles = (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {

@@ -12,7 +12,7 @@ import { downloadFabricationFiles } from "@/lib/download-fns/download-fabricatio
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
-import { downloadKiCadPcbFile } from "@/lib/download-fns/download-kicad-files"
+import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
@@ -109,7 +109,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadKiCadPcbFile(
+              downloadKicadFiles(
                 circuitJson,
                 snippetUnscopedName || "kicad_project",
               )
