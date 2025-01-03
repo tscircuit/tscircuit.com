@@ -11,6 +11,7 @@ import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
+import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
@@ -125,6 +126,18 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Download Schematic SVG</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              svg
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() => {
+              downloadAssemblySvg(circuitJson, snippetUnscopedName || "circuit")
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Download Assembly SVG</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               svg
             </span>
