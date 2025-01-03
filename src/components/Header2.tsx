@@ -105,7 +105,7 @@ export const Header2 = () => {
             </a>
             <a
               className="text-sm font-medium hover:underline underline-offset-4"
-              href="https://github.com/tscircuit/tscircuit"
+              href="https://tscircuit.com/join"
             >
               Discord
             </a>
