@@ -12,6 +12,7 @@ import { downloadFabricationFiles } from "@/lib/download-fns/download-fabricatio
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadKiCadPcbFile } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
@@ -97,14 +98,20 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onClick={() => notImplemented("kicad footprint download")}
+            onSelect={() => {
+              downloadKiCadPcbFile(
+                circuitJson,
+                snippetUnscopedName || "kicad_pcb", // Default file name for the KiCad PCB file
+              )
+            }}
           >
             <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download Footprint</span>
+            <span className="flex-grow mr-6">Download KiCad PCB</span>
             <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              kicad_mod
+              kicad_pcb
             </span>
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className="text-xs"
             onClick={() => notImplemented("kicad project download")}
