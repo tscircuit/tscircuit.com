@@ -98,6 +98,16 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
+            onClick={() => notImplemented("kicad footprint download")}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Download Footprint</span>
+            <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              kicad_mod
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
             onSelect={() => {
               downloadKiCadPcbFile(
                 circuitJson,
@@ -112,16 +122,6 @@ export function DownloadButtonAndMenu({
             </span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="text-xs"
-            onClick={() => notImplemented("kicad project download")}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Download KiCad Project</span>
-            <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              kicad_*
-            </span>
-          </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
