@@ -27,7 +27,7 @@ import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
-
+import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -180,6 +180,21 @@ export const CodeEditor = ({
         : javascript({ typescript: true, jsx: true }),
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(readOnly),
+      copilotPlugin({
+        apiKey: import.meta.env.VITE_CODE_COMPLETION_API_KEY,
+        language: Language.TYPESCRIPT,
+      }),
+      // Add the exact styling you provided
+      EditorView.theme({
+        ".cm-ghostText, .cm-ghostText *": {
+          opacity: "0.6",
+          filter: "grayscale(20%)",
+          cursor: "pointer",
+        },
+        ".cm-ghostText:hover": {
+          background: "#eee",
+        },
+      }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
