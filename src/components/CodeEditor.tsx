@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
+import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -56,6 +57,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
+  const codeCompletionApi = useCodeCompletionApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
@@ -181,10 +183,9 @@ export const CodeEditor = ({
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(readOnly),
       copilotPlugin({
-        apiKey: import.meta.env.VITE_CODE_COMPLETION_API_KEY,
+        apiKey: codeCompletionApi.apiKey,
         language: Language.TYPESCRIPT,
       }),
-      // Add the exact styling you provided
       EditorView.theme({
         ".cm-ghostText, .cm-ghostText *": {
           opacity: "0.6",
