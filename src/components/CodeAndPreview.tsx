@@ -27,7 +27,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
   const templateFromUrl = useMemo(
-    () => getSnippetTemplate(urlParams.template),
+    () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
     [],
   )
   const defaultCode = useMemo(() => {
@@ -37,7 +37,7 @@ export function CodeAndPreview({ snippet }: Props) {
       // If the snippet_id is in the url, use an empty string as the default
       // code until the snippet code is loaded
       (urlParams.snippet_id && "") ??
-      templateFromUrl.code
+      templateFromUrl?.code
     )
   }, [])
 
@@ -52,7 +52,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const [fullScreen, setFullScreen] = useState(false)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
-    snippet?.snippet_type ?? (templateFromUrl.type as any)
+    snippet?.snippet_type ??
+    (templateFromUrl?.type as any) ??
+    urlParams.snippet_type
 
   useEffect(() => {
     if (snippet?.code) {
