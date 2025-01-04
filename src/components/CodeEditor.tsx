@@ -28,7 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
-import { useCodeCompletionAiApi } from "@/hooks/use-code-completion-ai-api"
+import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -57,7 +57,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
-  const codeCompletionApi = useCodeCompletionAiApi()
+  const codeCompletionApi = useCodeCompletionApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
@@ -182,20 +182,6 @@ export const CodeEditor = ({
         : javascript({ typescript: true, jsx: true }),
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(readOnly),
-      copilotPlugin({
-        apiKey: codeCompletionApi.apiKey,
-        language: Language.TYPESCRIPT,
-      }),
-      EditorView.theme({
-        ".cm-ghostText, .cm-ghostText *": {
-          opacity: "0.6",
-          filter: "grayscale(20%)",
-          cursor: "pointer",
-        },
-        ".cm-ghostText:hover": {
-          background: "#eee",
-        },
-      }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
@@ -227,6 +213,24 @@ export const CodeEditor = ({
         }
       }),
     ]
+    if (codeCompletionApi?.apiKey) {
+      baseExtensions.push(
+        copilotPlugin({
+          apiKey: codeCompletionApi.apiKey,
+          language: Language.TYPESCRIPT,
+        }),
+        EditorView.theme({
+          ".cm-ghostText, .cm-ghostText *": {
+            opacity: "0.6",
+            filter: "grayscale(20%)",
+            cursor: "pointer",
+          },
+          ".cm-ghostText:hover": {
+            background: "#eee",
+          },
+        }),
+      )
+    }
 
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
