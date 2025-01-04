@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 
-export const useCodeCompletionApi = () => {
+export const useCodeCompletionAiApi = () => {
   const sessionToken = useGlobalStore((state) => state.session?.token)
   const codeium = useMemo(() => {
     if (import.meta.env.VITE_USE_DIRECT_AI_REQUESTS === "true") {

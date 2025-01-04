@@ -28,7 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
-import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { useCodeCompletionAiApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -57,7 +57,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
-  const codeCompletionApi = useCodeCompletionApi()
+  const codeCompletionApi = useCodeCompletionAiApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
