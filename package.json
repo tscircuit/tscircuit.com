@@ -69,6 +69,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/ms": "^0.7.34",
     "@typescript/ata": "^0.9.7",
+    "@valtown/codemirror-codeium": "^1.1.1",
     "@valtown/codemirror-ts": "^2.2.0",
     "@vercel/analytics": "^1.4.1",
     "change-case": "^5.4.4",
