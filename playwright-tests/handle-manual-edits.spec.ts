@@ -49,7 +49,7 @@ test("Handle manual edits test", async ({ page }) => {
   await runButton.waitFor({ state: "visible" })
   await runButton.click()
 
-  await page.waitForTimeout(500)
+  await page.waitForTimeout(2000)
 
   await expect(page).toHaveScreenshot("handle-manual-edits.png")
 })
