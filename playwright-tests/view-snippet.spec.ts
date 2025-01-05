@@ -7,7 +7,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
 
     // Wait for network requests during navigation
     await Promise.all([
-      page.waitForLoadState("networkidle"),
+      // page.waitForLoadState("networkidle"),
       page.goto("http://127.0.0.1:5177/testuser/my-test-board"),
     ])
 
