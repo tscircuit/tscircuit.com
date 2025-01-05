@@ -5,7 +5,7 @@ test("Editor handles imports with underlining and cmd+click", async ({
 }) => {
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_5")
 
-  await page.waitForLoadState("networkidle")
+  // await page.waitForLoadState("networkidle")
 
   // Wait for and verify the underlined import
   const underlinedText = await page.locator(".cm-underline")
