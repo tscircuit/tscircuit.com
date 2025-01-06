@@ -11,7 +11,7 @@ export function parseFootprintParams(params: FootprintParams): FootprintParams {
   if (params.grid) {
     const grid = params.grid
     if (typeof grid === "object" && grid !== null) {
-      const { x, y } = grid as any 
+      const { x, y } = grid as any
       params.grid = `${x}x${y}`
     } else if (typeof grid === "string") {
       const gridMatch = grid.match(/^(\d+)(?:x(\d+)?)?$/)
