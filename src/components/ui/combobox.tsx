@@ -116,6 +116,19 @@ export function Combobox({
               const target = e.currentTarget
               target.scrollTop += e.deltaY
             }}
+            onTouchStart={(e) => {
+              e.stopPropagation()
+              const target = e.currentTarget
+              target.dataset.touchStartY = e.touches[0].clientY.toString()
+            }}
+            onTouchMove={(e) => {
+              e.stopPropagation()
+              const target = e.currentTarget
+              const touchStartY = parseFloat(target.dataset.touchStartY || "0")
+              const touchCurrentY = e.touches[0].clientY
+              target.scrollTop += touchStartY - touchCurrentY
+              target.dataset.touchStartY = touchCurrentY.toString()
+            }}
             ref={(ref) => {
               if (ref && filteredOptions.length > 0) {
                 const items = ref.getElementsByClassName("cmd-item")
@@ -123,7 +136,7 @@ export function Combobox({
                 if (highlighted) {
                   highlighted.scrollIntoView({
                     block: "nearest",
-                    behavior: "instant",
+                    behavior: "smooth",
                   })
                 }
               }

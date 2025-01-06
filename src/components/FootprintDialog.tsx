@@ -1,5 +1,7 @@
 import { Input } from "./ui/input"
 import { useEffect, useMemo, useState } from "react"
+import { parseFootprintParams } from "../lib/utils/parseFootprintParams"
+import ParametersEditor from "./ParametersEditor"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
 import { fp } from "@tscircuit/footprinter"
 import { useToast } from "../hooks/use-toast"
@@ -48,9 +50,13 @@ export const FootprintDialog = ({
   const [chipName, setChipName] = useState("")
   const [footprintNameError, setFootprintNameError] = useState(false)
   const [copied, setCopied] = useState(false)
-  const footprintNames = fp.getFootprintNames()
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+
+  const PASSIVE_COMPONENTS = ["diode", "led", "resistor", "cap", "res"]
+  const footprintNames = fp
+    .getFootprintNames()
+    .filter((footprintName) => !PASSIVE_COMPONENTS.includes(footprintName))
 
   useEffect(() => {
     if (copied) {
@@ -71,10 +77,28 @@ export const FootprintDialog = ({
 
   const updateFootprintString = (baseName: string, currentParams: any) => {
     try {
-      const paramsString = Object.entries(currentParams)
+      const parsedParams = parseFootprintParams(currentParams)
+
+      if (parsedParams.missing && Array.isArray(parsedParams.missing)) {
+        parsedParams.missing =
+          parsedParams.missing.length > 0
+            ? `missing(${parsedParams.missing.join(",")})`
+            : "missing()"
+      }
+
+      if (
+        parsedParams.grid === "0x0" ||
+        parsedParams.grid === "0x" ||
+        /^(\d+x0|0x\d+)$/.test(parsedParams.grid as string)
+      ) {
+        delete parsedParams.grid
+      }
+
+      const paramsString = Object.entries(parsedParams)
         .filter(([key]) => key !== "fn" && key !== "num_pins")
         .map(([key, val]) => {
           if (typeof val === "boolean") return val ? key : ""
+          if (key === "missing") return val
           return `${key}${val}`
         })
         .filter((item) => item !== "")
@@ -90,24 +114,29 @@ export const FootprintDialog = ({
     }
   }
 
-  const updateParam = (paramName: string, value: string | number | boolean) => {
+  const updateParam = (
+    paramName: string,
+    value: string | number | boolean | string[],
+  ) => {
     try {
-      const currentParams = params
+      let currentParams = parseFootprintParams({ ...params })
       if (paramName === "num_pins") {
         if (Number(value) < 1) value = 1
         if (Number(value) > 4000) value = 4000
         const baseNameWithoutNumber = footprintName.replace(/\d+$/, "")
         const newName = `${baseNameWithoutNumber}${value}`
-        setFootprintName(newName)
         updateFootprintString(newName, currentParams)
         return
       }
 
-      if (typeof value === "string" && !isNaN(Number(value))) {
-        value = Number(Number(value).toFixed(2))
-      }
-
       currentParams[paramName] = value
+      if (currentParams.missing && Array.isArray(currentParams.missing)) {
+        currentParams.missing =
+          currentParams.missing.length > 0
+            ? `missing(${currentParams.missing.join(",")})`
+            : "missing()"
+      }
+      currentParams = parseFootprintParams(currentParams)
       const pinMatch = footprintString.match(/\d+(?=(_|$))/)
       const pinNumber = pinMatch ? pinMatch[0] : ""
       const baseNameWithoutNumber = footprintName.replace(/\d+$/, "")
@@ -229,7 +258,7 @@ export const FootprintDialog = ({
                 onChange={(value) => {
                   setFootprintName(value)
                   try {
-                    const newParams = fp.string(value).json()
+                    let newParams = fp.string(value).json()
                     updateFootprintString(value, newParams)
                   } catch (error) {
                     console.error("Error updating footprint string:", error)
@@ -272,64 +301,12 @@ export const FootprintDialog = ({
                 </Button>
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium">Number of Pins</label>
-              <Input
-                type="number"
-                min="1"
-                max="10000"
-                onChange={(e) => {
-                  let value = Number(e.target.value)
-                  if (value < 1) value = 0
-                  if (value > 4000) value = 4000
-                  if (footprintName.match(/\d+$/)) return
-                  const newName = `${footprintName}${value ? value : ""}`
-                  try {
-                    const newParams = fp.string(newName).json()
-                    updateFootprintString(newName, newParams)
-                  } catch (error) {
-                    console.error("Error updating footprint string:", error)
-                    setFootprintString(newName)
-                    handleFootprintPreview(newName)
-                  }
-                }}
-                placeholder="Enter number of pins..."
-                className="mt-1"
-              />
-            </div>
             {params && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Parameters</label>
-                {Object.entries(params)
-                  .filter(([key]) => key !== "fn")
-                  .map(([key]) => (
-                    <div key={key} className="flex gap-2 items-center">
-                      <label className="text-sm">
-                        {PARAM_NAMES[key]
-                          ? `${PARAM_NAMES[key]} (${key})`
-                          : key}
-                        :
-                      </label>
-                      {typeof params[key] === "boolean" ? (
-                        <input
-                          type="checkbox"
-                          checked={params[key]}
-                          onChange={(e) => updateParam(key, e.target.checked)}
-                          className="h-4 w-4"
-                        />
-                      ) : (
-                        <Input
-                          type={
-                            typeof params[key] === "number" ? "number" : "text"
-                          }
-                          value={params[key]}
-                          onChange={(e) => updateParam(key, e.target.value)}
-                          className="flex-1"
-                        />
-                      )}
-                    </div>
-                  ))}
-              </div>
+              <ParametersEditor
+                params={params}
+                updateParam={updateParam}
+                paramNames={PARAM_NAMES}
+              />
             )}
             <Button
               onClick={() => {
