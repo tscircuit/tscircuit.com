@@ -4,9 +4,40 @@ import { Link, useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void // optional
+}
+
+const LinkWithNewTabHandling = ({
+  shouldOpenInNewTab,
+  href,
+  className,
+  children,
+}: {
+  shouldOpenInNewTab: boolean
+  href: string
+  className?: string
+  children: React.ReactNode
+}) => {
+  if (shouldOpenInNewTab) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {children}
+      </a>
+    )
+  }
+  return (
+    <Link className={className} href={href}>
+      {children}
+    </Link>
+  )
 }
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
@@ -17,6 +48,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const axios = useAxios()
   const resultsRef = useRef<HTMLDivElement>(null)
   const [location] = useLocation()
+  const { snippetsBaseApiUrl } = useSnippetsBaseApiUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -55,6 +87,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   }, [])
 
   const shouldOpenInNewTab = location === "/editor" || location === "/ai"
+  const shouldOpenInEditor = location === "/editor" || location === "/ai"
 
   return (
     <form onSubmit={handleSearch} className="relative">
@@ -77,39 +110,39 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 md:w-52 max-h-screen overflow-y-auto"
+          className="absolute top-full md:left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 w-80 max-h-screen overflow-y-auto overflow-x-visible"
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
               {searchResults.map((snippet: any) => (
                 <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
-                  {shouldOpenInNewTab ? (
-                    <a
-                      href={`/editor?snippet_id=${snippet.snippet_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <div className="font-medium text-blue-600 break-words text-sm">
+                  <LinkWithNewTabHandling
+                    href={
+                      shouldOpenInEditor
+                        ? `/editor?snippet_id=${snippet.snippet_id}`
+                        : `/${snippet.owner_name}/${snippet.unscoped_name}`
+                    }
+                    shouldOpenInNewTab={shouldOpenInNewTab}
+                    className="flex"
+                  >
+                    <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm">
+                      <img
+                        src={`${useSnippetsBaseApiUrl()}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                        alt="PCB preview"
+                        className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <div className="font-medium text-blue-600 break-words text-xs">
                         {snippet.name}
                       </div>
-                      <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                        {snippet.description}
-                      </div>
-                    </a>
-                  ) : (
-                    <Link
-                      href={`/editor?snippet_id=${snippet.snippet_id}`}
-                      className="block"
-                    >
-                      <div className="font-medium text-blue-600 break-words text-sm">
-                        {snippet.name}
-                      </div>
-                      <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                        {snippet.description}
-                      </div>
-                    </Link>
-                  )}
+                      {snippet.description && (
+                        <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
+                          {snippet.description}
+                        </div>
+                      )}
+                    </div>
+                  </LinkWithNewTabHandling>
                 </li>
               ))}
             </ul>
