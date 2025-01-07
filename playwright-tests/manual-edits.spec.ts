@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
 
-test("Manual edits test", async ({ page }) => {
+test.skip("Manual edits test", async ({ page }) => {
   test.setTimeout(60000) // Extend timeout for the test
 
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")

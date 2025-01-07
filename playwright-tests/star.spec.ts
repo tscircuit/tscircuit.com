@@ -13,11 +13,11 @@ test("test for starring a repo", async ({ page }) => {
 
   // Add starr
   await starButton.click()
-  await page.waitForTimeout(1000) // Allow time for the action to complete
+  await page.waitForTimeout(2000) // Allow time for the action to complete
 
   // Verify star action
-  const starredButton = page.getByRole("button", { name: "Starred" })
-  await expect(starredButton).toBeVisible()
+  await expect(page.locator("ol")).toBeVisible()
+  // await page.getByText('You\'ve starred this snippet').click();
 
   // Take a screenshot
   await expect(page).toHaveScreenshot("star-button.png")

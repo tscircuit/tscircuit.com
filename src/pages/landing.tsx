@@ -132,7 +132,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3">
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
                 <CardContent className="p-6">
                   <Lightning className="h-12 w-12 mb-4" />
                   <h3 className="text-xl font-bold">Version Control</h3>
@@ -142,7 +142,7 @@ export function LandingPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
                 <CardContent className="p-6">
                   <Cpu className="h-12 w-12 mb-4" />
                   <h3 className="text-xl font-bold">Robust Autorouting</h3>
@@ -152,7 +152,7 @@ export function LandingPage() {
                   </p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
                 <CardContent className="p-6">
                   <Maximize2 className="h-12 w-12 mb-4" />
                   <h3 className="text-xl font-bold">

@@ -64,27 +64,30 @@ export const UserProfilePage = () => {
           <div>Loading snippets...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <Link
-                key={snippet.snippet_id}
-                href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-              >
-                <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold">
-                      {snippet.unscoped_name}
-                    </h3>
-                    <div className="flex items-center text-gray-600">
-                      <StarIcon className="w-4 h-4 mr-1" />
-                      <span>{snippet.star_count || 0}</span>
+            {filteredSnippets
+              ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+              ?.map((snippet) => (
+                <Link
+                  key={snippet.snippet_id}
+                  href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
+                >
+                  <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-md font-semibold">
+                        {snippet.unscoped_name}
+                      </h3>
+                      <div className="flex items-center text-gray-600">
+                        <StarIcon className="w-4 h-4 mr-1" />
+                        <span>{snippet.star_count || 0}</span>
+                      </div>
                     </div>
+                    <p className="text-sm text-gray-500">
+                      Last Updated:{" "}
+                      {new Date(snippet.updated_at).toLocaleString()}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    Created: {new Date(snippet.created_at).toLocaleString()}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
           </div>
         )}
       </div>

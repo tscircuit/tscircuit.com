@@ -9,7 +9,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
-    timeout: 10000,
+    timeout: 30000,
   },
   workers: 2,
   testDir: "playwright-tests",
@@ -23,9 +23,5 @@ export default defineConfig({
       threshold: 0.2,
       animations: "disabled",
     },
-  },
-  use: {
-    actionTimeout: 10000,
-    navigationTimeout: 10000,
   },
 })
