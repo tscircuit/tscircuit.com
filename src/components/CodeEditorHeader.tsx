@@ -128,7 +128,7 @@ export const CodeEditorHeader = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => setFootprintDialogOpen(true)}>
-              Footprint
+              Chip
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
