@@ -74,8 +74,11 @@ export function DownloadButtonAndMenu({
                   circuitJson,
                   snippetUnscopedName || "circuit",
                 )
-              } catch (error) {
-                alert(error.message)
+              } catch (error: any) {
+                toast({
+                  title: "Error Downloading 3D Model",
+                  description: error.toString(),
+                })
               }
             }}
           >
