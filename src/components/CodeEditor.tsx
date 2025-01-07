@@ -154,6 +154,19 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
+        started: () => {
+          const manualEditsTypeDeclaration = `
+				  declare module "*.json" {
+				  const value: {
+					  pcb_placements?: any[],
+					  edit_events?: any[],
+					  manual_trace_hints?: any[],
+				  } | undefined;
+				  export default value;
+				}
+			`
+          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+        },
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
