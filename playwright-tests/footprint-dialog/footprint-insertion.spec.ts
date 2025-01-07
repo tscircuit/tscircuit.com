@@ -18,7 +18,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
         await page.click('button:has-text("Show Code")')
       }
       await page.click('button:has-text("Insert")')
-      await page.click("text=Footprint")
+      await page.click("text=Chip")
       await page.fill(
         'input[placeholder="Enter chip name (e.g., U1)..."]',
         "U1",
