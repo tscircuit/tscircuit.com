@@ -16,6 +16,7 @@ import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
 import React from "react"
+import { downloadGltf } from "@/lib/download-fns/download-gltf"
 
 interface DownloadButtonAndMenuProps {
   className?: string
@@ -67,12 +68,21 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onClick={() => notImplemented("3d model downloads")}
+            onClick={async () => {
+              try {
+                await downloadGltf(
+                  circuitJson,
+                  snippetUnscopedName || "circuit",
+                )
+              } catch (error) {
+                alert(error.message)
+              }
+            }}
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow  mr-6">Download 3D Model</span>
             <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              stl
+              gltf
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
