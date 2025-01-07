@@ -68,7 +68,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadGltfFile(circuitJson, snippetUnscopedName || "model")
+              downloadGltfFile(circuitJson, snippetUnscopedName || "model") //download fn
             }}
           >
             <Download className="mr-1 h-3 w-3" />
