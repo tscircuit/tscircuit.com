@@ -73,6 +73,13 @@ export default defineConfig(async (): Promise<UserConfig> => {
   }
 
   return {
+    vercel: {
+      prerender: async (resolvedConfig) => {
+        return {
+          "landing.html": {},
+        }
+      },
+    },
     plugins,
     define: {
       global: {},
