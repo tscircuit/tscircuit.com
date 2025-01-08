@@ -121,10 +121,10 @@ export function CodeAndPreview({ snippet }: Props) {
         return response.data
       } catch (error: any) {
         if (
-          error.response &&
           import.meta.env.VITE_ALTERNATE_REGISTRY_URL &&
-          error.response.status === 413
+          error.status === 413
         ) {
+          console.log(`Failed to update snippet, attempting alternate registry`)
           const response = await axios.post(
             `${import.meta.env.VITE_ALTERNATE_REGISTRY_URL}/snippets/update`,
             updateSnippetPayload,
