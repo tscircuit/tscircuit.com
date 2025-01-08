@@ -120,9 +120,13 @@ export function CodeAndPreview({ snippet }: Props) {
         )
         return response.data
       } catch (error: any) {
+        const responseStatus = error?.status ?? error?.response?.status
+        // We would normally only do this if the error is a 413, but we're not
+        // able to check the status properly because of the browser CORS policy
+        // (the PAYLOAD_TOO_LARGE error does not have the proper CORS headers)
         if (
           import.meta.env.VITE_ALTERNATE_REGISTRY_URL &&
-          error.status === 413
+          (responseStatus === undefined || responseStatus === 413)
         ) {
           console.log(`Failed to update snippet, attempting alternate registry`)
           const response = await axios.post(
