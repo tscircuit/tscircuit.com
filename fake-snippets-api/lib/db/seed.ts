@@ -22,7 +22,7 @@ export const seed = (db: DbClient) => {
     github_username: "seveibar",
   })
 
-  if (process.env.AUTOLOAD_SNIPPETS === "true") {
+  if (process.env.NODE_ENV === "development") {
     loadAutoloadSnippets(db)
   }
 
