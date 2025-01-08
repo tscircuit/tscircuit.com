@@ -4,6 +4,7 @@ import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
+import vercel from "vite-plugin-vercel"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -40,7 +41,7 @@ function apiFakePlugin(): Plugin {
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
-  const plugins: PluginOption[] = [react()]
+  const plugins: PluginOption[] = [react(), vercel()]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
     const { visualizer } = await import("rollup-plugin-visualizer")

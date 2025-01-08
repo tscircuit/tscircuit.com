@@ -145,6 +145,7 @@
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.3",
     "vite": "^5.4.8",
+    "vite-plugin-vercel": "^9.0.4",
     "winterspec": "^0.0.94",
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
