@@ -104,21 +104,35 @@ export function CodeAndPreview({ snippet }: Props) {
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
 
-      // Validate manual edits before sending
-      parseJsonOrNull(manualEditsFileContent)
-
-      const response = await axios.post("/snippets/update", {
+      const updateSnippetPayload = {
         snippet_id: snippet.snippet_id,
         code: code,
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
         manual_edits_json_content: manualEditsFileContent,
-      })
-      if (response.status !== 200) {
-        throw new Error("Failed to save snippet")
       }
-      return response.data
+
+      try {
+        const response = await axios.post(
+          "/snippets/update",
+          updateSnippetPayload,
+        )
+        return response.data
+      } catch (error: any) {
+        if (
+          error.response &&
+          import.meta.env.VITE_ALTERNATE_REGISTRY_URL &&
+          error.response.status === 413
+        ) {
+          const response = await axios.post(
+            `${import.meta.env.VITE_ALTERNATE_REGISTRY_URL}/snippets/update`,
+            updateSnippetPayload,
+          )
+          return response.data
+        }
+        throw error
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets", snippet?.snippet_id] })
