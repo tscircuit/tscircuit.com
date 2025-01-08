@@ -3,6 +3,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { AnyCircuitElement } from "circuit-json"
 import * as jscadFiber from "jscad-fiber"
 import * as React from "react"
+import * as tscircuitMathUtils from "@tscircuit/math-utils"
 import { useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { safeCompileTsx } from "../use-compiled-tsx"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
@@ -107,6 +108,7 @@ export const useRunTsx = ({
       }
       ;(globalThis as any).__tscircuit_require = __tscircuit_require
       preSuppliedImports["@tscircuit/core"] = tscircuitCore
+      preSuppliedImports["@tscircuit/math-utils"] = tscircuitMathUtils
       preSuppliedImports["react"] = React
       preSuppliedImports["jscad-fiber"] = jscadFiber
       globalThis.React = React

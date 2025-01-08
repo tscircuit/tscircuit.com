@@ -62,6 +62,7 @@
     "@tscircuit/3d-viewer": "^0.0.86",
     "@tscircuit/footprinter": "^0.0.99",
     "@tscircuit/layout": "^0.0.29",
+    "@tscircuit/math-utils": "^0.0.9",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.11.12",
     "@tscircuit/props": "^0.0.128",
