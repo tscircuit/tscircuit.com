@@ -1,5 +1,6 @@
 import { saveAs } from "file-saver"
 import { convertCircuitJsonToKiCadPcb } from "kicad-converter"
+import { convertCircuitJsonToKicadPro } from "kicad-converter"
 import { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
 
@@ -12,8 +13,14 @@ export const downloadKicadFiles = (
     typeof kicadPcbString === "object"
       ? JSON.stringify(kicadPcbString)
       : kicadPcbString
+
+  const kicadProContent = convertCircuitJsonToKicadPro(circuitJson)
+  const proContent = JSON.stringify(kicadProContent)
+
   const zip = new JSZip()
   zip.file(`${fileName}.kicad_pcb`, pcbContent)
+  zip.file(`${fileName}.kicad_pro`, proContent)
+
   zip.generateAsync({ type: "blob" }).then((content) => {
     saveAs(content, `${fileName}_kicad.zip`)
   })
