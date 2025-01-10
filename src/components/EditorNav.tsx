@@ -99,6 +99,7 @@ export default function EditorNav({
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
+    currentCode: code, // Pass the current code from props
     onSuccess: (forkedSnippet) => {
       navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
       setTimeout(() => {

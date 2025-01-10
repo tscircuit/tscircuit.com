@@ -6,9 +6,11 @@ import { Snippet } from "fake-snippets-api/lib/db/schema"
 
 export const useForkSnippetMutation = ({
   snippet,
+  currentCode,
   onSuccess,
 }: {
   snippet: Snippet
+  currentCode?: string // Add optional currentCode parameter
   onSuccess?: (forkedSnippet: Snippet) => void
 }) => {
   const axios = useAxios()
@@ -25,7 +27,7 @@ export const useForkSnippetMutation = ({
         unscoped_name: snippet.unscoped_name,
         snippet_type: snippet.snippet_type,
         owner_name: session.github_username,
-        code: snippet.code,
+        code: currentCode ?? snippet.code, // Use currentCode if provided, fall back to snippet.code
       })
       return data.snippet
     },
@@ -39,6 +41,11 @@ export const useForkSnippetMutation = ({
       },
       onError: (error: any) => {
         console.error("Error forking snippet:", error)
+        toast({
+          title: "Error",
+          description: "Failed to fork snippet. Please try again.",
+          variant: "destructive",
+        })
       },
     },
   )
