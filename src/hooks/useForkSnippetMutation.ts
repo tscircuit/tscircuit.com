@@ -10,7 +10,7 @@ export const useForkSnippetMutation = ({
   onSuccess,
 }: {
   snippet: Snippet
-  currentCode?: string // Add optional currentCode parameter
+  currentCode?: string
   onSuccess?: (forkedSnippet: Snippet) => void
 }) => {
   const axios = useAxios()
