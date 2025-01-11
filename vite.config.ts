@@ -50,16 +50,25 @@ export default defineConfig(async (): Promise<UserConfig> => {
     }),
     ViteImageOptimizer({
       png: {
-        quality: 80,
+        quality: 75,
+        compressionLevel: 9,
       },
       jpeg: {
-        quality: 80,
+        quality: 75,
+        progressive: true,
       },
       jpg: {
-        quality: 80,
+        quality: 75,
+        progressive: true,
       },
       webp: {
-        lossless: true,
+        quality: 75,
+        lossless: false,
+        effort: 6,
+      },
+      avif: {
+        quality: 75,
+        effort: 9,
       },
     }),
   ]

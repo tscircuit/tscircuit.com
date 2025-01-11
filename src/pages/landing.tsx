@@ -110,6 +110,7 @@ export function LandingPage() {
                   height={310}
                   src={editorExampleImage1MoreSquare}
                   width={550}
+                  priority={true}
                 />
               </div>
             </div>

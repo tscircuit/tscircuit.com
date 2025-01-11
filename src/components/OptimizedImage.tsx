@@ -6,6 +6,7 @@ interface OptimizedImageProps
   alt: string
   width?: number
   height?: number
+  priority?: boolean
 }
 
 export function OptimizedImage({
@@ -26,7 +27,7 @@ export function OptimizedImage({
         alt={alt}
         width={width}
         height={height}
-        loading="lazy"
+        loading={props.priority ? "eager" : "lazy"}
         decoding="async"
         className={`${className} ${imageLoading ? "animate-pulse bg-gray-200" : ""}`}
         onLoad={() => setImageLoading(false)}
