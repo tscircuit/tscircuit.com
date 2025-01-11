@@ -47,17 +47,11 @@ export default defineConfig(async (): Promise<UserConfig> => {
       prerender: {
         enabled: true,
         force: true,
-        disableAutoRender: false,
-        renderStatic: true,
       },
-      analytics: true,
-      minify: true,
-      inlineSourceMap: false,
       build: {
         ssr: true,
         outDir: "dist",
       },
-      configFile: ".vercel/config.json"
     }),
   ]
 
@@ -117,9 +111,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
-        },
-        output: {
-          manualChunks: undefined,
         },
       },
     },
