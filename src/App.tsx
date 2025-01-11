@@ -10,12 +10,10 @@ const lazyImport = (importFn: () => Promise<any>) =>
     try {
       const module = await importFn()
 
-      // If module has a default export, use it
       if (module.default) {
         return { default: module.default }
       }
 
-      // Look for a named export that matches common page naming patterns
       const pageExportNames = ["Page", "Component", "View"]
       for (const suffix of pageExportNames) {
         const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
@@ -24,7 +22,6 @@ const lazyImport = (importFn: () => Promise<any>) =>
         }
       }
 
-      // If no matches found, try the first export that's a React component
       const componentExport = Object.values(module).find(
         (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
       )
@@ -41,7 +38,6 @@ const lazyImport = (importFn: () => Promise<any>) =>
     }
   })
 
-// Lazy load pages using consistent naming pattern
 const AiPage = lazyImport(() => import("@/pages/ai"))
 const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
 const DashboardPage = lazyImport(() => import("@/pages/dashboard"))

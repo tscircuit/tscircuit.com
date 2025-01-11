@@ -99,7 +99,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
           comments: false,
         },
       },
-      reportCompressedSize: true,
+      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
