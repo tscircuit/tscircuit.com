@@ -4,6 +4,8 @@ import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
+import vercel from 'vite-plugin-vercel'
+import { splitVendorChunkPlugin } from 'vite'
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -40,7 +42,16 @@ function apiFakePlugin(): Plugin {
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
-  const plugins: PluginOption[] = [react()]
+  const plugins: PluginOption[] = [
+    react(),
+    vercel({
+      prerender: false,
+      analytics: true,
+      minify: true,
+      inlineSourceMap: false
+    }),
+    splitVendorChunkPlugin()
+  ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
     const { visualizer } = await import("rollup-plugin-visualizer")
@@ -81,30 +92,53 @@ export default defineConfig(async (): Promise<UserConfig> => {
       proxy: proxyConfig,
     },
     build: {
-      minify: false,
+      minify: 'terser',
       terserOptions: {
-        compress: false,
-        mangle: false,
+        compress: {
+          drop_console: true,
+          drop_debugger: true
+        },
+        mangle: true
       },
-      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
+      reportCompressedSize: true,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
         output: {
-          manualChunks: {
-            "react-vendor": ["react", "react-dom"],
-            codemirror: [
-              "@codemirror/autocomplete",
-              "@codemirror/lang-javascript",
-              "@codemirror/lang-json",
-              "@codemirror/lint",
-              "@codemirror/state",
-              "@codemirror/view",
-            ],
+          manualChunks(id) {
+            // Core React chunks
+            if (id.includes('node_modules/react/') || 
+                id.includes('node_modules/react-dom/')) {
+              return 'react-core'
+            }
+            
+            // CodeMirror chunks
+            if (id.includes('@codemirror/')) {
+              return 'codemirror'
+            }
+
+            // Radix UI chunks
+            if (id.includes('@radix-ui/')) {
+              return 'radix-ui'
+            }
+
+            // Circuit related chunks
+            if (id.includes('@tscircuit/') || 
+                id.includes('circuit-')) {
+              return 'circuit-core'
+            }
+
+            // Other vendor chunks
+            if (id.includes('node_modules')) {
+              return 'vendors'
+            }
           },
-        },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash][extname]'
+        }
       },
     },
     resolve: {
