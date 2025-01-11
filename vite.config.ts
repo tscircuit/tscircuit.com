@@ -87,6 +87,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       host: "127.0.0.1",
       proxy: proxyConfig,
     },
+    base: "./",
     build: {
       minify: "terser",
       terserOptions: {
@@ -107,28 +108,28 @@ export default defineConfig(async (): Promise<UserConfig> => {
         output: {
           manualChunks: {
             vendor: [
-              'react',
-              'react-dom',
-              'wouter',
-              '@radix-ui/react-dialog',
-              '@radix-ui/react-dropdown-menu',
-              '@radix-ui/react-toast',
-              '@codemirror/state',
-              '@codemirror/view',
-              '@codemirror/lang-javascript',
+              "react",
+              "react-dom",
+              "wouter",
+              "@radix-ui/react-dialog",
+              "@radix-ui/react-dropdown-menu",
+              "@radix-ui/react-toast",
+              "@codemirror/state",
+              "@codemirror/view",
+              "@codemirror/lang-javascript",
             ],
             editor: [
-              '@tscircuit/3d-viewer',
-              '@tscircuit/pcb-viewer',
-              '@tscircuit/schematic-viewer',
+              "@tscircuit/3d-viewer",
+              "@tscircuit/pcb-viewer",
+              "@tscircuit/schematic-viewer",
             ],
           },
         },
       },
     },
     ssr: {
-      noExternal: ['react-dom/client'],
-      target: 'node',
+      noExternal: ["react-dom/client"],
+      target: "node",
     },
     resolve: {
       alias: {

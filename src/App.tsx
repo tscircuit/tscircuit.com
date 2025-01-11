@@ -4,26 +4,28 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 
-const lazyImport = (path: string) => 
-  lazy<ComponentType<any>>(() => 
-    import(path).then(module => ({ default: module.default || module.AuthorizePage || module }))
+const lazyImport = (importFn: () => Promise<any>) =>
+  lazy<ComponentType<any>>(() =>
+    importFn().then((module) => ({
+      default: module.default || module.AuthorizePage || module,
+    })),
   )
 
-const AiPage = lazyImport("./pages/ai")
-const AuthenticatePage = lazyImport("./pages/authorize") 
-const DashboardPage = lazyImport("./pages/dashboard")
-const EditorPage = lazyImport("./pages/editor")
-const LandingPage = lazyImport("./pages/landing")
-const MyOrdersPage = lazyImport("./pages/my-orders")
-const NewestPage = lazyImport("./pages/newest")
-const PreviewPage = lazyImport("./pages/preview")
-const QuickstartPage = lazyImport("./pages/quickstart")
-const SearchPage = lazyImport("./pages/search")
-const SettingsPage = lazyImport("./pages/settings")
-const UserProfilePage = lazyImport("./pages/user-profile")
-const ViewOrderPage = lazyImport("./pages/view-order")
-const ViewSnippetPage = lazyImport("./pages/view-snippet")
-const DevLoginPage = lazyImport("./pages/dev-login")
+const AiPage = lazyImport(() => import("@/pages/ai"))
+const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
+const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
+const EditorPage = lazyImport(() => import("@/pages/editor"))
+const LandingPage = lazyImport(() => import("@/pages/landing"))
+const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
+const NewestPage = lazyImport(() => import("@/pages/newest"))
+const PreviewPage = lazyImport(() => import("@/pages/preview"))
+const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
+const SearchPage = lazyImport(() => import("@/pages/search"))
+const SettingsPage = lazyImport(() => import("@/pages/settings"))
+const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
+const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
+const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
+const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 
 function App() {
   return (
