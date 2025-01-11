@@ -44,10 +44,19 @@ export default defineConfig(async (): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
     react(),
     vercel({
-      prerender: true,
+      prerender: {
+        enabled: true,
+        force: true,
+        disableAutoRender: false,
+        renderStatic: true,
+      },
       analytics: true,
       minify: true,
       inlineSourceMap: false,
+      build: {
+        ssr: true,
+        outDir: "dist",
+      },
     }),
   ]
 
@@ -101,10 +110,15 @@ export default defineConfig(async (): Promise<UserConfig> => {
         },
       },
       reportCompressedSize: true,
+      ssr: true,
+      ssrManifest: true,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
+        },
+        output: {
+          manualChunks: undefined,
         },
       },
     },
