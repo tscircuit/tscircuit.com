@@ -107,20 +107,19 @@ export default defineConfig(async (): Promise<UserConfig> => {
         },
         output: {
           manualChunks(id) {
-            if (
-              id.includes("node_modules/@codemirror/") ||
-              id.includes("node_modules/@tscircuit/") ||
-              id.includes("/pages/editor")
-            ) {
+            if (id.includes("node_modules/react/") ||
+                id.includes("node_modules/react-dom/")) {
+              return "vendor"
+            }
+
+            if (id.includes("node_modules/@codemirror/") ||
+                id.includes("node_modules/@tscircuit/") ||
+                id.includes("/pages/editor")) {
               return "editor"
             }
 
-            if (
-              id.includes("node_modules/react/") ||
-              id.includes("node_modules/react-dom/") ||
-              id.includes("node_modules/wouter/") ||
-              id.includes("node_modules/@radix-ui/")
-            ) {
+            if (id.includes("node_modules/wouter/") ||
+                id.includes("node_modules/@radix-ui/")) {
               return "vendor"
             }
           },
