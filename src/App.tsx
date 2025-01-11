@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster"
-import { Route, Switch } from "wouter"
+import { Route, Routes } from "react-router-dom"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import { AiPage } from "./pages/ai"
@@ -21,23 +21,23 @@ import { DevLoginPage } from "./pages/dev-login"
 function App() {
   return (
     <ContextProviders>
-      <Switch>
-        <Route path="/" component={LandingPage} />
-        <Route path="/editor" component={EditorPage} />
-        <Route path="/quickstart" component={QuickstartPage} />
-        <Route path="/dashboard" component={DashboardPage} />
-        <Route path="/ai" component={AiPage} />
-        <Route path="/newest" component={NewestPage} />
-        <Route path="/settings" component={SettingsPage} />
-        <Route path="/search" component={SearchPage} />
-        <Route path="/authorize" component={AuthenticatePage} />
-        <Route path="/my-orders" component={MyOrdersPage} />
-        <Route path="/orders/:orderId" component={ViewOrderPage} />
-        <Route path="/preview" component={PreviewPage} />
-        <Route path="/dev-login" component={DevLoginPage} />
-        <Route path="/:username" component={UserProfilePage} />
-        <Route path="/:author/:snippetName" component={ViewSnippetPage} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/editor" element={<EditorPage />} />
+        <Route path="/quickstart" element={<QuickstartPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/ai" element={<AiPage />} />
+        <Route path="/newest" element={<NewestPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/authorize" element={<AuthenticatePage />} />
+        <Route path="/my-orders" element={<MyOrdersPage />} />
+        <Route path="/orders/:orderId" element={<ViewOrderPage />} />
+        <Route path="/preview" element={<PreviewPage />} />
+        <Route path="/dev-login" element={<DevLoginPage />} />
+        <Route path="/:username" element={<UserProfilePage />} />
+        <Route path="/:author/:snippetName" element={<ViewSnippetPage />} />
+      </Routes>
       <Toaster />
     </ContextProviders>
   )
