@@ -19,11 +19,36 @@ export function OptimizedImage({
 }: OptimizedImageProps) {
   const [imageLoading, setImageLoading] = useState(true)
 
+  const generateSrcSet = (format: string) => {
+    const sizes = [320, 640, 960, 1280, 1920]
+    return sizes
+      .map((size) => `${src}?format=${format}&w=${size} ${size}w`)
+      .join(", ")
+  }
+
+  const getSizes = () => {
+    if (width) {
+      // If width is specified, use it as a max-width
+      return `(max-width: ${width}px) 100vw, ${width}px`
+    }
+    // Default responsive sizes
+    return "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  }
+
   return (
     <picture>
-      <source srcSet={`${src}?format=webp`} type="image/webp" />
+      <source
+        type="image/avif"
+        srcSet={generateSrcSet("avif")}
+        sizes={getSizes()}
+      />
+      <source
+        type="image/webp"
+        srcSet={generateSrcSet("webp")}
+        sizes={getSizes()}
+      />
       <img
-        src={src}
+        src={`${src}?format=webp&w=${width || 1280}`}
         alt={alt}
         width={width}
         height={height}
