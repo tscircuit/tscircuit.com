@@ -3,14 +3,45 @@ import { Toaster } from "@/components/ui/toaster"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
+import React from "react"
 
 const lazyImport = (importFn: () => Promise<any>) =>
-  lazy<ComponentType<any>>(() =>
-    importFn().then((module) => ({
-      default: module.default || module.AuthorizePage || module,
-    })),
-  )
+  lazy<ComponentType<any>>(async () => {
+    try {
+      const module = await importFn()
 
+      // If module has a default export, use it
+      if (module.default) {
+        return { default: module.default }
+      }
+
+      // Look for a named export that matches common page naming patterns
+      const pageExportNames = ["Page", "Component", "View"]
+      for (const suffix of pageExportNames) {
+        const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
+        if (keys.length > 0) {
+          return { default: module[keys[0]] }
+        }
+      }
+
+      // If no matches found, try the first export that's a React component
+      const componentExport = Object.values(module).find(
+        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
+      )
+      if (componentExport) {
+        return { default: componentExport }
+      }
+
+      throw new Error(
+        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
+      )
+    } catch (error) {
+      console.error("Failed to load component:", error)
+      throw error
+    }
+  })
+
+// Lazy load pages using consistent naming pattern
 const AiPage = lazyImport(() => import("@/pages/ai"))
 const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
 const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
@@ -27,29 +58,52 @@ const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
 const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>Something went wrong loading the page.</div>
+    }
+    return this.props.children
+  }
+}
+
 function App() {
   return (
     <ContextProviders>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Switch>
-          <Route path="/" component={LandingPage} />
-          <Route path="/editor" component={EditorPage} />
-          <Route path="/quickstart" component={QuickstartPage} />
-          <Route path="/dashboard" component={DashboardPage} />
-          <Route path="/ai" component={AiPage} />
-          <Route path="/newest" component={NewestPage} />
-          <Route path="/settings" component={SettingsPage} />
-          <Route path="/search" component={SearchPage} />
-          <Route path="/authorize" component={AuthenticatePage} />
-          <Route path="/my-orders" component={MyOrdersPage} />
-          <Route path="/orders/:orderId" component={ViewOrderPage} />
-          <Route path="/preview" component={PreviewPage} />
-          <Route path="/dev-login" component={DevLoginPage} />
-          <Route path="/:username" component={UserProfilePage} />
-          <Route path="/:author/:snippetName" component={ViewSnippetPage} />
-        </Switch>
-      </Suspense>
-      <Toaster />
+      <ErrorBoundary>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch>
+            <Route path="/" component={LandingPage} />
+            <Route path="/editor" component={EditorPage} />
+            <Route path="/quickstart" component={QuickstartPage} />
+            <Route path="/dashboard" component={DashboardPage} />
+            <Route path="/ai" component={AiPage} />
+            <Route path="/newest" component={NewestPage} />
+            <Route path="/settings" component={SettingsPage} />
+            <Route path="/search" component={SearchPage} />
+            <Route path="/authorize" component={AuthenticatePage} />
+            <Route path="/my-orders" component={MyOrdersPage} />
+            <Route path="/orders/:orderId" component={ViewOrderPage} />
+            <Route path="/preview" component={PreviewPage} />
+            <Route path="/dev-login" component={DevLoginPage} />
+            <Route path="/:username" component={UserProfilePage} />
+            <Route path="/:author/:snippetName" component={ViewSnippetPage} />
+          </Switch>
+        </Suspense>
+        <Toaster />
+      </ErrorBoundary>
     </ContextProviders>
   )
 }
