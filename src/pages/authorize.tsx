@@ -11,16 +11,15 @@ const AuthenticatePageInnerContent = () => {
   const [location, setLocation] = useLocation()
   const setSession = useGlobalStore((s) => s.setSession)
   const [message, setMessage] = useState("logging you in...")
-  const searchParams = new URLSearchParams(window.location.search.split("?")[1])
-  const session_token = searchParams.get("session_token")
+  const searchParams = new URLSearchParams(window.location.search)
+  const session_token = searchParams.get("session_token") || ""
   useEffect(() => {
     async function login() {
-      if (!session_token) {
-        setMessage("couldn't log in - no token")
-        return
-      }
-
-      if (session_token) {
+      try {
+        if (!session_token) {
+          setMessage("couldn't log in - no token")
+          return
+        }
         const decodedToken = jose.decodeJwt(session_token)
         setSession({
           ...(decodedToken as any),
@@ -28,11 +27,12 @@ const AuthenticatePageInnerContent = () => {
         })
         setLocation("/")
         return
+      } catch (e) {
+        console.error("Login error:", e)
+        setMessage(`error logging you in: ${e instanceof Error ? e.message : String(e)}`)
       }
     }
-    login().catch((e) => {
-      setMessage(`error logging you in\n\n${e.toString()}`)
-    })
+    login()
   }, [session_token])
 
   return (
