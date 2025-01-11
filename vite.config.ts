@@ -106,18 +106,17 @@ export default defineConfig(async (): Promise<UserConfig> => {
           landing: path.resolve(__dirname, "landing.html"),
         },
         output: {
-          manualChunks: {
-            vendor: [
-              // "react",
-              // "react-dom",
-              // "wouter",
-              // "@radix-ui/react-dialog",
-              // "@radix-ui/react-dropdown-menu",
-              // "@radix-ui/react-toast",
-              // "@codemirror/state",
-              // "@codemirror/view",
-              // "@codemirror/lang-javascript",
-            ],
+          manualChunks(id) {
+            if (
+              id.includes("CodeEditor") ||
+              id.includes("prettier") ||
+              id.includes("@codemirror")
+            ) {
+              return "editor"
+            }
+            //  if (id.includes('node_modules')) {
+            //    return 'vendor'
+            //  }
           },
         },
       },
