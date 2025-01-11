@@ -5,7 +5,6 @@ import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
-import { splitVendorChunkPlugin } from "vite"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -45,12 +44,11 @@ export default defineConfig(async (): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
     react(),
     vercel({
-      prerender: false,
+      prerender: true,
       analytics: true,
       minify: true,
       inlineSourceMap: false,
     }),
-    splitVendorChunkPlugin(),
   ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
@@ -97,9 +95,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          passes: 2,
         },
-        mangle: true,
         format: {
           comments: false,
         },
@@ -109,37 +105,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
-        },
-        output: {
-          manualChunks(id) {
-            if (id.includes("node_modules")) {
-              if (id.includes("react/") || id.includes("react-dom/")) {
-                return "vendor-react"
-              }
-              if (id.includes("@codemirror/")) {
-                return "vendor-codemirror"
-              }
-              if (id.includes("@radix-ui/")) {
-                return "vendor-radix"
-              }
-              if (id.includes("@tscircuit/") || id.includes("circuit-")) {
-                return "vendor-circuit"
-              }
-              if (id.includes("three/") || id.includes("three-stdlib/")) {
-                return "vendor-three"
-              }
-              // Split remaining node_modules into smaller chunks
-              const chunk = id
-                .toString()
-                .split("node_modules/")[1]
-                .split("/")[0]
-                .toString()
-              return `vendor-${chunk}`
-            }
-          },
-          chunkFileNames: "assets/js/[name]-[hash].js",
-          entryFileNames: "assets/js/[name]-[hash].js",
-          assetFileNames: "assets/[ext]/[name]-[hash][extname]",
         },
       },
     },
