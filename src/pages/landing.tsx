@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { OptimizedImage } from "@/components/OptimizedImage"
 import {
   Accordion,
   AccordionContent,
@@ -103,12 +104,12 @@ export function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <img
+                <OptimizedImage
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  height="310"
+                  height={310}
                   src={editorExampleImage1MoreSquare}
-                  width="550"
+                  width={550}
                 />
               </div>
             </div>
@@ -168,22 +169,22 @@ export function LandingPage() {
           </div>
         </section>
         <div className="md:mt-8">
-          <img
+          <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height="310"
+            height={310}
             src={editorExampleImage2}
-            width="800"
+            width={800}
           />
         </div>
         <FAQ />
         <div className="md:mt-8">
-          <img
+          <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height="310"
+            height={310}
             src={schematicExampleImage}
-            width="800"
+            width={800}
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">

@@ -5,6 +5,7 @@ import { Link } from "wouter"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef, useState } from "react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { OptimizedImage } from "./OptimizedImage"
 
 export const TrendingSnippetCarousel = () => {
   const axios = useAxios()
@@ -53,7 +54,7 @@ export const TrendingSnippetCarousel = () => {
                     {snippet.owner_name}/{snippet.unscoped_name}
                   </div>
                   <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
-                    <img
+                    <OptimizedImage
                       src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                       alt="PCB preview"
                       className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"

@@ -3,6 +3,7 @@ import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 
@@ -46,6 +47,20 @@ export default defineConfig(async (): Promise<UserConfig> => {
     vercel({
       prerender: false,
       buildCommand: "bun run build",
+    }),
+    ViteImageOptimizer({
+      png: {
+        quality: 80,
+      },
+      jpeg: {
+        quality: 80,
+      },
+      jpg: {
+        quality: 80,
+      },
+      webp: {
+        lossless: true,
+      },
     }),
   ]
 
