@@ -122,6 +122,7 @@
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
+    "terser": "^5.27.0",
     "@babel/standalone": "^7.26.2",
     "@biomejs/biome": "^1.9.2",
     "@playwright/test": "^1.48.0",

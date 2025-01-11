@@ -4,8 +4,8 @@ import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
 import { getNodeHandler } from "winterspec/adapters/node"
-import vercel from 'vite-plugin-vercel'
-import { splitVendorChunkPlugin } from 'vite'
+import vercel from "vite-plugin-vercel"
+import { splitVendorChunkPlugin } from "vite"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -48,9 +48,9 @@ export default defineConfig(async (): Promise<UserConfig> => {
       prerender: false,
       analytics: true,
       minify: true,
-      inlineSourceMap: false
+      inlineSourceMap: false,
     }),
-    splitVendorChunkPlugin()
+    splitVendorChunkPlugin(),
   ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
@@ -92,13 +92,13 @@ export default defineConfig(async (): Promise<UserConfig> => {
       proxy: proxyConfig,
     },
     build: {
-      minify: 'terser',
+      minify: true,
       terserOptions: {
         compress: {
           drop_console: true,
-          drop_debugger: true
+          drop_debugger: true,
         },
-        mangle: true
+        mangle: true,
       },
       reportCompressedSize: true,
       rollupOptions: {
@@ -109,36 +109,37 @@ export default defineConfig(async (): Promise<UserConfig> => {
         output: {
           manualChunks(id) {
             // Core React chunks
-            if (id.includes('node_modules/react/') || 
-                id.includes('node_modules/react-dom/')) {
-              return 'react-core'
+            if (
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/")
+            ) {
+              return "react-core"
             }
-            
+
             // CodeMirror chunks
-            if (id.includes('@codemirror/')) {
-              return 'codemirror'
+            if (id.includes("@codemirror/")) {
+              return "codemirror"
             }
 
             // Radix UI chunks
-            if (id.includes('@radix-ui/')) {
-              return 'radix-ui'
+            if (id.includes("@radix-ui/")) {
+              return "radix-ui"
             }
 
             // Circuit related chunks
-            if (id.includes('@tscircuit/') || 
-                id.includes('circuit-')) {
-              return 'circuit-core'
+            if (id.includes("@tscircuit/") || id.includes("circuit-")) {
+              return "circuit-core"
             }
 
             // Other vendor chunks
-            if (id.includes('node_modules')) {
-              return 'vendors'
+            if (id.includes("node_modules")) {
+              return "vendors"
             }
           },
-          chunkFileNames: 'assets/[name]-[hash].js',
-          entryFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash][extname]'
-        }
+          chunkFileNames: "assets/[name]-[hash].js",
+          entryFileNames: "assets/[name]-[hash].js",
+          assetFileNames: "assets/[name]-[hash][extname]",
+        },
       },
     },
     resolve: {
