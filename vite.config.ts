@@ -57,6 +57,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
         ssr: true,
         outDir: "dist",
       },
+      configFile: ".vercel/config.json"
     }),
   ]
 
