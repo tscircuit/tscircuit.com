@@ -44,14 +44,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
     react(),
     vercel({
-      prerender: {
-        enabled: true,
-        force: true,
-      },
-      build: {
-        ssr: true,
-        outDir: "dist",
-      },
+      prerender: false,
+      buildCommand: "bun run build",
     }),
   ]
 
@@ -105,14 +99,16 @@ export default defineConfig(async (): Promise<UserConfig> => {
         },
       },
       reportCompressedSize: true,
-      ssr: true,
-      ssrManifest: true,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
       },
+    },
+    ssr: {
+      noExternal: ['react-dom/client'],
+      target: 'node',
     },
     resolve: {
       alias: {
