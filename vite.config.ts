@@ -92,13 +92,17 @@ export default defineConfig(async (): Promise<UserConfig> => {
       proxy: proxyConfig,
     },
     build: {
-      minify: true,
+      minify: "terser",
       terserOptions: {
         compress: {
           drop_console: true,
           drop_debugger: true,
+          passes: 2,
         },
         mangle: true,
+        format: {
+          comments: false,
+        },
       },
       reportCompressedSize: true,
       rollupOptions: {
@@ -108,37 +112,34 @@ export default defineConfig(async (): Promise<UserConfig> => {
         },
         output: {
           manualChunks(id) {
-            // Core React chunks
-            if (
-              id.includes("node_modules/react/") ||
-              id.includes("node_modules/react-dom/")
-            ) {
-              return "react-core"
-            }
-
-            // CodeMirror chunks
-            if (id.includes("@codemirror/")) {
-              return "codemirror"
-            }
-
-            // Radix UI chunks
-            if (id.includes("@radix-ui/")) {
-              return "radix-ui"
-            }
-
-            // Circuit related chunks
-            if (id.includes("@tscircuit/") || id.includes("circuit-")) {
-              return "circuit-core"
-            }
-
-            // Other vendor chunks
             if (id.includes("node_modules")) {
-              return "vendors"
+              if (id.includes("react/") || id.includes("react-dom/")) {
+                return "vendor-react"
+              }
+              if (id.includes("@codemirror/")) {
+                return "vendor-codemirror"
+              }
+              if (id.includes("@radix-ui/")) {
+                return "vendor-radix"
+              }
+              if (id.includes("@tscircuit/") || id.includes("circuit-")) {
+                return "vendor-circuit"
+              }
+              if (id.includes("three/") || id.includes("three-stdlib/")) {
+                return "vendor-three"
+              }
+              // Split remaining node_modules into smaller chunks
+              const chunk = id
+                .toString()
+                .split("node_modules/")[1]
+                .split("/")[0]
+                .toString()
+              return `vendor-${chunk}`
             }
           },
-          chunkFileNames: "assets/[name]-[hash].js",
-          entryFileNames: "assets/[name]-[hash].js",
-          assetFileNames: "assets/[name]-[hash][extname]",
+          chunkFileNames: "assets/js/[name]-[hash].js",
+          entryFileNames: "assets/js/[name]-[hash].js",
+          assetFileNames: "assets/[ext]/[name]-[hash][extname]",
         },
       },
     },
