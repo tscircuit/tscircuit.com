@@ -118,11 +118,11 @@ export default defineConfig(async (): Promise<UserConfig> => {
               "@codemirror/view",
               "@codemirror/lang-javascript",
             ],
-            editor: [
-              "@tscircuit/3d-viewer",
-              "@tscircuit/pcb-viewer",
-              "@tscircuit/schematic-viewer",
-            ],
+            // editor: [
+            //   "@tscircuit/3d-viewer",
+            //   "@tscircuit/pcb-viewer",
+            //   "@tscircuit/schematic-viewer",
+            // ],
           },
         },
       },
