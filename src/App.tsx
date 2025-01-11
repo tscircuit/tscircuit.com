@@ -45,7 +45,13 @@ const lazyImport = (importFn: () => Promise<any>) =>
 const AiPage = lazyImport(() => import("@/pages/ai"))
 const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
 const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
-const EditorPage = lazyImport(() => import("@/pages/editor"))
+const EditorPage = lazyImport(async () => {
+  const [editorModule] = await Promise.all([
+    import("@/pages/editor"),
+    import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
+  ])
+  return editorModule
+})
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const NewestPage = lazyImport(() => import("@/pages/newest"))

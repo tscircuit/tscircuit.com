@@ -105,20 +105,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
-        output: {
-          manualChunks(id) {
-            if (
-              id.includes("CodeEditor") ||
-              id.includes("prettier") ||
-              id.includes("@codemirror")
-            ) {
-              return "editor"
-            }
-            //  if (id.includes('node_modules')) {
-            //    return 'vendor'
-            //  }
-          },
-        },
       },
     },
     ssr: {
