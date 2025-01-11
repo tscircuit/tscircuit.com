@@ -104,6 +104,26 @@ export default defineConfig(async (): Promise<UserConfig> => {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
+        output: {
+          manualChunks: {
+            vendor: [
+              'react',
+              'react-dom',
+              'wouter',
+              '@radix-ui/react-dialog',
+              '@radix-ui/react-dropdown-menu',
+              '@radix-ui/react-toast',
+              '@codemirror/state',
+              '@codemirror/view',
+              '@codemirror/lang-javascript',
+            ],
+            editor: [
+              '@tscircuit/3d-viewer',
+              '@tscircuit/pcb-viewer',
+              '@tscircuit/schematic-viewer',
+            ],
+          },
+        },
       },
     },
     ssr: {
