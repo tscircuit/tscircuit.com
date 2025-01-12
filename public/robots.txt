@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://tscircuit.com/sitemap.xml
+
+# Disallow specific paths
+Disallow: /api/
+Disallow: /dev-login
+Disallow: /authorize
+
+# Crawl-delay
+Crawl-delay: 10
