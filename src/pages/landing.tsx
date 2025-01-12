@@ -15,9 +15,6 @@ import { Helmet } from "react-helmet"
 import { Link } from "wouter"
 import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
-import editorExampleImage1MoreSquare from "@/assets/editor_example_1_more_square.webp"
-import editorExampleImage2 from "@/assets/editor_example_2.webp"
-import schematicExampleImage from "@/assets/example_schematic.webp"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
@@ -114,7 +111,7 @@ export function LandingPage() {
                 <OptimizedImage
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  src={editorExampleImage1MoreSquare}
+                  src="/src/assets/editor_example_1_more_square/editor_example_1_more_square-1200w.webp"
                   priority={true}
                 />
               </div>
@@ -178,7 +175,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src={editorExampleImage2}
+            src="/src/assets/editor_example_2/editor_example_2-1200w.webp"
           />
         </div>
         <FAQ />
@@ -186,7 +183,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src={schematicExampleImage}
+            src="/src/assets/example_schematic/example_schematic-1200w.webp"
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
