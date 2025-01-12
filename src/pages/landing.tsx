@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { OptimizedImage } from "@/components/OptimizedImage"
 import {
   CircuitBoard,
   Code2,
@@ -16,13 +11,10 @@ import {
   Maximize2,
   Zap,
 } from "lucide-react"
+import { Helmet } from "react-helmet"
 import { Link } from "wouter"
 import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
-import editorExampleImage1 from "@/assets/editor_example_1.png"
-import editorExampleImage1MoreSquare from "@/assets/editor_example_1_more_square.png"
-import editorExampleImage2 from "@/assets/editor_example_2.png"
-import schematicExampleImage from "@/assets/example_schematic.png"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
@@ -34,6 +26,19 @@ export function LandingPage() {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   return (
     <div className="flex min-h-screen flex-col">
+      <Helmet>
+        <link rel="preconnect" href="https://img.shields.io" />
+        <link rel="dns-prefetch" href="https://img.shields.io" />
+
+        <link rel="preconnect" href="https://shields.io" />
+        <link rel="dns-prefetch" href="https://shields.io" />
+
+        <link rel="preconnect" href="https://tscircuit.com" />
+        <link rel="dns-prefetch" href="https://tscircuit.com" />
+
+        <link rel="preconnect" href="https://registry-api.tscircuit.com" />
+        <link rel="dns-prefetch" href="https://registry-api.tscircuit.com" />
+      </Helmet>
       <Header2 />
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
@@ -103,12 +108,11 @@ export function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <img
+                <OptimizedImage
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  height="310"
-                  src={editorExampleImage1MoreSquare}
-                  width="550"
+                  src="/assets/editor_example_1_more_square.webp"
+                  priority={true}
                 />
               </div>
             </div>
@@ -168,22 +172,18 @@ export function LandingPage() {
           </div>
         </section>
         <div className="md:mt-8">
-          <img
+          <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height="310"
-            src={editorExampleImage2}
-            width="800"
+            src="/assets/editor_example_2.webp"
           />
         </div>
         <FAQ />
         <div className="md:mt-8">
-          <img
+          <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height="310"
-            src={schematicExampleImage}
-            width="800"
+            src="/assets/example_schematic.webp"
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">

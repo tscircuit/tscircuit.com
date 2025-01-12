@@ -33,3 +33,5 @@ test-results
 
 .yalc
 yalc.lock
+
+public/assets
