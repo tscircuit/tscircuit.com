@@ -5,16 +5,16 @@ import { useState, useEffect } from "react"
  *
  * This component automatically generates srcset attributes for responsive images.
  * You must provide images with all the required widths (400w, 600w, 800w, 1000w, 1200w, 1600w, 2000w)
- * in the same folder as the source image.
+ * in the following path: public/assets/<image name>/.
  *
  * Example usage:
  * <OptimizedImage
- *   src="/src/assets/example/example-1200w.webp"
+ *   src="/assets/example/example-1200w.webp"
  *   alt="Example"
  * />
  *
  * Required file structure:
- * /src/assets/example/
+ * /assets/example/
  *   example-400w.webp
  *   example-600w.webp
  *   example-800w.webp
