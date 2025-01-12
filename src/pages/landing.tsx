@@ -111,7 +111,7 @@ export function LandingPage() {
                 <OptimizedImage
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  src="/assets/editor_example_1_more_square/editor_example_1_more_square-1200w.webp"
+                  src="/assets/editor_example_1_more_square.webp"
                   priority={true}
                 />
               </div>
@@ -175,7 +175,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src="/assets/editor_example_2/editor_example_2-1200w.webp"
+            src="/assets/editor_example_2.webp"
           />
         </div>
         <FAQ />
@@ -183,7 +183,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src="/assets/example_schematic/example_schematic-1200w.webp"
+            src="/assets/example_schematic.webp"
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">

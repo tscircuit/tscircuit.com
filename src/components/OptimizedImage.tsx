@@ -4,24 +4,24 @@ import { useState, useEffect } from "react"
  * OptimizedImage component for responsive images with automatic srcset generation
  *
  * This component automatically generates srcset attributes for responsive images.
- * You must provide images with all the required widths (400w, 600w, 800w, 1000w, 1200w, 1600w, 2000w)
- * in the following path: public/assets/<image name>/.
+ * Place your original high-resolution images in src/assets/originals/.
+ * The build process will automatically generate all required sizes.
  *
  * Example usage:
  * <OptimizedImage
- *   src="/assets/example/example-1200w.webp"
+ *   src="/assets/example.jpg"
  *   alt="Example"
  * />
  *
- * Required file structure:
- * /assets/example/
- *   example-400w.webp
- *   example-600w.webp
- *   example-800w.webp
- *   example-1000w.webp
- *   example-1200w.webp
- *   example-1600w.webp
- *   example-2000w.webp
+ * The build process will generate:
+ * /assets/
+ *   example-400w.jpg
+ *   example-600w.jpg
+ *   example-800w.jpg
+ *   example-1000w.jpg
+ *   example-1200w.jpg
+ *   example-1600w.jpg
+ *   example-2000w.jpg
  */
 interface OptimizedImageProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -34,9 +34,10 @@ const getImageSizes = (src: string) => {
   if (src.endsWith(".svg")) return { srcSet: src, sizes: "100vw" }
 
   const widths = [400, 600, 800, 1000, 1200, 1600, 2000]
+  const basePath = src.substring(0, src.lastIndexOf("."))
+  const extension = src.substring(src.lastIndexOf("."))
   const srcSet = widths
-    .map((w) => src.replace("1200w", `${w}w`))
-    .map((path) => `${path} ${path.match(/\d+w/)?.[0] ?? ""}`)
+    .map((w) => `${basePath}-${w}w${extension} ${w}w`)
     .join(", ")
 
   const sizes =

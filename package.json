@@ -15,11 +15,12 @@
     "start:playwright-server": "bun run build:fake-api && vite --port 5177",
     "dev": "bun run build:fake-api && AUTOLOAD_SNIPPETS=true vite",
     "dev:registry": "SNIPPETS_API_URL=http://localhost:3100 vite",
-    "build": "bun run build:fake-api && tsc -b && vite build",
+    "build": "bun run generate-images && bun run build:fake-api && tsc -b && vite build",
     "preview": "vite preview",
     "format": "biome format --write .",
     "lint": "biome format .",
-    "build:fake-api": "winterspec bundle -o dist/bundle.js"
+    "build:fake-api": "winterspec bundle -o dist/bundle.js",
+    "generate-images": "bun run scripts/generate-image-sizes.ts"
   },
   "dependencies": {
     "@babel/preset-react": "^7.25.9",
@@ -134,6 +135,7 @@
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "@types/react-helmet": "^6.1.11",
+    "@types/sharp": "^0.32.0",
     "@typescript/vfs": "^1.6.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
@@ -144,6 +146,7 @@
     "prompts": "^2.4.2",
     "react": "^18.3.1",
     "redaxios": "^0.5.1",
+    "sharp": "^0.33.5",
     "tailwindcss": "^3.4.13",
     "terser": "^5.27.0",
     "typescript": "^5.6.3",
