@@ -87,7 +87,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       host: "127.0.0.1",
       proxy: proxyConfig,
     },
-    base: "./",
+    base: "/",
     build: {
       minify: "terser",
       terserOptions: {
