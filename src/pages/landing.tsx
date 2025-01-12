@@ -17,6 +17,7 @@ import {
   Maximize2,
   Zap,
 } from "lucide-react"
+import { Helmet } from "react-helmet"
 import { Link } from "wouter"
 import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
@@ -34,6 +35,19 @@ export function LandingPage() {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   return (
     <div className="flex min-h-screen flex-col">
+      <Helmet>
+        <link rel="preconnect" href="https://img.shields.io" />
+        <link rel="dns-prefetch" href="https://img.shields.io" />
+
+        <link rel="preconnect" href="https://shields.io" />
+        <link rel="dns-prefetch" href="https://shields.io" />
+
+        <link rel="preconnect" href="https://tscircuit.com" />
+        <link rel="dns-prefetch" href="https://tscircuit.com" />
+
+        <link rel="preconnect" href="https://registry-api.tscircuit.com" />
+        <link rel="dns-prefetch" href="https://registry-api.tscircuit.com" />
+      </Helmet>
       <Header2 />
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
@@ -106,11 +120,8 @@ export function LandingPage() {
                 <OptimizedImage
                   alt="Product preview"
                   className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  height={310}
                   src={editorExampleImage1MoreSquare}
-                  width={550}
                   priority={true}
-                  sizes="(max-width: 640px) 100vw, 550px"
                 />
               </div>
             </div>
@@ -173,9 +184,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height={310}
             src={editorExampleImage2}
-            width={800}
           />
         </div>
         <FAQ />
@@ -183,9 +192,7 @@ export function LandingPage() {
           <OptimizedImage
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            height={310}
             src={schematicExampleImage}
-            width={800}
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">

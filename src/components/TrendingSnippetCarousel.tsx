@@ -58,9 +58,6 @@ export const TrendingSnippetCarousel = () => {
                       src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                       alt="PCB preview"
                       className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
-                      width={200}
-                      height={150}
-                      sizes="200px"
                     />
                   </div>
                   <div className="flex items-center text-xs text-gray-500">

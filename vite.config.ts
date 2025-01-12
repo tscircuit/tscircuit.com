@@ -68,7 +68,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
       },
       avif: {
         quality: 75,
-        effort: 9,
+        effort: 6,
       },
     }),
   ]

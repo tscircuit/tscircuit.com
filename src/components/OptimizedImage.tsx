@@ -1,36 +1,23 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface OptimizedImageProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string
   alt: string
-  width?: number
-  height?: number
   priority?: boolean
-  sizes?: string
 }
 
 export function OptimizedImage({
   src,
   alt,
-  width,
-  height,
   className,
   priority = false,
-  sizes: customSizes,
   ...props
 }: OptimizedImageProps) {
   const [imageLoading, setImageLoading] = useState(true)
 
-  // Calculate optimal widths based on the target width
   const getOptimalWidths = () => {
-    if (!width) return [320, 640, 960, 1280]
-    const baseWidth = Math.min(width, 1920)
-    return [
-      Math.round(baseWidth / 2),
-      baseWidth,
-      Math.min(baseWidth * 1.5, 1920),
-    ].filter((w, i, arr) => arr.indexOf(w) === i)
+    return [320, 640, 960, 1280, 1920]
   }
 
   const generateSrcSet = (format: string) => {
@@ -40,20 +27,23 @@ export function OptimizedImage({
   }
 
   const getSizes = () => {
-    if (customSizes) return customSizes
-    if (width) return `(max-width: ${width}px) 100vw, ${width}px`
     return "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
   }
 
-  // Preload the highest priority images
-  if (priority) {
-    const link = document.createElement("link")
-    link.rel = "preload"
-    link.as = "image"
-    link.href = `${src}?format=avif&w=${width || 1280}&q=75`
-    link.type = "image/avif"
-    document.head.appendChild(link)
-  }
+  useEffect(() => {
+    if (priority) {
+      const link = document.createElement("link")
+      link.rel = "preload"
+      link.as = "image"
+      link.href = `${src}?format=avif&w=1280&q=75`
+      link.type = "image/avif"
+      document.head.appendChild(link)
+
+      return () => {
+        document.head.removeChild(link)
+      }
+    }
+  }, [src, priority])
 
   return (
     <picture>
@@ -68,14 +58,16 @@ export function OptimizedImage({
         sizes={getSizes()}
       />
       <img
-        src={`${src}?format=webp&w=${width || 1280}&q=75`}
+        src={`${src}?format=webp&w=640&q=75`}
+        srcSet={generateSrcSet("webp")}
+        sizes={getSizes()}
         alt={alt}
-        width={width}
-        height={height}
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
         fetchPriority={priority ? "high" : "auto"}
-        className={`${className} ${imageLoading ? "animate-pulse bg-gray-200" : ""}`}
+        className={`${className} ${
+          imageLoading ? "animate-pulse bg-gray-200" : ""
+        } w-full h-auto object-contain`}
         onLoad={() => setImageLoading(false)}
         onError={(e) => {
           console.error("Image failed to load:", e)
