@@ -110,6 +110,7 @@ export function LandingPage() {
                   src={editorExampleImage1MoreSquare}
                   width={550}
                   priority={true}
+                  sizes="(max-width: 640px) 100vw, 550px"
                 />
               </div>
             </div>
