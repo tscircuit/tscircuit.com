@@ -30,7 +30,7 @@ test("test for handling already forked snippet", async ({ page }) => {
   // Attempt to fork again
   const forkButton = page.getByRole("button", { name: "Fork" })
   await forkButton.click()
-  await page.waitForTimeout(2000) 
+  await page.waitForTimeout(2000)
   // Take a screenshot of the error state
   await expect(page).toHaveScreenshot("already-forked-error.png")
 })
