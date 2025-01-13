@@ -1,7 +1,7 @@
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { StarFilledIcon } from "@radix-ui/react-icons"
-import { Link } from "wouter"
+import { PrefetchLink } from "./PrefetchLink"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef, useState } from "react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
@@ -45,7 +45,7 @@ export const TrendingSnippetCarousel = () => {
         >
           {[...(trendingSnippets ?? []), ...(trendingSnippets ?? [])].map(
             (snippet, i) => (
-              <Link
+              <PrefetchLink
                 key={`${snippet.snippet_id}-${i}`}
                 href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
               >
@@ -65,7 +65,7 @@ export const TrendingSnippetCarousel = () => {
                     {snippet.star_count || 0} stars
                   </div>
                 </div>
-              </Link>
+              </PrefetchLink>
             ),
           )}
         </div>
