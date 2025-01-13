@@ -84,7 +84,7 @@ export function OptimizedImage({
       fetchPriority={priority ? "high" : "auto"}
       className={`${className} ${
         imageLoading ? "animate-pulse bg-gray-200" : ""
-      } w-full h-auto object-contain`}
+      } object-contain`}
       onLoad={() => setImageLoading(false)}
       onError={(e) => {
         console.error("Image failed to load:", e)
