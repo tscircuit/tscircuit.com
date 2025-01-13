@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test"
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("http://127.0.0.1:5173/seveibar/push-button")
+  await page.goto("http://127.0.0.1:5177/seveibar/push-button")
   await page.getByRole("button", { name: "Log in" }).click()
 })
 
@@ -25,7 +25,7 @@ test("test for forking a snippet", async ({ page }) => {
 
 test("test for handling already forked snippet", async ({ page }) => {
   // Ensure snippet is already forked before starting this test
-  await page.goto("http://127.0.0.1:5173/seveibar/push-button")
+  await page.goto("http://127.0.0.1:5177/seveibar/push-button")
 
   // Attempt to fork again
   const forkButton = page.getByRole("button", { name: "Fork" })
