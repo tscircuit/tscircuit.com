@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
-import { Link } from "wouter"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 
 export default function HeaderDropdown() {
   const blankTemplates = [
@@ -44,10 +44,13 @@ export default function HeaderDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-fit">
         <DropdownMenuItem asChild>
-          <Link href="/quickstart" className="flex items-center cursor-pointer">
+          <PrefetchPageLink
+            href="/quickstart"
+            className="flex items-center cursor-pointer"
+          >
             <Zap className="mr-2 h-3 w-3" />
             Quickstart Templates
-          </Link>
+          </PrefetchPageLink>
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
@@ -66,10 +69,13 @@ export default function HeaderDropdown() {
           </DropdownMenuItem>
         ))}
         <DropdownMenuItem asChild>
-          <Link href="/quickstart" className="flex items-center cursor-pointer">
+          <PrefetchPageLink
+            href="/quickstart"
+            className="flex items-center cursor-pointer"
+          >
             <Upload className="mr-2 h-3 w-3" />
             Import Part
-          </Link>
+          </PrefetchPageLink>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

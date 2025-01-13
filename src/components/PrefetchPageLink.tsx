@@ -8,9 +8,9 @@ export /**
  * The href path is used to determine which page to load:
  *
  * Example:
- * - href="/editor" -> loads "@/pages/editor"
- * - href="/" -> loads "@/pages/landing"
- * - href="/my-orders" -> loads "@/pages/my-orders"
+ * - href="/editor" -> loads "@/pages/editor.tsx"
+ * - href="/" -> loads "@/pages/landing.tsx"
+ * - href="/my-orders" -> loads "@/pages/my-orders.tsx"
  */
 const PrefetchPageLink = ({
   href,
