@@ -51,6 +51,7 @@ const SearchButtonComponent = () => {
           size="icon"
           onClick={() => setIsExpanded(true)}
           className="h-8 w-8"
+          aria-label="Open search"
         >
           <Search className="h-4 w-4" />
         </Button>

@@ -70,11 +70,16 @@ export function LandingPage() {
                         }
                       }}
                       size="lg"
+                      aria-label="Get started with TSCircuit"
                     >
                       Get Started
                     </Button>
                     <PrefetchPageLink href="/quickstart">
-                      <Button size="lg" variant="outline">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        aria-label="Open online example of TSCircuit"
+                      >
                         Open Online Example
                       </Button>
                     </PrefetchPageLink>
@@ -108,12 +113,14 @@ export function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <OptimizedImage
-                  alt="Product preview"
-                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  src="/assets/editor_example_1_more_square.webp"
-                  priority={true}
-                />
+                <div className="w-full aspect-video relative">
+                  <OptimizedImage
+                    alt="Product preview"
+                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full"
+                    src="/assets/editor_example_1_more_square.webp"
+                    priority={true}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -213,6 +220,7 @@ export function LandingPage() {
                   }}
                   size="lg"
                   variant="secondary"
+                  aria-label="Get started with TSCircuit now"
                 >
                   Get Started
                 </Button>
