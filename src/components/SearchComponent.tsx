@@ -101,6 +101,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           setSearchQuery(e.target.value)
           setShowResults(!!e.target.value)
         }}
+        aria-label="Search snippets"
+        role="searchbox"
       />
       {isLoading && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-2 flex items-center justify-center space-x-2">
@@ -129,7 +131,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm">
                       <img
                         src={`${useSnippetsBaseApiUrl()}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
-                        alt="PCB preview"
+                        alt={`PCB preview for ${snippet.name}`}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
                       />
                     </div>

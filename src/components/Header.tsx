@@ -110,6 +110,7 @@ export default function Header() {
           href="https://github.com/tscircuit/tscircuit"
           target="_blank"
           className="mr-4"
+          aria-label="View TSCircuit on GitHub"
         >
           <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
         </a>
@@ -124,6 +125,7 @@ export default function Header() {
         <button
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>

@@ -70,11 +70,16 @@ export function LandingPage() {
                         }
                       }}
                       size="lg"
+                      aria-label="Get started with TSCircuit"
                     >
                       Get Started
                     </Button>
                     <PrefetchPageLink href="/quickstart">
-                      <Button size="lg" variant="outline">
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        aria-label="Open online example of TSCircuit"
+                      >
                         Open Online Example
                       </Button>
                     </PrefetchPageLink>
@@ -213,6 +218,7 @@ export function LandingPage() {
                   }}
                   size="lg"
                   variant="secondary"
+                  aria-label="Get started with TSCircuit now"
                 >
                   Get Started
                 </Button>
