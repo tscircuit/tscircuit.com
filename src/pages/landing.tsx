@@ -113,12 +113,14 @@ export function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <OptimizedImage
-                  alt="Product preview"
-                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-                  src="/assets/editor_example_1_more_square.webp"
-                  priority={true}
-                />
+                <div className="w-full aspect-[4/3] relative">
+                  <OptimizedImage
+                    alt="Product preview"
+                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full"
+                    src="/assets/editor_example_1_more_square.webp"
+                    priority={true}
+                  />
+                </div>
               </div>
             </div>
           </div>
