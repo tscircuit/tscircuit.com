@@ -1,6 +1,40 @@
 import { Link } from "wouter"
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
+import { ComponentType, lazy } from "react"
+
+const lazyImport = (importFn: () => Promise<any>) =>
+  lazy<ComponentType<any>>(async () => {
+    try {
+      const module = await importFn()
+
+      if (module.default) {
+        return { default: module.default }
+      }
+
+      const pageExportNames = ["Page", "Component", "View"]
+      for (const suffix of pageExportNames) {
+        const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
+        if (keys.length > 0) {
+          return { default: module[keys[0]] }
+        }
+      }
+
+      const componentExport = Object.values(module).find(
+        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
+      )
+      if (componentExport) {
+        return { default: componentExport }
+      }
+
+      throw new Error(
+        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
+      )
+    } catch (error) {
+      console.error("Failed to load component:", error)
+      throw error
+    }
+  })
 
 export /**
  * PrefetchPageLink component that loads page components when links become visible.
@@ -31,7 +65,7 @@ const PrefetchPageLink = ({
   useEffect(() => {
     if (inView) {
       const pageName = href === "/" ? "landing" : href.slice(1)
-      import(`../../${pageName}`)
+      lazyImport(() => import(`@/pages/${pageName}`))
     }
   }, [inView, href])
 
