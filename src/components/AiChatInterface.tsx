@@ -149,18 +149,17 @@ export default function AIChatInterface({
           <div className="flex pl-4 p-2 rounded items-center bg-white border border-gray-200 text-sm mb-4 shadow-sm">
             <SnippetLink snippet={snippet} />
             <div className="flex-grow" />
-            <Button
-              size="sm"
-              className="text-xs"
-              variant="ghost"
-              onClick={async () => {
-                navigate(`/editor?snippet_id=${snippet.snippet_id}`)
-              }}
-              disabled={hasUnsavedChanges}
-            >
-              Open in Editor
-              <Edit2 className="w-3 h-3 ml-2 opacity-60" />
-            </Button>
+            <PrefetchPageLink href={`/editor?snippet_id=${snippet.snippet_id}`}>
+              <Button
+                size="sm"
+                className="text-xs"
+                variant="ghost"
+                disabled={hasUnsavedChanges}
+              >
+                Open in Editor
+                <Edit2 className="w-3 h-3 ml-2 opacity-60" />
+              </Button>
+            </PrefetchPageLink>
           </div>
         )}
         {messages.length === 0 && isLoggedIn && (
