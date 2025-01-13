@@ -1,11 +1,11 @@
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { StarFilledIcon } from "@radix-ui/react-icons"
+import { Link } from "wouter"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef, useState } from "react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { OptimizedImage } from "./OptimizedImage"
-import { Link } from "wouter"
 
 export const TrendingSnippetCarousel = () => {
   const axios = useAxios()
