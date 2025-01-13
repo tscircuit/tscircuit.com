@@ -116,7 +116,7 @@ export const Header2 = () => {
               Contact
             </a>
           </nav>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center md:gap-4">
             <SearchButtonComponent />
             {isLoggedIn && (
               <div className="hidden sm:block">
