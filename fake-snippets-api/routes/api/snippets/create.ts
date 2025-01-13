@@ -38,7 +38,7 @@ export default withRouteSpec({
   const existingSnippet = ctx.db.snippets.find(
     (snippet) =>
       snippet.unscoped_name === unscoped_name &&
-      snippet.owner_name === ctx.auth.github_username
+      snippet.owner_name === ctx.auth.github_username,
   )
 
   if (existingSnippet) {

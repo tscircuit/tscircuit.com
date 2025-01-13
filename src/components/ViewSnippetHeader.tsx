@@ -27,24 +27,26 @@ export default function ViewSnippetHeader() {
   }) => {
     const axios = useAxios()
     const session = useGlobalStore((s) => s.session)
-  
+
     return useMutation(
       ["createForkSnippet"],
       async () => {
         if (!session) throw new Error("No session")
         if (!snippet) throw new Error("No snippet to fork")
-  
+
         const { data } = await axios.post("/snippets/create", {
           unscoped_name: snippet.unscoped_name,
           snippet_type: snippet.snippet_type,
           owner_name: session.github_username,
           code: snippet.code,
         })
-  
+
         if (!data.ok) {
-          throw new Error(data.error || "Unknown error occurred while forking snippet.")
+          throw new Error(
+            data.error || "Unknown error occurred while forking snippet.",
+          )
         }
-  
+
         return data.snippet
       },
       {
@@ -72,10 +74,9 @@ export default function ViewSnippetHeader() {
           }
           console.error("Error forking snippet:", error)
         },
-      }
+      },
     )
   }
-  
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
