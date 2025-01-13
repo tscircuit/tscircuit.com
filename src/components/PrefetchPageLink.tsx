@@ -31,7 +31,7 @@ const PrefetchPageLink = ({
   useEffect(() => {
     if (inView) {
       const pageName = href === "/" ? "landing" : href.slice(1)
-      import(`@/pages/${pageName}`)
+      import(`../pages/${pageName}`)
     }
   }, [inView, href])
 

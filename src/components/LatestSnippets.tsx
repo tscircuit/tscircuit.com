@@ -2,7 +2,7 @@ import React from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { PrefetchLink } from "./PrefetchLink"
+import { Link } from "wouter"
 
 export const LatestSnippets: React.FC = () => {
   const axios = useAxios()
@@ -22,12 +22,12 @@ export const LatestSnippets: React.FC = () => {
     <div className="space-y-4">
       {snippets?.map((snippet) => (
         <div key={snippet.snippet_id} className="border p-4 rounded-md">
-          <PrefetchLink
+          <Link
             href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
             className="text-blue-600 hover:underline"
           >
             <h3 className="text-lg font-semibold">{snippet.unscoped_name}</h3>
-          </PrefetchLink>
+          </Link>
           <p className="text-sm text-gray-600">by {snippet.owner_name}</p>
           <p className="text-sm text-gray-500">
             Created: {new Date(snippet.created_at).toLocaleString()}
