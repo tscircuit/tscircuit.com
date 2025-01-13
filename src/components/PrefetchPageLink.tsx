@@ -29,14 +29,11 @@ const PrefetchPageLink = ({
   })
 
   useEffect(() => {
-    console.log(inView)
     if (inView) {
       const pageName = href === "/" ? "landing" : href.slice(1)
-      // Prefetch the page module
-      const imported = import(`@/pages/${pageName}`).catch((error) => {
+      import(`@/pages/${pageName}.tsx`).catch((error) => {
         console.error(`Failed to prefetch page module ${pageName}:`, error)
       })
-      console.log("imported:", imported)
     }
   }, [inView, href])
 
