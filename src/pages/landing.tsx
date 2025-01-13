@@ -176,6 +176,8 @@ export function LandingPage() {
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
             src="/assets/editor_example_2.webp"
+            height={310}
+            width={800}
           />
         </div>
         <FAQ />
@@ -184,6 +186,8 @@ export function LandingPage() {
             alt="Product preview"
             className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
             src="/assets/example_schematic.webp"
+            height={310}
+            width={800}
           />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
