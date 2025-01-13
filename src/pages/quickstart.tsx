@@ -4,7 +4,6 @@ import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
@@ -12,6 +11,7 @@ import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export const QuickstartPage = () => {
   const axios = useAxios()
@@ -58,7 +58,7 @@ export const QuickstartPage = () => {
                 )
                 .slice(0, 4)
                 .map((snippet) => (
-                  <Link
+                  <PrefetchPageLink
                     key={snippet.snippet_id}
                     href={`/editor?snippet_id=${snippet.snippet_id}`}
                   >
@@ -75,7 +75,7 @@ export const QuickstartPage = () => {
                         </p>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </PrefetchPageLink>
                 ))}
             </div>
           )}
@@ -85,7 +85,7 @@ export const QuickstartPage = () => {
           <h2 className="text-xl font-semibold mb-4">Start Blank Snippet</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {blankTemplates.map((template, index) => (
-              <Link
+              <PrefetchPageLink
                 key={index}
                 href={
                   template.disabled
@@ -108,7 +108,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </Link>
+              </PrefetchPageLink>
             ))}
           </div>
         </div>
@@ -173,7 +173,7 @@ export const QuickstartPage = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {templates.map((template, index) => (
-              <Link
+              <PrefetchPageLink
                 key={index}
                 href={`/editor?template=${template.name
                   .toLowerCase()
@@ -187,7 +187,7 @@ export const QuickstartPage = () => {
                     </CardTitle>
                   </CardHeader>
                 </Card>
-              </Link>
+              </PrefetchPageLink>
             ))}
           </div>
         </div>

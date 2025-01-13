@@ -10,7 +10,8 @@ import {
 } from "@radix-ui/react-icons"
 import { Menu, X } from "lucide-react"
 import React, { useState } from "react"
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
@@ -31,21 +32,23 @@ const HeaderButton = ({
 
   if (location === href || location === alsoHighlightForUrl) {
     return (
-      <Button
-        variant="ghost"
-        className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
-      >
-        {children}
-      </Button>
+      <PrefetchPageLink className={cn("header-button", className)} href={href}>
+        <Button
+          variant="ghost"
+          className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
+        >
+          {children}
+        </Button>
+      </PrefetchPageLink>
     )
   }
 
   return (
-    <Link className={cn("header-button", className)} href={href}>
+    <PrefetchPageLink className={cn("header-button", className)} href={href}>
       <Button className={className} variant="ghost">
         {children}
       </Button>
-    </Link>
+    </PrefetchPageLink>
   )
 }
 
@@ -56,11 +59,14 @@ export default function Header() {
   return (
     <header className="px-4 py-3">
       <div className="flex items-center">
-        <Link href="/" className="text-lg font-semibold whitespace-nowrap">
+        <PrefetchPageLink
+          href="/"
+          className="text-lg font-semibold whitespace-nowrap"
+        >
           <span className="bg-blue-500 px-2 py-1 rounded-md text-white">
             tscircuit
           </span>
-        </Link>
+        </PrefetchPageLink>
         <div className="hidden md:flex items-center space-x-4">
           <nav>
             <ul className="flex items-center gap-2 ml-2">

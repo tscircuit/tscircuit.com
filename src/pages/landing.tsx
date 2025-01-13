@@ -12,7 +12,6 @@ import {
   Zap,
 } from "lucide-react"
 import { Helmet } from "react-helmet"
-import { Link } from "wouter"
 import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
 import { useSignIn } from "@/hooks/use-sign-in"
@@ -20,6 +19,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
 import { TrendingSnippetCarousel } from "@/components/TrendingSnippetCarousel"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export function LandingPage() {
   const signIn = useSignIn()
@@ -73,11 +73,11 @@ export function LandingPage() {
                     >
                       Get Started
                     </Button>
-                    <Link href="/quickstart">
+                    <PrefetchPageLink href="/quickstart">
                       <Button size="lg" variant="outline">
                         Open Online Example
                       </Button>
-                    </Link>
+                    </PrefetchPageLink>
                     <a
                       href="https://github.com/tscircuit/tscircuit"
                       target="_blank"

@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface JLCPCBImportDialogProps {
   open: boolean
@@ -57,12 +58,12 @@ export function JLCPCBImportDialog({
           title: "JLCPCB Part Already Imported",
           description: (
             <div>
-              <Link
+              <PrefetchPageLink
                 className="text-blue-500 hover:underline"
                 href={`/editor?snippet_id=${existingSnippetRes.data.snippet.snippet_id}`}
               >
                 View {partNumber}
-              </Link>
+              </PrefetchPageLink>
             </div>
           ),
         })

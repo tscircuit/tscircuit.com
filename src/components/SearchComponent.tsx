@@ -1,10 +1,11 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void // optional
@@ -34,9 +35,9 @@ const LinkWithNewTabHandling = ({
     )
   }
   return (
-    <Link className={className} href={href}>
+    <PrefetchPageLink className={className} href={href}>
       {children}
-    </Link>
+    </PrefetchPageLink>
   )
 }
 
