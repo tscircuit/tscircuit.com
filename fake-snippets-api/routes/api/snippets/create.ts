@@ -44,7 +44,7 @@ export default withRouteSpec({
   if (existingSnippet) {
     return ctx.json({
       ok: false,
-      error: "This snippet has already been forked in your account.",
+      error: "You have already forked this snippet in your account.",
     })
   }
 
