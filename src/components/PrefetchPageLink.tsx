@@ -32,9 +32,10 @@ const PrefetchPageLink = ({
     if (inView) {
       const pageName = href === "/" ? "landing" : href.slice(1)
       // Prefetch the page module
-      import(`@/pages/${pageName}`).catch((error) => {
+      const imported = import(`@/pages/${pageName}`).catch((error) => {
         console.error(`Failed to prefetch page module ${pageName}:`, error)
       })
+      console.log("imported:", imported)
     }
   }, [inView, href])
 
