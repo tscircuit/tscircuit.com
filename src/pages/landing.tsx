@@ -113,7 +113,7 @@ export function LandingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="w-full aspect-[4/3] relative">
+                <div className="w-full aspect-video relative">
                   <OptimizedImage
                     alt="Product preview"
                     className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full"
