@@ -14,7 +14,7 @@ interface SkeletonLoaderProps {
 export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   width = '100%',
   height = '100vh',
-  borderRadius = '4px',
+  borderRadius = '0.25rem',
   count = 1,
   className = ''
 }) => {
@@ -60,6 +60,5 @@ const SkeletonWrapper = styled.div<SkeletonWrapperProps>`
     #f0f0f0 33%
   );
   background-size: 1000px 100%;
-  animation: ${shimmer} 1.5s infinite linear;
-  margin-bottom: 10px;
+  animation: ${shimmer} 4s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
 `;
