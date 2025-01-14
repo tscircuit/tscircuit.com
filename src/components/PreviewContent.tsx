@@ -5,7 +5,7 @@ import { applyPcbEditEvents } from "@/lib/utils/pcbManualEditEventHandler"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import { PCBViewer } from "@tscircuit/pcb-viewer"
 import { Schematic } from "@tscircuit/schematic-viewer"
-import { Ref, useEffect, useState } from "react"
+import { Ref, useEffect, useRef, useState } from "react"
 import { ErrorFallback } from "./ErrorFallback"
 import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
@@ -53,7 +53,7 @@ export interface PreviewContentProps {
   onDtsChange?: (dts: string) => void
   manualEditsFileContent?: string
   onManualEditsFileContentChange?: (newmanualEditsFileContent: string) => void
-  threeJsObjectRef: Ref<any>
+  threeJsObjectRef?: Ref<any>
 }
 
 export const PreviewContent = ({
@@ -82,7 +82,7 @@ export const PreviewContent = ({
 }: PreviewContentProps) => {
   const [activeTab, setActiveTab] = useState(showCodeTab ? "code" : "pcb")
   const [lastRunHash, setLastRunHash] = useState("")
-
+  const cadViewerRef = threeJsObjectRef ?? useRef<any>(null)
   const currentCodeHash = code + "\n" + manualEditsFileContent
   const hasCodeChangedSinceLastRun = lastRunHash !== currentCodeHash
 
@@ -311,7 +311,7 @@ export const PreviewContent = ({
             >
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
-                  <CadViewer soup={circuitJson as any} ref={threeJsObjectRef} />
+                  <CadViewer soup={circuitJson as any} ref={cadViewerRef} />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
