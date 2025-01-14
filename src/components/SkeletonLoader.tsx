@@ -60,5 +60,5 @@ const SkeletonWrapper = styled.div<SkeletonWrapperProps>`
     #f0f0f0 33%
   );
   background-size: 1000px 100%;
-  animation: ${shimmer} 4s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
+  animation: ${shimmer} 2s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
 `;
