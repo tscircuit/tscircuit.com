@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { PreviewContent } from "./PreviewContent"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
+import { useExportGltfUrl } from "@tscircuit/3d-viewer"
 
 interface Props {
   snippet?: Snippet | null
@@ -187,8 +188,10 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
+  const [threejsViewRef,threejsViewUrl] = useExportGltfUrl()
+
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
-    return (
+    return ( 
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center justify-center">
           <div className="text-lg text-gray-500 mb-4">Loading</div>
@@ -210,6 +213,7 @@ export function CodeAndPreview({ snippet }: Props) {
         onSave={() => handleSave()}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
+        threejsViewUrl={threejsViewUrl}
         canSave={!hasUnrunChanges} // Disable save if there are unrun changes
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
@@ -233,6 +237,7 @@ export function CodeAndPreview({ snippet }: Props) {
         </div>
         {showPreview && (
           <PreviewContent
+            threeJsObjectRef={threejsViewRef}
             className={cn(
               "flex p-2 flex-col min-h-[640px]",
               fullScreen

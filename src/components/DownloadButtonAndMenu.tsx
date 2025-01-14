@@ -16,19 +16,20 @@ import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download } from "lucide-react"
-import React from "react"
-import { downloadGltf } from "@/lib/download-fns/download-gltf"
+import { downloadGLTFFileFromUrl } from "@/lib/download-fns/download-gltf"
 
 interface DownloadButtonAndMenuProps {
   className?: string
   snippetUnscopedName: string | undefined
   circuitJson?: AnyCircuitElement[] | null
+  threejsViewUrl?: string
 }
 
 export function DownloadButtonAndMenu({
   className,
   snippetUnscopedName,
   circuitJson,
+  threejsViewUrl
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
 
@@ -70,11 +71,13 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onClick={async () => {
+              if(threejsViewUrl == undefined) {
+                return toast({
+                  title: 'Please switch to 3D View to export in GLTF format'
+                })
+              }
               try {
-                await downloadGltf(
-                  circuitJson,
-                  snippetUnscopedName || "circuit",
-                )
+                await downloadGLTFFileFromUrl(threejsViewUrl, snippetUnscopedName || "circuit")
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",
