@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react"
 import { Link } from "wouter"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 import { HeaderLogin } from "./HeaderLogin"
 import SearchComponent from "./SearchComponent"
 import HeaderDropdown from "./HeaderDropdown"
@@ -50,6 +51,7 @@ const SearchButtonComponent = () => {
           size="icon"
           onClick={() => setIsExpanded(true)}
           className="h-8 w-8"
+          aria-label="Open search"
         >
           <Search className="h-4 w-4" />
         </Button>
@@ -79,18 +81,18 @@ export const Header2 = () => {
             )}
           </nav>
           <nav className="hidden md:flex gap-6">
-            <Link
+            <PrefetchPageLink
               className="text-sm font-medium hover:underline underline-offset-4"
               href="/dashboard"
             >
               Dashboard
-            </Link>
-            <Link
+            </PrefetchPageLink>
+            <PrefetchPageLink
               className="text-sm font-medium hover:underline underline-offset-4"
               href="/quickstart"
             >
               Editor
-            </Link>
+            </PrefetchPageLink>
             {/* <a
             className="text-sm font-medium hover:underline underline-offset-4"
             href="https://github.com/tscircuit/tscircuit"

@@ -3,8 +3,8 @@ import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { AtSign, Bot, Clock, Code, File, GitFork, Package } from "lucide-react"
-import { Link } from "wouter"
 import { useFilesDialog } from "./dialogs/files-dialog"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 
 export default function ViewSnippetSidebar({
   className,
@@ -74,7 +74,7 @@ export default function ViewSnippetSidebar({
             // { icon: <Settings className="w-5 h-5" />, label: "Settings" },
           ].map((item, index) => (
             <li key={index}>
-              <Link
+              <PrefetchPageLink
                 href={item.href ?? "#"}
                 onClick={
                   item.notImplemented
@@ -106,7 +106,7 @@ export default function ViewSnippetSidebar({
                     {item.badge}
                   </span>
                 )}
-              </Link>
+              </PrefetchPageLink>
             </li>
           ))}
         </ul>
