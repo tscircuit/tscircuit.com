@@ -4,6 +4,7 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
+import { SkeletonLoader } from "@/components/SkeletonLoader"
 
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
@@ -85,7 +86,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<SkeletonLoader/>}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
