@@ -29,7 +29,7 @@ export function DownloadButtonAndMenu({
   className,
   snippetUnscopedName,
   circuitJson,
-  threejsViewUrl
+  threejsViewUrl,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
 
@@ -71,13 +71,16 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onClick={async () => {
-              if(threejsViewUrl == undefined) {
+              if (threejsViewUrl == undefined) {
                 return toast({
-                  title: 'Please switch to 3D View to export in GLTF format'
+                  title: "Please switch to 3D View to export in GLTF format",
                 })
               }
               try {
-                await downloadGLTFFileFromUrl(threejsViewUrl, snippetUnscopedName || "circuit")
+                await downloadGLTFFileFromUrl(
+                  threejsViewUrl,
+                  snippetUnscopedName || "circuit",
+                )
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",

@@ -188,10 +188,10 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
-  const [threejsViewRef,threejsViewUrl] = useExportGltfUrl()
+  const [threejsViewRef, threejsViewUrl] = useExportGltfUrl()
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
-    return ( 
+    return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center justify-center">
           <div className="text-lg text-gray-500 mb-4">Loading</div>

@@ -78,7 +78,7 @@ export const PreviewContent = ({
   onDtsChange,
   manualEditsFileContent,
   onManualEditsFileContentChange,
-  threeJsObjectRef
+  threeJsObjectRef,
 }: PreviewContentProps) => {
   const [activeTab, setActiveTab] = useState(showCodeTab ? "code" : "pcb")
   const [lastRunHash, setLastRunHash] = useState("")

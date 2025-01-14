@@ -60,7 +60,7 @@ export default function EditorNav({
   snippetType,
   isSaving,
   canSave,
-  threejsViewUrl
+  threejsViewUrl,
 }: {
   snippet?: Snippet | null
   circuitJson?: AnyCircuitElement[] | null
@@ -71,7 +71,7 @@ export default function EditorNav({
   onTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
-  canSave: boolean,
+  canSave: boolean
   threejsViewUrl?: string
 }) {
   const [, navigate] = useLocation()
