@@ -1,5 +1,5 @@
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import Header from "@/components/Header"
 import ShippingInformationForm from "@/components/ShippingInformationForm"
 
 export const SettingsPage = () => {
@@ -9,7 +9,7 @@ export const SettingsPage = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Settings</h1>
         <div className="flex">
-          <div className="w-1/2 pr-4">
+          <div className="sm:w-1/2 pr-4">
             <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
               <h2 className="text-2xl font-semibold mb-4">
                 Shipping Information
