@@ -45,5 +45,6 @@ export const downloadGltf = async (
 
   const gltfBlob = await gltfPromise
 
-  saveAs(gltfBlob, fileName + ".gltf")
+  const extension = options.binary ? ".glb" : ".gltf"
+  saveAs(gltfBlob, fileName + extension)
 }
