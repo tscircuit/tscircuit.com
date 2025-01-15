@@ -66,8 +66,7 @@ export default withRouteSpec({
     svg = convertCircuitJsonToPcbSvg(
       snippet.circuit_json as AnyCircuitElement[],
     )
-  }
-  else {
+  } else {
     return ctx.error(500, {
       error_code: "unknown_error",
       message: "Unknown error",
