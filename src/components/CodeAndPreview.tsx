@@ -188,7 +188,7 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
-  const [threejsViewRef, threejsViewUrl] = useMemo(() => useExportGltfUrl(), []);
+  const [threejsViewRef, threejsViewUrl] = useMemo(() => useExportGltfUrl(), [])
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
