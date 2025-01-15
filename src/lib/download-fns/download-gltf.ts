@@ -13,7 +13,7 @@ export const downloadGltf = async (
 
   if (!threeJsObject) {
     throw new Error(
-      "No 3D object found, run the snippet before downloading the 3d model",
+      "To download the 3D model, please open the 3D view first and run the snippet",
     )
   }
 
