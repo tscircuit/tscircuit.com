@@ -17,7 +17,6 @@ export default withRouteSpec({
   jsonResponse: z.object({
     ok: z.boolean(),
     snippet: snippetSchema.optional(),
-    error: z.string().optional(),
   }),
 })(async (req, ctx) => {
   let {
@@ -34,7 +33,6 @@ export default withRouteSpec({
     unscoped_name = `untitled-${snippet_type}-${ctx.db.idCounter + 1}`
   }
 
-  // Check if snippet already exists for the user
   const existingSnippet = ctx.db.snippets.find(
     (snippet) =>
       snippet.unscoped_name === unscoped_name &&
@@ -42,9 +40,9 @@ export default withRouteSpec({
   )
 
   if (existingSnippet) {
-    return ctx.json({
-      ok: false,
-      error: "You have already forked this snippet in your account.",
+    return ctx.error(400, {
+      error_code: "snippet_already_exists",
+      message: "You have already forked this snippet in your account.",
     })
   }
 
@@ -66,9 +64,9 @@ export default withRouteSpec({
   try {
     ctx.db.addSnippet(newSnippet)
   } catch (error) {
-    return ctx.json({
-      ok: false,
-      error: `Failed to create snippet: ${error}`,
+    return ctx.error(500, {
+      error_code: "snippet_creation_failed",
+      message: `Failed to create snippet: ${error}`,
     })
   }
 

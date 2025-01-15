@@ -59,7 +59,7 @@ export default function ViewSnippetHeader() {
         },
         onError: (error: any) => {
           // Check if the error message contains 'already exists'
-          if (error.message?.includes("already been forked")) {
+          if (error.message?.includes("already forked")) {
             toast({
               title: "Snippet already exists",
               description: error.message,
