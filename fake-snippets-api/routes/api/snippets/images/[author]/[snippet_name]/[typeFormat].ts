@@ -58,7 +58,16 @@ export default withRouteSpec({
     svg = convertCircuitJsonToPcbSvg(
       snippet.circuit_json as AnyCircuitElement[],
     )
-  } else {
+  } else if (type === "3d") {
+    svg = convertCircuitJsonToPcbSvg(
+      snippet.circuit_json as AnyCircuitElement[],
+    )
+  } else if (type === "assembly") {
+    svg = convertCircuitJsonToPcbSvg(
+      snippet.circuit_json as AnyCircuitElement[],
+    )
+  }
+  else {
     return ctx.error(500, {
       error_code: "unknown_error",
       message: "Unknown error",
