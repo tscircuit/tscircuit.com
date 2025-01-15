@@ -4,6 +4,11 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
+import { Skeleton } from "./components/ui/skeleton"
+import SkeletonLoadingPage from "./components/SkeletonLoader"
+import UniversalSkeleton from "./components/SkeletonLoader"
+import FullSkeletonLoader from "./components/SkeletonLoader"
+import FullPageSkeletonLoader from "./components/SkeletonLoader"
 
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
@@ -85,7 +90,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<FullPageSkeletonLoader/>}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
