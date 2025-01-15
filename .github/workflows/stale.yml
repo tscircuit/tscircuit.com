@@ -20,11 +20,11 @@ jobs:
           stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
           close-issue-message: 'This issue has been automatically closed due to inactivity. Please feel free to reopen it if you believe it still needs attention.'
 
-          # PR config
-          days-before-pr-stale: 30
-          days-before-pr-close: 7
-          stale-pr-message: 'This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
-          close-pr-message: 'This pull request has been automatically closed due to inactivity. Please feel free to reopen it if you believe it still needs attention.'
+          # Pull request config
+          stale-pr-message: 'This PR has been automatically marked as stale because it has had no recent activity. It will be closed if no further activity occurs.'
+          close-pr-message: 'This PR was closed because it has been inactive for 1 day since being marked as stale.'
+          days-before-pr-stale: 2
+          days-before-pr-close: 1
 
           # Labels
           stale-issue-label: 'stale'
