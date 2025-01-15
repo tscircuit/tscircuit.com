@@ -1,12 +1,12 @@
 {
-  "name": "snippets",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@tscircuit/fake-snippets",
+  "version": "0.0.1",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/tscircuit/snippets"
   },
+  "main": "dist/bundle.js",
   "scripts": {
     "start": "bun run dev",
     "snapshot": "bun scripts/snapshot.ts",
@@ -152,6 +152,7 @@
     "sharp": "^0.33.5",
     "tailwindcss": "^3.4.13",
     "terser": "^5.27.0",
+    "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vite": "^5.4.8",
     "vite-plugin-image-optimizer": "^1.1.8",
