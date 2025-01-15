@@ -12,7 +12,9 @@ export const downloadGltf = async (
     ?.current as THREE.Object3D
 
   if (!threeJsObject) {
-    throw new Error("To download the 3D model, please open the 3D view first")
+    throw new Error(
+      "To download the 3D model, please open the 3D view first and run the snippet",
+    )
   }
 
   const exporter = new GLTFExporter()
