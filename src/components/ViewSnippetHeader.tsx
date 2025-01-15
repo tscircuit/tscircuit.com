@@ -40,6 +40,13 @@ export default function ViewSnippetHeader() {
           owner_name: session.github_username,
           code: snippet.code,
         })
+
+        if (!data.ok) {
+          throw new Error(
+            data.error || "Unknown error occurred while forking snippet.",
+          )
+        }
+
         return data.snippet
       },
       {
@@ -51,6 +58,20 @@ export default function ViewSnippetHeader() {
           onSuccess?.(forkedSnippet)
         },
         onError: (error: any) => {
+          // Check if the error message contains 'already exists'
+          if (error.message?.includes("already forked")) {
+            toast({
+              title: "Snippet already exists",
+              description: error.message,
+              variant: "destructive", // You can style this variant differently
+            })
+          } else {
+            toast({
+              title: "Error",
+              description: "Failed to fork snippet. Please try again.",
+              variant: "destructive", // Use destructive variant for errors
+            })
+          }
           console.error("Error forking snippet:", error)
         },
       },
