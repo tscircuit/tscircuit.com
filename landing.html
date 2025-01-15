@@ -2,76 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow, NOODP" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Page - Loading</title>
-    <style>
-      /* Skeleton styling */
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f0f2f5;
-      }
-
-      #skeleton {
-        text-align: center;
-      }
-
-      .loading-circle {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #ccc;
-        border-top: 5px solid #007bff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-text {
-        font-size: 18px;
-        color: #555;
-      }
-    </style>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16">
+    <title>tscircuit - Code Electronics with React</title>
+    <meta name="description" content="tscircuit is an open-source electronics design tool that lets you create circuits using React components. Design schematics, generate PCB layouts, export and manufacture PCBs online!" />
+    <meta name="keywords" content="electronic design, PCB design, schematic capture, React components, circuit design, electronics CAD, open source EDA" />
+    <meta property="og:title" content="tscircuit - Design Electronics with React Components" />
+    <meta property="og:description" content="Create electronic circuits using React components. Design schematics, generate PCB layouts, and manufacture custom PCBs with this free open-source tool." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="tscircuit - Design Electronics with React Components" />
+    <meta name="twitter:description" content="Create electronic circuits using React components. Free open-source electronics design tool." />
+    <link rel="canonical" href="https://tscircuit.com" />
   </head>
   <body>
-    <!-- Skeleton Loader -->
-    <div id="skeleton">
-      <div class="loading-circle"></div>
-      <div class="loading-text">Loading AI Page...</div>
-    </div>
-
-    <!-- Placeholder for actual content -->
-    <div id="content" style="display: none;">
-      <!-- This is where the /ai navigation page content will go -->
-      <h1>Welcome to the AI Page</h1>
-      <p>Sign in to use the AI chat or <a href="/editor">use the regular editor</a>.</p>
-      <button>Sign In</button>
-      <button>Sign Up</button>
-    </div>
-
-    <script>
-      // Simulate content loading
-      document.addEventListener("DOMContentLoaded", function () {
-        setTimeout(function () {
-          // Remove the skeleton loader
-          document.getElementById("skeleton").style.display = "none";
-          // Show the actual content
-          document.getElementById("content").style.display = "block";
-        }, 2000); // Simulate a 2-second load time
-      });
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/pages/landing.tsx"></script>
   </body>
 </html>
