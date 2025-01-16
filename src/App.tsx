@@ -89,13 +89,15 @@ function App() {
     }
   }, [])
   const renderSkeleton = () => {
-    const skeletonLoader = document.getElementById("skeleton-loader");
+    const skeletonLoader = document.getElementById("skeleton-loader")
     if (skeletonLoader) {
-      return <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
+      return (
+      <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
+
+      )
     }
     return null
   }
-
   return (
     <ContextProviders>
       <ErrorBoundary>
