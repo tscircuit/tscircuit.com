@@ -86,7 +86,6 @@ function App() {
     const skeletonLoader = document.getElementById("skeleton-loader")
     if (skeletonLoader) {
       skeletonLoader.style.display = "none"
-
     }
   }, [])
 
