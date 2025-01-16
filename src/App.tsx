@@ -21,13 +21,13 @@ const lazyImport = (importFn: () => Promise<any>) =>
         }
       }
       const componentExport = Object.values(module).find(
-        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent
+        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
       )
       if (componentExport) {
         return { default: componentExport }
       }
       throw new Error(
-        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`
+        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
       )
     } catch (error) {
       console.error("Failed to load component:", error)
@@ -44,7 +44,7 @@ const EditorPage = lazyImport(async () => {
     import("@/pages/editor"),
     import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
   ])
-  return editorModule;
+  return editorModule
 })
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component<
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props)
-    this.state = { hasError: false };
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError() {
@@ -85,7 +85,8 @@ function App() {
     // Hide the skeleton from index.html when React mounts
     const skeletonLoader = document.getElementById("skeleton-loader")
     if (skeletonLoader) {
-      skeletonLoader.style.display = "none"// Hides the skeleton after the React app is ready
+      skeletonLoader.style.display = "none"
+
     }
   }, [])
 
