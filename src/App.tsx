@@ -1,96 +1,93 @@
-import { ComponentType, Suspense, lazy } from "react"
-import { Toaster } from "@/components/ui/toaster"
-import { Route, Switch } from "wouter"
-import "./components/CmdKMenu"
-import { ContextProviders } from "./ContextProviders"
-import React from "react"
-import { Skeleton } from "./components/ui/skeleton"
-import SkeletonLoadingPage from "./components/SkeletonLoader"
-import UniversalSkeleton from "./components/SkeletonLoader"
-import FullSkeletonLoader from "./components/SkeletonLoader"
-import FullPageSkeletonLoader from "./components/SkeletonLoader"
+import { ComponentType, Suspense, lazy, useEffect } from "react"; // Added `useEffect` for handling skeleton cleanup
+import { Toaster } from "@/components/ui/toaster";
+import { Route, Switch } from "wouter";
+import "./components/CmdKMenu";
+import { ContextProviders } from "./ContextProviders";
+import React from "react";
 
+// Lazy loading helper
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
     try {
-      const module = await importFn()
-
+      const module = await importFn();
       if (module.default) {
-        return { default: module.default }
+        return { default: module.default };
       }
-
-      const pageExportNames = ["Page", "Component", "View"]
+      const pageExportNames = ["Page", "Component", "View"];
       for (const suffix of pageExportNames) {
-        const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
+        const keys = Object.keys(module).filter((key) => key.endsWith(suffix));
         if (keys.length > 0) {
-          return { default: module[keys[0]] }
+          return { default: module[keys[0]] };
         }
       }
-
       const componentExport = Object.values(module).find(
-        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
-      )
+        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent
+      );
       if (componentExport) {
-        return { default: componentExport }
+        return { default: componentExport };
       }
-
       throw new Error(
-        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
-      )
+        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`
+      );
     } catch (error) {
-      console.error("Failed to load component:", error)
-      throw error
+      console.error("Failed to load component:", error);
+      throw error;
     }
-  })
+  });
 
-const AiPage = lazyImport(() => import("@/pages/ai"))
-const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
-const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
-const EditorPage = lazyImport(async () => {
-  const [editorModule] = await Promise.all([
-    import("@/pages/editor"),
-    import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
-  ])
-  return editorModule
-})
-const LandingPage = lazyImport(() => import("@/pages/landing"))
-const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
-const NewestPage = lazyImport(() => import("@/pages/newest"))
-const PreviewPage = lazyImport(() => import("@/pages/preview"))
-const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
-const SearchPage = lazyImport(() => import("@/pages/search"))
-const SettingsPage = lazyImport(() => import("@/pages/settings"))
-const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
-const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
-const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
-const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
+// Lazy-loaded pages
+const LandingPage = lazyImport(() => import("@/pages/landing"));
+const EditorPage = lazyImport(() => import("@/pages/editor"));
+const QuickstartPage = lazyImport(() => import("@/pages/quickstart"));
+const DashboardPage = lazyImport(() => import("@/pages/dashboard"));
+const AiPage = lazyImport(() => import("@/pages/ai"));
+const NewestPage = lazyImport(() => import("@/pages/newest"));
+const SettingsPage = lazyImport(() => import("@/pages/settings"));
+const SearchPage = lazyImport(() => import("@/pages/search"));
+const AuthenticatePage = lazyImport(() => import("@/pages/authorize"));
+const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"));
+const ViewOrderPage = lazyImport(() => import("@/pages/view-order"));
+const PreviewPage = lazyImport(() => import("@/pages/preview"));
+const DevLoginPage = lazyImport(() => import("@/pages/dev-login"));
+const UserProfilePage = lazyImport(() => import("@/pages/user-profile"));
+const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"));
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
 > {
   constructor(props: { children: React.ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError() {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   render() {
     if (this.state.hasError) {
-      return <div>Something went wrong loading the page.</div>
+      return <div>Something went wrong loading the page.</div>;
     }
-    return this.props.children
+    return this.props.children;
   }
 }
 
 function App() {
+  // Added useEffect to handle cleanup of the skeleton loader
+  useEffect(() => {
+    // Hide the skeleton from index.html when React mounts
+    const skeletonLoader = document.getElementById("skeleton-loader");
+    if (skeletonLoader) {
+      skeletonLoader.style.display = "none"; // Hides the skeleton after the React app is ready
+    }
+  }, []);
+
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={<FullPageSkeletonLoader/>}>
+        {/* Modified Suspense fallback to use the skeleton loader from index.html */}
+        <Suspense fallback={<h5 id="skeleton-loader"/>}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
@@ -112,7 +109,7 @@ function App() {
         <Toaster />
       </ErrorBoundary>
     </ContextProviders>
-  )
+  );
 }
 
-export default App
+export default App;
