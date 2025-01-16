@@ -9,6 +9,7 @@ import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiH
 import { Edit2, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export const DashboardPage = () => {
   const axios = useAxios()
@@ -60,7 +61,7 @@ export const DashboardPage = () => {
                   {mySnippets &&
                     mySnippets.slice(0, 3).map((snippet) => (
                       <div key={snippet.snippet_id}>
-                        <Link
+                        <PrefetchPageLink
                           href={`/editor?snippet_id=${snippet.snippet_id}`}
                           className="text-blue-600 hover:underline"
                         >
@@ -72,7 +73,7 @@ export const DashboardPage = () => {
                             {snippet.unscoped_name}
                             <Edit2 className="w-3 h-3 ml-2" />
                           </Button>
-                        </Link>
+                        </PrefetchPageLink>
                       </div>
                     ))}
                 </div>

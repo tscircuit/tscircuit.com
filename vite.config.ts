@@ -3,7 +3,9 @@ import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
 import path from "path"
 import react from "@vitejs/plugin-react"
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
+import vercel from "vite-plugin-vercel"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -40,7 +42,36 @@ function apiFakePlugin(): Plugin {
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
-  const plugins: PluginOption[] = [react()]
+  const plugins: PluginOption[] = [
+    react(),
+    vercel({
+      prerender: false,
+      buildCommand: "bun run build",
+    }),
+    ViteImageOptimizer({
+      png: {
+        quality: 75,
+        compressionLevel: 9,
+      },
+      jpeg: {
+        quality: 75,
+        progressive: true,
+      },
+      jpg: {
+        quality: 75,
+        progressive: true,
+      },
+      webp: {
+        quality: 75,
+        lossless: false,
+        effort: 6,
+      },
+      avif: {
+        quality: 75,
+        effort: 6,
+      },
+    }),
+  ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
     const { visualizer } = await import("rollup-plugin-visualizer")
@@ -80,28 +111,30 @@ export default defineConfig(async (): Promise<UserConfig> => {
       host: "127.0.0.1",
       proxy: proxyConfig,
     },
+    base: "/",
     build: {
-      minify: false,
+      minify: "terser",
+      copyPublicDir: true,
       terserOptions: {
-        compress: false,
-        mangle: false,
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+        format: {
+          comments: false,
+        },
       },
       reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
-        output: {
-          manualChunks: {
-            "react-vendor": ["react", "react-dom"],
-            codemirror: [
-              "@codemirror/autocomplete",
-              "@codemirror/lang-javascript",
-              "@codemirror/lang-json",
-              "@codemirror/lint",
-              "@codemirror/state",
-              "@codemirror/view",
-            ],
-          },
+        input: {
+          main: path.resolve(__dirname, "index.html"),
+          landing: path.resolve(__dirname, "landing.html"),
         },
       },
+    },
+    ssr: {
+      noExternal: ["react-dom/client"],
+      target: "node",
     },
     resolve: {
       alias: {

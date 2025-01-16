@@ -28,33 +28,24 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
+    const handleLogin = () => {
+      if (isUsingFakeApi) {
+        setSession({
+          account_id: "account-1234",
+          github_username: "testuser",
+          token: "1234",
+          session_id: "session-1234",
+        })
+      } else {
+        signIn()
+      }
+    }
     return (
       <div className="flex items-center space-x-2 justify-end">
-        {isUsingFakeApi ? (
-          <Button
-            onClick={() => {
-              setSession({
-                account_id: "account-1234",
-                github_username: "testuser",
-                token: "1234",
-                session_id: "session-1234",
-              })
-            }}
-            variant="ghost"
-            size="sm"
-          >
-            Fake testuser Login
-          </Button>
-        ) : (
-          <>
-            <Button onClick={() => signIn()} variant="ghost" size="sm">
-              Login
-            </Button>
-            <Button size="sm" onClick={() => signIn()}>
-              Sign Up
-            </Button>
-          </>
-        )}
+        <Button onClick={() => signIn()} variant="ghost">
+          Log in
+        </Button>
+        <Button onClick={() => signIn()}>Get Started</Button>
       </div>
     )
   }
@@ -66,9 +57,10 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
           <Avatar className="w-8 h-8 login-avatar">
             <AvatarImage
               src={`https://github.com/${session?.github_username}.png`}
+              alt={`${session?.github_username}'s profile picture`}
             />
-            <AvatarFallback>
-              <User size={16} />
+            <AvatarFallback aria-label="User avatar fallback">
+              <User size={16} aria-hidden="true" />
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>

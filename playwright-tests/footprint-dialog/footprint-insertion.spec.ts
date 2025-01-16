@@ -8,7 +8,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize(viewport)
       await page.goto("http://127.0.0.1:5177/editor")
-      await page.waitForLoadState("networkidle")
+      // await page.waitForLoadState("networkidle")
       await page.waitForSelector("button.run-button")
       isMobileOrTablet = page.viewportSize()?.width! <= 768
     })
@@ -18,7 +18,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
         await page.click('button:has-text("Show Code")')
       }
       await page.click('button:has-text("Insert")')
-      await page.click("text=Footprint")
+      await page.click("text=Chip")
       await page.fill(
         'input[placeholder="Enter chip name (e.g., U1)..."]',
         "U1",

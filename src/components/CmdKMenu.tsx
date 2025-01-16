@@ -78,7 +78,10 @@ const CmdKMenu = () => {
     { name: "New Footprint", type: "footprint", disabled: true },
   ]
 
-  const templates: Template[] = [{ name: "Blinking LED Board", type: "board" }]
+  const templates: Template[] = [
+    { name: "Blinking LED Board", type: "board" },
+    { name: "USB-C LED Flashlight", type: "board" },
+  ]
 
   const importOptions: ImportOption[] = [
     { name: "KiCad Footprint", type: "footprint" },

@@ -9,8 +9,9 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
-    timeout: 10000,
+    timeout: 30000,
   },
+  workers: 2,
   testDir: "playwright-tests",
   snapshotPathTemplate: "playwright-tests/snapshots/{testFilePath}-{arg}{ext}",
   testMatch: /.*\.spec\.ts/,
@@ -20,6 +21,7 @@ export default defineConfig({
       maxDiffPixelRatio: 0.2,
       // Increase the threshold for considering pixels different
       threshold: 0.2,
+      animations: "disabled",
     },
   },
 })

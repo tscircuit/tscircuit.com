@@ -3,6 +3,7 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { AnyCircuitElement } from "circuit-json"
 import * as jscadFiber from "jscad-fiber"
 import * as React from "react"
+import * as tscircuitMathUtils from "@tscircuit/math-utils"
 import { useEffect, useMemo, useReducer, useRef, useState } from "react"
 import { safeCompileTsx } from "../use-compiled-tsx"
 import { useSnippetsBaseApiUrl } from "../use-snippets-base-api-url"
@@ -23,11 +24,13 @@ export const useRunTsx = ({
   userImports,
   type,
   isStreaming = false,
+  circuitDisplayName,
 }: {
   code?: string
   userImports?: Record<string, object>
   type?: "board" | "footprint" | "package" | "model"
   isStreaming?: boolean
+  circuitDisplayName?: string
 } = {}): RunTsxResult & {
   circuitJsonKey: string
   triggerRunTsx: () => void
@@ -90,6 +93,12 @@ export const useRunTsx = ({
       }
 
       const __tscircuit_require = (name: string) => {
+        if (
+          name === "./manual-edits.json" &&
+          preSuppliedImports["./manual-edits.json"] === ""
+        ) {
+          return preSuppliedImports["./manual-edits.json"]
+        }
         if (!preSuppliedImports[name]) {
           throw new Error(
             `Import "${name}" not found (imports available: ${Object.keys(preSuppliedImports).join(",")})`,
@@ -99,6 +108,7 @@ export const useRunTsx = ({
       }
       ;(globalThis as any).__tscircuit_require = __tscircuit_require
       preSuppliedImports["@tscircuit/core"] = tscircuitCore
+      preSuppliedImports["@tscircuit/math-utils"] = tscircuitMathUtils
       preSuppliedImports["react"] = React
       preSuppliedImports["jscad-fiber"] = jscadFiber
       globalThis.React = React
@@ -176,7 +186,11 @@ export const useRunTsx = ({
           React.createElement(module.exports[primaryKey], props)
 
         try {
-          const circuit = constructCircuit(UserElm, type as any)
+          const circuit = constructCircuit({
+            UserElm,
+            type: type as any,
+            circuitDisplayName,
+          })
           const renderPromise = circuit.renderUntilSettled()
 
           // wait one tick to allow a single render pass

@@ -9,7 +9,8 @@
         "circuit-to-svg",
         "jscad-electronics",
         "circuit-json",
-        "dsn-converter"
+        "dsn-converter",
+        "circuit-json-to-readable-netlist"
       ],
       "enabled": false
     },

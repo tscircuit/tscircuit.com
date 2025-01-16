@@ -6,13 +6,14 @@ import { createCircuitBoard1Template } from "@tscircuit/prompt-benchmarks"
 import { TextDelta } from "@anthropic-ai/sdk/resources/messages.mjs"
 import { MagicWandIcon } from "@radix-ui/react-icons"
 import { AiChatMessage } from "./AiChatMessage"
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
 import { useSnippet } from "@/hooks/use-snippet"
 import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { extractCodefence } from "extract-codefence"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 
 export default function AIChatInterface({
   code,
@@ -148,18 +149,17 @@ export default function AIChatInterface({
           <div className="flex pl-4 p-2 rounded items-center bg-white border border-gray-200 text-sm mb-4 shadow-sm">
             <SnippetLink snippet={snippet} />
             <div className="flex-grow" />
-            <Button
-              size="sm"
-              className="text-xs"
-              variant="ghost"
-              onClick={async () => {
-                navigate(`/editor?snippet_id=${snippet.snippet_id}`)
-              }}
-              disabled={hasUnsavedChanges}
-            >
-              Open in Editor
-              <Edit2 className="w-3 h-3 ml-2 opacity-60" />
-            </Button>
+            <PrefetchPageLink href={`/editor?snippet_id=${snippet.snippet_id}`}>
+              <Button
+                size="sm"
+                className="text-xs"
+                variant="ghost"
+                disabled={hasUnsavedChanges}
+              >
+                Open in Editor
+                <Edit2 className="w-3 h-3 ml-2 opacity-60" />
+              </Button>
+            </PrefetchPageLink>
           </div>
         )}
         {messages.length === 0 && isLoggedIn && (
@@ -172,9 +172,12 @@ export default function AIChatInterface({
           <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
             <div>
               Sign in use the AI chat or{" "}
-              <Link className="text-blue-500 underline" href="/quickstart">
+              <PrefetchPageLink
+                className="text-blue-500 underline"
+                href="/quickstart"
+              >
                 use the regular editor
-              </Link>
+              </PrefetchPageLink>
             </div>
             <div className="mt-4 flex gap-2">
               <Button onClick={() => signIn()}>Sign In</Button>

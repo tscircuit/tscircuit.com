@@ -17,7 +17,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
         await page.click('button:has-text("Show Code")')
       }
       await page.click('button:has-text("Insert")')
-      await page.click("text=Footprint")
+      await page.click("text=Chip")
       await page.getByRole("combobox").click()
       await page.getByRole("option", { name: "ms012" }).click()
       await expect(

@@ -26,7 +26,8 @@ import {
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import CodeEditorHeader from "./CodeEditorHeader"
-
+import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
+import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -55,6 +56,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
+  const codeCompletionApi = useCodeCompletionApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
@@ -151,6 +153,19 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
+        started: () => {
+          const manualEditsTypeDeclaration = `
+				  declare module "*.json" {
+				  const value: {
+					  pcb_placements?: any[],
+					  edit_events?: any[],
+					  manual_trace_hints?: any[],
+				  } | undefined;
+				  export default value;
+				}
+			`
+          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+        },
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
@@ -210,6 +225,24 @@ export const CodeEditor = ({
         }
       }),
     ]
+    if (codeCompletionApi?.apiKey) {
+      baseExtensions.push(
+        copilotPlugin({
+          apiKey: codeCompletionApi.apiKey,
+          language: Language.TYPESCRIPT,
+        }),
+        EditorView.theme({
+          ".cm-ghostText, .cm-ghostText *": {
+            opacity: "0.6",
+            filter: "grayscale(20%)",
+            cursor: "pointer",
+          },
+          ".cm-ghostText:hover": {
+            background: "#eee",
+          },
+        }),
+      )
+    }
 
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =

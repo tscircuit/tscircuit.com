@@ -7,7 +7,7 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import { GitHubLogoIcon, StarIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -64,21 +64,30 @@ export const UserProfilePage = () => {
           <div>Loading snippets...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <Link
-                key={snippet.snippet_id}
-                href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-              >
-                <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                  <h3 className="text-lg font-semibold">
-                    {snippet.unscoped_name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    Created: {new Date(snippet.created_at).toLocaleString()}
-                  </p>
-                </div>
-              </Link>
-            ))}
+            {filteredSnippets
+              ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+              ?.map((snippet) => (
+                <Link
+                  key={snippet.snippet_id}
+                  href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
+                >
+                  <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-md font-semibold">
+                        {snippet.unscoped_name}
+                      </h3>
+                      <div className="flex items-center text-gray-600">
+                        <StarIcon className="w-4 h-4 mr-1" />
+                        <span>{snippet.star_count || 0}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Last Updated:{" "}
+                      {new Date(snippet.updated_at).toLocaleString()}
+                    </p>
+                  </div>
+                </Link>
+              ))}
           </div>
         )}
       </div>

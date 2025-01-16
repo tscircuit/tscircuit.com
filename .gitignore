@@ -33,3 +33,6 @@ test-results
 
 .yalc
 yalc.lock
+
+public/assets
+public/sitemap.xml

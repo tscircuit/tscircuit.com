@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { GitFork } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ import {
   Eye,
   EyeIcon,
   File,
+  FilePenLine,
   MoreVertical,
   Package,
   Pencil,
@@ -32,7 +34,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useQueryClient } from "react-query"
+import { useMutation, useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "../hooks/use-axios"
 import { useToast } from "../hooks/use-toast"
@@ -44,6 +46,8 @@ import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
 import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { SnippetLink } from "./SnippetLink"
 import { TypeBadge } from "./TypeBadge"
+import { useUpdateDescriptionDialog } from "./dialogs/edit-description-dialog"
+import { useForkSnippetMutation } from "@/hooks/useForkSnippetMutation"
 
 export default function EditorNav({
   circuitJson,
@@ -70,8 +74,13 @@ export default function EditorNav({
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const session = useGlobalStore((s) => s.session)
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
     useRenameSnippetDialog()
+  const {
+    Dialog: UpdateDescriptionDialog,
+    openDialog: openupdateDescriptionDialog,
+  } = useUpdateDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeleteSnippetDialog()
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
@@ -87,6 +96,17 @@ export default function EditorNav({
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
+
+  const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
+    snippet: snippet!,
+    currentCode: code,
+    onSuccess: (forkedSnippet) => {
+      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
+      setTimeout(() => {
+        window.location.reload() //reload the page
+      }, 2000)
+    },
+  })
 
   // Update currentType when snippet or snippetType changes
   useEffect(() => {
@@ -138,6 +158,9 @@ export default function EditorNav({
     }
   }
 
+  const canSaveSnippet =
+    !snippet || snippet.owner_name === session?.github_username
+
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -170,12 +193,21 @@ export default function EditorNav({
           <Button
             variant="outline"
             size="sm"
-            className={"h-6 px-2 text-xs save-button"}
-            disabled={!isLoggedIn || !canSave}
-            onClick={onSave}
+            className={"ml-1 h-6 px-2 text-xs save-button"}
+            disabled={!isLoggedIn}
+            onClick={canSaveSnippet ? onSave : () => forkSnippet()}
           >
-            <Save className="mr-1 h-3 w-3" />
-            Save
+            {canSaveSnippet ? (
+              <>
+                <Save className="mr-1 h-3 w-3" />
+                Save
+              </>
+            ) : (
+              <>
+                <GitFork className="mr-1 h-3 w-3" />
+                Fork
+              </>
+            )}
           </Button>
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
@@ -209,7 +241,7 @@ export default function EditorNav({
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between -space-x-1">
+      <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
           {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
           <Button
@@ -267,6 +299,13 @@ export default function EditorNav({
               >
                 <File className="mr-2 h-3 w-3" />
                 View Files
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => openupdateDescriptionDialog()}
+              >
+                <FilePenLine className="mr-2 h-3 w-3" />
+                Edit Description
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
@@ -369,6 +408,10 @@ export default function EditorNav({
           </Button>
         </div>
       </div>
+      <UpdateDescriptionDialog
+        snippetId={snippet?.snippet_id ?? ""}
+        currentDescription={snippet?.description ?? ""}
+      />
       <RenameDialog
         snippetId={snippet?.snippet_id ?? ""}
         currentName={snippet?.unscoped_name ?? ""}

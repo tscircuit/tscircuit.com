@@ -6,13 +6,16 @@ import {
   GitHubLogoIcon,
   OpenInNewWindowIcon,
   ChatBubbleIcon,
+  DiscordLogoIcon,
 } from "@radix-ui/react-icons"
-import { Menu, MessageCircleMoreIcon, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import React, { useState } from "react"
-import { Link, useLocation } from "wouter"
+import { useLocation } from "wouter"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
+import { Analytics } from "./Analytics"
 
 const HeaderButton = ({
   href,
@@ -29,21 +32,23 @@ const HeaderButton = ({
 
   if (location === href || location === alsoHighlightForUrl) {
     return (
-      <Button
-        variant="ghost"
-        className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
-      >
-        {children}
-      </Button>
+      <PrefetchPageLink className={cn("header-button", className)} href={href}>
+        <Button
+          variant="ghost"
+          className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
+        >
+          {children}
+        </Button>
+      </PrefetchPageLink>
     )
   }
 
   return (
-    <Link className={cn("header-button", className)} href={href}>
+    <PrefetchPageLink className={cn("header-button", className)} href={href}>
       <Button className={className} variant="ghost">
         {children}
       </Button>
-    </Link>
+    </PrefetchPageLink>
   )
 }
 
@@ -54,11 +59,14 @@ export default function Header() {
   return (
     <header className="px-4 py-3">
       <div className="flex items-center">
-        <Link href="/" className="text-lg font-semibold whitespace-nowrap">
+        <PrefetchPageLink
+          href="/"
+          className="text-lg font-semibold whitespace-nowrap"
+        >
           <span className="bg-blue-500 px-2 py-1 rounded-md text-white">
             tscircuit
           </span>
-        </Link>
+        </PrefetchPageLink>
         <div className="hidden md:flex items-center space-x-4">
           <nav>
             <ul className="flex items-center gap-2 ml-2">
@@ -84,9 +92,13 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <a href="https://tscircuit.com/join">
-                  <Button variant="ghost" className="text-gray-500">
-                    <MessageCircleMoreIcon className="w-4 h-4" />
+                <a
+                  href="https://tscircuit.com/join"
+                  target="_blank"
+                  className="mr-2"
+                >
+                  <Button variant="ghost">
+                    <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
                   </Button>
                 </a>
               </li>
@@ -98,6 +110,7 @@ export default function Header() {
           href="https://github.com/tscircuit/tscircuit"
           target="_blank"
           className="mr-4"
+          aria-label="View TSCircuit on GitHub"
         >
           <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
         </a>
@@ -112,6 +125,7 @@ export default function Header() {
         <button
           className="md:hidden"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -167,6 +181,7 @@ export default function Header() {
         </div>
       )}
       <CmdKMenu />
+      <Analytics />
     </header>
   )
 }

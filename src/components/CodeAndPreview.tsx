@@ -5,7 +5,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
-import useWarnUser from "@/hooks/use-warn-user"
+import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
@@ -26,7 +26,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
   const templateFromUrl = useMemo(
-    () => getSnippetTemplate(urlParams.template),
+    () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
     [],
   )
   const defaultCode = useMemo(() => {
@@ -36,7 +36,7 @@ export function CodeAndPreview({ snippet }: Props) {
       // If the snippet_id is in the url, use an empty string as the default
       // code until the snippet code is loaded
       (urlParams.snippet_id && "") ??
-      templateFromUrl.code
+      templateFromUrl?.code
     )
   }, [])
 
@@ -51,7 +51,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const [fullScreen, setFullScreen] = useState(false)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
-    snippet?.snippet_type ?? (templateFromUrl.type as any)
+    snippet?.snippet_type ??
+    (templateFromUrl?.type as any) ??
+    urlParams.snippet_type
 
   useEffect(() => {
     if (snippet?.code) {
@@ -87,6 +89,7 @@ export function CodeAndPreview({ snippet }: Props) {
     code,
     userImports,
     type: snippetType,
+    circuitDisplayName: snippet?.name,
   })
 
   // Update lastRunCode whenever the code is run
@@ -100,21 +103,39 @@ export function CodeAndPreview({ snippet }: Props) {
     mutationFn: async () => {
       if (!snippet) throw new Error("No snippet to update")
 
-      // Validate manual edits before sending
-      parseJsonOrNull(manualEditsFileContent)
-
-      const response = await axios.post("/snippets/update", {
+      const updateSnippetPayload = {
         snippet_id: snippet.snippet_id,
         code: code,
         dts: dts,
         compiled_js: compiledJs,
         circuit_json: circuitJson,
         manual_edits_json_content: manualEditsFileContent,
-      })
-      if (response.status !== 200) {
-        throw new Error("Failed to save snippet")
       }
-      return response.data
+
+      try {
+        const response = await axios.post(
+          "/snippets/update",
+          updateSnippetPayload,
+        )
+        return response.data
+      } catch (error: any) {
+        const responseStatus = error?.status ?? error?.response?.status
+        // We would normally only do this if the error is a 413, but we're not
+        // able to check the status properly because of the browser CORS policy
+        // (the PAYLOAD_TOO_LARGE error does not have the proper CORS headers)
+        if (
+          import.meta.env.VITE_ALTERNATE_REGISTRY_URL &&
+          (responseStatus === undefined || responseStatus === 413)
+        ) {
+          console.log(`Failed to update snippet, attempting alternate registry`)
+          const response = await axios.post(
+            `${import.meta.env.VITE_ALTERNATE_REGISTRY_URL}/snippets/update`,
+            updateSnippetPayload,
+          )
+          return response.data
+        }
+        throw error
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets", snippet?.snippet_id] })
@@ -137,8 +158,10 @@ export function CodeAndPreview({ snippet }: Props) {
   })
 
   const createSnippetMutation = useCreateSnippetMutation()
+  const [lastSavedAt, setLastSavedAt] = useState(Date.now())
 
   const handleSave = async () => {
+    setLastSavedAt(Date.now())
     if (snippet) {
       updateSnippetMutation.mutate()
     } else {
@@ -150,11 +173,18 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }
 
+  const hasManualEditsChanged =
+    (snippet?.manual_edits_json_content ?? "") !==
+    (manualEditsFileContent ?? "")
+
   const hasUnsavedChanges =
-    snippet?.code !== code ||
-    snippet?.manual_edits_json_content !== manualEditsFileContent
+    !updateSnippetMutation.isLoading &&
+    Date.now() - lastSavedAt > 1000 &&
+    (snippet?.code !== code || hasManualEditsChanged)
+
   const hasUnrunChanges = code !== lastRunCode
-  useWarnUser({ hasUnsavedChanges })
+
+  useWarnUserOnPageChange({ hasUnsavedChanges })
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
