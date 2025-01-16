@@ -88,11 +88,18 @@ function App() {
       skeletonLoader.style.display = "none"
     }
   }, [])
+  const renderSkeleton = () => {
+    const skeletonLoader = document.getElementById("skeleton-loader");
+    if (skeletonLoader) {
+      return <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
+    }
+    return null
+  }
 
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={<h5 id="skeleton-loader" />}>
+      <Suspense fallback={renderSkeleton()}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
