@@ -86,7 +86,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-        {/* Modified Suspense fallback to use the skeleton loader from index.html */}
+      
         <Suspense fallback={<h5 id="skeleton-loader"/>}>
           <Switch>
             <Route path="/" component={LandingPage} />
