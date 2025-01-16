@@ -36,27 +36,27 @@ const lazyImport = (importFn: () => Promise<any>) =>
   });
 
 // Lazy-loaded pages
-const AiPage = lazyImport(() => import("@/pages/ai"))
-const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
-const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
+const AiPage = lazyImport(() => import("@/pages/ai"));
+const AuthenticatePage = lazyImport(() => import("@/pages/authorize"));
+const DashboardPage = lazyImport(() => import("@/pages/dashboard"));
 const EditorPage = lazyImport(async () => {
   const [editorModule] = await Promise.all([
     import("@/pages/editor"),
     import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
-  ])
-  return editorModule
-})
-const LandingPage = lazyImport(() => import("@/pages/landing"))
-const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
-const NewestPage = lazyImport(() => import("@/pages/newest"))
-const PreviewPage = lazyImport(() => import("@/pages/preview"))
-const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
-const SearchPage = lazyImport(() => import("@/pages/search"))
-const SettingsPage = lazyImport(() => import("@/pages/settings"))
-const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
-const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
-const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
-const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
+  ]);
+  return editorModule;
+});
+const LandingPage = lazyImport(() => import("@/pages/landing"));
+const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"));
+const NewestPage = lazyImport(() => import("@/pages/newest"));
+const PreviewPage = lazyImport(() => import("@/pages/preview"));
+const QuickstartPage = lazyImport(() => import("@/pages/quickstart"));
+const SearchPage = lazyImport(() => import("@/pages/search"));
+const SettingsPage = lazyImport(() => import("@/pages/settings"));
+const UserProfilePage = lazyImport(() => import("@/pages/user-profile"));
+const ViewOrderPage = lazyImport(() => import("@/pages/view-order"));
+const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"));
+const DevLoginPage = lazyImport(() => import("@/pages/dev-login"));
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -92,8 +92,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-      
-        <Suspense fallback={<h5 id="skeleton-loader"/>}>
+        <Suspense fallback={<h5 id="skeleton-loader" />}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />

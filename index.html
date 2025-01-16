@@ -200,17 +200,6 @@
 
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Script to Hide Skeleton -->
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const skeletonLoader = document.getElementById("skeleton-loader");
-        if (skeletonLoader) {
-          console.log("Skeleton Loader is displayed.");
-          setTimeout(() => {
-            skeletonLoader.style.display = "none";
-          }, 300); // Hide skeleton after React initializes
-        }
-      });
-    </script>
+  
   </body>
 </html>
