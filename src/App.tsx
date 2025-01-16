@@ -91,9 +91,8 @@ function App() {
   const renderSkeleton = () => {
     const skeletonLoader = document.getElementById("skeleton-loader")
     if (skeletonLoader) {
-      return (
-      <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
-
+      return(
+        <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
       )
     }
     return null
@@ -101,7 +100,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-      <Suspense fallback={renderSkeleton()}>
+       <Suspense fallback={renderSkeleton()}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
