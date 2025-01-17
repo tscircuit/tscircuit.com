@@ -39,9 +39,9 @@ const routeSpec = {
   jsonResponse: z
     .object({
       ok: z.boolean(),
-      package_file: ZT.public_package_file.optional(),
+      package_file: ZT.packageFileSchema.optional(),
     })
-    .or(ZT.error_response),
+    .or(ZT.errorResponseSchema),
 } as const
 
 export default withRouteSpec(routeSpec)(async (req, ctx) => {

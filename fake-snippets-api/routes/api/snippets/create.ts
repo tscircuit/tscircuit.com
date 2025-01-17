@@ -46,8 +46,10 @@ export default withRouteSpec({
     })
   }
 
-  const newSnippet: z.input<typeof snippetSchema> = {
-    snippet_id: `snippet_${ctx.db.idCounter + 1}`,
+  let newSnippet: Omit<
+    z.input<typeof snippetSchema>,
+    "snippet_id" | "package_release_id"
+  > = {
     name: `${ctx.auth.github_username}/${unscoped_name}`,
     unscoped_name,
     owner_name: ctx.auth.github_username,
@@ -62,7 +64,7 @@ export default withRouteSpec({
   }
 
   try {
-    ctx.db.addSnippet(newSnippet)
+    newSnippet = ctx.db.addSnippet(newSnippet)
   } catch (error) {
     return ctx.error(500, {
       error_code: "snippet_creation_failed",
