@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { parseFootprintParams } from "../lib/utils/parseFootprintParams"
 import ParametersEditor from "./ParametersEditor"
 import { convertCircuitJsonToPcbSvg } from "circuit-to-svg"
-import { fp } from "@tscircuit/footprinter"
+import { fp, getFootprintNamesByType } from "@tscircuit/footprinter"
 import { useToast } from "../hooks/use-toast"
 import { Button } from "./ui/button"
 import { FileName } from "./CodeEditorHeader"
@@ -53,10 +53,7 @@ export const FootprintDialog = ({
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
-  const PASSIVE_COMPONENTS = ["diode", "led", "resistor", "cap", "res"]
-  const footprintNames = fp
-    .getFootprintNames()
-    .filter((footprintName) => !PASSIVE_COMPONENTS.includes(footprintName))
+  const { normalFootprintNames } = getFootprintNamesByType()
 
   useEffect(() => {
     if (copied) {
@@ -266,7 +263,7 @@ export const FootprintDialog = ({
                     handleFootprintPreview(value)
                   }
                 }}
-                options={footprintNames}
+                options={normalFootprintNames}
                 placeholder="Select footprint..."
                 searchPlaceholder="Search footprints..."
                 emptyText="No footprints found."
