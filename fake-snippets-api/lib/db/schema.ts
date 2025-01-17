@@ -110,3 +110,39 @@ export const databaseSchema = z.object({
   accountSnippets: z.array(accountSnippetSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
+
+export const packageReleaseSchema = z.object({
+  package_release_id: z.string().uuid(),
+  package_id: z.string().uuid(),
+  version: z.string().nullable(),
+  is_locked: z.boolean(),
+  is_latest: z.boolean(),
+  created_at: z.string().datetime(),
+})
+export type PackageRelease = z.infer<typeof packageReleaseSchema>
+
+export const packageFileSchema = z.object({
+  package_file_id: z.string(),
+  package_release_id: z.string(),
+  file_path: z.string(),
+  content_text: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
+})
+export type PackageFile = z.infer<typeof packageFileSchema>
+
+export const packageSchema = z.object({
+  package_id: z.string(),
+  creator_account_id: z.string(),
+  latest_package_release_id: z.string().uuid().nullable(),
+  latest_version: z.string().nullable(),
+  license: z.string().nullable(),
+  owner_org_id: z.string(),
+  owner_github_username: z.string().nullable(),
+  is_source_from_github: z.boolean(),
+  description: z.string().nullable(),
+  name: z.string(),
+  unscoped_name: z.string(),
+  star_count: z.number(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+})

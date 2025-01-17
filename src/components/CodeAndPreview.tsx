@@ -1,4 +1,5 @@
 import { CodeEditor } from "@/components/CodeEditor"
+import { RunFrame } from "@tscircuit/runframe/runner"
 import { useAxios } from "@/hooks/use-axios"
 import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -231,7 +232,7 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        {showPreview && (
+        {/* {showPreview && (
           <PreviewContent
             className={cn(
               "flex p-2 flex-col min-h-[640px]",
@@ -250,6 +251,18 @@ export function CodeAndPreview({ snippet }: Props) {
             onManualEditsFileContentChange={setManualEditsFileContent}
             onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}
+          />
+        )} */}
+        {showPreview && (
+          <RunFrame
+            fsMap={{
+              "main.tsx": `
+            circuit.add(<board width="10mm" height="10mm">
+              <resistor resistance="1k" footprint="0402" name="R1" />
+            </board>)
+            `,
+            }}
+            entrypoint="main.tsx"
           />
         )}
       </div>
