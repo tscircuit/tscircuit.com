@@ -1,5 +1,6 @@
 import { AnyCircuitElement } from "circuit-json"
 import {
+  convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToSchematicSvg,
 } from "circuit-to-svg"
@@ -41,10 +42,11 @@ export default withRouteSpec({
 
   // Check if the type is valid
   const type = typeFormat.split(".")[0]
-  if (type !== "schematic" && type !== "pcb") {
+  const typesValid = ['schematic', 'pcb', 'assembly']
+  if (!typesValid.includes(type)) {
     return ctx.error(400, {
       error_code: "invalid_type",
-      message: "Type must be 'schematic' or 'pcb'",
+      message: `Type must be '${typesValid.join("' or '")}'`,
     })
   }
 
@@ -56,6 +58,10 @@ export default withRouteSpec({
     )
   } else if (type === "pcb") {
     svg = convertCircuitJsonToPcbSvg(
+      snippet.circuit_json as AnyCircuitElement[],
+    )
+  } else if (type === "assembly") {
+    svg = convertCircuitJsonToAssemblySvg(
       snippet.circuit_json as AnyCircuitElement[],
     )
   } else {
