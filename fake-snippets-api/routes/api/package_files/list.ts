@@ -54,6 +54,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
   //   })),
   // })
   return ctx.json({
-    // TODO
+    ok: true,
+    package_files: [],
   })
 })
