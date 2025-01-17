@@ -42,7 +42,7 @@ export default withRouteSpec({
 
   // Check if the type is valid
   const type = typeFormat.split(".")[0]
-  const typesValid = ['schematic', 'pcb', 'assembly']
+  const typesValid = ["schematic", "pcb", "assembly"]
   if (!typesValid.includes(type)) {
     return ctx.error(400, {
       error_code: "invalid_type",
