@@ -16,7 +16,6 @@ import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
-import { PreviewContent } from "./PreviewContent"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 
 interface Props {
@@ -267,9 +266,46 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        <div className={showPreview ? "w-full" : "w-1/2"}>
-          <RunFrame fsMap={fsMap} entrypoint="main.tsx" />
-        </div>
+        {/* {showPreview && (
+          <PreviewContent
+            className={cn(
+              "flex p-2 flex-col min-h-[640px]",
+              fullScreen
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                : "w-full md:w-1/2",
+            )}
+            code={code}
+            triggerRunTsx={triggerRunTsx}
+            tsxRunTriggerCount={tsxRunTriggerCount}
+            errorMessage={message}
+            circuitJsonKey={circuitJsonKey}
+            circuitJson={circuitJson}
+            isRunningCode={isRunningCode}
+            manualEditsFileContent={manualEditsFileContent ?? ""}
+            onManualEditsFileContentChange={setManualEditsFileContent}
+            onToggleFullScreen={() => setFullScreen(!fullScreen)}
+            isFullScreen={fullScreen}
+          />
+        )} */}
+        {showPreview && (
+          <div
+            className={cn(
+              "flex p-2 pt-1 flex-col min-h-[640px]",
+              fullScreen
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                : "w-full md:w-1/2",
+            )}
+          >
+            <RunFrame
+              showRunButton
+              onEditEvent={() => {
+                // TODO
+              }}
+              fsMap={fsMap}
+              entrypoint="main.tsx"
+            />
+          </div>
+        )}
       </div>
     </div>
   )
