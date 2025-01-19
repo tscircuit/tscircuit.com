@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { GitFork } from "lucide-react"
+import { Cpu, GitFork } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +75,12 @@ export default function EditorNav({
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
+  const shouldUseWebworkerForRun = useGlobalStore(
+    (s) => s.should_use_webworker_for_run,
+  )
+  const setShouldUseWebworkerForRun = useGlobalStore(
+    (s) => s.setShouldUseWebworkerForRun,
+  )
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
     useRenameSnippetDialog()
   const {
@@ -275,10 +281,23 @@ export default function EditorNav({
             variant="ghost"
             size="sm"
             className="hidden md:flex px-2 text-xs"
+            onClick={() =>
+              setShouldUseWebworkerForRun(!shouldUseWebworkerForRun)
+            }
+          >
+            <Cpu className="mr-1 h-3 w-3" />
+            {shouldUseWebworkerForRun
+              ? "Use Main Thread"
+              : "Use Webworker (Beta)"}
+          </Button>
+          {/* <Button
+            variant="ghost"
+            size="sm"
+            className="hidden md:flex px-2 text-xs"
           >
             <Eye className="mr-1 h-3 w-3" />
             Public
-          </Button>
+          </Button> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="hidden md:flex">

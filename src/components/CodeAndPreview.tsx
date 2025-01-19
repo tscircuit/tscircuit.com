@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
+import { PreviewContent } from "./PreviewContent"
 
 interface Props {
   snippet?: Snippet | null
@@ -50,6 +51,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
+  const shouldUseWebworkerForRun = useGlobalStore(
+    (s) => s.should_use_webworker_for_run,
+  )
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ??
@@ -266,7 +270,7 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        {/* {showPreview && (
+        {showPreview && !shouldUseWebworkerForRun && (
           <PreviewContent
             className={cn(
               "flex p-2 flex-col min-h-[640px]",
@@ -286,8 +290,8 @@ export function CodeAndPreview({ snippet }: Props) {
             onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}
           />
-        )} */}
-        {showPreview && (
+        )}
+        {showPreview && shouldUseWebworkerForRun && (
           <div
             className={cn(
               "flex p-2 pt-1 flex-col min-h-[640px]",
