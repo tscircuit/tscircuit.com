@@ -130,15 +130,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
-        output: {
-          manualChunks: {
-            tscircuit: ["@tscircuit/runframe", "@tscircuit/eval-webworker"],
-          },
-        },
       },
-    },
-    optimizeDeps: {
-      exclude: ["@tscircuit/runframe", "@tscircuit/eval-webworker"],
     },
     ssr: {
       noExternal: ["react-dom/client"],
