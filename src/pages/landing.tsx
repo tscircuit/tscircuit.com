@@ -41,7 +41,7 @@ export function LandingPage() {
       </Helmet>
       <Header2 />
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <section className="w-full py-8 md:py-12 lg:py-20 xl:py-36">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="container mx-auto max-w-7xl">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -116,7 +116,7 @@ export function LandingPage() {
                 <div className="w-full aspect-video relative">
                   <OptimizedImage
                     alt="Product preview"
-                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full"
+                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
                     src="/assets/editor_example_1_more_square.webp"
                     priority={true}
                   />

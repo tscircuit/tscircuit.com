@@ -15,8 +15,9 @@ import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
-import { PreviewContent } from "./PreviewContent"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
+import { PreviewContent } from "./PreviewContent"
+import { SuspenseRunFrame } from "./SuspenseRunFrame"
 
 interface Props {
   snippet?: Snippet | null
@@ -50,6 +51,9 @@ export function CodeAndPreview({ snippet }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
+  const shouldUseWebworkerForRun = useGlobalStore(
+    (s) => s.should_use_webworker_for_run,
+  )
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ??
@@ -187,6 +191,41 @@ export function CodeAndPreview({ snippet }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
+  const fsMap = useMemo(() => {
+    const possibleExportNames = [
+      ...(code.match(/export function (\w+)/)?.slice(1) ?? []),
+      ...(code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
+    ]
+
+    console.log(possibleExportNames)
+
+    const exportName = possibleExportNames[0]
+
+    let entrypointContent: string
+    if (snippetType === "board") {
+      entrypointContent = `
+        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
+        circuit.add(<Snippet />)
+      `.trim()
+    } else {
+      entrypointContent = `
+        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
+        circuit.add(
+          <board width="10mm" height="10mm">
+            <Snippet name="U1" />
+          </board>
+        )
+      `.trim()
+    }
+
+    return {
+      "index.tsx": code,
+      "manual-edits.json": manualEditsFileContent ?? "{}",
+      "main.tsx": entrypointContent,
+    }
+  }, [code, manualEditsFileContent])
+  console.log(fsMap)
+
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -231,7 +270,7 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        {showPreview && (
+        {showPreview && !shouldUseWebworkerForRun && (
           <PreviewContent
             className={cn(
               "flex p-2 flex-col min-h-[640px]",
@@ -251,6 +290,25 @@ export function CodeAndPreview({ snippet }: Props) {
             onToggleFullScreen={() => setFullScreen(!fullScreen)}
             isFullScreen={fullScreen}
           />
+        )}
+        {showPreview && shouldUseWebworkerForRun && (
+          <div
+            className={cn(
+              "flex p-0 flex-col min-h-[640px]",
+              fullScreen
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                : "w-full md:w-1/2",
+            )}
+          >
+            <SuspenseRunFrame
+              showRunButton
+              onEditEvent={() => {
+                // TODO
+              }}
+              fsMap={fsMap}
+              entrypoint="main.tsx"
+            />
+          </div>
         )}
       </div>
     </div>
