@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Cpu, GitFork } from "lucide-react"
+import { Check, CircleCheckBig, Cpu, GitFork, Square } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -285,10 +285,12 @@ export default function EditorNav({
               setShouldUseWebworkerForRun(!shouldUseWebworkerForRun)
             }
           >
-            <Cpu className="mr-1 h-3 w-3" />
-            {shouldUseWebworkerForRun
-              ? "Use Main Thread"
-              : "Use Webworker (Beta)"}
+            {shouldUseWebworkerForRun ? (
+              <CircleCheckBig className="mr-1 h-3 w-3" />
+            ) : (
+              <Square className="mr-1 h-3 w-3" />
+            )}
+            Webworker (Beta)
           </Button>
           {/* <Button
             variant="ghost"

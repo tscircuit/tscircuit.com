@@ -294,7 +294,7 @@ export function CodeAndPreview({ snippet }: Props) {
         {showPreview && shouldUseWebworkerForRun && (
           <div
             className={cn(
-              "flex p-2 pt-1 flex-col min-h-[640px]",
+              "flex p-0 flex-col min-h-[640px]",
               fullScreen
                 ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
                 : "w-full md:w-1/2",
