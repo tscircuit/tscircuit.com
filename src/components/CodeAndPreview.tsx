@@ -1,5 +1,4 @@
 import { CodeEditor } from "@/components/CodeEditor"
-import { RunFrame } from "@tscircuit/runframe/runner"
 import { useAxios } from "@/hooks/use-axios"
 import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -18,6 +17,7 @@ import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 import { PreviewContent } from "./PreviewContent"
+import { SuspenseRunFrame } from "./SuspenseRunFrame"
 
 interface Props {
   snippet?: Snippet | null
@@ -300,7 +300,7 @@ export function CodeAndPreview({ snippet }: Props) {
                 : "w-full md:w-1/2",
             )}
           >
-            <RunFrame
+            <SuspenseRunFrame
               showRunButton
               onEditEvent={() => {
                 // TODO
