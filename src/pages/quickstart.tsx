@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { JSONSnippetImportDialog } from "@/components/JSONSnippetImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
@@ -16,6 +17,8 @@ import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 export const QuickstartPage = () => {
   const axios = useAxios()
   const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
+  const [isJSONsnippetImportDialogOpen, setIsJSONsnippetImportDialogOpen] =
+    useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
@@ -159,12 +162,33 @@ export const QuickstartPage = () => {
                 </Button>
               </CardContent>
             </Card>
+            <Card className="hover:shadow-md transition-shadow rounded-md">
+              <CardHeader className="p-4 pb-0">
+                <CardTitle className="text-lg flex items-center justify-between">
+                  Snippet JSON
+                  <TypeBadge type="json" className="ml-2" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <Button
+                  className="w-full"
+                  onClick={() => setIsJSONsnippetImportDialogOpen(true)}
+                >
+                  Import JSON
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
         <JLCPCBImportDialog
           open={isJLCPCBDialogOpen}
           onOpenChange={setIsJLCPCBDialogOpen}
+        />
+
+        <JSONSnippetImportDialog
+          open={isJSONsnippetImportDialogOpen}
+          onOpenChange={setIsJSONsnippetImportDialogOpen}
         />
 
         <div>
