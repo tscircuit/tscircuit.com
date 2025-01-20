@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test"
 test("Editor handles imports with underlining and cmd+click", async ({
   page,
 }) => {
-  await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_5")
+  await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")
 
   await page.waitForLoadState("networkidle")
 

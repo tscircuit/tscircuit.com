@@ -8,7 +8,7 @@ test("Editor loads snippet correctly", async ({ page }) => {
   await page.waitForLoadState("networkidle")
 
   // Check for specific text that should be present
-  await expect(page.getByText("SquareWaveModule")).toBeVisible()
+  await expect(page.getByText("A555Timer", { exact: true })).toBeVisible()
 
   // Take a snapshot
   await expect(page).toHaveScreenshot("editor-with-snippet.png")
