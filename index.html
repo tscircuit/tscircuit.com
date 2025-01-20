@@ -2,9 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="robots" content="index, follow, NOODP" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loading Animation</title>
-
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
+    <title>tscircuit - Code Electronics with React</title>
+    <meta name="description" content="tscircuit is an open-source electronics design tool that lets you create circuits using React components. Design schematics, generate PCB layouts, export and manufacture PCBs online!" />
+    <meta name="keywords" content="electronic design, PCB design, schematic capture, React components, circuit design, electronics CAD, open source EDA" />
+    <meta property="og:title" content="tscircuit - Design Electronics with React Components" />
+    <meta property="og:description" content="Create electronic circuits using React components. Design schematics, generate PCB layouts, and manufacture custom PCBs with this free open-source tool." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="tscircuit - Design Electronics with React Components" />
+    <meta name="twitter:description" content="Create electronic circuits using React components. Free open-source electronics design tool." />
+    <link rel="canonical" href="https://tscircuit.com" />
     <!-- Inline CSS for Skeleton Loader -->
     <style>
       /* Reset styles */
@@ -17,11 +27,20 @@
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
+      }
+
+      /* Loader Overlay */
+      .loading-overlay {
+        position: fixed; /* Fixed position to overlay on top */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        overflow: hidden;
+        z-index: 9999; /* Make sure it's on top of other elements */
       }
 
       .loading-container {
@@ -92,16 +111,26 @@
     </style>
   </head>
   <body>
-    <div id="skeleton-loader" class="loading-container">
-      <!-- Loading text with animation -->
-      <div class="loading-text">Loading...</div>
-      <!-- Loading bar -->
-      <div class="loading">
-        <div class="loading-bar"></div>
+    <div id="skeleton-loader" class="loading-container"> <!-- Loading Overlay (appears over all content) -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-container">
+        <!-- Loading text with animation -->
+        <div class="loading-text">Loading...</div>
+        <!-- Loading bar -->
+        <div class="loading">
+          <div class="loading-bar"></div>
+        </div>
       </div>
     </div>
+  </div> 
 
+    <!-- Main Content (other sections) -->
     <div id="root"></div>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+
+
+
+
