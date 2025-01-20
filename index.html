@@ -2,23 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="robots" content="index, follow, NOODP" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
-    <title>tscircuit - Code Electronics with React</title>
-    <meta name="description" content="tscircuit is an open-source electronics design tool that lets you create circuits using React components. Design schematics, generate PCB layouts, export and manufacture PCBs online!" />
-    <meta name="keywords" content="electronic design, PCB design, schematic capture, React components, circuit design, electronics CAD, open source EDA" />
-    <meta property="og:title" content="tscircuit - Design Electronics with React Components" />
-    <meta property="og:description" content="Create electronic circuits using React components. Design schematics, generate PCB layouts, and manufacture custom PCBs with this free open-source tool." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="tscircuit - Design Electronics with React Components" />
-    <meta name="twitter:description" content="Create electronic circuits using React components. Free open-source electronics design tool." />
-    <link rel="canonical" href="https://tscircuit.com" />
+    <title>Loading Animation</title>
 
     <!-- Inline CSS for Skeleton Loader -->
     <style>
-      /* General Reset */
+      /* Reset styles */
       * {
         margin: 0;
         padding: 0;
@@ -28,178 +17,91 @@
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
-        padding: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
       }
 
-      .shimmer {
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite ease-in-out;
-        border-radius: 8px;
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1em;
       }
 
+      /* Loading text with skeleton effect */
+      .loading-text {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .loading-text::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+        animation: shimmer 1.5s infinite;
+      }
+
+      /* Loading bar container */
+      .loading {
+        background-color: lightgrey;
+        height: 2px;
+        overflow: hidden;
+        position: relative;
+        width: 12em;
+      }
+
+      /* Animated loading bar */
+      .loading-bar {
+        animation: side2side 2s ease-in-out infinite;
+        background-color: dodgerblue;
+        height: 100%;
+        position: absolute;
+        width: 50%;
+      }
+
+      /* Keyframes for loading bar movement */
+      @keyframes side2side {
+        0%, 100% {
+          transform: translateX(-50%);
+        }
+        50% {
+          transform: translateX(150%);
+        }
+      }
+
+      /* Keyframes for shimmer effect */
       @keyframes shimmer {
         0% {
-          background-position: -150%;
+          left: -100%;
         }
         100% {
-          background-position: 150%;
+          left: 100%;
         }
       }
 
-
-      .page-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        height: 100vh;
-      }
-
-      .nav-skeleton {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 20px;
-        background: #ffffff;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
-
-      .logo-placeholder {
-        width: 100px;
-        height: 40px;
-      }
-
-      .nav-items {
-        display: flex;
-        gap: 16px;
-      }
-
-      .nav-item {
-        width: 80px;
-        height: 20px;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 12px;
-      }
-
-      .action-placeholder {
-        height: 40px;
-        border-radius: 8px;
-      }
-
-      .content-skeleton {
-        flex: 1;
-        display: flex;
-        flex-direction: row;
-        gap: 24px;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-      }
-
-      .main-content {
-        flex: 3;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
-
-      .horizontal-line {
-        width: 100%;
-        height: 25px;
-        background: linear-gradient(90deg, #f5f5f5 25%, #eaeaea 50%, #f5f5f5 75%);
-        border-radius: 8px;
-      }
-
-      .box-container {
-        display: flex;
-        gap: 16px;
-      }
-
-      .box {
-        width: 100%;
-        height: 300px;
-      }
-
-      .sidebar {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .sidebar-block {
-        width: 100%;
-        height: 80px;
-      }
     </style>
   </head>
   <body>
-
-    <div id="skeleton-loader">
-   
-      <div class="page-wrapper">
-
-        <div class="nav-skeleton">
-          <div class="logo-placeholder shimmer"></div>
-          <div class="nav-items">
-            <div class="nav-item shimmer"></div>
-            <div class="nav-item shimmer"></div>
-            <div class="nav-item shimmer"></div>
-            <div class="nav-item shimmer"></div>
-          </div>
-          <div class="action-buttons">
-            <div class="action-placeholder shimmer" style="width: 80px;"></div>
-            <div class="action-placeholder shimmer" style="width: 120px;"></div>
-          </div>
-        </div>
-  
-
-        <div class="content-skeleton">
-          <div class="main-content">
-            <!-- Initial lines -->
-            <div class="horizontal-line shimmer" style="width: 90%;"></div>
-            <div class="horizontal-line shimmer" style="width: 80%;"></div>
-            <div class="horizontal-line shimmer" style="width: 70%;"></div>
-  
-            <!-- Single Box -->
-            <div class="box-container">
-              <div class="box shimmer"></div>
-            </div>
-  
-            <!-- Additional lines -->
-            <div class="horizontal-line shimmer" style="width: 80%;"></div>
-            <div class="horizontal-line shimmer" style="width: 75%;"></div>
-            <div class="horizontal-line shimmer" style="width: 65%;"></div>
-            <div class="horizontal-line shimmer" style="width: 70%;"></div>
-            <div class="horizontal-line shimmer" style="width: 60%;"></div>
-            <div class="horizontal-line shimmer" style="width: 60%;"></div>
-     
-            <div class="horizontal-line shimmer" style="width: 60%;"></div>
-          </div>
-  
-          <!-- Sidebar -->
-          <div class="sidebar">
-            <div class="sidebar-block shimmer"></div>
-            <div class="sidebar-block shimmer"></div>
-            <div class="sidebar-block shimmer"></div>
-            <div class="sidebar-block shimmer"></div>
-          </div>
-        </div>
+    <div id="skeleton-loader" class="loading-container">
+      <!-- Loading text with animation -->
+      <div class="loading-text">Loading...</div>
+      <!-- Loading bar -->
+      <div class="loading">
+        <div class="loading-bar"></div>
       </div>
     </div>
 
-
     <div id="root"></div>
-
-
     <script type="module" src="/src/main.tsx"></script>
-
-  
   </body>
 </html>
