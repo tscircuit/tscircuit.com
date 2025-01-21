@@ -1,10 +1,9 @@
-import { ComponentType, Suspense, lazy } from "react" 
+import { ComponentType, Suspense, lazy } from "react"
 import { Toaster } from "@/components/ui/toaster"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
-
 
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
@@ -78,11 +77,7 @@ class ErrorBoundary extends React.Component<
     return this.props.children
   }
 }
-
 function App() {
-
-
-
   return (
     <ContextProviders>
       <ErrorBoundary>
