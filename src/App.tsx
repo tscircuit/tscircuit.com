@@ -98,6 +98,7 @@ function App() {
           <Route path="/:username" component={UserProfilePage} />
           <Route path="/:author/:snippetName" component={ViewSnippetPage} />
         </Switch>
+        <Toaster />
       </ErrorBoundary>
     </ContextProviders>
   )
