@@ -80,27 +80,13 @@ class ErrorBoundary extends React.Component<
 }
 
 function App() {
-  // Added useEffect to handle cleanup of the skeleton loader
-  useEffect(() => {
-    // Hide the skeleton from index.html when React mounts
-    const skeletonLoader = document.getElementById("skeleton-loader")
-    if (skeletonLoader) {
-      skeletonLoader.style.display = "none"
-    }
-  }, [])
-  const renderSkeleton = () => {
-    const skeletonLoader = document.getElementById("skeleton-loader")
-    if (skeletonLoader) {
-      return (
-        <div dangerouslySetInnerHTML={{ __html: skeletonLoader.outerHTML }} />
-      )
-    }
-    return null
-  }
+
+
+
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={renderSkeleton()}>
+        <Suspense fallback={null}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
