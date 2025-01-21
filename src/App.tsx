@@ -103,7 +103,7 @@ function App() {
         <Toaster />
       </ErrorBoundary>
     </ContextProviders>
-  )  
+  )
 }
 
 export default App
