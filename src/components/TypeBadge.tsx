@@ -13,7 +13,7 @@ const typeColors: Record<BadgeType, string> = {
   package: "bg-green-500",
   footprint: "bg-purple-500",
   model: "bg-indigo-500",
-  json: "bg-violet-500"
+  json: "bg-violet-500",
 }
 
 export const TypeBadge: React.FC<TypeBadgeProps> = ({ type, className }) => {
