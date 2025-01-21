@@ -97,10 +97,9 @@ function App() {
           <Route path="/dev-login" component={DevLoginPage} />
           <Route path="/:username" component={UserProfilePage} />
           <Route path="/:author/:snippetName" component={ViewSnippetPage} />
-       </Switch>
-      <Toaster />
-    </ErrorBoundary>
-  </ContextProviders>
+        </Switch>
+      </ErrorBoundary>
+    </ContextProviders>
   )
 }
 
