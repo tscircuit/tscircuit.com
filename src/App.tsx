@@ -81,25 +81,23 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={null}>
-          <Switch>
-            <Route path="/" component={LandingPage} />
-            <Route path="/editor" component={EditorPage} />
-            <Route path="/quickstart" component={QuickstartPage} />
-            <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/ai" component={AiPage} />
-            <Route path="/newest" component={NewestPage} />
-            <Route path="/settings" component={SettingsPage} />
-            <Route path="/search" component={SearchPage} />
-            <Route path="/authorize" component={AuthenticatePage} />
-            <Route path="/my-orders" component={MyOrdersPage} />
-            <Route path="/orders/:orderId" component={ViewOrderPage} />
-            <Route path="/preview" component={PreviewPage} />
-            <Route path="/dev-login" component={DevLoginPage} />
-            <Route path="/:username" component={UserProfilePage} />
-            <Route path="/:author/:snippetName" component={ViewSnippetPage} />
-          </Switch>
-        </Suspense>
+        <Switch>
+          <Route path="/" component={LandingPage} />
+          <Route path="/editor" component={EditorPage} />
+          <Route path="/quickstart" component={QuickstartPage} />
+          <Route path="/dashboard" component={DashboardPage} />
+          <Route path="/ai" component={AiPage} />
+          <Route path="/newest" component={NewestPage} />
+          <Route path="/settings" component={SettingsPage} />
+          <Route path="/search" component={SearchPage} />
+          <Route path="/authorize" component={AuthenticatePage} />
+          <Route path="/my-orders" component={MyOrdersPage} />
+          <Route path="/orders/:orderId" component={ViewOrderPage} />
+          <Route path="/preview" component={PreviewPage} />
+          <Route path="/dev-login" component={DevLoginPage} />
+          <Route path="/:username" component={UserProfilePage} />
+          <Route path="/:author/:snippetName" component={ViewSnippetPage} />
+        </Switch>
         <Toaster />
       </ErrorBoundary>
     </ContextProviders>
