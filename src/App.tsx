@@ -1,11 +1,11 @@
-import { ComponentType, Suspense, lazy, useEffect } from "react" // Added `useEffect` for handling skeleton cleanup
+import { ComponentType, Suspense, lazy } from "react" 
 import { Toaster } from "@/components/ui/toaster"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
 
-// Lazy loading helper
+
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
     try {
