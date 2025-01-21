@@ -14,7 +14,7 @@ import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
 
-interface JSONSnippetImportDialogProps {
+interface CircuitJsonImportDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -28,11 +28,11 @@ const isValidURL = (url: string) => {
   }
 }
 
-export function JSONSnippetImportDialog({
+export function CircuitJsonImportDialog({
   open,
   onOpenChange,
-}: JSONSnippetImportDialogProps) {
-  const [jsonUri, setJsonUri] = useState("")
+}: CircuitJsonImportDialogProps) {
+  const [externalCircuitJsonUrl, setexternalCircuitJsonUrl] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,33 +52,35 @@ export function JSONSnippetImportDialog({
   }
 
   const handleImport = async () => {
-    let jsonData
+    let importedCircuitJson
 
     if (file) {
       try {
         const fileText = await file.text()
-        jsonData = JSON.parse(fileText)
+        importedCircuitJson = JSON.parse(fileText)
       } catch (err) {
         setError("Error reading JSON file. Please ensure it is valid.")
         return
       }
-    } else if (isValidURL(jsonUri)) {
+    } else if (isValidURL(externalCircuitJsonUrl)) {
       setIsLoading(true)
       setError(null)
 
       try {
-        jsonData = (
-          await axios.get(jsonUri, {
-            headers: { Accept: "application/json" },
-            validateStatus: (status) => true,
-          })
-        ).data
+        const response = await fetch(externalCircuitJsonUrl, {
+          headers: { Accept: "application/json" },
+        })
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok")
+        }
+
+        importedCircuitJson = await response.json()
       } catch (error) {
-        console.error("Error importing Snippet JSON:", error)
+        console.error("Error importing Circuit Json:", error)
         toast({
           title: "Import Failed",
-          description:
-            "Failed to import the Snippet JSON from the URL. Please try again.",
+          description: "Failed to import the Circuit Json from the URL.",
           variant: "destructive",
         })
         setIsLoading(false)
@@ -94,7 +96,7 @@ export function JSONSnippetImportDialog({
     }
     let tscircuit
     try {
-      tscircuit = convertCircuitJsonToTscircuit(jsonData as any, {
+      tscircuit = convertCircuitJsonToTscircuit(importedCircuitJson as any, {
         componentName: "circuit",
       })
       console.info(tscircuit)
@@ -110,8 +112,8 @@ export function JSONSnippetImportDialog({
 
     try {
       const newSnippetData = {
-        snippet_type: jsonData.type ?? "board",
-        circuit_json: jsonData,
+        snippet_type: importedCircuitJson.type ?? "board",
+        circuit_json: importedCircuitJson,
         code: tscircuit,
       }
       const response = await axios
@@ -125,15 +127,15 @@ export function JSONSnippetImportDialog({
       }
       toast({
         title: "Import Successful",
-        description: "Snippet JSON has been imported successfully.",
+        description: "Circuit Json has been imported successfully.",
       })
       onOpenChange(false)
       navigate(`/editor?snippet_id=${snippet.snippet_id}`)
     } catch (error) {
-      console.error("Error importing Snippet JSON:", error)
+      console.error("Error importing Circuit Json:", error)
       toast({
         title: "Import Failed",
-        description: "Failed to import the Snippet JSON. Please try again.",
+        description: "Failed to import the Circuit Json. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -145,14 +147,15 @@ export function JSONSnippetImportDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Import Snippet JSON</DialogTitle>
+          <DialogTitle>Import Circuit JSON</DialogTitle>
         </DialogHeader>
         <div className="pb-4">
           <Input
+            type="url"
             className="mt-3"
-            placeholder="Enter JSON URL (e.g., https://example.com/data.json)"
-            value={jsonUri}
-            onChange={(e) => setJsonUri(e.target.value)}
+            placeholder="Paste the URL to import the Circuit JSON (e.g. https://example.com/circuit.json)."
+            value={externalCircuitJsonUrl}
+            onChange={(e) => setexternalCircuitJsonUrl(e.target.value)}
             disabled={!!file}
           />
           <div className="mt-4 flex flex-col gap-2">
