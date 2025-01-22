@@ -8,6 +8,7 @@ import React from "react"
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
     try {
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const module = await importFn()
       if (module.default) {
         return { default: module.default }
