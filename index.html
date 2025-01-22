@@ -82,12 +82,13 @@
     </style>
       <script>
     
-        window.addEventListener("load", () => {
-          const skeletonLoader = document.getElementById("loader");
-          if (skeletonLoader) {
-            skeletonLoader.style.display = "none";
-          }
-        });
+    document.addEventListener("DOMContentLoaded", () => {
+    const skeletonLoader = document.getElementById("loader");
+    if (skeletonLoader) {
+        skeletonLoader.style.display = "none";
+    }
+});
+
       </script>
   </head>
   <body>
@@ -104,7 +105,7 @@
 
 
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx">
+    <script type="module" src="./src/main.tsx">
      
    
     </script>
