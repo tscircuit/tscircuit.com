@@ -1,6 +1,6 @@
 import { useSnippet } from "@/hooks/use-snippet"
 import { useUrlParams } from "@/hooks/use-url-params"
-import { CircuitJsonPreview } from "@tscircuit/runframe/"
+import { CircuitJsonPreview } from "@tscircuit/runframe"
 import { Loader2 } from "lucide-react"
 
 export const PreviewPage = () => {
