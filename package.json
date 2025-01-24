@@ -129,7 +129,7 @@
     "@babel/standalone": "^7.26.2",
     "@biomejs/biome": "^1.9.2",
     "@playwright/test": "^1.48.0",
-    "@tscircuit/core": "^0.0.275",
+    "@tscircuit/core": "^0.0.280",
     "@tscircuit/prompt-benchmarks": "^0.0.20",
     "@tscircuit/runframe": "^0.0.121",
     "@types/babel__standalone": "^7.1.7",
