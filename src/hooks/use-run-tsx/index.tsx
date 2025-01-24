@@ -108,6 +108,7 @@ export const useRunTsx = ({
       }
       ;(globalThis as any).__tscircuit_require = __tscircuit_require
       preSuppliedImports["@tscircuit/core"] = tscircuitCore
+      preSuppliedImports["tscircuit"] = tscircuitCore
       preSuppliedImports["@tscircuit/math-utils"] = tscircuitMathUtils
       preSuppliedImports["react"] = React
       preSuppliedImports["jscad-fiber"] = jscadFiber
