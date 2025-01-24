@@ -79,35 +79,57 @@
         }
       }
       </style>
-      <script>
-window.addEventListener("DOMContentLoaded", () => {
-  const loader = document.getElementById("loader");
+  
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const loader = document.getElementById("loader");
+// Show the loader when navigating to a new route
+    const showLoader = () => {
+      loader.style.display = "block";
+      loader.style.opacity = "1";
+      loader.querySelector(".loading-bar").style.width = "45%";
+    };
+// Hide the loader after the page has finished loading
+    const hideLoader = () => {
+      loader.querySelector(".loading-bar").style.width = "0"; 
+      loader.style.transition = "opacity 0.3s ease";
+      loader.style.opacity = "0";
+      setTimeout(() => {
+        loader.style.display = "none";
+      }, 300); 
+    };
 
-  // Ensure loader is visible for at least 500ms
-  const ensureLoaderVisibleTime = 500;
-
-  // Listen for React rendering
-  const reactReadyEvent = new Promise((resolve) => {
-    const observer = new MutationObserver(() => {
-      if (document.getElementById("root").childNodes.length > 0) {
-        resolve();
-        observer.disconnect();
-      }
+    // Initial loader logic for page load
+    const ensureLoaderVisibleTime = 500;
+    const reactReadyEvent = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (document.getElementById("root").childNodes.length > 0) {
+          resolve();
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById("root"), { childList: true });
     });
-    observer.observe(document.getElementById("root"), { childList: true });
+
+    Promise.all([
+      reactReadyEvent,
+      new Promise((resolve) => setTimeout(resolve, ensureLoaderVisibleTime)),
+    ]).then(hideLoader);
+
+// Intercept pushState to show the loader when navigating between pages
+    const originalPushState = history.pushState;
+    history.pushState = function (...args) {
+      showLoader(); 
+      originalPushState.apply(this, args);
+      setTimeout(hideLoader, ensureLoaderVisibleTime);
+    };
+
+    window.addEventListener("popstate", () => {
+      showLoader();
+      setTimeout(hideLoader, ensureLoaderVisibleTime);
+    });
   });
 
-  // Wait for both React and delay
-  Promise.all([
-    reactReadyEvent,
-    new Promise((resolve) => setTimeout(resolve, ensureLoaderVisibleTime)),
-  ]).then(() => {
-    // Smoothly hide loader
-    loader.style.opacity = "0";
-    loader.style.transition = "opacity 0.3s ease";
-    setTimeout(() => (loader.style.display = "none"), 300); 
-  });
-});
 
       </script>
   </head>
