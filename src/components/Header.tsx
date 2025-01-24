@@ -57,8 +57,8 @@ export default function Header() {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
 
   return (
-    <header className="px-4 py-3">
-      <div className="flex items-center">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-16 items-center justify-between px-2">
         <PrefetchPageLink
           href="/"
           className="text-lg font-semibold whitespace-nowrap"
