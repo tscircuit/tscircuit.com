@@ -228,17 +228,19 @@ export function CodeAndPreview({ snippet }: Props) {
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64 dark:bg-gray-900 dark:text-gray-100">
         <div className="flex flex-col items-center justify-center">
-          <div className="text-lg text-gray-500 mb-4">Loading</div>
-          <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+          <div className="mb-4 text-lg text-gray-500 dark:text-gray-400">
+            Loading
+          </div>
+          <Loader2 className="w-16 h-16 text-gray-400 animate-spin dark:text-gray-300" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col dark:bg-gray-900 dark:text-gray-100">
       <EditorNav
         circuitJson={circuitJson}
         snippet={snippet}
@@ -254,7 +256,7 @@ export function CodeAndPreview({ snippet }: Props) {
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div
           className={cn(
-            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
+            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800",
             showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
@@ -273,9 +275,9 @@ export function CodeAndPreview({ snippet }: Props) {
         {showPreview && !shouldUseWebworkerForRun && (
           <PreviewContent
             className={cn(
-              "flex p-2 flex-col min-h-[640px]",
+              "flex p-2 flex-col min-h-[640px] dark:bg-gray-800",
               fullScreen
-                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden dark:bg-gray-900"
                 : "w-full md:w-1/2",
             )}
             code={code}
@@ -294,9 +296,9 @@ export function CodeAndPreview({ snippet }: Props) {
         {showPreview && shouldUseWebworkerForRun && (
           <div
             className={cn(
-              "flex p-0 flex-col min-h-[640px]",
+              "flex p-0 flex-col min-h-[640px] dark:bg-gray-800",
               fullScreen
-                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden dark:bg-gray-900"
                 : "w-full md:w-1/2",
             )}
           >

@@ -86,19 +86,19 @@ const QUESTIONS = [
 ]
 
 export const FAQ = () => (
-  <section className="w-full py-12 md:py-24 lg:py-32" id="faq">
-    <div className="container px-4 md:px-6 mx-auto">
+  <section className="w-full py-12 md:py-24 lg:py-32 dark:bg-gray-900" id="faq">
+    <div className="container px-4 mx-auto md:px-6">
       <div className="flex flex-col items-center justify-center space-y-4 text-center">
         <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl dark:text-gray-100">
             Frequently Asked Questions
           </h2>
-          <p className="max-w-[900px] text-muted-foreground md:text-xl">
+          <p className="max-w-[900px] text-muted-foreground md:text-xl dark:text-gray-400">
             Got questions? We've got answers.
           </p>
         </div>
       </div>
-      <div className="mx-auto max-w-3xl space-y-4 py-12">
+      <div className="max-w-3xl py-12 mx-auto space-y-4">
         <Accordion type="single" collapsible>
           {QUESTIONS.map((q, i) => (
             <AccordionItem key={i} value={`item-${i + 1}`}>

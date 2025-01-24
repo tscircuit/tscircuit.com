@@ -4,10 +4,10 @@ import { LatestSnippets } from "@/components/LatestSnippets"
 
 export const NewestPage = () => {
   return (
-    <div>
+    <div className="dark:bg-gray-900 dark:text-gray-100">
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Newest Snippets</h1>
+      <div className="container px-4 py-8 mx-auto">
+        <h1 className="mb-6 text-3xl font-bold">Newest Snippets</h1>
         <LatestSnippets />
       </div>
       <Footer />

@@ -44,9 +44,9 @@ export const AiPage = () => {
   const hasUnsavedChanges = snippet?.code !== code
 
   return (
-    <div>
+    <div className="dark:bg-gray-900 dark:text-gray-100">
       <Header />
-      <div className="flex bg-gray-100">
+      <div className="flex bg-gray-100 dark:bg-gray-800">
         <div className="w-1/2">
           <AIChatInterface
             code={code}
@@ -63,9 +63,9 @@ export const AiPage = () => {
           />
         </div>
         <div className="w-1/2">
-          <div className="p-4 h-full">
+          <div className="h-full p-4">
             <PreviewContent
-              className="bg-white h-full p-4 rounded-lg shadow"
+              className="h-full p-4 bg-white rounded-lg shadow dark:bg-gray-900"
               code={code}
               isStreaming={isStreaming}
               isRunningCode={isRunningCode}

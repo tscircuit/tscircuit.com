@@ -168,8 +168,8 @@ export default function EditorNav({
     !snippet || snippet.owner_name === session?.github_username
 
   return (
-    <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
-      <div className="lg:flex items-center my-2 ">
+    <nav className="items-center justify-between w-screen px-2 py-3 text-sm bg-white border-t border-b border-gray-200 lg:flex dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
+      <div className="items-center my-2 lg:flex ">
         <div className="flex items-center space-x-1">
           {snippet && (
             <>
@@ -177,14 +177,14 @@ export default function EditorNav({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 ml-2"
+                className="w-6 h-6 ml-2"
                 onClick={() => openRenameDialog()}
               >
-                <Pencil className="h-3 w-3 text-gray-700" />
+                <Pencil className="w-3 h-3 text-gray-700 dark:text-gray-300" />
               </Button>
               <Link href={`/${snippet.name}`}>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
+                <Button variant="ghost" size="icon" className="w-6 h-6">
+                  <OpenInNewWindowIcon className="w-3 h-3 text-gray-700 dark:text-gray-300" />
                 </Button>
               </Link>
             </>
@@ -192,7 +192,7 @@ export default function EditorNav({
         </div>
         <div className="flex items-center space-x-1">
           {!isLoggedIn && (
-            <div className="bg-orange-100 text-orange-700 py-1 px-2 text-xs opacity-70">
+            <div className="px-2 py-1 text-xs text-orange-700 bg-orange-100 opacity-70 dark:bg-orange-900 dark:text-orange-300">
               Not logged in, can't save
             </div>
           )}
@@ -205,20 +205,20 @@ export default function EditorNav({
           >
             {canSaveSnippet ? (
               <>
-                <Save className="mr-1 h-3 w-3" />
+                <Save className="w-3 h-3 mr-1" />
                 Save
               </>
             ) : (
               <>
-                <GitFork className="mr-1 h-3 w-3" />
+                <GitFork className="w-3 h-3 mr-1" />
                 Fork
               </>
             )}
           </Button>
           {isSaving && (
-            <div className="animate-fadeIn bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
+            <div className="animate-fadeIn bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center dark:bg-blue-900 dark:text-blue-300">
               <svg
-                className="animate-spin h-3 w-3 mr-2 text-blue-600"
+                className="w-3 h-3 mr-2 text-blue-600 animate-spin dark:text-blue-400"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -241,14 +241,14 @@ export default function EditorNav({
             </div>
           )}
           {hasUnsavedChanges && !isSaving && isLoggedIn && (
-            <div className="animate-fadeIn bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
+            <div className="animate-fadeIn bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-yellow-900 dark:text-yellow-300">
               {snippet ? "unsaved changes" : "unsaved"}
             </div>
           )}
         </div>
       </div>
       <div className="flex items-center justify-end -space-x-1">
-        <div className="flex mx-2 items-center space-x-1">
+        <div className="flex items-center mx-2 space-x-1">
           {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
           <Button
             variant="ghost"
@@ -256,7 +256,7 @@ export default function EditorNav({
             disabled={hasUnsavedChanges || isSaving || !snippet}
             onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
           >
-            <Sparkles className="mr-1 h-3 w-3" />
+            <Sparkles className="w-3 h-3 mr-1" />
             Edit with AI
           </Button>
           <DownloadButtonAndMenu
@@ -267,43 +267,43 @@ export default function EditorNav({
           <Button
             variant="ghost"
             size="sm"
-            className="hidden md:flex px-2 text-xs"
+            className="hidden px-2 text-xs md:flex"
             onClick={() => {
               const url = encodeTextToUrlHash(code, snippetType)
               navigator.clipboard.writeText(url)
               alert("URL copied to clipboard!")
             }}
           >
-            <Share className="mr-1 h-3 w-3" />
+            <Share className="w-3 h-3 mr-1" />
             Copy URL
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="hidden md:flex px-2 text-xs"
+            className="hidden px-2 text-xs md:flex"
             onClick={() =>
               setShouldUseWebworkerForRun(!shouldUseWebworkerForRun)
             }
           >
             {shouldUseWebworkerForRun ? (
-              <CircleCheckBig className="mr-1 h-3 w-3" />
+              <CircleCheckBig className="w-3 h-3 mr-1" />
             ) : (
-              <Square className="mr-1 h-3 w-3" />
+              <Square className="w-3 h-3 mr-1" />
             )}
             Webworker (Beta)
           </Button>
           {/* <Button
             variant="ghost"
             size="sm"
-            className="hidden md:flex px-2 text-xs"
+            className="hidden px-2 text-xs md:flex"
           >
-            <Eye className="mr-1 h-3 w-3" />
+            <Eye className="w-3 h-3 mr-1" />
             Public
           </Button> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="hidden md:flex">
-                <MoreVertical className="h-3 w-3" />
+                <MoreVertical className="w-3 h-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -311,28 +311,28 @@ export default function EditorNav({
                 className="text-xs"
                 onClick={() => openCreateOrderDialog()}
               >
-                <Package className="mr-2 h-3 w-3" />
+                <Package className="w-3 h-3 mr-2" />
                 Submit Order
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => openFilesDialog()}
               >
-                <File className="mr-2 h-3 w-3" />
+                <File className="w-3 h-3 mr-2" />
                 View Files
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => openupdateDescriptionDialog()}
               >
-                <FilePenLine className="mr-2 h-3 w-3" />
+                <FilePenLine className="w-3 h-3 mr-2" />
                 Edit Description
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => openViewTsFilesDialog()}
               >
-                <File className="mr-2 h-3 w-3" />
+                <File className="w-3 h-3 mr-2" />
                 [Debug] View TS Files
               </DropdownMenuItem>
               <DropdownMenuSub>
@@ -340,7 +340,7 @@ export default function EditorNav({
                   className="text-xs"
                   disabled={isChangingType || hasUnsavedChanges}
                 >
-                  <Edit2 className="mr-2 h-3 w-3" />
+                  <Edit2 className="w-3 h-3 mr-2" />
                   {isChangingType ? "Changing..." : "Change Type"}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
@@ -364,7 +364,7 @@ export default function EditorNav({
                 className="text-xs text-red-600"
                 onClick={() => openDeleteDialog()}
               >
-                <Trash2 className="mr-2 h-3 w-3" />
+                <Trash2 className="w-3 h-3 mr-2" />
                 Delete Snippet
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -381,9 +381,9 @@ export default function EditorNav({
             onClick={() => onTogglePreview()}
           >
             {previewOpen ? (
-              <Sidebar className="h-3 w-3" />
+              <Sidebar className="w-3 h-3" />
             ) : (
-              <EyeIcon className="h-3 w-3" />
+              <EyeIcon className="w-3 h-3" />
             )}
           </Button>
         </div>
@@ -391,20 +391,20 @@ export default function EditorNav({
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button className="md:hidden" variant="secondary" size="sm">
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="text-xs">
-                <Download className="mr-1 h-3 w-3" />
+                <Download className="w-3 h-3 mr-1" />
                 Download
               </DropdownMenuItem>
               <DropdownMenuItem className="text-xs">
-                <Share className="mr-1 h-3 w-3" />
+                <Share className="w-3 h-3 mr-1" />
                 Copy URL
               </DropdownMenuItem>
               <DropdownMenuItem className="text-xs">
-                <Eye className="mr-1 h-3 w-3" />
+                <Eye className="w-3 h-3 mr-1" />
                 Public
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -417,12 +417,12 @@ export default function EditorNav({
           >
             {previewOpen ? (
               <div className="flex items-center">
-                <CodeIcon className="h-3 w-3 mr-1" />
+                <CodeIcon className="w-3 h-3 mr-1" />
                 Show Code
               </div>
             ) : (
               <div className="flex items-center">
-                <EyeIcon className="h-3 w-3 mr-1" />
+                <EyeIcon className="w-3 h-3 mr-1" />
                 Show Preview
               </div>
             )}

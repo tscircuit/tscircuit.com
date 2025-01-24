@@ -8,18 +8,18 @@ export default function Footer() {
   const isLoggedIn = Boolean(session)
 
   return (
-    <footer className="bg-white text-black py-12 border-t mt-8">
-      <div className="container mx-auto px-4">
+    <footer className="py-12 mt-8 text-black bg-white border-t dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700">
+      <div className="container px-4 mx-auto">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <CircuitBoard className="h-6 w-6" />
+            <CircuitBoard className="w-6 h-6 dark:text-gray-300" />
             <span className="text-lg font-bold">tscircuit</span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground dark:text-gray-400">
             The New Foundation for Electronic Design
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600 mt-8">
+        <div className="grid grid-cols-2 gap-8 mt-8 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-4 dark:text-gray-400">
           <div className="space-y-4">
             <footer className="flex flex-col space-y-2">
               {[
@@ -108,7 +108,7 @@ export default function Footer() {
                 contact@tscircuit.com
               </a>
               <div className="flex-grow" />
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 we are inspired by{" "}
                 <a href="https://val.town" className="underline">
                   val.town
@@ -122,7 +122,7 @@ export default function Footer() {
                   v0.dev
                 </a>
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 &copy; {new Date().getFullYear()} tscircuit Inc.
               </div>
             </nav>

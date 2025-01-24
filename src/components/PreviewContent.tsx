@@ -113,12 +113,17 @@ export const PreviewContent = ({
   }, [circuitJson])
 
   return (
-    <div className={cn("flex flex-col relative", className)}>
+    <div
+      className={cn(
+        "flex flex-col relative dark:bg-gray-900 dark:text-gray-100",
+        className,
+      )}
+    >
       <div className="md:sticky md:top-2">
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="flex-grow flex flex-col"
+          className="flex flex-col flex-grow"
         >
           <div className={cn("flex items-center gap-2", headerClassName)}>
             {leftHeaderContent}
@@ -172,7 +177,7 @@ export const PreviewContent = ({
               </TabsTrigger>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="whitespace-nowrap p-2 mr-1 cursor-pointer relative">
+                  <div className="relative p-2 mr-1 cursor-pointer whitespace-nowrap">
                     <EllipsisIcon className="w-4 h-4" />
                     {errorMessage && (
                       <span className="inline-flex absolute top-[6px] right-[4px] items-center justify-center w-1 h-1 ml-2 text-[8px] font-bold text-white bg-red-500 rounded-full" />

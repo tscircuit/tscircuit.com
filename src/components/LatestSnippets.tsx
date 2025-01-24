@@ -21,7 +21,10 @@ export const LatestSnippets: React.FC = () => {
   return (
     <div className="space-y-4">
       {snippets?.map((snippet) => (
-        <div key={snippet.snippet_id} className="border p-4 rounded-md">
+        <div
+          key={snippet.snippet_id}
+          className="p-4 transition-shadow border rounded-md hover:shadow-md dark:bg-gray-800 dark:border-gray-700"
+        >
           <Link
             href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
             className="text-blue-600 hover:underline"

@@ -23,7 +23,7 @@ export const AiChatMessage = ({ message }: { message: AiChatMessage }) => {
         return (
           <div
             key={index}
-            className="bg-gray-100 rounded-md p-2 my-2 text-sm font-mono"
+            className="p-2 my-2 font-mono text-sm bg-gray-100 rounded-md dark:bg-gray-800 dark:text-gray-100"
           >
             {isComplete
               ? `Code Version ${message.codeVersion ?? "??"}`
@@ -32,7 +32,10 @@ export const AiChatMessage = ({ message }: { message: AiChatMessage }) => {
         )
       }
       return (
-        <p key={index} className="text-xs font-mono whitespace-pre-wrap">
+        <p
+          key={index}
+          className="font-mono text-xs whitespace-pre-wrap dark:text-gray-300"
+        >
           {part}
         </p>
       )
@@ -47,13 +50,15 @@ export const AiChatMessage = ({ message }: { message: AiChatMessage }) => {
     >
       <div
         className={`max-w-[80%] rounded-lg p-4 ${
-          message.sender === "user" ? "bg-blue-100" : "bg-white"
+          message.sender === "user"
+            ? "bg-blue-100 dark:bg-blue-900"
+            : "bg-white dark:bg-gray-900"
         }`}
       >
         {message.sender === "bot" && (
           <div className="flex items-center mb-2">
-            <Avatar className="w-7 h-7 mr-2 flex items-center justify-center bg-black">
-              <BotIcon className="text-white px-1" />
+            <Avatar className="flex items-center justify-center mr-2 bg-black w-7 h-7">
+              <BotIcon className="px-1 text-white" />
             </Avatar>
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -63,16 +68,16 @@ export const AiChatMessage = ({ message }: { message: AiChatMessage }) => {
                   className="h-6 px-2 text-xs"
                 >
                   version {message.codeVersion}
-                  <ChevronDown className="ml-1 h-3 w-3" />
+                  <ChevronDown className="w-3 h-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem className="text-xs bg-white flex">
-                  <RotateCcw className="mr-1 h-3 w-3" />
+                <DropdownMenuItem className="flex text-xs bg-white dark:bg-gray-800">
+                  <RotateCcw className="w-3 h-3 mr-1" />
                   Revert to v{message.codeVersion}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-xs bg-white flex">
-                  <Eye className="mr-1 h-3 w-3" />
+                <DropdownMenuItem className="flex text-xs bg-white dark:bg-gray-800">
+                  <Eye className="w-3 h-3 mr-1" />
                   View v{message.codeVersion}
                 </DropdownMenuItem>
               </DropdownMenuContent>

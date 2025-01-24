@@ -22,13 +22,13 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative shadow-lg border-2 border-gray-300 rounded-full m-4"
+      className="relative m-4 border-2 border-gray-300 rounded-full shadow-lg"
     >
       <Input
         disabled={disabled}
         type="text"
         placeholder="Ask for more"
-        className="pr-20 pl-4 py-6 bg-white rounded-full border-none focus:ring-2 focus:ring-blue-500"
+        className="py-6 pl-4 pr-20 bg-white border-none rounded-full focus:ring-2 focus:ring-blue-500"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
       />
@@ -36,17 +36,17 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
       {/* <Button
         size="icon"
         variant="ghost"
-        className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        className="absolute text-gray-400 transform -translate-y-1/2 left-2 top-1/2 hover:text-gray-600"
       >
-        <Paperclip className="h-5 w-5" />
+        <Paperclip className="w-5 h-5" />
       </Button> */}
       <Button
         type="submit"
         size="icon"
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full"
+        className="absolute text-white transform -translate-y-1/2 bg-blue-500 rounded-full right-2 top-1/2 hover:bg-blue-600"
         disabled={disabled}
       >
-        <ArrowUp className="h-5 w-5" />
+        <ArrowUp className="w-5 h-5" />
       </Button>
     </form>
   )

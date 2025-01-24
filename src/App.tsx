@@ -4,6 +4,7 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
+import { ThemeProvider } from "./components/ThemeProvider"
 
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
@@ -83,30 +84,32 @@ class ErrorBoundary extends React.Component<
 
 function App() {
   return (
-    <ContextProviders>
-      <ErrorBoundary>
-        <Suspense fallback={<div>Loading...</div>}>
-          <Switch>
-            <Route path="/" component={LandingPage} />
-            <Route path="/editor" component={EditorPage} />
-            <Route path="/quickstart" component={QuickstartPage} />
-            <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/ai" component={AiPage} />
-            <Route path="/newest" component={NewestPage} />
-            <Route path="/settings" component={SettingsPage} />
-            <Route path="/search" component={SearchPage} />
-            <Route path="/authorize" component={AuthenticatePage} />
-            <Route path="/my-orders" component={MyOrdersPage} />
-            <Route path="/orders/:orderId" component={ViewOrderPage} />
-            <Route path="/preview" component={PreviewPage} />
-            <Route path="/dev-login" component={DevLoginPage} />
-            <Route path="/:username" component={UserProfilePage} />
-            <Route path="/:author/:snippetName" component={ViewSnippetPage} />
-          </Switch>
-        </Suspense>
-        <Toaster />
-      </ErrorBoundary>
-    </ContextProviders>
+    <ThemeProvider>
+      <ContextProviders>
+        <ErrorBoundary>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Switch>
+              <Route path="/" component={LandingPage} />
+              <Route path="/editor" component={EditorPage} />
+              <Route path="/quickstart" component={QuickstartPage} />
+              <Route path="/dashboard" component={DashboardPage} />
+              <Route path="/ai" component={AiPage} />
+              <Route path="/newest" component={NewestPage} />
+              <Route path="/settings" component={SettingsPage} />
+              <Route path="/search" component={SearchPage} />
+              <Route path="/authorize" component={AuthenticatePage} />
+              <Route path="/my-orders" component={MyOrdersPage} />
+              <Route path="/orders/:orderId" component={ViewOrderPage} />
+              <Route path="/preview" component={PreviewPage} />
+              <Route path="/dev-login" component={DevLoginPage} />
+              <Route path="/:username" component={UserProfilePage} />
+              <Route path="/:author/:snippetName" component={ViewSnippetPage} />
+            </Switch>
+          </Suspense>
+          <Toaster />
+        </ErrorBoundary>
+      </ContextProviders>
+    </ThemeProvider>
   )
 }
 

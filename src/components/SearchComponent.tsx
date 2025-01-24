@@ -95,7 +95,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       <Input
         type="search"
         placeholder="Search"
-        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
+        className="pl-4 text-sm placeholder-gray-400 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
@@ -105,20 +105,20 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         role="searchbox"
       />
       {isLoading && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 p-2 flex items-center justify-center space-x-2">
-          <span className="text-gray-500 text-sm">Loading...</span>
+        <div className="absolute left-0 right-0 z-10 flex items-center justify-center p-2 mt-2 space-x-2 bg-white rounded-md shadow-lg top-full dark:bg-gray-900">
+          <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
         </div>
       )}
 
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full md:left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 w-80 max-h-screen overflow-y-auto overflow-x-visible"
+          className="absolute right-0 z-10 max-h-screen mt-2 overflow-x-visible overflow-y-auto bg-white rounded-md shadow-lg top-full md:left-0 w-80 dark:bg-gray-900"
         >
           {searchResults.length > 0 ? (
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-200 dark:divide-gray-700">
               {searchResults.map((snippet: any) => (
-                <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
+                <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800">
                   <LinkWithNewTabHandling
                     href={
                       shouldOpenInEditor
@@ -128,7 +128,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     shouldOpenInNewTab={shouldOpenInNewTab}
                     className="flex"
                   >
-                    <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm">
+                    <div className="flex-shrink-0 w-12 h-12 mr-2 overflow-hidden rounded-sm">
                       <img
                         src={`${useSnippetsBaseApiUrl()}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                         alt={`PCB preview for ${snippet.name}`}
@@ -136,11 +136,11 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                       />
                     </div>
                     <div className="flex-grow">
-                      <div className="font-medium text-blue-600 break-words text-xs">
+                      <div className="text-xs font-medium text-blue-600 break-words dark:text-blue-400">
                         {snippet.name}
                       </div>
                       {snippet.description && (
-                        <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
+                        <div className="h-8 overflow-hidden text-xs text-gray-500 break-words dark:text-gray-400">
                           {snippet.description}
                         </div>
                       )}
@@ -150,7 +150,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
               ))}
             </ul>
           ) : (
-            <Alert variant="default" className="p-4">
+            <Alert variant="default" className="p-4 dark:bg-gray-800 dark:text-gray-100">
               No results found for "{searchQuery}"
             </Alert>
           )}

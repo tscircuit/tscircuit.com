@@ -9,16 +9,16 @@ export const EditorPage = () => {
   const { data: snippet, isLoading, error } = useSnippet(snippetId)
 
   return (
-    <div>
+    <div className="dark:bg-gray-900 dark:text-gray-100">
       <Header />
       {!error && <CodeAndPreview snippet={snippet} />}
       {error && error.status === 404 && (
-        <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
+        <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center dark:text-gray-400">
           Snippet not found
         </div>
       )}
       {error && error.status !== 404 && (
-        <div className="flex flex-col">
+        <div className="flex flex-col dark:text-gray-400">
           Something strange happened<div>{error.message}</div>
         </div>
       )}

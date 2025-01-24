@@ -41,15 +41,15 @@ export const QuickstartPage = () => {
   ]
 
   return (
-    <div>
+    <div className="dark:bg-gray-900 dark:text-gray-100">
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 hidden md:block">
-          <h2 className="text-xl font-semibold mb-4">Recent Snippets</h2>
+      <div className="container px-4 py-8 mx-auto">
+        <div className="hidden mb-8 md:block">
+          <h2 className="mb-4 text-xl font-semibold">Recent Snippets</h2>
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               {mySnippets
                 ?.sort(
                   (a, b) =>
@@ -62,14 +62,14 @@ export const QuickstartPage = () => {
                     key={snippet.snippet_id}
                     href={`/editor?snippet_id=${snippet.snippet_id}`}
                   >
-                    <Card className="hover:shadow-md transition-shadow rounded-md">
-                      <CardHeader className="pb-0 p-4">
-                        <CardTitle className="text-md">
+                    <Card className="transition-shadow rounded-md hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
+                      <CardHeader className="p-4 pb-0">
+                        <CardTitle className="text-md dark:text-gray-100">
                           {snippet.unscoped_name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-4 pt-0">
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Last edited:{" "}
                           {new Date(snippet.updated_at).toLocaleDateString()}
                         </p>
@@ -82,8 +82,8 @@ export const QuickstartPage = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Start Blank Snippet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <h2 className="mb-4 text-xl font-semibold">Start Blank Snippet</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {blankTemplates.map((template, index) => (
               <PrefetchPageLink
                 key={index}
@@ -97,13 +97,15 @@ export const QuickstartPage = () => {
               >
                 <Card
                   className={cn(
-                    "hover:shadow-md transition-shadow rounded-md h-full flex flex-col",
+                    "hover:shadow-md transition-shadow rounded-md h-full flex flex-col dark:bg-gray-800 dark:border-gray-700",
                     template.disabled && "opacity-50 cursor-not-allowed",
                   )}
                 >
-                  <CardHeader className="p-4 flex-grow flex flex-col justify-between">
-                    <CardTitle className="text-md">{template.name}</CardTitle>
-                    <div className="mt-2 flex">
+                  <CardHeader className="flex flex-col justify-between flex-grow p-4">
+                    <CardTitle className="text-md dark:text-gray-100">
+                      {template.name}
+                    </CardTitle>
+                    <div className="flex mt-2">
                       <TypeBadge type={template.type as any} />
                     </div>
                   </CardHeader>
@@ -114,8 +116,8 @@ export const QuickstartPage = () => {
         </div>
 
         <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Import as Snippet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <h2 className="mb-4 text-xl font-semibold">Import as Snippet</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
@@ -123,10 +125,10 @@ export const QuickstartPage = () => {
             ].map((template, index) => (
               <Card
                 key={index}
-                className="hover:shadow-md transition-shadow rounded-md opacity-50"
+                className="transition-shadow rounded-md opacity-50 hover:shadow-md dark:bg-gray-800 dark:border-gray-700"
               >
                 <CardHeader className="p-4 pb-0">
-                  <CardTitle className="text-lg flex items-center justify-between">
+                  <CardTitle className="flex items-center justify-between text-lg dark:text-gray-100">
                     {template.name}
                     <TypeBadge type={template.type as any} className="ml-2" />
                   </CardTitle>
@@ -143,9 +145,9 @@ export const QuickstartPage = () => {
                 </CardContent>
               </Card>
             ))}
-            <Card className="hover:shadow-md transition-shadow rounded-md">
+            <Card className="transition-shadow rounded-md hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
               <CardHeader className="p-4 pb-0">
-                <CardTitle className="text-lg flex items-center justify-between">
+                <CardTitle className="flex items-center justify-between text-lg dark:text-gray-100">
                   JLCPCB Component
                   <TypeBadge type="package" className="ml-2" />
                 </CardTitle>
@@ -168,10 +170,10 @@ export const QuickstartPage = () => {
         />
 
         <div>
-          <h2 className="text-xl font-semibold mb-4 mt-12">
+          <h2 className="mt-12 mb-4 text-xl font-semibold">
             Start from a Template
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             {templates.map((template, index) => (
               <PrefetchPageLink
                 key={index}
@@ -179,9 +181,9 @@ export const QuickstartPage = () => {
                   .toLowerCase()
                   .replace(/ /g, "-")}`}
               >
-                <Card className="hover:shadow-md transition-shadow rounded-md">
+                <Card className="transition-shadow rounded-md hover:shadow-md dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader className="p-4">
-                    <CardTitle className="text-lg flex items-center justify-between">
+                    <CardTitle className="flex items-center justify-between text-lg dark:text-gray-100">
                       {template.name}
                       <TypeBadge type={template.type as any} className="ml-2" />
                     </CardTitle>

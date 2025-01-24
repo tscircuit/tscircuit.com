@@ -46,24 +46,24 @@ export const DashboardPage = () => {
   )
 
   return (
-    <div>
+    <div className="dark:bg-gray-900 dark:text-gray-100">
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-        <div className="flex md:flex-row flex-col">
-          <div className="md:w-3/4 p-0 md:pr-6">
+      <div className="container px-4 py-8 mx-auto">
+        <h1 className="mb-6 text-3xl font-bold">Dashboard</h1>
+        <div className="flex flex-col md:flex-row">
+          <div className="p-0 md:w-3/4 md:pr-6">
             <div className="mt-6 mb-4">
               <div className="flex items-center">
-                <h2 className="text-sm text-gray-600 whitespace-nowrap">
+                <h2 className="text-sm text-gray-600 whitespace-nowrap dark:text-gray-400">
                   Edit Recent
                 </h2>
-                <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden ">
+                <div className="flex items-center gap-2 overflow-x-scroll md:overflow-hidden ">
                   {mySnippets &&
                     mySnippets.slice(0, 3).map((snippet) => (
                       <div key={snippet.snippet_id}>
                         <PrefetchPageLink
                           href={`/editor?snippet_id=${snippet.snippet_id}`}
-                          className="text-blue-600 hover:underline"
+                          className="text-blue-600 hover:underline dark:text-blue-400"
                         >
                           <Button
                             variant="ghost"
@@ -80,7 +80,7 @@ export const DashboardPage = () => {
               </div>
             </div>
             <CreateNewSnippetWithAiHero />
-            <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
+            <h2 className="mb-2 text-sm font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-600">
               Your Recent Snippets
             </h2>
             {isLoading && <div>Loading...</div>}
@@ -93,11 +93,11 @@ export const DashboardPage = () => {
                   >
                     <Link
                       href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                      className="text-blue-600 hover:underline text-sm"
+                      className="text-sm text-blue-600 hover:underline dark:text-blue-400"
                     >
                       {snippet.unscoped_name}
                     </Link>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(snippet.created_at).toLocaleDateString()}
                     </span>
                   </li>
@@ -107,14 +107,14 @@ export const DashboardPage = () => {
             {mySnippets && mySnippets.length > 10 && (
               <Link
                 href={`/${currentUser}`}
-                className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+                className="inline-block mt-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
               >
                 View all snippets
               </Link>
             )}
           </div>
           <div className="md:w-1/4">
-            <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
+            <h2 className="mb-2 text-sm font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-600">
               Trending Snippets
             </h2>
             {trendingSnippets && (
@@ -124,12 +124,12 @@ export const DashboardPage = () => {
                     <div className="flex items-center">
                       <Link
                         href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                        className="text-blue-600 hover:underline text-sm"
+                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
                       >
                         {snippet.owner_name}/{snippet.unscoped_name}
                       </Link>
                       {snippet.star_count > 0 && (
-                        <span className="ml-2 text-gray-500 text-xs flex items-center">
+                        <span className="flex items-center ml-2 text-xs text-gray-500 dark:text-gray-400">
                           <Star className="w-3 h-3 mr-1" />
                           {snippet.star_count}
                         </span>
@@ -139,7 +139,7 @@ export const DashboardPage = () => {
                 ))}
               </ul>
             )}
-            <h2 className="text-sm font-bold mt-8 mb-2 text-gray-700 border-b border-gray-200">
+            <h2 className="mt-8 mb-2 text-sm font-bold text-gray-700 border-b border-gray-200 dark:text-gray-300 dark:border-gray-600">
               Newest Snippets
             </h2>
             {newestSnippets && (
@@ -148,7 +148,7 @@ export const DashboardPage = () => {
                   <li key={snippet.snippet_id}>
                     <Link
                       href={`/${snippet.name}`}
-                      className="text-blue-600 hover:underline text-sm"
+                      className="text-sm text-blue-600 hover:underline dark:text-blue-400"
                     >
                       {snippet.name}
                     </Link>

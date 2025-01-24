@@ -143,10 +143,10 @@ export default function AIChatInterface({
   }, [])
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] max-w-2xl mx-auto p-4 bg-gray-100">
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+    <div className="flex flex-col h-[calc(100vh-60px)] max-w-2xl mx-auto p-4 bg-gray-100 dark:bg-gray-800 dark:text-gray-100">
+      <div className="flex-1 mb-4 space-y-4 overflow-y-auto">
         {snippet && (
-          <div className="flex pl-4 p-2 rounded items-center bg-white border border-gray-200 text-sm mb-4 shadow-sm">
+          <div className="flex items-center p-2 pl-4 mb-4 text-sm bg-white border border-gray-200 rounded shadow-sm dark:bg-gray-900 dark:border-gray-700">
             <SnippetLink snippet={snippet} />
             <div className="flex-grow" />
             <PrefetchPageLink href={`/editor?snippet_id=${snippet.snippet_id}`}>
@@ -163,13 +163,13 @@ export default function AIChatInterface({
           </div>
         )}
         {messages.length === 0 && isLoggedIn && (
-          <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
+          <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center dark:text-gray-400">
             <div>Submit a prompt to {snippet ? "edit!" : "get started!"}</div>
-            <div className="text-6xl mt-4">↓</div>
+            <div className="mt-4 text-6xl">↓</div>
           </div>
         )}
         {!isLoggedIn && (
-          <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
+          <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center dark:text-gray-400">
             <div>
               Sign in use the AI chat or{" "}
               <PrefetchPageLink
@@ -179,7 +179,7 @@ export default function AIChatInterface({
                 use the regular editor
               </PrefetchPageLink>
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="flex gap-2 mt-4">
               <Button onClick={() => signIn()}>Sign In</Button>
               <Button onClick={() => signIn()} variant="outline">
                 Sign Up
@@ -199,12 +199,12 @@ export default function AIChatInterface({
               addMessage(`Fix this error: ${errorMessage}`)
             }}
             disabled={!isLoggedIn}
-            className="mb-2 bg-green-50 hover:bg-green-100"
+            className="mb-2 bg-green-50 hover:bg-green-100 dark:bg-green-900 dark:hover:bg-green-800"
             variant="outline"
           >
             <MagicWandIcon className="w-4 h-4 mr-2" />
             <span className="font-bold">Fix Error with AI</span>
-            <span className="italic font-normal ml-2">
+            <span className="ml-2 italic font-normal">
               "{errorMessage.slice(0, 26)}..."
             </span>
           </Button>

@@ -41,7 +41,7 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
       }
     }
     return (
-      <div className="flex items-center space-x-2 justify-end">
+      <div className="flex items-center justify-end space-x-2">
         <Button onClick={() => signIn()} variant="ghost">
           Log in
         </Button>
@@ -51,7 +51,7 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   }
 
   return (
-    <div className="flex justify-end items-center">
+    <div className="flex items-center justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar className="w-8 h-8 login-avatar">
@@ -60,12 +60,16 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
               alt={`${session?.github_username}'s profile picture`}
             />
             <AvatarFallback aria-label="User avatar fallback">
-              <User size={16} aria-hidden="true" />
+              <User
+                className="dark:text-slate-200"
+                size={16}
+                aria-hidden="true"
+              />
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem className="text-gray-500 text-xs" disabled>
+          <DropdownMenuItem className="text-xs text-gray-500" disabled>
             AI Usage $
             {accountBalance?.monthly_ai_budget_used_usd.toFixed(2) ?? "0.00"} /
             $5.00

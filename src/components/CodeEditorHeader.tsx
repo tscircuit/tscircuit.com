@@ -80,16 +80,20 @@ export const CodeEditorHeader = ({
   }
 
   return (
-    <div className="flex items-center gap-2 px-2 border-b border-gray-200">
+    <div className="flex items-center gap-2 px-2 border-b border-gray-200 dark:border-gray-700">
       <div>
         <Select value={currentFile} onValueChange={handleFileChange}>
-          <SelectTrigger className="h-7 px-3 bg-white">
+          <SelectTrigger className="px-3 bg-white h-7 dark:bg-gray-800">
             <SelectValue placeholder="Select file" />
           </SelectTrigger>
           <SelectContent>
             {Object.keys(files).map((filename) => (
-              <SelectItem className="py-1" key={filename} value={filename}>
-                <span className="text-xs pr-1">{filename}</span>
+              <SelectItem
+                className="py-1 dark:text-gray-300"
+                key={filename}
+                value={filename}
+              >
+                <span className="pr-1 text-xs">{filename}</span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -102,15 +106,15 @@ export const CodeEditorHeader = ({
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-red-500 hover:bg-red-50"
+                className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900"
               >
-                <AlertTriangle className="mr-2 h-4 w-4" />
+                <AlertTriangle className="w-4 h-4 mr-2" />
                 Error
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem
-                className="text-red-600 cursor-pointer"
+                className="text-red-600 cursor-pointer dark:text-red-400"
                 onClick={() =>
                   handleManualEditsImport(files, updateFileContent, toast)
                 }

@@ -16,6 +16,7 @@ import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
 import SearchComponent from "./SearchComponent"
 import { Analytics } from "./Analytics"
+import ToggleMode from "./ToggleMode"
 
 const HeaderButton = ({
   href,
@@ -35,7 +36,7 @@ const HeaderButton = ({
       <PrefetchPageLink className={cn("header-button", className)} href={href}>
         <Button
           variant="ghost"
-          className={`border-b-2 rounded-none border-blue-600 header-button ${className}`}
+          className={`border-b-2 dark:text-slate-200 rounded-none border-blue-600 header-button ${className} dark:border-blue-400`}
         >
           {children}
         </Button>
@@ -45,7 +46,7 @@ const HeaderButton = ({
 
   return (
     <PrefetchPageLink className={cn("header-button", className)} href={href}>
-      <Button className={className} variant="ghost">
+      <Button className={`${className} dark:text-gray-300`} variant="ghost">
         {children}
       </Button>
     </PrefetchPageLink>
@@ -57,17 +58,17 @@ export default function Header() {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
 
   return (
-    <header className="px-4 py-3">
+    <header className="px-4 py-3 dark:bg-gray-950">
       <div className="flex items-center">
         <PrefetchPageLink
           href="/"
           className="text-lg font-semibold whitespace-nowrap"
         >
-          <span className="bg-blue-500 px-2 py-1 rounded-md text-white">
+          <span className="px-2 py-1 text-white bg-blue-500 rounded-md dark:bg-blue-700">
             tscircuit
           </span>
         </PrefetchPageLink>
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="items-center hidden space-x-4 md:flex">
           <nav>
             <ul className="flex items-center gap-2 ml-2">
               {isLoggedIn && (
@@ -88,7 +89,9 @@ export default function Header() {
               </li>
               <li>
                 <a href="https://docs.tscircuit.com">
-                  <Button variant="ghost">Docs</Button>
+                  <Button className="dark:text-slate-100" variant="ghost">
+                    Docs
+                  </Button>
                 </a>
               </li>
               <li>
@@ -98,7 +101,7 @@ export default function Header() {
                   className="mr-2"
                 >
                   <Button variant="ghost">
-                    <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
+                    <DiscordLogoIcon className="w-4 h-4 text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-500" />
                   </Button>
                 </a>
               </li>
@@ -112,12 +115,13 @@ export default function Header() {
           className="mr-4"
           aria-label="View TSCircuit on GitHub"
         >
-          <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
+          <GitHubLogoIcon className="text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-500" />
         </a>
         {/* <a href="https://tscircuit.com/join" target="_blank" className="mr-2">
-          <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
+          <DiscordLogoIcon className="text-gray-400 transition-colors hover:text-gray-600" />
         </a> */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="items-center hidden space-x-4 md:flex">
+          <ToggleMode />
           <SearchComponent />
           <HeaderDropdown />
           <HeaderLogin />
@@ -131,13 +135,13 @@ export default function Header() {
         </button>
       </div>
       {mobileMenuOpen && (
-        <div className="md:hidden mt-4">
+        <div className="mt-4 md:hidden">
           <nav className="mb-4">
-            <ul className="flex flex-col gap-2 w-full">
+            <ul className="flex flex-col w-full gap-2">
               {isLoggedIn && (
                 <li>
                   <HeaderButton
-                    className="w-full justify-start"
+                    className="justify-start w-full"
                     href="/dashboard"
                   >
                     Dashboard
@@ -145,13 +149,13 @@ export default function Header() {
                 </li>
               )}
               <li>
-                <HeaderButton className="w-full justify-start" href="/newest">
+                <HeaderButton className="justify-start w-full" href="/newest">
                   Newest
                 </HeaderButton>
               </li>
               <li>
                 <HeaderButton
-                  className="w-full justify-start"
+                  className="justify-start w-full"
                   href="/quickstart"
                   alsoHighlightForUrl="/editor"
                 >
@@ -159,13 +163,13 @@ export default function Header() {
                 </HeaderButton>
               </li>
               <li>
-                <HeaderButton className="w-full justify-start" href="/ai">
+                <HeaderButton className="justify-start w-full" href="/ai">
                   AI
                 </HeaderButton>
               </li>
               <li>
                 <HeaderButton
-                  className="w-full justify-start"
+                  className="justify-start w-full"
                   href="https://docs.tscircuit.com"
                 >
                   Docs
@@ -174,6 +178,7 @@ export default function Header() {
             </ul>
           </nav>
           <div className="flex flex-col gap-4">
+            <ToggleMode />
             <SearchComponent />
             <HeaderDropdown />
             <HeaderLogin />
