@@ -17,7 +17,7 @@
     <link rel="canonical" href="https://tscircuit.com" />
 
     <style>
-    
+
       * {
         margin: 0;
         padding: 0;
@@ -29,7 +29,7 @@
         background-color: #f4f4f4;
       }
 
-     
+
       .loading-overlay {
         position: fixed; 
         top: 0;
@@ -53,7 +53,7 @@
 
       .loading {
         background-color: lightgrey;
-        height: 5px;
+        height: 2px;
         overflow: hidden;
         position: relative;
         width: 12em;
@@ -66,10 +66,10 @@
         background-color: dodgerblue;
         height: 100%;
         position: absolute;
-        width: 50%;
+        width: 45%;
       }
 
-   
+
       @keyframes side2side {
         0%, 100% {
           transform: translateX(-50%);
@@ -78,15 +78,35 @@
           transform: translateX(150%);
         }
       }
-
-    </style>
+      </style>
       <script>
-    
-    document.addEventListener("DOMContentLoaded", () => {
-    const skeletonLoader = document.getElementById("loader");
-    if (skeletonLoader) {
-        skeletonLoader.style.display = "none";
-    }
+window.addEventListener("DOMContentLoaded", () => {
+  const loader = document.getElementById("loader");
+
+  // Ensure loader is visible for at least 500ms
+  const ensureLoaderVisibleTime = 500;
+
+  // Listen for React rendering
+  const reactReadyEvent = new Promise((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (document.getElementById("root").childNodes.length > 0) {
+        resolve();
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.getElementById("root"), { childList: true });
+  });
+
+  // Wait for both React and delay
+  Promise.all([
+    reactReadyEvent,
+    new Promise((resolve) => setTimeout(resolve, ensureLoaderVisibleTime)),
+  ]).then(() => {
+    // Smoothly hide loader
+    loader.style.opacity = "0";
+    loader.style.transition = "opacity 0.3s ease";
+    setTimeout(() => (loader.style.display = "none"), 300); 
+  });
 });
 
       </script>
