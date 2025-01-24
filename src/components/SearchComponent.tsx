@@ -106,7 +106,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       />
       {isLoading && (
         <div className="absolute left-0 right-0 z-10 flex items-center justify-center p-2 mt-2 space-x-2 bg-white rounded-md shadow-lg top-full dark:bg-gray-900">
-          <span className="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Loading...
+          </span>
         </div>
       )}
 
@@ -118,7 +120,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
               {searchResults.map((snippet: any) => (
-                <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800">
+                <li
+                  key={snippet.snippet_id}
+                  className="p-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <LinkWithNewTabHandling
                     href={
                       shouldOpenInEditor
@@ -150,7 +155,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
               ))}
             </ul>
           ) : (
-            <Alert variant="default" className="p-4 dark:bg-gray-800 dark:text-gray-100">
+            <Alert
+              variant="default"
+              className="p-4 dark:bg-gray-800 dark:text-gray-100"
+            >
               No results found for "{searchQuery}"
             </Alert>
           )}
