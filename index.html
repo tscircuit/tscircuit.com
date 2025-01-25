@@ -17,6 +17,7 @@
     <link rel="canonical" href="https://tscircuit.com" />
 
     <style>
+
       * {
         margin: 0;
         padding: 0;
@@ -28,17 +29,18 @@
         background-color: #f4f4f4;
       }
 
+
       .loading-overlay {
-        position: fixed;
+        position: fixed; 
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.7); 
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 9999;
+        z-index: 9999; 
       }
 
       .loading-container {
@@ -47,6 +49,7 @@
         align-items: center;
         gap: 1em;
       }
+
 
       .loading {
         background-color: lightgrey;
@@ -57,13 +60,15 @@
         border-radius: 2px;
       }
 
+
       .loading-bar {
         animation: side2side 2s ease-in-out infinite;
         background-color: dodgerblue;
         height: 100%;
         position: absolute;
-        width: 0%; /* Start with 0% width */
+        width: 45%;
       }
+
 
       @keyframes side2side {
         0%, 100% {
@@ -73,133 +78,126 @@
           transform: translateX(150%);
         }
       }
-    </style>
+      </style>
   
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const loader = document.getElementById("loader");
-        const root = document.getElementById("root");
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const loader = document.getElementById("loader");
+  const root = document.getElementById("root");
 
-        // Show loader function
-        const showLoader = () => {
-          loader.style.display = "flex";
-          loader.style.opacity = "1";
-          const loadingBar = loader.querySelector(".loading-bar");
-          loadingBar.style.width = "45%"; // Start the animation
-        };
+  // Show loader function
+  const showLoader = () => {
+    loader.style.display = "flex";
+    loader.style.opacity = "1";
+    const loadingBar = loader.querySelector(".loading-bar");
+    loadingBar.style.width = "45%";
+  };
 
-        // Hide loader function
-        const hideLoader = () => {
-          const loadingBar = loader.querySelector(".loading-bar");
-          loadingBar.style.width = "0"; // Reset the progress bar
-          loader.style.transition = "opacity 0.3s ease";
-          loader.style.opacity = "0";
-          setTimeout(() => {
-            loader.style.display = "none";
-          }, 300);
-        };
+  // Hide loader function
+  const hideLoader = () => {
+    const loadingBar = loader.querySelector(".loading-bar");
+    loadingBar.style.width = "0";
+    loader.style.transition = "opacity 0.3s ease";
+    loader.style.opacity = "0";
+    setTimeout(() => {
+      loader.style.display = "none";
+    }, 300);
+  };
 
-        // Minimum loader display time
-        const MIN_LOADER_TIME = 500;
+  // Minimum loader display time
+  const MIN_LOADER_TIME = 500;
 
-        // Detect page refresh and initial load
-        const isPageRefresh = performance.navigation.type === performance.navigation.TYPE_RELOAD;
+  // Enhanced navigation tracking
+  const trackNavigation = () => {
+    // Intercept history methods
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
 
-        // Show loader if it's a page refresh
-        if (isPageRefresh) {
-          showLoader();
-          setTimeout(hideLoader, MIN_LOADER_TIME); // Hide after minimum time
+    history.pushState = function(...args) {
+      showLoader();
+      originalPushState.apply(this, args);
+      
+      // Wait for content to load
+      const checkContentLoaded = () => {
+        if (root.childNodes.length > 0) {
+          setTimeout(hideLoader, MIN_LOADER_TIME);
+        } else {
+          setTimeout(checkContentLoaded, 50);
         }
+      };
+      checkContentLoaded();
+    };
 
-        // Enhanced navigation tracking (for SPAs)
-        const trackNavigation = () => {
-          const originalPushState = history.pushState;
-          const originalReplaceState = history.replaceState;
+    history.replaceState = function(...args) {
+      showLoader();
+      originalReplaceState.apply(this, args);
+      
+      const checkContentLoaded = () => {
+        if (root.childNodes.length > 0) {
+          setTimeout(hideLoader, MIN_LOADER_TIME);
+        } else {
+          setTimeout(checkContentLoaded, 50);
+        }
+      };
+      checkContentLoaded();
+    };
 
-          // Intercept history methods for navigation
-          history.pushState = function(...args) {
-            showLoader();
-            originalPushState.apply(this, args);
+    // Handle browser back/forward
+    window.addEventListener("popstate", () => {
+      showLoader();
+      const checkContentLoaded = () => {
+        if (root.childNodes.length > 0) {
+          setTimeout(hideLoader, MIN_LOADER_TIME);
+        } else {
+          setTimeout(checkContentLoaded, 50);
+        }
+      };
+      checkContentLoaded();
+    });
+  };
 
-            // Wait for content to load
-            const checkContentLoaded = () => {
-              if (root.childNodes.length > 0) {
-                setTimeout(hideLoader, MIN_LOADER_TIME);
-              } else {
-                setTimeout(checkContentLoaded, 50); // Continue checking if content is not ready
-              }
-            };
-            checkContentLoaded();
-          };
-
-          history.replaceState = function(...args) {
-            showLoader();
-            originalReplaceState.apply(this, args);
-
-            const checkContentLoaded = () => {
-              if (root.childNodes.length > 0) {
-                setTimeout(hideLoader, MIN_LOADER_TIME);
-              } else {
-                setTimeout(checkContentLoaded, 50);
-              }
-            };
-            checkContentLoaded();
-          };
-
-          // Handle browser back/forward navigation
-          window.addEventListener("popstate", () => {
-            showLoader();
-            const checkContentLoaded = () => {
-              if (root.childNodes.length > 0) {
-                setTimeout(hideLoader, MIN_LOADER_TIME);
-              } else {
-                setTimeout(checkContentLoaded, 50);
-              }
-            };
-            checkContentLoaded();
-          });
-        };
-
-        // Initialize navigation tracking
-        trackNavigation();
-
-        // Initial page load handling with content observer
-        const initialLoadHandler = () => {
-          const contentReadyPromise = new Promise((resolve) => {
-            const observer = new MutationObserver(() => {
-              if (root.childNodes.length > 0) {
-                resolve();
-                observer.disconnect();
-              }
-            });
-            observer.observe(root, { childList: true });
-          });
-
-          Promise.all([
-            contentReadyPromise,
-            new Promise((resolve) => setTimeout(resolve, MIN_LOADER_TIME)) // Ensure loader stays for a minimum time
-          ]).then(hideLoader);
-        };
-
-        // Trigger initial load handler
-        initialLoadHandler();
+  // Initial page load handling
+  const initialLoadHandler = () => {
+    const contentReadyPromise = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (root.childNodes.length > 0) {
+          resolve();
+          observer.disconnect();
+        }
       });
-    </script>
-  </head>
+      observer.observe(root, { childList: true });
+    });
 
+    Promise.all([
+      contentReadyPromise,
+      new Promise((resolve) => setTimeout(resolve, MIN_LOADER_TIME))
+    ]).then(hideLoader);
+  };
+
+  // Initialize navigation tracking and initial load
+  trackNavigation();
+  initialLoadHandler();
+});
+
+      </script>
+  </head>
   <body>
-    <div id="loader" class="loading-container">
-      <div id="loading-overlay" class="loading-overlay">
-        <div class="loading-container">
-          <div class="loading">
-            <div class="loading-bar"></div>
-          </div>
+    <div id="loader" class="loading-container"> 
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="loading-container">
+     
+        <div class="loading">
+          <div class="loading-bar"></div>
         </div>
       </div>
     </div>
+  </div> 
+
 
     <div id="root"></div>
+    <script type="module" src="./src/main.tsx">
+     
+   
+    </script>
 
-    <script type="module" src="./src/main.tsx"></script>
   </body>
-</html>
