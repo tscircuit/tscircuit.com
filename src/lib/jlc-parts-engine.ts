@@ -48,7 +48,7 @@ export const jlcPartsEngine: PartsEngine = {
         gender: "male",
         pin_count: undefined as number | undefined,
       }
-    
+
       // 2. Extract pin count from footprint if available
       if (!sourceComponent.pin_count && footprinterString) {
         const pinCountMatch = footprinterString.match(/(\d+)/)
@@ -56,33 +56,32 @@ export const jlcPartsEngine: PartsEngine = {
           defaultValues.pin_count = parseInt(pinCountMatch[1], 10)
         }
       }
-    
+
       // 3. Use provided values or defaults
       const pin_count = sourceComponent.pin_count || defaultValues.pin_count
       const gender = sourceComponent.gender || defaultValues.gender
-    
+
       // 4. Early validation
       if (!pin_count) {
-        console.warn(`Pin count not found for pin header: ${sourceComponent.name}`)
+        console.warn(
+          `Pin count not found for pin header: ${sourceComponent.name}`,
+        )
         return {}
       }
-    
+
       // 5. Extract pitch if available
       let pitch
       if (footprinterString?.includes("_p")) {
         pitch = footprinterString.split("_p")[1]
       }
-    
+
       // 6. Call API with validated parameters
       try {
-        const { headers } = await getJlcPartsCached(
-          "headers",
-          {
-            ...(pitch ? { pitch } : {}),
-            num_pins: pin_count,
-            gender,
-          }
-        )
+        const { headers } = await getJlcPartsCached("headers", {
+          ...(pitch ? { pitch } : {}),
+          num_pins: pin_count,
+          gender,
+        })
         return {
           jlcpcb: (headers || []).map((h: any) => `C${h.lcsc}`).slice(0, 3),
         }
