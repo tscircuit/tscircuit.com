@@ -56,7 +56,6 @@ export const ImportSnippetDialog = ({
                     href={`/${snippet.name}`}
                     target="_blank"
                     className="whitespace-nowrap mr-2 text-blue-500 hover:underline cursor-pointer flex-shrink-0"
-                    rel="noreferrer"
                   >
                     {snippet.name}
                   </a>
