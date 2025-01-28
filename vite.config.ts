@@ -113,8 +113,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
     },
     base: "/",
     build: {
-      minify: "terser",
       copyPublicDir: true,
+      minify: "terser",
       terserOptions: {
         compress: {
           drop_console: true,

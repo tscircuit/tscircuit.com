@@ -10,6 +10,8 @@ export type Store = {
   } | null
   setSession: (session: Store["session"]) => any
   should_onboarding_tips_be_closed: boolean
+  should_use_webworker_for_run?: boolean
+  setShouldUseWebworkerForRun: (should_use_webworker_for_run: boolean) => any
   setOnboardingTipsClosed: (closed: boolean) => any
 }
 
@@ -17,6 +19,9 @@ export const useGlobalStore = create<Store>()(
   persist(
     (set) => ({
       session: null,
+      should_use_webworker_for_run: false,
+      setShouldUseWebworkerForRun: (should_use_webworker_for_run: boolean) =>
+        set({ should_use_webworker_for_run }),
       setSession: (session) => set({ session }),
       should_onboarding_tips_be_closed: false,
       setOnboardingTipsClosed: (closed) =>

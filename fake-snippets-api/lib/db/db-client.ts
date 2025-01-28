@@ -14,6 +14,7 @@ import {
   Order,
   OrderFile,
   AccountSnippet,
+  packageReleaseSchema,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -85,17 +86,31 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return newAccount
   },
   addSnippet: (
-    snippet: Omit<z.input<typeof snippetSchema>, "snippet_id">,
+    snippet: Omit<
+      z.input<typeof snippetSchema>,
+      "snippet_id" | "package_release_id"
+    >,
   ): Snippet => {
     const newSnippetId = `snippet_${get().idCounter + 1}`
+    const newPackageRelease = packageReleaseSchema.parse({
+      package_release_id: `package_release_${get().idCounter + 1}`,
+      package_id: newSnippetId,
+      version: "0.0.1",
+      is_locked: false,
+      is_latest: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
     const newSnippet = snippetSchema.parse({
       ...snippet,
       snippet_id: newSnippetId,
+      package_release_id: newPackageRelease.package_release_id,
     })
     set((state) => {
       return {
         snippets: [...state.snippets, newSnippet],
-        idCounter: state.idCounter + 1,
+        packageReleases: [...state.packageReleases, newPackageRelease],
+        idCounter: state.idCounter + 2,
       }
     })
     return { ...newSnippet, snippet_id: newSnippetId }

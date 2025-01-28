@@ -16,7 +16,7 @@ export default withRouteSpec({
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    snippet: snippetSchema,
+    snippet: snippetSchema.optional(),
   }),
 })(async (req, ctx) => {
   let {
@@ -28,11 +28,28 @@ export default withRouteSpec({
     circuit_json,
     dts,
   } = req.jsonBody
+
   if (!unscoped_name) {
     unscoped_name = `untitled-${snippet_type}-${ctx.db.idCounter + 1}`
   }
-  const newSnippet: z.input<typeof snippetSchema> = {
-    snippet_id: `snippet_${ctx.db.idCounter + 1}`,
+
+  const existingSnippet = ctx.db.snippets.find(
+    (snippet) =>
+      snippet.unscoped_name === unscoped_name &&
+      snippet.owner_name === ctx.auth.github_username,
+  )
+
+  if (existingSnippet) {
+    return ctx.error(400, {
+      error_code: "snippet_already_exists",
+      message: "You have already forked this snippet in your account.",
+    })
+  }
+
+  let newSnippet: Omit<
+    z.input<typeof snippetSchema>,
+    "snippet_id" | "package_release_id"
+  > = {
     name: `${ctx.auth.github_username}/${unscoped_name}`,
     unscoped_name,
     owner_name: ctx.auth.github_username,
@@ -46,7 +63,14 @@ export default withRouteSpec({
     dts,
   }
 
-  ctx.db.addSnippet(newSnippet)
+  try {
+    newSnippet = ctx.db.addSnippet(newSnippet)
+  } catch (error) {
+    return ctx.error(500, {
+      error_code: "snippet_creation_failed",
+      message: `Failed to create snippet: ${error}`,
+    })
+  }
 
   return ctx.json({
     ok: true,
