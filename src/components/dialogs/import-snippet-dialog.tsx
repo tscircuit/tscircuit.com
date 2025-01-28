@@ -1,10 +1,11 @@
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
+import { useAxios } from "@/hooks/use-axios"
+import { useDebounce } from "@/hooks/use-debounce"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
 import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Input } from "../ui/input"
 import { createUseDialog } from "./create-use-dialog"
 
 export const ImportSnippetDialog = ({
@@ -17,15 +18,16 @@ export const ImportSnippetDialog = ({
   onSnippetSelected: (snippet: Snippet) => any
 }) => {
   const [searchText, setSearchText] = useState("")
+  const debouncedSearch = useDebounce(searchText, 300)
   const axios = useAxios()
   const { data: snippets, isLoading } = useQuery(
-    ["snippetSearch", searchText],
+    ["snippetSearch", debouncedSearch],
     async () => {
-      const response = await axios.get(`/snippets/search?q=${searchText}`)
+      const response = await axios.get(`/snippets/search?q=${debouncedSearch}`)
       return response.data.snippets.slice(0, 12)
     },
     {
-      enabled: searchText.length > 0,
+      enabled: debouncedSearch.length > 0,
     },
   )
 
