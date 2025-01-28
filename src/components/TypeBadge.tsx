@@ -1,7 +1,7 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 
-type BadgeType = "board" | "package" | "footprint" | "model" | "json"
+type BadgeType = "board" | "package" | "footprint" | "model"
 
 interface TypeBadgeProps {
   type: string | BadgeType
@@ -13,7 +13,6 @@ const typeColors: Record<BadgeType, string> = {
   package: "bg-green-500",
   footprint: "bg-purple-500",
   model: "bg-indigo-500",
-  json: "bg-violet-500",
 }
 
 export const TypeBadge: React.FC<TypeBadgeProps> = ({ type, className }) => {
