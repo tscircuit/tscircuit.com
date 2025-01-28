@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useLocation } from "wouter"
@@ -19,9 +19,9 @@ interface CircuitJsonImportDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-const isValidURL = (url: string) => {
+const isValidJSON = (code: string) => {
   try {
-    new URL(url)
+    JSON.parse(code)
     return true
   } catch {
     return false
@@ -32,7 +32,7 @@ export function CircuitJsonImportDialog({
   open,
   onOpenChange,
 }: CircuitJsonImportDialogProps) {
-  const [externalCircuitJsonUrl, setexternalCircuitJsonUrl] = useState("")
+  const [circuitJson, setcircuitJson] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,34 +62,14 @@ export function CircuitJsonImportDialog({
         setError("Error reading JSON file. Please ensure it is valid.")
         return
       }
-    } else if (isValidURL(externalCircuitJsonUrl)) {
+    } else if (isValidJSON(circuitJson)) {
       setIsLoading(true)
       setError(null)
-
-      try {
-        const response = await fetch(externalCircuitJsonUrl, {
-          headers: { Accept: "application/json" },
-        })
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok")
-        }
-
-        importedCircuitJson = await response.json()
-      } catch (error) {
-        console.error("Error importing Circuit Json:", error)
-        toast({
-          title: "Import Failed",
-          description: "Failed to import the Circuit Json from the URL.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-        return
-      }
+      importedCircuitJson = JSON.parse(circuitJson)
     } else {
       toast({
         title: "Invalid Input",
-        description: "Please provide a valid JSON file or URL.",
+        description: "Please provide a valid JSON content or file.",
         variant: "destructive",
       })
       return
@@ -103,7 +83,7 @@ export function CircuitJsonImportDialog({
     } catch {
       toast({
         title: "Import Failed",
-        description: "Invalid JSON was provided.",
+        description: "Invalid Circuit JSON was provided.",
         variant: "destructive",
       })
       setIsLoading(false)
@@ -150,12 +130,11 @@ export function CircuitJsonImportDialog({
           <DialogTitle>Import Circuit JSON</DialogTitle>
         </DialogHeader>
         <div className="pb-4">
-          <Input
-            type="url"
+          <Textarea
             className="mt-3"
-            placeholder="Paste the URL to import the Circuit JSON (e.g. https://example.com/circuit.json)."
-            value={externalCircuitJsonUrl}
-            onChange={(e) => setexternalCircuitJsonUrl(e.target.value)}
+            placeholder="Paste the Circuit JSON."
+            value={circuitJson}
+            onChange={(e) => setcircuitJson(e.target.value)}
             disabled={!!file}
           />
           <div className="mt-4 flex flex-col gap-2">
