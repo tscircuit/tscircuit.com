@@ -17,7 +17,6 @@
     <link rel="canonical" href="https://tscircuit.com" />
 
     <style>
-
       * {
         margin: 0;
         padding: 0;
@@ -29,18 +28,18 @@
         background-color: #f4f4f4;
       }
 
-
+      /* Loader Styles */
       .loading-overlay {
-        position: fixed; 
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.7); 
+        background: rgba(255, 255, 255, 0.7);
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 9999; 
+        z-index: 9999;
       }
 
       .loading-container {
@@ -49,7 +48,6 @@
         align-items: center;
         gap: 1em;
       }
-
 
       .loading {
         background-color: lightgrey;
@@ -60,7 +58,6 @@
         border-radius: 2px;
       }
 
-
       .loading-bar {
         animation: side2side 2s ease-in-out infinite;
         background-color: dodgerblue;
@@ -68,7 +65,6 @@
         position: absolute;
         width: 45%;
       }
-
 
       @keyframes side2side {
         0%, 100% {
@@ -78,126 +74,36 @@
           transform: translateX(150%);
         }
       }
-      </style>
-  
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const loader = document.getElementById("loader");
-  const root = document.getElementById("root");
+    </style>
 
-  // Show loader function
-  const showLoader = () => {
-    loader.style.display = "flex";
-    loader.style.opacity = "1";
-    const loadingBar = loader.querySelector(".loading-bar");
-    loadingBar.style.width = "45%";
-  };
+    <script>
+      window.onload = function() {
+        const loader = document.getElementById("loader");
+        const root = document.getElementById("root");
 
-  // Hide loader function
-  const hideLoader = () => {
-    const loadingBar = loader.querySelector(".loading-bar");
-    loadingBar.style.width = "0";
-    loader.style.transition = "opacity 0.3s ease";
-    loader.style.opacity = "0";
-    setTimeout(() => {
-      loader.style.display = "none";
-    }, 300);
-  };
-
-  // Minimum loader display time
-  const MIN_LOADER_TIME = 500;
-
-  // Enhanced navigation tracking
-  const trackNavigation = () => {
-    // Intercept history methods
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
-
-    history.pushState = function(...args) {
-      showLoader();
-      originalPushState.apply(this, args);
-      
-      // Wait for content to load
-      const checkContentLoaded = () => {
-        if (root.childNodes.length > 0) {
-          setTimeout(hideLoader, MIN_LOADER_TIME);
-        } else {
-          setTimeout(checkContentLoaded, 50);
-        }
+        // Hide the loader and show the root when the page has fully loaded
+        loader.style.transition = "opacity 0.3s ease";
+        loader.style.opacity = "0"; // Fade out the loader
+        setTimeout(function() {
+          loader.style.display = "none"; // Hide loader completely
+          root.style.visibility = "visible"; // Show the root content
+        }, 300); // Match the opacity transition duration
       };
-      checkContentLoaded();
-    };
-
-    history.replaceState = function(...args) {
-      showLoader();
-      originalReplaceState.apply(this, args);
-      
-      const checkContentLoaded = () => {
-        if (root.childNodes.length > 0) {
-          setTimeout(hideLoader, MIN_LOADER_TIME);
-        } else {
-          setTimeout(checkContentLoaded, 50);
-        }
-      };
-      checkContentLoaded();
-    };
-
-    // Handle browser back/forward
-    window.addEventListener("popstate", () => {
-      showLoader();
-      const checkContentLoaded = () => {
-        if (root.childNodes.length > 0) {
-          setTimeout(hideLoader, MIN_LOADER_TIME);
-        } else {
-          setTimeout(checkContentLoaded, 50);
-        }
-      };
-      checkContentLoaded();
-    });
-  };
-
-  // Initial page load handling
-  const initialLoadHandler = () => {
-    const contentReadyPromise = new Promise((resolve) => {
-      const observer = new MutationObserver(() => {
-        if (root.childNodes.length > 0) {
-          resolve();
-          observer.disconnect();
-        }
-      });
-      observer.observe(root, { childList: true });
-    });
-
-    Promise.all([
-      contentReadyPromise,
-      new Promise((resolve) => setTimeout(resolve, MIN_LOADER_TIME))
-    ]).then(hideLoader);
-  };
-
-  // Initialize navigation tracking and initial load
-  trackNavigation();
-  initialLoadHandler();
-});
-
-      </script>
+    </script>
   </head>
   <body>
-    <div id="loader" class="loading-container"> 
-    <div id="loading-overlay" class="loading-overlay">
-      <div class="loading-container">
-     
-        <div class="loading">
-          <div class="loading-bar"></div>
+    <div class="loaderanimation">
+      <div id="loader" class="loading-overlay">
+        <div class="loading-container">
+          <div class="loading">
+            <div class="loading-bar"></div>
+          </div>
         </div>
       </div>
     </div>
-  </div> 
 
+    <div id="root" class="loaderanimation" style="visibility: hidden;"></div> <!-- Initially hidden -->
 
-    <div id="root"></div>
-    <script type="module" src="./src/main.tsx">
-     
-   
-    </script>
-
+    <script type="module" src="./src/main.tsx"></script>
   </body>
+</html>
