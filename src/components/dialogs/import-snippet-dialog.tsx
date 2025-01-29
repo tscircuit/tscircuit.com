@@ -23,7 +23,9 @@ export const ImportSnippetDialog = ({
   const { data: snippets, isLoading } = useQuery(
     ["snippetSearch", debouncedSearch],
     async () => {
-      const response = await axios.get(`/snippets/search?q=${debouncedSearch}`)
+      const response = await axios.get(
+        `/snippets/search?q=${encodeURIComponent(debouncedSearch)}`,
+      )
       return response.data.snippets.slice(0, 12)
     },
     {
