@@ -110,7 +110,7 @@
         "@biomejs/biome": "^1.9.2",
         "@playwright/test": "^1.48.0",
         "@tscircuit/core": "^0.0.294",
-        "@tscircuit/prompt-benchmarks": "^0.0.27",
+        "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/runframe": "^0.0.136",
         "@types/babel__standalone": "^7.1.7",
         "@types/bun": "^1.1.10",
@@ -713,7 +713,7 @@
 
     "@tscircuit/pcb-viewer": ["@tscircuit/pcb-viewer@1.11.12", "", { "dependencies": { "@emotion/css": "^11.11.2", "@tscircuit/math-utils": "^0.0.7", "circuit-json-to-connectivity-map": "^0.0.18", "circuit-to-svg": "^0.0.36", "color": "^4.2.3", "react-supergrid": "^1.0.10", "react-toastify": "^10.0.5", "transformation-matrix": "^2.13.0", "zustand": "^4.5.2" }, "peerDependencies": { "@tscircuit/core": "*", "react": "*" } }, "sha512-rJb/Xw79tTOjYg/SUq+uuuEifYZJFcnWF+wGA+s4OeBE1qs0IpIhyQXnXpXI6QZr5r/sBI17c8I1HqL2yqwJRw=="],
 
-    "@tscircuit/prompt-benchmarks": ["@tscircuit/prompt-benchmarks@0.0.27", "", { "dependencies": { "@babel/standalone": "^7.25.7", "@tscircuit/featured-snippets": "^0.0.1", "@tscircuit/footprinter": "^0.0.102", "debug": "^4.3.7", "dotenv": "^16.4.7", "evalite": "^0.8.2", "extract-codefence": "^0.0.4", "toml": "^3.0.0" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-5evdIi0J0F/nI8bKNOkAa4+0SvD0OTJFKWH9WBEJf6PZwf1gC458/nz1/nwqb7+Bvw337/9HJS4tslPwIcfWPw=="],
+    "@tscircuit/prompt-benchmarks": ["@tscircuit/prompt-benchmarks@0.0.28", "", { "dependencies": { "@babel/standalone": "^7.25.7", "@tscircuit/featured-snippets": "^0.0.1", "@tscircuit/footprinter": "^0.0.102", "debug": "^4.3.7", "dotenv": "^16.4.7", "evalite": "^0.8.2", "extract-codefence": "^0.0.4", "toml": "^3.0.0" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-SOhKWAWp3bSvUvbGbtl1ygyyDhF42IbezS965fyUz5cUMJVFyGOoRD0kJak78NVqmHHDMRRPf1R8c5UUaIdBnw=="],
 
     "@tscircuit/props": ["@tscircuit/props@0.0.138", "", { "peerDependencies": { "@tscircuit/layout": "*", "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-5QosBu8v5QjuXGC4JioDibxz3MWRrBIfeoY4C3mdKCrnUkCu/uAeuSRY4p8nzt19scATU6bkxsJcDutFmivOdA=="],
 
