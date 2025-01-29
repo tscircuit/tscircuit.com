@@ -24,14 +24,14 @@ describe("jlcPartsEngine", () => {
       { lcsc: "123" },
       { lcsc: "456" },
       { lcsc: "789" },
-      { lcsc: "012" }
+      { lcsc: "012" },
     ]
 
     beforeEach(() => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
-          json: () => Promise.resolve({ headers: mockHeaders })
-        })
+          json: () => Promise.resolve({ headers: mockHeaders }),
+        }),
       ) as jest.Mock
     })
 
@@ -47,14 +47,14 @@ describe("jlcPartsEngine", () => {
           source_component_id: "J1",
           pin_count: 8,
           gender: "female",
-          name: "J1"
+          name: "J1",
         },
-        footprinterString: "header_8_p2.54"
+        footprinterString: "header_8_p2.54",
       })
 
       expect(result.jlcpcb).toEqual(["C123", "C456", "C789"])
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining("pitch=2.54&num_pins=8&gender=female")
+        expect.stringContaining("pitch=2.54&num_pins=8&gender=female"),
       )
     })
 
@@ -66,15 +66,13 @@ describe("jlcPartsEngine", () => {
           ftype: "simple_pin_header",
           gender: "male",
           name: "J2",
-          pin_count: 16
+          pin_count: 16,
         },
-        footprinterString: "header_16"
+        footprinterString: "header_16",
       })
 
       expect(result.jlcpcb).toEqual(["C123", "C456", "C789"])
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining("num_pins=16")
-      )
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("num_pins=16"))
     })
 
     test("uses default male gender when not specified", async () => {
@@ -85,15 +83,13 @@ describe("jlcPartsEngine", () => {
           ftype: "simple_pin_header",
           pin_count: 4,
           name: "J3",
-          gender: "male"
+          gender: "male",
         },
-        footprinterString: "header_4"
+        footprinterString: "header_4",
       })
 
       expect(result.jlcpcb).toEqual(["C123", "C456", "C789"])
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining("gender=male")
-      )
+      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("gender=male"))
     })
 
     test("handles missing pin count and invalid footprint", async () => {
@@ -104,9 +100,9 @@ describe("jlcPartsEngine", () => {
           ftype: "simple_pin_header",
           pin_count: 4,
           name: "J4",
-          gender: "male"
+          gender: "male",
         },
-        footprinterString: "invalid_header"
+        footprinterString: "invalid_header",
       })
 
       expect(result).toEqual({})
@@ -123,9 +119,9 @@ describe("jlcPartsEngine", () => {
           ftype: "simple_pin_header",
           pin_count: 8,
           gender: "male",
-          name: "J5"
+          name: "J5",
         },
-        footprinterString: "header_8"
+        footprinterString: "header_8",
       })
 
       expect(result).toEqual({})
