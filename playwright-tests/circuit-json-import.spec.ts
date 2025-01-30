@@ -14,9 +14,7 @@ test.beforeEach(async ({ page }) => {
 test("should open the Circuit Json Import Dialog", async ({ page }) => {
   const importButton = page.locator('button:has-text("Import Circuit JSON")')
   await importButton.click()
-
-  const dialog = page.locator(".Dialog")
-  await expect(dialog).toBeVisible()
+  await expect(page.getByRole("dialog")).toBeVisible()
 })
 
 test("should handle valid Circuit JSON input", async ({ page }) => {
@@ -84,7 +82,13 @@ test("should handle invalid Circuit JSON file upload", async ({ page }) => {
   await importButton.click()
 
   const fileInput = page.locator('input[type="file"]')
-  await fileInput.setInputFiles("path/to/invalid/circuit.txt")
+  await fileInput.setInputFiles({
+    name: "circuit.json",
+    mimeType: "application/json",
+    buffer: new Blob([JSON.stringify({})], {
+      type: "application/json",
+    }),
+  })
 
   const importDialogButton = page.locator('button:has-text("Import")')
   await importDialogButton.click()
