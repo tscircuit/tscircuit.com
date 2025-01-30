@@ -33,7 +33,7 @@ jobs:
 
       - name: Save stats as artifact                                                                                      
         if: success()                                                                                                     
-        uses: actions/upload-artifact@v3                                                                                  
+        uses: actions/upload-artifact@v4                                                                                  
         with:                                                                                                             
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
