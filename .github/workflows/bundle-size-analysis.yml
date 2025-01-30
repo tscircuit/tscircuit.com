@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
@@ -33,7 +33,7 @@ jobs:
 
       - name: Save stats as artifact                                                                                      
         if: success()                                                                                                     
-        uses: actions/upload-artifact@v3                                                                                  
+        uses: actions/upload-artifact@v4                                                                                 
         with:                                                                                                             
           name: bundle-stats                                                                                              
           path: dist/stats.html                                                                                           
