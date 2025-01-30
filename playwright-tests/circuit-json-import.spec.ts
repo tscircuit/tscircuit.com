@@ -18,6 +18,11 @@ test("should open the Circuit Json Import Dialog", async ({ page }) => {
 })
 
 test("should handle valid Circuit JSON input", async ({ page }) => {
+  const loginButton = page.getByRole("button", { name: "Log in" })
+  if (loginButton) {
+    await loginButton.click()
+  }
+
   const importButton = page.getByRole("button", { name: "Import Circuit JSON" })
   await importButton.click()
 
@@ -29,7 +34,7 @@ test("should handle valid Circuit JSON input", async ({ page }) => {
       "components": []
     }`)
 
-  const importDialogButton = page.locator('button:has-text("Import")')
+  const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
 
   // Wait for success toast message
