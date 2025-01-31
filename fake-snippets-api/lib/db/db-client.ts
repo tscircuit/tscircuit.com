@@ -379,4 +379,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newPackage
   },
+  getPackageById: (package_id: string): Package | undefined => {
+    const state = get()
+    const pkg = state.packages.find((pkg) => pkg.package_id === package_id)
+    if (!pkg) return undefined
+    return {
+      ...pkg,
+    }
+  },
 }))
