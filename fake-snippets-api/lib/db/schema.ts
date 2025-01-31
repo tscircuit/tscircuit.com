@@ -134,7 +134,9 @@ export const packageSchema = z.object({
   star_count: z.number(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
+  ai_description: z.string().nullable(),
 })
+export type Package = z.infer<typeof packageSchema>
 
 export const errorSchema = z
   .object({
@@ -155,6 +157,7 @@ export const databaseSchema = z.object({
   sessions: z.array(sessionSchema).default([]),
   loginPages: z.array(loginPageSchema).default([]),
   accounts: z.array(accountSchema).default([]),
+  packages: z.array(packageSchema).default([]),
   orders: z.array(orderSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),

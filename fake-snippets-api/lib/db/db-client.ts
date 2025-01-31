@@ -15,6 +15,8 @@ import {
   OrderFile,
   AccountSnippet,
   packageReleaseSchema,
+  packageSchema,
+  Package,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -354,5 +356,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         as.snippet_id === snippet_id &&
         as.has_starred,
     )
+  },
+  addPackage: (
+    _package: Omit<z.input<typeof packageSchema>, "package_id">,
+  ): Package => {
+    const newPackage = {
+      package_id: `package_${Date.now()}`,
+      ..._package,
+    }
+    const packageRelease = packageReleaseSchema.parse({
+      package_release_id: `package_release_${Date.now()}`,
+      package_id: newPackage.package_id,
+      version: "0.0.1",
+      is_locked: false,
+      is_latest: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    newPackage.latest_package_release_id = packageRelease.package_release_id
+    set((state) => ({
+      packages: [...state.packages, newPackage],
+    }))
+    return newPackage
   },
 }))
