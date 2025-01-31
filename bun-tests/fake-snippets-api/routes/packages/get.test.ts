@@ -23,7 +23,10 @@ test("GET /api/packages/get - should return package by package_id", async () => 
     ai_description: "test-package",
   }
 
-  const createResponse = await axios.post("/api/packages/create", newPackageData)
+  const createResponse = await axios.post(
+    "/api/packages/create",
+    newPackageData,
+  )
   expect(createResponse.status).toBe(200)
   const createdPackage = createResponse.data.package
 
@@ -50,7 +53,7 @@ test("GET /api/packages/get - should return 404 if package not found", async () 
     expect(error.status).toBe(404)
     expect(error.data.error.error_code).toBe("package_not_found")
     expect(error.data.error.message).toBe(
-      'Package not found (searched using {"package_id":"non_existent_package_id"})'
+      'Package not found (searched using {"package_id":"non_existent_package_id"})',
     )
   }
 })
