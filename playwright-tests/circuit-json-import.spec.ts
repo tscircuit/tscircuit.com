@@ -30,12 +30,6 @@ test("should open and close the Circuit Json Import Dialog", async ({
   await expect(dialog).not.toBeVisible()
 })
 
-test("should open the Circuit Json Import Dialog", async ({ page }) => {
-  const importButton = page.locator('button:has-text("Import Circuit JSON")')
-  await importButton.click()
-  await expect(page.getByRole("dialog")).toBeVisible()
-})
-
 test("should handle valid Circuit JSON input", async ({ page }) => {
   const importButton = page.getByRole("button", { name: "Import Circuit JSON" })
   await importButton.click()
@@ -69,16 +63,14 @@ test("should handle valid Circuit JSON file upload", async ({ page }) => {
 
   const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
-  await page.screenshot({ path: "todo-page-screenshot.png" })
   const successToast = page.locator(
     'div.text-sm.font-semibold:has-text("Import Successful")',
   )
   await successToast.waitFor({ state: "visible", timeout: 5000 })
-  await page.screenshot({ path: "todo-page-screenshot.png" })
   await expect(successToast).toBeVisible()
 })
 
-test.skip("should handle invalid Circuit JSON input", async ({ page }) => {
+test("should handle invalid Circuit JSON input", async ({ page }) => {
   const importButton = page.locator('button:has-text("Import Circuit JSON")')
   await importButton.click()
 
@@ -87,17 +79,17 @@ test.skip("should handle invalid Circuit JSON input", async ({ page }) => {
   )
   await textarea.fill("invalid json content")
 
-  const importDialogButton = page.locator('button:has-text("Import")')
+  const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
 
-  // Wait for error toast message
-  const errorToast = page.locator('.Toast__content:has-text("Invalid Input")')
+  const errorToast = page.locator(
+    'div.text-sm.font-semibold:has-text("Invalid Input")',
+  )
+  await errorToast.waitFor({ state: "visible", timeout: 5000 })
   await expect(errorToast).toBeVisible()
 })
 
-test.skip("should handle invalid Circuit JSON file upload", async ({
-  page,
-}) => {
+test("should handle invalid Circuit JSON file upload", async ({ page }) => {
   const importButton = page.locator('button:has-text("Import Circuit JSON")')
   await importButton.click()
 
@@ -105,34 +97,37 @@ test.skip("should handle invalid Circuit JSON file upload", async ({
   await fileInput.setInputFiles({
     name: "circuit.json",
     mimeType: "application/json",
-    buffer: new Blob([JSON.stringify({})], {
-      type: "application/json",
-    }),
+    // @ts-expect-error didnt add node types to tsconfig
+    buffer: Buffer.from(JSON.stringify({})),
   })
 
-  const importDialogButton = page.locator('button:has-text("Import")')
+  const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
 
-  // Wait for error toast message
   const errorToast = page.locator(
-    '.Toast__content:has-text("Error reading JSON file.")',
+    'div.text-sm.font-semibold:has-text("Import Failed")',
   )
+  await errorToast.waitFor({ state: "visible", timeout: 5000 })
   await expect(errorToast).toBeVisible()
 })
 
-test.skip("should handle non-JSON file upload", async ({ page }) => {
+test("should handle non-JSON file upload", async ({ page }) => {
   const importButton = page.locator('button:has-text("Import Circuit JSON")')
   await importButton.click()
 
   const fileInput = page.locator('input[type="file"]')
-  await fileInput.setInputFiles("path/to/non-json-file.txt")
+  await fileInput.setInputFiles({
+    name: "circuit.txt",
+    mimeType: "application/text",
+    // @ts-expect-error didnt add node types to tsconfig
+    buffer: Buffer.from(""),
+  })
 
-  const importDialogButton = page.locator('button:has-text("Import")')
+  const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
 
-  // Wait for error toast message
   const errorToast = page.locator(
-    '.Toast__content:has-text("Please select a valid JSON file.")',
+    'div.pb-4 > p:has-text("Please select a valid JSON file.")',
   )
   await expect(errorToast).toBeVisible()
 })

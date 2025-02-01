@@ -110,7 +110,7 @@ export function CircuitJsonImportDialog({
         description: "Circuit Json has been imported successfully.",
       })
       onOpenChange(false)
-      // navigate(`/editor?snippet_id=${snippet.snippet_id}`)
+      navigate(`/editor?snippet_id=${snippet.snippet_id}`)
     } catch (error) {
       console.error("Error importing Circuit Json:", error)
       toast({
