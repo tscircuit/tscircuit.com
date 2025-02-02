@@ -17,6 +17,7 @@ import {
   packageReleaseSchema,
   packageSchema,
   Package,
+  PackageRelease,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -386,5 +387,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return {
       ...pkg,
     }
+  },
+  addPackageRelease: (
+    _package: Pick<
+      z.input<typeof packageReleaseSchema>,
+      "version" | "package_id"
+    >,
+  ): PackageRelease => {
+    const newPackageRelease = {
+      ..._package,
+    }
+    const packageRelease = packageReleaseSchema.parse({
+      package_release_id: crypto.randomUUID(),
+      package_id: newPackageRelease.package_id,
+      version: newPackageRelease.version,
+      is_locked: false,
+      is_latest: true,
+      created_at: new Date().toISOString(),
+    })
+    set((state) => ({
+      packageReleases: [...state.packageReleases, packageRelease],
+    }))
+    return packageRelease
   },
 }))
