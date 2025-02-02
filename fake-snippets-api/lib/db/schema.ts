@@ -107,6 +107,8 @@ export const packageReleaseSchema = z.object({
   is_locked: z.boolean(),
   is_latest: z.boolean(),
   created_at: z.string().datetime(),
+  commit_sha: z.string().nullable().optional(),
+  license: z.string().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 

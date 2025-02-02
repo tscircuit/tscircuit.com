@@ -17,6 +17,7 @@ import {
   packageReleaseSchema,
   packageSchema,
   Package,
+  PackageRelease,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -386,5 +387,28 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return {
       ...pkg,
     }
+  },
+  getPackageReleaseById: (package_release_id: string): PackageRelease | undefined => {
+    const state = get()
+    return state.packageReleases.find((pr) => pr.package_release_id === package_release_id)
+  },
+  addPackageRelease: (packageRelease: Omit<PackageRelease, "package_release_id">): PackageRelease => {
+    const newPackageRelease = {
+      package_release_id: `package_release_${Date.now()}`,
+      ...packageRelease,
+    }
+    set((state) => ({
+      packageReleases: [...state.packageReleases, newPackageRelease],
+    }))
+    return newPackageRelease
+  },
+  updatePackageRelease: (packageRelease: PackageRelease): void => {
+    set((state) => ({
+      packageReleases: state.packageReleases.map((pr) =>
+        pr.package_release_id === packageRelease.package_release_id
+          ? packageRelease
+          : pr,
+      ),
+    }))
   },
 }))
