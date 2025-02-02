@@ -84,6 +84,6 @@ test("POST /api/package_releases/get - should find release by package_name_with_
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_release).toEqual(
-    packageReleaseSchema.parse(createdRelease)
+    packageReleaseSchema.parse(createdRelease),
   )
 })

@@ -30,7 +30,9 @@ test("create package release", async () => {
   expect(releaseResponse.status).toBe(200)
   expect(releaseResponse.data.ok).toBe(true)
   expect(releaseResponse.data.package_release).toBeDefined()
-  expect(releaseResponse.data.package_release.package_id).toBe(createdPackage.package_id)
+  expect(releaseResponse.data.package_release.package_id).toBe(
+    createdPackage.package_id,
+  )
   expect(releaseResponse.data.package_release.version).toBe("1.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
   expect(releaseResponse.data.package_release.is_locked).toBe(false)
@@ -63,7 +65,9 @@ test("create package release using package_name_with_version", async () => {
   expect(releaseResponse.status).toBe(200)
   expect(releaseResponse.data.ok).toBe(true)
   expect(releaseResponse.data.package_release).toBeDefined()
-  expect(releaseResponse.data.package_release.package_id).toBe(createdPackage.package_id)
+  expect(releaseResponse.data.package_release.package_id).toBe(
+    createdPackage.package_id,
+  )
   expect(releaseResponse.data.package_release.version).toBe("2.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
 })
@@ -103,7 +107,9 @@ test("create package release - version already exists", async () => {
   } catch (error: any) {
     expect(error.status).toBe(400)
     expect(error.data.error.error_code).toBe("version_already_exists")
-    expect(error.data.error.message).toBe("Version 1.0.0 already exists for this package")
+    expect(error.data.error.message).toBe(
+      "Version 1.0.0 already exists for this package",
+    )
   }
 })
 
@@ -118,6 +124,8 @@ test("create package release - package not found", async () => {
   } catch (error: any) {
     expect(error.status).toBe(404)
     expect(error.data.error.error_code).toBe("package_not_found")
-    expect(error.data.error.message).toBe("Package not found: non-existent-package")
+    expect(error.data.error.message).toBe(
+      "Package not found: non-existent-package",
+    )
   }
 })

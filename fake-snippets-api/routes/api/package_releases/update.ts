@@ -15,7 +15,13 @@ export default withRouteSpec({
     ok: z.boolean(),
   }),
 })(async (req, ctx) => {
-  const { package_release_id, package_name_with_version, is_locked, is_latest, license } = req.jsonBody
+  const {
+    package_release_id,
+    package_name_with_version,
+    is_locked,
+    is_latest,
+    license,
+  } = req.jsonBody
   let releaseId = package_release_id
 
   // Handle package_name_with_version lookup
@@ -24,7 +30,7 @@ export default withRouteSpec({
     const pkg = ctx.db.packages.find((p) => p.name === packageName)
     if (pkg) {
       const release = ctx.db.packageReleases.find(
-        (pr) => pr.package_id === pkg.package_id && pr.version === version
+        (pr) => pr.package_id === pkg.package_id && pr.version === version,
       )
       if (release) {
         releaseId = release.package_release_id
@@ -40,14 +46,20 @@ export default withRouteSpec({
   }
 
   const delta = { is_locked, is_latest, license }
-  if (Object.keys(delta).filter((k) => delta[k as keyof typeof delta] !== undefined).length === 0) {
+  if (
+    Object.keys(delta).filter(
+      (k) => delta[k as keyof typeof delta] !== undefined,
+    ).length === 0
+  ) {
     return ctx.error(400, {
       error_code: "no_fields_provided",
       message: "No fields provided to update",
     })
   }
 
-  const release = ctx.db.packageReleases.find((pr) => pr.package_release_id === releaseId)
+  const release = ctx.db.packageReleases.find(
+    (pr) => pr.package_release_id === releaseId,
+  )
   if (!release) {
     return ctx.error(404, {
       error_code: "package_release_not_found",
@@ -59,10 +71,10 @@ export default withRouteSpec({
   if (is_latest !== undefined && is_latest) {
     ctx.db.packageReleases
       .filter(
-        (pr) => 
-          pr.package_id === release.package_id && 
+        (pr) =>
+          pr.package_id === release.package_id &&
           pr.package_release_id !== releaseId &&
-          pr.is_latest
+          pr.is_latest,
       )
       .forEach((pr) => {
         pr.is_latest = false

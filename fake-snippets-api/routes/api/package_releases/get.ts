@@ -18,7 +18,7 @@ export default withRouteSpec({
   const { package_release_id } = req.jsonBody
 
   const foundRelease =
-    (package_release_id && ctx.db.getPackageReleaseById(package_release_id))
+    package_release_id && ctx.db.getPackageReleaseById(package_release_id)
 
   if (!foundRelease) {
     return ctx.error(404, {
