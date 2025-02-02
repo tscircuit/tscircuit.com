@@ -1,4 +1,4 @@
-export const validCircuitJson = [
+export const exampleCircuitJson = [
   {
     type: "source_port",
     source_port_id: "source_port_0",

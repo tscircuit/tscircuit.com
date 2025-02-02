@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { validCircuitJson } from "./circuit"
+import { exampleCircuitJson } from "./exampleCircuitJson"
 
 async function loginToSite(page) {
   const loginButton = page.getByRole("button", { name: "Log in" })
@@ -36,7 +36,7 @@ test("should handle valid Circuit JSON input", async ({ page }) => {
   const textarea = page.locator(
     'textarea[placeholder="Paste the Circuit JSON."]',
   )
-  await textarea.fill(JSON.stringify(validCircuitJson))
+  await textarea.fill(JSON.stringify(exampleCircuitJson))
 
   const importDialogButton = page.getByRole("button", { name: "Import" })
   await importDialogButton.click()
@@ -58,7 +58,7 @@ test("should handle valid Circuit JSON file upload", async ({ page }) => {
     name: "circuit.json",
     mimeType: "application/json",
     // @ts-expect-error didnt add node types to tsconfig
-    buffer: Buffer.from(JSON.stringify(validCircuitJson)),
+    buffer: Buffer.from(JSON.stringify(exampleCircuitJson)),
   })
 
   const importDialogButton = page.getByRole("button", { name: "Import" })
