@@ -5,6 +5,16 @@ import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
 
+const FullPageLoader = () => (
+  <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+    <div className="w-48">
+      <div className="loading">
+        <div className="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+)
+
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
     try {
@@ -86,7 +96,7 @@ function App() {
   return (
     <ContextProviders>
       <ErrorBoundary>
-        <Suspense fallback={null}>
+        <Suspense fallback={<FullPageLoader />}>
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/editor" component={EditorPage} />
