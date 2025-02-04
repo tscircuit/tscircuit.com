@@ -15,7 +15,27 @@ export default withRouteSpec({
     package_release: zt.packageReleaseSchema,
   }),
 })(async (req, ctx) => {
-  const { package_release_id } = req.jsonBody
+  const { package_release_id, package_name_with_version } = req.jsonBody
+
+  if (package_name_with_version && !package_release_id) {
+    const [packageName, parsedVersion] = package_name_with_version.split("@")
+    const pkg = ctx.db.packages.find((x) => x.name === packageName)
+    const pkgRelease = ctx.db.packageReleases.find((x) => {
+      return x.version == parsedVersion && x.package_id == pkg?.package_id
+    })
+
+    if (!pkgRelease) {
+      return ctx.error(404, {
+        error_code: "package_release_not_found",
+        message: "Package release not found",
+      })
+    }
+
+    return ctx.json({
+      ok: true,
+      package_release: publicMapPackageRelease(pkgRelease),
+    })
+  }
 
   const foundRelease =
     package_release_id && ctx.db.getPackageReleaseById(package_release_id)
