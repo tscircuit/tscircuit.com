@@ -320,7 +320,39 @@ export const PreviewContent = ({
             >
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
-                  <CadViewer soup={circuitJson as any} ref={threeJsObjectRef} />
+                  <div className="relative w-full h-full">
+                    {(() => {
+                      try {
+                        return (
+                          <CadViewer
+                            soup={circuitJson as any}
+                            ref={threeJsObjectRef}
+                          />
+                        )
+                      } catch (error: any) {
+                        // If it's the hull error, show a helpful message
+                        if (
+                          error?.message?.includes(
+                            "Uncaught TypeError: Cannot read properties of undefined",
+                          )
+                        ) {
+                          return (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                              <h3 className="text-red-800 font-medium mb-2">
+                                3D Model Error
+                              </h3>
+                              <p className="text-sm text-red-700">
+                                Unable to display 3D model: Missing geometry
+                                data for one or more components.
+                              </p>
+                            </div>
+                          )
+                        }
+                        // For other errors, re-throw to be caught by ErrorBoundary
+                        throw error
+                      }
+                    })()}
+                  </div>
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
