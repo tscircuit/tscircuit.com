@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { GitHubLogoIcon, StarIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { Trash2 } from "lucide-react"
+import { useConfirmDeleteSnippetDialog } from "@/components/dialogs/confirm-delete-snippet-dialog"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -17,6 +19,9 @@ export const UserProfilePage = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const session = useGlobalStore((s) => s.session)
   const isCurrentUserProfile = username === session?.github_username
+  const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
+    useConfirmDeleteSnippetDialog()
+  const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
@@ -31,6 +36,12 @@ export const UserProfilePage = () => {
       !searchQuery ||
       snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
+    e.preventDefault() // Prevent navigation
+    setSnippetToDelete(snippet)
+    openDeleteDialog()
+  }
 
   return (
     <div>
@@ -76,9 +87,21 @@ export const UserProfilePage = () => {
                       <h3 className="text-md font-semibold">
                         {snippet.unscoped_name}
                       </h3>
-                      <div className="flex items-center text-gray-600">
-                        <StarIcon className="w-4 h-4 mr-1" />
-                        <span>{snippet.star_count || 0}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center text-gray-600">
+                          <StarIcon className="w-4 h-4 mr-1" />
+                          <span>{snippet.star_count || 0}</span>
+                        </div>
+                        {isCurrentUserProfile && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => handleDeleteClick(e, snippet)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                     <p className="text-sm text-gray-500">
@@ -91,6 +114,12 @@ export const UserProfilePage = () => {
           </div>
         )}
       </div>
+      {snippetToDelete && (
+        <DeleteDialog
+          snippetId={snippetToDelete.snippet_id}
+          snippetName={snippetToDelete.unscoped_name}
+        />
+      )}
       <Footer />
     </div>
   )
