@@ -10,8 +10,14 @@ import { Button } from "@/components/ui/button"
 import { GitHubLogoIcon, StarIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Trash2 } from "lucide-react"
+import { MoreVertical, Trash2 } from "lucide-react"
 import { useConfirmDeleteSnippetDialog } from "@/components/dialogs/confirm-delete-snippet-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -93,14 +99,26 @@ export const UserProfilePage = () => {
                           <span>{snippet.star_count || 0}</span>
                         </div>
                         {isCurrentUserProfile && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={(e) => handleDeleteClick(e, snippet)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                className="text-xs text-red-600"
+                                onClick={(e) => handleDeleteClick(e, snippet)}
+                              >
+                                <Trash2 className="mr-2 h-3 w-3" />
+                                Delete Snippet
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         )}
                       </div>
                     </div>
