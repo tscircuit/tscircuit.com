@@ -51,7 +51,7 @@ export function LandingPage() {
                       Open-Source, MIT Licensed
                     </Badge>
                     <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                      The New Foundation for Electronic Design
+                      AI codes electronics with tscircuit
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
                       Build electronics with code, AI, and drag'n'drop tools.
@@ -61,19 +61,11 @@ export function LandingPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center gap-2 min-[400px]:flex-row">
-                    <Button
-                      onClick={() => {
-                        if (!isLoggedIn) {
-                          signIn()
-                        } else {
-                          navigate("/dashboard")
-                        }
-                      }}
-                      size="lg"
-                      aria-label="Get started with TSCircuit"
-                    >
-                      Get Started
-                    </Button>
+                    <a href="https://docs.tscircuit.com">
+                      <Button size="lg" aria-label="Get started with TSCircuit">
+                        Get Started
+                      </Button>
+                    </a>
                     <PrefetchPageLink href="/quickstart">
                       <Button
                         size="lg"
