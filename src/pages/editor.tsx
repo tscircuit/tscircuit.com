@@ -9,7 +9,7 @@ export const EditorPage = () => {
   const { data: snippet, isLoading, error } = useSnippet(snippetId)
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <Header />
       {!error && <CodeAndPreview snippet={snippet} />}
       {error && error.status === 404 && (
