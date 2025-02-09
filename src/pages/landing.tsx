@@ -83,16 +83,20 @@ export function LandingPage() {
                         Open Online Example
                       </Button>
                     </PrefetchPageLink>
-                    <a
-                      href="https://github.com/tscircuit/tscircuit"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        alt="GitHub stars"
-                        src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                      />
-                    </a>
+                    <div className="flex items-center space-x-2">
+                      <a
+                        href="https://github.com/tscircuit/tscircuit"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0"
+                      >
+                        <img
+                          alt="GitHub stars"
+                          src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+                          className="max-w-full h-auto"
+                        />
+                      </a>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4 sm:flex items-center w-full text-sm">
                     <div className="flex items-center space-x-1">
