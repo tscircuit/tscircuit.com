@@ -41,7 +41,7 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
       }
     }
     return (
-      <div className="flex items-center space-x-2 justify-end">
+      <div className="flex items-center md:space-x-2 justify-end">
         <Button onClick={() => signIn()} variant="ghost">
           Log in
         </Button>
