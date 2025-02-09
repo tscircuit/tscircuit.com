@@ -3,7 +3,7 @@ import posthog from "posthog-js"
 import CookieConsent from "react-cookie-consent"
 
 posthog.init("phc_htd8AQjSfVEsFCLQMAiUooG4Q0DKBCjqYuQglc9V3Wo", {
-  api_host: "https://us.i.posthog.com",
+  api_host: "https://postpig.tscircuit.com",
   person_profiles: "always",
 })
 
