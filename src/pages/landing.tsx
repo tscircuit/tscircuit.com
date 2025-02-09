@@ -60,7 +60,7 @@ export function LandingPage() {
                       and more.
                     </p>
                   </div>
-                  <div className="flex flex-col items-center gap-2 min-[400px]:flex-row">
+                  <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
                     <a href="https://docs.tscircuit.com">
                       <Button size="lg" aria-label="Get started with TSCircuit">
                         Get Started
