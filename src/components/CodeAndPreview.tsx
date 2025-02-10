@@ -197,8 +197,6 @@ export function CodeAndPreview({ snippet }: Props) {
       ...(code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
     ]
 
-    console.log(possibleExportNames)
-
     const exportName = possibleExportNames[0]
 
     let entrypointContent: string
@@ -224,7 +222,6 @@ export function CodeAndPreview({ snippet }: Props) {
       "main.tsx": entrypointContent,
     }
   }, [code, manualEditsFileContent])
-  console.log(fsMap)
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (

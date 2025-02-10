@@ -7,7 +7,6 @@ const INPUT_DIR = "src/assets/originals"
 const OUTPUT_DIR = "public/assets"
 
 async function generateImageSizes() {
-  console.log("one")
   if (!fs.existsSync(INPUT_DIR)) {
     fs.mkdirSync(INPUT_DIR, { recursive: true })
   }

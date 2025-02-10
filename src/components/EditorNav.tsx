@@ -48,6 +48,7 @@ import { SnippetLink } from "./SnippetLink"
 import { TypeBadge } from "./TypeBadge"
 import { useUpdateDescriptionDialog } from "./dialogs/edit-description-dialog"
 import { useForkSnippetMutation } from "@/hooks/useForkSnippetMutation"
+import tscircuitCorePkg from "@tscircuit/core/package.json"
 
 export default function EditorNav({
   circuitJson,
@@ -366,6 +367,9 @@ export default function EditorNav({
               >
                 <Trash2 className="mr-2 h-3 w-3" />
                 Delete Snippet
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-xs text-gray-500" disabled>
+                @tscircuit/core@{tscircuitCorePkg.version}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
