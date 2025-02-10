@@ -27,7 +27,6 @@ export const constructCircuit = ({
     const board = circuit.root?.children[0]
     // const board = circuit.selectOne("board")
     if (board) {
-      console.log("board props", board.props)
       board.setProps({
         ...board.props,
         partsEngine: jlcPartsEngine,
