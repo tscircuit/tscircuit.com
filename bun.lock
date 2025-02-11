@@ -110,7 +110,7 @@
         "@babel/standalone": "^7.26.2",
         "@biomejs/biome": "^1.9.2",
         "@playwright/test": "^1.48.0",
-        "@tscircuit/core": "^0.0.307",
+        "@tscircuit/core": "^0.0.308",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/runframe": "^0.0.144",
         "@types/babel__standalone": "^7.1.7",
@@ -693,7 +693,7 @@
 
     "@tscircuit/builder": ["@tscircuit/builder@1.11.7", "", { "dependencies": { "@lume/kiwi": "^0.1.0", "@tscircuit/layout": "^0.0.25", "@tscircuit/routing": "1.3.1", "@tscircuit/schematic-autolayout": "^0.0.5", "circuit-json-to-gerber": "^0.0.5", "convert-units": "^2.3.4", "fast-json-stable-stringify": "^2.1.0", "format-si-prefix": "^0.3.2", "papaparse": "^5.4.1", "rectilinear-router": "^1.0.1", "svg-path-bounds": "^1.0.2", "transformation-matrix": "^2.12.0" }, "peerDependencies": { "@tscircuit/footprinter": "*", "@tscircuit/props": "*", "@tscircuit/soup": "*", "@tscircuit/soup-util": "*" } }, "sha512-6fQi8jvNWYyvbNCHl3fggiv5pdDLDdLL1fJoGiqvyqVHNfxDsBulFtM8LWfsiqLrqrML3IKZTLBHwYxaOrpaDA=="],
 
-    "@tscircuit/core": ["@tscircuit/core@0.0.307", "", { "dependencies": { "@lume/kiwi": "^0.4.3", "@tscircuit/footprinter": "^0.0.97", "@tscircuit/infgrid-ijump-astar": "^0.0.33", "@tscircuit/math-utils": "^0.0.9", "@tscircuit/props": "^0.0.142", "@tscircuit/schematic-autolayout": "^0.0.6", "@tscircuit/soup-util": "^0.0.41", "circuit-json": "^0.0.136", "circuit-json-to-connectivity-map": "^0.0.17", "format-si-unit": "^0.0.3", "nanoid": "^5.0.7", "performance-now": "^2.1.0", "react-reconciler": "^0.31.0", "react-reconciler-18": "npm:react-reconciler@0.29.2", "schematic-symbols": "^0.0.113", "transformation-matrix": "^2.16.1", "zod": "^3.23.8" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-SuUj/fnptaFt2Qbzq2UVQp6he9dyfHDH5W+cNWxdQGAEEDmAUr16VrVN+DrqtmFXNWcto5Wyih+TYxFrc6WCzA=="],
+    "@tscircuit/core": ["@tscircuit/core@0.0.308", "", { "dependencies": { "@lume/kiwi": "^0.4.3", "@tscircuit/footprinter": "^0.0.97", "@tscircuit/infgrid-ijump-astar": "^0.0.33", "@tscircuit/math-utils": "^0.0.9", "@tscircuit/props": "^0.0.144", "@tscircuit/schematic-autolayout": "^0.0.6", "@tscircuit/soup-util": "^0.0.41", "circuit-json": "^0.0.136", "circuit-json-to-connectivity-map": "^0.0.17", "format-si-unit": "^0.0.3", "nanoid": "^5.0.7", "performance-now": "^2.1.0", "react-reconciler": "^0.31.0", "react-reconciler-18": "npm:react-reconciler@0.29.2", "schematic-symbols": "^0.0.113", "transformation-matrix": "^2.16.1", "zod": "^3.23.8" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-nPmfF5cLXI1dhkPgoelrnbWUdtQc0VdM36jSy3SiZHD3jx1mLFdOztqzjhrCq2AfR23gNclDZJCzza7HmtCIgQ=="],
 
     "@tscircuit/eval-webworker": ["@tscircuit/eval-webworker@0.0.83", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-DMk+Vsneas6uKhuLTn21IJ6nw70OMrrQy9jpqHlrnONEZ+rFagVZePG8exeRfwbj03oX8lOGYQwCOL3GXVH8Wg=="],
 
@@ -2533,7 +2533,7 @@
 
     "@tscircuit/core/@tscircuit/math-utils": ["@tscircuit/math-utils@0.0.9", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-sPzfXndijet8z29X6f5vnSZddiso2tRg7m6rB+268bVj60mxnxUMD14rKuMlLn6n84fMOpD/X7pRTZUfi6M+Tg=="],
 
-    "@tscircuit/core/@tscircuit/props": ["@tscircuit/props@0.0.142", "", { "peerDependencies": { "@tscircuit/layout": "*", "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-bjyBBePePOvzlFRDjsiDXSFUnYkwoFS+JntFRRqCnzhE1x/Gy0xAZt++70lKtrw6jQb0V3ftu4sVVi8BOqEBPA=="],
+    "@tscircuit/core/@tscircuit/props": ["@tscircuit/props@0.0.144", "", { "peerDependencies": { "@tscircuit/layout": "*", "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-gFOhX6pmcgsAgg3l7SsVQkAkoi+d0MnMWQyT0npyeXvY/XNUbmfSQZJKL6JlsDy262ZnkyVH68yqMDwal9B1MA=="],
 
     "@tscircuit/file-server/winterspec": ["winterspec@0.0.86", "", { "dependencies": { "@anatine/zod-openapi": "^2.2.3", "@edge-runtime/node-utils": "^2.3.0", "@edge-runtime/primitives": "^4.1.0", "async-mutex": "^0.4.1", "birpc": "^0.2.17", "bundle-require": "^4.0.2", "camelcase": "^8.0.0", "clipanion": "^4.0.0-rc.3", "edge-runtime": "^2.5.9", "esbuild": "^0.19.11", "globby": "^14.0.0", "human-readable": "^0.2.1", "kleur": "^4.1.5", "make-vfs": "^1.1.0", "next-route-matcher": "^1.0.2", "object-hash": "^3.0.0", "ora": "^8.0.1", "ts-morph": "^21.0.1", "watcher": "^2.3.0", "yargs": "^17.7.2", "zod": "^3.22.4" }, "peerDependencies": { "@ava/get-port": ">=2.0.0", "typescript": ">=4.0.0" }, "optionalPeers": ["@ava/get-port", "typescript"], "bin": { "winterspec": "dist/cli/cli.js" } }, "sha512-lErhEec/+hflbzyAHywJsyKs6nl5G/trBQX32D9R4YD3CJQ7BgSKgkaHu7Gm3Yk9Rr6KlvLTm6lYyPfDCTY6mA=="],
 
