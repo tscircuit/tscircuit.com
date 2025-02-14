@@ -48,14 +48,6 @@ export const DashboardPage = () => {
     },
   )
 
-  const displayedTrendingSnippets = showAllTrending
-    ? trendingSnippets
-    : trendingSnippets?.slice(0, 5)
-
-  const displayedNewestSnippets = showAllNewest
-    ? newestSnippets
-    : newestSnippets?.slice(0, 5)
-
   return (
     <div>
       <Header />
