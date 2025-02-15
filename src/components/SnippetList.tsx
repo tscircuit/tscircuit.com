@@ -29,7 +29,7 @@ export const SnippetList = ({
             variant="ghost"
             size="sm"
             onClick={onToggleShowAll}
-            className="text-blue-600 hover:text-blue-700"
+            className="text-blue-600 hover:text-blue-700 hover:bg-transparent"
           >
             {showAll ? (
               <>
