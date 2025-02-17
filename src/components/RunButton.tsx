@@ -3,18 +3,16 @@ import { Button } from "./ui/button"
 
 export const RunButton = ({
   onClick,
-  disabled,
   isRunningCode,
 }: {
   onClick: () => void
-  disabled: boolean
   isRunningCode?: boolean
 }) => {
   return (
     <Button
       className="bg-blue-600 hover:bg-blue-500 run-button"
       onClick={onClick}
-      disabled={disabled || isRunningCode}
+      disabled={isRunningCode}
     >
       Run
       {isRunningCode ? (
