@@ -166,6 +166,15 @@ export function CodeAndPreview({ snippet }: Props) {
   const [lastSavedAt, setLastSavedAt] = useState(Date.now())
 
   const handleSave = async () => {
+    if (hasUnrunChanges) {
+      toast({
+        title: "Warning",
+        description: "You must run the snippet before saving your changes.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setLastSavedAt(Date.now())
     if (snippet) {
       updateSnippetMutation.mutate()
