@@ -320,7 +320,10 @@ export const PreviewContent = ({
             >
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
-                  <CadViewer soup={circuitJson as any} ref={threeJsObjectRef} />
+                  <CadViewer
+                    circuitJson={circuitJson as any}
+                    ref={threeJsObjectRef}
+                  />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
