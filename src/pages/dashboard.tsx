@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
@@ -6,15 +6,18 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiHero"
-import { Edit2, Star } from "lucide-react"
+import { Edit2, Star, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { SnippetList } from "@/components/SnippetList"
 
 export const DashboardPage = () => {
   const axios = useAxios()
 
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const [showAllTrending, setShowAllTrending] = useState(false)
+  const [showAllNewest, setShowAllNewest] = useState(false)
 
   const {
     data: mySnippets,
@@ -114,48 +117,20 @@ export const DashboardPage = () => {
             )}
           </div>
           <div className="md:w-1/4">
-            <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
-              Trending Snippets
-            </h2>
-            {trendingSnippets && (
-              <ul className="space-y-1">
-                {trendingSnippets.map((snippet) => (
-                  <li key={snippet.snippet_id}>
-                    <div className="flex items-center">
-                      <Link
-                        href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                        className="text-blue-600 hover:underline text-sm"
-                      >
-                        {snippet.owner_name}/{snippet.unscoped_name}
-                      </Link>
-                      {snippet.star_count > 0 && (
-                        <span className="ml-2 text-gray-500 text-xs flex items-center">
-                          <Star className="w-3 h-3 mr-1" />
-                          {snippet.star_count}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <h2 className="text-sm font-bold mt-8 mb-2 text-gray-700 border-b border-gray-200">
-              Newest Snippets
-            </h2>
-            {newestSnippets && (
-              <ul className="space-y-1">
-                {newestSnippets.map((snippet) => (
-                  <li key={snippet.snippet_id}>
-                    <Link
-                      href={`/${snippet.name}`}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      {snippet.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <SnippetList
+              title="Trending Snippets"
+              snippets={trendingSnippets}
+              showAll={showAllTrending}
+              onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
+            />
+            <div className="mt-8">
+              <SnippetList
+                title="Newest Snippets"
+                snippets={newestSnippets}
+                showAll={showAllNewest}
+                onToggleShowAll={() => setShowAllNewest(!showAllNewest)}
+              />
+            </div>
           </div>
         </div>
       </div>
