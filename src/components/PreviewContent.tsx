@@ -125,7 +125,6 @@ export const PreviewContent = ({
             {leftHeaderContent && <div className="flex-grow" />}
             <RunButton
               onClick={() => triggerRunTsx()}
-              disabled={!hasCodeChangedSinceLastRun && tsxRunTriggerCount !== 0}
               isRunningCode={isRunningCode}
             />
             {!leftHeaderContent && <div className="flex-grow" />}
