@@ -68,7 +68,7 @@ export default function EditorNav({
   snippetType?: string
   hasUnsavedChanges: boolean
   previewOpen: boolean
-  onTogglePreview: () => void
+  conTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
   canSave: boolean
@@ -167,6 +167,31 @@ export default function EditorNav({
 
   const canSaveSnippet =
     !snippet || snippet.owner_name === session?.github_username
+const onSave = async () => {
+    if (!isSnippetRun) {
+      toast({
+        title: "Error",
+        description: "Please run the snippet before saving.",
+        variant: "destructive", // Error variant
+      });
+      return; // Exit early if the snippet hasn't been run
+    }
+
+    try {
+      await saveSnippet(); // Assume saveSnippet is defined elsewhere
+      toast({
+        title: "Snippet saved successfully",
+        description: "Your changes have been saved.",
+        variant: "success", // Success variant
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save the snippet.",
+        variant: "destructive", // Error variant
+      });
+    }
+  };
 
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
@@ -197,12 +222,16 @@ export default function EditorNav({
               Not logged in, can't save
             </div>
           )}
-          <Button
-            variant="outline"
+           <Button
+            variant="outline"  
             size="sm"
             className={"ml-1 h-6 px-2 text-xs save-button"}
             disabled={!isLoggedIn}
-            onClick={canSaveSnippet ? onSave : () => forkSnippet()}
+            onClick={isSnippetRun ? (canSaveSnippet ? onSave : () => forkSnippet()) : () => toast({
+              title: "Error",
+              description: "Please run the snippet before saving.",
+              variant: "destructive",
+            })}
           >
             {canSaveSnippet ? (
               <>
