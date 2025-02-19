@@ -65,13 +65,13 @@ export const QuickstartPage = () => {
                     key={snippet.snippet_id}
                     href={`/editor?snippet_id=${snippet.snippet_id}`}
                   >
-                    <Card className="hover:shadow-md transition-shadow rounded-md">
+                    <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col h-full">
                       <CardHeader className="pb-0 p-4">
                         <CardTitle className="text-md">
                           {snippet.unscoped_name}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0">
+                      <CardContent className="p-4 pt-0 mt-auto">
                         <p className="text-sm text-gray-500">
                           Last edited:{" "}
                           {new Date(snippet.updated_at).toLocaleDateString()}
@@ -118,7 +118,7 @@ export const QuickstartPage = () => {
 
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Import as Snippet</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
@@ -126,7 +126,7 @@ export const QuickstartPage = () => {
             ].map((template, index) => (
               <Card
                 key={index}
-                className="hover:shadow-md transition-shadow rounded-md opacity-50"
+                className="hover:shadow-md transition-shadow rounded-md opacity-50 flex flex-col"
               >
                 <CardHeader className="p-4 pb-0">
                   <CardTitle className="text-lg flex items-center justify-between">
@@ -134,7 +134,7 @@ export const QuickstartPage = () => {
                     <TypeBadge type={template.type as any} className="ml-2" />
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-4 mt-auto">
                   <Button
                     className="w-full"
                     onClick={() => {
@@ -146,14 +146,14 @@ export const QuickstartPage = () => {
                 </CardContent>
               </Card>
             ))}
-            <Card className="hover:shadow-md transition-shadow rounded-md">
+            <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
                   JLCPCB Component
                   <TypeBadge type="package" className="ml-2" />
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
+              <CardContent className="p-4 mt-auto">
                 <Button
                   className="w-full"
                   onClick={() => setIsJLCPCBDialogOpen(true)}
@@ -162,14 +162,14 @@ export const QuickstartPage = () => {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-md transition-shadow rounded-md">
+            <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
                   Circuit Json
                   <TypeBadge type="module" className="ml-2" />
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
+              <CardContent className="p-4 mt-auto">
                 <Button
                   className="w-full"
                   onClick={() => setIsCircuitJsonImportDialogOpen(true)}
