@@ -12,12 +12,16 @@ export function CreateNewSnippetWithAiHero() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim()) {
-      navigate(`/ai?initial_prompt=${encodeURIComponent(inputValue)}`)
+      navigate(
+        `https://chat.tscircuit.com?initial_prompt=${encodeURIComponent(inputValue)}`,
+      )
     }
   }
 
   const handleQuickPrompt = (prompt: string) => {
-    navigate(`/ai?initial_prompt=${encodeURIComponent(prompt)}`)
+    navigate(
+      `https://chat.tscircuit.com?initial_prompt=${encodeURIComponent(prompt)}`,
+    )
   }
 
   return (

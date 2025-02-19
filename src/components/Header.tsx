@@ -76,15 +76,14 @@ export default function Header() {
                 </li>
               )}
               <li>
-                <HeaderButton href="/newest">Newest</HeaderButton>
-              </li>
-              <li>
                 <HeaderButton href="/quickstart" alsoHighlightForUrl="/editor">
                   Editor
                 </HeaderButton>
               </li>
               <li>
-                <HeaderButton href="/ai">AI</HeaderButton>
+                <a href="https://chat.tscircuit.com">
+                  <Button variant="ghost">AI</Button>
+                </a>
               </li>
               <li>
                 <a href="https://docs.tscircuit.com">
@@ -145,11 +144,6 @@ export default function Header() {
                 </li>
               )}
               <li>
-                <HeaderButton className="w-full justify-start" href="/newest">
-                  Newest
-                </HeaderButton>
-              </li>
-              <li>
                 <HeaderButton
                   className="w-full justify-start"
                   href="/quickstart"
@@ -159,7 +153,10 @@ export default function Header() {
                 </HeaderButton>
               </li>
               <li>
-                <HeaderButton className="w-full justify-start" href="/ai">
+                <HeaderButton
+                  className="w-full justify-start"
+                  href="https://chat.tscircuit.com"
+                >
                   AI
                 </HeaderButton>
               </li>

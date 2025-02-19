@@ -165,6 +165,14 @@ export default function AIChatInterface({
         {messages.length === 0 && isLoggedIn && (
           <div className="text-gray-500 text-xl text-center pt-[30vh] flex flex-col items-center">
             <div>Submit a prompt to {snippet ? "edit!" : "get started!"}</div>
+            <div className="mt-2">
+              This is our legacy AI chat interface. For a better experience,
+              please use{" "}
+              <PrefetchPageLink href="https://chat.tscircuit.com">
+                chat.tscircuit.com
+              </PrefetchPageLink>
+              .
+            </div>
             <div className="text-6xl mt-4">↓</div>
           </div>
         )}

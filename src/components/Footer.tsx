@@ -26,7 +26,7 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
-                { name: "Create with AI", href: "/ai" },
+                { name: "Create with AI", href: "https://chat.tscircuit.com" },
                 {
                   name: "My Profile",
                   href: `/${session?.github_username}`,
