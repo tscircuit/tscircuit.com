@@ -29,6 +29,7 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { formatCode } from "@/lib/utils/formatCurrentFile"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -60,7 +61,14 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
-  const [code, setCode] = useState(initialCode)
+  const formattedInitialCode = useMemo(() => {
+    return (
+      formatCode({ currentFile: "index.tsx", currentContent: initialCode }) ||
+      initialCode
+    )
+  }, [initialCode])
+
+  const [code, setCode] = useState(formattedInitialCode)
 
   const files = useMemo(
     () => ({
@@ -72,26 +80,20 @@ export const CodeEditor = ({
   const [currentFile, setCurrentFile] =
     useState<keyof typeof files>("index.tsx")
 
-  const isInitialCodeLoaded = Boolean(initialCode)
-
+  // When `initialCode` changes significantly, reformat and update state
   useEffect(() => {
-    if (initialCode !== code) {
-      setCode(initialCode)
-      if (currentFile === "index.tsx") {
-        updateCurrentEditorContent(initialCode)
-      }
+    if (currentFile === "index.tsx" && code !== formattedInitialCode) {
+      updateCurrentEditorContent(formattedInitialCode)
     }
-  }, [isInitialCodeLoaded])
+  }, [formattedInitialCode])
 
   // Whenever streaming completes, reset the code to the initial code
   useEffect(() => {
-    if (!isStreaming && code !== initialCode && initialCode) {
-      console.log("Resetting code to initial code", initialCode)
-      setCode(initialCode)
-
-      // HACK: Timeout because we need to wait for the editor to mount again
+    if (!isStreaming && code !== formattedInitialCode && initialCode) {
+      console.log("Resetting code to formatted code", initialCode)
+      setCode(formattedInitialCode)
       setTimeout(() => {
-        updateCurrentEditorContent(initialCode)
+        updateCurrentEditorContent(formattedInitialCode)
       }, 200)
     }
   }, [isStreaming])
