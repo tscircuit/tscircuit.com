@@ -19,6 +19,7 @@ import {
 import { AlertTriangle } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
+import { formatCode } from "@/lib/utils/formatCurrentFile"
 
 export type FileName = "index.tsx" | "manual-edits.json"
 
@@ -43,37 +44,17 @@ export const CodeEditorHeader = ({
   const { toast } = useToast()
 
   const formatCurrentFile = () => {
-    if (!window.prettier || !window.prettierPlugins) return
-
-    try {
-      const currentContent = files[currentFile]
-
-      if (currentFile.endsWith(".json")) {
-        try {
-          const jsonObj = JSON.parse(currentContent)
-          const formattedJson = JSON.stringify(jsonObj, null, 2)
-          updateFileContent(currentFile, formattedJson)
-        } catch (jsonError) {
-          throw new Error("Invalid JSON content")
-        }
-        return
-      }
-
-      const formattedCode = window.prettier.format(currentContent, {
-        semi: false,
-        parser: "typescript",
-        plugins: window.prettierPlugins,
-      })
-
-      updateFileContent(currentFile, formattedCode)
-    } catch (error) {
-      console.error("Formatting error:", error)
+    const formattedContent = formatCode({
+      currentFile,
+      currentContent: files[currentFile],
+    })
+    if (formattedContent) {
+      updateFileContent(currentFile, formattedContent)
+    } else {
       toast({
         title: "Formatting error",
         description:
-          error instanceof Error
-            ? error.message
-            : "Failed to format the code. Please check for syntax errors.",
+          "Failed to format the code. Please check for syntax errors.",
         variant: "destructive",
       })
     }
