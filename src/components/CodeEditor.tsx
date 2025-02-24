@@ -29,7 +29,7 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
-import { formatCode } from "@/lib/utils/formatCurrentFile"
+import { formatCode } from "@/lib/utils/formatCode"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -90,7 +90,6 @@ export const CodeEditor = ({
   // Whenever streaming completes, reset the code to the initial code
   useEffect(() => {
     if (!isStreaming && code !== formattedInitialCode && initialCode) {
-      console.log("Resetting code to formatted code", initialCode)
       setCode(formattedInitialCode)
       setTimeout(() => {
         updateCurrentEditorContent(formattedInitialCode)
