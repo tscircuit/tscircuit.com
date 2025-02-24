@@ -1,6 +1,6 @@
 import { FileName } from "../../components/CodeEditorHeader"
 
-interface FormatCurrentFileProps {
+interface FormatCodeProps {
   currentFile: FileName
   currentContent: string
 }
@@ -8,7 +8,7 @@ interface FormatCurrentFileProps {
 export const formatCode = ({
   currentFile,
   currentContent,
-}: FormatCurrentFileProps) => {
+}: FormatCodeProps) => {
   if (!window.prettier || !window.prettierPlugins || !currentContent)
     return null
 
