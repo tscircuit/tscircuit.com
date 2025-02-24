@@ -19,7 +19,7 @@ import {
 import { AlertTriangle } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
-import { formatCode } from "@/lib/utils/formatCurrentFile"
+import { formatCode } from "@/lib/utils/formatCode"
 
 export type FileName = "index.tsx" | "manual-edits.json"
 
