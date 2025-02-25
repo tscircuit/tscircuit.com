@@ -3,7 +3,7 @@ import Header from "@/components/Header"
 import { PreviewContent } from "@/components/PreviewContent"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useSaveSnippet } from "@/hooks/use-save-snippet"
-import { useSnippet } from "@/hooks/use-snippet"
+import { usePackage } from "@/hooks/use-package"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useState } from "react"
 import { useLocation } from "wouter"
@@ -18,7 +18,7 @@ export const AiPage = () => {
     "snippet_id",
   )
   const [snippetId, setSnippetId] = useState<string | null>(snippetIdFromUrl)
-  const { data: snippet } = useSnippet(snippetId)
+  const { data: snippet } = usePackage(snippetId)
   const { toast } = useToast()
   const [, navigate] = useLocation()
   const {

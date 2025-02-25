@@ -7,13 +7,13 @@ import { TextDelta } from "@anthropic-ai/sdk/resources/messages.mjs"
 import { MagicWandIcon } from "@radix-ui/react-icons"
 import { AiChatMessage } from "./AiChatMessage"
 import { useLocation } from "wouter"
-import { useSnippet } from "@/hooks/use-snippet"
 import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { extractCodefence } from "extract-codefence"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { usePackage } from "@/hooks/use-package"
 
 export default function AIChatInterface({
   code,
@@ -38,7 +38,7 @@ export default function AIChatInterface({
   const [isStreaming, setIsStreaming] = useState(false)
   const anthropic = useAiApi()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { data: snippet } = useSnippet(snippetId!)
+  const { data: snippet } = usePackage(snippetId!)
   const [currentCodeBlock, setCurrentCodeBlock] = useState<string | null>(null)
   const [location, navigate] = useLocation()
   const isStreamingRef = useRef(false)

@@ -1,4 +1,4 @@
-import { useSnippet } from "@/hooks/use-snippet"
+import { usePackage } from "@/hooks/use-package"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { CircuitJsonPreview } from "@tscircuit/runframe"
 import { Loader2 } from "lucide-react"
@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 export const PreviewPage = () => {
   const urlParams = useUrlParams()
   const snippetId = urlParams.snippet_id
-  const { data: snippet, isLoading, error } = useSnippet(snippetId)
+  const { data: snippet, isLoading, error } = usePackage(snippetId)
 
   if (isLoading) {
     return (

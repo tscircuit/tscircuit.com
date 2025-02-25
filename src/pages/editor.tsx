@@ -2,16 +2,20 @@ import { CodeAndPreview } from "@/components/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
-import { useSnippet } from "@/hooks/use-snippet"
-
+import { usePackage } from "@/hooks/use-package"
 export const EditorPage = () => {
   const { snippetId } = useCurrentSnippetId()
-  const { data: snippet, isLoading, error } = useSnippet(snippetId)
+  const { data: snippet, error, isLoading } = usePackage(snippetId)
 
   return (
     <div className="overflow-x-hidden">
       <Header />
-      {!error && <CodeAndPreview snippet={snippet} />}
+      {isLoading && (
+        <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
+          Loading...
+        </div>
+      )}
+      {!isLoading && !error && <CodeAndPreview snippet={snippet} />}
       {error && error.status === 404 && (
         <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
           Snippet not found
