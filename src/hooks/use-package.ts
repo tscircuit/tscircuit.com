@@ -1,5 +1,9 @@
 import { useAxios } from "@/hooks/use-axios"
-import type { Package, PackageFile, Snippet } from "fake-snippets-api/lib/db/schema"
+import type {
+  Package,
+  PackageFile,
+  Snippet,
+} from "fake-snippets-api/lib/db/schema"
 import { useQuery } from "react-query"
 
 export const usePackage = (packageId: string | null) => {
@@ -19,7 +23,7 @@ export const usePackage = (packageId: string | null) => {
     {
       enabled: Boolean(packageId),
       retry: false,
-    }
+    },
   )
 
   const filesQuery = useQuery<PackageFile[], Error & { status: number }>(
@@ -36,7 +40,7 @@ export const usePackage = (packageId: string | null) => {
     {
       enabled: Boolean(packageQuery.data?.latest_package_release_id),
       retry: false,
-    }
+    },
   )
   // Map package data to match Snippet structure
   const snippetData: Snippet | undefined = packageQuery.data && {
@@ -49,8 +53,12 @@ export const usePackage = (packageId: string | null) => {
     owner_name: packageQuery.data.owner_github_username || "",
     description: packageQuery.data.description || "",
     snippet_type: "board",
-    code: filesQuery.data?.find((file) => file.file_path === "index.tsx")?.content_text || "",
-    manual_edits_json_content: filesQuery.data?.find((file) => file.file_path === "manual-edits.json")?.content_text || "",
+    code:
+      filesQuery.data?.find((file) => file.file_path === "index.tsx")
+        ?.content_text || "",
+    manual_edits_json_content:
+      filesQuery.data?.find((file) => file.file_path === "manual-edits.json")
+        ?.content_text || "",
     created_at: packageQuery.data.created_at,
     updated_at: packageQuery.data.updated_at,
     star_count: packageQuery.data.star_count,
