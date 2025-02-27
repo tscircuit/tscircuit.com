@@ -3,11 +3,12 @@ export const blinkingLedBoardTemplate = {
   code: `
 import { useUsbC } from "@tsci/seveibar.smd-usb-c"
 import { useRedLed } from "@tsci/seveibar.red-led"
-import { A555Timer } from "@tsci/seveibar.a555timer"
+import { useNE555P } from "@tsci/seveibar.a555timer"
 
 export const MyBlinkingLedCircuit = () => {
   const USBC = useUsbC("USBC")
   const Led = useRedLed("LED")
+  const A555Timer = useNE555P("B1")
 
   return (
     <board width="30mm" height="30mm" schAutoLayoutEnabled>
