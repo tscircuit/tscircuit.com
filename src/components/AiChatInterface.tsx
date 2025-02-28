@@ -1,19 +1,19 @@
-import { Button/ui/butto@/components/ui/button
-import { useAiApipi } from "hooksiuse-ai-api
-import { useGlobalStore }alStore@}hooks/use-global-storehooks/use-global-store"
-import { usePackagege } from "@/hooks/uspackage-aspsnippetage-as-snippet"
-import { useSignInse-sign-inhooks/use-signin
+import { useState, useRef, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import ChatInput from "./ChatInput"
+import { useAiApi } from "@/hooks/use-ai-api"
+import { createCircuitBoard1Template } from "@tscircuit/prompt-benchmarks"
 import type { TextDelta } from "@anthropic-ai/sdk/resources/messages.mjs"
 import { MagicWandIcon } from "@radix-ui/react-icons"
-import { createCircuitBoard1TemplateBoard1Tem@tscircuitlprompt-benchmarkstscircuit/prompt-benchmarks"
-import { extractCodefencefence } fextract-codefencextract-codefence"
+import { AiChatMessage } from "./AiChatMessage"
+import { useLocation } from "wouter"
 import { Edit2 } from "lucide-react"
-import { useEffect, useRef, useStateuseRef, ureactm "react"
-import { useLocationfrom "wouwouter
-import { AiChatMessagesage } fr.iAiChatMessage"
-import ChatInputatInput./ChatInput
+import { SnippetLink } from "./SnippetLink"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
+import { extractCodefence } from "extract-codefence"
 import { PrefetchPageLink } from "./PrefetchPageLink"
-import { SnippetLinkk } from .pSnippetLink
+import { usePackageAsSnippet } from "@/hooks/use-package-as-snippet"
 
 export default function AIChatInterface({
   code,
@@ -38,7 +38,7 @@ export default function AIChatInterface({
   const [isStreaming, setIsStreaming] = useState(false)
   const anthropic = useAiApi()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { data: snippet } = usePackage(snippetId!)
+  const { data: snippet } = usePackageAsSnippet(snippetId!)
   const [currentCodeBlock, setCurrentCodeBlock] = useState<string | null>(null)
   const [location, navigate] = useLocation()
   const isStreamingRef = useRef(false)
