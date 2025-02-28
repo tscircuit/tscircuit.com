@@ -2,10 +2,10 @@ import { CodeAndPreview } from "@/components/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
-import { usePackage } from "@/hooks/use-package-as-snippet"
+import { usePackageAsSnippet } from "@/hooks/use-package-as-snippet"
 export const EditorPage = () => {
   const { snippetId } = useCurrentSnippetId()
-  const { data: snippet, error, isLoading } = usePackage(snippetId)
+  const { data: snippet, error, isLoading } = usePackageAsSnippet(snippetId)
 
   return (
     <div className="overflow-x-hidden">

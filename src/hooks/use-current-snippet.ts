@@ -1,7 +1,7 @@
-import type tySnippet "fake-snfakessnippetsbapi/lib/db/schema"
-import { useAxios from "./use-aaxios
-import CuuseCurrentSnippetIdippetId }./usemcurrentcsnippet-id"
-import { usePackagege } from "./uspackage-as-snippetkage-as-snippet"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import { useAxios } from "./use-axios"
+import { useCurrentSnippetId } from "./use-current-snippet-id"
+import { usePackageAsSnippet } from "./use-package-as-snippet"
 
 export const useCurrentSnippet = (): {
   snippet: Snippet | null
@@ -14,7 +14,11 @@ export const useCurrentSnippet = (): {
     error: errorSnippetId,
   } = useCurrentSnippetId()
   const axios = useAxios()
-  const { data: snippet, isLoading, error } = usePackage(snippetId || "")
+  const {
+    data: snippet,
+    isLoading,
+    error,
+  } = usePackageAsSnippet(snippetId || "")
 
   return {
     snippet: snippet || null,
