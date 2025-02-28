@@ -18,6 +18,7 @@ import {
   packageSchema,
   Package,
   PackageRelease,
+  PackageFile,
 } from "./schema.ts"
 import { combine } from "zustand/middleware"
 import { seed as seedFn } from "./seed"
@@ -417,4 +418,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ),
     }))
   },
+  addPackageFile: (
+    packageFile: Omit<PackageFile, "package_file_id">,
+  ): PackageFile => {
+    const newPackageFile = {
+      package_file_id: `package_file_${Date.now()}`,
+      ...packageFile,
+    }
+    set((state) => ({
+      packageFiles: [...state.packageFiles, newPackageFile],
+    }))
+    return newPackageFile
+  },  
 }))

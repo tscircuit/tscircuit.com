@@ -1,13 +1,14 @@
 import { withRouteSpec } from "fake-snippets-api/lib/with-winter-spec"
 import { z } from "zod"
 import * as ZT from "fake-snippets-api/lib/db/schema"
+import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find-package-release-id"
 
 const routeSpec = {
   methods: ["POST"],
   auth: "none",
   jsonBody: z
     .object({
-      package_release_id: z.string().uuid(),
+      package_release_id: z.string(),
     })
     .or(
       z.object({
@@ -27,34 +28,21 @@ const routeSpec = {
 } as const
 
 export default withRouteSpec(routeSpec)(async (req, ctx) => {
-  // const package_release_id = await findPackageReleaseId(req.jsonBody, ctx)
-  // if (!package_release_id) {
-  //   return ctx.error(404, {
-  //     error_code: "package_release_not_found",
-  //     message: "Package release not found",
-  //   })
-  // }
-  // const package_files = await ctx.db
-  //   .selectFrom("main.package_file")
-  //   .select([
-  //     "package_file_id",
-  //     "package_release_id",
-  //     "content_mimetype",
-  //     "file_path",
-  //     "created_at",
-  //   ])
-  //   .where("package_release_id", "=", package_release_id)
-  //   .where("file_path", "not like", ".tscircuit-internal/%")
-  //   .execute()
-  // return ctx.json({
-  //   ok: true,
-  //   package_files: package_files.map((pf) => ({
-  //     ...pf,
-  //     created_at: pf.created_at.toISOString(),
-  //   })),
-  // })
+  const packageReleaseId = await findPackageReleaseId(req.jsonBody, ctx)
+
+  if (!packageReleaseId) {
+    return ctx.error(404, {
+      error_code: "package_release_not_found",
+      message: "Package release not found",
+    })
+  }
+
+  const packageFiles = ctx.db.packageFiles.filter(
+    (file) => file.package_release_id === packageReleaseId,
+  )
+
   return ctx.json({
     ok: true,
-    package_files: [],
+    package_files: packageFiles,
   })
 })

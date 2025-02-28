@@ -1,170 +1,87 @@
+import { getPackageFileIdFromFileDescriptor } from "fake-snippets-api/lib/package_file/get-package-file-id-from-file-descriptor"
+import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find-package-release-id"
 import { withRouteSpec } from "fake-snippets-api/lib/with-winter-spec"
 import { z } from "zod"
 
-export default withRouteSpec({
-  methods: ["GET"],
+const routeSpec = {
+  methods: ["GET", "POST"],
   auth: "none",
-  queryParams: z.object({
-    jsdelivr_resolve: z
-      .enum(["true", "false"])
-      .optional()
-      .transform((v) => v === "true"),
-    jsdelivr_path: z.string(),
-  }),
-  jsonResponse: z.any(),
-})(async (req, ctx) => {
-  const { jsdelivr_path, jsdelivr_resolve } = req.query
+  queryParams: z
+    .object({
+      package_file_id: z.string(),
+    })
+    .or(
+      z.object({
+        package_name_with_version: z.string(),
+        file_path: z.string(),
+      }),
+    ),
+  jsonResponse: z.any(), // Using any because we're returning binary data
+} as const
 
-  // Parse the file path
-  const [owner, packageWithVersion, ...rest] = jsdelivr_path.split("/")
-  if (!packageWithVersion) {
+export default withRouteSpec(routeSpec)(async (req, ctx) => {
+  let packageFileId: string | undefined
+  const params = req.query
+
+  if ("package_file_id" in params) {
+    packageFileId = params.package_file_id
+  } else if ("package_name_with_version" in params) {
+    const { package_name_with_version, file_path } = params
+
+    const packageReleaseId = await findPackageReleaseId(
+      package_name_with_version,
+      ctx
+    )
+
+    if (!packageReleaseId) {
+      return ctx.error(404, {
+        error_code: "not_found",
+        message: "Package release not found",
+      })
+    }
+
+    try {
+      packageFileId = await getPackageFileIdFromFileDescriptor(
+        {
+          package_release_id: packageReleaseId,
+          file_path: file_path,
+        },
+        ctx
+      )
+    } catch (error) {
+      return ctx.error(404, {
+        error_code: "not_found",
+        message: "Package file not found",
+      })
+    }
+  }
+
+  if (!packageFileId) {
     return ctx.error(400, {
-      error_code: "invalid_path",
-      message: "Invalid path",
+      error_code: "bad_request",
+      message: "Could not determine package_file_id",
     })
   }
-  const [packageName, version] = packageWithVersion.split("@")
-  const fileName = rest.join("/")
 
-  // Find the snippet
-  // const snippet =
+  const packageFile = ctx.db.packageFiles.find(
+    (pf) => pf.package_file_id === packageFileId
+  )
 
-  // if (!snippet) {
-  //   return ctx.error(404, {
-  //     error_code: "snippet_not_found",
-  //     message: "Snippet not found",
-  //   })
-  // }
+  if (!packageFile) {
+    return ctx.error(404, {
+      error_code: "not_found",
+      message: "Package file not found",
+    })
+  }
 
-  // if (!fileName && !jsdelivr_resolve) {
-  //   return new Response(
-  //     JSON.stringify({
-  //       tags: {
-  //         latest: "0.0.1",
-  //       },
-  //       versions: ["0.0.1"],
-  //     }),
-  //     {
-  //       status: 200,
-  //       headers: { "Content-Type": "application/json" },
-  //     },
-  //   )
-  // }
+  const contentType = "text/plain"
+  
+  const headers = {
+    "Content-Type": contentType,
+    "Content-Disposition": `attachment; filename="${packageFile.file_path.split('/').pop()}"`,
+    "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+    Expires: new Date(Date.now() + 86400000).toUTCString(),
+  }
 
-  // if (!fileName && jsdelivr_resolve) {
-  //   return new Response(
-  //     JSON.stringify({
-  //       version: "0.0.1",
-  //     }),
-  //     {
-  //       status: 200,
-  //       headers: { "Content-Type": "application/json" },
-  //     },
-  //   )
-  // }
-
-  // const latestRelease = await ctx.db
-  //   .selectFrom("main.package_release")
-  //   .where("package_id", "=", snippet.snippet_id)
-  //   .where("is_latest", "=", true)
-  //   .selectAll()
-  //   .executeTakeFirst()
-
-  // const dtsFile = await ctx.db
-  //   .selectFrom("main.package_file")
-  //   .where("package_release_id", "=", latestRelease!.package_release_id)
-  //   .where("file_path", "=", "/dist/index.d.ts")
-  //   .select("content_text")
-  //   .executeTakeFirst()
-
-  // // If no fileName is provided, return the directory listing
-  // if (!fileName || fileName === "flat") {
-  //   const files = [
-  //     {
-  //       type: "file",
-  //       name: "index.ts",
-  //       hash: "placeholder_hash",
-  //       time: snippet.updated_at,
-  //       size: snippet.code?.length ?? 0,
-  //     },
-  //     {
-  //       type: "file",
-  //       name: "index.d.ts",
-  //       hash: "placeholder_hash",
-  //       time: snippet.updated_at,
-  //       size: dtsFile?.content_text?.length ?? 0,
-  //     },
-  //     {
-  //       type: "file",
-  //       name: "package.json",
-  //       hash: "placeholder_hash",
-  //       time: snippet.updated_at,
-  //       size: JSON.stringify({
-  //         name: `@tsci/${owner}.${packageName}`,
-  //         version: version || "0.0.1",
-  //         main: "index.ts",
-  //         types: "index.d.ts",
-  //       }).length,
-  //     },
-  //   ]
-
-  //   const response = {
-  //     default: "/index.ts",
-  //     files:
-  //       fileName === "flat"
-  //         ? files.map((f) => ({
-  //             name: `/${f.name}`,
-  //             hash: f.hash,
-  //             time: f.time,
-  //             size: f.size,
-  //           }))
-  //         : [
-  //             {
-  //               type: "directory",
-  //               name: ".",
-  //               files: files,
-  //             },
-  //           ],
-  //   }
-
-  //   return new Response(JSON.stringify(response, null, 2), {
-  //     status: 200,
-  //     headers: { "Content-Type": "application/json" },
-  //   })
-  // }
-
-  // // Handle file downloads
-  // let content: string
-  // switch (fileName) {
-  //   case "index.ts":
-  //     content = snippet.code ?? ""
-  //     break
-  //   case "index.d.ts":
-  //     content = dtsFile?.content_text ?? ""
-  //     break
-  //   case "package.json":
-  //     content = JSON.stringify(
-  //       {
-  //         name: `@tsci/${owner}.${packageName}`,
-  //         version: version || "0.0.1",
-  //         main: "index.ts",
-  //         types: "index.d.ts",
-  //       },
-  //       null,
-  //       2,
-  //     )
-  //     break
-  //   default:
-  //     return ctx.error(404, {
-  //       error_code: "file_not_found",
-  //       message: "Requested file not found",
-  //     })
-  // }
-
-  const content = "TODO"
-
-  return new Response(content, {
-    status: 200,
-    headers: { "Content-Type": "text/plain" },
-  })
+  return new Response(packageFile.content_text, { headers })
 })
