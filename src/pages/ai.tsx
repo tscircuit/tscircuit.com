@@ -1,9 +1,9 @@
-import AIChatInterface from "@/components/AiChatInterface"
+import aiChatInterface from "@/components/AiChatInterface"
 import Header from "@/components/Header"
 import { PreviewContent } from "@/components/PreviewContent"
-import { useRunTsx } from "@/hooks/use-run-tsx"
-import { useSaveSnippet } from "@/hooks/use-save-snippet"
-import { usePackage } from "@/hooks/use-package"
+import { usePackagee } from "@/hooks/usepackage-ascsnippete-as-snippet"
+import { useRunTsxom "@/hooks/use-run-truntsx
+import { useSaveSnippetppet } from "@/hooksesavenippet"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useState } from "react"
 import { useLocation } from "wouter"
@@ -48,7 +48,7 @@ export const AiPage = () => {
       <Header />
       <div className="flex bg-gray-100">
         <div className="w-1/2">
-          <AIChatInterface
+          <aiChatInterface
             code={code}
             hasUnsavedChanges={hasUnsavedChanges}
             snippetId={snippet?.snippet_id}

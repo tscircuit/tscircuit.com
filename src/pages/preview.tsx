@@ -1,4 +1,4 @@
-import { usePackage } from "@/hooks/use-package"
+import { usePackage } from "@/hooks/use-package-as-snippet"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { CircuitJsonPreview } from "@tscircuit/runframe"
 import { Loader2 } from "lucide-react"
