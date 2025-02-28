@@ -3,17 +3,17 @@ import { Button } from "@/components/ui/button"
 import ChatInput from "./ChatInput"
 import { useAiApi } from "@/hooks/use-ai-api"
 import { createCircuitBoard1Template } from "@tscircuit/prompt-benchmarks"
-import { TextDelta } from "@anthropic-ai/sdk/resources/messages.mjs"
+import type { TextDelta } from "@anthropic-ai/sdk/resources/messages.mjs"
 import { MagicWandIcon } from "@radix-ui/react-icons"
 import { AiChatMessage } from "./AiChatMessage"
 import { useLocation } from "wouter"
-import { useSnippet } from "@/hooks/use-snippet"
 import { Edit2 } from "lucide-react"
 import { SnippetLink } from "./SnippetLink"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { extractCodefence } from "extract-codefence"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { usePackageAsSnippet } from "@/hooks/use-package-as-snippet"
 
 export default function AIChatInterface({
   code,
@@ -38,7 +38,7 @@ export default function AIChatInterface({
   const [isStreaming, setIsStreaming] = useState(false)
   const anthropic = useAiApi()
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { data: snippet } = useSnippet(snippetId!)
+  const { data: snippet } = usePackageAsSnippet(snippetId!)
   const [currentCodeBlock, setCurrentCodeBlock] = useState<string | null>(null)
   const [location, navigate] = useLocation()
   const isStreamingRef = useRef(false)

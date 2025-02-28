@@ -1,9 +1,9 @@
-import AIChatInterface from "@/components/AiChatInterface"
+import AiChatInterface from "@/components/AiChatInterface"
 import Header from "@/components/Header"
 import { PreviewContent } from "@/components/PreviewContent"
+import { usePackageAsSnippet } from "@/hooks/use-package-as-snippet"
 import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useSaveSnippet } from "@/hooks/use-save-snippet"
-import { useSnippet } from "@/hooks/use-snippet"
 import { useToast } from "@/hooks/use-toast"
 import { useEffect, useState } from "react"
 import { useLocation } from "wouter"
@@ -18,7 +18,7 @@ export const AiPage = () => {
     "snippet_id",
   )
   const [snippetId, setSnippetId] = useState<string | null>(snippetIdFromUrl)
-  const { data: snippet } = useSnippet(snippetId)
+  const { data: snippet } = usePackageAsSnippet(snippetId)
   const { toast } = useToast()
   const [, navigate] = useLocation()
   const {
@@ -48,7 +48,7 @@ export const AiPage = () => {
       <Header />
       <div className="flex bg-gray-100">
         <div className="w-1/2">
-          <AIChatInterface
+          <AiChatInterface
             code={code}
             hasUnsavedChanges={hasUnsavedChanges}
             snippetId={snippet?.snippet_id}

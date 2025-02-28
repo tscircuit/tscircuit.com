@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import type React from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { ScrollArea } from "../ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { createUseDialog } from "./create-use-dialog"
-import { useSnippet } from "@/hooks/use-snippet"
+import { usePackageAsSnippet } from "@/hooks/use-package-as-snippet"
 
 interface FilesDialogProps {
   open: boolean
@@ -16,7 +17,7 @@ export const FilesDialog: React.FC<FilesDialogProps> = ({
   onOpenChange,
   snippetId,
 }) => {
-  const { data: snippet } = useSnippet(snippetId)
+  const { data: snippet } = usePackageAsSnippet(snippetId)
 
   const files = Object.entries({
     "dist/index.d.ts": snippet?.dts || "",
