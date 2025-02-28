@@ -47,7 +47,8 @@ export const findPackageReleaseId = async (
 
   if ("package_release_id" in params && params.package_release_id) {
     const packageRelease = ctx.db.packageReleases.find(
-      (pr: PackageRelease) => pr.package_release_id === params.package_release_id,
+      (pr: PackageRelease) =>
+        pr.package_release_id === params.package_release_id,
     )
     if (!packageRelease) {
       return null
@@ -106,7 +107,8 @@ export const findPackageReleaseIdFromPackageNameWithVersion = (
     )
   } else {
     packageRelease = db.packageReleases.find(
-      (pr: PackageRelease) => pr.package_id === pkg.package_id && pr.version === version,
+      (pr: PackageRelease) =>
+        pr.package_id === pkg.package_id && pr.version === version,
     )
   }
 
@@ -118,4 +120,3 @@ export const findPackageReleaseIdFromPackageNameWithVersion = (
 
   return packageRelease.package_release_id
 }
-

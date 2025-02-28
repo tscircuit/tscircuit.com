@@ -45,7 +45,7 @@ test("list package files by package_release_id", async () => {
       created_at: new Date().toISOString(),
     },
   ]
-  
+
   for (const file of files) {
     db.addPackageFile(file)
   }
@@ -58,13 +58,16 @@ test("list package files by package_release_id", async () => {
   expect(listResponse.status).toBe(200)
   const responseBody = listResponse.data
   expect(responseBody.ok).toBe(true)
-  
+
   expect(responseBody.package_files).toHaveLength(3)
-  
+
   // Verify all files belong to the correct release
-  expect(responseBody.package_files.every((file: ZT.PackageFile) => 
-    file.package_release_id === createdRelease.package_release_id
-  )).toBe(true)
+  expect(
+    responseBody.package_files.every(
+      (file: ZT.PackageFile) =>
+        file.package_release_id === createdRelease.package_release_id,
+    ),
+  ).toBe(true)
 })
 
 test("list package files by package_name with latest version", async () => {
@@ -103,9 +106,9 @@ test("list package files by package_name with latest version", async () => {
       content: "export default () => 'Hello';",
       is_directory: false,
       created_at: new Date().toISOString(),
-    }
+    },
   ]
-  
+
   for (const file of files) {
     db.addPackageFile(file)
   }
@@ -152,9 +155,9 @@ test("list package files by package_name_with_version", async () => {
       content: '{"compilerOptions":{}}',
       is_directory: false,
       created_at: new Date().toISOString(),
-    }
+    },
   ]
-  
+
   for (const file of files) {
     db.addPackageFile(file)
   }

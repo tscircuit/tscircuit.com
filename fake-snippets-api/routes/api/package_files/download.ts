@@ -30,7 +30,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
 
     const packageReleaseId = await findPackageReleaseId(
       package_name_with_version,
-      ctx
+      ctx,
     )
 
     if (!packageReleaseId) {
@@ -46,7 +46,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
           package_release_id: packageReleaseId,
           file_path: file_path,
         },
-        ctx
+        ctx,
       )
     } catch (error) {
       return ctx.error(404, {
@@ -64,7 +64,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
   }
 
   const packageFile = ctx.db.packageFiles.find(
-    (pf) => pf.package_file_id === packageFileId
+    (pf) => pf.package_file_id === packageFileId,
   )
 
   if (!packageFile) {
@@ -75,10 +75,10 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
   }
 
   const contentType = "text/plain"
-  
+
   const headers = {
     "Content-Type": contentType,
-    "Content-Disposition": `attachment; filename="${packageFile.file_path.split('/').pop()}"`,
+    "Content-Disposition": `attachment; filename="${packageFile.file_path.split("/").pop()}"`,
     "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
     Expires: new Date(Date.now() + 86400000).toUTCString(),
   }

@@ -30,20 +30,24 @@ test("download package file by package_file_id", async () => {
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   const addedFile = db.addPackageFile(packageFile)
 
   // Download the file by package_file_id
   const downloadResponse = await axios.get("/api/package_files/download", {
     params: { package_file_id: addedFile.package_file_id },
-    responseType: 'text'
+    responseType: "text",
   })
 
   expect(downloadResponse.status).toBe(200)
   expect(downloadResponse.data).toBe(fileContent)
-  expect(downloadResponse.headers.get('content-type')).toContain('text/plain')
-  expect(downloadResponse.headers.get('content-disposition')).toContain('attachment')
-  expect(downloadResponse.headers.get('content-disposition')).toContain('index.js')
+  expect(downloadResponse.headers.get("content-type")).toContain("text/plain")
+  expect(downloadResponse.headers.get("content-disposition")).toContain(
+    "attachment",
+  )
+  expect(downloadResponse.headers.get("content-disposition")).toContain(
+    "index.js",
+  )
 })
 
 test("download package file by package_name_with_version and file_path", async () => {
@@ -78,23 +82,27 @@ test("download package file by package_name_with_version and file_path", async (
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   db.addPackageFile(packageFile)
 
   // Download the file by package_name_with_version and file_path
   const downloadResponse = await axios.get("/api/package_files/download", {
-    params: { 
+    params: {
       package_name_with_version: `${packageName}@${version}`,
-      file_path: filePath
+      file_path: filePath,
     },
-    responseType: 'text'
+    responseType: "text",
   })
 
   expect(downloadResponse.status).toBe(200)
   expect(downloadResponse.data).toBe(fileContent)
-  expect(downloadResponse.headers.get('content-type')).toContain('text/plain')
-  expect(downloadResponse.headers.get('content-disposition')).toContain('attachment')
-  expect(downloadResponse.headers.get('content-disposition')).toContain('utils.js')
+  expect(downloadResponse.headers.get("content-type")).toContain("text/plain")
+  expect(downloadResponse.headers.get("content-disposition")).toContain(
+    "attachment",
+  )
+  expect(downloadResponse.headers.get("content-disposition")).toContain(
+    "utils.js",
+  )
 })
 
 test("download package file - 404 for non-existent package file", async () => {
@@ -117,9 +125,9 @@ test("download package file - 404 for non-existent package release", async () =>
 
   try {
     await axios.get("/api/package_files/download", {
-      params: { 
+      params: {
         package_name_with_version: "non-existent-package@1.0.0",
-        file_path: "/index.js"
+        file_path: "/index.js",
       },
     })
     throw new Error("Expected request to fail")
@@ -159,14 +167,14 @@ test("download package file - 404 for non-existent file path", async () => {
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   db.addPackageFile(packageFile)
 
   try {
     await axios.get("/api/package_files/download", {
-      params: { 
+      params: {
         package_name_with_version: `${packageName}@1.0.0`,
-        file_path: "/non-existent-file.js"
+        file_path: "/non-existent-file.js",
       },
     })
     throw new Error("Expected request to fail")
@@ -222,14 +230,18 @@ test("download package file with POST method", async () => {
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   const addedFile = db.addPackageFile(packageFile)
 
   // Download the file using POST method
-  const downloadResponse = await axios.post("/api/package_files/download", null, {
-    params: { package_file_id: addedFile.package_file_id },
-    responseType: 'text'
-  })
+  const downloadResponse = await axios.post(
+    "/api/package_files/download",
+    null,
+    {
+      params: { package_file_id: addedFile.package_file_id },
+      responseType: "text",
+    },
+  )
 
   expect(downloadResponse.status).toBe(200)
   expect(downloadResponse.data).toBe(fileContent)

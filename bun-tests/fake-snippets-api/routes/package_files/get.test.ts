@@ -30,7 +30,7 @@ test("POST /api/package_files/get - should return package file by package_file_i
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   const addedFile = db.addPackageFile(packageFile)
 
   // Get the file by package_file_id
@@ -41,9 +41,7 @@ test("POST /api/package_files/get - should return package file by package_file_i
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
-  expect(responseBody.package_file).toEqual(
-    packageFileSchema.parse(addedFile)
-  )
+  expect(responseBody.package_file).toEqual(packageFileSchema.parse(addedFile))
 })
 
 test("POST /api/package_files/get - should return package file by package_release_id and file_path", async () => {
@@ -75,7 +73,7 @@ test("POST /api/package_files/get - should return package file by package_releas
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   db.addPackageFile(packageFile)
 
   // Get the file by package_release_id and file_path
@@ -88,7 +86,9 @@ test("POST /api/package_files/get - should return package file by package_releas
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file.file_path).toBe(filePath)
-  expect(responseBody.package_file.package_release_id).toBe(createdRelease.package_release_id)
+  expect(responseBody.package_file.package_release_id).toBe(
+    createdRelease.package_release_id,
+  )
 })
 
 test("POST /api/package_files/get - should return package file by package_name_with_version and file_path", async () => {
@@ -122,7 +122,7 @@ test("POST /api/package_files/get - should return package file by package_name_w
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   db.addPackageFile(packageFile)
 
   // Get the file by package_name_with_version and file_path
@@ -135,7 +135,9 @@ test("POST /api/package_files/get - should return package file by package_name_w
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file.file_path).toBe(filePath)
-  expect(responseBody.package_file.package_release_id).toBe(createdRelease.package_release_id)
+  expect(responseBody.package_file.package_release_id).toBe(
+    createdRelease.package_release_id,
+  )
 })
 
 test("POST /api/package_files/get - should return 404 if package file not found", async () => {
@@ -198,7 +200,7 @@ test("POST /api/package_files/get - should return file using package_id and vers
     is_directory: false,
     created_at: new Date().toISOString(),
   }
-  
+
   db.addPackageFile(packageFile)
 
   // Get the file by package_id and version
@@ -212,5 +214,7 @@ test("POST /api/package_files/get - should return file using package_id and vers
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file.file_path).toBe(filePath)
-  expect(responseBody.package_file.package_release_id).toBe(createdRelease.package_release_id)
+  expect(responseBody.package_file.package_release_id).toBe(
+    createdRelease.package_release_id,
+  )
 })

@@ -45,7 +45,10 @@ const routeSpec = {
 } as const
 
 export default withRouteSpec(routeSpec)(async (req, ctx) => {
-  const packageFileId = await getPackageFileIdFromFileDescriptor(req.jsonBody, ctx)
+  const packageFileId = await getPackageFileIdFromFileDescriptor(
+    req.jsonBody,
+    ctx,
+  )
 
   const packageFile = ctx.db.packageFiles.find(
     (pf: ZT.PackageFile) => pf.package_file_id === packageFileId,

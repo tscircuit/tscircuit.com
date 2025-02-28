@@ -42,9 +42,11 @@ test("create package file with content_text", async () => {
   const responseBody = createResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file).toBeDefined()
-  expect(responseBody.package_file.package_release_id).toBe(createdRelease.package_release_id)
+  expect(responseBody.package_file.package_release_id).toBe(
+    createdRelease.package_release_id,
+  )
   expect(responseBody.package_file.file_path).toBe(filePath)
-  
+
   // Verify the file can be retrieved using the get endpoint
   const getResponse = await axios.post("/api/package_files/get", {
     package_file_id: responseBody.package_file.package_file_id,
@@ -99,7 +101,7 @@ test("create package file with content_base64", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
   // The content should be decoded from base64
   expect(responseBody.package_file.content_text).toBe(fileContent)
-  
+
   // Verify the file can be retrieved using the get endpoint with package_name_with_version
   const getResponse = await axios.post("/api/package_files/get", {
     package_file_id: responseBody.package_file.package_file_id,
@@ -152,7 +154,7 @@ test("create package file using package_name_with_version", async () => {
   expect(responseBody.package_file).toBeDefined()
   expect(responseBody.package_file.file_path).toBe(filePath)
   expect(responseBody.package_file.content_text).toBe(fileContent)
-  
+
   // Verify the file can be retrieved using the list endpoint
   const listResponse = await axios.post("/api/package_files/list", {
     package_name_with_version: `${packageName}@${version}`,
@@ -160,7 +162,9 @@ test("create package file using package_name_with_version", async () => {
   expect(listResponse.status).toBe(200)
   expect(listResponse.data.ok).toBe(true)
   expect(listResponse.data.package_files.length).toBeGreaterThan(0)
-  const foundFile = listResponse.data.package_files.find((file: any) => file.file_path === filePath)
+  const foundFile = listResponse.data.package_files.find(
+    (file: any) => file.file_path === filePath,
+  )
   expect(foundFile).toBeDefined()
   expect(foundFile.content_text).toBe(fileContent)
 })
@@ -316,10 +320,12 @@ test("create release tarball package file", async () => {
   const responseBody = createResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file).toBeDefined()
-  expect(responseBody.package_file.package_release_id).toBe(createdRelease.package_release_id)
+  expect(responseBody.package_file.package_release_id).toBe(
+    createdRelease.package_release_id,
+  )
   expect(responseBody.package_file.file_path).toBe("/test-1.0.0.tgz")
   expect(responseBody.package_file.content_text).toBe("tarball content")
-  
+
   // Note: The fake API implementation might not return these fields in the response
   // so we're not asserting them
   // expect(responseBody.package_file.is_release_tarball).toBe(true)
@@ -362,6 +368,8 @@ test("create package file - 400 for release tarball without npm_pack_output", as
   } catch (error: any) {
     expect(error.status).toBe(400)
     expect(error.data.error.error_code).toBe("missing_options")
-    expect(error.data.error.message).toBe("npm_pack_output is required for release tarballs")
+    expect(error.data.error.message).toBe(
+      "npm_pack_output is required for release tarballs",
+    )
   }
 })

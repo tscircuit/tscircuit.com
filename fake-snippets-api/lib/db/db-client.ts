@@ -429,5 +429,5 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageFiles: [...state.packageFiles, newPackageFile],
     }))
     return newPackageFile
-  },  
+  },
 }))
