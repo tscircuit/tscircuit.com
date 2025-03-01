@@ -1,10 +1,8 @@
 import { afterEach } from "bun:test"
-import { tmpdir } from "node:os"
 import defaultAxios from "redaxios"
 import { startServer } from "./start-server"
 import { DbClient } from "fake-snippets-api/lib/db/db-client"
-
-let testNumber = 1
+import getPort from "get-port"
 
 interface TestFixture {
   url: string
@@ -15,7 +13,7 @@ interface TestFixture {
 }
 
 export const getTestServer = async (): Promise<TestFixture> => {
-  const port = 3000 + testNumber++
+  const port = await getPort()
   const testInstanceId = Math.random().toString(36).substring(2, 15)
   const testDbName = `testdb${testInstanceId}`
 
@@ -37,7 +35,6 @@ export const getTestServer = async (): Promise<TestFixture> => {
     if (server && typeof server.stop === "function") {
       await server.stop()
     }
-    // Here you might want to add logic to drop the test database
   })
 
   return {
