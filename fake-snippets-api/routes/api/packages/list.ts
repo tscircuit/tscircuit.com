@@ -17,7 +17,8 @@ export default withRouteSpec({
     packages: z.array(packageSchema),
   }),
 })(async (req, ctx) => {
-  const { creator_account_id, owner_github_username, name, is_writable } = req.commonParams
+  const { creator_account_id, owner_github_username, name, is_writable } =
+    req.commonParams
 
   // Check if user is authenticated
   const auth = ctx.auth || null
@@ -31,39 +32,46 @@ export default withRouteSpec({
   }
 
   // Start with packages that are explicitly marked as packages (not snippets)
-  let packages = ctx.db.packages.filter(p => 
-    // Only include real packages, not snippets
-    p.is_snippet !== true && 
-    // Make sure it has required fields
-    p.package_id && 
-    p.name
+  let packages = ctx.db.packages.filter(
+    (p) =>
+      // Only include real packages, not snippets
+      p.is_snippet !== true &&
+      // Make sure it has required fields
+      p.package_id &&
+      p.name,
   )
-  
+
   // Filter by owner_github_username if provided
   if (owner_github_username) {
-    packages = packages.filter(p => p.owner_github_username === owner_github_username)
+    packages = packages.filter(
+      (p) => p.owner_github_username === owner_github_username,
+    )
   }
-  
+
   // Filter by creator_account_id if provided
   if (creator_account_id) {
-    packages = packages.filter(p => p.creator_account_id === creator_account_id)
+    packages = packages.filter(
+      (p) => p.creator_account_id === creator_account_id,
+    )
   }
-  
+
   // Filter by name if provided
   if (name) {
-    packages = packages.filter(p => p.name === name || p.unscoped_name === name)
+    packages = packages.filter(
+      (p) => p.name === name || p.unscoped_name === name,
+    )
   }
-  
+
   // Filter by is_writable if provided (requires auth)
   if (is_writable === true && auth) {
-    packages = packages.filter(p => p.owner_org_id === auth.personal_org_id)
+    packages = packages.filter((p) => p.owner_org_id === auth.personal_org_id)
   }
-  
+
   // Map packages to public format
-  const mappedPackages = packages.map(pkg => {
+  const mappedPackages = packages.map((pkg) => {
     // Find the latest package release
     const latestRelease = ctx.db.packageReleases.find(
-      pr => pr.package_id === pkg.package_id && pr.is_latest
+      (pr) => pr.package_id === pkg.package_id && pr.is_latest,
     )
 
     // Return enhanced package
@@ -71,11 +79,12 @@ export default withRouteSpec({
       ...pkg,
       latest_version: latestRelease?.version || pkg.latest_version,
       latest_license: latestRelease?.license || pkg.license,
-      latest_package_release_id: latestRelease?.package_release_id || pkg.latest_package_release_id,
+      latest_package_release_id:
+        latestRelease?.package_release_id || pkg.latest_package_release_id,
       star_count: pkg.star_count || 0,
     })
   })
-  
+
   return ctx.json({
     ok: true,
     packages: mappedPackages,
