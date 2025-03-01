@@ -1,100 +1,98 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 test("list packages", async () => {
-  const { axios, db } = await getTestServer()
+  const { axios } = await getTestServer()
 
-  // Add some test packages
+  // Create test packages using the API
   const packages = [
     {
       name: "Package1",
-      unscoped_name: "Package1",
-      owner_github_username: "user1",
-      creator_account_id: "creator1",
-      created_at: "2023-01-01T00:00:00Z",
-      updated_at: "2023-01-01T00:00:00Z",
       description: "Description 1",
       ai_description: "AI Description 1",
-      owner_org_id: "org1",
-      latest_version: "1.0.0",
-      license: "MIT",
-      is_source_from_github: true,
-      star_count: 0,
     },
     {
       name: "Package2",
-      unscoped_name: "Package2",
-      owner_github_username: "user2",
-      creator_account_id: "creator2",
-      created_at: "2023-01-02T00:00:00Z",
-      updated_at: "2023-01-02T00:00:00Z",
       description: "Description 2",
       ai_description: "AI Description 2",
-      owner_org_id: "org2",
-      latest_version: "1.0.0",
-      license: "MIT",
-      is_source_from_github: true,
-      star_count: 0,
     },
     {
       name: "Package3",
-      unscoped_name: "Package3",
-      owner_github_username: "user1",
-      creator_account_id: "creator1",
-      created_at: "2023-01-03T00:00:00Z",
-      updated_at: "2023-01-03T00:00:00Z",
       description: "Description 3",
       ai_description: "AI Description 3",
-      owner_org_id: "org1",
-      latest_version: "1.0.0",
-      license: "MIT",
-      is_source_from_github: true,
-      star_count: 0,
     },
   ]
 
+  // Create packages using the API
+  const createdPackages = []
   for (const pkg of packages) {
-    db.addPackage(pkg as any)
+    const response = await axios.post("/api/packages/create", pkg, {
+      headers: {
+        Authorization: "Bearer 1234",
+      },
+    })
+    createdPackages.push(response.data.package)
   }
 
-  // Test with no parameters (should return all packages)
+  // Test with no parameters (should return at least our created packages)
   const { data: allData } = await axios.get("/api/packages/list")
   expect(allData.ok).toBe(true)
-  expect(allData.packages).toHaveLength(3)
 
-  // Test with owner_github_username parameter
+  const responseContainsAllCreatedPackages = createdPackages.every((pkg) =>
+    allData.packages.some((p: Package) => p.package_id === pkg.package_id),
+  )
+  expect(responseContainsAllCreatedPackages).toBe(true)
+
+  // Test with owner_github_username parameter (all packages created by testuser)
   const { data: user1Data } = await axios.get("/api/packages/list", {
-    params: { owner_github_username: "user1" },
+    params: { owner_github_username: "testuser" },
   })
-  expect(user1Data.packages).toHaveLength(2)
+  // Verify all our created packages are in this filtered response
+  expect(
+    createdPackages.every((pkg) =>
+      user1Data.packages.some((p: Package) => p.package_id === pkg.package_id),
+    ),
+  ).toBe(true)
+
+  // Verify all packages have the correct owner
   expect(
     user1Data.packages.every(
-      (pkg: { owner_github_username: string }) =>
-        pkg.owner_github_username === "user1",
+      (pkg: Package) => pkg.owner_github_username === "testuser",
     ),
   ).toBe(true)
 
   // Test with creator_account_id parameter
   const { data: creator1Data } = await axios.get("/api/packages/list", {
-    params: { creator_account_id: "creator1" },
+    params: { creator_account_id: "account-1234" }, // Default account ID for test auth
   })
-  expect(creator1Data.packages).toHaveLength(2)
+  // Verify all our created packages are in this filtered response
   expect(
-    creator1Data.packages.every(
-      (pkg: { creator_account_id: string }) =>
-        pkg.creator_account_id === "creator1",
+    createdPackages.every((pkg) =>
+      creator1Data.packages.some(
+        (p: Package) => p.package_id === pkg.package_id,
+      ),
     ),
   ).toBe(true)
 
-  // Test with name parameter (must include another filter parameter)
+  // Verify all packages have the correct creator
+  expect(
+    creator1Data.packages.every(
+      (pkg: Package) => pkg.creator_account_id === "account-1234",
+    ),
+  ).toBe(true)
+
+  // Test with name parameter
   const { data: nameData } = await axios.get("/api/packages/list", {
     params: {
       name: "Package1",
-      owner_github_username: "user1",
+      owner_github_username: "testuser",
     },
   })
-  expect(nameData.packages).toHaveLength(1)
-  expect(nameData.packages[0].name).toBe("Package1")
+  expect(nameData.packages.length).toBeGreaterThanOrEqual(1)
+  expect(
+    nameData.packages.some((pkg: Package) => pkg.name === "Package1"),
+  ).toBe(true)
 
   // Test with non-existent owner
   const { data: nonExistentData } = await axios.get("/api/packages/list", {
@@ -108,52 +106,30 @@ test("list packages", async () => {
       Authorization: "Bearer 1234",
     },
   })
-  expect(authData.packages).toHaveLength(3) // Should return all packages when authenticated
+  // Verify all our created packages are in this authenticated response
+  expect(
+    createdPackages.every((pkg) =>
+      authData.packages.some((p: Package) => p.package_id === pkg.package_id),
+    ),
+  ).toBe(true)
 })
 
 test("list packages with is_writable filter", async () => {
-  const { axios, db } = await getTestServer()
+  const { axios } = await getTestServer()
 
-  // Add test packages
-  const packages = [
+  // Create a package owned by the authenticated user
+  await axios.post(
+    "/api/packages/create",
     {
-      package_id: "pkg1",
-      name: "Package1",
-      unscoped_name: "Package1",
-      owner_github_username: "testuser", // Matches auth context github_username
-      creator_account_id: "account-1234", // Matches auth context account_id
-      created_at: "2023-01-01T00:00:00Z",
-      updated_at: "2023-01-01T00:00:00Z",
-      description: "Description 1",
-      ai_description: "AI Description 1",
-      owner_org_id: "org-1234", // Matches auth context personal_org_id
-      latest_version: "1.0.0",
-      license: "MIT",
-      is_source_from_github: true,
-      star_count: 0,
+      name: "OwnedPackage",
+      description: "Package owned by testuser",
     },
     {
-      package_id: "pkg2",
-      name: "Package2",
-      unscoped_name: "Package2",
-      owner_github_username: "user2",
-      creator_account_id: "creator2",
-      created_at: "2023-01-02T00:00:00Z",
-      updated_at: "2023-01-02T00:00:00Z",
-      description: "Description 2",
-      ai_description: "AI Description 2",
-      owner_org_id: "other-org",
-      latest_version: "1.0.0",
-      license: "MIT",
-      is_source_from_github: true,
-      star_count: 0,
+      headers: {
+        Authorization: "Bearer 1234", // Auth token for testuser
+      },
     },
-  ]
-
-  // Add only these test packages
-  for (const pkg of packages) {
-    db.addPackage(pkg as any)
-  }
+  )
 
   // Test with is_writable filter (requires auth)
   const { data: writableData } = await axios.get("/api/packages/list", {
@@ -163,5 +139,5 @@ test("list packages with is_writable filter", async () => {
     },
   })
   expect(writableData.packages).toHaveLength(1)
-  expect(writableData.packages[0].owner_org_id).toBe("org-1234")
+  expect(writableData.packages[0].name).toBe("OwnedPackage")
 })

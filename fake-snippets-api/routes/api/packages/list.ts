@@ -31,12 +31,25 @@ export default withRouteSpec({
     })
   }
 
-  // Start with packages that are explicitly marked as packages (not snippets)
+  // Start with all packages that have required fields
   let packages = ctx.db.packages.filter(
     (p) =>
-      // Only include real packages by checking package-specific properties
-      p.package_id && p.name && !p.name.includes("snippet"),
+      // Make sure it's not a snippet
+      !p.package_id.startsWith("snippet_") &&
+      // Make sure it has required fields
+      p.package_id &&
+      p.name,
   )
+
+  // Remove duplicates by using a Map with package_id as key
+  // This ensures we only keep one instance of each package_id
+  const uniquePackages = new Map()
+  packages.forEach((p) => {
+    if (!uniquePackages.has(p.package_id)) {
+      uniquePackages.set(p.package_id, p)
+    }
+  })
+  packages = Array.from(uniquePackages.values())
 
   // Filter by owner_github_username if provided
   if (owner_github_username) {
@@ -61,7 +74,12 @@ export default withRouteSpec({
 
   // Filter by is_writable if provided (requires auth)
   if (is_writable === true && auth) {
-    packages = packages.filter((p) => p.owner_org_id === auth.personal_org_id)
+    // For is_writable, only include packages (not snippets)
+    packages = packages.filter(
+      (p) =>
+        p.owner_org_id === auth.personal_org_id &&
+        !p.package_id.startsWith("snippet_"),
+    )
   }
 
   // Map packages to public format
