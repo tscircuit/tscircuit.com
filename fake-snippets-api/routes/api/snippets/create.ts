@@ -85,12 +85,10 @@ export default withRouteSpec({
       latest_package_release_id: "",
     }
 
-    // Add the package to the database
-    ctx.db.packages.push(newPackage)
+    ctx.db.addPackage(newPackage)
 
-    // Create a package release
     const newPackageRelease = {
-      package_release_id: `pkgrel_${Date.now()}`,
+      package_release_id: `package_release_${Date.now()}`,
       package_id: newPackage.package_id,
       version: "0.0.1",
       is_latest: true,
@@ -98,7 +96,7 @@ export default withRouteSpec({
       created_at: newPackage.created_at,
     }
 
-    ctx.db.packageReleases.push(newPackageRelease)
+    ctx.db.addPackageRelease(newPackageRelease)
 
     // Update the package with the release ID
     newPackage.latest_package_release_id = newPackageRelease.package_release_id
