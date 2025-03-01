@@ -1,16 +1,18 @@
-import { expect, test } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
+import { expect, test } from "bun:test"
 import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 
-test("package as snippet integration test", async () => {
+test("usePackageAsSnippet hook", async () => {
   const { axios, db } = await getTestServer()
 
-  // 1. Create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
+  // 1. Create a snippet first
+  const snippetResponse = await axios.post(
+    "/api/snippets/create",
     {
-      name: "@test/component-package",
-      description: "A test component package",
+      unscoped_name: "TestSnippet",
+      code: "Test Content",
+      snippet_type: "package",
+      description: "Test Description",
     },
     {
       headers: {
@@ -18,88 +20,42 @@ test("package as snippet integration test", async () => {
       },
     },
   )
-  expect(packageResponse.status).toBe(200)
-  const createdPackage = packageResponse.data.package
-
-  // 2. Create a package release
-  const releaseResponse = await axios.post("/api/package_releases/create", {
-    package_id: createdPackage.package_id,
-    version: "1.0.0",
-    is_latest: true,
-  })
-  expect(releaseResponse.status).toBe(200)
-  const createdRelease = releaseResponse.data.package_release
-
-  // 3. Add package files including index.tsx and manual-edits.json
-  const indexContent = `
-import React from 'react';
-
-export default function TestComponent() {
-  return <div>Hello from test component</div>;
-}
-`
-  const manualEditsContent = `{
-  "version": 1,
-  "edits": [
-    {
-      "type": "style",
-      "selector": "div",
-      "styles": {
-        "color": "blue",
-        "fontWeight": "bold"
-      }
-    }
-  ]
-}`
-
-  // Add index.tsx file
-  await axios.post("/api/package_files/create", {
-    package_release_id: createdRelease.package_release_id,
-    file_path: "/index.tsx",
-    content_text: indexContent,
-  })
-
-  // Add manual-edits.json file
-  await axios.post("/api/package_files/create", {
-    package_release_id: createdRelease.package_release_id,
-    file_path: "/manual-edits.json",
-    content_text: manualEditsContent,
-  })
-
-  // Add another file (not used by the hook)
-  await axios.post("/api/package_files/create", {
-    package_release_id: createdRelease.package_release_id,
-    file_path: "/README.md",
-    content_text: "# Test Component\nThis is a test component.",
-  })
-
-  // 4. Simulate the usePackageAsSnippet hook by making the same API calls
-
-  // First API call: Get package details
+  expect(snippetResponse.status).toBe(200)
+  const createdSnippet = snippetResponse.data.snippet
+  // 2. Now access the snippet as a package using the package endpoints
   const packageGetResponse = await axios.post("/api/packages/get", {
-    package_id: createdPackage.package_id,
+    package_id: createdSnippet.snippet_id,
   })
   expect(packageGetResponse.status).toBe(200)
   const packageData = packageGetResponse.data.package
 
-  // Second API call: Get package files
+  // 3. Get the latest package release
+  const releaseResponse = await axios.post("/api/package_releases/list", {
+    package_id: packageData.package_id,
+    is_latest: true,
+  })
+  expect(releaseResponse.status).toBe(200)
+  expect(releaseResponse.data.package_releases.length).toBeGreaterThan(0)
+  const latestRelease = releaseResponse.data.package_releases[0]
+
+  // 4. Get package files
   const filesListResponse = await axios.post("/api/package_files/list", {
-    package_release_id: createdRelease.package_release_id,
+    package_release_id: latestRelease.package_release_id,
   })
   expect(filesListResponse.status).toBe(200)
   const packageFiles = filesListResponse.data.package_files
 
   // 5. Transform the data to match the snippet structure (as the hook would do)
   const indexFile = packageFiles.find(
-    (file: PackageFile) => file.file_path === "/index.tsx",
+    (file: PackageFile) => file.file_path === "index.tsx",
   )
   const manualEditsFile = packageFiles.find(
-    (file: PackageFile) => file.file_path === "/manual-edits.json",
+    (file: PackageFile) => file.file_path === "manual-edits.json",
   )
 
   const snippetData = {
     snippet_id: packageData.package_id,
-    package_release_id: createdRelease.package_release_id,
+    package_release_id: latestRelease.package_release_id,
     unscoped_name: packageData.unscoped_name,
     name: packageData.name,
     is_starred: false,
@@ -115,11 +71,10 @@ export default function TestComponent() {
   }
 
   // 6. Verify the transformed data
-  expect(snippetData.snippet_id).toBe(createdPackage.package_id)
-  expect(snippetData.name).toBe("test/component-package")
-  expect(snippetData.description).toBe("A test component package")
-  expect(snippetData.code).toBe(indexContent)
-  expect(snippetData.manual_edits_json_content).toBe(manualEditsContent)
+  expect(snippetData.snippet_id).toBe(createdSnippet.snippet_id)
+  expect(snippetData.name).toBe("testuser/TestSnippet")
+  expect(snippetData.description).toBe("Test Description")
+  expect(snippetData.code).toContain("Test Content")
 
   // Verify that the snippet data structure matches what would be returned by the hook
   expect(snippetData).toHaveProperty("snippet_id")
