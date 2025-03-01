@@ -67,10 +67,10 @@ export default withRouteSpec({
       circuit_json,
       dts,
     }
-    
+
     // Add the snippet to the database
     const createdSnippet = ctx.db.addSnippet(newSnippet)
-    
+
     // Also create a package with the same ID
     const packageData = {
       package_id: createdSnippet.snippet_id,
@@ -94,15 +94,15 @@ export default withRouteSpec({
       is_model: snippet_type === "model",
       is_footprint: snippet_type === "footprint",
     }
-    
+
     // Add the package to the database
     ctx.db.packages.push(packageData)
-    
+
     // Ensure package release exists
     const packageRelease = ctx.db.packageReleases.find(
-      (pr) => pr.package_release_id === createdSnippet.package_release_id
+      (pr) => pr.package_release_id === createdSnippet.package_release_id,
     )
-    
+
     if (!packageRelease) {
       // Create a package release if it doesn't exist
       ctx.db.addPackageRelease({
