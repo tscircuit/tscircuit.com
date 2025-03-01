@@ -425,7 +425,4 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newPackageFile
   },
-  dropDatabase: (): void => {
-    set(databaseSchema.parse({}))
-  },
 }))
