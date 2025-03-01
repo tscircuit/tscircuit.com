@@ -1,26 +1,24 @@
-import { createStore, type StoreApi } from "zustand/vanilla"
-import { immer } from "zustand/middleware/immer"
-import { hoist, type HoistedStoreApi } from "zustand-hoist"
-import { z } from "zod"
+import type { z } from "zod"
+import { hoist } from "zustand-hoist"
+import { createStore } from "zustand/vanilla"
 
-import {
-  databaseSchema,
-  Snippet,
-  Session,
-  LoginPage,
-  Account,
-  type DatabaseSchema,
-  snippetSchema,
-  Order,
-  OrderFile,
-  AccountSnippet,
-  packageReleaseSchema,
-  packageSchema,
-  Package,
-  PackageRelease,
-  PackageFile,
-} from "./schema.ts"
 import { combine } from "zustand/middleware"
+import {
+  type Account,
+  type AccountSnippet,
+  type LoginPage,
+  type Order,
+  type OrderFile,
+  type Package,
+  type PackageFile,
+  type PackageRelease,
+  type Session,
+  type Snippet,
+  databaseSchema,
+  packageReleaseSchema,
+  type packageSchema,
+  snippetSchema,
+} from "./schema.ts"
 import { seed as seedFn } from "./seed"
 
 export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
@@ -35,7 +33,7 @@ export type DbClient = ReturnType<typeof createDatabase>
 
 const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   addOrder: (order: Omit<Order, "order_id">): Order => {
-    let newOrder = { order_id: `order_${get().idCounter + 1}`, ...order }
+    const newOrder = { order_id: `order_${get().idCounter + 1}`, ...order }
     set((state) => {
       return {
         orders: [...state.orders, newOrder],
@@ -180,13 +178,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   updateSnippet: (
-    snippet_id: string,
+    snippetId: string,
     updates: Partial<Snippet>,
   ): Snippet | undefined => {
     let updatedSnippet: Snippet | undefined
     set((state) => {
       const snippetIndex = state.snippets.findIndex(
-        (snippet) => snippet.snippet_id === snippet_id,
+        (snippet) => snippet.snippet_id === snippetId,
       )
       if (snippetIndex === -1) {
         return state
@@ -202,16 +200,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return updatedSnippet
   },
-  getSnippetById: (snippet_id: string): Snippet | undefined => {
+  getSnippetById: (snippetId: string): Snippet | undefined => {
     const state = get()
     const snippet = state.snippets.find(
-      (snippet) => snippet.snippet_id === snippet_id,
+      (snippet) => snippet.snippet_id === snippetId,
     )
     if (!snippet) return undefined
     return {
       ...snippet,
       star_count: state.accountSnippets.filter(
-        (as) => as.snippet_id === snippet_id && as.has_starred,
+        (as) => as.snippet_id === snippetId && as.has_starred,
       ).length,
     }
   },
@@ -232,10 +230,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         ).length,
       }))
   },
-  deleteSnippet: (snippet_id: string): boolean => {
+  deleteSnippet: (snippetId: string): boolean => {
     let deleted = false
     set((state) => {
-      const index = state.snippets.findIndex((s) => s.snippet_id === snippet_id)
+      const index = state.snippets.findIndex((s) => s.snippet_id === snippetId)
       if (index !== -1) {
         state.snippets.splice(index, 1)
         deleted = true
@@ -277,32 +275,29 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newLoginPage
   },
-  getLoginPage: (login_page_id: string): LoginPage | undefined => {
+  getLoginPage: (loginPageId: string): LoginPage | undefined => {
     const state = get()
-    return state.loginPages.find((lp) => lp.login_page_id === login_page_id)
+    return state.loginPages.find((lp) => lp.login_page_id === loginPageId)
   },
-  updateLoginPage: (
-    login_page_id: string,
-    updates: Partial<LoginPage>,
-  ): void => {
+  updateLoginPage: (loginPageId: string, updates: Partial<LoginPage>): void => {
     set((state) => ({
       loginPages: state.loginPages.map((lp) =>
-        lp.login_page_id === login_page_id ? { ...lp, ...updates } : lp,
+        lp.login_page_id === loginPageId ? { ...lp, ...updates } : lp,
       ),
     }))
   },
-  getAccount: (account_id: string): Account | undefined => {
+  getAccount: (accountId: string): Account | undefined => {
     const state = get()
-    return state.accounts.find((account) => account.account_id === account_id)
+    return state.accounts.find((account) => account.account_id === accountId)
   },
   updateAccount: (
-    account_id: string,
+    accountId: string,
     updates: Partial<Account>,
   ): Account | undefined => {
     let updatedAccount: Account | undefined
     set((state) => {
       const accountIndex = state.accounts.findIndex(
-        (account) => account.account_id === account_id,
+        (account) => account.account_id === accountId,
       )
       if (accountIndex !== -1) {
         updatedAccount = { ...state.accounts[accountIndex] }
@@ -329,11 +324,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newSession
   },
-  addStar: (account_id: string, snippet_id: string): AccountSnippet => {
+  addStar: (accountId: string, snippetId: string): AccountSnippet => {
     const now = new Date().toISOString()
     const accountSnippet = {
-      account_id,
-      snippet_id,
+      account_id: accountId,
+      snippet_id: snippetId,
       has_starred: true,
       created_at: now,
       updated_at: now,
@@ -343,19 +338,19 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return accountSnippet
   },
-  removeStar: (account_id: string, snippet_id: string): void => {
+  removeStar: (accountId: string, snippetId: string): void => {
     set((state) => ({
       accountSnippets: state.accountSnippets.filter(
-        (as) => !(as.account_id === account_id && as.snippet_id === snippet_id),
+        (as) => !(as.account_id === accountId && as.snippet_id === snippetId),
       ),
     }))
   },
-  hasStarred: (account_id: string, snippet_id: string): boolean => {
+  hasStarred: (accountId: string, snippetId: string): boolean => {
     const state = get()
     return state.accountSnippets.some(
       (as) =>
-        as.account_id === account_id &&
-        as.snippet_id === snippet_id &&
+        as.account_id === accountId &&
+        as.snippet_id === snippetId &&
         as.has_starred,
     )
   },
@@ -377,24 +372,24 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     newPackage.latest_package_release_id = packageRelease.package_release_id
     set((state) => ({
-      packages: [...state.packages, newPackage],
+      packages: [...state.packages, newPackage as Package],
     }))
-    return newPackage
+    return newPackage as Package
   },
-  getPackageById: (package_id: string): Package | undefined => {
+  getPackageById: (packageId: string): Package | undefined => {
     const state = get()
-    const pkg = state.packages.find((pkg) => pkg.package_id === package_id)
+    const pkg = state.packages.find((pkg) => pkg.package_id === packageId)
     if (!pkg) return undefined
     return {
       ...pkg,
     }
   },
   getPackageReleaseById: (
-    package_release_id: string,
+    packageReleaseId: string,
   ): PackageRelease | undefined => {
     const state = get()
     return state.packageReleases.find(
-      (pr) => pr.package_release_id === package_release_id,
+      (pr) => pr.package_release_id === packageReleaseId,
     )
   },
   addPackageRelease: (
@@ -429,5 +424,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageFiles: [...state.packageFiles, newPackageFile],
     }))
     return newPackageFile
+  },
+  dropDatabase: (): void => {
+    set(databaseSchema.parse({}))
   },
 }))

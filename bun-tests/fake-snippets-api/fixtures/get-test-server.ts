@@ -37,7 +37,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
     if (server && typeof server.stop === "function") {
       await server.stop()
     }
-    // Here you might want to add logic to drop the test database
+    await db.dropDatabase()
   })
 
   return {

@@ -31,21 +31,25 @@ export default withRouteSpec({
 
   if (!unscoped_name) {
     // Count snippets of this type for this user
-    const userSnippets = ctx.db.snippets.filter(
-      (s) =>
-        s.owner_name === ctx.auth.github_username &&
-        s.snippet_type === snippet_type,
+    const userSnippets = ctx.db.packages.filter(
+      (p) =>
+        p.owner_github_username === ctx.auth.github_username &&
+        p.is_snippet === true &&
+        ((p.is_board && snippet_type === "board") ||
+          (p.is_package && snippet_type === "package") ||
+          (p.is_model && snippet_type === "model") ||
+          (p.is_footprint && snippet_type === "footprint")),
     )
     unscoped_name = `untitled-${snippet_type}-${userSnippets.length + 1}`
   }
 
-  const existingSnippet = ctx.db.snippets.find(
-    (snippet) =>
-      snippet.unscoped_name === unscoped_name &&
-      snippet.owner_name === ctx.auth.github_username,
+  const existingPackage = ctx.db.packages.find(
+    (pkg) =>
+      pkg.unscoped_name === unscoped_name &&
+      pkg.owner_github_username === ctx.auth.github_username,
   )
 
-  if (existingSnippet) {
+  if (existingPackage) {
     return ctx.error(400, {
       error_code: "snippet_already_exists",
       message: "You have already forked this snippet in your account.",
@@ -53,27 +57,9 @@ export default withRouteSpec({
   }
 
   try {
-    // Create the snippet
-    const newSnippet = {
-      name: `${ctx.auth.github_username}/${unscoped_name}`,
-      unscoped_name,
-      owner_name: ctx.auth.github_username,
-      code,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      snippet_type,
-      description,
-      compiled_js,
-      circuit_json,
-      dts,
-    }
-
-    // Add the snippet to the database
-    const createdSnippet = ctx.db.addSnippet(newSnippet)
-
-    // Also create a package with the same ID
-    const packageData = {
-      package_id: createdSnippet.snippet_id,
+    // Create the package directly (which will serve as our snippet)
+    const newPackage = {
+      package_id: `pkg_${Date.now()}`,
       creator_account_id: ctx.auth.account_id,
       owner_org_id: ctx.auth.personal_org_id,
       owner_github_username: ctx.auth.github_username,
@@ -81,88 +67,104 @@ export default withRouteSpec({
       description: description,
       name: `${ctx.auth.github_username}/${unscoped_name}`,
       unscoped_name: unscoped_name,
-      latest_package_release_id: createdSnippet.package_release_id,
       latest_version: "0.0.1",
       license: null,
       star_count: 0,
-      created_at: createdSnippet.created_at,
-      updated_at: createdSnippet.updated_at,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       ai_description: null,
       is_snippet: true,
       is_board: snippet_type === "board",
       is_package: snippet_type === "package",
       is_model: snippet_type === "model",
       is_footprint: snippet_type === "footprint",
+      snippet_type: snippet_type,
+      is_private: false,
+      is_public: true,
+      is_unlisted: false,
+      latest_package_release_id: "",
     }
 
     // Add the package to the database
-    ctx.db.packages.push(packageData)
+    ctx.db.packages.push(newPackage)
 
-    // Ensure package release exists
-    const packageRelease = ctx.db.packageReleases.find(
-      (pr) => pr.package_release_id === createdSnippet.package_release_id,
-    )
+    // Create a package release
+    const newPackageRelease = {
+      package_release_id: `pkgrel_${Date.now()}`,
+      package_id: newPackage.package_id,
+      version: "0.0.1",
+      is_latest: true,
+      is_locked: false,
+      created_at: newPackage.created_at,
+    }
 
-    if (!packageRelease) {
-      // Create a package release if it doesn't exist
-      ctx.db.addPackageRelease({
-        package_id: createdSnippet.snippet_id,
-        version: "0.0.1",
-        is_latest: true,
-        is_locked: false,
-        created_at: createdSnippet.created_at,
+    ctx.db.packageReleases.push(newPackageRelease)
+
+    // Update the package with the release ID
+    newPackage.latest_package_release_id = newPackageRelease.package_release_id
+
+    // Add package files
+    // Add index.tsx file with the code content
+    ctx.db.addPackageFile({
+      package_release_id: newPackageRelease.package_release_id,
+      file_path: "index.tsx",
+      content_text: code,
+      created_at: new Date().toISOString(),
+    })
+
+    // Add DTS file if provided
+    if (dts) {
+      ctx.db.addPackageFile({
+        package_release_id: newPackageRelease.package_release_id,
+        file_path: "/dist/index.d.ts",
+        content_text: dts,
+        created_at: new Date().toISOString(),
       })
     }
 
-    // Add package files based on snippet type
-    if (
-      snippet_type === "package" ||
-      snippet_type === "board" ||
-      snippet_type === "model" ||
-      snippet_type === "footprint"
-    ) {
-      // Add index.tsx file with the code content
+    // Add compiled JS if provided
+    if (compiled_js) {
       ctx.db.addPackageFile({
-        package_release_id: createdSnippet.package_release_id,
-        file_path: "index.tsx",
-        content_text: code,
+        package_release_id: newPackageRelease.package_release_id,
+        file_path: "/dist/index.js",
+        content_text: compiled_js,
         created_at: new Date().toISOString(),
       })
+    }
 
-      // Add DTS file if provided
-      if (dts) {
-        ctx.db.addPackageFile({
-          package_release_id: createdSnippet.package_release_id,
-          file_path: "/dist/index.d.ts",
-          content_text: dts,
-          created_at: new Date().toISOString(),
-        })
-      }
+    // Add circuit JSON if provided
+    if (circuit_json) {
+      ctx.db.addPackageFile({
+        package_release_id: newPackageRelease.package_release_id,
+        file_path: "/dist/circuit.json",
+        content_text: JSON.stringify(circuit_json),
+        created_at: new Date().toISOString(),
+      })
+    }
 
-      // Add compiled JS if provided
-      if (compiled_js) {
-        ctx.db.addPackageFile({
-          package_release_id: createdSnippet.package_release_id,
-          file_path: "/dist/index.js",
-          content_text: compiled_js,
-          created_at: new Date().toISOString(),
-        })
-      }
-
-      // Add circuit JSON if provided
-      if (circuit_json) {
-        ctx.db.addPackageFile({
-          package_release_id: createdSnippet.package_release_id,
-          file_path: "/dist/circuit.json",
-          content_text: JSON.stringify(circuit_json),
-          created_at: new Date().toISOString(),
-        })
-      }
+    // Create the snippet response object
+    const snippetResponse = {
+      snippet_id: newPackage.package_id,
+      package_release_id: newPackageRelease.package_release_id,
+      name: newPackage.name,
+      unscoped_name: newPackage.unscoped_name,
+      owner_name: ctx.auth.github_username,
+      code,
+      dts,
+      compiled_js,
+      star_count: 0,
+      created_at: newPackage.created_at,
+      updated_at: newPackage.updated_at,
+      snippet_type: snippet_type,
+      circuit_json: circuit_json,
+      description: description,
+      is_starred: false,
+      version: "0.0.1",
     }
 
     return ctx.json({
       ok: true,
-      snippet: createdSnippet,
+      snippet: snippetResponse,
     })
   } catch (error) {
     return ctx.error(500, {
