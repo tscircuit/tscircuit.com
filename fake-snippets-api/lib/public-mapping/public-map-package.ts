@@ -17,15 +17,23 @@ export const publicMapPackage = (internal_package: {
   updated_at: string
   created_at: string
   ai_description: string | null
+  is_snippet: boolean
+  is_board: boolean
+  is_package: boolean
+  is_model: boolean
+  is_footprint: boolean
 }): ZT.Package => {
   return {
     ...internal_package,
     latest_package_release_id:
-      internal_package.latest_package_release_id ?? null,
+      internal_package.latest_package_release_id ?? "",
     latest_version: internal_package.latest_version ?? null,
     license: internal_package.latest_license ?? null,
     star_count: internal_package.star_count ?? 0,
     created_at: internal_package.created_at,
     updated_at: internal_package.updated_at,
+    is_private: false,
+    is_public: true,
+    is_unlisted: false,
   }
 }
