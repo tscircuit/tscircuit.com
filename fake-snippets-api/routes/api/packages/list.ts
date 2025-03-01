@@ -34,11 +34,8 @@ export default withRouteSpec({
   // Start with packages that are explicitly marked as packages (not snippets)
   let packages = ctx.db.packages.filter(
     (p) =>
-      // Only include real packages, not snippets
-      p.is_snippet !== true &&
-      // Make sure it has required fields
-      p.package_id &&
-      p.name,
+      // Only include real packages by checking package-specific properties
+      p.package_id && p.name && !p.name.includes("snippet"),
   )
 
   // Filter by owner_github_username if provided
