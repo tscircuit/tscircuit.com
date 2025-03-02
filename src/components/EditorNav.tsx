@@ -76,12 +76,6 @@ export default function EditorNav({
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
-  const shouldUseWebworkerForRun = useGlobalStore(
-    (s) => s.should_use_webworker_for_run,
-  )
-  const setShouldUseWebworkerForRun = useGlobalStore(
-    (s) => s.setShouldUseWebworkerForRun,
-  )
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
     useRenameSnippetDialog()
   const {
@@ -277,21 +271,6 @@ export default function EditorNav({
           >
             <Share className="mr-1 h-3 w-3" />
             Copy URL
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hidden md:flex px-2 text-xs"
-            onClick={() =>
-              setShouldUseWebworkerForRun(!shouldUseWebworkerForRun)
-            }
-          >
-            {shouldUseWebworkerForRun ? (
-              <CircleCheckBig className="mr-1 h-3 w-3" />
-            ) : (
-              <Square className="mr-1 h-3 w-3" />
-            )}
-            Webworker (Beta)
           </Button>
           {/* <Button
             variant="ghost"
