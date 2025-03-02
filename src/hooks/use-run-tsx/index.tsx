@@ -19,6 +19,10 @@ type RunTsxResult = {
   isRunningCode: boolean
 }
 
+/**
+ * @deprecated will be removed in future version, use @tscircuit/eval or
+ * @tscircuit/runframe
+ */
 export const useRunTsx = ({
   code,
   userImports,

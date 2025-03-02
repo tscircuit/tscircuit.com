@@ -2,7 +2,6 @@ import { CodeEditor } from "@/components/CodeEditor"
 import { useAxios } from "@/hooks/use-axios"
 import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useRunTsx } from "@/hooks/use-run-tsx"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
 import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
@@ -16,7 +15,6 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
-import { PreviewContent } from "./PreviewContent"
 import { SuspenseRunFrame } from "./SuspenseRunFrame"
 
 interface Props {
@@ -51,9 +49,6 @@ export function CodeAndPreview({ snippet }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
-  const shouldUseWebworkerForRun = useGlobalStore(
-    (s) => s.should_use_webworker_for_run,
-  )
   const [circuitJson, setCircuitJson] = useState<any>(null)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
@@ -274,6 +269,9 @@ export function CodeAndPreview({ snippet }: Props) {
               }}
               onEditEvent={() => {
                 // TODO
+                window.alert(
+                  "Edit events are temporarily disabled on tscircuit.com, use the CLI",
+                )
               }}
               fsMap={fsMap}
               entrypoint="main.tsx"
