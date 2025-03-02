@@ -16,7 +16,6 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
-import { PreviewContent } from "./PreviewContent"
 import { SuspenseRunFrame } from "./SuspenseRunFrame"
 
 interface Props {
@@ -51,9 +50,6 @@ export function CodeAndPreview({ snippet }: Props) {
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
-  const shouldUseWebworkerForRun = useGlobalStore(
-    (s) => s.should_use_webworker_for_run,
-  )
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ??
@@ -276,28 +272,7 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        {showPreview && !shouldUseWebworkerForRun && (
-          <PreviewContent
-            className={cn(
-              "flex p-2 flex-col min-h-[640px]",
-              fullScreen
-                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-                : "w-full md:w-1/2",
-            )}
-            code={code}
-            triggerRunTsx={triggerRunTsx}
-            tsxRunTriggerCount={tsxRunTriggerCount}
-            errorMessage={message}
-            circuitJsonKey={circuitJsonKey}
-            circuitJson={circuitJson}
-            isRunningCode={isRunningCode}
-            manualEditsFileContent={manualEditsFileContent ?? ""}
-            onManualEditsFileContentChange={setManualEditsFileContent}
-            onToggleFullScreen={() => setFullScreen(!fullScreen)}
-            isFullScreen={fullScreen}
-          />
-        )}
-        {showPreview && shouldUseWebworkerForRun && (
+        {showPreview && (
           <div
             className={cn(
               "flex p-0 flex-col min-h-[640px]",

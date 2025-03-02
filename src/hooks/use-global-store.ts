@@ -19,7 +19,7 @@ export const useGlobalStore = create<Store>()(
   persist(
     (set) => ({
       session: null,
-      should_use_webworker_for_run: false,
+      should_use_webworker_for_run: true,
       setShouldUseWebworkerForRun: (should_use_webworker_for_run: boolean) =>
         set({ should_use_webworker_for_run }),
       setSession: (session) => set({ session }),
