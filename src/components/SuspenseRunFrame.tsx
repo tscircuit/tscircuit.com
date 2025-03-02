@@ -8,6 +8,7 @@ const RunFrame = lazy(async () => {
 export const SuspenseRunFrame = (
   props: React.ComponentProps<typeof RunFrame>,
 ) => {
+  console.log(props.fsMap)
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <RunFrame {...props} />

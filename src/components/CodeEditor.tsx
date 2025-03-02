@@ -27,7 +27,7 @@ import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
-import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
+// import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -187,6 +187,8 @@ export const CodeEditor = ({
     const ata = setupTypeAcquisition(ataConfig)
     ataRef.current = ata
 
+    const lastFilesEventContent: Record<string, string> = {}
+
     // Set up base extensions
     const baseExtensions = [
       basicSetup,
@@ -198,7 +200,9 @@ export const CodeEditor = ({
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
-          if (newContent === files[currentFile]) return
+
+          if (newContent === lastFilesEventContent[currentFile]) return
+          lastFilesEventContent[currentFile] = newContent
 
           if (currentFile === "index.tsx") {
             setCode(newContent)
@@ -228,10 +232,10 @@ export const CodeEditor = ({
     ]
     if (codeCompletionApi?.apiKey) {
       baseExtensions.push(
-        copilotPlugin({
-          apiKey: codeCompletionApi.apiKey,
-          language: Language.TYPESCRIPT,
-        }),
+        // copilotPlugin({
+        //   apiKey: codeCompletionApi.apiKey,
+        //   language: Language.TYPESCRIPT,
+        // }),
         EditorView.theme({
           ".cm-ghostText, .cm-ghostText *": {
             opacity: "0.6",

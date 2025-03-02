@@ -54,6 +54,7 @@ export function CodeAndPreview({ snippet }: Props) {
   const shouldUseWebworkerForRun = useGlobalStore(
     (s) => s.should_use_webworker_for_run,
   )
+  const [circuitJson, setCircuitJson] = useState<any>(null)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ??
@@ -82,26 +83,6 @@ export function CodeAndPreview({ snippet }: Props) {
     [manualEditsFileContent],
   )
 
-  const {
-    message,
-    circuitJson,
-    compiledJs,
-    triggerRunTsx,
-    tsxRunTriggerCount,
-    circuitJsonKey,
-    isRunningCode,
-  } = useRunTsx({
-    code,
-    userImports,
-    type: snippetType,
-    circuitDisplayName: snippet?.name,
-  })
-
-  // Update lastRunCode whenever the code is run
-  useEffect(() => {
-    setLastRunCode(code)
-  }, [tsxRunTriggerCount])
-
   const qc = useQueryClient()
 
   const updateSnippetMutation = useMutation({
@@ -112,7 +93,7 @@ export function CodeAndPreview({ snippet }: Props) {
         snippet_id: snippet.snippet_id,
         code: code,
         dts: dts,
-        compiled_js: compiledJs,
+        // compiled_js: compiledJs,
         circuit_json: circuitJson,
         manual_edits_json_content: manualEditsFileContent,
       }
@@ -231,6 +212,7 @@ export function CodeAndPreview({ snippet }: Props) {
       "main.tsx": entrypointContent,
     }
   }, [code, manualEditsFileContent])
+  console.log(code)
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
@@ -276,28 +258,7 @@ export function CodeAndPreview({ snippet }: Props) {
             onDtsChange={(newDts) => setDts(newDts)}
           />
         </div>
-        {showPreview && !shouldUseWebworkerForRun && (
-          <PreviewContent
-            className={cn(
-              "flex p-2 flex-col min-h-[640px]",
-              fullScreen
-                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-                : "w-full md:w-1/2",
-            )}
-            code={code}
-            triggerRunTsx={triggerRunTsx}
-            tsxRunTriggerCount={tsxRunTriggerCount}
-            errorMessage={message}
-            circuitJsonKey={circuitJsonKey}
-            circuitJson={circuitJson}
-            isRunningCode={isRunningCode}
-            manualEditsFileContent={manualEditsFileContent ?? ""}
-            onManualEditsFileContentChange={setManualEditsFileContent}
-            onToggleFullScreen={() => setFullScreen(!fullScreen)}
-            isFullScreen={fullScreen}
-          />
-        )}
-        {showPreview && shouldUseWebworkerForRun && (
+        {showPreview && (
           <div
             className={cn(
               "flex p-0 flex-col min-h-[640px]",
@@ -308,6 +269,9 @@ export function CodeAndPreview({ snippet }: Props) {
           >
             <SuspenseRunFrame
               showRunButton
+              onRenderFinished={(circuitJson) => {
+                setCircuitJson(circuitJson)
+              }}
               onEditEvent={() => {
                 // TODO
               }}
