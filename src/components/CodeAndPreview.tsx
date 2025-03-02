@@ -207,7 +207,6 @@ export function CodeAndPreview({ snippet }: Props) {
       "main.tsx": entrypointContent,
     }
   }, [code, manualEditsFileContent])
-  console.log(code)
 
   if (!snippet && (urlParams.snippet_id || urlParams.should_create_snippet)) {
     return (
@@ -264,7 +263,10 @@ export function CodeAndPreview({ snippet }: Props) {
           >
             <SuspenseRunFrame
               showRunButton
-              onRenderFinished={(circuitJson) => {
+              onRenderStarted={() => {
+                setLastRunCode(code)
+              }}
+              onRenderFinished={({ circuitJson }) => {
                 setCircuitJson(circuitJson)
               }}
               onEditEvent={() => {

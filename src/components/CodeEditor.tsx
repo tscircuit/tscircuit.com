@@ -86,7 +86,6 @@ export const CodeEditor = ({
   // Whenever streaming completes, reset the code to the initial code
   useEffect(() => {
     if (!isStreaming && code !== initialCode && initialCode) {
-      console.log("Resetting code to initial code", initialCode)
       setCode(initialCode)
 
       // HACK: Timeout because we need to wait for the editor to mount again
