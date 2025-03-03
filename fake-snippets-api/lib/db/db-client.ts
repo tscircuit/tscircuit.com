@@ -5,6 +5,7 @@ import { createStore } from "zustand/vanilla"
 import { combine } from "zustand/middleware"
 import {
   type Account,
+  type AccountPackage,
   type AccountSnippet,
   type LoginPage,
   type Order,
@@ -86,6 +87,44 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
 
     return newAccount
+  },
+  addAccountPackage: (
+    accountPackage: Omit<AccountPackage, "account_package_id">,
+  ): AccountPackage => {
+    const newAccountPackage = {
+      account_package_id: `ap_${get().idCounter + 1}`,
+      ...accountPackage,
+    }
+    set((state) => {
+      return {
+        accountPackages: [...state.accountPackages, newAccountPackage],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newAccountPackage
+  },
+  getAccountPackageById: (accountPackageId: string): AccountPackage | undefined => {
+    const state = get()
+    return state.accountPackages.find((ap) => ap.account_package_id === accountPackageId)
+  },
+  updateAccountPackage: (accountPackageId: string, updates: Partial<AccountPackage>): void => {
+    set((state) => ({
+      accountPackages: state.accountPackages.map((ap) =>
+        ap.account_package_id === accountPackageId ? { ...ap, ...updates } : ap,
+      ),
+    }))
+  },
+  deleteAccountPackage: (accountPackageId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.accountPackages.findIndex((ap) => ap.account_package_id === accountPackageId)
+      if (index !== -1) {
+        state.accountPackages.splice(index, 1)
+        deleted = true
+      }
+      return state
+    })
+    return deleted
   },
   addSnippet: (
     snippet: Omit<
@@ -172,10 +211,49 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     snippetName: string,
   ): Snippet | undefined => {
     const state = get()
-    return state.snippets.find(
-      (snippet) =>
-        snippet.owner_name === authorName && snippet.name === snippetName,
+    // Look for the package that represents this snippet with case-insensitive matching
+    const _package = state.packages.find(
+      (pkg) => 
+        pkg.owner_github_username?.toLowerCase() === authorName.toLowerCase() && 
+        pkg.name.toLowerCase() === snippetName.toLowerCase() &&
+        pkg.is_snippet === true
     )
+    if (!_package) return undefined
+
+    // Get the package release
+    const packageRelease = state.packageReleases.find(
+      (pr) => pr.package_release_id === _package.latest_package_release_id && pr.is_latest === true
+    )
+    if (!packageRelease) return undefined
+
+    // Get the package files
+    const packageFiles = state.packageFiles.filter(
+      (file) => file.package_release_id === packageRelease.package_release_id
+    )
+
+    // Get the code file (index.ts or index.tsx)
+    const codeFile = packageFiles.find(
+      (file) => file.file_path === "index.ts" || file.file_path === "index.tsx"
+    )
+
+    // Map the package data to match the Snippet structure
+    return {
+      snippet_id: _package.package_id,
+      package_release_id: _package.latest_package_release_id || "",
+      unscoped_name: _package.unscoped_name,
+      name: _package.name,
+      owner_name: _package.owner_github_username || "",
+      description: _package.description || "",
+      snippet_type: _package.snippet_type || "board",
+      code: codeFile?.content_text || "",
+      dts: packageFiles.find((file) => file.file_path === "/dist/index.d.ts")?.content_text || "",
+      compiled_js: packageFiles.find((file) => file.file_path === "/dist/index.js")?.content_text || "",
+      created_at: _package.created_at,
+      updated_at: _package.updated_at,
+      star_count: _package.star_count || 0,
+      is_starred: false,
+      version: _package.latest_version || "0.0.1",
+    }
   },
   updateSnippet: (
     snippetId: string,
@@ -202,15 +280,51 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getSnippetById: (snippetId: string): Snippet | undefined => {
     const state = get()
-    const snippet = state.snippets.find(
-      (snippet) => snippet.snippet_id === snippetId,
+    console.log(state.packages, state.packageReleases, state.packageFiles)
+    // Look for the package that represents this snippet
+    const _package = state.packages.find(
+      (pkg) => pkg.package_id === snippetId && pkg.is_snippet === true
     )
-    if (!snippet) return undefined
+    if (!_package) return undefined
+
+    // Get the package release
+    const packageRelease = state.packageReleases.find(
+      (pr) => pr.package_release_id === _package.latest_package_release_id && pr.is_latest === true
+    )
+    if (!packageRelease) return undefined
+
+    // Get the package files
+    const packageFiles = state.packageFiles.filter(
+      (file) => file.package_release_id === packageRelease.package_release_id
+    )
+
+    // Get the code file (index.ts or index.tsx)
+    const codeFile = packageFiles.find(
+      (file) => file.file_path === "index.ts" || file.file_path === "index.tsx"
+    )
+
+    // Check if the current user has starred this snippet
+    const isStarred = state.accountPackages.some(
+      (ap) => ap.package_id === snippetId && ap.is_starred
+    )
+
+    // Map the package data to match the Snippet structure
     return {
-      ...snippet,
-      star_count: state.accountSnippets.filter(
-        (as) => as.snippet_id === snippetId && as.has_starred,
-      ).length,
+      snippet_id: _package.package_id,
+      package_release_id: _package.latest_package_release_id || "",
+      unscoped_name: _package.unscoped_name,
+      name: _package.name,
+      owner_name: _package.owner_github_username || "",
+      description: _package.description || "",
+      snippet_type: _package.snippet_type || "board",
+      code: codeFile?.content_text || "",
+      dts: packageFiles.find((file) => file.file_path === "/dist/index.d.ts")?.content_text || "",
+      compiled_js: packageFiles.find((file) => file.file_path === "/dist/index.js")?.content_text || "",
+      created_at: _package.created_at,
+      updated_at: _package.updated_at,
+      star_count: _package.star_count || 0,
+      is_starred: isStarred,
+      version: _package.latest_version || "0.0.1",
     }
   },
   searchSnippets: (query: string): Snippet[] => {
