@@ -5,7 +5,7 @@ import { generateCircuitJson } from "bun-tests/fake-snippets-api/fixtures/get-ci
 test("get schematic svg of a snippet", async () => {
   const { axios, db } = await getTestServer()
 
-  const addedSnippet = db.addSnippet({
+  const addedSnippet = {
     name: "testuser/my-test-board",
     unscoped_name: "my-test-board",
     owner_name: "testuser",
@@ -42,11 +42,13 @@ test("get schematic svg of a snippet", async () => {
     exports.A555Timer = A555Timer;
     `.trim(),
     }),
-  })
+  }
+
+  const createdSnippet = await axios.post("/api/snippets/create", addedSnippet)
 
   const response = await axios.get("/api/snippets/get_image", {
     params: {
-      snippetId: addedSnippet.snippet_id,
+      snippetId: createdSnippet.data.snippet.snippet_id,
       image_of: "schematic",
       format: "svg",
     },
@@ -60,7 +62,7 @@ test("get schematic svg of a snippet", async () => {
 test("get pcb svg of a snippet", async () => {
   const { axios, db } = await getTestServer()
 
-  const addedSnippet = db.addSnippet({
+  const addedSnippet = {
     name: "testuser/my-test-board",
     unscoped_name: "my-test-board",
     owner_name: "testuser",
@@ -97,11 +99,13 @@ test("get pcb svg of a snippet", async () => {
     exports.A555Timer = A555Timer;
     `.trim(),
     }),
-  })
+  }
+
+  const createdSnippet = await axios.post("/api/snippets/create", addedSnippet)
 
   const response = await axios.get("/api/snippets/get_image", {
     params: {
-      snippetId: addedSnippet.snippet_id,
+      snippetId: createdSnippet.data.snippet.snippet_id,
       image_of: "pcb",
       format: "svg",
     },

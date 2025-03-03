@@ -33,78 +33,81 @@ test("add star to snippet", async () => {
   // Verify star was added by checking the snippet again
   const getResponse = await axios.get("/api/snippets/get", {
     params: { snippet_id: createdSnippet.snippet_id },
+    headers: {
+      Authorization: "Bearer 1234",
+    },
   })
-  
+
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.snippet.is_starred).toBe(true)
 })
 
-// test("add star to non-existent snippet", async () => {
-//   const { axios } = await getTestServer()
+test("add star to non-existent snippet", async () => {
+  const { axios } = await getTestServer()
 
-//   try {
-//     await axios.post(
-//       "/api/snippets/add_star",
-//       {
-//         snippet_id: "non-existent-id",
-//       },
-//       {
-//         headers: {
-//           Authorization: "Bearer 1234",
-//         },
-//       },
-//     )
-//     expect(true).toBe(false) // Should not reach here
-//   } catch (error: any) {
-//     expect(error.status).toBe(404)
-//     expect(error.data.error.message).toBe("Snippet not found")
-//   }
-// })
+  try {
+    await axios.post(
+      "/api/snippets/add_star",
+      {
+        snippet_id: "non-existent-id",
+      },
+      {
+        headers: {
+          Authorization: "Bearer 1234",
+        },
+      },
+    )
+    expect(true).toBe(false) // Should not reach here
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.message).toBe("Snippet not found")
+  }
+})
 
-// test("add star to already starred snippet", async () => {
-//   const { axios } = await getTestServer()
+test("add star to already starred snippet", async () => {
+  const { axios } = await getTestServer()
 
-//   // Create a test snippet using the create endpoint
-//   const newSnippetData = {
-//     code: "Test Content",
-//     snippet_type: "package",
-//     description: "Test Description",
-//   }
-//   const createResponse = await axios.post("/api/snippets/create", newSnippetData)
-//   expect(createResponse.status).toBe(200)
-//   const createdSnippet = createResponse.data.snippet
+  // Create a test snippet using the create endpoint
+  const newSnippetData = {
+    code: "Test Content",
+    snippet_type: "package",
+    description: "Test Description",
+  }
+  const createResponse = await axios.post("/api/snippets/create", newSnippetData)
+  expect(createResponse.status).toBe(200)
+  const createdSnippet = createResponse.data.snippet
 
-//   // Star the snippet first time
-//   await axios.post(
-//     "/api/snippets/add_star",
-//     {
-//       snippet_id: createdSnippet.snippet_id,
-//     },
-//     {
-//       headers: {
-//         Authorization: "Bearer 1234",
-//       },
-//     },
-//   )
+  // Star the snippet first time
+  await axios.post(
+    "/api/snippets/add_star",
+    {
+      snippet_id: createdSnippet.snippet_id,
+    },
+    {
+      headers: {
+        Authorization: "Bearer 1234",
+      },
+    },
+  )
 
-//   // Try to star again
-//   try {
-//     await axios.post(
-//       "/api/snippets/add_star",
-//       {
-//         snippet_id: createdSnippet.snippet_id,
-//       },
-//       {
-//         headers: {
-//           Authorization: "Bearer 1234",
-//         },
-//       },
-//     )
-//     expect(true).toBe(false) // Should not reach here
-//   } catch (error: any) {
-//     expect(error.status).toBe(400)
-//     expect(error.data.error.message).toBe(
-//       "You have already starred this snippet",
-//     )
-//   }
-// })
+  // Try to star again
+  try {
+    await axios.post(
+      "/api/snippets/add_star",
+      {
+        snippet_id: createdSnippet.snippet_id,
+      },
+      {
+        headers: {
+          Authorization: "Bearer 1234",
+        },
+      },
+    )
+    expect(true).toBe(false) // Should not reach here
+  } catch (error: any) {
+    expect(error.status).toBe(400)
+    expect(error.data.error.message).toBe(
+      "You have already starred this snippet",
+    )
+  }
+})

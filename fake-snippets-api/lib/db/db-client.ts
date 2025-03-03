@@ -6,7 +6,6 @@ import { combine } from "zustand/middleware"
 import {
   type Account,
   type AccountPackage,
-  type AccountSnippet,
   type LoginPage,
   type Order,
   type OrderFile,
@@ -18,7 +17,7 @@ import {
   databaseSchema,
   packageReleaseSchema,
   type packageSchema,
-  snippetSchema,
+  snippetSchema
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 
@@ -177,32 +176,62 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     // Get star counts within time period
     const recentStars = new Map<string, number>()
-    state.accountSnippets.forEach((as) => {
-      if (as.has_starred && new Date(as.created_at).getTime() >= sinceDate) {
+    state.accountPackages.forEach((ap) => {
+      if (ap.is_starred && new Date(ap.created_at).getTime() >= sinceDate) {
         recentStars.set(
-          as.snippet_id,
-          (recentStars.get(as.snippet_id) || 0) + 1,
+          ap.package_id,
+          (recentStars.get(ap.package_id) || 0) + 1,
         )
       }
     })
 
-    return [...state.snippets]
-      .map((snippet) => ({
-        ...snippet,
-        star_count: recentStars.get(snippet.snippet_id) || 0,
+    const packagesWithStarCount = [...state.packages]
+      .map((pkg) => ({
+        ...pkg,
+        star_count: recentStars.get(pkg.package_id) || 0,
       }))
       .sort((a, b) => b.star_count - a.star_count)
       .slice(0, limit)
+
+  const trendingSnippets = packagesWithStarCount.map((pkg) => {
+    const packageRelease = state.packageReleases.find(
+      (pr) => pr.package_release_id === pkg.latest_package_release_id && pr.is_latest === true
+    )
+    if (!packageRelease) return null
+
+    const packageFiles = state.packageFiles.filter(
+      (file) => file.package_release_id === packageRelease.package_release_id
+    )
+
+    const codeFile = packageFiles.find(
+      (file) => file.file_path === "index.ts" || file.file_path === "index.tsx"
+    )
+
+    return {
+      snippet_id: pkg.package_id,
+      package_release_id: pkg.latest_package_release_id || "",
+      unscoped_name: pkg.unscoped_name,
+      name: pkg.name,
+      owner_name: pkg.owner_github_username || "",
+      code: codeFile ? codeFile.content_text || "" : "",
+      created_at: pkg.created_at,
+      updated_at: pkg.updated_at,
+      snippet_type: pkg.is_snippet ? "board" : "package",
+      star_count: pkg.star_count,
+    }
+  }).filter((snippet) => snippet !== null)
+
+  return trendingSnippets as Snippet[]
   },
-  getSnippetsByAuthor: (authorName?: string): Snippet[] => {
+  getPackagesByAuthor: (authorName?: string): Package[] => {
     const state = get()
-    const snippets = authorName
-      ? state.snippets.filter((snippet) => snippet.owner_name === authorName)
-      : state.snippets
-    return snippets.map((snippet) => ({
-      ...snippet,
-      star_count: state.accountSnippets.filter(
-        (as) => as.snippet_id === snippet.snippet_id && as.has_starred,
+    const packages = authorName
+      ? state.packages.filter((pkg) => pkg.owner_github_username === authorName)
+      : state.packages
+    return packages.map((pkg) => ({
+      ...pkg,
+      star_count: state.accountPackages.filter(
+        (ap) => ap.package_id === pkg.package_id && ap.is_starred,
       ).length,
     }))
   },
@@ -253,6 +282,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: _package.star_count || 0,
       is_starred: false,
       version: _package.latest_version || "0.0.1",
+      circuit_json: packageFiles.filter((file) => file.file_path.startsWith("/dist/circuit.json")).map((file) => JSON.parse(file.content_text || "{}")),
     }
   },
   updateSnippet: (
@@ -280,7 +310,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getSnippetById: (snippetId: string): Snippet | undefined => {
     const state = get()
-    console.log(state.packages, state.packageReleases, state.packageFiles)
     // Look for the package that represents this snippet
     const _package = state.packages.find(
       (pkg) => pkg.package_id === snippetId && pkg.is_snippet === true
@@ -325,6 +354,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: _package.star_count || 0,
       is_starred: isStarred,
       version: _package.latest_version || "0.0.1",
+      circuit_json: packageFiles.filter((file) => file.file_path.startsWith("/dist/circuit.json")).map((file) => JSON.parse(file.content_text || "{}")),
     }
   },
   searchSnippets: (query: string): Snippet[] => {
@@ -438,34 +468,75 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newSession
   },
-  addStar: (accountId: string, snippetId: string): AccountSnippet => {
+  addStar: (accountId: string, packageId: string): AccountPackage => {
     const now = new Date().toISOString()
-    const accountSnippet = {
+    const accountPackage = {
+      account_package_id: `ap_${Date.now()}`,
       account_id: accountId,
-      snippet_id: snippetId,
-      has_starred: true,
+      package_id: packageId,
+      is_starred: true,
       created_at: now,
       updated_at: now,
     }
-    set((state) => ({
-      accountSnippets: [...state.accountSnippets, accountSnippet],
-    }))
-    return accountSnippet
+    
+    // Update the package's star count
+    set((state) => {
+      // Find the package and increment its star count
+      const packageIndex = state.packages.findIndex(pkg => pkg.package_id === packageId)
+      if (packageIndex >= 0) {
+        const updatedPackages = [...state.packages]
+        updatedPackages[packageIndex] = {
+          ...updatedPackages[packageIndex],
+          star_count: (updatedPackages[packageIndex].star_count || 0) + 1
+        }
+        
+        return {
+          packages: updatedPackages,
+          accountPackages: [...state.accountPackages, accountPackage]
+        }
+      }
+      
+      return {
+        accountPackages: [...state.accountPackages, accountPackage]
+      }
+    })
+    
+    return accountPackage
   },
-  removeStar: (accountId: string, snippetId: string): void => {
-    set((state) => ({
-      accountSnippets: state.accountSnippets.filter(
-        (as) => !(as.account_id === accountId && as.snippet_id === snippetId),
-      ),
-    }))
+  removeStar: (accountId: string, packageId: string): void => {
+    set((state) => {
+      // Find the package and decrement its star count
+      const packageIndex = state.packages.findIndex(pkg => pkg.package_id === packageId)
+      
+      if (packageIndex >= 0) {
+        const updatedPackages = [...state.packages]
+        updatedPackages[packageIndex] = {
+          ...updatedPackages[packageIndex],
+          star_count: Math.max(0, (updatedPackages[packageIndex].star_count || 0) - 1)
+        }
+        
+        return {
+          packages: updatedPackages,
+          accountPackages: state.accountPackages.filter(
+            (ap) => !(ap.account_id === accountId && ap.package_id === packageId)
+          )
+        }
+      }
+      
+      return {
+        accountPackages: state.accountPackages.filter(
+          (ap) => !(ap.account_id === accountId && ap.package_id === packageId)
+        )
+      }
+    })
   },
-  hasStarred: (accountId: string, snippetId: string): boolean => {
+  hasStarred: (accountId: string, packageId: string): boolean => {
     const state = get()
-    return state.accountSnippets.some(
-      (as) =>
-        as.account_id === accountId &&
-        as.snippet_id === snippetId &&
-        as.has_starred,
+    return state.accountPackages.some(
+      (ap) =>
+        ap.account_id === accountId &&
+        ap.package_id === packageId &&
+        ap.is_starred,
     )
   },
   addPackage: (
@@ -487,6 +558,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     newPackage.latest_package_release_id = packageRelease.package_release_id
     set((state) => ({
       packages: [...state.packages, newPackage as Package],
+      packageReleases: [...state.packageReleases, packageRelease],
     }))
     return newPackage as Package
   },
@@ -538,5 +610,17 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageFiles: [...state.packageFiles, newPackageFile],
     }))
     return newPackageFile
+  },
+  getStarCount: (packageId: string): number => {
+    const state = get()
+    return state.accountPackages.filter(
+      (ap) => ap.package_id === packageId && ap.is_starred,
+    ).length
+  },
+  getPackageFilesByReleaseId: (packageReleaseId: string): PackageFile[] => {
+    const state = get()
+    return state.packageFiles.filter(
+      (pf) => pf.package_release_id === packageReleaseId,
+    )
   },
 }))

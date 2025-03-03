@@ -154,7 +154,7 @@ export default withRouteSpec({
       created_at: currentTime,
       updated_at: currentTime,
       snippet_type: snippet_type,
-      circuit_json: circuit_json,
+      circuit_json: circuit_json || [],
       description: description,
       is_starred: false,
       version: "0.0.1",
