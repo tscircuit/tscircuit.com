@@ -23,10 +23,10 @@ export default withRouteSpec({
 
   const snippets = packages.map((pkg) => {
     const packageRelease = ctx.db.getPackageReleaseById(
-      pkg.latest_package_release_id,
+      pkg.latest_package_release_id || "",
     )
     const packageFiles = ctx.db.getPackageFilesByReleaseId(
-      packageRelease.package_release_id,
+      packageRelease?.package_release_id || "",
     )
     const codeFile = packageFiles.find(
       (file) => file.file_path === "index.ts" || file.file_path === "index.tsx",

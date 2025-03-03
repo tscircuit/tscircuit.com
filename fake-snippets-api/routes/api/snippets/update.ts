@@ -33,20 +33,39 @@ export default withRouteSpec({
     manual_edits_json_content,
   } = req.jsonBody
 
-  const snippetIndex = ctx.db.packages.findIndex(
+  const packageIndex = ctx.db.packages.findIndex(
     (s) => s.package_id === snippet_id,
   )
 
-  if (snippetIndex === -1) {
+  if (packageIndex === -1) {
     return ctx.error(404, {
       error_code: "snippet_not_found",
       message: "Snippet not found",
     })
   }
 
-  const snippet = ctx.db.packages[snippetIndex]
+  const _package = ctx.db.packages[packageIndex]
+  const packageRelease = ctx.db.packageReleases.find(
+    (r) => r.package_release_id === _package.latest_package_release_id,
+  )
+  const packageFiles = ctx.db.packageFiles.filter(
+    (f) => f.package_release_id === packageRelease?.package_release_id,
+  )
+  const codeFile = packageFiles.find(
+    (f) => f.file_path === "index.tsx" || f.file_path === "index.ts",
+  )
+  const dtsFile = packageFiles.find((f) => f.file_path === "/dist/index.d.ts")
+  const compiledJsFile = packageFiles.find(
+    (f) => f.file_path === "/dist/index.js",
+  )
+  const manualEditsJsonFile = packageFiles.find(
+    (f) => f.file_path === "manual-edits.json",
+  )
+  const circuitJsonFile = packageFiles.find(
+    (f) => f.file_path === "/dist/circuit.json",
+  )
 
-  if (snippet.creator_account_id !== ctx.auth.github_username) {
+  if (_package.creator_account_id !== ctx.auth.github_username) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to update this snippet",
@@ -54,21 +73,24 @@ export default withRouteSpec({
   }
 
   const updatedSnippet = ctx.db.updateSnippet(snippet_id, {
-    code: code ?? snippet.code,
-    description: description ?? snippet.description,
-    unscoped_name: unscoped_name ?? snippet.unscoped_name,
+    code: code ?? codeFile?.content_text ?? "",
+    description: description ?? _package.description ?? "",
+    unscoped_name: unscoped_name ?? _package.unscoped_name,
     name: unscoped_name
       ? `${ctx.auth.github_username}/${unscoped_name}`
-      : snippet.name,
-    dts,
-    compiled_js,
+      : _package.name,
+    dts: dts ?? dtsFile?.content_text ?? "",
+    compiled_js: compiled_js ?? compiledJsFile?.content_text ?? "",
     manual_edits_json_content:
       manual_edits_json_content !== undefined
         ? manual_edits_json_content
-        : snippet.manual_edits_json_content,
+        : (manualEditsJsonFile?.content_text ?? ""),
     circuit_json:
-      circuit_json !== undefined ? circuit_json : snippet.circuit_json,
-    snippet_type: snippet_type ?? snippet.snippet_type,
+      circuit_json ??
+      (circuitJsonFile?.content_text
+        ? JSON.parse(circuitJsonFile.content_text)
+        : []),
+    snippet_type: snippet_type ?? _package.snippet_type,
     updated_at: new Date().toISOString(),
   })
 
