@@ -67,7 +67,6 @@
     "@tscircuit/math-utils": "^0.0.10",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/props": "^0.0.143",
-    "@tscircuit/schematic-viewer": "^1.4.3",
     "@types/file-saver": "^2.0.7",
     "@types/ms": "^0.7.34",
     "@typescript/ata": "^0.9.7",
