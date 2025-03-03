@@ -73,14 +73,16 @@ export default withRouteSpec({
         name: "index.ts",
         hash: "placeholder_hash",
         time: packageRelease?.created_at,
-        size: packageFiles.find((f) => f.file_path === "index.ts")?.content_text?.length,
+        size: packageFiles.find((f) => f.file_path === "index.ts")?.content_text
+          ?.length,
       },
       {
         type: "file",
         name: "index.d.ts",
         hash: "placeholder_hash",
         time: packageRelease?.created_at,
-        size: packageFiles.find((f) => f.file_path === "index.d.ts")?.content_text?.length,
+        size: packageFiles.find((f) => f.file_path === "index.d.ts")
+          ?.content_text?.length,
       },
       {
         type: "file",
@@ -125,10 +127,14 @@ export default withRouteSpec({
   let content: string
   switch (fileName) {
     case "index.ts":
-      content = packageFiles.find((f) => f.file_path === "index.tsx")?.content_text || ""
+      content =
+        packageFiles.find((f) => f.file_path === "index.tsx")?.content_text ||
+        ""
       break
     case "index.d.ts":
-      content = packageFiles.find((f) => f.file_path === "/dist/index.d.ts")?.content_text || ""
+      content =
+        packageFiles.find((f) => f.file_path === "/dist/index.d.ts")
+          ?.content_text || ""
       break
     case "package.json":
       content = JSON.stringify(

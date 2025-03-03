@@ -14,7 +14,10 @@ test("GET /api/snippets/get - should return snippet by snippet_id", async () => 
     dts: "export function hello(): void;",
   }
 
-  const createResponse = await axios.post("/api/snippets/create", newSnippetData)
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
   expect(createResponse.status).toBe(200)
   const createdSnippet = createResponse.data.snippet
 
@@ -58,7 +61,10 @@ test("GET /api/snippets/get - should return snippet by name and owner", async ()
     dts: "export function hello(): void;",
   }
 
-  const createResponse = await axios.post("/api/snippets/create", newSnippetData)
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
   expect(createResponse.status).toBe(200)
   const createdSnippet = createResponse.data.snippet
 

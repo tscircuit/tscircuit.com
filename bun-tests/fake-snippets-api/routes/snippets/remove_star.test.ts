@@ -48,7 +48,9 @@ test("remove star from snippet", async () => {
   expect(response.data.is_starred).toBe(false)
 
   // Verify star was removed in database
-  expect(db.hasStarred("account-123", createdSnippet.data.snippet.snippet_id)).toBe(false)
+  expect(
+    db.hasStarred("account-123", createdSnippet.data.snippet.snippet_id),
+  ).toBe(false)
 })
 
 test("remove star from non-existent snippet", async () => {

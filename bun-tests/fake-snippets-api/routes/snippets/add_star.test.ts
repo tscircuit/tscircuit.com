@@ -10,7 +10,10 @@ test("add star to snippet", async () => {
     snippet_type: "package",
     description: "Test Description",
   }
-  const createResponse = await axios.post("/api/snippets/create", newSnippetData)
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
   expect(createResponse.status).toBe(200)
   const createdSnippet = createResponse.data.snippet
 
@@ -73,7 +76,10 @@ test("add star to already starred snippet", async () => {
     snippet_type: "package",
     description: "Test Description",
   }
-  const createResponse = await axios.post("/api/snippets/create", newSnippetData)
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
   expect(createResponse.status).toBe(200)
   const createdSnippet = createResponse.data.snippet
 

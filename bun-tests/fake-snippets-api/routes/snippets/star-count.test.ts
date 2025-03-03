@@ -35,16 +35,14 @@ test("star count is updated correctly", async () => {
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.snippet.star_count).toBe(3)
 
-  await axios.post(
-    "/api/snippets/add_star",
-    { snippet_id: createdSnippet.snippet_id },
-  )
+  await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippet.snippet_id,
+  })
 
   // Remove a star using the API
-  await axios.post(
-    "/api/snippets/remove_star",
-    { snippet_id: createdSnippet.snippet_id },
-  )
+  await axios.post("/api/snippets/remove_star", {
+    snippet_id: createdSnippet.snippet_id,
+  })
 
   // Verify updated star count
   const updatedListResponse = await axios.get("/api/snippets/list")

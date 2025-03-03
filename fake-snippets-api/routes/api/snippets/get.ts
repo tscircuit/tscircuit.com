@@ -40,8 +40,16 @@ export default withRouteSpec({
   const foundPackage = ctx.db.packages.find((pkg) => {
     if (!pkg.is_snippet) return false
     if (name && pkg.name.toLowerCase() !== name.toLowerCase()) return false
-    if (owner_name && pkg.owner_github_username?.toLowerCase() !== owner_name.toLowerCase()) return false
-    if (unscoped_name && pkg.unscoped_name.toLowerCase() !== unscoped_name.toLowerCase()) return false
+    if (
+      owner_name &&
+      pkg.owner_github_username?.toLowerCase() !== owner_name.toLowerCase()
+    )
+      return false
+    if (
+      unscoped_name &&
+      pkg.unscoped_name.toLowerCase() !== unscoped_name.toLowerCase()
+    )
+      return false
     return true
   })
 

@@ -22,11 +22,17 @@ export default withRouteSpec({
     .filter((s) => !unscoped_name || s.unscoped_name === unscoped_name)
 
   const snippets = packages.map((pkg) => {
-    const packageRelease = ctx.db.getPackageReleaseById(pkg.latest_package_release_id)
-    const packageFiles = ctx.db.getPackageFilesByReleaseId(packageRelease.package_release_id)
-    const codeFile = packageFiles.find((file) => file.file_path === "index.ts" || file.file_path === "index.tsx")
+    const packageRelease = ctx.db.getPackageReleaseById(
+      pkg.latest_package_release_id,
+    )
+    const packageFiles = ctx.db.getPackageFilesByReleaseId(
+      packageRelease.package_release_id,
+    )
+    const codeFile = packageFiles.find(
+      (file) => file.file_path === "index.ts" || file.file_path === "index.tsx",
+    )
     const starCount = ctx.db.getStarCount(pkg.package_id)
-    
+
     return {
       snippet_id: pkg.package_id,
       package_release_id: pkg.latest_package_release_id || "",
@@ -36,8 +42,12 @@ export default withRouteSpec({
       description: pkg.description || "",
       snippet_type: pkg.snippet_type || "board",
       code: codeFile?.content_text || "",
-      dts: packageFiles.find((file) => file.file_path === "/dist/index.d.ts")?.content_text || "",
-      compiled_js: packageFiles.find((file) => file.file_path === "/dist/index.js")?.content_text || "",
+      dts:
+        packageFiles.find((file) => file.file_path === "/dist/index.d.ts")
+          ?.content_text || "",
+      compiled_js:
+        packageFiles.find((file) => file.file_path === "/dist/index.js")
+          ?.content_text || "",
       created_at: pkg.created_at,
       updated_at: pkg.updated_at,
       star_count: starCount,

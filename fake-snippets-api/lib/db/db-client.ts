@@ -408,7 +408,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   ): Snippet | undefined => {
     set((state) => {
       const packageIndex = state.packages.findIndex(
-        (pkg) => pkg.package_id === snippetId && pkg.is_snippet === true
+        (pkg) => pkg.package_id === snippetId && pkg.is_snippet === true,
       )
       if (packageIndex === -1) {
         return state
@@ -428,19 +428,21 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
       // Get the current package release
       const packageRelease = state.packageReleases.find(
-        (pr) => pr.package_release_id === currentPackage.latest_package_release_id
+        (pr) =>
+          pr.package_release_id === currentPackage.latest_package_release_id,
       )
       if (!packageRelease) return state
 
       // Update package files if code/dts/js changed
       const updatedFiles = [...state.packageFiles]
       const packageFiles = updatedFiles.filter(
-        (file) => file.package_release_id === packageRelease.package_release_id
+        (file) => file.package_release_id === packageRelease.package_release_id,
       )
 
       if (updates.code !== undefined) {
         const codeFileIndex = packageFiles.findIndex(
-          (file) => file.file_path === "index.tsx" || file.file_path === "index.ts"
+          (file) =>
+            file.file_path === "index.tsx" || file.file_path === "index.ts",
         )
         if (codeFileIndex >= 0) {
           updatedFiles[codeFileIndex] = {
@@ -461,7 +463,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
       if (updates.dts !== undefined) {
         const dtsFileIndex = packageFiles.findIndex(
-          (file) => file.file_path === "/dist/index.d.ts"
+          (file) => file.file_path === "/dist/index.d.ts",
         )
         if (dtsFileIndex >= 0) {
           updatedFiles[dtsFileIndex] = {
@@ -482,7 +484,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
       if (updates.compiled_js !== undefined) {
         const jsFileIndex = packageFiles.findIndex(
-          (file) => file.file_path === "/dist/index.js"
+          (file) => file.file_path === "/dist/index.js",
         )
         if (jsFileIndex >= 0) {
           updatedFiles[jsFileIndex] = {
@@ -504,7 +506,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       // Update circuit JSON if provided
       if (updates.circuit_json !== undefined) {
         const circuitFileIndex = packageFiles.findIndex(
-          (file) => file.file_path === "/dist/circuit.json"
+          (file) => file.file_path === "/dist/circuit.json",
         )
         if (circuitFileIndex >= 0) {
           updatedFiles[circuitFileIndex] = {
@@ -524,20 +526,23 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
 
     // Get the updated snippet to return
-    const updatedPackage = get().packages.find(pkg => pkg.package_id === snippetId)
+    const updatedPackage = get().packages.find(
+      (pkg) => pkg.package_id === snippetId,
+    )
     if (!updatedPackage) return undefined
 
     const packageRelease = get().packageReleases.find(
-      pr => pr.package_release_id === updatedPackage.latest_package_release_id
+      (pr) =>
+        pr.package_release_id === updatedPackage.latest_package_release_id,
     )
     if (!packageRelease) return undefined
 
     const packageFiles = get().packageFiles.filter(
-      file => file.package_release_id === packageRelease.package_release_id
+      (file) => file.package_release_id === packageRelease.package_release_id,
     )
 
     const codeFile = packageFiles.find(
-      file => file.file_path === "index.ts" || file.file_path === "index.tsx"
+      (file) => file.file_path === "index.ts" || file.file_path === "index.tsx",
     )
     const dtsFile = packageFiles.find(
       (file) => file.file_path === "/dist/index.d.ts",
@@ -633,73 +638,92 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const lowercaseQuery = query.toLowerCase()
 
     // Get all packages that are snippets
-    const snippetPackages = state.packages.filter(pkg => pkg.is_snippet === true)
+    const snippetPackages = state.packages.filter(
+      (pkg) => pkg.is_snippet === true,
+    )
 
     // Filter packages based on name, description, or code content
-    const matchingPackages = snippetPackages.filter(pkg => {
+    const matchingPackages = snippetPackages.filter((pkg) => {
       // Check name and description
-      if (pkg.name.toLowerCase().includes(lowercaseQuery) ||
-          pkg.description?.toLowerCase().includes(lowercaseQuery)) {
+      if (
+        pkg.name.toLowerCase().includes(lowercaseQuery) ||
+        pkg.description?.toLowerCase().includes(lowercaseQuery)
+      ) {
         return true
       }
 
       // Check code content
       const packageRelease = state.packageReleases.find(
-        pr => pr.package_release_id === pkg.latest_package_release_id && pr.is_latest === true
+        (pr) =>
+          pr.package_release_id === pkg.latest_package_release_id &&
+          pr.is_latest === true,
       )
       if (!packageRelease) return false
 
       const packageFiles = state.packageFiles.filter(
-        file => file.package_release_id === packageRelease.package_release_id
-      )
-
-      const codeFile = packageFiles.find(file => 
-        file.file_path === "index.ts" || file.file_path === "index.tsx"
-      )
-      
-      return codeFile?.content_text?.toLowerCase().includes(lowercaseQuery) ?? false
-    })
-
-    // Convert matching packages to snippet format
-    return matchingPackages.map(pkg => {
-      const packageRelease = state.packageReleases.find(
-        pr => pr.package_release_id === pkg.latest_package_release_id && pr.is_latest === true
-      )
-      if (!packageRelease) return null
-
-      const packageFiles = state.packageFiles.filter(
-        file => file.package_release_id === packageRelease.package_release_id
+        (file) => file.package_release_id === packageRelease.package_release_id,
       )
 
       const codeFile = packageFiles.find(
-        file => file.file_path === "index.ts" || file.file_path === "index.tsx"
+        (file) =>
+          file.file_path === "index.ts" || file.file_path === "index.tsx",
       )
 
-      const isStarred = state.accountPackages.some(
-        ap => ap.package_id === pkg.package_id && ap.is_starred
+      return (
+        codeFile?.content_text?.toLowerCase().includes(lowercaseQuery) ?? false
       )
+    })
 
-      return {
-        snippet_id: pkg.package_id,
-        package_release_id: pkg.latest_package_release_id || "",
-        unscoped_name: pkg.unscoped_name,
-        name: pkg.name,
-        owner_name: pkg.owner_github_username || "",
-        description: pkg.description || "",
-        snippet_type: pkg.snippet_type || "board",
-        code: codeFile?.content_text || "",
-        dts: packageFiles.find(file => file.file_path === "/dist/index.d.ts")?.content_text || "",
-        compiled_js: packageFiles.find(file => file.file_path === "/dist/index.js")?.content_text || "",
-        created_at: pkg.created_at,
-        updated_at: pkg.updated_at,
-        star_count: pkg.star_count || 0,
-        is_starred: isStarred,
-        version: pkg.latest_version || "0.0.1",
-        circuit_json: packageFiles
-          .filter(file => file.file_path.startsWith("/dist/circuit.json"))
-          .map(file => JSON.parse(file.content_text || "[]")),
-      } as Snippet
-    }).filter((snippet): snippet is Snippet => snippet !== null)
+    // Convert matching packages to snippet format
+    return matchingPackages
+      .map((pkg) => {
+        const packageRelease = state.packageReleases.find(
+          (pr) =>
+            pr.package_release_id === pkg.latest_package_release_id &&
+            pr.is_latest === true,
+        )
+        if (!packageRelease) return null
+
+        const packageFiles = state.packageFiles.filter(
+          (file) =>
+            file.package_release_id === packageRelease.package_release_id,
+        )
+
+        const codeFile = packageFiles.find(
+          (file) =>
+            file.file_path === "index.ts" || file.file_path === "index.tsx",
+        )
+
+        const isStarred = state.accountPackages.some(
+          (ap) => ap.package_id === pkg.package_id && ap.is_starred,
+        )
+
+        return {
+          snippet_id: pkg.package_id,
+          package_release_id: pkg.latest_package_release_id || "",
+          unscoped_name: pkg.unscoped_name,
+          name: pkg.name,
+          owner_name: pkg.owner_github_username || "",
+          description: pkg.description || "",
+          snippet_type: pkg.snippet_type || "board",
+          code: codeFile?.content_text || "",
+          dts:
+            packageFiles.find((file) => file.file_path === "/dist/index.d.ts")
+              ?.content_text || "",
+          compiled_js:
+            packageFiles.find((file) => file.file_path === "/dist/index.js")
+              ?.content_text || "",
+          created_at: pkg.created_at,
+          updated_at: pkg.updated_at,
+          star_count: pkg.star_count || 0,
+          is_starred: isStarred,
+          version: pkg.latest_version || "0.0.1",
+          circuit_json: packageFiles
+            .filter((file) => file.file_path.startsWith("/dist/circuit.json"))
+            .map((file) => JSON.parse(file.content_text || "[]")),
+        } as Snippet
+      })
+      .filter((snippet): snippet is Snippet => snippet !== null)
   },
   deleteSnippet: (snippetId: string): boolean => {
     let deleted = false

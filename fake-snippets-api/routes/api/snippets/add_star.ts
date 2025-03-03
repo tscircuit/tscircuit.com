@@ -15,9 +15,9 @@ export default withRouteSpec({
 
   // Check if snippet exists (as a package)
   const snippet = ctx.db.packages.find(
-    (pkg) => pkg.package_id === snippet_id && pkg.is_snippet === true
+    (pkg) => pkg.package_id === snippet_id && pkg.is_snippet === true,
   )
-  
+
   if (!snippet) {
     return ctx.error(404, {
       error_code: "snippet_not_found",
@@ -27,7 +27,8 @@ export default withRouteSpec({
 
   // Check if already starred
   const existing = ctx.db.accountPackages.find(
-    (ap) => ap.account_id === ctx.auth.account_id && ap.package_id === snippet_id
+    (ap) =>
+      ap.account_id === ctx.auth.account_id && ap.package_id === snippet_id,
   )
 
   if (existing?.is_starred) {
