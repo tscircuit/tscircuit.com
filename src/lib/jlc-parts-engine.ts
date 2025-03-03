@@ -1,10 +1,12 @@
 import { type PartsEngine, SupplierPartNumbers } from "@tscircuit/props"
 import { AnySourceComponent } from "circuit-json"
-import qs from "qs"
 
 const cache = new Map<string, any>()
 const getJlcPartsCached = async (name: any, params: any) => {
-  const paramString = qs.stringify({ ...params, json: "true" })
+  const paramString = new URLSearchParams({
+    ...params,
+    json: "true",
+  }).toString()
   if (cache.has(paramString)) {
     return cache.get(paramString)
   }
