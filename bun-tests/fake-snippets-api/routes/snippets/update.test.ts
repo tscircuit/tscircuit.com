@@ -18,7 +18,7 @@ test("update snippet", async () => {
   }
   db.addSnippet(snippet as any)
 
-  const addedSnippet = db.snippets[0]
+  const addedPackage = db.packages[0]
 
   // Update the snippet
   const updatedCode = "Updated Content"
@@ -26,7 +26,7 @@ test("update snippet", async () => {
   const response = await axios.post(
     "/api/snippets/update",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: addedPackage.package_id,
       code: updatedCode,
       compiled_js: updatedCompiledJs,
     },
@@ -40,13 +40,15 @@ test("update snippet", async () => {
   expect(response.status).toBe(200)
   expect(response.data.snippet.code).toBe(updatedCode)
   expect(response.data.snippet.compiled_js).toBe(updatedCompiledJs)
-  expect(response.data.snippet.updated_at).not.toBe(addedSnippet.created_at)
+  expect(response.data.snippet.updated_at).not.toBe(addedPackage.created_at)
 
   // Verify the snippet was updated in the database
-  const updatedSnippet = db.snippets[0]
-  expect(updatedSnippet.code).toBe(updatedCode)
-  expect(updatedSnippet.compiled_js).toBe(updatedCompiledJs)
-  expect(updatedSnippet.updated_at).not.toBe(updatedSnippet.created_at)
+  const updatedPackageFiles = db.packageFiles.filter(
+    (p) => p.package_release_id === addedPackage.latest_package_release_id,
+  )
+  expect(updatedPackageFiles.length).toBe(2)
+  expect(updatedPackageFiles[0].content_text).toBe(updatedCode)
+  expect(updatedPackageFiles[1].content_text).toBe(updatedCompiledJs)
 })
 
 test("update non-existent snippet", async () => {
@@ -91,13 +93,13 @@ test("update snippet with null compiled_js", async () => {
   }
   db.addSnippet(snippet as any)
 
-  const addedSnippet = db.snippets[0]
+  const addedPackage = db.packages[0]
 
   // Update the snippet with null compiled_js
   const response = await axios.post(
     "/api/snippets/update",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: addedPackage.package_id,
       compiled_js: null,
     },
     {
@@ -108,9 +110,13 @@ test("update snippet with null compiled_js", async () => {
   )
 
   expect(response.status).toBe(200)
-  expect(response.data.snippet.compiled_js).toBeNull()
+  expect(response.data.snippet.compiled_js).toBeEmpty()
 
   // Verify the snippet was updated in the database
-  const updatedSnippet = db.snippets[0]
-  expect(updatedSnippet.compiled_js).toBeNull()
+  const updatedPackageFiles = db.packageFiles.filter(
+    (p) => p.package_release_id === addedPackage.latest_package_release_id,
+  )
+  expect(updatedPackageFiles.length).toBe(2)
+  expect(updatedPackageFiles[0].content_text).toBe(snippet.code)
+  expect(updatedPackageFiles[1].content_text).toBe(null)
 })

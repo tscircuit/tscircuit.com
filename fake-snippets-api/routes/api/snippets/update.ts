@@ -33,8 +33,8 @@ export default withRouteSpec({
     manual_edits_json_content,
   } = req.jsonBody
 
-  const snippetIndex = ctx.db.snippets.findIndex(
-    (s) => s.snippet_id === snippet_id,
+  const snippetIndex = ctx.db.packages.findIndex(
+    (s) => s.package_id === snippet_id,
   )
 
   if (snippetIndex === -1) {
@@ -44,9 +44,9 @@ export default withRouteSpec({
     })
   }
 
-  const snippet = ctx.db.snippets[snippetIndex]
+  const snippet = ctx.db.packages[snippetIndex]
 
-  if (snippet.owner_name !== ctx.auth.github_username) {
+  if (snippet.creator_account_id !== ctx.auth.github_username) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to update this snippet",
@@ -60,8 +60,8 @@ export default withRouteSpec({
     name: unscoped_name
       ? `${ctx.auth.github_username}/${unscoped_name}`
       : snippet.name,
-    dts: dts ?? snippet.dts,
-    compiled_js: compiled_js !== undefined ? compiled_js : snippet.compiled_js,
+    dts,
+    compiled_js,
     manual_edits_json_content:
       manual_edits_json_content !== undefined
         ? manual_edits_json_content

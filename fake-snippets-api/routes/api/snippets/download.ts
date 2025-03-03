@@ -21,11 +21,19 @@ export default withRouteSpec({
   const fileName = rest.join("/")
 
   // Find the snippet
-  const snippet = ctx.db.snippets.find(
-    (s) => s.owner_name === owner && s.unscoped_name === packageName,
+  const _package = ctx.db.packages.find(
+    (s) => s.owner_github_username === owner && s.unscoped_name === packageName,
   )
 
-  if (!snippet) {
+  const packageRelease = ctx.db.packageReleases.find(
+    (p) => p.package_id === _package?.package_id,
+  )
+
+  const packageFiles = ctx.db.packageFiles.filter(
+    (p) => p.package_release_id === packageRelease?.package_release_id,
+  )
+
+  if (!_package) {
     return ctx.error(404, {
       error_code: "snippet_not_found",
       message: "Snippet not found",
@@ -64,21 +72,21 @@ export default withRouteSpec({
         type: "file",
         name: "index.ts",
         hash: "placeholder_hash",
-        time: snippet.updated_at,
-        size: snippet.code.length,
+        time: packageRelease?.created_at,
+        size: packageFiles.find((f) => f.file_path === "index.ts")?.content_text?.length,
       },
       {
         type: "file",
         name: "index.d.ts",
         hash: "placeholder_hash",
-        time: snippet.updated_at,
-        size: (snippet.dts || "").length,
+        time: packageRelease?.created_at,
+        size: packageFiles.find((f) => f.file_path === "index.d.ts")?.content_text?.length,
       },
       {
         type: "file",
         name: "package.json",
         hash: "placeholder_hash",
-        time: snippet.updated_at,
+        time: packageRelease?.created_at,
         size: JSON.stringify({
           name: `@tsci/${owner}.${packageName}`,
           version: version || "0.0.1",
@@ -117,10 +125,10 @@ export default withRouteSpec({
   let content: string
   switch (fileName) {
     case "index.ts":
-      content = snippet.code
+      content = packageFiles.find((f) => f.file_path === "index.tsx")?.content_text || ""
       break
     case "index.d.ts":
-      content = snippet.dts || ""
+      content = packageFiles.find((f) => f.file_path === "/dist/index.d.ts")?.content_text || ""
       break
     case "package.json":
       content = JSON.stringify(
