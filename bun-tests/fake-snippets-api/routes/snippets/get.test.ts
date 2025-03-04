@@ -81,3 +81,34 @@ test("GET /api/snippets/get - should return snippet by name and owner", async ()
   expect(responseBody.ok).toBe(true)
   expect(responseBody.snippet).toEqual(snippetSchema.parse(createdSnippet))
 })
+
+test("GET /api/snippets/get - should return snippet by unscoped_name and owner", async () => {
+  const { axios, db } = await getTestServer()
+
+  // First create a snippet
+  const snippet = {
+    unscoped_name: "test-package",
+    owner_name: "testuser",
+    code: "export const TestComponent = () => <div>Test</div>",
+    dts: "export declare const TestComponent: () => JSX.Element",
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+    name: "testuser/test-package",
+    snippet_type: "package",
+    description: "Test package",
+  }
+
+  db.addSnippet(snippet as any)
+
+  // Get the snippet using name and owner
+  const getResponse = await axios.get("/api/snippets/get", {
+    params: {
+      unscoped_name: snippet.unscoped_name,
+      owner_name: snippet.owner_name,
+    },
+  })
+
+  expect(getResponse.status).toBe(200)
+  const responseBody = getResponse.data
+  expect(responseBody.ok).toBe(true)
+})

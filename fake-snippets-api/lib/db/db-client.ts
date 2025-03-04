@@ -15,7 +15,6 @@ import {
   type Session,
   type Snippet,
   databaseSchema,
-  packageReleaseSchema,
   type packageSchema,
   type snippetSchema,
 } from "./schema.ts"
@@ -313,9 +312,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           star_count: pkg.star_count || 0,
           is_starred: isStarred,
           version: pkg.latest_version || "0.0.1",
-          circuit_json: packageFiles
-            .filter((file) => file.file_path === "/dist/circuit.json")
-            .map((file) => JSON.parse(file.content_text || "[]")),
+          circuit_json:
+            packageFiles
+              .filter((file) => file.file_path === "/dist/circuit.json")
+              .flatMap((file) => JSON.parse(file.content_text || "[]")) || [],
         }
       })
       .filter(
@@ -457,9 +457,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: _package.star_count || 0,
       is_starred: false,
       version: _package.latest_version || "0.0.1",
-      circuit_json: packageFiles
-        .filter((file) => file.file_path.startsWith("/dist/circuit.json"))
-        .map((file) => JSON.parse(file.content_text || "{}")),
+      circuit_json: packageFiles.find(
+        (file) => file.file_path === "/dist/circuit.json",
+      )?.content_text
+        ? JSON.parse(
+            packageFiles.find((file) => file.file_path === "/dist/circuit.json")
+              ?.content_text || "[]",
+          )
+        : [],
     }
   },
   updateSnippet: (
@@ -632,7 +637,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_starred: false,
       version: updatedPackage.latest_version || "0.0.1",
       circuit_json: circuitFile
-        ? JSON.parse(circuitFile.content_text || "{}")
+        ? JSON.parse(circuitFile.content_text || "[]")
         : [],
     }
   },
@@ -688,9 +693,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: _package.star_count || 0,
       is_starred: isStarred,
       version: _package.latest_version || "0.0.1",
-      circuit_json: packageFiles
-        .filter((file) => file.file_path.startsWith("/dist/circuit.json"))
-        .map((file) => JSON.parse(file.content_text || "{}")),
+      circuit_json: packageFiles.find(
+        (file) => file.file_path === "/dist/circuit.json",
+      )?.content_text
+        ? JSON.parse(
+            packageFiles.find((file) => file.file_path === "/dist/circuit.json")
+              ?.content_text || "[]",
+          )
+        : [],
     }
   },
   searchSnippets: (query: string): Snippet[] => {
@@ -779,9 +789,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           star_count: pkg.star_count || 0,
           is_starred: isStarred,
           version: pkg.latest_version || "0.0.1",
-          circuit_json: packageFiles
-            .filter((file) => file.file_path.startsWith("/dist/circuit.json"))
-            .map((file) => JSON.parse(file.content_text || "[]")),
+          circuit_json:
+            packageFiles
+              .filter((file) => file.file_path === "/dist/circuit.json")
+              .flatMap((file) => JSON.parse(file.content_text || "[]")) || [],
         } as Snippet
       })
       .filter((snippet): snippet is Snippet => snippet !== null)
