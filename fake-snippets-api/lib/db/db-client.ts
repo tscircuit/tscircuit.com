@@ -143,9 +143,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const timestamp = Date.now()
     const currentTime = new Date(timestamp).toISOString()
 
+    const newState = get()
+    const nextId = newState.idCounter + 1
+
     // Create the package that will serve as our snippet
     const newPackage = {
-      package_id: `pkg_${timestamp}`,
+      package_id: `pkg_${nextId}`,
       creator_account_id: snippet.owner_name, // Using owner_name as account_id since we don't have context
       owner_org_id: "", // Empty string instead of null to match type
       owner_github_username: snippet.owner_name,
@@ -168,13 +171,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_private: false,
       is_public: true,
       is_unlisted: false,
-      latest_package_release_id: `package_release_${timestamp}`,
+      latest_package_release_id: `package_release_${nextId}`,
     }
-    console.log(newPackage)
 
     // Create package release
     const newPackageRelease = {
-      package_release_id: `package_release_${timestamp}`,
+      package_release_id: `package_release_${nextId}`,
       package_id: newPackage.package_id,
       version: "0.0.1",
       is_latest: true,
@@ -185,10 +187,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     // Add all the files
     const packageFiles: PackageFile[] = []
+    let fileIdCounter = nextId
 
     // Add main code file
     packageFiles.push({
-      package_file_id: `package_file_${timestamp}_1`,
+      package_file_id: `package_file_${fileIdCounter++}`,
       package_release_id: newPackageRelease.package_release_id,
       file_path: "index.tsx",
       content_text: snippet.code || "",
@@ -198,7 +201,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     // Add DTS file if provided
     if (snippet.dts) {
       packageFiles.push({
-        package_file_id: `package_file_${timestamp}_2`,
+        package_file_id: `package_file_${fileIdCounter++}`,
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/index.d.ts",
         content_text: snippet.dts,
@@ -209,7 +212,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     // Add compiled JS if provided
     if (snippet.compiled_js) {
       packageFiles.push({
-        package_file_id: `package_file_${timestamp}_3`,
+        package_file_id: `package_file_${fileIdCounter++}`,
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/index.js",
         content_text: snippet.compiled_js,
@@ -220,7 +223,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     // Add circuit JSON if provided
     if (snippet.circuit_json && snippet.circuit_json.length > 0) {
       packageFiles.push({
-        package_file_id: `package_file_${timestamp}_4`,
+        package_file_id: `package_file_${fileIdCounter++}`,
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/circuit.json",
         content_text: JSON.stringify(snippet.circuit_json),
@@ -228,15 +231,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
     }
 
-    // Update the database state
-    set((state) => {
-      const newState = { ...state }
-      newState.packages = [...state.packages, newPackage]
-      newState.packageReleases = [...state.packageReleases, newPackageRelease]
-      newState.packageFiles = [...state.packageFiles, ...packageFiles]
-      newState.idCounter = state.idCounter + packageFiles.length + 2 // +2 for package and release
-      return newState
-    })
+    // Update the database state atomically
+    set((state) => ({
+      ...state,
+      packages: [...state.packages, newPackage],
+      packageReleases: [...state.packageReleases, newPackageRelease],
+      packageFiles: [...state.packageFiles, ...packageFiles],
+      idCounter: fileIdCounter,
+    }))
 
     // Return in the same format as create endpoint
     return {
@@ -638,41 +640,42 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const lowercaseQuery = query.toLowerCase()
 
     // Get all packages that are snippets
-    const snippetPackages = state.packages.filter(
-      (pkg) => pkg.is_snippet === true,
+    const packages = state.packages.filter((pkg) => pkg.is_snippet === true)
+
+    // Find packages that match by name or description
+    const matchingPackagesByMetadata = packages.filter(
+      (pkg) =>
+        pkg.name.toLowerCase().includes(lowercaseQuery) ||
+        pkg.description?.toLowerCase().includes(lowercaseQuery),
     )
 
-    // Filter packages based on name, description, or code content
-    const matchingPackages = snippetPackages.filter((pkg) => {
-      // Check name and description
-      if (
-        pkg.name.toLowerCase().includes(lowercaseQuery) ||
-        pkg.description?.toLowerCase().includes(lowercaseQuery)
-      ) {
-        return true
-      }
+    // Find packages that match by code content in any file
+    const matchingFilesByContent = state.packageFiles.filter(
+      (file) =>
+        file.content_text?.toLowerCase().includes(lowercaseQuery) ?? false,
+    )
 
-      // Check code content
-      const packageRelease = state.packageReleases.find(
-        (pr) =>
-          pr.package_release_id === pkg.latest_package_release_id &&
-          pr.is_latest === true,
-      )
-      if (!packageRelease) return false
+    // Get the packages for matching files
+    const matchingPackagesByContent = matchingFilesByContent
+      .map((file) => {
+        // Find the package release for this file
+        const packageRelease = state.packageReleases.find(
+          (pr) => pr.package_release_id === file.package_release_id,
+        )
+        if (!packageRelease) return null
 
-      const packageFiles = state.packageFiles.filter(
-        (file) => file.package_release_id === packageRelease.package_release_id,
-      )
+        // Find the package for this release
+        return packages.find(
+          (pkg) =>
+            pkg.latest_package_release_id === packageRelease.package_release_id,
+        )
+      })
+      .filter((pkg): pkg is NonNullable<typeof pkg> => pkg !== null)
 
-      const codeFile = packageFiles.find(
-        (file) =>
-          file.file_path === "index.ts" || file.file_path === "index.tsx",
-      )
-
-      return (
-        codeFile?.content_text?.toLowerCase().includes(lowercaseQuery) ?? false
-      )
-    })
+    // Combine both sets of matching packages and remove duplicates
+    const matchingPackages = [
+      ...new Set([...matchingPackagesByMetadata, ...matchingPackagesByContent]),
+    ]
 
     // Convert matching packages to snippet format
     return matchingPackages
