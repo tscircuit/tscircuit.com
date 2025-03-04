@@ -51,6 +51,9 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    packages,
+    packages: packages.map((p) => ({
+      ...p,
+      latest_package_release_id: p.latest_package_release_id || null,
+    })),
   })
 })

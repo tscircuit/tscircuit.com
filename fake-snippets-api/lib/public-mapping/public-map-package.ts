@@ -25,7 +25,8 @@ export const publicMapPackage = (internal_package: {
 }): ZT.Package => {
   return {
     ...internal_package,
-    latest_package_release_id: internal_package.latest_package_release_id ?? "",
+    latest_package_release_id:
+      internal_package.latest_package_release_id ?? null,
     latest_version: internal_package.latest_version ?? null,
     license: internal_package.latest_license ?? null,
     star_count: internal_package.star_count ?? 0,

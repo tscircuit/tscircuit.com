@@ -1,6 +1,6 @@
+import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
@@ -19,16 +19,50 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { snippet_id, name, owner_name, unscoped_name } = req.commonParams
 
-  const foundSnippet =
-    (snippet_id && ctx.db.getSnippetById(snippet_id)) ||
-    ctx.db.snippets.find((s) => {
-      if (name && s.name !== name) return false
-      if (owner_name && s.owner_name !== owner_name) return false
-      if (unscoped_name && s.unscoped_name !== unscoped_name) return false
-      return true
-    })
+  // First try to find by snippet_id
+  if (snippet_id) {
+    const foundSnippet = ctx.db.getSnippetById(snippet_id)
+    if (foundSnippet) {
+      if (ctx.auth) {
+        foundSnippet.is_starred = ctx.db.hasStarred(
+          ctx.auth.account_id,
+          foundSnippet.snippet_id,
+        )
+      }
+      return ctx.json({
+        ok: true,
+        snippet: foundSnippet,
+      })
+    }
+  }
 
-  if (!foundSnippet) {
+  // If not found by ID, try to find by other parameters
+  const foundPackage = ctx.db.packages.find((pkg) => {
+    if (!pkg.is_snippet) return false
+    if (name && pkg.name.toLowerCase() !== name.toLowerCase()) return false
+    if (
+      owner_name &&
+      pkg.owner_github_username?.toLowerCase() !== owner_name.toLowerCase()
+    )
+      return false
+    if (
+      unscoped_name &&
+      pkg.unscoped_name.toLowerCase() !== unscoped_name.toLowerCase()
+    )
+      return false
+    return true
+  })
+
+  if (!foundPackage) {
+    return ctx.error(404, {
+      error_code: "snippet_not_found",
+      message: `Snippet not found (searched using ${JSON.stringify(req.commonParams)})`,
+    })
+  }
+
+  // Convert package to snippet format
+  const snippet = ctx.db.getSnippetById(foundPackage.package_id)
+  if (!snippet) {
     return ctx.error(404, {
       error_code: "snippet_not_found",
       message: `Snippet not found (searched using ${JSON.stringify(req.commonParams)})`,
@@ -36,15 +70,14 @@ export default withRouteSpec({
   }
 
   if (ctx.auth) {
-    const starred = ctx.db.hasStarred(
+    snippet.is_starred = ctx.db.hasStarred(
       ctx.auth.account_id,
-      foundSnippet.snippet_id,
+      snippet.snippet_id,
     )
-    foundSnippet.is_starred = starred
   }
 
   return ctx.json({
     ok: true,
-    snippet: foundSnippet,
+    snippet,
   })
 })

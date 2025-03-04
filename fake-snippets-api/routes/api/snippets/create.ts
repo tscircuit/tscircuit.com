@@ -29,6 +29,9 @@ export default withRouteSpec({
     dts,
   } = req.jsonBody
 
+  const timestamp = Date.now()
+  const currentTime = new Date(timestamp).toISOString()
+
   if (!unscoped_name) {
     // Count snippets of this type for this user
     const userSnippets = ctx.db.packages.filter(
@@ -59,7 +62,7 @@ export default withRouteSpec({
   try {
     // Create the package directly (which will serve as our snippet)
     const newPackage = {
-      package_id: `pkg_${Date.now()}`,
+      package_id: `pkg_${timestamp}`,
       creator_account_id: ctx.auth.account_id,
       owner_org_id: ctx.auth.personal_org_id,
       owner_github_username: ctx.auth.github_username,
@@ -70,8 +73,8 @@ export default withRouteSpec({
       latest_version: "0.0.1",
       license: null,
       star_count: 0,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: currentTime,
+      updated_at: currentTime,
       ai_description: null,
       is_snippet: true,
       is_board: snippet_type === "board",
@@ -82,24 +85,21 @@ export default withRouteSpec({
       is_private: false,
       is_public: true,
       is_unlisted: false,
-      latest_package_release_id: "",
+      latest_package_release_id: `package_release_${timestamp}`,
     }
 
     ctx.db.addPackage(newPackage)
 
     const newPackageRelease = {
-      package_release_id: `package_release_${Date.now()}`,
+      package_release_id: `package_release_${timestamp}`,
       package_id: newPackage.package_id,
       version: "0.0.1",
       is_latest: true,
       is_locked: false,
-      created_at: newPackage.created_at,
+      created_at: currentTime,
     }
 
     ctx.db.addPackageRelease(newPackageRelease)
-
-    // Update the package with the release ID
-    newPackage.latest_package_release_id = newPackageRelease.package_release_id
 
     // Add package files
     // Add index.tsx file with the code content
@@ -107,7 +107,7 @@ export default withRouteSpec({
       package_release_id: newPackageRelease.package_release_id,
       file_path: "index.tsx",
       content_text: code,
-      created_at: new Date().toISOString(),
+      created_at: currentTime,
     })
 
     // Add DTS file if provided
@@ -116,7 +116,7 @@ export default withRouteSpec({
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/index.d.ts",
         content_text: dts,
-        created_at: new Date().toISOString(),
+        created_at: currentTime,
       })
     }
 
@@ -126,7 +126,7 @@ export default withRouteSpec({
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/index.js",
         content_text: compiled_js,
-        created_at: new Date().toISOString(),
+        created_at: currentTime,
       })
     }
 
@@ -136,7 +136,7 @@ export default withRouteSpec({
         package_release_id: newPackageRelease.package_release_id,
         file_path: "/dist/circuit.json",
         content_text: JSON.stringify(circuit_json),
-        created_at: new Date().toISOString(),
+        created_at: currentTime,
       })
     }
 
@@ -151,10 +151,10 @@ export default withRouteSpec({
       dts,
       compiled_js,
       star_count: 0,
-      created_at: newPackage.created_at,
-      updated_at: newPackage.updated_at,
+      created_at: currentTime,
+      updated_at: currentTime,
       snippet_type: snippet_type,
-      circuit_json: circuit_json,
+      circuit_json: circuit_json || [],
       description: description,
       is_starred: false,
       version: "0.0.1",

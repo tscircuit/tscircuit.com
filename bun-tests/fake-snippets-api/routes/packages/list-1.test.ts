@@ -4,9 +4,6 @@ import { expect, test } from "bun:test"
 test("list packages", async () => {
   const { axios, db } = await getTestServer()
 
-  // Log the initial state of packages in the database
-  console.log("Initial packages in DB:", db.packages)
-
   // Add some test packages
   const packages = [
     {

@@ -5,7 +5,7 @@ import { generateCircuitJson } from "bun-tests/fake-snippets-api/fixtures/get-ci
 test("get schematic svg of a snippet", async () => {
   const { axios, db } = await getTestServer()
 
-  const addedSnippet = db.addSnippet({
+  const addedSnippet = {
     name: "testuser/my-test-board",
     unscoped_name: "my-test-board",
     owner_name: "testuser",
@@ -42,7 +42,8 @@ test("get schematic svg of a snippet", async () => {
     exports.A555Timer = A555Timer;
     `.trim(),
     }),
-  })
+  }
+  const createdSnippet = await axios.post("/api/snippets/create", addedSnippet)
 
   const snippetName = addedSnippet.name.replace(
     addedSnippet.owner_name + "/",
@@ -50,7 +51,7 @@ test("get schematic svg of a snippet", async () => {
   )
 
   const response = await axios.get(
-    `/api/snippets/images/${addedSnippet.owner_name}/${snippetName}/schematic.svg`,
+    `/api/snippets/images/${createdSnippet.data.snippet.owner_name}/${createdSnippet.data.snippet.unscoped_name}/schematic.svg`,
   )
 
   expect(response.status).toBe(200)
@@ -60,7 +61,7 @@ test("get schematic svg of a snippet", async () => {
 test("get pcb svg of a snippet", async () => {
   const { axios, db } = await getTestServer()
 
-  const addedSnippet = db.addSnippet({
+  const addedSnippet = {
     name: "testuser/my-test-board",
     unscoped_name: "my-test-board",
     owner_name: "testuser",
@@ -97,14 +98,15 @@ test("get pcb svg of a snippet", async () => {
     exports.A555Timer = A555Timer;
     `.trim(),
     }),
-  })
+  }
+  const createdSnippet = await axios.post("/api/snippets/create", addedSnippet)
 
   const snippetName = addedSnippet.name.replace(
     addedSnippet.owner_name + "/",
     "",
   )
   const response = await axios.get(
-    `/api/snippets/images/${addedSnippet.owner_name}/${snippetName}/pcb.svg`,
+    `/api/snippets/images/${createdSnippet.data.snippet.owner_name}/${createdSnippet.data.snippet.unscoped_name}/pcb.svg`,
   )
 
   expect(response.status).toBe(200)

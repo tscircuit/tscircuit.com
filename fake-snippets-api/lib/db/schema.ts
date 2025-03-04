@@ -91,6 +91,7 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
+// TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
   snippet_id: z.string(),
@@ -99,6 +100,16 @@ export const accountSnippetSchema = z.object({
   updated_at: z.string(),
 })
 export type AccountSnippet = z.infer<typeof accountSnippetSchema>
+
+export const accountPackageSchema = z.object({
+  account_package_id: z.string(),
+  account_id: z.string(),
+  package_id: z.string(),
+  is_starred: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type AccountPackage = z.infer<typeof accountPackageSchema>
 
 export const packageReleaseSchema = z.object({
   package_release_id: z.string(),
@@ -172,5 +183,6 @@ export const databaseSchema = z.object({
   orders: z.array(orderSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
+  accountPackages: z.array(accountPackageSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
