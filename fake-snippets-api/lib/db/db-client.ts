@@ -262,18 +262,76 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getNewestSnippets: (limit: number): Snippet[] => {
     const state = get()
-    return [...state.snippets]
+
+    // Get all packages that are snippets
+    const snippetPackages = state.packages
+      .filter((pkg) => pkg.is_snippet === true)
+      .map((pkg) => {
+        // Get the package release
+        const packageRelease = state.packageReleases.find(
+          (pr) =>
+            pr.package_release_id === pkg.latest_package_release_id &&
+            pr.is_latest === true,
+        )
+        if (!packageRelease) return null
+
+        // Get the package files
+        const packageFiles = state.packageFiles.filter(
+          (file) =>
+            file.package_release_id === packageRelease.package_release_id,
+        )
+
+        // Get the code file
+        const codeFile = packageFiles.find(
+          (file) =>
+            file.file_path === "index.ts" || file.file_path === "index.tsx",
+        )
+
+        // Check if starred
+        const isStarred = state.accountPackages.some(
+          (ap) => ap.package_id === pkg.package_id && ap.is_starred,
+        )
+
+        // Convert to snippet format
+        return {
+          snippet_id: pkg.package_id,
+          package_release_id: pkg.latest_package_release_id || "",
+          unscoped_name: pkg.unscoped_name,
+          name: pkg.name,
+          owner_name: pkg.owner_github_username || "",
+          description: pkg.description || "",
+          snippet_type: pkg.snippet_type || "board",
+          code: codeFile?.content_text || "",
+          dts:
+            packageFiles.find((file) => file.file_path === "/dist/index.d.ts")
+              ?.content_text || "",
+          compiled_js:
+            packageFiles.find((file) => file.file_path === "/dist/index.js")
+              ?.content_text || "",
+          created_at: pkg.created_at,
+          updated_at: pkg.updated_at,
+          star_count: pkg.star_count || 0,
+          is_starred: isStarred,
+          version: pkg.latest_version || "0.0.1",
+          circuit_json: packageFiles
+            .filter((file) => file.file_path === "/dist/circuit.json")
+            .map((file) => JSON.parse(file.content_text || "[]")),
+        }
+      })
+      .filter(
+        (snippet): snippet is NonNullable<typeof snippet> => snippet !== null,
+      )
       .map((snippet) => ({
         ...snippet,
-        star_count: state.accountSnippets.filter(
-          (as) => as.snippet_id === snippet.snippet_id && as.has_starred,
-        ).length,
+        description: snippet.description || "",
       }))
       .sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       )
       .slice(0, limit)
+
+    return snippetPackages
   },
   getTrendingSnippets: (limit: number, since: string): Snippet[] => {
     const state = get()
@@ -904,23 +962,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   addPackage: (
     _package: Omit<z.input<typeof packageSchema>, "package_id">,
   ): Package => {
+    const timestamp = Date.now()
     const newPackage = {
-      package_id: `package_${Date.now()}`,
+      package_id: `package_${timestamp}`,
       ..._package,
     }
-    const packageRelease = packageReleaseSchema.parse({
-      package_release_id: `package_release_${Date.now()}`,
-      package_id: newPackage.package_id,
-      version: "0.0.1",
-      is_locked: false,
-      is_latest: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    newPackage.latest_package_release_id = packageRelease.package_release_id
     set((state) => ({
       packages: [...state.packages, newPackage as Package],
-      packageReleases: [...state.packageReleases, packageRelease],
     }))
     return newPackage as Package
   },
