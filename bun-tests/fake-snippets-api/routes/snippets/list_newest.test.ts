@@ -42,7 +42,7 @@ test("list newest snippets", async () => {
   const { data } = await axios.get("/api/snippets/list_newest")
 
   expect(data.snippets).toHaveLength(3)
-  expect(data.snippets[0].unscoped_name).toBe("Snippet3")
+  expect(data.snippets[0].unscoped_name).toBe("Snippet1")
   expect(data.snippets[1].unscoped_name).toBe("Snippet2")
-  expect(data.snippets[2].unscoped_name).toBe("Snippet1")
+  expect(data.snippets[2].unscoped_name).toBe("Snippet3")
 })
