@@ -263,6 +263,7 @@ export function CodeAndPreview({ snippet }: Props) {
           >
             <SuspenseRunFrame
               showRunButton
+              forceLatestEvalVersion
               onRenderStarted={() => {
                 setLastRunCode(code)
               }}
