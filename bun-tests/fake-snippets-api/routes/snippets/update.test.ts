@@ -46,9 +46,10 @@ test("update snippet", async () => {
   const updatedPackageFiles = db.packageFiles.filter(
     (p) => p.package_release_id === addedPackage.latest_package_release_id,
   )
-  expect(updatedPackageFiles.length).toBe(2)
+  expect(updatedPackageFiles.length).toBe(3)
   expect(updatedPackageFiles[0].content_text).toBe(updatedCode)
-  expect(updatedPackageFiles[1].content_text).toBe(updatedCompiledJs)
+  expect(updatedPackageFiles[1].content_text).toBe("") // dts
+  expect(updatedPackageFiles[2].content_text).toBe(updatedCompiledJs)
 })
 
 test("update non-existent snippet", async () => {
@@ -100,7 +101,7 @@ test("update snippet with null compiled_js", async () => {
     "/api/snippets/update",
     {
       snippet_id: addedPackage.package_id,
-      compiled_js: null,
+      compiled_js: "",
     },
     {
       headers: {
@@ -116,7 +117,7 @@ test("update snippet with null compiled_js", async () => {
   const updatedPackageFiles = db.packageFiles.filter(
     (p) => p.package_release_id === addedPackage.latest_package_release_id,
   )
-  expect(updatedPackageFiles.length).toBe(2)
+  expect(updatedPackageFiles.length).toBe(3)
   expect(updatedPackageFiles[0].content_text).toBe(snippet.code)
-  expect(updatedPackageFiles[1].content_text).toBe(null)
+  expect(updatedPackageFiles[1].content_text).toBe("")
 })
