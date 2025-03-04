@@ -130,7 +130,7 @@
     "@playwright/test": "^1.48.0",
     "@tscircuit/core": "^0.0.345",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
-    "@tscircuit/runframe": "^0.0.228",
+    "@tscircuit/runframe": "^0.0.229",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
     "@types/country-list": "^2.1.4",
