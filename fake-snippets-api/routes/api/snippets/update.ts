@@ -65,7 +65,7 @@ export default withRouteSpec({
     (f) => f.file_path === "/dist/circuit.json",
   )
 
-  if (_package.creator_account_id !== ctx.auth.github_username) {
+  if (_package.creator_account_id !== ctx.auth.account_id) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to update this snippet",

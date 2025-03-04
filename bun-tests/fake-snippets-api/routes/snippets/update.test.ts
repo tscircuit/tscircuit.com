@@ -7,7 +7,7 @@ test("update snippet", async () => {
   // Add a test snippet
   const snippet = {
     unscoped_name: "TestSnippet",
-    owner_name: "testuser",
+    owner_name: "account-1234",
     code: "Original Content",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
@@ -83,7 +83,7 @@ test("update snippet with null compiled_js", async () => {
   // Add a test snippet with compiled_js
   const snippet = {
     unscoped_name: "TestSnippet",
-    owner_name: "testuser",
+    owner_name: "account-1234",
     code: "Original Content",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
@@ -92,6 +92,7 @@ test("update snippet with null compiled_js", async () => {
     description: "Original Description",
     compiled_js: "console.log('Original Content')",
   }
+
   db.addSnippet(snippet as any)
 
   const addedPackage = db.packages[0]
@@ -105,7 +106,7 @@ test("update snippet with null compiled_js", async () => {
     },
     {
       headers: {
-        Authorization: "Bearer 1234",
+        Authorization: `Bearer ${addedPackage.creator_account_id}`,
       },
     },
   )
@@ -120,4 +121,37 @@ test("update snippet with null compiled_js", async () => {
   expect(updatedPackageFiles.length).toBe(3)
   expect(updatedPackageFiles[0].content_text).toBe(snippet.code)
   expect(updatedPackageFiles[1].content_text).toBe("")
+})
+
+test("update snippet after create snippet", async () => {
+  const { axios, db } = await getTestServer()
+
+  const snippet = {
+    unscoped_name: "TestSnippet",
+    code: "Test Content",
+    snippet_type: "package",
+    description: "Test Description",
+  }
+
+  await axios.post("/api/snippets/create", snippet)
+
+  const createdSnippet = db.packages[0]
+
+  const updatedCode = "Updated Content"
+  const response = await axios.post(
+    "/api/snippets/update",
+    {
+      snippet_id: createdSnippet.package_id,
+      code: updatedCode,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${createdSnippet.creator_account_id}`,
+      },
+    },
+  )
+
+  expect(response.status).toBe(200)
+  expect(response.data.snippet.code).toBe(updatedCode)
+  expect(response.data.snippet.updated_at).not.toBe(createdSnippet.created_at)
 })
