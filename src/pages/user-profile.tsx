@@ -34,9 +34,7 @@ export const UserProfilePage = () => {
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
     async () => {
-      const response = await axios.get(
-        `/snippets/list?owner_name=${username}&include_starred=true`,
-      )
+      const response = await axios.get(`/snippets/list?owner_name=${username}`)
       return response.data.snippets
     },
   )
@@ -108,8 +106,7 @@ export const UserProfilePage = () => {
                   <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                       <h3 className="text-md font-semibold">
-                        {snippet.unscoped_name}+
-                        {String(snippet?.is_starred || false)}
+                        {snippet.unscoped_name}
                       </h3>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center text-gray-600">
