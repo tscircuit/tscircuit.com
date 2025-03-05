@@ -18,11 +18,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
   const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
   const session = useGlobalStore((s) => s.session)
   const isCurrentUserProfile = username === session?.github_username
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
@@ -32,16 +34,22 @@ export const UserProfilePage = () => {
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
     async () => {
-      const response = await axios.get(`/snippets/list?owner_name=${username}`)
+      const response = await axios.get(
+        `/snippets/list?owner_name=${username}&include_starred=true`,
+      )
       return response.data.snippets
     },
   )
 
-  const filteredSnippets = userSnippets?.filter(
-    (snippet) =>
+  const filteredSnippets = userSnippets?.filter((snippet) => {
+    const matchesSearch =
       !searchQuery ||
-      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesTab =
+      activeTab === "all" ||
+      (activeTab === "starred" && (snippet?.is_starred || false))
+    return matchesSearch && matchesTab
+  })
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
@@ -69,7 +77,16 @@ export const UserProfilePage = () => {
             </Button>
           </a>
         </div>
-        <h2 className="text-2xl font-semibold mb-4">Snippets</h2>
+        <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
+          <TabsList>
+            <TabsTrigger value="all">
+              <h2 className="text-2xl font-semibold">Snippets</h2>
+            </TabsTrigger>
+            <TabsTrigger value="starred">
+              <h2 className="text-2xl font-semibold">Starred Snippets</h2>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Input
           type="text"
           placeholder="Search snippets..."
@@ -91,7 +108,8 @@ export const UserProfilePage = () => {
                   <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                       <h3 className="text-md font-semibold">
-                        {snippet.unscoped_name}
+                        {snippet.unscoped_name}+
+                        {String(snippet?.is_starred || false)}
                       </h3>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center text-gray-600">
