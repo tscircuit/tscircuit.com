@@ -5,31 +5,36 @@ import { withRouteSpec } from "../../../lib/middleware/with-winter-spec"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z.object({
-    package_id: z.string(),
-    name: z
-      .string()
-      .regex(
-        /^[@a-zA-Z0-9-_\/]+$/,
-        "Package name can only contain letters, numbers, hyphens, underscores, and forward slashes",
-      )
-      .transform((name) => name.replace(/^@/, ""))
-      .optional(),
-    description: z.string().optional(),
-    is_private: z.boolean().optional(),
-    is_unlisted: z.boolean().optional(),
-  }).transform((data) => ({
-    ...data,
-    is_unlisted: data.is_private ? true : data.is_unlisted,
-  })),
+  jsonBody: z
+    .object({
+      package_id: z.string(),
+      name: z
+        .string()
+        .regex(
+          /^[@a-zA-Z0-9-_\/]+$/,
+          "Package name can only contain letters, numbers, hyphens, underscores, and forward slashes",
+        )
+        .transform((name) => name.replace(/^@/, ""))
+        .optional(),
+      description: z.string().optional(),
+      is_private: z.boolean().optional(),
+      is_unlisted: z.boolean().optional(),
+    })
+    .transform((data) => ({
+      ...data,
+      is_unlisted: data.is_private ? true : data.is_unlisted,
+    })),
   jsonResponse: z.object({
     ok: z.boolean(),
     package: packageSchema,
   }),
 })(async (req, ctx) => {
-  const { package_id, name, description, is_private, is_unlisted } = req.jsonBody
+  const { package_id, name, description, is_private, is_unlisted } =
+    req.jsonBody
 
-  const packageIndex = ctx.db.packages.findIndex((p) => p.package_id === package_id)
+  const packageIndex = ctx.db.packages.findIndex(
+    (p) => p.package_id === package_id,
+  )
 
   if (packageIndex === -1) {
     return ctx.error(404, {
@@ -52,7 +57,7 @@ export default withRouteSpec({
   if (name) {
     const newFullName = `${ctx.auth.github_username}/${name}`
     const duplicatePackage = ctx.db.packages.find(
-      (p) => p.name === newFullName && p.package_id !== package_id
+      (p) => p.name === newFullName && p.package_id !== package_id,
     )
     if (duplicatePackage) {
       return ctx.error(400, {
@@ -66,7 +71,8 @@ export default withRouteSpec({
     name: name ? `${ctx.auth.github_username}/${name}` : existingPackage.name,
     description: description ?? existingPackage.description,
     is_private: is_private ?? existingPackage.is_private,
-    is_public: is_private !== undefined ? !is_private : existingPackage.is_public,
+    is_public:
+      is_private !== undefined ? !is_private : existingPackage.is_public,
     is_unlisted: is_unlisted ?? existingPackage.is_unlisted,
     updated_at: new Date().toISOString(),
   })

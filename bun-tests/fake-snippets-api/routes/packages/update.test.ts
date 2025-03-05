@@ -154,7 +154,8 @@ test("update package without permission", async () => {
   } catch (error: any) {
     expect(error.status).toBe(403)
     expect(error.data.error.error_code).toBe("forbidden")
-    expect(error.data.error.message).toBe("You don't have permission to update this package")
+    expect(error.data.error.message).toBe(
+      "You don't have permission to update this package",
+    )
   }
 })
-
