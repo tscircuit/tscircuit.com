@@ -76,7 +76,9 @@ test("test titles My Snippets and Starred Snippets", async ({ page }) => {
   expect(await starredSnippetsTitle.isVisible()).toBe(true)
 })
 
-test("test starring a snippet and verifying in Starred Snippets tab", async ({ page }) => {
+test("test starring a snippet and verifying in Starred Snippets tab", async ({
+  page,
+}) => {
   // Go to profile page
   await page.goto("http://localhost:5177/testuser")
 
@@ -122,6 +124,8 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({ p
   await expect(page).toHaveScreenshot("profile-page-starred-tab-open.png")
 
   // Verify the starred snippet exists in the "Starred Snippets" tab
-  const starredSnippet = page.locator(`.text-md.font-semibold:has-text("${snippetName}")`)
+  const starredSnippet = page.locator(
+    `.text-md.font-semibold:has-text("${snippetName}")`,
+  )
   expect(await starredSnippet.isVisible()).toBe(true)
 })
