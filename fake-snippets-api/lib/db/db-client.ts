@@ -983,6 +983,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newPackage as Package
   },
+  updatePackage: (
+    packageId: string,
+    updates: Partial<Package>,
+  ): Package | undefined => {
+    let updatedPackage: Package | undefined
+    set((state) => {
+      const packageIndex = state.packages.findIndex(
+        (pkg) => pkg.package_id === packageId,
+      )
+      if (packageIndex === -1) return state
+
+      const updatedPackages = [...state.packages]
+      updatedPackages[packageIndex] = {
+        ...updatedPackages[packageIndex],
+        ...updates,
+      }
+      updatedPackage = updatedPackages[packageIndex]
+      return { ...state, packages: updatedPackages }
+    })
+    return updatedPackage
+  },
   getPackageById: (packageId: string): Package | undefined => {
     const state = get()
     const pkg = state.packages.find((pkg) => pkg.package_id === packageId)
