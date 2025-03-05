@@ -33,6 +33,10 @@ export default withRouteSpec({
     )
     const starCount = ctx.db.getStarCount(pkg.package_id)
 
+    const isStarred = ctx.db.accountPackages.find(
+      (accPkg) => accPkg.package_id === pkg.package_id,
+    )?.is_starred
+
     return {
       snippet_id: pkg.package_id,
       package_release_id: pkg.latest_package_release_id || "",
@@ -51,7 +55,7 @@ export default withRouteSpec({
       created_at: pkg.created_at,
       updated_at: pkg.updated_at,
       star_count: starCount,
-      is_starred: false,
+      is_starred: isStarred || false,
       version: pkg.latest_version || "0.0.1",
     }
   })

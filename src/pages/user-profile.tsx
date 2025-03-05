@@ -28,6 +28,7 @@ export const UserProfilePage = () => {
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeleteSnippetDialog()
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
+  const [activeTab, setActiveTab] = useState<string>("my-snippets")
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
@@ -37,16 +38,28 @@ export const UserProfilePage = () => {
     },
   )
 
-  const filteredSnippets = userSnippets?.filter(
-    (snippet) =>
-      !searchQuery ||
-      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  let filteredSnippets: Snippet[] = userSnippets ?? []
+  if (activeTab === "starred-snippets") {
+    filteredSnippets =
+      userSnippets?.filter((snippet) => snippet.is_starred) ?? []
+  }
+
+  filteredSnippets =
+    filteredSnippets?.filter(
+      (snippet) =>
+        !searchQuery ||
+        snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
+    ) ?? []
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
     setSnippetToDelete(snippet)
     openDeleteDialog()
+  }
+
+  const handleTabClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setActiveTab(e.currentTarget.name)
   }
 
   return (
@@ -69,13 +82,26 @@ export const UserProfilePage = () => {
             </Button>
           </a>
         </div>
-        <h2 className="text-2xl font-semibold mb-4">Snippets</h2>
+        <button onClick={handleTabClick} name="my-snippets">
+          <h2
+            className={`text-xl font-semibold mr-4 inline ${activeTab === "my-snippets" ? "underline underline-offset-8" : "text-gray-400"}`}
+          >
+            My Snippets
+          </h2>
+        </button>
+        <button onClick={handleTabClick} name="starred-snippets">
+          <h2
+            className={`text-xl font-semibold inline ${activeTab === "starred-snippets" ? "underline underline-offset-8" : "text-gray-400"}`}
+          >
+            Starred Snippets
+          </h2>
+        </button>
         <Input
           type="text"
           placeholder="Search snippets..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4"
+          className="my-4"
         />
         {isLoading ? (
           <div>Loading snippets...</div>
@@ -129,6 +155,9 @@ export const UserProfilePage = () => {
                   </div>
                 </Link>
               ))}
+            {filteredSnippets.length === 0 && (
+              <div className="text-gray-500">No snippets found.</div>
+            )}
           </div>
         )}
       </div>

@@ -57,3 +57,71 @@ test("test delete functionality in profile", async ({ page }) => {
     .count()
   expect(remainingSnippets).toBe(0)
 })
+
+test("test titles My Snippets and Starred Snippets", async ({ page }) => {
+  // Go to profile page
+  await page.goto("http://localhost:5177/testuser")
+
+  // Login
+  await page.getByRole("button", { name: "Log in" }).click()
+
+  // Wait for snippets grid to load
+  await page.waitForSelector(".grid")
+  await page.waitForLoadState("networkidle")
+
+  // Verify My Snippets and Starred Snippets titles
+  const mySnippetsTitle = page.locator("h2:has-text('My Snippets')")
+  expect(await mySnippetsTitle.isVisible()).toBe(true)
+  const starredSnippetsTitle = page.locator("h2:has-text('Starred Snippets')")
+  expect(await starredSnippetsTitle.isVisible()).toBe(true)
+})
+
+test("test starring a snippet and verifying in Starred Snippets tab", async ({ page }) => {
+  // Go to profile page
+  await page.goto("http://localhost:5177/testuser")
+
+  // Login
+  await page.getByRole("button", { name: "Log in" }).click()
+
+  // Wait for snippets grid to load
+  await page.waitForSelector(".grid")
+  await page.waitForLoadState("networkidle")
+
+  // Open the first snippet
+  const snippetLink = page.locator(".text-md.font-semibold").first()
+  const snippetName = await snippetLink.textContent()
+  await snippetLink.click()
+
+  // Wait for snippet page to load
+  await page.waitForLoadState("networkidle")
+
+  // Click on the star button to star the snippet
+  await page.getByRole("button", { name: "Star" }).click()
+
+  // Wait for the star to update
+  await page.waitForSelector(".text-yellow-500")
+
+  await expect(page).toHaveScreenshot("snippet-page-open-after-star-click.png")
+
+  // Navigate back to the profile page
+  await page.goto("http://localhost:5177/testuser")
+
+  // Wait for snippets grid to load
+  await page.waitForSelector(".grid")
+  await page.waitForLoadState("networkidle")
+
+  await expect(page).toHaveScreenshot("profile-page-initial-open.png")
+
+  // Click on the "Starred Snippets" tab
+  await page.getByRole("button", { name: "Starred Snippets" }).click()
+
+  // Wait for snippets grid to load
+  await page.waitForSelector(".grid")
+  await page.waitForLoadState("networkidle")
+
+  await expect(page).toHaveScreenshot("profile-page-starred-tab-open.png")
+
+  // Verify the starred snippet exists in the "Starred Snippets" tab
+  const starredSnippet = page.locator(`.text-md.font-semibold:has-text("${snippetName}")`)
+  expect(await starredSnippet.isVisible()).toBe(true)
+})
