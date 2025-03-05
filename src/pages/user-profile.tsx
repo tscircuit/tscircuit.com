@@ -78,10 +78,10 @@ export const UserProfilePage = () => {
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
           <TabsList>
             <TabsTrigger value="all">
-              <h2 className="text-2xl font-semibold">Snippets</h2>
+              <h2 className="text-lg">Snippets</h2>
             </TabsTrigger>
             <TabsTrigger value="starred">
-              <h2 className="text-2xl font-semibold">Starred Snippets</h2>
+              <h2 className="text-lg">Starred Snippets</h2>
             </TabsTrigger>
           </TabsList>
         </Tabs>
