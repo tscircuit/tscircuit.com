@@ -1,0 +1,91 @@
+import { z } from "zod"
+import { packageSchema } from "../../../lib/db/schema"
+import { withRouteSpec } from "../../../lib/middleware/with-winter-spec"
+
+export default withRouteSpec({
+  methods: ["POST"],
+  auth: "session",
+  jsonBody: z
+    .object({
+      package_id: z.string(),
+      name: z
+        .string()
+        .regex(
+          /^[@a-zA-Z0-9-_\/]+$/,
+          "Package name can only contain letters, numbers, hyphens, underscores, and forward slashes",
+        )
+        .transform((name) => name.replace(/^@/, ""))
+        .optional(),
+      description: z.string().optional(),
+      is_private: z.boolean().optional(),
+      is_unlisted: z.boolean().optional(),
+    })
+    .transform((data) => ({
+      ...data,
+      is_unlisted: data.is_private ? true : data.is_unlisted,
+    })),
+  jsonResponse: z.object({
+    ok: z.boolean(),
+    package: packageSchema,
+  }),
+})(async (req, ctx) => {
+  const { package_id, name, description, is_private, is_unlisted } =
+    req.jsonBody
+
+  const packageIndex = ctx.db.packages.findIndex(
+    (p) => p.package_id === package_id,
+  )
+
+  if (packageIndex === -1) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: "Package not found",
+    })
+  }
+
+  const existingPackage = ctx.db.packages[packageIndex]
+
+  // Check if user has permission to update the package
+  if (existingPackage.creator_account_id !== ctx.auth.account_id) {
+    return ctx.error(403, {
+      error_code: "forbidden",
+      message: "You don't have permission to update this package",
+    })
+  }
+
+  // Check for duplicate package name if name is being updated
+  if (name) {
+    const newFullName = `${ctx.auth.github_username}/${name}`
+    const duplicatePackage = ctx.db.packages.find(
+      (p) => p.name === newFullName && p.package_id !== package_id,
+    )
+    if (duplicatePackage) {
+      return ctx.error(400, {
+        error_code: "package_already_exists",
+        message: "A package with this name already exists",
+      })
+    }
+  }
+
+  const updatedPackage = ctx.db.updatePackage(package_id, {
+    name: name ? `${ctx.auth.github_username}/${name}` : existingPackage.name,
+    description: description ?? existingPackage.description,
+    is_private: is_private ?? existingPackage.is_private,
+    is_public:
+      is_private !== undefined ? !is_private : existingPackage.is_public,
+    is_unlisted: is_unlisted ?? existingPackage.is_unlisted,
+    updated_at: new Date().toISOString(),
+  })
+
+  if (!updatedPackage) {
+    return ctx.error(500, {
+      error_code: "update_failed",
+      message: "Failed to update package",
+    })
+  }
+
+  return ctx.json({
+    ok: true,
+    package: updatedPackage,
+  })
+})
