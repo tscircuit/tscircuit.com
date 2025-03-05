@@ -1,27 +1,27 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
-import { test, expect } from "bun:test"
+import { expect, test } from "bun:test"
 
 test("add star to snippet", async () => {
-  const { axios, db } = await getTestServer()
+  const { axios } = await getTestServer()
 
-  // Add a test snippet
-  const snippet = {
-    unscoped_name: "TestSnippet",
-    owner_name: "otheruser",
+  // Create a test snippet using the create endpoint
+  const newSnippetData = {
     code: "Test Content",
-    created_at: "2023-01-01T00:00:00Z",
-    updated_at: "2023-01-01T00:00:00Z",
-    name: "otheruser/TestSnippet",
     snippet_type: "package",
     description: "Test Description",
   }
-  const addedSnippet = db.addSnippet(snippet as any)!
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
+  expect(createResponse.status).toBe(200)
+  const createdSnippet = createResponse.data.snippet
 
   // Star the snippet
   const response = await axios.post(
     "/api/snippets/add_star",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: createdSnippet.snippet_id,
     },
     {
       headers: {
@@ -32,12 +32,17 @@ test("add star to snippet", async () => {
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
-  expect(response.data.account_snippet).toBeDefined()
-  expect(response.data.account_snippet.snippet_id).toBe(addedSnippet.snippet_id)
-  expect(response.data.account_snippet.has_starred).toBe(true)
 
-  // Verify star was added in database
-  expect(db.hasStarred("account-1234", addedSnippet.snippet_id)).toBe(true)
+  // Verify star was added by checking the snippet again
+  const getResponse = await axios.get("/api/snippets/get", {
+    params: { snippet_id: createdSnippet.snippet_id },
+    headers: {
+      Authorization: "Bearer 1234",
+    },
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.snippet.is_starred).toBe(true)
 })
 
 test("add star to non-existent snippet", async () => {
@@ -63,26 +68,26 @@ test("add star to non-existent snippet", async () => {
 })
 
 test("add star to already starred snippet", async () => {
-  const { axios, db } = await getTestServer()
+  const { axios } = await getTestServer()
 
-  // Add a test snippet
-  const snippet = {
-    unscoped_name: "TestSnippet",
-    owner_name: "otheruser",
+  // Create a test snippet using the create endpoint
+  const newSnippetData = {
     code: "Test Content",
-    created_at: "2023-01-01T00:00:00Z",
-    updated_at: "2023-01-01T00:00:00Z",
-    name: "otheruser/TestSnippet",
     snippet_type: "package",
     description: "Test Description",
   }
-  const addedSnippet = db.addSnippet(snippet as any)
+  const createResponse = await axios.post(
+    "/api/snippets/create",
+    newSnippetData,
+  )
+  expect(createResponse.status).toBe(200)
+  const createdSnippet = createResponse.data.snippet
 
   // Star the snippet first time
   await axios.post(
     "/api/snippets/add_star",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: createdSnippet.snippet_id,
     },
     {
       headers: {
@@ -96,7 +101,7 @@ test("add star to already starred snippet", async () => {
     await axios.post(
       "/api/snippets/add_star",
       {
-        snippet_id: addedSnippet.snippet_id,
+        snippet_id: createdSnippet.snippet_id,
       },
       {
         headers: {

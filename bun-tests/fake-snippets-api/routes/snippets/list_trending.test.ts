@@ -36,7 +36,7 @@ test("list trending snippets", async () => {
   ]
 
   for (const snippet of snippets) {
-    db.addSnippet(snippet as any)
+    await axios.post("/api/snippets/create", snippet)
   }
 
   const now = new Date()
@@ -44,21 +44,21 @@ test("list trending snippets", async () => {
   const oldDate = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000) // 10 days ago
 
   // Add stars with different dates
-  const snippet1 = db.snippets[0]
-  const snippet2 = db.snippets[1]
-  const snippet3 = db.snippets[2]
+  const package1 = db.packages[0]
+  const package2 = db.packages[1]
+  const package3 = db.packages[2]
 
   // Snippet2 should be most trending (3 recent stars)
-  db.addStar("user1", snippet2.snippet_id)
-  db.addStar("user2", snippet2.snippet_id)
-  db.addStar("user3", snippet2.snippet_id)
+  db.addStar("user1", package2.package_id)
+  db.addStar("user2", package2.package_id)
+  db.addStar("user3", package2.package_id)
 
   // Snippet3 second (2 recent stars)
-  db.addStar("user1", snippet3.snippet_id)
-  db.addStar("user2", snippet3.snippet_id)
+  db.addStar("user1", package3.package_id)
+  db.addStar("user2", package3.package_id)
 
   // Snippet1 least trending (1 recent star, 1 old star)
-  db.addStar("user1", snippet1.snippet_id)
+  db.addStar("user1", package1.package_id)
 
   const { data } = await axios.get("/api/snippets/list_trending")
 

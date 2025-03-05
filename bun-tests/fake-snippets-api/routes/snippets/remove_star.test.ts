@@ -15,13 +15,13 @@ test("remove star from snippet", async () => {
     snippet_type: "package",
     description: "Test Description",
   }
-  const addedSnippet = db.addSnippet(snippet as any)!
 
+  const createdSnippet = await axios.post("/api/snippets/create", snippet)
   // Star the snippet
   await axios.post(
     "/api/snippets/add_star",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: createdSnippet.data.snippet.snippet_id,
     },
     {
       headers: {
@@ -34,7 +34,7 @@ test("remove star from snippet", async () => {
   const response = await axios.post(
     "/api/snippets/remove_star",
     {
-      snippet_id: addedSnippet.snippet_id,
+      snippet_id: createdSnippet.data.snippet.snippet_id,
     },
     {
       headers: {
@@ -48,7 +48,9 @@ test("remove star from snippet", async () => {
   expect(response.data.is_starred).toBe(false)
 
   // Verify star was removed in database
-  expect(db.hasStarred("account-123", addedSnippet.snippet_id)).toBe(false)
+  expect(
+    db.hasStarred("account-123", createdSnippet.data.snippet.snippet_id),
+  ).toBe(false)
 })
 
 test("remove star from non-existent snippet", async () => {
@@ -87,14 +89,14 @@ test("remove star from unstarred snippet", async () => {
     snippet_type: "package",
     description: "Test Description",
   }
-  const addedSnippet = db.addSnippet(snippet as any)
+  const createdSnippet = await axios.post("/api/snippets/create", snippet)
 
   // Remove star
   try {
     await axios.post(
       "/api/snippets/remove_star",
       {
-        snippet_id: addedSnippet.snippet_id,
+        snippet_id: createdSnippet.data.snippet.snippet_id,
       },
       {
         headers: {

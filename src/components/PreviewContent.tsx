@@ -3,8 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { applyPcbEditEvents } from "@/lib/utils/pcbManualEditEventHandler"
 import { CadViewer } from "@tscircuit/3d-viewer"
-import { PCBViewer } from "@tscircuit/pcb-viewer"
-import { Schematic } from "@tscircuit/schematic-viewer"
+// import { PCBViewer } from "@tscircuit/pcb-viewer"
+// import { SchematicViewer } from "@tscircuit/schematic-viewer"
 import { useEffect, useRef, useState } from "react"
 import { ErrorFallback } from "./ErrorFallback"
 import { ErrorBoundary } from "react-error-boundary"
@@ -320,7 +320,10 @@ export const PreviewContent = ({
             >
               <ErrorBoundary FallbackComponent={ErrorFallback}>
                 {circuitJson ? (
-                  <CadViewer soup={circuitJson as any} ref={threeJsObjectRef} />
+                  <CadViewer
+                    circuitJson={circuitJson as any}
+                    ref={threeJsObjectRef}
+                  />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}

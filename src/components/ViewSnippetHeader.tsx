@@ -18,6 +18,10 @@ export default function ViewSnippetHeader() {
   const session = useGlobalStore((s) => s.session)
   const [isStarred, setIsStarred] = useState(snippet?.is_starred || false)
 
+  useEffect(() => {
+    setIsStarred(snippet?.is_starred || false)
+  }, [snippet?.is_starred])
+
   const useForkSnippetMutation = ({
     snippet,
     onSuccess,

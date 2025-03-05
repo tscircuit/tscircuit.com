@@ -91,6 +91,7 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
+// TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
   snippet_id: z.string(),
@@ -99,6 +100,16 @@ export const accountSnippetSchema = z.object({
   updated_at: z.string(),
 })
 export type AccountSnippet = z.infer<typeof accountSnippetSchema>
+
+export const accountPackageSchema = z.object({
+  account_package_id: z.string(),
+  account_id: z.string(),
+  package_id: z.string(),
+  is_starred: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string(),
+})
+export type AccountPackage = z.infer<typeof accountPackageSchema>
 
 export const packageReleaseSchema = z.object({
   package_release_id: z.string(),
@@ -124,18 +135,27 @@ export type PackageFile = z.infer<typeof packageFileSchema>
 export const packageSchema = z.object({
   package_id: z.string(),
   creator_account_id: z.string(),
+  owner_org_id: z.string(),
+  owner_github_username: z.string().nullable(),
+  name: z.string(),
+  unscoped_name: z.string(),
+  description: z.string().nullable(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  is_snippet: z.boolean().default(false),
+  is_board: z.boolean().default(false),
+  is_package: z.boolean().default(false),
+  is_model: z.boolean().default(false),
+  is_footprint: z.boolean().default(false),
+  is_private: z.boolean().nullable().default(false),
+  is_public: z.boolean().nullable().default(true),
+  is_unlisted: z.boolean().nullable().default(false),
+  is_source_from_github: z.boolean().default(false),
+  snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   latest_package_release_id: z.string().nullable(),
   latest_version: z.string().nullable(),
   license: z.string().nullable(),
-  owner_org_id: z.string(),
-  owner_github_username: z.string().nullable(),
-  is_source_from_github: z.boolean(),
-  description: z.string().nullable(),
-  name: z.string(),
-  unscoped_name: z.string(),
-  star_count: z.number(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
+  star_count: z.number().default(0),
   ai_description: z.string().nullable(),
 })
 export type Package = z.infer<typeof packageSchema>
@@ -163,5 +183,6 @@ export const databaseSchema = z.object({
   orders: z.array(orderSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
+  accountPackages: z.array(accountPackageSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

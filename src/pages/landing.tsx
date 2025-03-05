@@ -50,7 +50,7 @@ export function LandingPage() {
                     <Badge variant="secondary" className="w-fit">
                       Open-Source, MIT Licensed
                     </Badge>
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+                    <h1 className="text-3xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none">
                       AI codes electronics with tscircuit
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">

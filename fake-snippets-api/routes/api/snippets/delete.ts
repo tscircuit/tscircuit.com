@@ -13,8 +13,8 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { snippet_id } = req.jsonBody
 
-  const snippetIndex = ctx.db.snippets.findIndex(
-    (s) => s.snippet_id === snippet_id,
+  const snippetIndex = ctx.db.packages.findIndex(
+    (s) => s.package_id === snippet_id,
   )
 
   if (snippetIndex === -1) {
@@ -24,16 +24,16 @@ export default withRouteSpec({
     })
   }
 
-  const snippet = ctx.db.snippets[snippetIndex]
+  const snippet = ctx.db.packages[snippetIndex]
 
-  if (snippet.owner_name !== ctx.auth.github_username) {
+  if (snippet.creator_account_id !== ctx.auth.github_username) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to delete this snippet",
     })
   }
 
-  ctx.db.snippets.splice(snippetIndex, 1)
+  ctx.db.packages.splice(snippetIndex, 1)
 
   return ctx.json({
     ok: true,

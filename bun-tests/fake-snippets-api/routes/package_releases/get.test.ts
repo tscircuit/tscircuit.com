@@ -73,7 +73,6 @@ test("POST /api/package_releases/get - should find release by package_name_with_
   const listResponse = await axios.post("/api/package_releases/list", {
     package_name: createdPackage.name,
   })
-  console.log(listResponse.data)
 
   // Get the release using package_name_with_version
   const getResponse = await axios.post("/api/package_releases/get", {
