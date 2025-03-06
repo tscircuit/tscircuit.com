@@ -257,6 +257,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       description: snippet.description || "",
       is_starred: false,
       version: "0.0.1",
+      is_private: false,
+      is_public: true,
+      is_unlisted: false,
     }
   },
   getNewestSnippets: (limit: number): Snippet[] => {
@@ -316,6 +319,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
             packageFiles
               .filter((file) => file.file_path === "/dist/circuit.json")
               .flatMap((file) => JSON.parse(file.content_text || "[]")) || [],
+          is_private: pkg.is_private || false,
+          is_public: pkg.is_public || true,
+          is_unlisted: pkg.is_unlisted || false,
         }
       })
       .filter(
@@ -465,6 +471,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
               ?.content_text || "[]",
           )
         : [],
+      is_private: _package.is_private || false,
+      is_public: _package.is_public || true,
+      is_unlisted: _package.is_unlisted || false,
     }
   },
   updateSnippet: (
@@ -487,7 +496,15 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       const currentPackage = updatedPackages[packageIndex]
       updatedPackages[packageIndex] = {
         ...currentPackage,
-        description: updates.description || currentPackage.description,
+        description: updates.description ?? currentPackage.description,
+        is_private: updates.is_private ?? currentPackage.is_private,
+        is_public:
+          updates.is_private !== undefined
+            ? !updates.is_private
+            : currentPackage.is_public,
+        is_unlisted: updates.is_private
+          ? true
+          : (updates.is_unlisted ?? currentPackage.is_unlisted),
         updated_at: currentTime,
       }
 
@@ -639,15 +656,43 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       circuit_json: circuitFile
         ? JSON.parse(circuitFile.content_text || "[]")
         : [],
+      is_private: updatedPackage.is_private ?? false,
+      is_public: updatedPackage.is_public ?? true,
+      is_unlisted: updatedPackage.is_unlisted ?? false,
     }
   },
-  getSnippetById: (snippetId: string): Snippet | undefined => {
+  getSnippetById: (
+    snippetId: string,
+    auth?: { github_username: string },
+  ): Snippet | undefined => {
     const state = get()
     // Look for the package that represents this snippet
     const _package = state.packages.find(
       (pkg) => pkg.package_id === snippetId && pkg.is_snippet === true,
     )
     if (!_package) return undefined
+
+    // Handle visibility based on authentication
+    if (!auth) {
+      // Unauthenticated users can only see public and non-unlisted packages
+      if (!_package.is_public || _package.is_unlisted) {
+        return undefined
+      }
+    } else {
+      // Authenticated users can see:
+      // 1. Public and non-unlisted packages
+      // 2. Their own unlisted packages
+      // 3. Their own private packages
+      const isOwnPackage =
+        _package.owner_github_username === auth?.github_username
+      const isPublicAndNotUnlisted = _package.is_public && !_package.is_unlisted
+      const isOwnUnlisted = _package.is_unlisted && isOwnPackage
+      const isOwnPrivate = _package.is_private && isOwnPackage
+
+      if (!isPublicAndNotUnlisted && !isOwnUnlisted && !isOwnPrivate) {
+        return undefined
+      }
+    }
 
     // Get the package release
     const packageRelease = state.packageReleases.find(
@@ -701,6 +746,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
               ?.content_text || "[]",
           )
         : [],
+      is_private: _package.is_private || false,
+      is_public: _package.is_public || true,
+      is_unlisted: _package.is_unlisted || false,
     }
   },
   searchSnippets: (query: string): Snippet[] => {

@@ -15,6 +15,8 @@ export default withRouteSpec({
     circuit_json: z.array(z.record(z.any())).optional().nullable(),
     manual_edits_json_content: z.string().optional().nullable(),
     snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
+    is_private: z.boolean().optional(),
+    is_unlisted: z.boolean().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -31,6 +33,8 @@ export default withRouteSpec({
     circuit_json,
     snippet_type,
     manual_edits_json_content,
+    is_private,
+    is_unlisted,
   } = req.jsonBody
 
   const packageIndex = ctx.db.packages.findIndex(
@@ -65,7 +69,7 @@ export default withRouteSpec({
     (f) => f.file_path === "/dist/circuit.json",
   )
 
-  if (_package.creator_account_id !== ctx.auth.account_id) {
+  if (_package.owner_github_username !== ctx.auth.github_username) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to update this snippet",
@@ -91,6 +95,8 @@ export default withRouteSpec({
         ? JSON.parse(circuitJsonFile.content_text)
         : []),
     snippet_type: snippet_type ?? _package.snippet_type,
+    is_private: is_private ?? _package.is_private ?? false,
+    is_unlisted: is_unlisted ?? _package.is_unlisted ?? false,
     updated_at: new Date().toISOString(),
   })
 
