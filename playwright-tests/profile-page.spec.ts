@@ -57,3 +57,52 @@ test("test delete functionality in profile", async ({ page }) => {
     .count()
   expect(remainingSnippets).toBe(0)
 })
+
+test("test starring a snippet and verifying in Starred Snippets tab", async ({
+  page,
+}) => {
+  // Go to profile page
+  await page.goto("http://localhost:5177/testuser")
+
+  // Login
+  await page.getByRole("button", { name: "Log in" }).click()
+
+  // Wait for page to load
+  await page.waitForLoadState("networkidle")
+
+  // Open the first snippet
+  const snippetLink = page.locator(".text-md.font-semibold").first()
+  const snippetName = await snippetLink.textContent()
+  await snippetLink.click()
+
+  // Wait for snippet page to load
+  await page.waitForLoadState("networkidle")
+
+  // Click on the star button to star the snippet
+  await page.getByRole("button", { name: "Star" }).click()
+
+  // Wait for the star to update
+  await page.waitForSelector(".text-yellow-500")
+
+  await expect(page).toHaveScreenshot("snippet-page-open-after-star-click.png")
+
+  // Navigate back to the profile page
+  await page.goto("http://localhost:5177/testuser")
+
+  // Wait for page to load and take screenshot
+  await page.waitForLoadState("networkidle")
+  await expect(page).toHaveScreenshot("profile-page-snippets-tab.png")
+
+  // Click on the "Starred Snippets" tab
+  await page.getByText("Starred Snippets").click()
+
+  // Wait for load and take screenshot
+  await page.waitForLoadState("networkidle")
+  await expect(page).toHaveScreenshot("profile-page-starred-tab.png")
+
+  // Verify the starred snippet exists in the "Starred Snippets" tab
+  const starredSnippet = page.locator(
+    `.text-md.font-semibold:has-text("${snippetName}")`,
+  )
+  expect(await starredSnippet.isVisible()).toBe(true)
+})
