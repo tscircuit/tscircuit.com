@@ -164,10 +164,9 @@ export default function EditorNav({
     if (!snippet) return
 
     const response = await axios.post("/snippets/update", {
-        snippet_id: snippet.snippet_id,
-        is_private: isPrivate,
-      }
-    )
+      snippet_id: snippet.snippet_id,
+      is_private: isPrivate,
+    })
 
     if (response.status === 200) {
       setIsPrivate(isPrivate)
@@ -368,9 +367,7 @@ export default function EditorNav({
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger
-                  className="text-xs"
-                >
+                <DropdownMenuSubTrigger className="text-xs">
                   <Edit2 className="mr-2 h-3 w-3" />
                   Change package visibility
                 </DropdownMenuSubTrigger>

@@ -498,8 +498,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         ...currentPackage,
         description: updates.description ?? currentPackage.description,
         is_private: updates.is_private ?? currentPackage.is_private,
-        is_public: updates.is_private !== undefined ? !updates.is_private : currentPackage.is_public,
-        is_unlisted: updates.is_private ? true : (updates.is_unlisted ?? currentPackage.is_unlisted),
+        is_public:
+          updates.is_private !== undefined
+            ? !updates.is_private
+            : currentPackage.is_public,
+        is_unlisted: updates.is_private
+          ? true
+          : (updates.is_unlisted ?? currentPackage.is_unlisted),
         updated_at: currentTime,
       }
 
@@ -656,7 +661,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_unlisted: updatedPackage.is_unlisted ?? false,
     }
   },
-  getSnippetById: (snippetId: string, auth?: { github_username: string }): Snippet | undefined => {
+  getSnippetById: (
+    snippetId: string,
+    auth?: { github_username: string },
+  ): Snippet | undefined => {
     const state = get()
     // Look for the package that represents this snippet
     const _package = state.packages.find(
@@ -675,7 +683,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       // 1. Public and non-unlisted packages
       // 2. Their own unlisted packages
       // 3. Their own private packages
-      const isOwnPackage = _package.owner_github_username === auth?.github_username
+      const isOwnPackage =
+        _package.owner_github_username === auth?.github_username
       const isPublicAndNotUnlisted = _package.is_public && !_package.is_unlisted
       const isOwnUnlisted = _package.is_unlisted && isOwnPackage
       const isOwnPrivate = _package.is_private && isOwnPackage

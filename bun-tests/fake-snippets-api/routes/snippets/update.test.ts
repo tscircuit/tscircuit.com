@@ -23,14 +23,11 @@ test("update snippet", async () => {
   // Update the snippet
   const updatedCode = "Updated Content"
   const updatedCompiledJs = "console.log('Updated Content')"
-  const response = await axios.post(
-    "/api/snippets/update",
-    {
-      snippet_id: addedPackage.package_id,
-      code: updatedCode,
-      compiled_js: updatedCompiledJs,
-    }
-  )
+  const response = await axios.post("/api/snippets/update", {
+    snippet_id: addedPackage.package_id,
+    code: updatedCode,
+    compiled_js: updatedCompiledJs,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.snippet.code).toBe(updatedCode)
@@ -51,14 +48,11 @@ test("update non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/snippets/update",
-      {
-        snippet_id: "non-existent-id",
-        code: "Updated Content",
-        compiled_js: "console.log('Updated Content')",
-      }
-    )
+    await axios.post("/api/snippets/update", {
+      snippet_id: "non-existent-id",
+      code: "Updated Content",
+      compiled_js: "console.log('Updated Content')",
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
@@ -192,15 +186,14 @@ test("update snippet visibility with unauthenticated user", async () => {
   const createdSnippet = db.packages[0]
 
   try {
-    await axios.post(
-      "/api/snippets/update",
-      {
-        snippet_id: createdSnippet.package_id,
-        is_private: true,
-      },
-    )
+    await axios.post("/api/snippets/update", {
+      snippet_id: createdSnippet.package_id,
+      is_private: true,
+    })
   } catch (error: any) {
     expect(error.status).toBe(403)
-    expect(error.data.error.message).toBe("You don't have permission to update this snippet")
+    expect(error.data.error.message).toBe(
+      "You don't have permission to update this snippet",
+    )
   }
 })
