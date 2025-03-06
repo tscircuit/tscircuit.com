@@ -13,6 +13,9 @@ export default withRouteSpec({
     compiled_js: z.string().optional(),
     circuit_json: z.array(z.record(z.any())).optional().nullable(),
     dts: z.string().optional(),
+    is_private: z.boolean().optional(),
+    is_public: z.boolean().optional(),
+    is_unlisted: z.boolean().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -27,6 +30,9 @@ export default withRouteSpec({
     compiled_js,
     circuit_json,
     dts,
+    is_private,
+    is_public,
+    is_unlisted,
   } = req.jsonBody
 
   const timestamp = Date.now()
@@ -82,9 +88,9 @@ export default withRouteSpec({
       is_model: snippet_type === "model",
       is_footprint: snippet_type === "footprint",
       snippet_type: snippet_type,
-      is_private: false,
-      is_public: true,
-      is_unlisted: false,
+      is_private: is_private || false,
+      is_public: is_public || true,
+      is_unlisted: is_unlisted || false,
       latest_package_release_id: `package_release_${timestamp}`,
     }
 
@@ -158,6 +164,9 @@ export default withRouteSpec({
       description: description,
       is_starred: false,
       version: "0.0.1",
+      is_private: is_private || false,
+      is_public: is_public || true,
+      is_unlisted: is_unlisted || false,
     }
 
     return ctx.json({

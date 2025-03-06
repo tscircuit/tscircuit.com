@@ -8,6 +8,7 @@ interface TestFixture {
   url: string
   server: any
   axios: typeof defaultAxios
+  unauthenticatedAxios: typeof defaultAxios
   db: DbClient
   seed: ReturnType<typeof seedDatabase>
 }
@@ -30,6 +31,9 @@ export const getTestServer = async (): Promise<TestFixture> => {
       Authorization: `Bearer ${seed.account.account_id}`,
     },
   })
+  const unauthenticatedAxios = defaultAxios.create({
+    baseURL: url,
+  })
 
   afterEach(async () => {
     if (server && typeof server.stop === "function") {
@@ -41,6 +45,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
     url,
     server,
     axios,
+    unauthenticatedAxios,
     db,
     seed,
   }

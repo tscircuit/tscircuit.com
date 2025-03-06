@@ -94,6 +94,7 @@ export default function EditorNav({
   const [currentType, setCurrentType] = useState(
     snippetType ?? snippet?.snippet_type,
   )
+  const [isPrivate, setIsPrivate] = useState(snippet?.is_private)
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
@@ -156,6 +157,32 @@ export default function EditorNav({
       setCurrentType(snippet.snippet_type)
     } finally {
       setIsChangingType(false)
+    }
+  }
+
+  const updatePackageVisibilityToPrivate = async (isPrivate: boolean) => {
+    if (!snippet) return
+
+    const response = await axios.post("/snippets/update", {
+        snippet_id: snippet.snippet_id,
+        is_private: isPrivate,
+      }
+    )
+
+    if (response.status === 200) {
+      setIsPrivate(isPrivate)
+      toast({
+        title: "Package visibility changed",
+        description: `Successfully changed visibility to ${isPrivate ? "private" : "public"}`,
+      })
+    } else {
+      setIsPrivate(snippet.is_private)
+      toast({
+        title: "Error",
+        description: "Failed to update package visibility",
+        variant: "destructive",
+      })
+      throw new Error("Failed to update package visibility")
     }
   }
 
@@ -337,6 +364,30 @@ export default function EditorNav({
                     onClick={() => handleTypeChange("package")}
                   >
                     Module {currentType === "package" && "✓"}
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger
+                  className="text-xs"
+                >
+                  <Edit2 className="mr-2 h-3 w-3" />
+                  Change package visibility
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    disabled={isPrivate}
+                    onClick={() => updatePackageVisibilityToPrivate(true)}
+                  >
+                    Private {isPrivate && "✓"}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    disabled={!isPrivate}
+                    onClick={() => updatePackageVisibilityToPrivate(false)}
+                  >
+                    Public {!isPrivate && "✓"}
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>

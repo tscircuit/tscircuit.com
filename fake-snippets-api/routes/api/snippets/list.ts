@@ -53,6 +53,9 @@ export default withRouteSpec({
       star_count: starCount,
       is_starred: false,
       version: pkg.latest_version || "0.0.1",
+      is_private: pkg.is_private || false,
+      is_public: pkg.is_public || true,
+      is_unlisted: pkg.is_unlisted || false,
     }
   })
 

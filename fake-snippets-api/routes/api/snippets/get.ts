@@ -21,7 +21,7 @@ export default withRouteSpec({
 
   // First try to find by snippet_id
   if (snippet_id) {
-    const foundSnippet = ctx.db.getSnippetById(snippet_id)
+    const foundSnippet = ctx.db.getSnippetById(snippet_id, ctx.auth)
     if (foundSnippet) {
       if (ctx.auth) {
         foundSnippet.is_starred = ctx.db.hasStarred(
