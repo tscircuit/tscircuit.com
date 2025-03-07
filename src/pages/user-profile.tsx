@@ -40,13 +40,13 @@ export const UserProfilePage = () => {
   )
 
   const filteredSnippets = userSnippets?.filter((snippet) => {
-    const matchesSearch =
+    const isMatchingSearchQuery =
       !searchQuery ||
       snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTab =
+    const isMatchingActiveTab =
       activeTab === "all" ||
       (activeTab === "starred" && (snippet?.is_starred || false))
-    return matchesSearch && matchesTab
+    return isMatchingSearchQuery && isMatchingActiveTab
   })
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
