@@ -18,11 +18,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
   const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
   const session = useGlobalStore((s) => s.session)
   const isCurrentUserProfile = username === session?.github_username
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
@@ -37,11 +39,15 @@ export const UserProfilePage = () => {
     },
   )
 
-  const filteredSnippets = userSnippets?.filter(
-    (snippet) =>
+  const filteredSnippets = userSnippets?.filter((snippet) => {
+    const isMatchingSearchQuery =
       !searchQuery ||
-      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
+    const isMatchingActiveTab =
+      activeTab === "all" ||
+      (activeTab === "starred" && (snippet?.is_starred || false))
+    return isMatchingSearchQuery && isMatchingActiveTab
+  })
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
@@ -69,7 +75,16 @@ export const UserProfilePage = () => {
             </Button>
           </a>
         </div>
-        <h2 className="text-2xl font-semibold mb-4">Snippets</h2>
+        <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
+          <TabsList>
+            <TabsTrigger value="all">
+              <h2 className="text-lg">Snippets</h2>
+            </TabsTrigger>
+            <TabsTrigger value="starred">
+              <h2 className="text-lg">Starred Snippets</h2>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Input
           type="text"
           placeholder="Search snippets..."
