@@ -118,7 +118,7 @@ export const PreviewContent = ({
         triggerRunTsx()
       }
     },
-    [triggerRunTsx]
+    [triggerRunTsx],
   )
 
   useEffect(() => {
