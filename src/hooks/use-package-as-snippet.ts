@@ -9,8 +9,6 @@ import { useQuery } from "react-query"
 export const usePackageAsSnippet = (packageId: string | null) => {
   const axios = useAxios()
 
-  console.log("packageId", packageId)
-
   const packageQuery = useQuery<Package, Error & { status: number }>(
     ["packages", packageId],
     async () => {
@@ -68,6 +66,9 @@ export const usePackageAsSnippet = (packageId: string | null) => {
     created_at: packageQuery.data.created_at,
     updated_at: packageQuery.data.updated_at,
     star_count: packageQuery.data.star_count,
+    is_private: packageQuery.data.is_private || false,
+    is_public: packageQuery.data.is_public || true,
+    is_unlisted: packageQuery.data.is_unlisted || false,
   }
 
   return {

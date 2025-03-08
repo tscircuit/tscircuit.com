@@ -18,6 +18,9 @@ export const snippetSchema = z.object({
   description: z.string().optional(),
   version: z.string().default("0.0.1"),
   star_count: z.number().default(0),
+  is_private: z.boolean().default(false),
+  is_public: z.boolean().default(true),
+  is_unlisted: z.boolean().default(false),
 })
 export type Snippet = z.infer<typeof snippetSchema>
 

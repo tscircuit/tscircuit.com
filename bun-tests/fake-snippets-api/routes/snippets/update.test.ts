@@ -7,7 +7,7 @@ test("update snippet", async () => {
   // Add a test snippet
   const snippet = {
     unscoped_name: "TestSnippet",
-    owner_name: "account-1234",
+    owner_name: "testuser",
     code: "Original Content",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
@@ -23,19 +23,11 @@ test("update snippet", async () => {
   // Update the snippet
   const updatedCode = "Updated Content"
   const updatedCompiledJs = "console.log('Updated Content')"
-  const response = await axios.post(
-    "/api/snippets/update",
-    {
-      snippet_id: addedPackage.package_id,
-      code: updatedCode,
-      compiled_js: updatedCompiledJs,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/update", {
+    snippet_id: addedPackage.package_id,
+    code: updatedCode,
+    compiled_js: updatedCompiledJs,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.snippet.code).toBe(updatedCode)
@@ -56,19 +48,11 @@ test("update non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/snippets/update",
-      {
-        snippet_id: "non-existent-id",
-        code: "Updated Content",
-        compiled_js: "console.log('Updated Content')",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/update", {
+      snippet_id: "non-existent-id",
+      code: "Updated Content",
+      compiled_js: "console.log('Updated Content')",
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
@@ -83,7 +67,7 @@ test("update snippet with null compiled_js", async () => {
   // Add a test snippet with compiled_js
   const snippet = {
     unscoped_name: "TestSnippet",
-    owner_name: "account-1234",
+    owner_name: "testuser",
     code: "Original Content",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
@@ -154,4 +138,62 @@ test("update snippet after create snippet", async () => {
   expect(response.status).toBe(200)
   expect(response.data.snippet.code).toBe(updatedCode)
   expect(response.data.snippet.updated_at).not.toBe(createdSnippet.created_at)
+})
+
+test("update snippet visibility", async () => {
+  const { axios, db } = await getTestServer()
+
+  const snippet = {
+    unscoped_name: "TestSnippet",
+    code: "Test Content",
+    snippet_type: "package",
+    description: "Test Description",
+  }
+
+  await axios.post("/api/snippets/create", snippet)
+
+  const createdSnippet = db.packages[0]
+
+  const response = await axios.post(
+    "/api/snippets/update",
+    {
+      snippet_id: createdSnippet.package_id,
+      is_private: true,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${createdSnippet.creator_account_id}`,
+      },
+    },
+  )
+
+  expect(response.status).toBe(200)
+  expect(response.data.snippet.is_private).toBe(true)
+})
+
+test("update snippet visibility with unauthenticated user", async () => {
+  const { axios, db } = await getTestServer()
+
+  const snippet = {
+    unscoped_name: "TestSnippet",
+    code: "Test Content",
+    snippet_type: "package",
+    description: "Test Description",
+  }
+
+  db.addSnippet(snippet as any)
+
+  const createdSnippet = db.packages[0]
+
+  try {
+    await axios.post("/api/snippets/update", {
+      snippet_id: createdSnippet.package_id,
+      is_private: true,
+    })
+  } catch (error: any) {
+    expect(error.status).toBe(403)
+    expect(error.data.error.message).toBe(
+      "You don't have permission to update this snippet",
+    )
+  }
 })
