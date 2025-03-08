@@ -5,7 +5,7 @@ import { applyPcbEditEvents } from "@/lib/utils/pcbManualEditEventHandler"
 import { CadViewer } from "@tscircuit/3d-viewer"
 // import { PCBViewer } from "@tscircuit/pcb-viewer"
 // import { SchematicViewer } from "@tscircuit/schematic-viewer"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { ErrorFallback } from "./ErrorFallback"
 import { ErrorBoundary } from "react-error-boundary"
 import { ErrorTabContent } from "./ErrorTabContent"
@@ -111,6 +111,23 @@ export const PreviewContent = ({
       setActiveTab("pcb")
     }
   }, [circuitJson])
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        triggerRunTsx()
+      }
+    },
+    [triggerRunTsx]
+  )
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [handleKeyDown])
 
   return (
     <div className={cn("flex flex-col relative", className)}>
