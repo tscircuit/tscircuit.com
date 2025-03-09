@@ -9,7 +9,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
       await page.setViewportSize(viewport)
       await page.goto("http://127.0.0.1:5177/editor")
       // await page.waitForLoadState("networkidle")
-      await page.waitForSelector("button.run-button")
+      await expect(page.getByRole("button", { name: "Run" })).toBeVisible()
       isMobileOrTablet = page.viewportSize()?.width! <= 768
     })
 
