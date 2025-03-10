@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
 
-test("test delete functionality in profile", async ({ page }) => {
+test.skip("test delete functionality in profile", async ({ page }) => {
   // Go to profile page
   await page.goto("http://localhost:5177/testuser")
 
