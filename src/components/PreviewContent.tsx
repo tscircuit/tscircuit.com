@@ -29,7 +29,7 @@ import {
 } from "./ui/dropdown-menu"
 import { Button } from "./ui/button"
 import { PcbViewerWithContainerHeight } from "./PcbViewerWithContainerHeight"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import type { EditEvent } from "@tscircuit/manual-edit-events"
 
 export interface PreviewContentProps {
   code: string
@@ -269,7 +269,7 @@ export const PreviewContent = ({
                         return
                       // Update state with new edit events
                       const newManualEditsFileContent = applyPcbEditEvents({
-                        editEvents,
+                        editEvents: editEvents as EditEvent[],
                         circuitJson,
                         manualEditsFileContent,
                       })
