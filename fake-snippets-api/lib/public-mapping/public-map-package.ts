@@ -1,7 +1,6 @@
-import { z } from "zod"
-import * as ZT from "fake-snippets-api/lib/db/schema"
+import type * as zt from "fake-snippets-api/lib/db/schema"
 
-export const publicMapPackage = (internal_package: {
+export const publicMapPackage = (internalPackage: {
   package_id: string
   creator_account_id: string
   owner_org_id: string
@@ -22,18 +21,23 @@ export const publicMapPackage = (internal_package: {
   is_package: boolean
   is_model: boolean
   is_footprint: boolean
-}): ZT.Package => {
+  is_private: boolean | null
+  is_unlisted: boolean | null
+}): zt.Package => {
   return {
-    ...internal_package,
+    ...internalPackage,
     latest_package_release_id:
-      internal_package.latest_package_release_id ?? null,
-    latest_version: internal_package.latest_version ?? null,
-    license: internal_package.latest_license ?? null,
-    star_count: internal_package.star_count ?? 0,
-    created_at: internal_package.created_at,
-    updated_at: internal_package.updated_at,
-    is_private: false,
-    is_public: true,
-    is_unlisted: false,
+      internalPackage.latest_package_release_id ?? null,
+    latest_version: internalPackage.latest_version ?? null,
+    license: internalPackage.latest_license ?? null,
+    star_count: internalPackage.star_count ?? 0,
+    created_at: internalPackage.created_at,
+    updated_at: internalPackage.updated_at,
+    is_private: internalPackage.is_private ?? false,
+    is_public: internalPackage.is_private === true ? false : true,
+    is_unlisted:
+      internalPackage.is_private === true
+        ? true
+        : (internalPackage.is_unlisted ?? false),
   }
 }

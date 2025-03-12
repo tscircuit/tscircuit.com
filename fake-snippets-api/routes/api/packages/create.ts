@@ -15,12 +15,14 @@ export default withRouteSpec({
       )
       .transform((name) => name.replace(/^@/, "")),
     description: z.string().optional(),
+    is_private: z.boolean().optional().default(false),
+    is_unlisted: z.boolean().optional().default(false),
   }),
   jsonResponse: z.object({
     package: packageSchema.optional(),
   }),
 })(async (req, ctx) => {
-  const { name, description } = req.jsonBody
+  const { name, description, is_private, is_unlisted } = req.jsonBody
 
   const existingPackage = ctx.db.packages.find((pkg) => pkg.name === name)
 
@@ -46,6 +48,9 @@ export default withRouteSpec({
     unscoped_name: name,
     star_count: 0,
     ai_description: name,
+    is_private: is_private ?? false,
+    is_public: is_private === true ? false : true,
+    is_unlisted: is_private === true ? true : is_unlisted ?? false,
   })
 
   if (!newPackage) {
