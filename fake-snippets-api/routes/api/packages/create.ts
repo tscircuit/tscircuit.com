@@ -50,7 +50,7 @@ export default withRouteSpec({
     ai_description: name,
     is_private: is_private ?? false,
     is_public: is_private === true ? false : true,
-    is_unlisted: is_private === true ? true : is_unlisted ?? false,
+    is_unlisted: is_private === true ? true : (is_unlisted ?? false),
   })
 
   if (!newPackage) {

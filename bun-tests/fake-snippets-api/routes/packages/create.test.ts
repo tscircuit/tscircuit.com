@@ -31,14 +31,11 @@ test("create package", async () => {
 test("create package with private flag", async () => {
   const { axios } = await getTestServer()
 
-  const response = await axios.post(
-    "/api/packages/create",
-    {
-      name: "TestPackage",
-      description: "Test Description",
-      is_private: true,
-    },
-  )
+  const response = await axios.post("/api/packages/create", {
+    name: "TestPackage",
+    description: "Test Description",
+    is_private: true,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.package.is_private).toBe(true)
