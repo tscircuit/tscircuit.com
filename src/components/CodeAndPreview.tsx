@@ -1,4 +1,5 @@
 import { CodeEditor } from "@/components/CodeEditor"
+import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -8,13 +9,13 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
+import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 import "@/prettier"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
-import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 import { SuspenseRunFrame } from "./SuspenseRunFrame"
 
 interface Props {
@@ -50,6 +51,11 @@ export function CodeAndPreview({ snippet }: Props) {
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
   const [fullScreen, setFullScreen] = useState(false)
   const [circuitJson, setCircuitJson] = useState<any>(null)
+  const {
+    Dialog: PackageVisibilitySettingsDialog,
+    openDialog: openPackageVisibilitySettingsDialog,
+  } = usePackageVisibilitySettingsDialog()
+  const [isPrivate, setIsPrivate] = useState(false)
 
   const snippetType: "board" | "package" | "model" | "footprint" =
     snippet?.snippet_type ??
@@ -148,6 +154,11 @@ export function CodeAndPreview({ snippet }: Props) {
         description: "You must run the snippet before saving your changes.",
         variant: "destructive",
       })
+      return
+    }
+
+    if (!snippet && isLoggedIn) {
+      openPackageVisibilitySettingsDialog()
       return
     }
 
@@ -282,6 +293,18 @@ export function CodeAndPreview({ snippet }: Props) {
           </div>
         )}
       </div>
+      <PackageVisibilitySettingsDialog
+        initialIsPrivate={false}
+        onSave={(isPrivate: boolean) => {
+          setLastSavedAt(Date.now())
+          createSnippetMutation.mutate({
+            code,
+            circuit_json: circuitJson as any,
+            manual_edits_json_content: manualEditsFileContent ?? "",
+            is_private: isPrivate,
+          })
+        }}
+      />
     </div>
   )
 }

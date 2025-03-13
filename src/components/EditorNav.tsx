@@ -377,7 +377,7 @@ export default function EditorNav({
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="text-xs">
                   <Edit2 className="mr-2 h-3 w-3" />
-                  Change package visibility
+                  Change Package Visibility
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   <DropdownMenuItem
