@@ -22,7 +22,7 @@ export const PackageVisibilitySettingsDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Snippet Privacy Settings</DialogTitle>
+          <DialogTitle>Package Privacy Settings</DialogTitle>
         </DialogHeader>
         <div className="py-4">
           <RadioGroup
@@ -37,7 +37,7 @@ export const PackageVisibilitySettingsDialog = ({
                   Public
                 </Label>
                 <p className="text-sm text-slate-500">
-                  Anyone can view and use your snippet. It will appear in search
+                  Anyone can view and use your package. It will appear in search
                   results.
                 </p>
               </div>
@@ -49,7 +49,7 @@ export const PackageVisibilitySettingsDialog = ({
                   Private
                 </Label>
                 <p className="text-sm text-slate-500">
-                  Only you can view and use this snippet. It won't appear in
+                  Only you can view and use this package. It won't appear in
                   search results.
                 </p>
               </div>
