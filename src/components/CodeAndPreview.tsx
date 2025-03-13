@@ -71,6 +71,23 @@ export function CodeAndPreview({ snippet }: Props) {
     }
   }, [Boolean(snippet?.manual_edits_json_content)])
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        const runButton = Array.from(
+          document.querySelectorAll("button.rf-bg-blue-600"),
+        ).find((button) => button.textContent === "Run ") as
+          | HTMLButtonElement
+          | undefined
+        runButton?.click()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
   const userImports = useMemo(
     () => ({
       "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? "",
