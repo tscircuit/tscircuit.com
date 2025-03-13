@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button"
-import {
-  CircuitBoard,
-  Search,
-} from "lucide-react"
+import { CircuitBoard, Search } from "lucide-react"
 import { Link } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import { HeaderLogin } from "./HeaderLogin"
