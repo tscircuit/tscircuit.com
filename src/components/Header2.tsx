@@ -1,22 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
-import {
-  CircuitBoard,
-  Cpu,
-  Layers,
-  CloudLightningIcon as Lightning,
-  Maximize2,
-  Zap,
-  Search,
-  X,
-} from "lucide-react"
+import { CircuitBoard, Search } from "lucide-react"
 import { Link } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import { HeaderLogin } from "./HeaderLogin"
