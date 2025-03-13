@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Check, CircleCheckBig, Cpu, GitFork, Square } from "lucide-react"
+import { GitFork } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 import { cn } from "@/lib/utils"
-import { OpenInNewWindowIcon } from "@radix-ui/react-icons"
+import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { AnyCircuitElement } from "circuit-json"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import {
@@ -203,6 +203,14 @@ export default function EditorNav({
               >
                 <Pencil className="h-3 w-3 text-gray-700" />
               </Button>
+              {isPrivate && (
+                <div className="relative group">
+                  <LockClosedIcon className="h-3 w-3 text-gray-700" />
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2">
+                    private
+                  </span>
+                </div>
+              )}
               <Link href={`/${snippet.name}`}>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
                   <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
