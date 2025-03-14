@@ -7,7 +7,7 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
-import { GitHubLogoIcon, StarIcon } from "@radix-ui/react-icons"
+import { GitHubLogoIcon, StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { MoreVertical, Trash2 } from "lucide-react"
@@ -98,6 +98,11 @@ export const UserProfilePage = () => {
                           <StarIcon className="w-4 h-4 mr-1" />
                           <span>{snippet.star_count || 0}</span>
                         </div>
+                        {snippet.is_private && (
+                          <div className="flex items-center text-gray-600">
+                            <LockClosedIcon className="w-4 h-4 mr-1" />
+                          </div>
+                        )}
                         {isCurrentUserProfile && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
