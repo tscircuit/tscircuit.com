@@ -205,7 +205,7 @@ export function CodeAndPreview({ snippet }: Props) {
       entrypointContent = `
         import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
         circuit.add(
-          <board width="10mm" height="10mm">
+          <board>
             <Snippet name="U1" />
           </board>
         )
