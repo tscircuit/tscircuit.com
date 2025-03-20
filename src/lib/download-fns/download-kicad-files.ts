@@ -8,13 +8,13 @@ export const downloadKicadFiles = (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {
-  const kicadPcbString = convertCircuitJsonToKiCadPcb(circuitJson)
+  const kicadPcbString = convertCircuitJsonToKiCadPcb(circuitJson as any)
   const pcbContent =
     typeof kicadPcbString === "object"
       ? JSON.stringify(kicadPcbString)
       : kicadPcbString
 
-  const kicadProContent = convertCircuitJsonToKicadPro(circuitJson)
+  const kicadProContent = convertCircuitJsonToKicadPro(circuitJson as any)
   const proContent = JSON.stringify(kicadProContent)
 
   const zip = new JSZip()
