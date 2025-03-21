@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "react-query"
 import { createUseDialog } from "./create-use-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
+import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 
 export const RenameSnippetDialog = ({
   open,
@@ -55,6 +56,19 @@ export const RenameSnippetDialog = ({
     },
   })
 
+  const handleRename = () => {
+    if (!useIsUsingFakeApi && newName.includes(" ")) {
+      toast({
+        title: "Invalid Name",
+        description:
+          "Snippet name cannot contain spaces. Please use underscores (_) or hyphens (-) instead.",
+        variant: "destructive",
+      })
+      return
+    }
+    renameSnippetMutation.mutate()
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -69,7 +83,7 @@ export const RenameSnippetDialog = ({
         />
         <Button
           disabled={renameSnippetMutation.isLoading}
-          onClick={() => renameSnippetMutation.mutate()}
+          onClick={handleRename}
         >
           {renameSnippetMutation.isLoading ? "Renaming..." : "Rename"}
         </Button>
