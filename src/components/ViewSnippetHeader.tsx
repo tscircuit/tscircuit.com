@@ -1,65 +1,66 @@
-import { TypeBadge } from "@/components/TypeBadge"
-import { Button } from "@/components/ui/button"
-import { useAxios } from "@/hooks/use-axios"
-import { useCurrentSnippet } from "@/hooks/use-current-snippet"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { toast, useToast } from "@/hooks/use-toast"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useMutation, useQueryClient } from "react-query"
-import { Link } from "wouter"
-import { navigate } from "wouter/use-browser-location"
+import { TypeBadge } from "@/components/TypeBadge";
+import { Button } from "@/components/ui/button";
+import { useAxios } from "@/hooks/use-axios";
+import { useCurrentSnippet } from "@/hooks/use-current-snippet";
+import { useGlobalStore } from "@/hooks/use-global-store";
+import { toast, useToast } from "@/hooks/use-toast";
+import { LockClosedIcon } from "@radix-ui/react-icons";
+import { Snippet } from "fake-snippets-api/lib/db/schema";
+import { ChevronLeft, Eye, GitFork, Lock, Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { Link } from "wouter";
+import { navigate } from "wouter/use-browser-location";
 
 export default function ViewSnippetHeader() {
-  const { snippet } = useCurrentSnippet()
-  const axios = useAxios()
-  const qc = useQueryClient()
-  const session = useGlobalStore((s) => s.session)
-  const [isStarred, setIsStarred] = useState(snippet?.is_starred || false)
+  const { snippet } = useCurrentSnippet();
+  const axios = useAxios();
+  const qc = useQueryClient();
+  const session = useGlobalStore((s) => s.session);
+  const [isStarred, setIsStarred] = useState(snippet?.is_starred || false);
 
   useEffect(() => {
-    setIsStarred(snippet?.is_starred || false)
-  }, [snippet?.is_starred])
+    setIsStarred(snippet?.is_starred || false);
+  }, [snippet?.is_starred]);
 
   const useForkSnippetMutation = ({
     snippet,
     onSuccess,
   }: {
-    snippet: Snippet
-    onSuccess?: (forkedSnippet: Snippet) => void
+    snippet: Snippet;
+    onSuccess?: (forkedSnippet: Snippet) => void;
   }) => {
-    const axios = useAxios()
-    const session = useGlobalStore((s) => s.session)
+    const axios = useAxios();
+    const session = useGlobalStore((s) => s.session);
 
     return useMutation(
       ["createForkSnippet"],
       async () => {
-        if (!session) throw new Error("No session")
-        if (!snippet) throw new Error("No snippet to fork")
+        if (!session) throw new Error("No session");
+        if (!snippet) throw new Error("No snippet to fork");
 
         const { data } = await axios.post("/snippets/create", {
           unscoped_name: snippet.unscoped_name,
           snippet_type: snippet.snippet_type,
           owner_name: session.github_username,
           code: snippet.code,
-        })
+        });
 
         if (!data.ok) {
           throw new Error(
-            data.error || "Unknown error occurred while forking snippet.",
-          )
+            data.error || "Unknown error occurred while forking snippet."
+          );
         }
 
-        return data.snippet
+        return data.snippet;
       },
       {
         onSuccess: (forkedSnippet: Snippet) => {
           toast({
             title: `Forked snippet`,
             description: `You have successfully forked the snippet. Redirecting...`,
-          })
-          onSuccess?.(forkedSnippet)
+          });
+          onSuccess?.(forkedSnippet);
         },
         onError: (error: any) => {
           // Check if the error message contains 'already exists'
@@ -68,56 +69,56 @@ export default function ViewSnippetHeader() {
               title: "Snippet already exists",
               description: error.message,
               variant: "destructive", // You can style this variant differently
-            })
+            });
           } else {
             toast({
               title: "Error",
               description: "Failed to fork snippet. Please try again.",
               variant: "destructive", // Use destructive variant for errors
-            })
+            });
           }
-          console.error("Error forking snippet:", error)
+          console.error("Error forking snippet:", error);
         },
-      },
-    )
-  }
+      }
+    );
+  };
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
     snippet: snippet!,
     onSuccess: (forkedSnippet) => {
-      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
+      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id);
     },
-  })
+  });
   const handleStarClick = async () => {
     try {
       if (isStarred) {
         await axios.post("/snippets/remove_star", {
           snippet_id: snippet!.snippet_id,
-        })
-        setIsStarred(false)
+        });
+        setIsStarred(false);
         toast({
           title: "Unstarred!",
           description: "You've unstarred this snippet",
-        })
+        });
       } else {
         await axios.post("/snippets/add_star", {
           snippet_id: snippet!.snippet_id,
-        })
-        setIsStarred(true)
+        });
+        setIsStarred(true);
         toast({
           title: "Starred!",
           description: "You've starred this snippet",
-        })
+        });
       }
-      qc.invalidateQueries(["snippets", snippet!.snippet_id])
+      qc.invalidateQueries(["snippets", snippet!.snippet_id]);
     } catch (error: any) {
       toast({
         title: "Error",
         description: `Failed to ${isStarred ? "unstar" : "star"} snippet`,
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6">
@@ -135,12 +136,22 @@ export default function ViewSnippetHeader() {
               {snippet?.unscoped_name}
             </Link>
           </h1>
+          {snippet?.is_private && (
+            <div className="relative group px-2">
+              <LockClosedIcon className="h-4 w-4 text-gray-700" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2">
+                private
+              </span>
+            </div>
+          )}
           {snippet?.snippet_type && <TypeBadge type={snippet.snippet_type} />}
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={handleStarClick}>
             <Star
-              className={`w-4 h-4 mr-2 ${isStarred ? "fill-yellow-500 text-yellow-500" : ""}`}
+              className={`w-4 h-4 mr-2 ${
+                isStarred ? "fill-yellow-500 text-yellow-500" : ""
+              }`}
             />
             {isStarred ? "Starred" : "Star"}
             {snippet!.star_count > 0 && (
@@ -165,5 +176,5 @@ export default function ViewSnippetHeader() {
         <span>Version: 1.0.0</span>
       </div> */}
     </header>
-  )
+  );
 }
