@@ -17,6 +17,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { SuspenseRunFrame } from "./SuspenseRunFrame"
+import { applyPcbEditEventsToManualEditsFile } from "@tscircuit/core"
 
 interface Props {
   snippet?: Snippet | null
@@ -281,10 +282,15 @@ export function CodeAndPreview({ snippet }: Props) {
               onRenderFinished={({ circuitJson }) => {
                 setCircuitJson(circuitJson)
               }}
-              onEditEvent={() => {
-                // TODO
-                window.alert(
-                  "Edit events are temporarily disabled on tscircuit.com, use the CLI",
+              onEditEvent={(event) => {
+                const newManualEditsFileContent =
+                  applyPcbEditEventsToManualEditsFile({
+                    circuitJson: circuitJson,
+                    editEvents: [event],
+                    manualEditsFile: JSON.parse(manualEditsFileContent ?? "{}"),
+                  })
+                setManualEditsFileContent(
+                  JSON.stringify(newManualEditsFileContent, null, 2),
                 )
               }}
               fsMap={fsMap}
