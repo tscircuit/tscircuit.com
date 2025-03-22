@@ -284,13 +284,11 @@ export function CodeAndPreview({ snippet }: Props) {
               }}
               onEditEvent={(event) => {
                 const newManualEditsFileContent =
-                  applyPcbEditEventsToManualEditsFile(
-                    {
-                      circuitJson: circuitJson,
-                      editEvents: [event],
-                      manualEditsFile: JSON.parse(manualEditsFileContent ?? "{}"),
-                    },
-                  )
+                  applyPcbEditEventsToManualEditsFile({
+                    circuitJson: circuitJson,
+                    editEvents: [event],
+                    manualEditsFile: JSON.parse(manualEditsFileContent ?? "{}"),
+                  })
                 setManualEditsFileContent(
                   JSON.stringify(newManualEditsFileContent, null, 2),
                 )
