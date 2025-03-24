@@ -114,7 +114,7 @@ export const UserProfilePage = () => {
                     </div>
 
                     <div className="flex-1">
-                      <h2 className="text-lg font-medium text-gray-900 mb-1">
+                      <h2 className="text-md font-semibold text-gray-900 mb-1">
                         {snippet.unscoped_name}
                       </h2>
                       <p className="text-sm text-gray-500">
