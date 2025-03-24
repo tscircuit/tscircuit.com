@@ -78,12 +78,10 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   // Wait for snippet page to load
   await page.waitForLoadState("networkidle")
 
-  // Click on the star button to star the snippet
-  await page.getByRole("button", { name: "Star" }).click()
-
-  // Wait for the star to update
-  await page.waitForSelector(".text-yellow-500")
-
+  const starButton = page.getByRole("button", { name: "Star" })
+  await expect(starButton).toBeVisible()
+  await starButton.click()
+  await expect(page.locator(".text-yellow-500")).toBeVisible()
   await expect(page).toHaveScreenshot("snippet-page-open-after-star-click.png")
 
   // Navigate back to the profile page
@@ -93,16 +91,15 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   await page.waitForLoadState("networkidle")
   await expect(page).toHaveScreenshot("profile-page-snippets-tab.png")
 
-  // Click on the "Starred Snippets" tab
-  await page.getByText("Starred Snippets").click()
-
-  // Wait for load and take screenshot
+  const starredTab = page.getByRole("tab", { name: "Starred Snippets" })
+  await expect(starredTab).toBeVisible()
+  await starredTab.click()
   await page.waitForLoadState("networkidle")
+  await expect(page.locator(".grid")).toBeVisible()
   await expect(page).toHaveScreenshot("profile-page-starred-tab.png")
 
-  // Verify the starred snippet exists in the "Starred Snippets" tab
-  const starredSnippet = page.locator(
-    `.text-md.font-semibold:has-text("${snippetName}")`,
-  )
-  expect(await starredSnippet.isVisible()).toBe(true)
+  const starredSnippet = page
+    .locator(".grid")
+    .locator(`.text-md.font-semibold:has-text("${snippetName}")`)
+  await expect(starredSnippet).toBeVisible()
 })

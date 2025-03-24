@@ -32,22 +32,22 @@ export const UserProfilePage = () => {
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
-    ["userSnippets", username],
+    ["userSnippets", username, activeTab],
     async () => {
-      const response = await axios.get(`/snippets/list?owner_name=${username}`)
+      const response = await axios.get(
+        activeTab === "starred"
+          ? `/snippets/list?starred_by=${username}`
+          : `/snippets/list?owner_name=${username}`,
+      )
       return response.data.snippets
     },
   )
 
-  const filteredSnippets = userSnippets?.filter((snippet) => {
-    const isMatchingSearchQuery =
+  const filteredSnippets = userSnippets?.filter(
+    (snippet) =>
       !searchQuery ||
-      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
-    const isMatchingActiveTab =
-      activeTab === "all" ||
-      (activeTab === "starred" && (snippet?.is_starred || false))
-    return isMatchingSearchQuery && isMatchingActiveTab
-  })
+      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
