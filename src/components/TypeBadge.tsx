@@ -9,10 +9,10 @@ interface TypeBadgeProps {
 }
 
 const typeColors: Record<BadgeType, string> = {
-  board: "bg-blue-500",
-  package: "bg-green-500",
-  footprint: "bg-purple-500",
-  model: "bg-indigo-500",
+  board: "bg-blue-500/10 text-blue-600",
+  package: "bg-green-500/10 text-green-600",
+  footprint: "bg-purple-500/10 text-purple-600",
+  model: "bg-indigo-500/10 text-indigo-600",
 }
 
 export const TypeBadge: React.FC<TypeBadgeProps> = ({ type, className }) => {
@@ -20,7 +20,7 @@ export const TypeBadge: React.FC<TypeBadgeProps> = ({ type, className }) => {
   return (
     <span
       className={cn(
-        "text-white px-2 py-1 rounded text-xs font-semibold",
+        "inline-flex items-center rounded",
         typeColors[type as BadgeType],
         className,
       )}

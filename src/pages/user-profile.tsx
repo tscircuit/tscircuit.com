@@ -19,6 +19,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { OptimizedImage } from "@/components/OptimizedImage"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { TypeBadge } from "@/components/TypeBadge"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -30,6 +34,7 @@ export const UserProfilePage = () => {
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeleteSnippetDialog()
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
+  const apiBaseUrl = useSnippetsBaseApiUrl()
 
   const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
     ["userSnippets", username],
@@ -99,50 +104,73 @@ export const UserProfilePage = () => {
                   key={snippet.snippet_id}
                   href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
                 >
-                  <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-md font-semibold">
-                        {snippet.unscoped_name}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center text-gray-600">
-                          <StarIcon className="w-4 h-4 mr-1" />
-                          <span>{snippet.star_count || 0}</span>
-                        </div>
-                        {snippet.is_private && (
-                          <div className="flex items-center text-gray-600">
-                            <LockClosedIcon className="w-4 h-4 mr-1" />
-                          </div>
-                        )}
-                        {isCurrentUserProfile && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem
-                                className="text-xs text-red-600"
-                                onClick={(e) => handleDeleteClick(e, snippet)}
-                              >
-                                <Trash2 className="mr-2 h-3 w-3" />
-                                Delete Snippet
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                  <Card className="hover:shadow-md transition-all duration-200 hover:border-gray-300 h-full group relative">
+                    {isCurrentUserProfile && (
+                      <div className="absolute right-2 top-2 z-10">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              className="text-xs text-red-600"
+                              onClick={(e) => handleDeleteClick(e, snippet)}
+                            >
+                              <Trash2 className="mr-2 h-3 w-3" />
+                              Delete Snippet
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      Last Updated:{" "}
-                      {new Date(snippet.updated_at).toLocaleString()}
-                    </p>
-                  </div>
+                    )}
+                    <CardContent className="p-3">
+                      <div className="flex gap-3">
+                        <div className="w-16 h-16 bg-black rounded-md overflow-hidden shrink-0">
+                          <OptimizedImage
+                            src={`${apiBaseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                            alt="PCB preview"
+                            className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <h3 className="text-sm font-medium text-gray-900 truncate">
+                                  {snippet.unscoped_name}
+                                </h3>
+                                {snippet.is_private && (
+                                  <LockClosedIcon className="w-3.5 h-3.5 shrink-0 text-gray-600" />
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center text-gray-600 shrink-0 mr-8">
+                              <StarIcon className="w-3.5 h-3.5 mr-0.5" />
+                              <span className="text-xs tabular-nums">{snippet.star_count || 0}</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1 mb-2">
+                            An interactive, runnable TypeScript val
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <TypeBadge 
+                              type={snippet.snippet_type} 
+                              className="text-[11px] px-1.5 py-0.5 font-medium uppercase tracking-wide"
+                            />
+                            <time className="text-xs text-gray-500">
+                              Last updated: {new Date(snippet.updated_at).toLocaleDateString()}
+                            </time>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
               ))}
           </div>
