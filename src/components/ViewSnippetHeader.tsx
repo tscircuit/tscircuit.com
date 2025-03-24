@@ -4,6 +4,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { toast, useToast } from "@/hooks/use-toast"
+import { LockClosedIcon } from "@radix-ui/react-icons"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -136,6 +137,14 @@ export default function ViewSnippetHeader() {
             </Link>
           </h1>
           {snippet?.snippet_type && <TypeBadge type={snippet.snippet_type} />}
+          {snippet?.is_private && (
+            <div className="relative group pl-2">
+              <LockClosedIcon className="h-4 w-4 text-gray-700" />
+              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2">
+                private
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" onClick={handleStarClick}>
