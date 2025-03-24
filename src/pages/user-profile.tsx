@@ -19,7 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
+import { OptimizedImage } from "@/components/OptimizedImage"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { TypeBadge } from "@/components/TypeBadge"
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
@@ -39,6 +41,8 @@ export const UserProfilePage = () => {
     },
   )
 
+  const baseUrl = useSnippetsBaseApiUrl()
+
   const filteredSnippets = userSnippets?.filter((snippet) => {
     const isMatchingSearchQuery =
       !searchQuery ||
@@ -54,6 +58,7 @@ export const UserProfilePage = () => {
     setSnippetToDelete(snippet)
     openDeleteDialog()
   }
+  console.log(filteredSnippets?.[0])
 
   return (
     <div>
@@ -99,21 +104,44 @@ export const UserProfilePage = () => {
                   key={snippet.snippet_id}
                   href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
                 >
-                  <div className="border p-4 rounded-md hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-md font-semibold">
+                  <div className="border p-4 rounded-md hover:shadow-md transition-shadow flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-md overflow-hidden">
+                      <OptimizedImage
+                        src={`${baseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                        alt={`${snippet.owner_name}'s profile`}
+                        className="object-cover h-full w-full transition-transform duration-300 rotate-45 hover:rotate-0 hover:scale-110 scale-150"
+                      />
+                    </div>
+
+                    <div className="flex-1">
+                      <h2 className="text-lg font-medium text-gray-900 mb-1">
                         {snippet.unscoped_name}
-                      </h3>
+                      </h2>
+                      <p className="text-sm text-gray-500">
+                        {(snippet.description ?? "").length > 30
+                          ? (snippet.description ?? "").slice(0, 30) + "..."
+                          : (snippet.description ?? "")}
+                      </p>
+
+                      <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-500">
+                          Last Updated:{" "}
+                          {new Date(snippet.updated_at).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <div className="flex items-center text-gray-600">
                           <StarIcon className="w-4 h-4 mr-1" />
                           <span>{snippet.star_count || 0}</span>
                         </div>
+
                         {snippet.is_private && (
-                          <div className="flex items-center text-gray-600">
-                            <LockClosedIcon className="w-4 h-4 mr-1" />
-                          </div>
+                          <LockClosedIcon className="w-4 h-4 text-gray-600" />
                         )}
+
                         {isCurrentUserProfile && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -137,11 +165,13 @@ export const UserProfilePage = () => {
                           </DropdownMenu>
                         )}
                       </div>
+                      <div className="">
+                        <TypeBadge
+                          type={snippet.snippet_type}
+                          className="text-[11px] px-1.5 py-0.5 font-medium uppercase tracking-wide"
+                        />
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-500">
-                      Last Updated:{" "}
-                      {new Date(snippet.updated_at).toLocaleString()}
-                    </p>
                   </div>
                 </Link>
               ))}
