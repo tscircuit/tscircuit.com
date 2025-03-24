@@ -30,7 +30,10 @@ export const PackageVisibilitySettingsDialog = ({
             onValueChange={(value) => setIsPrivate(value === "private")}
             className="space-y-4"
           >
-            <div className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer" onClick={() => setIsPrivate(false)}>
+            <div
+              className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer"
+              onClick={() => setIsPrivate(false)}
+            >
               <RadioGroupItem value="public" id="public" />
               <div className="grid gap-1.5">
                 <Label htmlFor="public" className="font-medium">
@@ -42,7 +45,10 @@ export const PackageVisibilitySettingsDialog = ({
                 </p>
               </div>
             </div>
-            <div className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer" onClick={() => setIsPrivate(true)}>
+            <div
+              className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer"
+              onClick={() => setIsPrivate(true)}
+            >
               <RadioGroupItem value="private" id="private" />
               <div className="grid gap-1.5">
                 <Label htmlFor="private" className="font-medium">
