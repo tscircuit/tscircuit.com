@@ -12,7 +12,7 @@ test.skip("test delete functionality in profile", async ({ page }) => {
   await page.waitForLoadState("networkidle")
 
   // Verify initial snippet exists
-  const snippetTitle = page.locator(".text-md.font-semibold").first()
+  const snippetTitle = page.locator("h3.text-sm.font-medium").first()
   const snippetName = await snippetTitle.textContent()
   expect(await snippetTitle.isVisible()).toBe(true)
 
@@ -20,7 +20,7 @@ test.skip("test delete functionality in profile", async ({ page }) => {
   await expect(page).toHaveScreenshot("profile-page-before-delete.png")
 
   // Open dropdown menu
-  await page.locator(".lucide-ellipsis-vertical").first().click()
+  await page.locator(".lucide-more-vertical").first().click()
   await page.waitForTimeout(1000)
 
   // Take screenshot with dropdown open
@@ -53,7 +53,7 @@ test.skip("test delete functionality in profile", async ({ page }) => {
 
   // Verify snippet is removed
   const remainingSnippets = await page
-    .locator(`.text-md.font-semibold:has-text("${snippetName}")`)
+    .locator(`h3:has-text("${snippetName}")`)
     .count()
   expect(remainingSnippets).toBe(0)
 })
@@ -70,8 +70,11 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   // Wait for page to load
   await page.waitForLoadState("networkidle")
 
+  // Wait for snippets to be visible
+  await page.waitForSelector("h3.text-sm.font-medium")
+
   // Open the first snippet
-  const snippetLink = page.locator(".text-md.font-semibold").first()
+  const snippetLink = page.locator("h3.text-sm.font-medium").first()
   const snippetName = await snippetLink.textContent()
   await snippetLink.click()
 
@@ -102,7 +105,7 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
 
   // Verify the starred snippet exists in the "Starred Snippets" tab
   const starredSnippet = page.locator(
-    `.text-md.font-semibold:has-text("${snippetName}")`,
+    `h3:has-text("${snippetName}")`,
   )
   expect(await starredSnippet.isVisible()).toBe(true)
 })
