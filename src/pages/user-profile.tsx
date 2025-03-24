@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { GitHubLogoIcon, StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { MoreVertical, Trash2 } from "lucide-react"
+import { GlobeIcon, MoreVertical, PencilIcon, Trash2 } from "lucide-react"
 import { useConfirmDeleteSnippetDialog } from "@/components/dialogs/confirm-delete-snippet-dialog"
 import {
   DropdownMenu,
@@ -142,39 +142,27 @@ export const UserProfilePage = () => {
                 >
                   <div className="border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-md overflow-hidden">
+                      <div className="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
                         <OptimizedImage
                           src={`${baseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                           alt={`${snippet.owner_name}'s profile`}
                           className="object-cover h-full w-full transition-transform duration-300 rotate-45 hover:rotate-0 hover:scale-110 scale-150"
                         />
                       </div>
-                      <div className="flex-1">
-                        <div className="">
-                          <div className="flex justify-between items-center">
-                            <h2 className="text-md font-semibold text-gray-900">
-                              {snippet.unscoped_name}
-                            </h2>
-                            <TypeBadge type={snippet.snippet_type} />
-                          </div>
-                          <p className="text-sm text-gray-500">
-                            {(snippet.description ?? "").length > 30
-                              ? (snippet.description ?? "").slice(0, 30) + "..."
-                              : (snippet.description ?? "")}
-                          </p>
-                        </div>
+                      <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center">
-                          <p className="text-sm text-gray-500">
-                            Last Updated: {getRelativeTime(snippet.updated_at)}
-                          </p>
+                          <h2 className="text-md font-semibold text-gray-900 truncate">
+                            {snippet.unscoped_name}
+                          </h2>
                           <div className="flex items-center gap-2">
+                            <TypeBadge
+                              type={snippet.snippet_type}
+                              className="mr-1"
+                            />
                             <div className="flex items-center text-gray-600">
                               <StarIcon className="w-4 h-4 mr-1" />
                               <span>{snippet.star_count || 0}</span>
                             </div>
-                            {snippet.is_private && (
-                              <LockClosedIcon className="w-4 h-4 text-gray-600" />
-                            )}
                             {isCurrentUserProfile && activeTab === "all" && (
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -199,6 +187,28 @@ export const UserProfilePage = () => {
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-2 truncate max-w-xs">
+                          {snippet.description ?? ""}
+                        </p>
+                        <div className="flex items-center gap-4">
+                          {snippet.is_private ? (
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <LockClosedIcon className="w-4 h-4" />
+                              <span className="text-sm">Private</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <GlobeIcon className="w-4 h-4" />
+                              <span className="text-sm">Public</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 text-gray-500">
+                            <PencilIcon className="w-4 h-4" />
+                            <span className="text-sm">
+                              {getRelativeTime(snippet.updated_at)}
+                            </span>
                           </div>
                         </div>
                       </div>
