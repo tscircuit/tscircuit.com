@@ -36,22 +36,37 @@ export const UserProfilePage = () => {
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
   const apiBaseUrl = useSnippetsBaseApiUrl()
 
-  const { data: userSnippets, isLoading } = useQuery<Snippet[]>(
-    ["userSnippets", username],
-    async () => {
-      const response = await axios.get(`/snippets/list?owner_name=${username}`)
-      return response.data.snippets
-    },
-  )
+  const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
+    Snippet[]
+  >(["userSnippets", username], async () => {
+    const response = await axios.get(`/snippets/list?owner_name=${username}`)
+    return response.data.snippets
+  })
 
-  const filteredSnippets = userSnippets?.filter((snippet) => {
-    const isMatchingSearchQuery =
+  const { data: starredSnippets, isLoading: isLoadingStarredSnippets } =
+    useQuery<Snippet[]>(
+      ["starredSnippets", username],
+      async () => {
+        const response = await axios.get(
+          `/snippets/list?starred_by=${username}`,
+        )
+        return response.data.snippets
+      },
+      {
+        enabled: activeTab === "starred", // Only fetch when starred tab is active
+      },
+    )
+
+  const snippetsToShow =
+    activeTab === "starred" ? starredSnippets : userSnippets
+  const isLoading =
+    activeTab === "starred" ? isLoadingStarredSnippets : isLoadingUserSnippets
+
+  const filteredSnippets = snippetsToShow?.filter((snippet) => {
+    return (
       !searchQuery ||
       snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
-    const isMatchingActiveTab =
-      activeTab === "all" ||
-      (activeTab === "starred" && (snippet?.is_starred || false))
-    return isMatchingSearchQuery && isMatchingActiveTab
+    )
   })
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
@@ -94,7 +109,11 @@ export const UserProfilePage = () => {
           className="mb-4"
         />
         {isLoading ? (
-          <div>Loading snippets...</div>
+          <div>
+            {activeTab === "starred"
+              ? "Loading starred snippets..."
+              : "Loading user snippets..."}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredSnippets
@@ -173,6 +192,29 @@ export const UserProfilePage = () => {
                             </time>
                           </div>
                         </div>
+                        )}
+                        {isCurrentUserProfile && activeTab === "all" && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                className="text-xs text-red-600"
+                                onClick={(e) => handleDeleteClick(e, snippet)}
+                              >
+                                <Trash2 className="mr-2 h-3 w-3" />
+                                Delete Snippet
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
