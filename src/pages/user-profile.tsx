@@ -104,8 +104,10 @@ export const UserProfilePage = () => {
           className="mb-4"
         />
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div>
+            {activeTab === "starred"
+              ? "Loading starred snippets..."
+              : "Loading user snippets..."}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
