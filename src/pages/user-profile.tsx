@@ -109,9 +109,9 @@ export const UserProfilePage = () => {
                       <div className="absolute right-2 top-2 z-10">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                               <MoreVertical className="h-4 w-4" />
@@ -152,19 +152,24 @@ export const UserProfilePage = () => {
                             </div>
                             <div className="flex items-center text-gray-600 shrink-0 mr-8">
                               <StarIcon className="w-3.5 h-3.5 mr-0.5" />
-                              <span className="text-xs tabular-nums">{snippet.star_count || 0}</span>
+                              <span className="text-xs tabular-nums">
+                                {snippet.star_count || 0}
+                              </span>
                             </div>
                           </div>
                           <p className="text-xs text-gray-500 mt-1 mb-2">
                             An interactive, runnable TypeScript val
                           </p>
                           <div className="flex items-center justify-between">
-                            <TypeBadge 
-                              type={snippet.snippet_type} 
+                            <TypeBadge
+                              type={snippet.snippet_type}
                               className="text-[11px] px-1.5 py-0.5 font-medium uppercase tracking-wide"
                             />
                             <time className="text-xs text-gray-500">
-                              Last updated: {new Date(snippet.updated_at).toLocaleDateString()}
+                              Last updated:{" "}
+                              {new Date(
+                                snippet.updated_at,
+                              ).toLocaleDateString()}
                             </time>
                           </div>
                         </div>
