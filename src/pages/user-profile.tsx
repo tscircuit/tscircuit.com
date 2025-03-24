@@ -192,7 +192,7 @@ export const UserProfilePage = () => {
                             </time>
                           </div>
                         </div>
-                        )}
+
                         {isCurrentUserProfile && activeTab === "all" && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

@@ -104,8 +104,6 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   await expect(page).toHaveScreenshot("profile-page-starred-tab.png")
 
   // Verify the starred snippet exists in the "Starred Snippets" tab
-  const starredSnippet = page.locator(
-    `h3:has-text("${snippetName}")`,
-  )
+  const starredSnippet = page.locator(`h3:has-text("${snippetName}")`)
   expect(await starredSnippet.isVisible()).toBe(true)
 })
