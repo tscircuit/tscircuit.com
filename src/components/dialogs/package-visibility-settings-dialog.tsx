@@ -28,7 +28,6 @@ export const PackageVisibilitySettingsDialog = ({
           <RadioGroup
             value={isPrivate ? "private" : "public"}
             onValueChange={(value) => setIsPrivate(value === "private")}
-            className="space-y-4"
           >
             <div
               className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer"
