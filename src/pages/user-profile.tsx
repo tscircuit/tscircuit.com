@@ -22,6 +22,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { TypeBadge } from "@/components/TypeBadge"
+
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
@@ -53,11 +54,8 @@ export const UserProfilePage = () => {
         enabled: activeTab === "starred", // Only fetch when starred tab is active
       },
     )
-
   const baseUrl = useSnippetsBaseApiUrl()
 
-  const filteredSnippets = userSnippets?.filter((snippet) => {
-    const isMatchingSearchQuery =
   const snippetsToShow =
     activeTab === "starred" ? starredSnippets : userSnippets
   const isLoading =
@@ -75,7 +73,6 @@ export const UserProfilePage = () => {
     setSnippetToDelete(snippet)
     openDeleteDialog()
   }
-  console.log(filteredSnippets?.[0])
 
   return (
     <div>
@@ -163,7 +160,6 @@ export const UserProfilePage = () => {
                           <LockClosedIcon className="w-4 h-4 text-gray-600" />
                         )}
 
-                        {isCurrentUserProfile && (
                         {isCurrentUserProfile && activeTab === "all" && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
