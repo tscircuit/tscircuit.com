@@ -22,7 +22,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { TypeBadge } from "@/components/TypeBadge"
-import { cn } from "@/lib/utils"
+import { format } from "timeago.js"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -74,23 +74,6 @@ export const UserProfilePage = () => {
     e.preventDefault() // Prevent navigation
     setSnippetToDelete(snippet)
     openDeleteDialog()
-  }
-
-  const getRelativeTime = (date: string | number | Date) => {
-    const now = new Date()
-    const diff = Math.floor((now.getTime() - new Date(date).getTime()) / 1000)
-
-    if (diff < 60) return `${diff} seconds ago`
-    const diffMinutes = Math.floor(diff / 60)
-    if (diffMinutes < 60) return `${diffMinutes} minutes ago`
-    const diffHours = Math.floor(diffMinutes / 60)
-    if (diffHours < 24) return `${diffHours} hours ago`
-    const diffDays = Math.floor(diffHours / 24)
-    if (diffDays < 30) return `${diffDays} days ago`
-    const diffMonths = Math.floor(diffDays / 30)
-    if (diffMonths < 12) return `${diffMonths} months ago`
-    const diffYears = Math.floor(diffMonths / 12)
-    return `${diffYears} years ago`
   }
 
   return (
@@ -193,9 +176,7 @@ export const UserProfilePage = () => {
                           </div>
                         </div>
                         <p className="text-sm text-gray-500 mb-[3px] truncate max-w-xs -mt-[1px]">
-                          {snippet.description
-                            ? snippet.description
-                            : "No description provided..."}
+                          {snippet.description ? snippet.description : " "}
                         </p>
                         <div className={`flex items-center gap-4`}>
                           {snippet.is_private ? (
@@ -211,7 +192,7 @@ export const UserProfilePage = () => {
                           )}
                           <div className="flex items-center text-xs gap-1 text-gray-500">
                             <PencilIcon height={12} width={12} />
-                            <span>{getRelativeTime(snippet.updated_at)}</span>
+                            <span>{format(snippet.updated_at)}</span>
                           </div>
                         </div>
                       </div>
