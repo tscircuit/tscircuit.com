@@ -141,7 +141,7 @@ export const UserProfilePage = () => {
                   href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
                 >
                   <div className="border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       <div className="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
                         <OptimizedImage
                           src={`${baseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
@@ -150,7 +150,7 @@ export const UserProfilePage = () => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-start">
                           <h2 className="text-md font-semibold text-gray-900 truncate">
                             {snippet.unscoped_name}
                           </h2>
@@ -159,9 +159,11 @@ export const UserProfilePage = () => {
                               type={snippet.snippet_type}
                               className="mr-1"
                             />
-                            <div className="flex items-center text-gray-600">
-                              <StarIcon className="w-4 h-4 mr-1" />
-                              <span>{snippet.star_count || 0}</span>
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <StarIcon className="w-4 h-4 pt-[2.5px]" />
+                              <span className="text-[15.5px]">
+                                {snippet.star_count || 0}
+                              </span>
                             </div>
                             {isCurrentUserProfile && activeTab === "all" && (
                               <DropdownMenu>
@@ -194,21 +196,19 @@ export const UserProfilePage = () => {
                         </p>
                         <div className="flex items-center gap-4">
                           {snippet.is_private ? (
-                            <div className="flex items-center gap-1 text-gray-500">
-                              <LockClosedIcon className="w-4 h-4" />
-                              <span className="text-sm">Private</span>
+                            <div className="flex items-center text-xs gap-1 text-gray-500">
+                              <LockClosedIcon height={12} width={12} />
+                              <span>Private</span>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1 text-gray-500">
-                              <GlobeIcon className="w-4 h-4" />
-                              <span className="text-sm">Public</span>
+                            <div className="flex items-center text-xs gap-1 text-gray-500">
+                              <GlobeIcon height={12} width={12} />
+                              <span>Public</span>
                             </div>
                           )}
-                          <div className="flex items-center gap-1 text-gray-500">
-                            <PencilIcon className="w-4 h-4" />
-                            <span className="text-sm">
-                              {getRelativeTime(snippet.updated_at)}
-                            </span>
+                          <div className="flex items-center text-xs gap-1 text-gray-500">
+                            <PencilIcon height={12} width={12} />
+                            <span>{getRelativeTime(snippet.updated_at)}</span>
                           </div>
                         </div>
                       </div>
