@@ -22,6 +22,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { TypeBadge } from "@/components/TypeBadge"
+import { cn } from "@/lib/utils"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -191,10 +192,12 @@ export const UserProfilePage = () => {
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500 mb-2 truncate max-w-xs">
-                          {snippet.description ?? ""}
+                        <p className="text-sm text-gray-500 mb-[3px] truncate max-w-xs -mt-[5px]">
+                          {snippet.description
+                            ? snippet.description
+                            : "No description provided..."}
                         </p>
-                        <div className="flex items-center gap-4">
+                        <div className={`flex items-center gap-4`}>
                           {snippet.is_private ? (
                             <div className="flex items-center text-xs gap-1 text-gray-500">
                               <LockClosedIcon height={12} width={12} />
