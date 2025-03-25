@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { TypeBadge } from "@/components/TypeBadge"
+import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
 import { format } from "timeago.js"
 
 export const UserProfilePage = () => {
@@ -134,14 +134,14 @@ export const UserProfilePage = () => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-1">
+                        <div className="flex justify-between items-start mb-[2px]">
                           <h2 className="text-md font-semibold text-gray-900 truncate">
                             {snippet.unscoped_name}
                           </h2>
                           <div className="flex items-center gap-2">
-                            <TypeBadge
+                            <SnippetTypeIcon
                               type={snippet.snippet_type}
-                              className="mr-1"
+                              className="pt-[2.5px]"
                             />
                             <div className="flex items-center gap-1 text-gray-600">
                               <StarIcon className="w-4 h-4 pt-[2.5px]" />
@@ -176,7 +176,7 @@ export const UserProfilePage = () => {
                           </div>
                         </div>
                         <p
-                          className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-[2px] truncate max-w-xs`}
+                          className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-1 truncate max-w-xs`}
                         >
                           {snippet.description ? snippet.description : " "}
                         </p>
