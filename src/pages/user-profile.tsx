@@ -69,6 +69,7 @@ export const UserProfilePage = () => {
       snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })
+  console.log(filteredSnippets)
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
@@ -98,8 +99,8 @@ export const UserProfilePage = () => {
         </div>
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
           <TabsList>
-            <TabsTrigger value="all">Snippets</TabsTrigger>
-            <TabsTrigger value="starred">Starred Snippets</TabsTrigger>
+            <TabsTrigger value="all">Packages</TabsTrigger>
+            <TabsTrigger value="starred">Starred Packages</TabsTrigger>
           </TabsList>
         </Tabs>
         <Input
@@ -135,9 +136,14 @@ export const UserProfilePage = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-[2px]">
-                          <h2 className="text-md font-semibold text-gray-900 truncate">
-                            {snippet.unscoped_name}
-                          </h2>
+                          <div className="">
+                            <h2 className="text-md font-semibold text-gray-900 truncate">
+                              {snippet.unscoped_name}
+                            </h2>
+                            <h6 className="text-sm font-semibold text-gray-500 truncate">
+                              {snippet.owner_name}
+                            </h6>
+                          </div>
                           <div className="flex items-center gap-2">
                             <SnippetTypeIcon
                               type={snippet.snippet_type}
