@@ -147,7 +147,7 @@ export const UserProfilePage = () => {
                         <OptimizedImage
                           src={`${baseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                           alt={`${snippet.owner_name}'s profile`}
-                          className="object-cover h-full w-full transition-transform duration-300 rotate-45 hover:rotate-0 hover:scale-110 scale-150"
+                          className="object-cover h-full w-full transition-transform duration-300 -rotate-45 hover:rotate-0 hover:scale-110 scale-150"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
