@@ -69,7 +69,6 @@ export const UserProfilePage = () => {
       snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })
-  console.log(filteredSnippets)
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
