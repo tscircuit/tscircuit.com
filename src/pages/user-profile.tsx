@@ -175,7 +175,9 @@ export const UserProfilePage = () => {
                             )}
                           </div>
                         </div>
-                        <p className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-[2px] truncate max-w-xs`}>
+                        <p
+                          className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-[2px] truncate max-w-xs`}
+                        >
                           {snippet.description ? snippet.description : " "}
                         </p>
                         <div className={`flex items-center gap-4`}>
