@@ -7,7 +7,6 @@ export default withRouteSpec({
   auth: "none",
   jsonResponse: z.object({ ok: z.boolean() }),
 })(async (req, ctx) => {
-  // Seed the database with initial data
   seed(ctx.db)
 
   return ctx.json({ ok: true })
