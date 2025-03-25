@@ -134,7 +134,7 @@ export const UserProfilePage = () => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-start mb-1">
                           <h2 className="text-md font-semibold text-gray-900 truncate">
                             {snippet.unscoped_name}
                           </h2>
@@ -145,7 +145,7 @@ export const UserProfilePage = () => {
                             />
                             <div className="flex items-center gap-1 text-gray-600">
                               <StarIcon className="w-4 h-4 pt-[2.5px]" />
-                              <span className="text-[15.5px]">
+                              <span className="text-[16px]">
                                 {snippet.star_count || 0}
                               </span>
                             </div>
@@ -175,7 +175,7 @@ export const UserProfilePage = () => {
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500 mb-[3px] truncate max-w-xs -mt-[1px]">
+                        <p className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-[2px] truncate max-w-xs`}>
                           {snippet.description ? snippet.description : " "}
                         </p>
                         <div className={`flex items-center gap-4`}>
