@@ -192,7 +192,7 @@ export const UserProfilePage = () => {
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-500 mb-[3px] truncate max-w-xs -mt-[5px]">
+                        <p className="text-sm text-gray-500 mb-[3px] truncate max-w-xs -mt-[1px]">
                           {snippet.description
                             ? snippet.description
                             : "No description provided..."}
