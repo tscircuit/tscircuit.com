@@ -58,7 +58,7 @@ test.skip("test delete functionality in profile", async ({ page }) => {
   expect(remainingSnippets).toBe(0)
 })
 
-test("test starring a snippet and verifying in Starred Snippets tab", async ({
+test("test starring a snippet and verifying in Starred Packages tab", async ({
   page,
 }) => {
   // Go to profile page
@@ -93,14 +93,14 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   await page.waitForLoadState("networkidle")
   await expect(page).toHaveScreenshot("profile-page-snippets-tab.png")
 
-  // Click on the "Starred Snippets" tab
+  // Click on the "Starred Packages" tab
   await page.getByText("Starred Packages").click()
 
   // Wait for load and take screenshot
   await page.waitForLoadState("networkidle")
   await expect(page).toHaveScreenshot("profile-page-starred-tab.png")
 
-  // Verify the starred snippet exists in the "Starred Snippets" tab
+  // Verify the starred snippet exists in the "Starred Packages" tab
   const starredSnippet = page.locator(
     `.text-md.font-semibold:has-text("${snippetName}")`,
   )

@@ -117,7 +117,7 @@ export const UserProfilePage = () => {
         {isLoading ? (
           <div>
             {activeTab === "starred"
-              ? "Loading starred snippets..."
+              ? "Loading starred packages..."
               : "Loading user snippets..."}
           </div>
         ) : (
@@ -187,58 +187,63 @@ export const UserProfilePage = () => {
                         )}
 
                         <div
-                          className={` mb-[3px] ${activeTab === "starred" && "-mt-[10px] mb-[4px]"}`}
+                          className={` ${activeTab === "starred" ? "-mt-[10px] mb-[3px]" : "mb-[3px]"}`}
                         >
                           <div
-                            className={`${activeTab !== "starred" ? "flex justify-between items-start mb-[4px] -mt-[2.5px]" : "hidden"}`}
+                            className={`flex justify-between items-start ${
+                              activeTab === "starred"
+                                ? "-mt-[10px] mb-[4px]"
+                                : "mb-[4px] -mt-[2.5px]"
+                            }`}
                           >
                             <h2 className="text-md font-semibold text-gray-900 truncate max-w-xs">
                               {snippet.unscoped_name}
                             </h2>
-                            <div className="flex items-center gap-2">
-                              <SnippetTypeIcon
-                                type={snippet.snippet_type}
-                                className="pt-[2.5px]"
-                              />
-                              <div className="flex items-center gap-1 text-gray-600">
-                                <StarIcon className="w-4 h-4 pt-[2.5px]" />
-                                <span className="text-[16px]">
-                                  {snippet.star_count || 0}
-                                </span>
+
+                            {activeTab !== "starred" && (
+                              <div className="flex items-center gap-2">
+                                <SnippetTypeIcon
+                                  type={snippet.snippet_type}
+                                  className="pt-[2.5px]"
+                                />
+                                <div className="flex items-center gap-1 text-gray-600">
+                                  <StarIcon className="w-4 h-4 pt-[2.5px]" />
+                                  <span className="text-[16px]">
+                                    {snippet.star_count || 0}
+                                  </span>
+                                </div>
+                                {isCurrentUserProfile &&
+                                  activeTab === "all" && (
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-[1.5rem] w-[1.5rem]"
+                                        >
+                                          <MoreVertical className="h-4 w-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent>
+                                        <DropdownMenuItem
+                                          className="text-xs text-red-600"
+                                          onClick={(e) =>
+                                            handleDeleteClick(e, snippet)
+                                          }
+                                        >
+                                          <Trash2 className="mr-2 h-3 w-3" />
+                                          Delete Snippet
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  )}
                               </div>
-                              {isCurrentUserProfile && activeTab === "all" && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-[1.5rem] w-[1.5rem]"
-                                    >
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
-                                    <DropdownMenuItem
-                                      className="text-xs text-red-600"
-                                      onClick={(e) =>
-                                        handleDeleteClick(e, snippet)
-                                      }
-                                    >
-                                      <Trash2 className="mr-2 h-3 w-3" />
-                                      Delete Snippet
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
-                            </div>
+                            )}
                           </div>
-                          {activeTab === "starred" && (
-                            <h2 className="text-md font-semibold text-gray-900 truncate  max-w-xs">
-                              {snippet.unscoped_name}
-                            </h2>
-                          )}
                           <p
-                            className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 ${activeTab === "starred" ? "mb-[4px]" : "mb-[9px]"} truncate max-w-xs`}
+                            className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 ${
+                              activeTab === "starred" ? "mb-[2px]" : "mb-[9px]"
+                            } truncate max-w-xs`}
                           >
                             {snippet.description ? snippet.description : " "}
                           </p>
