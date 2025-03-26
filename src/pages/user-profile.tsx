@@ -22,7 +22,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
-import { format } from "timeago.js"
+import TimeAgo from "javascript-time-ago"
+import en from "javascript-time-ago/locale/en"
+
+TimeAgo.addDefaultLocale(en)
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -57,6 +60,8 @@ export const UserProfilePage = () => {
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
+
+  const timeAgo = new TimeAgo("en-US")
 
   const snippetsToShow =
     activeTab === "starred" ? starredSnippets : userSnippets
@@ -99,7 +104,7 @@ export const UserProfilePage = () => {
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
           <TabsList>
             <TabsTrigger value="all">Snippets</TabsTrigger>
-            <TabsTrigger value="starred">Starred Snippets</TabsTrigger>
+            <TabsTrigger value="starred">Starred Packages</TabsTrigger>
           </TabsList>
         </Tabs>
         <Input
@@ -126,7 +131,9 @@ export const UserProfilePage = () => {
                 >
                   <div className="border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4">
                     <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden">
+                      <div
+                        className={`${activeTab === "starred" ? "h-[4.5rem] w-[4.5rem]" : "h-16 w-16"} h-[4.5rem] w-[4.5rem] flex-shrink-0 rounded-md overflow-hidden`}
+                      >
                         <OptimizedImage
                           src={`${baseUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                           alt={`${snippet.owner_name}'s profile`}
@@ -134,52 +141,108 @@ export const UserProfilePage = () => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start mb-[2px]">
-                          <h2 className="text-md font-semibold text-gray-900 truncate">
-                            {snippet.unscoped_name}
-                          </h2>
-                          <div className="flex items-center gap-2">
-                            <SnippetTypeIcon
-                              type={snippet.snippet_type}
-                              className="pt-[2.5px]"
-                            />
-                            <div className="flex items-center gap-1 text-gray-600">
-                              <StarIcon className="w-4 h-4 pt-[2.5px]" />
-                              <span className="text-[16px]">
-                                {snippet.star_count || 0}
-                              </span>
+                        {activeTab === "starred" && (
+                          <div className="flex justify-between items-start">
+                            <span className="-mt-[3.5px] text-xs text-gray-500">
+                              {snippet.owner_name}
+                            </span>
+                            <div className="flex items-center gap-2 -mt-[5px]">
+                              <SnippetTypeIcon
+                                type={snippet.snippet_type}
+                                className="pt-[2.5px]"
+                              />
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <StarIcon className="w-4 h-4 pt-[2.5px]" />
+                                <span className="text-[16px]">
+                                  {snippet.star_count || 0}
+                                </span>
+                              </div>
+                              {isCurrentUserProfile && activeTab === "all" && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-[1.5rem] w-[1.5rem]"
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent>
+                                    <DropdownMenuItem
+                                      className="text-xs text-red-600"
+                                      onClick={(e) =>
+                                        handleDeleteClick(e, snippet)
+                                      }
+                                    >
+                                      <Trash2 className="mr-2 h-3 w-3" />
+                                      Delete Snippet
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
                             </div>
-                            {isCurrentUserProfile && activeTab === "all" && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                  <DropdownMenuItem
-                                    className="text-xs text-red-600"
-                                    onClick={(e) =>
-                                      handleDeleteClick(e, snippet)
-                                    }
-                                  >
-                                    <Trash2 className="mr-2 h-3 w-3" />
-                                    Delete Snippet
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            )}
                           </div>
-                        </div>
-                        <p
-                          className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 mb-1 truncate max-w-xs`}
+                        )}
+
+                        <div
+                          className={` mb-[3px] ${activeTab === "starred" && "-mt-[10px] mb-[4px]"}`}
                         >
-                          {snippet.description ? snippet.description : " "}
-                        </p>
+                          <div
+                            className={`${activeTab !== "starred" ? "flex justify-between items-start mb-[4px] -mt-[2.5px]" : "hidden"}`}
+                          >
+                            <h2 className="text-md font-semibold text-gray-900 truncate max-w-xs">
+                              {snippet.unscoped_name}
+                            </h2>
+                            <div className="flex items-center gap-2">
+                              <SnippetTypeIcon
+                                type={snippet.snippet_type}
+                                className="pt-[2.5px]"
+                              />
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <StarIcon className="w-4 h-4 pt-[2.5px]" />
+                                <span className="text-[16px]">
+                                  {snippet.star_count || 0}
+                                </span>
+                              </div>
+                              {isCurrentUserProfile && activeTab === "all" && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-[1.5rem] w-[1.5rem]"
+                                    >
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent>
+                                    <DropdownMenuItem
+                                      className="text-xs text-red-600"
+                                      onClick={(e) =>
+                                        handleDeleteClick(e, snippet)
+                                      }
+                                    >
+                                      <Trash2 className="mr-2 h-3 w-3" />
+                                      Delete Snippet
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
+                            </div>
+                          </div>
+                          {activeTab === "starred" && (
+                            <h2 className="text-md font-semibold text-gray-900 truncate  max-w-xs">
+                              {snippet.unscoped_name}
+                            </h2>
+                          )}
+                          <p
+                            className={`${!snippet.description && "h-[1.25rem]"} text-sm text-gray-500 ${activeTab === "starred" ? "mb-[4px]" : "mb-[9px]"} truncate max-w-xs`}
+                          >
+                            {snippet.description ? snippet.description : " "}
+                          </p>
+                        </div>
+
                         <div className={`flex items-center gap-4`}>
                           {snippet.is_private ? (
                             <div className="flex items-center text-xs gap-1 text-gray-500">
@@ -194,7 +257,9 @@ export const UserProfilePage = () => {
                           )}
                           <div className="flex items-center text-xs gap-1 text-gray-500">
                             <PencilIcon height={12} width={12} />
-                            <span>{format(snippet.updated_at)}</span>
+                            <span>
+                              {timeAgo.format(new Date(snippet.updated_at))}
+                            </span>
                           </div>
                         </div>
                       </div>
