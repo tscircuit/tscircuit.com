@@ -157,30 +157,31 @@ export const UserProfilePage = () => {
                                   {snippet.star_count || 0}
                                 </span>
                               </div>
-                              {isCurrentUserProfile && activeTab === "all" && (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-[1.5rem] w-[1.5rem]"
-                                    >
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent>
-                                    <DropdownMenuItem
-                                      className="text-xs text-red-600"
-                                      onClick={(e) =>
-                                        handleDeleteClick(e, snippet)
-                                      }
-                                    >
-                                      <Trash2 className="mr-2 h-3 w-3" />
-                                      Delete Snippet
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              )}
+                              {isCurrentUserProfile &&
+                                (activeTab as string) === "all" && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-[1.5rem] w-[1.5rem]"
+                                      >
+                                        <MoreVertical className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      <DropdownMenuItem
+                                        className="text-xs text-red-600"
+                                        onClick={(e) =>
+                                          handleDeleteClick(e, snippet)
+                                        }
+                                      >
+                                        <Trash2 className="mr-2 h-3 w-3" />
+                                        Delete Snippet
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
                             </div>
                           </div>
                         )}
