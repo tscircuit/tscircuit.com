@@ -94,7 +94,7 @@ test("test starring a snippet and verifying in Starred Snippets tab", async ({
   await expect(page).toHaveScreenshot("profile-page-snippets-tab.png")
 
   // Click on the "Starred Snippets" tab
-  await page.getByText("Starred Snippets").click()
+  await page.getByText("Starred Packages").click()
 
   // Wait for load and take screenshot
   await page.waitForLoadState("networkidle")
