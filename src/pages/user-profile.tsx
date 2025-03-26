@@ -60,7 +60,7 @@ export const UserProfilePage = () => {
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
-  
+
   const timeAgo = new TimeAgo("en-US")
 
   const snippetsToShow =
