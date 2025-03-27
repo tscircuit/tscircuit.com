@@ -33,7 +33,9 @@ export default withRouteSpec({
     for_provider: for_provider || null,
     uploaded_at: new Date().toISOString(),
     content_text: Buffer.from(content_base64, "base64").toString("utf-8"),
-    content_bytes: Uint8Array.from(atob(content_base64), c => c.charCodeAt(0)),
+    content_bytes: Uint8Array.from(atob(content_base64), (c) =>
+      c.charCodeAt(0),
+    ),
   }
 
   const orderFile = ctx.db.addOrderFile(newOrderFile)
