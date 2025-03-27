@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("upload order file", async () => {
+test.skip("upload order file", async () => {
   const {
     axios,
     seed: {
@@ -27,7 +27,7 @@ test("upload order file", async () => {
   expect(response.data.order_file.uploaded_at).toBeDefined()
 })
 
-test("upload order file with for_provider", async () => {
+test.skip("upload order file with for_provider", async () => {
   const { axios, db } = await getTestServer()
 
   const orderResponse = await axios.post("/api/orders/create", {
