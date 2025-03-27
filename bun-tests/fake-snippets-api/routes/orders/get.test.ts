@@ -35,3 +35,32 @@ test.skip("get non-existent order", async () => {
     expect(error.data.error.message).toBe("Order not found")
   }
 })
+
+test("get order", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  // Create a new order
+  const response = await axios.post("/api/orders/create", {
+    circuit_json: order.circuit_json,
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.order).toBeDefined()
+  expect(response.data.order.order_id).toBeDefined()
+  expect(response.data.order.account_id).toBeDefined()
+
+  const orderId = response.data.order.order_id
+
+  // Get the created order
+  const getResponse = await axios.get("/api/orders/get", {
+    params: { order_id: orderId },
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.order).toBeDefined()
+  expect(getResponse.data.order.order_id).toBe(orderId)
+  expect(getResponse.data.order.account_id).toBeDefined()
+})

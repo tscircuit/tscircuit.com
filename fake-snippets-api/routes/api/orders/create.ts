@@ -49,8 +49,7 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { circuit_json, package_release_id, _simulate } = req.jsonBody
 
-  const newOrder: Order = {
-    order_id: crypto.randomUUID(),
+  const newOrder: Omit<Order, "order_id"> = {
     account_id: ctx.auth.account_id,
     is_running: false,
     is_started: false,
@@ -198,11 +197,6 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (newOrder.has_error) {
-    return ctx.json({
-      order: newOrder,
-    })
-  }
   const order = ctx.db.addOrder(newOrder)
 
   return ctx.json({
