@@ -74,7 +74,7 @@ export const accountSchema = z.object({
 export type Account = z.infer<typeof accountSchema>
 
 export const orderSchema = z.object({
-  order_id: z.string().nullable(),
+  order_id: z.string(),
   account_id: z.string().nullable(),
   is_running: z.boolean(),
   is_started: z.boolean(),
