@@ -1,5 +1,16 @@
 import { z } from "zod"
 
+export const errorSchema = z
+  .object({
+    error_code: z.string(),
+    message: z.string(),
+  })
+  .passthrough()
+
+export const errorResponseSchema = z.object({
+  error: errorSchema,
+})
+
 export const snippetSchema = z.object({
   snippet_id: z.string(),
   package_release_id: z.string(),
@@ -64,22 +75,16 @@ export type Account = z.infer<typeof accountSchema>
 
 export const orderSchema = z.object({
   order_id: z.string(),
-  account_id: z.string(),
-  is_draft: z.boolean(),
-  is_pending_validation_by_fab: z.boolean(),
-  is_pending_review_by_fab: z.boolean(),
-  is_validated_by_fab: z.boolean(),
-  is_approved_by_fab_review: z.boolean(),
-  is_approved_by_orderer: z.boolean(),
-  is_in_production: z.boolean(),
-  is_shipped: z.boolean(),
-  is_cancelled: z.boolean(),
-  should_be_blank_pcb: z.boolean(),
-  should_include_stencil: z.boolean(),
-  jlcpcb_order_params: z.record(z.any()),
-  circuit_json: z.array(z.record(z.any())),
+  account_id: z.string().nullable(),
+  is_running: z.boolean(),
+  is_started: z.boolean(),
+  is_finished: z.boolean(),
+  error: errorSchema.nullable(),
+  has_error: z.boolean(),
   created_at: z.string(),
-  updated_at: z.string(),
+  started_at: z.string().nullable(),
+  completed_at: z.string().nullable(),
+  circuit_json: z.any(),
 })
 export type Order = z.infer<typeof orderSchema>
 
@@ -162,17 +167,6 @@ export const packageSchema = z.object({
   ai_description: z.string().nullable(),
 })
 export type Package = z.infer<typeof packageSchema>
-
-export const errorSchema = z
-  .object({
-    error_code: z.string(),
-    message: z.string(),
-  })
-  .passthrough()
-
-export const errorResponseSchema = z.object({
-  error: errorSchema,
-})
 
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),

@@ -63,15 +63,17 @@ export const ViewOrderPage = () => {
                       Status
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {order.is_shipped ? "Shipped" : "Processing"}
+                      {order.is_running ? "Running" : "Finished"}
                     </dd>
                   </div>
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500">
-                      Is Draft
+                      Started at
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {order.is_draft ? "Yes" : "No"}
+                      {order.started_at
+                        ? new Date(order.started_at).toLocaleString()
+                        : "Not started"}
                     </dd>
                   </div>
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -79,23 +81,9 @@ export const ViewOrderPage = () => {
                       Pending Validation
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {order.is_pending_validation_by_fab ? "Yes" : "No"}
-                    </dd>
-                  </div>
-                  <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-gray-500">
-                      Approved by Fab
-                    </dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {order.is_approved_by_fab_review ? "Yes" : "No"}
-                    </dd>
-                  </div>
-                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt className="text-sm font-medium text-gray-500">
-                      In Production
-                    </dt>
-                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      {order.is_in_production ? "Yes" : "No"}
+                      {order.completed_at
+                        ? new Date(order.completed_at).toLocaleString()
+                        : "Not finished"}
                     </dd>
                   </div>
                 </dl>

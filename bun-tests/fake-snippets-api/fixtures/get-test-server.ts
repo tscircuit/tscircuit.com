@@ -69,18 +69,11 @@ const seedDatabase = (db: DbClient) => {
   })
   const order = db.addOrder({
     account_id: account.account_id,
-    is_draft: true,
-    is_pending_validation_by_fab: false,
-    is_pending_review_by_fab: false,
-    is_validated_by_fab: false,
-    is_approved_by_fab_review: false,
-    is_approved_by_orderer: false,
-    is_in_production: false,
-    is_shipped: false,
-    is_cancelled: false,
-    should_be_blank_pcb: false,
-    should_include_stencil: false,
-    jlcpcb_order_params: {},
+    is_running: false,
+    is_started: false,
+    is_finished: false,
+    error: null,
+    has_error: false,
     circuit_json: [
       {
         type: "source_component",
@@ -91,7 +84,8 @@ const seedDatabase = (db: DbClient) => {
       },
     ],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    started_at: null,
+    completed_at: null,
   })
 
   return { account, order }

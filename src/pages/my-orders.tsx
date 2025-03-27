@@ -36,7 +36,7 @@ export const MyOrdersPage = () => {
                   Created: {new Date(order.created_at).toLocaleString()}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Status: {order.is_shipped ? "Shipped" : "Processing"}
+                  Status: {order.is_running ? "Running" : "Finished"}
                 </p>
                 <Link href={`/orders/${order.order_id}`}>
                   <Button className="mt-2" variant="outline">
