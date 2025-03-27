@@ -6,6 +6,8 @@ import { combine } from "zustand/middleware"
 import {
   type Account,
   type AccountPackage,
+  JlcpcbOrderState,
+  JlcpcbOrderStepRun,
   type LoginPage,
   type Order,
   type OrderFile,
@@ -44,6 +46,31 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrderById: (orderId: string): Order | undefined => {
     const state = get()
     return state.orders.find((order) => order.order_id === orderId)
+  },
+  getOrderFilesByOrderId: (orderId: string): OrderFile[] => {
+    const state = get()
+    return state.orderFiles.filter((file) => file.order_id === orderId)
+  },
+  getJlcpcbOrderStatesByOrderId: (
+    orderId: string,
+  ): JlcpcbOrderState | undefined => {
+    const state = get()
+    return state.jlcpcbOrderState.find((state) => state.order_id === orderId)
+  },
+  getJlcpcbOrderStepRunsByOrderId: (orderId: string): JlcpcbOrderStepRun[] => {
+    const state = get()
+    return state.jlcpcbOrderStepRuns
+      .filter((stepRun) => {
+        const orderState = state.jlcpcbOrderState.find(
+          (state) =>
+            state.jlcpcb_order_state_id === stepRun.jlcpcb_order_state_id,
+        )
+        return orderState?.order_id === orderId
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      )
   },
   updateOrder: (orderId: string, updates: Partial<Order>) => {
     set((state) => ({

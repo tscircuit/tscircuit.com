@@ -92,10 +92,11 @@ export const orderFileSchema = z.object({
   order_file_id: z.string(),
   order_id: z.string(),
   is_gerbers_zip: z.boolean(),
-  file_content: z.instanceof(Buffer),
   content_type: z.string(),
   for_provider: z.string().nullable(),
   uploaded_at: z.string(),
+  content_text: z.string().nullable(),
+  content_bytes: z.instanceof(Uint8Array).nullable(),
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
@@ -168,6 +169,44 @@ export const packageSchema = z.object({
 })
 export type Package = z.infer<typeof packageSchema>
 
+export const jlcpcbOrderStateSchema = z.object({
+  jlcpcb_order_state_id: z.string(),
+  order_id: z.string(),
+  are_gerbers_uploaded: z.boolean().default(false),
+  is_gerber_analyzed: z.boolean().default(false),
+  are_initial_costs_calculated: z.boolean().default(false),
+  is_pcb_added_to_cart: z.boolean().default(false),
+  is_bom_uploaded: z.boolean().default(false),
+  is_pnp_uploaded: z.boolean().default(false),
+  is_bom_pnp_analyzed: z.boolean().default(false),
+  is_bom_parsing_complete: z.boolean().default(false),
+  are_components_available: z.boolean().default(false),
+  is_patch_map_generated: z.boolean().default(false),
+  is_json_merge_file_created: z.boolean().default(false),
+  is_dfm_result_generated: z.boolean().default(false),
+  are_files_downloaded: z.boolean().default(false),
+  are_product_categories_fetched: z.boolean().default(false),
+  are_final_costs_calculated: z.boolean().default(false),
+  is_json_merge_file_updated: z.boolean().default(false),
+  is_added_to_cart: z.boolean().default(false),
+  uploaded_gerber_metadata: z.any().nullable().default(null),
+  gerber_analysis: z.any().nullable().default(null),
+  created_at: z.string(),
+  are_gerbers_generated: z.boolean().default(false),
+  current_step: z.string().nullable().default(null),
+})
+export type JlcpcbOrderState = z.infer<typeof jlcpcbOrderStateSchema>
+
+export const jlcpcbOrderStepRunSchema = z.object({
+  jlcpcb_order_step_run_id: z.string(),
+  is_running: z.boolean().nullable().default(null),
+  step_function_name: z.string().nullable().default(null),
+  jlcpcb_order_state_id: z.string().nullable().default(null),
+  error_message: z.string().nullable().default(null),
+  created_at: z.string(),
+})
+export type JlcpcbOrderStepRun = z.infer<typeof jlcpcbOrderStepRunSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -181,5 +220,7 @@ export const databaseSchema = z.object({
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
   accountPackages: z.array(accountPackageSchema).default([]),
+  jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
+  jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

@@ -7,24 +7,24 @@ import {
 } from "fake-snippets-api/lib/db/schema"
 
 const simulate_scenarios = [
-  "gerber_generation_failed",
-  "gerber_upload_failed",
-  "analyze_gerber_failed",
-  "initial_cost_calculation_failed",
-  "add_pcb_to_cart_failed",
-  "bom_upload_failed",
-  "pnp_upload_failed",
-  "analyze_bom_and_pnp_failed",
-  "bom_parsing_failed",
-  "components_availability_failed",
-  "generate_patch_map_failed",
-  "creation_json_merge_file_failed",
-  "generate_dfm_result_failed",
-  "download_files_failed",
-  "fetch_product_categories_failed",
-  "final_cost_calculation_failed",
-  "update_json_merge_file_failed",
-  "add_to_cart_failed",
+  "are_gerbers_generated",
+  "are_gerbers_uploaded",
+  "is_gerber_analyzed",
+  "are_initial_costs_calculated",
+  "is_pcb_added_to_cart",
+  "is_bom_uploaded",
+  "is_pnp_uploaded",
+  "is_bom_pnp_analyzed",
+  "is_bom_parsing_complete",
+  "are_components_available",
+  "is_patch_map_generated",
+  "is_json_merge_file_created",
+  "is_dfm_result_generated",
+  "are_files_downloaded",
+  "are_product_categories_fetched",
+  "are_final_costs_calculated",
+  "is_json_merge_file_updated",
+  "is_added_to_cart",
 ] as const
 
 export default withRouteSpec({
@@ -63,7 +63,7 @@ export default withRouteSpec({
     circuit_json,
   }
 
-  if (_simulate?.scenario === "gerber_generation_failed") {
+  if (_simulate?.scenario === "are_gerbers_generated") {
     newOrder.error = errorSchema.parse({
       error_code: "GERBER_GENERATION_FAILED",
       message: "Gerber generation failed",
@@ -71,7 +71,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "gerber_upload_failed") {
+  if (_simulate?.scenario === "are_gerbers_uploaded") {
     newOrder.error = errorSchema.parse({
       error_code: "GERBER_UPLOAD_FAILED",
       message: "Gerber upload failed",
@@ -79,7 +79,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "analyze_gerber_failed") {
+  if (_simulate?.scenario === "is_gerber_analyzed") {
     newOrder.error = errorSchema.parse({
       error_code: "ANALYZE_GERBER_FAILED",
       message: "Analyze gerber failed",
@@ -87,7 +87,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "bom_upload_failed") {
+  if (_simulate?.scenario === "is_bom_uploaded") {
     newOrder.error = errorSchema.parse({
       error_code: "BOM_UPLOAD_FAILED",
       message: "Bom upload failed",
@@ -95,7 +95,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "pnp_upload_failed") {
+  if (_simulate?.scenario === "is_pnp_uploaded") {
     newOrder.error = errorSchema.parse({
       error_code: "PNP_UPLOAD_FAILED",
       message: "Pnp upload failed",
@@ -103,7 +103,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "analyze_bom_and_pnp_failed") {
+  if (_simulate?.scenario === "is_bom_pnp_analyzed") {
     newOrder.error = errorSchema.parse({
       error_code: "ANALYZE_BOM_AND_PNP_FAILED",
       message: "Analyze bom and pnp failed",
@@ -111,7 +111,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "bom_parsing_failed") {
+  if (_simulate?.scenario === "is_bom_parsing_complete") {
     newOrder.error = errorSchema.parse({
       error_code: "BOM_PARSING_FAILED",
       message: "Bom parsing failed",
@@ -119,7 +119,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "components_availability_failed") {
+  if (_simulate?.scenario === "are_components_available") {
     newOrder.error = errorSchema.parse({
       error_code: "COMPONENTS_AVAILABILITY_FAILED",
       message: "Components availability failed",
@@ -127,7 +127,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "generate_patch_map_failed") {
+  if (_simulate?.scenario === "is_patch_map_generated") {
     newOrder.error = errorSchema.parse({
       error_code: "GENERATE_PATCH_MAP_FAILED",
       message: "Generate patch map failed",
@@ -135,7 +135,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "creation_json_merge_file_failed") {
+  if (_simulate?.scenario === "is_json_merge_file_created") {
     newOrder.error = errorSchema.parse({
       error_code: "CREATION_JSON_MERGE_FILE_FAILED",
       message: "Creation json merge file failed",
@@ -143,7 +143,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "generate_dfm_result_failed") {
+  if (_simulate?.scenario === "is_dfm_result_generated") {
     newOrder.error = errorSchema.parse({
       error_code: "GENERATE_DFM_RESULT_FAILED",
       message: "Generate dfm result failed",
@@ -151,7 +151,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "download_files_failed") {
+  if (_simulate?.scenario === "are_files_downloaded") {
     newOrder.error = errorSchema.parse({
       error_code: "DOWNLOAD_FILES_FAILED",
       message: "Download files failed",
@@ -159,14 +159,14 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "fetch_product_categories_failed") {
+  if (_simulate?.scenario === "are_product_categories_fetched") {
     newOrder.error = errorSchema.parse({
       error_code: "FETCH_PRODUCT_CATEGORIES_FAILED",
       message: "Fetch product categories failed",
     })
   }
 
-  if (_simulate?.scenario === "final_cost_calculation_failed") {
+  if (_simulate?.scenario === "are_final_costs_calculated") {
     newOrder.error = errorSchema.parse({
       error_code: "FINAL_COST_CALCULATION_FAILED",
       message: "Final cost calculation failed",
@@ -174,7 +174,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "update_json_merge_file_failed") {
+  if (_simulate?.scenario === "is_json_merge_file_updated") {
     newOrder.error = errorSchema.parse({
       error_code: "UPDATE_JSON_MERGE_FILE_FAILED",
       message: "Update json merge file failed",
@@ -182,7 +182,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "add_pcb_to_cart_failed") {
+  if (_simulate?.scenario === "is_pcb_added_to_cart") {
     newOrder.error = errorSchema.parse({
       error_code: "ADD_PCB_TO_CART_FAILED",
       message: "Add pcb to cart failed",
@@ -190,7 +190,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if (_simulate?.scenario === "add_to_cart_failed") {
+  if (_simulate?.scenario === "is_added_to_cart") {
     newOrder.error = errorSchema.parse({
       error_code: "ADD_TO_CART_FAILED",
       message: "Add to cart failed",
@@ -203,7 +203,6 @@ export default withRouteSpec({
       order: newOrder,
     })
   }
-
   const order = ctx.db.addOrder(newOrder)
 
   return ctx.json({

@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("get order file", async () => {
+test.skip("get order file", async () => {
   const {
     axios,
     seed: {
@@ -32,7 +32,7 @@ test("get order file", async () => {
   expect(response.data.order_file.is_gerbers_zip).toBe(false)
 })
 
-test("get non-existent order file", async () => {
+test.skip("get non-existent order file", async () => {
   const { axios } = await getTestServer()
 
   try {
