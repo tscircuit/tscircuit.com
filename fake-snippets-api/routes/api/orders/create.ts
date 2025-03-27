@@ -1,6 +1,10 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { orderSchema, errorSchema, Order } from "fake-snippets-api/lib/db/schema"
+import {
+  orderSchema,
+  errorSchema,
+  Order,
+} from "fake-snippets-api/lib/db/schema"
 
 const simulate_scenarios = [
   // TODO: Add more scenarios
@@ -15,13 +19,16 @@ const simulate_scenarios = [
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z.object({
-    package_release_id: z.string().uuid().optional(),
-    circuit_json: z.array(z.record(z.any())),
-    _simulate: z.object({
-      scenario: z.enum(simulate_scenarios).optional(),
-    }).optional(),
-  })
+  jsonBody: z
+    .object({
+      package_release_id: z.string().uuid().optional(),
+      circuit_json: z.array(z.record(z.any())),
+      _simulate: z
+        .object({
+          scenario: z.enum(simulate_scenarios).optional(),
+        })
+        .optional(),
+    })
     .refine((data) => data.package_release_id || data.circuit_json, {
       message: "Either package_release_id or circuit_json must be provided",
     }),
@@ -54,7 +61,7 @@ export default withRouteSpec({
     newOrder.has_error = true
   }
 
-  if(newOrder.has_error) {
+  if (newOrder.has_error) {
     return ctx.json({
       order: newOrder,
     })

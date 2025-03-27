@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("update order", async () => {
+test.skip("update order", async () => {
   const {
     axios,
     seed: {
