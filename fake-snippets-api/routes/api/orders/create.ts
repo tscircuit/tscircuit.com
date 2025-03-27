@@ -4,12 +4,12 @@ import { orderSchema, errorSchema, Order } from "fake-snippets-api/lib/db/schema
 
 const simulate_scenarios = [
   // TODO: Add more scenarios
-  "gerber-generation-failed",
-  "gerber-upload-failed",
-  "bom-generation-failed",
-  "bom-upload-failed",
-  "pnp-generation-failed",
-  "pnp-upload-failed",
+  "gerber_generation_failed",
+  "gerber_upload_failed",
+  "bom_generation_failed",
+  "bom_upload_failed",
+  "pnp_generation_failed",
+  "pnp_upload_failed",
 ] as const
 
 export default withRouteSpec({
