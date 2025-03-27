@@ -92,12 +92,11 @@ export const orderFileSchema = z.object({
   order_file_id: z.string(),
   order_id: z.string(),
   is_gerbers_zip: z.boolean(),
-  file_content: z.instanceof(Buffer),
   content_type: z.string(),
   for_provider: z.string().nullable(),
   uploaded_at: z.string(),
   content_text: z.string().nullable(),
-  content_bytes: z.instanceof(Buffer).nullable(),
+  content_bytes: z.instanceof(Uint8Array).nullable(),
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
