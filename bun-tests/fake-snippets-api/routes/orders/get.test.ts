@@ -35,3 +35,67 @@ test.skip("get non-existent order", async () => {
     expect(error.data.error.message).toBe("Order not found")
   }
 })
+
+test("get order", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  // Create a new order
+  const response = await axios.post("/api/orders/create", {
+    circuit_json: order.circuit_json,
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.order).toBeDefined()
+  expect(response.data.order.order_id).toBeDefined()
+  expect(response.data.order.account_id).toBeDefined()
+
+  const orderId = response.data.order.order_id
+
+  // Get the created order
+  const getResponse = await axios.get("/api/orders/get", {
+    params: { order_id: orderId },
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.order).toBeDefined()
+  expect(getResponse.data.order.order_id).toBe(orderId)
+  expect(getResponse.data.order.account_id).toBeDefined()
+})
+
+test("get order with simulate scenario", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  const createResponse = await axios.post("/api/orders/create", {
+    circuit_json: order.circuit_json,
+  })
+
+  expect(createResponse.status).toBe(200)
+  expect(createResponse.data.order).toBeDefined()
+  expect(createResponse.data.order.order_id).toBeDefined()
+
+  const params = {
+    order_id: createResponse.data.order.order_id,
+    _simulate_scenario: "are_gerbers_generated",
+  }
+
+  const getResponse = await axios.get("/api/orders/get", {
+    params,
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.order).toBeDefined()
+  expect(getResponse.data.order.order_id).toBe(
+    createResponse.data.order.order_id,
+  )
+  expect(getResponse.data.order.error).toBeDefined()
+  expect(getResponse.data.order.error.error_code).toBe(
+    "GERBER_GENERATION_FAILED",
+  )
+  expect(getResponse.data.order.error.message).toBe("Gerber generation failed")
+})
