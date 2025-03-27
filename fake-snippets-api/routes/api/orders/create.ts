@@ -53,7 +53,7 @@ export default withRouteSpec({
   }
 
   // TODO: Handle more scenarios
-  if (_simulate?.scenario === "gerber-generation-failed") {
+  if (_simulate?.scenario === "gerber_generation_failed") {
     newOrder.error = errorSchema.parse({
       error_code: "GERBER_GENERATION_FAILED",
       message: "Gerber generation failed",
