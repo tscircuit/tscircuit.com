@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/tscircuit/snippets"
   },
-  "main": "dist/bundle.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "bun run dev",
     "snapshot": "bun scripts/snapshot.ts",
@@ -15,10 +15,11 @@
     "start:playwright-server": "bun run build:fake-api && vite --port 5177",
     "dev": "bun run build:fake-api && AUTOLOAD_SNIPPETS=true vite",
     "dev:registry": "SNIPPETS_API_URL=http://localhost:3100 vite",
-    "build": "bun run generate-images && bun run generate-sitemap && bun run build:fake-api && tsc -b && vite build",
+    "build": "bun run generate-images && bun run generate-sitemap && bun run build:fake-api && bun run build:tsup && tsc -b && vite build",
     "preview": "vite preview",
     "format": "biome format --write .",
     "lint": "biome format .",
+    "build:tsup": "tsup-node ./fake-snippets-api/lib/index.ts --format esm --dts",
     "build:fake-api": "winterspec bundle -o dist/bundle.js",
     "generate-images": "bun run scripts/generate-image-sizes.ts",
     "generate-sitemap": "bun run scripts/generate-sitemap.ts"
