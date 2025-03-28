@@ -63,6 +63,20 @@ test("get order", async () => {
   expect(getResponse.data.order).toBeDefined()
   expect(getResponse.data.order.order_id).toBe(orderId)
   expect(getResponse.data.order.account_id).toBeDefined()
+
+  expect(getResponse.data.orderState).toBeDefined()
+  expect(getResponse.data.orderState.order_id).toBe(orderId)
+
+  expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(true)
+  expect(getResponse.data.orderState.is_gerber_analyzed).toBe(true)
+  expect(getResponse.data.orderState.are_initial_costs_calculated).toBe(true)
+  expect(getResponse.data.orderState.is_pcb_added_to_cart).toBe(true)
+  expect(getResponse.data.orderState.is_bom_uploaded).toBe(true)
+  expect(getResponse.data.orderState.is_pnp_uploaded).toBe(true)
+  expect(getResponse.data.orderState.is_bom_pnp_analyzed).toBe(true)
+  expect(getResponse.data.orderState.is_bom_parsing_complete).toBe(true)
+  expect(getResponse.data.orderState.are_components_available).toBe(true)
+  expect(getResponse.data.orderState.is_patch_map_generated).toBe(true)
 })
 
 test("get order with simulate scenario", async () => {
@@ -98,4 +112,47 @@ test("get order with simulate scenario", async () => {
     "GERBER_GENERATION_FAILED",
   )
   expect(getResponse.data.order.error.message).toBe("Gerber generation failed")
+})
+
+test("get order with simulate scenario [is_bom_uploaded ]", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  const createResponse = await axios.post("/api/orders/create", {
+    circuit_json: order.circuit_json,
+  })
+
+  expect(createResponse.status).toBe(200)
+  expect(createResponse.data.order).toBeDefined()
+  expect(createResponse.data.order.order_id).toBeDefined()
+
+  const params = {
+    order_id: createResponse.data.order.order_id,
+    _simulate_scenario: "is_bom_uploaded",
+  }
+
+  const getResponse = await axios.get("/api/orders/get", {
+    params,
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.order).toBeDefined()
+  expect(getResponse.data.order.order_id).toBe(
+    createResponse.data.order.order_id,
+  )
+  expect(getResponse.data.orderState).toBeDefined()
+  expect(getResponse.data.order.error).toBeDefined()
+  expect(getResponse.data.order.error.error_code).toBe("BOM_UPLOAD_FAILED")
+  expect(getResponse.data.order.error.message).toBe("Bom upload failed")
+
+  expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(true)
+  expect(getResponse.data.orderState.is_gerber_analyzed).toBe(true)
+  expect(getResponse.data.orderState.are_initial_costs_calculated).toBe(true)
+  expect(getResponse.data.orderState.is_pcb_added_to_cart).toBe(true)
+
+  expect(getResponse.data.orderState.is_bom_uploaded).toBe(false)
+
+  expect(getResponse.data.orderState.is_pnp_uploaded).toBe(false)
 })
