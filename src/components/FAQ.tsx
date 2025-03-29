@@ -28,47 +28,116 @@ const QUESTIONS = [
   },
   {
     question: "What exactly is tscircuit?",
-    answer:
-      "tscircuit is first and foremost a framework, but it also can be used to refer to the tscircuit platform, the tscircuit company, the tscircuit registry or ecosystem of components and packages for working with tscircuit. When you use tscircuit, you're becoming compatible with a growing ecosystem of web-first electronics technologies.",
+    answer: (
+      <>
+        <p className="mb-2">
+          tscircuit is a <strong>React/TypeScript framework</strong> for
+          designing electronic circuits programmatically.
+        </p>
+        <p className="mb-2">
+          Instead of using traditional graphical interfaces, you write code to
+          define components, their connections, and layout constraints. This
+          "electronics design as code" approach unlocks powerful capabilities
+          like reusable packages, continuous automation, parameterization, and
+          integration with modern software development workflows (like version
+          control with Git).
+        </p>
+        <p className="mb-2">
+          While the core of tscircuit is the framework, the term "tscircuit"
+          often refers to the broader <strong>ecosystem</strong> built around
+          it. This includes:
+        </p>
+        <ul className="list-disc list-inside mb-2 pl-4">
+          <li>The online development platform and registry (tscircuit.com)</li>
+          <li>
+            The{" "}
+            <a
+              className="text-blue-600 underline hover:text-blue-800"
+              href="https://docs.tscircuit.com/intro/quickstart-cli"
+            >
+              command-line interface (CLI)
+            </a>{" "}
+            for local development
+          </li>
+        </ul>
+        <p>
+          tscircuit is a modern, web-first approach to hardware development. To
+          learn more about the core concepts and architecture, visit the{" "}
+          <a
+            href="https://docs.tscircuit.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-blue-600 hover:text-blue-800" // Optional styling
+          >
+            official documentation
+          </a>
+          .
+        </p>
+      </>
+    ),
   },
   {
     question: "Can I use tscircuit programmatically?",
     answer: (
-      <span>
-        Yes, use the{" "}
-        <a href="https://github.com/tscircuit/core">@tscircuit/core</a> module
-        to use classes and/or React and build to various formats. If you'd like
-        to dynamically evaluate tscircuit code with automatic import handling,
-        you can use{" "}
-        <a href="https://github.com/tscircuit/eval-webworker">
-          @tscircuit/eval-webworker
-        </a>
-        . You can use{" "}
-        <a href="https://github.com/tscircuit/runframe">@tscircuit/runframe</a>{" "}
-        to any view (schematic, PCB etc.) of your compiled Circuit JSON.
-      </span>
+      <>
+        <p className="mb-2">
+          Yes, you can use tscircuit programmatically with these packages:
+        </p>
+        <ul className="list-disc list-inside mb-2 pl-4">
+          <li>
+            <a
+              className="text-blue-600 underline hover:text-blue-800"
+              href="https://github.com/tscircuit/core"
+            >
+              @tscircuit/core
+            </a>{" "}
+            - Execute tscircuit React code directly in Node, Bun or a browser to
+            create Circuit JSON
+          </li>
+          <li>
+            <a
+              className="text-blue-600 underline hover:text-blue-800"
+              href="https://github.com/tscircuit/eval"
+            >
+              @tscircuit/eval
+            </a>{" "}
+            - Dynamically run tscircuit code with automatic import handling and
+            transpilation support builtin
+          </li>
+          <li>
+            <a
+              className="text-blue-600 underline hover:text-blue-800"
+              href="https://github.com/tscircuit/runframe"
+            >
+              @tscircuit/runframe
+            </a>{" "}
+            - React components for viewing and running circuits in the browser
+          </li>
+        </ul>
+      </>
     ),
   },
   {
     question: "How do I display tscircuit circuits on my website?",
     answer: (
       <span>
-        You can use our React components to display tscircuit on a webpage. For
-        simple cases, you can use{" "}
-        <a href="https://github.com/tscircuit/pcb-viewer">
-          @tscircuit/pcb-viewer
+        tscircuit code builds into{" "}
+        <a
+          className="text-blue-600 underline hover:text-blue-800"
+          href="https://github.com/tscircuit/circuit-json"
+        >
+          Circuit JSON
         </a>
-        ,{" "}
-        <a href="https://github.com/tscircuit/schematic-viewer">
-          @tscircuit/schematic-viewer
-        </a>
-        , or{" "}
-        <a href="https://github.com/tscircuit/3d-viewer">
-          @tscircuit/3d-viewer
+        , you can then use the <code>CircuitJsonViewer</code> component
+        inside&nbsp;
+        <a
+          className="text-blue-600 underline hover:text-blue-800"
+          href="https://github.com/tscircuit/runframe"
+        >
+          @tscircuit/runframe
         </a>{" "}
-        directly. For more complex use cases,{" "}
-        <a href="https://github.com/tscircuit/runframe">@tscircuit/runframe</a>{" "}
-        is recommended as it provides a unified interface for all viewers.
+        to display the Circuit JSON on your website as a Schematic, PCB, or 3D
+        view.
       </span>
     ),
   },
@@ -76,8 +145,13 @@ const QUESTIONS = [
     question: "What is Circuit JSON?",
     answer: (
       <span>
-        <a href="https://github.com/tscircuit/circuit-json">Circuit JSON</a> is
-        a JSON format for representing electronic circuits. It is a sort of
+        <a
+          className="text-blue-600 underline hover:text-blue-800"
+          href="https://github.com/tscircuit/circuit-json"
+        >
+          Circuit JSON
+        </a>{" "}
+        is a JSON format for representing electronic circuits. It is a sort of
         assembly language electronic circuits. All tscircuit designs are
         compiled to Circuit JSON as the intermediary format.
       </span>
