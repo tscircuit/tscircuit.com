@@ -45,8 +45,18 @@ export default defineConfig(async (): Promise<UserConfig> => {
   const plugins: PluginOption[] = [
     react(),
     vercel({
-      prerender: false,
+      prerender: true,
       buildCommand: "bun run build",
+      generateStaticParams: [
+        // Define routes that should be pre-rendered
+        {
+          route: "/:author/:snippetName",
+          params: [
+            // Common paths will be pre-rendered, but dynamic routes will be handled at request time
+            // with proper meta tags
+          ],
+        },
+      ],
     }),
     ViteImageOptimizer({
       png: {

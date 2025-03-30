@@ -64,21 +64,34 @@ export const ViewSnippetPage = () => {
     <>
       <Helmet>
         <title>{`${author}/${snippetName} - tscircuit`}</title>
+        <meta name="description" content={`${snippet?.description || `View circuit design ${author}/${snippetName} on tscircuit`}`} />
         {snippet && (
           <>
             <meta
               property="og:title"
               content={`${author}/${snippetName} - tscircuit`}
             />
+            <meta 
+              property="og:description" 
+              content={snippet?.description || `View circuit design ${author}/${snippetName} on tscircuit`} 
+            />
+            <meta
+              property="og:url"
+              content={`https://tscircuit.com/${author}/${snippetName}`}
+            />
             <meta
               property="og:image"
-              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
+              content={`https://tscircuit.com/api/snippets/images/${author}/${snippetName}/pcb.svg`}
             />
+            <meta property="og:type" content="website" />
             <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={`${author}/${snippetName} - tscircuit`} />
+            <meta name="twitter:description" content={snippet?.description || `View circuit design ${author}/${snippetName} on tscircuit`} />
             <meta
               name="twitter:image"
-              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
+              content={`https://tscircuit.com/api/snippets/images/${author}/${snippetName}/pcb.svg`}
             />
+            <link rel="canonical" href={`https://tscircuit.com/${author}/${snippetName}`} />
           </>
         )}
       </Helmet>
