@@ -72,12 +72,12 @@ export const ViewSnippetPage = () => {
             />
             <meta
               property="og:image"
-              content={`/api/snippets/images/${author}/${snippetName}/pcb`}
+              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`/api/snippets/images/${author}/${snippetName}/pcb`}
+              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
             />
           </>
         )}

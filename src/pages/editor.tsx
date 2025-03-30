@@ -25,12 +25,12 @@ export const EditorPage = () => {
             />
             <meta
               property="og:image"
-              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb`}
+              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb`}
+              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
             />
           </>
         )}
