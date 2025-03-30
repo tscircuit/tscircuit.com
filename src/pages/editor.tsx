@@ -3,6 +3,7 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
 import { useSnippet } from "@/hooks/use-snippet"
+import { Helmet } from "react-helmet-async"
 
 export const EditorPage = () => {
   const { snippetId } = useCurrentSnippetId()
@@ -10,6 +11,30 @@ export const EditorPage = () => {
 
   return (
     <div className="overflow-x-hidden">
+      <Helmet>
+        <title>
+          {snippet
+            ? `${snippet.unscoped_name} - tscircuit`
+            : "tscircuit editor"}
+        </title>
+        {snippet && (
+          <>
+            <meta
+              property="og:title"
+              content={`${snippet.unscoped_name} - tscircuit`}
+            />
+            <meta
+              property="og:image"
+              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+            />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta
+              name="twitter:image"
+              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+            />
+          </>
+        )}
+      </Helmet>
       <Header />
       {!error && <CodeAndPreview snippet={snippet} />}
       {error && error.status === 404 && (

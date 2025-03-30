@@ -10,7 +10,7 @@ import { Share } from "lucide-react"
 import { useParams } from "wouter"
 import { PreviewContent } from "@/components/PreviewContent"
 import Footer from "@/components/Footer"
-import { Helmet } from "react-helmet"
+import { Helmet } from "react-helmet-async"
 import type { AnyCircuitElement } from "circuit-json"
 import StaticViewSnippetHeader from "../components/StaticViewSnippetHeader"
 import StaticPreviewContent from "../components/StaticPreviewContent"
@@ -63,7 +63,24 @@ export const ViewSnippetPage = () => {
   return (
     <>
       <Helmet>
-        <title>{`tscircuit - ${author}/${snippetName}`}</title>
+        <title>{`${author}/${snippetName} - tscircuit`}</title>
+        {snippet && (
+          <>
+            <meta
+              property="og:title"
+              content={`${author}/${snippetName} - tscircuit`}
+            />
+            <meta
+              property="og:image"
+              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
+            />
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta
+              name="twitter:image"
+              content={`/api/snippets/images/${author}/${snippetName}/pcb.svg`}
+            />
+          </>
+        )}
       </Helmet>
       <div>
         <Header />
