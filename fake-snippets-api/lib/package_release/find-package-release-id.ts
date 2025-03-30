@@ -116,7 +116,5 @@ export const findPackageReleaseIdFromPackageNameWithVersion = (
     return null
   }
 
-  console.log("packageRelease", packageRelease)
-
   return packageRelease.package_release_id
 }
