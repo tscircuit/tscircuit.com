@@ -2,12 +2,32 @@
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 120 120"
   fill="none"
-  stroke="white"
-  stroke-width="2"
-  stroke-linecap="round"
-  stroke-linejoin="round"
 >
+  <!-- Background -->
   <rect width="120" height="120" fill="black" />
-  
-  <rect x="30" y="30" width="60" height="60" stroke="gray" fill="none" />
+
+  <!-- Circuit-like design (Lines First, Then Circles) -->
+  <line x1="40" y1="40" x2="80" y2="40" stroke="gray" />
+  <line x1="40" y1="40" x2="40" y2="80" stroke="gray" />
+  <line x1="80" y1="40" x2="80" y2="80" stroke="gray" />
+  <line x1="40" y1="80" x2="80" y2="80" stroke="gray" />
+
+  <circle cx="40" cy="40" r="6" fill="#c83434" />
+  <circle cx="80" cy="40" r="6" fill="#c83434" />
+  <circle cx="40" cy="80" r="6" fill="#c83434" />
+  <circle cx="80" cy="80" r="6" fill="#c83434" />
+
+  <!-- Lighter, Smaller, and More Spaced Text -->
+  <text
+    x="60"
+    y="105"
+    text-anchor="middle"
+    font-size="7"
+    fill="white"
+    font-family="Arial, sans-serif"
+    font-weight="100"
+    letter-spacing="1px"
+  >
+    No Preview Available
+  </text>
 </svg>
