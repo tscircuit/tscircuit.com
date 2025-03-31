@@ -10,17 +10,13 @@ const __dirname = dirname(__filename)
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
-function getHtmlWithModifiedSeoTags({
-  title,
-  description,
-  canonicalUrl,
-}) {
-  const seoStartTag = "<!-- SEO_START -->";
-  const seoEndTag = "<!-- SEO_END -->";
-  const startIndex = htmlContent.indexOf(seoStartTag);
-  const endIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length;
+function getHtmlWithModifiedSeoTags({ title, description, canonicalUrl }) {
+  const seoStartTag = "<!-- SEO_START -->"
+  const seoEndTag = "<!-- SEO_END -->"
+  const startIndex = htmlContent.indexOf(seoStartTag)
+  const endIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length
 
-   const seoTags = `
+  const seoTags = `
   <title>${title}</title>
   <meta name="description"
     content="${description}" />
@@ -40,24 +36,27 @@ function getHtmlWithModifiedSeoTags({
 }
 
 async function handleCustomPackageHtml(req, res) {
-
   // Get the author and package name
   const [_, author, unscopedPackageName] = req.url.split("/")
   if (!author || !unscopedPackageName) {
     throw new Error("Invalid author/package URL")
   }
 
-  const {package: packageInfo} = await ky.get(`https://registry-api.tscircuit.com/packages/get`, {
-    searchParams: {
-      name: `${author}/${unscopedPackageName}`,
-    }
-  }).json()
+  const { package: packageInfo } = await ky
+    .get(`https://registry-api.tscircuit.com/packages/get`, {
+      searchParams: {
+        name: `${author}/${unscopedPackageName}`,
+      },
+    })
+    .json()
 
   if (!packageInfo) {
     throw new Error("Package not found")
   }
 
-  const description = he.encode(`${packageInfo.description || packageInfo.ai_description || 'A tscircuit component created by ' + author} ${packageInfo.ai_usage_instructions ?? ""}`)
+  const description = he.encode(
+    `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
+  )
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
   const html = getHtmlWithModifiedSeoTags({
@@ -85,7 +84,7 @@ async function handleCustomPage(req, res) {
     description: ``,
     canonicalUrl: `https://tscircuit.com/${page}`,
   })
-  
+
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400")
   res.status(200).send(html)
