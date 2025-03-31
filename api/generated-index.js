@@ -10,6 +10,8 @@ const __dirname = dirname(__filename)
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
+const cacheControlHeader = "public, max-age=120, s-maxage=120"
+
 function getHtmlWithModifiedSeoTags({
   title,
   description,
@@ -44,7 +46,7 @@ function getHtmlWithModifiedSeoTags({
 
 async function handleCustomPackageHtml(req, res) {
   // Get the author and package name
-  const [_, author, unscopedPackageName] = req.url.split("/")
+  const [_, author, unscopedPackageName] = req.url.split("?")[0].split("/")
   if (!author || !unscopedPackageName) {
     throw new Error("Invalid author/package URL")
   }
@@ -74,12 +76,12 @@ async function handleCustomPackageHtml(req, res) {
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
-  res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400")
+  res.setHeader("Cache-Control", cacheControlHeader)
   res.status(200).send(html)
 }
 
 async function handleCustomPage(req, res) {
-  const [_, page] = req.url.split("/")
+  const [_, page] = req.url.split("?")[0].split("/")
 
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
@@ -94,7 +96,7 @@ async function handleCustomPage(req, res) {
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
-  res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400")
+  res.setHeader("Cache-Control", cacheControlHeader)
   res.status(200).send(html)
 }
 
@@ -114,6 +116,6 @@ export default async function handler(req, res) {
   }
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
-  res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400")
+  res.setHeader("Cache-Control", cacheControlHeader)
   res.status(200).send(htmlContent)
 }
