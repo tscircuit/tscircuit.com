@@ -2,8 +2,10 @@ export async function loadPrettier() {
   if (window.prettier) return
 
   await Promise.all([
-    loadScript("https://unpkg.com/prettier@2.8.8/standalone.js"),
-    loadScript("https://unpkg.com/prettier@2.8.8/parser-typescript.js"),
+    loadScript("https://cdn.jsdelivr.net/npm/prettier@2.8.8/standalone.js"),
+    loadScript(
+      "https://cdn.jsdelivr.net/npm/prettier@2.8.8/parser-typescript.js",
+    ),
   ])
 }
 
