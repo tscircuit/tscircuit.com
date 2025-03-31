@@ -1,6 +1,12 @@
-import { Box, CircuitBoard, Layers, Rotate3D } from "lucide-react"
-import React from "react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { Box, CircuitBoard, Layers, Rotate3D } from "lucide-react"
+import type React from "react"
 
 type SnippetType = "board" | "package" | "footprint" | "model"
 
@@ -23,14 +29,32 @@ const typeColors: Record<SnippetType, string> = {
   model: "text-indigo-500",
 }
 
+const typeLabels: Record<SnippetType, string> = {
+  board: "Board",
+  package: "Package",
+  footprint: "Footprint",
+  model: "Model",
+}
+
 export const SnippetTypeIcon: React.FC<SnippetTypeIconProps> = ({
   type,
   className,
 }) => {
   if (!type || !(type in typeIcons)) return null
   return (
-    <span className={cn("flex items-center", typeColors[type], className)}>
-      {typeIcons[type]}
-    </span>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span
+            className={cn("flex items-center", typeColors[type], className)}
+          >
+            {typeIcons[type]}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{typeLabels[type]}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
