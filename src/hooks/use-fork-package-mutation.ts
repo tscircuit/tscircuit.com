@@ -1,4 +1,8 @@
-import { Package, PackageFile, PackageRelease } from "fake-snippets-api/lib/db/schema"
+import {
+  Package,
+  PackageFile,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
 import { useAxios } from "./use-axios"
 import { useGlobalStore } from "./use-global-store"
@@ -27,7 +31,7 @@ export const useForkPackageMutation = ({
 
       // Step 1: Fetch source package data
       const { data: packageData } = await axios.get("/packages/get", {
-        params: { package_id: packageId }
+        params: { package_id: packageId },
       })
       const sourcePackage: Package = packageData.package
       if (!sourcePackage) throw new Error("Source package not found")
@@ -42,7 +46,7 @@ export const useForkPackageMutation = ({
 
       // Step 3: Fetch all files for the release
       const { data: filesData } = await axios.post("/package_files/list", {
-        package_release_id: sourceRelease.package_release_id
+        package_release_id: sourceRelease.package_release_id,
       })
       const sourceFiles: PackageFile[] = filesData.package_files
       if (!sourceFiles?.length) throw new Error("No source files found")
@@ -69,8 +73,8 @@ export const useForkPackageMutation = ({
             package_release_id: newRelease.package_release_id,
             file_path: file.file_path,
             content_text: file.content_text ?? undefined,
-          })
-        )
+          }),
+        ),
       )
 
       return {
@@ -94,6 +98,6 @@ export const useForkPackageMutation = ({
           variant: "destructive",
         })
       },
-    }
+    },
   )
 }
