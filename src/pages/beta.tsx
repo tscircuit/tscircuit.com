@@ -20,32 +20,35 @@ export const BetaPage = () => {
     },
     release: {
       version: "1.0.0",
-      is_latest: true
+      is_latest: true,
     },
     file: {
       file_path: "src/index.ts",
       content_text: 'export const hello = () => console.log("Hello!");',
-      content_mimetype: "text/typescript"
-    }
+      content_mimetype: "text/typescript",
+    },
   }
 
   // Mutations and queries
-  const { mutate: createPackage, isLoading: isCreatingPackage } = useCreatePackageMutation({
-    onSuccess: (pkg) => setCreatedPackageId(pkg.package_id)
-  })
-  const { mutate: createRelease, isLoading: isCreatingRelease } = useCreatePackageReleaseMutation({
-    onSuccess: (release) => setCreatedReleaseId(release.package_release_id)
-  })
-  const { mutate: createFile, isLoading: isCreatingFile } = useCreatePackageFilesMutation({
-    onSuccess: (file) => setCreatedFileId(file.package_file_id)
-  })
+  const { mutate: createPackage, isLoading: isCreatingPackage } =
+    useCreatePackageMutation({
+      onSuccess: (pkg) => setCreatedPackageId(pkg.package_id),
+    })
+  const { mutate: createRelease, isLoading: isCreatingRelease } =
+    useCreatePackageReleaseMutation({
+      onSuccess: (release) => setCreatedReleaseId(release.package_release_id),
+    })
+  const { mutate: createFile, isLoading: isCreatingFile } =
+    useCreatePackageFilesMutation({
+      onSuccess: (file) => setCreatedFileId(file.package_file_id),
+    })
 
   const { data: packageData } = usePackageById(createdPackageId)
   const { data: releaseData } = usePackageRelease(
-    createdReleaseId ? { package_release_id: createdReleaseId } : null
+    createdReleaseId ? { package_release_id: createdReleaseId } : null,
   )
   const { data: fileData } = usePackageFile(
-    createdFileId ? { package_file_id: createdFileId } : null
+    createdFileId ? { package_file_id: createdFileId } : null,
   )
 
   return (
@@ -76,10 +79,13 @@ export const BetaPage = () => {
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-semibold">2. Create Release</h2>
             <button
-              onClick={() => createdPackageId && createRelease({
-                package_id: createdPackageId,
-                ...demoData.release
-              })}
+              onClick={() =>
+                createdPackageId &&
+                createRelease({
+                  package_id: createdPackageId,
+                  ...demoData.release,
+                })
+              }
               disabled={!createdPackageId || Boolean(createdReleaseId)}
               className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 disabled:bg-blue-300"
             >
@@ -98,10 +104,13 @@ export const BetaPage = () => {
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-semibold">3. Create File</h2>
             <button
-              onClick={() => createdReleaseId && createFile({
-                package_release_id: createdReleaseId,
-                ...demoData.file
-              })}
+              onClick={() =>
+                createdReleaseId &&
+                createFile({
+                  package_release_id: createdReleaseId,
+                  ...demoData.file,
+                })
+              }
               disabled={!createdReleaseId || Boolean(createdFileId)}
               className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 disabled:bg-blue-300"
             >

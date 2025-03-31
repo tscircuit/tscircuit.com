@@ -25,7 +25,7 @@ export const useCreatePackageReleaseMutation = ({
       // Validate that either package_id + version or package_name_with_version is provided
       if (!package_name_with_version && (!package_id || !version)) {
         throw new Error(
-          "Must provide either package_id + version or package_name_with_version"
+          "Must provide either package_id + version or package_name_with_version",
         )
       }
 
@@ -52,6 +52,6 @@ export const useCreatePackageReleaseMutation = ({
       onError: (error: any) => {
         console.error("Error creating package release:", error)
       },
-    }
+    },
   )
 }

@@ -18,6 +18,6 @@ export const usePackageById = (packageId: string | null) => {
     {
       retry: false,
       enabled: Boolean(packageId),
-    }
+    },
   )
 }

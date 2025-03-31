@@ -44,20 +44,20 @@ export const usePackageFile = (query: PackageFileQuery | null) => {
     {
       retry: false,
       enabled: Boolean(query),
-    }
+    },
   )
 }
 
 // Convenience hooks for common use cases
 export const usePackageFileById = (packageFileId: string | null) => {
   return usePackageFile(
-    packageFileId ? { package_file_id: packageFileId } : null
+    packageFileId ? { package_file_id: packageFileId } : null,
   )
 }
 
 export const usePackageFileByPath = (
   packageNameWithVersion: string | null,
-  filePath: string | null
+  filePath: string | null,
 ) => {
   return usePackageFile(
     packageNameWithVersion && filePath
@@ -65,13 +65,13 @@ export const usePackageFileByPath = (
           package_name_with_version: packageNameWithVersion,
           file_path: filePath,
         }
-      : null
+      : null,
   )
 }
 
 export const usePackageFileByRelease = (
   packageReleaseId: string | null,
-  filePath: string | null
+  filePath: string | null,
 ) => {
   return usePackageFile(
     packageReleaseId && filePath
@@ -79,6 +79,6 @@ export const usePackageFileByRelease = (
           package_release_id: packageReleaseId,
           file_path: filePath,
         }
-      : null
+      : null,
   )
 }

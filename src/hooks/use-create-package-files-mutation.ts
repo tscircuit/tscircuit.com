@@ -29,13 +29,20 @@ export const useCreatePackageFilesMutation = ({
       npm_pack_output?: any
     }) => {
       // Validate that either content_text or content_base64 is provided, but not both
-      if ((!content_text && !content_base64) || (content_text && content_base64)) {
-        throw new Error("Must provide either content_text or content_base64, but not both")
+      if (
+        (!content_text && !content_base64) ||
+        (content_text && content_base64)
+      ) {
+        throw new Error(
+          "Must provide either content_text or content_base64, but not both",
+        )
       }
 
       // Validate that either package_release_id or package_name_with_version is provided
       if (!package_release_id && !package_name_with_version) {
-        throw new Error("Must provide either package_release_id or package_name_with_version")
+        throw new Error(
+          "Must provide either package_release_id or package_name_with_version",
+        )
       }
 
       const {
@@ -64,6 +71,6 @@ export const useCreatePackageFilesMutation = ({
       onError: (error: any) => {
         console.error("Error creating package file:", error)
       },
-    }
+    },
   )
 }

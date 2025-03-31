@@ -29,19 +29,23 @@ export const usePackageRelease = (query: PackageReleaseQuery | null) => {
     {
       retry: false,
       enabled: Boolean(query),
-    }
+    },
   )
 }
 
 // Convenience hooks for common use cases
 export const usePackageReleaseById = (packageReleaseId: string | null) => {
   return usePackageRelease(
-    packageReleaseId ? { package_release_id: packageReleaseId } : null
+    packageReleaseId ? { package_release_id: packageReleaseId } : null,
   )
 }
 
-export const usePackageReleaseByNameAndVersion = (packageNameWithVersion: string | null) => {
+export const usePackageReleaseByNameAndVersion = (
+  packageNameWithVersion: string | null,
+) => {
   return usePackageRelease(
-    packageNameWithVersion ? { package_name_with_version: packageNameWithVersion } : null
+    packageNameWithVersion
+      ? { package_name_with_version: packageNameWithVersion }
+      : null,
   )
 }
