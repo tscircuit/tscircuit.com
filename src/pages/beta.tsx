@@ -1,6 +1,7 @@
 import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
+import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageById } from "@/hooks/use-package-by-package-id"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
@@ -10,6 +11,7 @@ export const BetaPage = () => {
   const [createdPackageId, setCreatedPackageId] = useState<string | null>(null)
   const [createdReleaseId, setCreatedReleaseId] = useState<string | null>(null)
   const [createdFileId, setCreatedFileId] = useState<string | null>(null)
+  const [forkedPackageId, setForkedPackageId] = useState<string | null>(null)
 
   // Demo data
   const demoData = {
@@ -42,6 +44,9 @@ export const BetaPage = () => {
     useCreatePackageFilesMutation({
       onSuccess: (file) => setCreatedFileId(file.package_file_id),
     })
+  const { mutate: forkPackage, isLoading: isForking } = useForkPackageMutation({
+    onSuccess: (forkedPackage) => setForkedPackageId(forkedPackage.package_id),
+  })
 
   const { data: packageData } = usePackageById(createdPackageId)
   const { data: releaseData } = usePackageRelease(
@@ -50,11 +55,12 @@ export const BetaPage = () => {
   const { data: fileData } = usePackageFile(
     createdFileId ? { package_file_id: createdFileId } : null,
   )
+  const { data: forkedPackageData } = usePackageById(forkedPackageId)
 
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Package Management Demo</h1>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {/* Package Creation */}
         <div className="bg-white p-4 rounded-lg shadow">
           <div className="flex items-center justify-between mb-2">
@@ -120,6 +126,25 @@ export const BetaPage = () => {
           {fileData && (
             <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-40">
               {JSON.stringify(fileData, null, 2)}
+            </pre>
+          )}
+        </div>
+
+        {/* Fork Package */}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-semibold">4. Fork Package</h2>
+            <button
+              onClick={() => createdPackageId && forkPackage(createdPackageId)}
+              disabled={!createdPackageId || isForking}
+              className="bg-green-500 text-white px-3 py-1 text-sm rounded hover:bg-green-600 disabled:bg-green-300"
+            >
+              {forkedPackageId ? "✓" : "Fork"}
+            </button>
+          </div>
+          {forkedPackageData && (
+            <pre className="text-xs bg-gray-50 p-2 rounded overflow-auto max-h-40">
+              {JSON.stringify(forkedPackageData, null, 2)}
             </pre>
           )}
         </div>

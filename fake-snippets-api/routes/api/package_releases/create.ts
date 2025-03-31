@@ -76,6 +76,14 @@ export default withRouteSpec({
     commit_sha: commit_sha ?? null,
   })
 
+  // Update the package's latest_package_release_id if this is the latest release
+  if (is_latest) {
+    ctx.db.updatePackage(package_id, {
+      latest_package_release_id: newPackageRelease.package_release_id,
+      latest_version: version,
+    })
+  }
+
   return ctx.json({
     ok: true,
     package_release: publicMapPackageRelease(newPackageRelease),
