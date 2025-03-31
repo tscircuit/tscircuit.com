@@ -65,7 +65,7 @@ async function handleCustomPackageHtml(req, res) {
     title,
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
-    imageUrl: `https://tscircuit.com/api/packages/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`
+    imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
