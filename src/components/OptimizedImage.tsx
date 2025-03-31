@@ -55,7 +55,6 @@ export function OptimizedImage({
   fallbackSrc = "/images/fallback-image.svg",
   ...props
 }: OptimizedImageProps) {
-  
   const [currentSrc, setCurrentSrc] = useState(src)
   const [imageLoading, setImageLoading] = useState(true)
   const { srcSet, sizes } = getImageSizes(currentSrc)
