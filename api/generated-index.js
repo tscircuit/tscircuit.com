@@ -1,3 +1,4 @@
+// api/generated-index.js
 import ky from "ky"
 import { readFileSync } from "fs"
 import { join, dirname } from "path"
@@ -10,7 +11,7 @@ const __dirname = dirname(__filename)
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
-const cacheControlHeader = "public, max-age=120, s-maxage=120"
+const cacheControlHeader = "public, max-age=0, must-revalidate"
 
 function getHtmlWithModifiedSeoTags({
   title,
@@ -77,6 +78,8 @@ async function handleCustomPackageHtml(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
+  // Add ETag support for better caching
+  res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
 
@@ -97,6 +100,8 @@ async function handleCustomPage(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
+  // Add ETag support for better caching
+  res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
 
@@ -117,5 +122,7 @@ export default async function handler(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
+  // Add ETag support for better caching
+  res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(htmlContent)
 }
