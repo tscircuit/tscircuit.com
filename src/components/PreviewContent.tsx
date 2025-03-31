@@ -15,6 +15,7 @@ import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { CircuitToSvgWithMouseControl } from "./CircuitToSvgWithMouseControl"
 import { BomTable } from "./BomTable"
 import { useCurrentSnippet } from "@/hooks/use-current-snippet"
+
 import {
   CheckIcon,
   CopyIcon,
@@ -115,9 +116,10 @@ export const PreviewContent = ({
       setActiveTab("pcb")
     }
   }, [circuitJson])
-
   const handleCopy = () => {
-    navigator.clipboard.writeText(`tsci clone @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`)
+    navigator.clipboard.writeText(
+      `tsci clone @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`,
+    )
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -136,7 +138,7 @@ export const PreviewContent = ({
               <pre className="text-sm font-mono text-gray-700 dark:text-gray-300">
                 tsci clone @tsci/{snippet?.owner_name}.{snippet?.unscoped_name}
               </pre>
-              <button 
+              <button
                 className="ml-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                 onClick={handleCopy}
                 aria-label="Copy clone command"
@@ -324,6 +326,12 @@ export const PreviewContent = ({
                     key={tsxRunTriggerCount}
                     circuitJson={circuitJson}
                   />
+                  // Waiting for Schematic Viewer to stablize
+                  // <Schematic
+                  //   style={{ height: "500px" }}
+                  //   key={tsxRunTriggerCount}
+                  //   soup={circuitJson}
+                  // />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
