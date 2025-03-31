@@ -14,8 +14,10 @@ import { RunButton } from "./RunButton"
 import { CircuitJsonTableViewer } from "./TableViewer/CircuitJsonTableViewer"
 import { CircuitToSvgWithMouseControl } from "./CircuitToSvgWithMouseControl"
 import { BomTable } from "./BomTable"
+import { useCurrentSnippet } from "@/hooks/use-current-snippet"
 import {
   CheckIcon,
+  CopyIcon,
   EllipsisIcon,
   EllipsisVerticalIcon,
   FullscreenIcon,
@@ -86,7 +88,9 @@ export const PreviewContent = ({
 }: PreviewContentProps) => {
   const [activeTab, setActiveTab] = useState(showCodeTab ? "code" : "pcb")
   const [lastRunHash, setLastRunHash] = useState("")
+  const [copied, setCopied] = useState(false)
   const threeJsObjectRef = useRef<any>(null)
+  const { snippet } = useCurrentSnippet()
 
   useEffect(() => {
     window.TSCIRCUIT_3D_OBJECT_REF = threeJsObjectRef
@@ -112,6 +116,12 @@ export const PreviewContent = ({
     }
   }, [circuitJson])
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(`tsci clone @tsci/${snippet?.owner_name}.${snippet?.unscoped_name}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div className={cn("flex flex-col relative", className)}>
       <div className="md:sticky md:top-2">
@@ -122,6 +132,22 @@ export const PreviewContent = ({
         >
           <div className={cn("flex items-center gap-2", headerClassName)}>
             {leftHeaderContent}
+            <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-md px-3 py-1.5 mr-2 border dark:border-gray-700">
+              <pre className="text-sm font-mono text-gray-700 dark:text-gray-300">
+                tsci clone @tsci/{snippet?.owner_name}.{snippet?.unscoped_name}
+              </pre>
+              <button 
+                className="ml-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                onClick={handleCopy}
+                aria-label="Copy clone command"
+              >
+                {copied ? (
+                  <CheckIcon className="w-4 h-4 text-green-500" />
+                ) : (
+                  <CopyIcon className="w-4 h-4" />
+                )}
+              </button>
+            </div>
             {leftHeaderContent && <div className="flex-grow" />}
             <RunButton
               onClick={() => triggerRunTsx()}
@@ -298,12 +324,6 @@ export const PreviewContent = ({
                     key={tsxRunTriggerCount}
                     circuitJson={circuitJson}
                   />
-                  // Waiting for Schematic Viewer to stablize
-                  // <Schematic
-                  //   style={{ height: "500px" }}
-                  //   key={tsxRunTriggerCount}
-                  //   soup={circuitJson}
-                  // />
                 ) : (
                   <PreviewEmptyState triggerRunTsx={triggerRunTsx} />
                 )}
