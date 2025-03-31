@@ -70,6 +70,7 @@ const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
 const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
 const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
+const BetaPage = lazyImport(() => import("@/pages/beta"))
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -99,6 +100,7 @@ function App() {
         <Suspense fallback={<FullPageLoader />}>
           <Switch>
             <Route path="/" component={LandingPage} />
+            <Route path="/beta" component={BetaPage} />
             <Route path="/editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
