@@ -28,6 +28,7 @@ interface OptimizedImageProps
   src: string
   alt: string
   priority?: boolean
+  fallbackSrc?: string
 }
 
 const getImageSizes = (src: string) => {
@@ -51,10 +52,12 @@ export function OptimizedImage({
   alt,
   className,
   priority = false,
+  fallbackSrc = "/assets/fallback-image.svg",
   ...props
 }: OptimizedImageProps) {
+  const [currentSrc, setCurrentSrc] = useState(src)
   const [imageLoading, setImageLoading] = useState(true)
-  const { srcSet, sizes } = getImageSizes(src)
+  const { srcSet, sizes } = getImageSizes(currentSrc)
 
   useEffect(() => {
     if (priority) {
@@ -75,7 +78,7 @@ export function OptimizedImage({
 
   return (
     <img
-      src={src}
+      src={currentSrc}
       srcSet={srcSet}
       sizes={sizes}
       alt={alt}
@@ -86,8 +89,9 @@ export function OptimizedImage({
         imageLoading ? "animate-pulse bg-gray-200" : ""
       } object-contain`}
       onLoad={() => setImageLoading(false)}
-      onError={(e) => {
-        console.error("Image failed to load:", e)
+      onError={() => {
+        console.error("Image failed to load:", currentSrc)
+        setCurrentSrc(fallbackSrc)
         setImageLoading(false)
       }}
       {...props}
