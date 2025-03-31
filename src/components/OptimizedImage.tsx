@@ -52,7 +52,7 @@ export function OptimizedImage({
   alt,
   className,
   priority = false,
-  fallbackSrc = "/images/fallback-image.svg",
+  fallbackSrc = "/assets/fallback-image.svg",
   ...props
 }: OptimizedImageProps) {
   const [currentSrc, setCurrentSrc] = useState(src)
