@@ -90,7 +90,7 @@ export function OptimizedImage({
       } object-contain`}
       onLoad={() => setImageLoading(false)}
       onError={() => {
-        console.error("Image failed to load:", currentSrc)
+        console.error("Image failed to load, using fallback image", currentSrc)
         setCurrentSrc(fallbackSrc)
         setImageLoading(false)
       }}
