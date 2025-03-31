@@ -12,11 +12,12 @@ export const BetaPage = () => {
   const [createdReleaseId, setCreatedReleaseId] = useState<string | null>(null)
   const [createdFileId, setCreatedFileId] = useState<string | null>(null)
   const [forkedPackageId, setForkedPackageId] = useState<string | null>(null)
+  const [packageName, setPackageName] = useState("")
 
   // Demo data
   const demoData = {
     package: {
-      name: "@testuser/test-package",
+      name: packageName,
       description: "Test package",
       is_private: false,
     },
@@ -24,11 +25,20 @@ export const BetaPage = () => {
       version: "1.0.0",
       is_latest: true,
     },
-    file: {
-      file_path: "src/index.ts",
-      content_text: 'export const hello = () => console.log("Hello!");',
-      content_mimetype: "text/typescript",
-    },
+    files: [
+      {
+        file_path: "src/index.ts",
+        content_text: 'export const hello = () => console.log("Hello!");',
+      },
+      {
+        file_path: "src/utils.ts",
+        content_text: "export const add = (a: number, b: number) => a + b;",
+      },
+      {
+        file_path: "README.md",
+        content_text: "# Test Package\n\nA test package with multiple files.",
+      },
+    ],
   }
 
   // Mutations and queries
@@ -60,6 +70,18 @@ export const BetaPage = () => {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Package Management Demo</h1>
+      <div className="mb-4">
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={packageName}
+            onChange={(e) => setPackageName(e.target.value)}
+            placeholder="test-package"
+            className="flex-1 px-3 py-2 border rounded text-sm"
+            disabled={Boolean(createdPackageId)}
+          />
+        </div>
+      </div>
       <div className="grid grid-cols-4 gap-4">
         {/* Package Creation */}
         <div className="bg-white p-4 rounded-lg shadow">
@@ -67,7 +89,9 @@ export const BetaPage = () => {
             <h2 className="font-semibold">1. Create Package</h2>
             <button
               onClick={() => createPackage(demoData.package)}
-              disabled={isCreatingPackage || Boolean(createdPackageId)}
+              disabled={
+                isCreatingPackage || Boolean(createdPackageId) || !packageName
+              }
               className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 disabled:bg-blue-300"
             >
               {createdPackageId ? "✓" : "Create"}
@@ -108,14 +132,18 @@ export const BetaPage = () => {
         {/* File Creation */}
         <div className="bg-white p-4 rounded-lg shadow">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="font-semibold">3. Create File</h2>
+            <h2 className="font-semibold">3. Create Files</h2>
             <button
               onClick={() =>
                 createdReleaseId &&
-                createFile({
-                  package_release_id: createdReleaseId,
-                  ...demoData.file,
-                })
+                Promise.all(
+                  demoData.files.map((file) =>
+                    createFile({
+                      package_release_id: createdReleaseId,
+                      ...file,
+                    }),
+                  ),
+                )
               }
               disabled={!createdReleaseId || Boolean(createdFileId)}
               className="bg-blue-500 text-white px-3 py-1 text-sm rounded hover:bg-blue-600 disabled:bg-blue-300"
