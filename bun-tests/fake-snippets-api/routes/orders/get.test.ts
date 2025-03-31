@@ -184,11 +184,8 @@ test("get order after polling /move_orders_forward", async () => {
 
   expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(false)
 
-  const moveOrdersForwardResponse = await axios.post(
+  const moveOrdersForwardResponse = await axios.get(
     "/api/_fake/move_orders_forward",
-    {
-      order_id: createResponse.data.order.order_id,
-    },
   )
 
   expect(moveOrdersForwardResponse.status).toBe(200)
