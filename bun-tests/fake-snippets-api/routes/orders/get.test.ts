@@ -158,7 +158,10 @@ test("get order with simulate scenario [is_bom_uploaded ]", async () => {
 })
 
 test("get order after polling /move_orders_forward", async () => {
-  const { axios, seed: { order } } = await getTestServer()
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
 
   const createResponse = await axios.post("/api/orders/create", {
     circuit_json: order.circuit_json,
@@ -174,7 +177,9 @@ test("get order after polling /move_orders_forward", async () => {
 
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.order).toBeDefined()
-  expect(getResponse.data.order.order_id).toBe(createResponse.data.order.order_id)
+  expect(getResponse.data.order.order_id).toBe(
+    createResponse.data.order.order_id,
+  )
   expect(getResponse.data.orderState).toBeDefined()
 
   expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(false)
