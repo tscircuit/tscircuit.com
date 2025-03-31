@@ -25,12 +25,12 @@ export const EditorPage = () => {
             />
             <meta
               property="og:image"
-              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
+              content={`https://registry-api.tscircuit.com/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`/api/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
+              content={`https://registry-api.tscircuit.com/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
             />
           </>
         )}

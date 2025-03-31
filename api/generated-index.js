@@ -10,7 +10,12 @@ const __dirname = dirname(__filename)
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
-function getHtmlWithModifiedSeoTags({ title, description, canonicalUrl }) {
+function getHtmlWithModifiedSeoTags({
+  title,
+  description,
+  canonicalUrl,
+  imageUrl,
+}) {
   const seoStartTag = "<!-- SEO_START -->"
   const seoEndTag = "<!-- SEO_END -->"
   const startIndex = htmlContent.indexOf(seoStartTag)
@@ -29,6 +34,8 @@ function getHtmlWithModifiedSeoTags({ title, description, canonicalUrl }) {
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${title}" />
   <meta name="twitter:description" content="${description}" />
+  ${imageUrl ? `<meta property="og:image" content="${imageUrl}" />` : ""}
+  ${imageUrl ? `<meta name="twitter:image" content="${imageUrl}" />` : ""}
   <link rel="canonical" href="${canonicalUrl}" />
   `
 
@@ -63,6 +70,7 @@ async function handleCustomPackageHtml(req, res) {
     title,
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
+    imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
