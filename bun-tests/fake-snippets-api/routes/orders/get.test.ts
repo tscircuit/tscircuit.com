@@ -67,16 +67,16 @@ test("get order", async () => {
   expect(getResponse.data.orderState).toBeDefined()
   expect(getResponse.data.orderState.order_id).toBe(orderId)
 
-  expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(true)
-  expect(getResponse.data.orderState.is_gerber_analyzed).toBe(true)
-  expect(getResponse.data.orderState.are_initial_costs_calculated).toBe(true)
-  expect(getResponse.data.orderState.is_pcb_added_to_cart).toBe(true)
-  expect(getResponse.data.orderState.is_bom_uploaded).toBe(true)
-  expect(getResponse.data.orderState.is_pnp_uploaded).toBe(true)
-  expect(getResponse.data.orderState.is_bom_pnp_analyzed).toBe(true)
-  expect(getResponse.data.orderState.is_bom_parsing_complete).toBe(true)
-  expect(getResponse.data.orderState.are_components_available).toBe(true)
-  expect(getResponse.data.orderState.is_patch_map_generated).toBe(true)
+  expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(false)
+  expect(getResponse.data.orderState.is_gerber_analyzed).toBe(false)
+  expect(getResponse.data.orderState.are_initial_costs_calculated).toBe(false)
+  expect(getResponse.data.orderState.is_pcb_added_to_cart).toBe(false)
+  expect(getResponse.data.orderState.is_bom_uploaded).toBe(false)
+  expect(getResponse.data.orderState.is_pnp_uploaded).toBe(false)
+  expect(getResponse.data.orderState.is_bom_pnp_analyzed).toBe(false)
+  expect(getResponse.data.orderState.is_bom_parsing_complete).toBe(false)
+  expect(getResponse.data.orderState.are_components_available).toBe(false)
+  expect(getResponse.data.orderState.is_patch_map_generated).toBe(false)
 })
 
 test("get order with simulate scenario", async () => {
@@ -155,4 +155,48 @@ test("get order with simulate scenario [is_bom_uploaded ]", async () => {
   expect(getResponse.data.orderState.is_bom_uploaded).toBe(false)
 
   expect(getResponse.data.orderState.is_pnp_uploaded).toBe(false)
+})
+
+test("get order after polling /move_orders_forward", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  const createResponse = await axios.post("/api/orders/create", {
+    circuit_json: order.circuit_json,
+  })
+
+  expect(createResponse.status).toBe(200)
+  expect(createResponse.data.order).toBeDefined()
+  expect(createResponse.data.order.order_id).toBeDefined()
+
+  const getResponse = await axios.get("/api/orders/get", {
+    params: { order_id: createResponse.data.order.order_id },
+  })
+
+  expect(getResponse.status).toBe(200)
+  expect(getResponse.data.order).toBeDefined()
+  expect(getResponse.data.order.order_id).toBe(
+    createResponse.data.order.order_id,
+  )
+  expect(getResponse.data.orderState).toBeDefined()
+
+  expect(getResponse.data.orderState.are_gerbers_uploaded).toBe(false)
+
+  const moveOrdersForwardResponse = await axios.post(
+    "/api/_fake/move_orders_forward",
+    {
+      order_id: createResponse.data.order.order_id,
+    },
+  )
+
+  expect(moveOrdersForwardResponse.status).toBe(200)
+
+  const getResponseAfterMove = await axios.get("/api/orders/get", {
+    params: { order_id: createResponse.data.order.order_id },
+  })
+
+  expect(getResponseAfterMove.status).toBe(200)
+  expect(getResponseAfterMove.data.orderState.are_gerbers_generated).toBe(true)
 })

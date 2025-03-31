@@ -6,7 +6,7 @@ import {
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 
-const simulateScenarios = [
+export const simulateScenarios = [
   "are_gerbers_generated",
   "are_gerbers_uploaded",
   "is_gerber_analyzed",
@@ -168,14 +168,13 @@ export default withRouteSpec({
       updatedOrderState.current_step = simulateScenarios[currentIndex]
     }
   } else {
-    Object.keys(defaultOrderState).forEach((key) => {
-      if (key !== "current_step" && key !== "are_final_costs_calculated") {
-        const k = key as keyof typeof updatedOrderState
-        if (typeof updatedOrderState[k] === "boolean") {
-          ;(updatedOrderState[k] as boolean) = true
-        }
-      }
-    })
+    const existingState = ctx.db.getJlcpcbOrderStatesByOrderId(order_id)
+    if (existingState) {
+      return ctx.json({
+        order,
+        orderState: existingState,
+      })
+    }
   }
 
   ctx.db.updateJlcpcbOrderState(order_id, updatedOrderState)
