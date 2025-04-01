@@ -52,14 +52,14 @@ test("list trending snippets", async () => {
   package1.star_count = 1
   package2.star_count = 3
   package3.star_count = 2
-  
+
   // Add stars to match
   db.addStar("user1", package1.package_id)
-  
+
   db.addStar("user1", package2.package_id)
   db.addStar("user2", package2.package_id)
   db.addStar("user3", package2.package_id)
-  
+
   db.addStar("user1", package3.package_id)
   db.addStar("user2", package3.package_id)
 
