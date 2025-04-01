@@ -18,55 +18,65 @@ export default withRouteSpec({
     package_release: zt.packageReleaseSchema,
   }),
 })(async (req, ctx) => {
-  const { package_release_id, package_name_with_version, package_name, package_id, is_latest } = req.jsonBody
+  const {
+    package_release_id,
+    package_name_with_version,
+    package_name,
+    package_id,
+    is_latest,
+  } = req.jsonBody
 
   // Handle package_name with is_latest
   if (package_name && is_latest === true) {
     const pkg = ctx.db.packages.find((x) => x.name === package_name)
-    
+
     if (!pkg) {
       return ctx.error(404, {
         error_code: "package_not_found",
         message: "Package not found",
       })
     }
-    
+
     // Sort releases by version to find the latest one
     const packageReleases = ctx.db.packageReleases
       .filter((x) => x.package_id === pkg.package_id)
       .sort((a, b) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
       })
-    
+
     if (packageReleases.length === 0) {
       return ctx.error(404, {
         error_code: "package_release_not_found",
         message: "No releases found for this package",
       })
     }
-    
+
     return ctx.json({
       ok: true,
       package_release: publicMapPackageRelease(packageReleases[0]),
     })
   }
-  
+
   // Handle package_id with is_latest
   if (package_id && is_latest === true) {
     // Sort releases by version to find the latest one
     const packageReleases = ctx.db.packageReleases
       .filter((x) => x.package_id === package_id)
       .sort((a, b) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
       })
-    
+
     if (packageReleases.length === 0) {
       return ctx.error(404, {
         error_code: "package_release_not_found",
         message: "No releases found for this package",
       })
     }
-    
+
     return ctx.json({
       ok: true,
       package_release: publicMapPackageRelease(packageReleases[0]),

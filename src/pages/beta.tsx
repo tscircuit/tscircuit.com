@@ -36,7 +36,7 @@ export const BetaPage = () => {
     packageNameWithVersion,
   )
   // Use the new hook instead of usePackageReleaseByNameAndVersion
-  const { data: existingRelease, isSuccess: releaseLoaded } = 
+  const { data: existingRelease, isSuccess: releaseLoaded } =
     useLatestPackageRelease(existingPackage?.package_id)
 
   // Log for debugging
