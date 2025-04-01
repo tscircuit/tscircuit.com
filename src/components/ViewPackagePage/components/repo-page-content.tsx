@@ -18,6 +18,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import ViewSnippetHeader from "@/components/ViewSnippetHeader"
 import PackageHeader from "./package-header"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface PackageFile {
   package_file_id: string
@@ -59,6 +60,7 @@ export default function RepoPageContent({
   onEditClicked,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState("files")
+  const session = useGlobalStore((s) => s.session)
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
@@ -163,7 +165,12 @@ export default function RepoPageContent({
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
       <Header />
-      <PackageHeader packageInfo={packageInfo} />
+      <PackageHeader
+        packageInfo={packageInfo}
+        isCurrentUserAuthor={
+          packageInfo?.creator_account_id === session?.github_username
+        }
+      />
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">

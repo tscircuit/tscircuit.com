@@ -41,7 +41,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     .filter((file) => file.package_release_id === packageReleaseId)
     .map((file) => ({
       ...file,
-      content_text: undefined,
+      content_text: file.content_text ?? undefined,
     }))
 
   return ctx.json({

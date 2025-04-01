@@ -36,7 +36,6 @@ export const useForkPackageMutation = ({
       const sourcePackage: Package = packageData.package
       if (!sourcePackage) throw new Error("Source package not found")
 
-      console.log("sourcePackage", sourcePackage)
       // Step 2: Fetch latest release
       const { data: releaseData } = await axios.post("/package_releases/get", {
         package_release_id: sourcePackage.latest_package_release_id,
@@ -53,10 +52,8 @@ export const useForkPackageMutation = ({
 
       // Step 4: Create new package
       const newPackage = await createPackage({
-        name: `@${session.github_username}/${sourcePackage.unscoped_name}`,
+        name: sourcePackage.unscoped_name,
         description: `Fork of ${sourcePackage.name}`,
-        is_private: false,
-        is_unlisted: false,
       })
 
       // Step 5: Create new release
