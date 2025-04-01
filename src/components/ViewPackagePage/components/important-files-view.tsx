@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Edit, FileText, Code } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
+import { ShikiCodeViewer } from "./ShikiCodeViewer"
 
 interface PackageFile {
   package_file_id: string
@@ -155,9 +156,7 @@ export default function ImportantFilesView({
             activeFilePath.endsWith(".jsx") ||
             activeFilePath.endsWith(".ts") ||
             activeFilePath.endsWith(".tsx")) ? (
-          <pre className="bg-gray-100 dark:bg-[#161b22] p-4 rounded-md overflow-auto">
-            <code>{activeFileContent}</code>
-          </pre>
+          <ShikiCodeViewer code={activeFileContent} filePath={activeFilePath} />
         ) : (
           <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
         )}

@@ -5,6 +5,7 @@ import MainContentHeader from "./main-content-header"
 import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
 import ImportantFilesView from "./important-files-view"
+import { ShikiCodeViewer } from "./ShikiCodeViewer"
 
 // Tab Views
 import FilesView from "./tab-views/files-view"
