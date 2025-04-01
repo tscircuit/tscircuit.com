@@ -1,7 +1,10 @@
 import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { usePackageStarMutationByName, usePackageStarsByName } from "@/hooks/use-package-stars"
+import {
+  usePackageStarMutationByName,
+  usePackageStarsByName,
+} from "@/hooks/use-package-stars"
 import { LockClosedIcon } from "@radix-ui/react-icons"
 import { GitFork, Star } from "lucide-react"
 import { Link } from "wouter"
@@ -34,16 +37,15 @@ export default function PackageHeader({
   const packageName = packageInfo?.unscoped_name
 
   // Use the star hooks
-  const { data: starData, isLoading: isStarDataLoading } = usePackageStarsByName(
-    packageInfo?.name ?? null
-  )
+  const { data: starData, isLoading: isStarDataLoading } =
+    usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
-    packageInfo?.name ?? ""
+    packageInfo?.name ?? "",
   )
 
   const handleStarClick = async () => {
     if (!packageInfo?.name) return
-    
+
     console.log("starData", starData)
     if (starData?.is_starred) {
       await removeStar.mutateAsync()
@@ -52,7 +54,8 @@ export default function PackageHeader({
     }
   }
 
-  const isStarLoading = isStarDataLoading || addStar.isLoading || removeStar.isLoading
+  const isStarLoading =
+    isStarDataLoading || addStar.isLoading || removeStar.isLoading
 
   return (
     <header className="bg-white border-b border-gray-200 py-4">

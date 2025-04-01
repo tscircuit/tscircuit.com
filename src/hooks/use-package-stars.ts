@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import { useAxios } from "./use-axios"
 
-type PackageStarQuery = 
-  | { package_id: string }
-  | { name: string }
+type PackageStarQuery = { package_id: string } | { name: string }
 
 interface PackageStarResponse {
   is_starred: boolean
@@ -21,18 +19,18 @@ export const usePackageStars = (query: PackageStarQuery | null) => {
       }
 
       const { data } = await axios.get("/packages/get", {
-        params: query
+        params: query,
       })
 
       return {
         is_starred: data.package.is_starred ?? false,
-        star_count: data.package.star_count ?? 0
+        star_count: data.package.star_count ?? 0,
       }
     },
     {
       retry: false,
-      enabled: Boolean(query)
-    }
+      enabled: Boolean(query),
+    },
   )
 }
 
@@ -48,8 +46,8 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["packageStars", query])
-      }
-    }
+      },
+    },
   )
 
   const removeStar = useMutation(
@@ -60,13 +58,13 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["packageStars", query])
-      }
-    }
+      },
+    },
   )
 
   return {
     addStar,
-    removeStar
+    removeStar,
   }
 }
 
