@@ -95,7 +95,7 @@ export const UserProfilePage = () => {
               {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
-              {userSnippets?.length || 0} snippets
+              {userSnippets?.length || 0} packages
             </div>
           </div>
         </div>
