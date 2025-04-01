@@ -101,6 +101,7 @@ function App() {
           <Switch>
             <Route path="/" component={LandingPage} />
             <Route path="/beta" component={BetaPage} />
+            <Route path="/beta/:author/:packageName" component={BetaPage} />
             <Route path="/editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />

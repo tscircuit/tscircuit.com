@@ -9,6 +9,14 @@ type PackageReleaseQuery =
   | {
       package_name_with_version: string
     }
+  | {
+      package_name: string
+      is_latest: boolean
+    }
+  | {
+      package_id: string
+      is_latest: boolean
+    }
 
 export const usePackageRelease = (query: PackageReleaseQuery | null) => {
   const axios = useAxios()
@@ -48,4 +56,18 @@ export const usePackageReleaseByNameAndVersion = (
       ? { package_name_with_version: packageNameWithVersion }
       : null,
   )
+}
+
+export const useLatestPackageRelease = (
+  packageId?: string | null,
+  packageName?: string | null,
+) => {
+  // Prioritize packageName if both are provided
+  const query = packageName
+    ? { package_name: packageName, is_latest: true }
+    : packageId
+      ? { package_id: packageId, is_latest: true }
+      : null
+
+  return usePackageRelease(query)
 }
