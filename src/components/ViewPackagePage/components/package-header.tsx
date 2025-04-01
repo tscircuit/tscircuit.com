@@ -1,12 +1,14 @@
 import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import {
   usePackageStarMutationByName,
   usePackageStarsByName,
 } from "@/hooks/use-package-stars"
 import { LockClosedIcon } from "@radix-ui/react-icons"
 import { GitFork, Star } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import { Link } from "wouter"
 
 interface PackageInfo {
@@ -18,40 +20,50 @@ interface PackageInfo {
   ai_description: string
   creator_account_id?: string
   owner_org_id?: string
+  package_id: string
 }
 
 interface PackageHeaderProps {
   packageInfo?: PackageInfo
   isPrivate?: boolean
-  onForkClick?: () => void
   isCurrentUserAuthor?: boolean
 }
 
 export default function PackageHeader({
   packageInfo,
   isPrivate = false,
-  onForkClick,
   isCurrentUserAuthor = false,
 }: PackageHeaderProps) {
   const author = packageInfo?.owner_github_username
   const packageName = packageInfo?.unscoped_name
 
-  // Use the star hooks
+  const { toast } = useToast()
+
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
     packageInfo?.name ?? "",
   )
 
+  const { mutateAsync: forkPackage, isLoading: isForkLoading } = useForkPackageMutation()
+
   const handleStarClick = async () => {
     if (!packageInfo?.name) return
 
-    console.log("starData", starData)
     if (starData?.is_starred) {
       await removeStar.mutateAsync()
     } else {
       await addStar.mutateAsync()
     }
+  }
+
+  const handleForkClick = async () => {
+    if (!packageInfo?.package_id) return
+    await forkPackage(packageInfo.package_id)
+    toast({
+      title: "Forked package",
+      description: "Package forked successfully",
+    })
   }
 
   const isStarLoading =
@@ -111,11 +123,11 @@ export default function PackageHeader({
             <Button
               variant="outline"
               size="sm"
-              onClick={onForkClick}
-              disabled={!onForkClick}
+              onClick={handleForkClick}
+              disabled={isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id}
             >
               <GitFork className="w-4 h-4 mr-2" />
-              {isCurrentUserAuthor ? "Save" : "Fork"}
+              Fork
             </Button>
           </div>
         </div>
