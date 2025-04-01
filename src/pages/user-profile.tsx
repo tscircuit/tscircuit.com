@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { GlobeIcon, MoreVertical, PencilIcon, Trash2 } from "lucide-react"
 import { useConfirmDeleteSnippetDialog } from "@/components/dialogs/confirm-delete-snippet-dialog"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,9 +85,20 @@ export const UserProfilePage = () => {
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">
-          {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
-        </h1>
+        <div className="flex items-center gap-4 mb-6">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={`https://github.com/${username}.png`} />
+            <AvatarFallback>{username?.[0]?.toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="text-3xl font-bold">
+              {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
+            </h1>
+            <div className="text-gray-600 mt-1">
+              {userSnippets?.length || 0} packages
+            </div>
+          </div>
+        </div>
         <div className="mb-6">
           <a
             href={`https://github.com/${username}`}
