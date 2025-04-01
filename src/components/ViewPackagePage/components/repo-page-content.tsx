@@ -165,7 +165,12 @@ export default function RepoPageContent({
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
       <Header />
-      <PackageHeader packageInfo={packageInfo} isCurrentUserAuthor={packageInfo?.creator_account_id === session?.github_username} />
+      <PackageHeader
+        packageInfo={packageInfo}
+        isCurrentUserAuthor={
+          packageInfo?.creator_account_id === session?.github_username
+        }
+      />
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">

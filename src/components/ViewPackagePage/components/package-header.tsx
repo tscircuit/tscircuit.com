@@ -45,7 +45,8 @@ export default function PackageHeader({
     packageInfo?.name ?? "",
   )
 
-  const { mutateAsync: forkPackage, isLoading: isForkLoading } = useForkPackageMutation()
+  const { mutateAsync: forkPackage, isLoading: isForkLoading } =
+    useForkPackageMutation()
 
   const handleStarClick = async () => {
     if (!packageInfo?.name) return
@@ -124,7 +125,9 @@ export default function PackageHeader({
               variant="outline"
               size="sm"
               onClick={handleForkClick}
-              disabled={isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id}
+              disabled={
+                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
+              }
             >
               <GitFork className="w-4 h-4 mr-2" />
               Fork
