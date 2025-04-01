@@ -99,14 +99,17 @@ export default function RepoPageContent({
     })
 
     // Convert directories set to array of directory objects
-    const dirsList = Array.from(dirs).map((path) => {
-      const pathParts = path.split("/")
-      return {
-        type: "directory",
-        path,
-        name: pathParts[pathParts.length - 1],
-      }
-    })
+    const dirsList = Array.from(dirs)
+      .map((path) => {
+        const pathParts = path.split("/")
+        if (!path) return null
+        return {
+          type: "directory",
+          path,
+          name: pathParts[pathParts.length - 1],
+        }
+      })
+      .filter((dir) => dir !== null)
 
     return {
       directories: dirsList,

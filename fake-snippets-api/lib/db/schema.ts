@@ -166,6 +166,7 @@ export const packageSchema = z.object({
   license: z.string().nullable(),
   star_count: z.number().default(0),
   ai_description: z.string().nullable(),
+  ai_usage_instructions: z.string().nullable(),
 })
 export type Package = z.infer<typeof packageSchema>
 

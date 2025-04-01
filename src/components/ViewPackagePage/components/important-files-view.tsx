@@ -26,7 +26,7 @@ interface ImportantFilesViewProps {
 export default function ImportantFilesView({
   importantFiles = [],
   aiDescription,
-  aiUsageInstructions: aiUsage,
+  aiUsageInstructions,
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
@@ -34,7 +34,7 @@ export default function ImportantFilesView({
   const [activeTab, setActiveTab] = useState<string | null>(null)
 
   // Determine if we have AI content
-  const hasAiContent = Boolean(aiDescription || aiUsage)
+  const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
 
   // Select the appropriate tab/file when content changes
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function ImportantFilesView({
       setActiveFilePath(importantFiles[0].file_path)
       setActiveTab("file")
     }
-  }, [importantFiles, aiDescription, aiUsage, hasAiContent])
+  }, [importantFiles, aiDescription, aiUsageInstructions, hasAiContent])
 
   // Get file name from path
   const getFileName = (path: string) => {
@@ -88,10 +88,10 @@ export default function ImportantFilesView({
             <p className="whitespace-pre-wrap">{aiDescription}</p>
           </div>
         )}
-        {aiUsage && (
+        {aiUsageInstructions && (
           <div>
-            <h3 className="font-semibold text-lg mb-2">Usage</h3>
-            <p className="whitespace-pre-wrap">{aiUsage}</p>
+            <h3 className="font-semibold text-lg mb-2">Instructions</h3>
+            <p className="whitespace-pre-wrap">{aiUsageInstructions}</p>
           </div>
         )}
       </div>
@@ -160,7 +160,7 @@ export default function ImportantFilesView({
   return (
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           {/* AI Description Tab */}
           {hasAiContent && (
             <button
