@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
 import MainContentHeader from "./main-content-header"
 import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
@@ -13,6 +12,7 @@ import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
+import { isPackageFileImportant } from "../utils/is-package-file-important"
 
 interface PackageFile {
   package_file_id: string
@@ -45,7 +45,6 @@ interface RepoPageContentProps {
 
 export default function RepoPageContent({
   packageFiles,
-  importantFilePaths = ["README.md", "LICENSE", "package.json"],
   packageInfo,
   onFileClicked,
   onDirectoryClicked,
@@ -55,6 +54,16 @@ export default function RepoPageContent({
   const [activeTab, setActiveTab] = useState("code")
   const [activeView, setActiveView] = useState("files")
   const [mounted, setMounted] = useState(false)
+
+  const importantFilePaths = packageFiles
+    ?.filter((pf) => isPackageFileImportant(pf.file_path))
+    ?.map((pf) => pf.file_path)
+
+  console.log(
+    "file paths",
+    packageFiles?.map((pf) => pf.file_path),
+  )
+  console.log("importantFilePaths", importantFilePaths)
 
   // Ensure component is mounted before rendering content
   useEffect(() => {

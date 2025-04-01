@@ -16,10 +16,15 @@ interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
   isLoading?: boolean
   onEditClicked?: () => void
+
+  aiDescription?: string
+  aiUsage?: string
 }
 
 export default function ImportantFilesView({
   importantFiles = [],
+  aiDescription,
+  aiUsage,
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
@@ -40,14 +45,21 @@ export default function ImportantFilesView({
 
   // Get file icon based on extension
   const getFileIcon = (path: string) => {
-    if (path.endsWith(".js") || path.endsWith(".jsx") || path.endsWith(".ts") || path.endsWith(".tsx")) {
+    if (
+      path.endsWith(".js") ||
+      path.endsWith(".jsx") ||
+      path.endsWith(".ts") ||
+      path.endsWith(".tsx")
+    ) {
       return <Code className="h-3.5 w-3.5 mr-1.5" />
     }
     return <FileText className="h-3.5 w-3.5 mr-1.5" />
   }
 
   // Get active file content
-  const activeFileContent = importantFiles.find((file) => file.file_path === activeFile)?.content_text || ""
+  const activeFileContent =
+    importantFiles.find((file) => file.file_path === activeFile)
+      ?.content_text || ""
 
   if (isLoading) {
     return (
@@ -86,7 +98,8 @@ export default function ImportantFilesView({
         </div>
         <div className="p-4 bg-white dark:bg-[#0d1117]">
           <p className="text-gray-500 dark:text-[#8b949e]">
-            No README, LICENSE, or other important files found in this repository.
+            No README, LICENSE, or other important files found in this
+            repository.
           </p>
         </div>
       </div>
@@ -94,7 +107,7 @@ export default function ImportantFilesView({
   }
 
   return (
-    <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
+    <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden w-full">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
         <div className="flex items-center space-x-4">
           {importantFiles.map((file) => (
@@ -113,7 +126,10 @@ export default function ImportantFilesView({
           ))}
         </div>
         <div className="ml-auto flex items-center">
-          <button className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md" onClick={onEditClicked}>
+          <button
+            className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
+            onClick={onEditClicked}
+          >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
           </button>
@@ -140,4 +156,3 @@ export default function ImportantFilesView({
     </div>
   )
 }
-

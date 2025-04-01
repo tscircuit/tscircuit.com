@@ -84,7 +84,7 @@ export const usePackageFileByRelease = (
 }
 
 // Hook to list all files for a package release
-export const usePackageFiles = (packageReleaseId: string | null) => {
+export const usePackageFiles = (packageReleaseId?: string | null) => {
   const axios = useAxios()
 
   return useQuery<PackageFile[], Error & { status: number }>(
