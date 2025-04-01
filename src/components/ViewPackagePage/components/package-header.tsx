@@ -1,9 +1,13 @@
 import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
-import { LockClosedIcon } from "@radix-ui/react-icons"
-import { Eye, GitFork, Star } from "lucide-react"
-import { Link } from "wouter"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  usePackageStarMutationByName,
+  usePackageStarsByName,
+} from "@/hooks/use-package-stars"
+import { LockClosedIcon } from "@radix-ui/react-icons"
+import { GitFork, Star } from "lucide-react"
+import { Link } from "wouter"
 
 interface PackageInfo {
   name: string
@@ -19,8 +23,6 @@ interface PackageInfo {
 interface PackageHeaderProps {
   packageInfo?: PackageInfo
   isPrivate?: boolean
-  isStarred?: boolean
-  onStarClick?: () => void
   onForkClick?: () => void
   isCurrentUserAuthor?: boolean
 }
@@ -28,16 +30,32 @@ interface PackageHeaderProps {
 export default function PackageHeader({
   packageInfo,
   isPrivate = false,
-  isStarred = false,
-  onStarClick,
   onForkClick,
   isCurrentUserAuthor = false,
 }: PackageHeaderProps) {
   const author = packageInfo?.owner_github_username
   const packageName = packageInfo?.unscoped_name
-  const starCount = packageInfo?.star_count
-    ? parseInt(packageInfo.star_count)
-    : 0
+
+  // Use the star hooks
+  const { data: starData, isLoading: isStarDataLoading } =
+    usePackageStarsByName(packageInfo?.name ?? null)
+  const { addStar, removeStar } = usePackageStarMutationByName(
+    packageInfo?.name ?? "",
+  )
+
+  const handleStarClick = async () => {
+    if (!packageInfo?.name) return
+
+    console.log("starData", starData)
+    if (starData?.is_starred) {
+      await removeStar.mutateAsync()
+    } else {
+      await addStar.mutateAsync()
+    }
+  }
+
+  const isStarLoading =
+    isStarDataLoading || addStar.isLoading || removeStar.isLoading
 
   return (
     <header className="bg-white border-b border-gray-200 py-4">
@@ -76,16 +94,16 @@ export default function PackageHeader({
             <Button
               variant="outline"
               size="sm"
-              onClick={onStarClick}
-              disabled={!onStarClick}
+              onClick={handleStarClick}
+              disabled={isStarLoading || !packageInfo?.name}
             >
               <Star
-                className={`w-4 h-4 mr-2 ${isStarred ? "fill-yellow-500 text-yellow-500" : ""}`}
+                className={`w-4 h-4 mr-2 ${starData?.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
               />
-              {isStarred ? "Starred" : "Star"}
-              {starCount > 0 && (
+              {starData?.is_starred ? "Starred" : "Star"}
+              {(starData?.star_count ?? 0) > 0 && (
                 <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
-                  {starCount}
+                  {starData?.star_count}
                 </span>
               )}
             </Button>
