@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react"
 import { Edit, FileText, Code } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 
 interface PackageFile {
   package_file_id: string
   package_release_id: string
   file_path: string
-  content_text: string
   created_at: string
 }
 
@@ -28,14 +28,14 @@ export default function ImportantFilesView({
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
-  const [activeFile, setActiveFile] = useState<string | null>(null)
+  const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
 
   // Select the first file when importantFiles changes
   useEffect(() => {
-    if (importantFiles.length > 0 && !activeFile) {
-      setActiveFile(importantFiles[0].file_path)
+    if (importantFiles.length > 0 && !activeFilePath) {
+      setActiveFilePath(importantFiles[0].file_path)
     }
-  }, [importantFiles, activeFile])
+  }, [importantFiles, activeFilePath])
 
   // Get file name from path
   const getFileName = (path: string) => {
@@ -57,9 +57,18 @@ export default function ImportantFilesView({
   }
 
   // Get active file content
-  const activeFileContent =
-    importantFiles.find((file) => file.file_path === activeFile)
-      ?.content_text || ""
+  const partialActiveFile = importantFiles.find(
+    (file) => file.file_path === activeFilePath,
+  )
+  const { data: activeFileFull } = usePackageFile(
+    partialActiveFile
+      ? {
+          file_path: partialActiveFile.file_path,
+          package_release_id: partialActiveFile.package_release_id,
+        }
+      : null,
+  )
+  const activeFileContent = activeFileFull?.content_text || ""
 
   if (isLoading) {
     return (
@@ -107,18 +116,18 @@ export default function ImportantFilesView({
   }
 
   return (
-    <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden w-full">
+    <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
         <div className="flex items-center space-x-4">
           {importantFiles.map((file) => (
             <button
               key={file.package_file_id}
               className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
-                activeFile === file.file_path
+                activeFilePath === file.file_path
                   ? "bg-gray-200 dark:bg-[#30363d] font-medium"
                   : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
               }`}
-              onClick={() => setActiveFile(file.file_path)}
+              onClick={() => setActiveFilePath(file.file_path)}
             >
               {getFileIcon(file.file_path)}
               <span>{getFileName(file.file_path)}</span>
@@ -136,16 +145,16 @@ export default function ImportantFilesView({
         </div>
       </div>
       <div className="p-4 bg-white dark:bg-[#0d1117]">
-        {activeFile && activeFile.endsWith(".md") ? (
+        {activeFilePath && activeFilePath.endsWith(".md") ? (
           <div className="markdown-content">
             {/* In a real app, you'd use a markdown renderer here */}
             <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
           </div>
-        ) : activeFile &&
-          (activeFile.endsWith(".js") ||
-            activeFile.endsWith(".jsx") ||
-            activeFile.endsWith(".ts") ||
-            activeFile.endsWith(".tsx")) ? (
+        ) : activeFilePath &&
+          (activeFilePath.endsWith(".js") ||
+            activeFilePath.endsWith(".jsx") ||
+            activeFilePath.endsWith(".ts") ||
+            activeFilePath.endsWith(".tsx")) ? (
           <pre className="bg-gray-100 dark:bg-[#161b22] p-4 rounded-md overflow-auto">
             <code>{activeFileContent}</code>
           </pre>

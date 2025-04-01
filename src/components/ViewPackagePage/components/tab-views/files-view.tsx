@@ -56,7 +56,7 @@ export default function FilesView({
     })),
     ...files.map((file) => ({
       ...file,
-      message: file.content.length > 30 ? `${file.content.substring(0, 30)}...` : file.content,
+      message: "", // TODO insert ai description of file here!
       time: formatDate(file.created_at),
     })),
   ].sort((a, b) => {
@@ -87,7 +87,10 @@ export default function FilesView({
         </div>
         <div className="bg-white dark:bg-[#0d1117]">
           {[...Array(5)].map((_, index) => (
-            <div key={index} className="flex items-center px-4 py-2 border-b border-gray-200 dark:border-[#30363d]">
+            <div
+              key={index}
+              className="flex items-center px-4 py-2 border-b border-gray-200 dark:border-[#30363d]"
+            >
               <Skeleton className="h-4 w-4 mr-2" />
               <Skeleton className="h-4 w-32" />
               <div className="ml-auto flex items-center space-x-4">
@@ -117,7 +120,9 @@ export default function FilesView({
         {/* Mobile view */}
         <div className="md:hidden flex items-center justify-between w-full">
           <div className="flex items-center">
-            <span className="text-xs text-gray-500 dark:text-[#8b949e]">Files</span>
+            <span className="text-xs text-gray-500 dark:text-[#8b949e]">
+              Files
+            </span>
           </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
@@ -128,7 +133,9 @@ export default function FilesView({
       {/* Files and Directories */}
       <div className="bg-white dark:bg-[#0d1117]">
         {items.length === 0 ? (
-          <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">No files found</div>
+          <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">
+            No files found
+          </div>
         ) : (
           items.map((item, index) => (
             <div
@@ -142,8 +149,14 @@ export default function FilesView({
                 <FileText className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
               )}
               <span className="text-sm group-hover:underline">{item.name}</span>
-              <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">{item.message}</span>
-              {item.time && <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">{item.time}</span>}
+              <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
+                {item.message}
+              </span>
+              {item.time && (
+                <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">
+                  {item.time}
+                </span>
+              )}
             </div>
           ))
         )}
@@ -151,4 +164,3 @@ export default function FilesView({
     </div>
   )
 }
-

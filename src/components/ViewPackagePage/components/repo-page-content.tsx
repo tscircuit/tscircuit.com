@@ -81,7 +81,6 @@ export default function RepoPageContent({
       type: "file"
       path: string
       name: string
-      content: string
       created_at: string
     }> = []
 
@@ -101,7 +100,6 @@ export default function RepoPageContent({
         type: "file",
         path: file.file_path,
         name: fileName,
-        content: file.content_text,
         created_at: file.created_at,
       })
     })
@@ -182,7 +180,7 @@ export default function RepoPageContent({
       <div className="max-w-[1200px] mx-auto">
         <div className="flex flex-col md:flex-row">
           {/* Main Content Area */}
-          <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4">
+          <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
@@ -203,7 +201,7 @@ export default function RepoPageContent({
           </div>
 
           {/* Sidebar - Hidden on mobile, shown on md and up */}
-          <div className="hidden md:block md:w-[296px] sm:w-[240px] flex-shrink-0">
+          <div className="hidden md:block md:w-[296px] flex-shrink-0">
             <Sidebar packageInfo={packageInfo} isLoading={!packageInfo} />
           </div>
         </div>
