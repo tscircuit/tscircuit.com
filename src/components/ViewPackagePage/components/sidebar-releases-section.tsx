@@ -5,7 +5,9 @@ interface SidebarReleasesSectionProps {
   isLoading?: boolean
 }
 
-export default function SidebarReleasesSection({ isLoading = false }: SidebarReleasesSectionProps) {
+export default function SidebarReleasesSection({
+  isLoading = false,
+}: SidebarReleasesSectionProps) {
   if (isLoading) {
     return (
       <div className="mb-6">
@@ -30,12 +32,13 @@ export default function SidebarReleasesSection({ isLoading = false }: SidebarRel
       </div>
       <div className="flex items-center mb-3">
         <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-        <span className="text-sm text-gray-500 dark:text-[#8b949e]">2 days ago</span>
+        <span className="text-sm text-gray-500 dark:text-[#8b949e]">
+          2 days ago
+        </span>
       </div>
-      <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
-        Create a new release
-      </a>
+      {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
+        Push a new release
+      </a> */}
     </div>
   )
 }
-

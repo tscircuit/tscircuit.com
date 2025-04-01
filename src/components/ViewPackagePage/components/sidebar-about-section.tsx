@@ -11,6 +11,8 @@ interface PackageInfo {
   ai_description: string
   creator_account_id?: string
   owner_org_id?: string
+  is_package?: boolean
+  website?: string
 }
 
 interface SidebarAboutSectionProps {
@@ -18,11 +20,17 @@ interface SidebarAboutSectionProps {
   isLoading?: boolean
 }
 
+const LinkIcon = () => (
+  <svg className="h-4 w-4 mr-1" viewBox="0 0 16 16" fill="currentColor">
+    <path d="M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z"></path>
+  </svg>
+)
+
 export default function SidebarAboutSection({
   packageInfo,
   isLoading = false,
 }: SidebarAboutSectionProps) {
-  const topics = ["Keyboard", "PCB-Layout", "Manufacturable"]
+  const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
 
   if (isLoading) {
     return (
@@ -50,15 +58,15 @@ export default function SidebarAboutSection({
       <p className="text-sm mb-3">
         {packageInfo?.description || packageInfo?.ai_description}
       </p>
-      <a
-        href="#"
-        className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4"
-      >
-        <svg className="h-4 w-4 mr-1" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z"></path>
-        </svg>
-        tscircuit.com
-      </a>
+      {packageInfo?.website && (
+        <a
+          href="#"
+          className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4"
+        >
+          <LinkIcon />
+          {packageInfo?.website}
+        </a>
+      )}
       <div className="flex flex-wrap gap-2 mb-4">
         {topics.map((topic, index) => (
           <Badge
