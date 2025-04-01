@@ -60,12 +60,6 @@ export default function RepoPageContent({
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
     ?.map((pf) => pf.file_path)
 
-  console.log(
-    "file paths",
-    packageFiles?.map((pf) => pf.file_path),
-  )
-  console.log("importantFilePaths", importantFilePaths)
-
   // Ensure component is mounted before rendering content
   useEffect(() => {
     setMounted(true)

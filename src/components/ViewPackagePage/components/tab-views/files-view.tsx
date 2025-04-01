@@ -51,7 +51,7 @@ export default function FilesView({
   const items = [
     ...directories.map((dir) => ({
       ...dir,
-      message: "Directory",
+      message: "", // TODO insert ai description of directory here!
       time: "",
     })),
     ...files.map((file) => ({

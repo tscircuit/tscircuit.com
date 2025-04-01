@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useQuery } from "react-query"
 import { createHighlighter, Highlighter } from "shiki"
 
@@ -28,13 +28,17 @@ export const ShikiCodeViewer = ({
     setupHighlighter()
   }, [])
 
-  const html = globalHighlighter?.codeToHtml(code, {
-    lang:
-      fileExtensionsToLanguages[
-        filePath.split(".").pop() as keyof typeof fileExtensionsToLanguages
-      ] || "typescript",
-    theme: "vitesse-light",
-  })
+  const html = useMemo(
+    () =>
+      globalHighlighter?.codeToHtml(code, {
+        lang:
+          fileExtensionsToLanguages[
+            filePath.split(".").pop() as keyof typeof fileExtensionsToLanguages
+          ] || "typescript",
+        theme: "vitesse-light",
+      }),
+    [filePath, code, globalHighlighter],
+  )
 
   if (!html) {
     return <div>Loading...</div>

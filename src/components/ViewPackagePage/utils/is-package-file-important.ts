@@ -1,9 +1,21 @@
+const importanceMap = {
+  "readme.md": 200,
+  license: 100,
+  "license.md": 100,
+  "index.ts": 90,
+  "index.tsx": 90,
+  "circuit.tsx": 90,
+}
+
+export const scorePackageFileImportance = (filePath: string) => {
+  for (const [key, value] of Object.entries(importanceMap)) {
+    if (filePath.endsWith(key)) {
+      return value
+    }
+  }
+  return 0
+}
+
 export const isPackageFileImportant = (filePath: string) => {
-  return (
-    filePath.endsWith("README.md") ||
-    filePath.endsWith("LICENSE") ||
-    filePath.endsWith("index.ts") ||
-    filePath.endsWith("index.tsx") ||
-    filePath.endsWith(".circuit.tsx")
-  )
+  return scorePackageFileImportance(filePath) > 0
 }
