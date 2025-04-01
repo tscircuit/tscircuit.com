@@ -3,7 +3,7 @@
 import { useState } from "react"
 import SidebarAboutSection from "./sidebar-about-section"
 import SidebarReleasesSection from "./sidebar-releases-section"
-import ViewPlaceholders from "./view-placeholders"
+import PreviewImageSquares from "./preview-image-squares"
 
 interface PackageInfo {
   name: string
@@ -19,17 +19,22 @@ interface PackageInfo {
 interface SidebarProps {
   packageInfo?: PackageInfo
   isLoading?: boolean
+  onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }
 
-export default function Sidebar({ packageInfo, isLoading = false }: SidebarProps) {
-  const [activeView, setActiveView] = useState("code")
-
+export default function Sidebar({
+  packageInfo,
+  isLoading = false,
+  onViewChange,
+}: SidebarProps) {
   return (
     <div className="h-full p-4 bg-white dark:bg-[#0d1117] overflow-y-auto">
       <SidebarAboutSection packageInfo={packageInfo} isLoading={isLoading} />
-      <ViewPlaceholders onViewChange={setActiveView} />
+      <PreviewImageSquares
+        packageInfo={packageInfo}
+        onViewChange={onViewChange}
+      />
       <SidebarReleasesSection isLoading={isLoading} />
     </div>
   )
 }
-

@@ -11,6 +11,7 @@ interface PackageInfo {
   ai_description: string
   creator_account_id?: string
   owner_org_id?: string
+  is_package?: boolean
 }
 
 interface MobileSidebarProps {
@@ -18,8 +19,11 @@ interface MobileSidebarProps {
   isLoading?: boolean
 }
 
-export default function MobileSidebar({ packageInfo, isLoading = false }: MobileSidebarProps) {
-  const topics = ["Keyboard", "PCB-Layout", "Manufacturable"]
+export default function MobileSidebar({
+  packageInfo,
+  isLoading = false,
+}: MobileSidebarProps) {
+  const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
 
   if (isLoading) {
     return (
@@ -53,7 +57,8 @@ export default function MobileSidebar({ packageInfo, isLoading = false }: Mobile
     <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
       {/* Description */}
       <p className="text-sm mb-4 text-gray-700 dark:text-[#c9d1d9]">
-        {packageInfo?.description || "A Default 60 keyboard created with tscircuit"}
+        {packageInfo?.description ||
+          "A Default 60 keyboard created with tscircuit"}
       </p>
 
       {/* Tags/Topics */}
@@ -86,15 +91,40 @@ export default function MobileSidebar({ packageInfo, isLoading = false }: Mobile
 
       <div className="grid grid-cols-3 gap-2 mt-4">
         {["3D View", "PCB View", "Schematic View"].map((view, index) => (
-          <button
-            key={index}
-            className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors"
-          >
-            <span className="text-xs font-medium text-gray-700 dark:text-[#c9d1d9]">{view}</span>
-          </button>
+          <PreviewButton packageInfo={packageInfo} key={index} view={view} />
         ))}
       </div>
     </div>
   )
 }
 
+function PreviewButton({
+  packageInfo,
+  view,
+}: {
+  packageInfo?: PackageInfo
+  view: string
+}) {
+  let imageUrl: string | null = null
+  if (packageInfo && view === "PCB View") {
+    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/pcb.png`
+  } else if (packageInfo && view === "Schematic View") {
+    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/schematic.png`
+  }
+
+  if (imageUrl) {
+    return (
+      <button className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors">
+        <img src={imageUrl} alt={view} className="w-full h-full object-cover" />
+      </button>
+    )
+  }
+
+  return (
+    <button className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors">
+      <span className="text-xs font-medium text-gray-700 dark:text-[#c9d1d9]">
+        {view}
+      </span>
+    </button>
+  )
+}

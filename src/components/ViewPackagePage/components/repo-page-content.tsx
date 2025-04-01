@@ -57,7 +57,6 @@ export default function RepoPageContent({
   onExportClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [activeTab, setActiveTab] = useState("code")
   const [activeView, setActiveView] = useState("files")
 
   const importantFilePaths = packageFiles
@@ -198,7 +197,13 @@ export default function RepoPageContent({
 
           {/* Sidebar - Hidden on mobile, shown on md and up */}
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
-            <Sidebar packageInfo={packageInfo} isLoading={!packageInfo} />
+            <Sidebar
+              packageInfo={packageInfo}
+              isLoading={!packageInfo}
+              onViewChange={(view) => {
+                setActiveView(view)
+              }}
+            />
           </div>
         </div>
       </div>
