@@ -131,8 +131,8 @@ export default function RepoPageContent({
       case "files":
         return (
           <FilesView
-            directories={directories}
-            files={files}
+            directories={directories as any}
+            files={files as any}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
             onDirectoryClicked={onDirectoryClicked}
@@ -149,8 +149,8 @@ export default function RepoPageContent({
       default:
         return (
           <FilesView
-            directories={directories}
-            files={files}
+            directories={directories as any}
+            files={files as any}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
             onDirectoryClicked={onDirectoryClicked}
