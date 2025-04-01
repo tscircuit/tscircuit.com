@@ -53,7 +53,7 @@ test("create package file with content_text", async () => {
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)
-  expect(getResponse.data.package_file.content_text).toBe(fileContent)
+  // content_text is no longer returned by the get endpoint
 })
 
 test("create package file with content_base64", async () => {
@@ -99,15 +99,14 @@ test("create package file with content_base64", async () => {
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file).toBeDefined()
   expect(responseBody.package_file.file_path).toBe(filePath)
-  // The content should be decoded from base64
-  expect(responseBody.package_file.content_text).toBe(fileContent)
+  // Content is no longer returned from the create endpoint
 
   // Verify the file can be retrieved using the get endpoint with package_name_with_version
   const getResponse = await axios.post("/api/package_files/get", {
     package_file_id: responseBody.package_file.package_file_id,
   })
   expect(getResponse.status).toBe(200)
-  expect(getResponse.data.package_file.content_text).toBe(fileContent)
+  // content_text is no longer returned by the get endpoint
 })
 
 test("create package file using package_name_with_version", async () => {
@@ -153,7 +152,7 @@ test("create package file using package_name_with_version", async () => {
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package_file).toBeDefined()
   expect(responseBody.package_file.file_path).toBe(filePath)
-  expect(responseBody.package_file.content_text).toBe(fileContent)
+  // Content is no longer returned from the create endpoint
 
   // Verify the file can be retrieved using the list endpoint
   const listResponse = await axios.post("/api/package_files/list", {
@@ -166,7 +165,7 @@ test("create package file using package_name_with_version", async () => {
     (file: any) => file.file_path === filePath,
   )
   expect(foundFile).toBeDefined()
-  expect(foundFile.content_text).toBe(fileContent)
+  // content_text is no longer returned in the response
 })
 
 test("create package file - 404 for non-existent package release", async () => {

@@ -47,10 +47,11 @@ export default withRouteSpec({
     updated_at: new Date().toISOString(),
     unscoped_name: name,
     star_count: 0,
-    ai_description: name,
+    ai_description: "placeholder ai description",
     is_private: is_private ?? false,
     is_public: is_private === true ? false : true,
     is_unlisted: is_private === true ? true : (is_unlisted ?? false),
+    ai_usage_instructions: "placeholder ai usage instructions",
   })
 
   if (!newPackage) {

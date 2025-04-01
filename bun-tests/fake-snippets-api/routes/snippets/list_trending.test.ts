@@ -48,17 +48,20 @@ test("list trending snippets", async () => {
   const package2 = db.packages[1]
   const package3 = db.packages[2]
 
-  // Snippet2 should be most trending (3 recent stars)
+  // Set star counts directly on package objects
+  package1.star_count = 1
+  package2.star_count = 3
+  package3.star_count = 2
+
+  // Add stars to match
+  db.addStar("user1", package1.package_id)
+
   db.addStar("user1", package2.package_id)
   db.addStar("user2", package2.package_id)
   db.addStar("user3", package2.package_id)
 
-  // Snippet3 second (2 recent stars)
   db.addStar("user1", package3.package_id)
   db.addStar("user2", package3.package_id)
-
-  // Snippet1 least trending (1 recent star, 1 old star)
-  db.addStar("user1", package1.package_id)
 
   const { data } = await axios.get("/api/snippets/list_trending")
 

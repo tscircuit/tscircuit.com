@@ -16,6 +16,7 @@ export const publicMapPackage = (internalPackage: {
   updated_at: string
   created_at: string
   ai_description: string | null
+  ai_usage_instructions: string | null
   is_snippet: boolean
   is_board: boolean
   is_package: boolean

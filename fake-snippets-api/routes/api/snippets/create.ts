@@ -92,6 +92,7 @@ export default withRouteSpec({
       is_public: is_public || true,
       is_unlisted: is_unlisted || false,
       latest_package_release_id: `package_release_${timestamp}`,
+      ai_usage_instructions: "placeholder ai usage instructions",
     }
 
     ctx.db.addPackage(newPackage)

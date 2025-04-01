@@ -18,6 +18,7 @@ test("list packages with is_writable filter", async () => {
       updated_at: "2023-01-01T00:00:00Z",
       description: "Description 1",
       ai_description: "AI Description 1",
+      ai_usage_instructions: "Usage instructions 1",
       owner_org_id: "org-1234", // Matches auth context personal_org_id
       latest_version: "1.0.0",
       license: "MIT",
@@ -34,6 +35,7 @@ test("list packages with is_writable filter", async () => {
       updated_at: "2023-01-02T00:00:00Z",
       description: "Description 2",
       ai_description: "AI Description 2",
+      ai_usage_instructions: "Usage instructions 2",
       owner_org_id: "other-org",
       latest_version: "1.0.0",
       license: "MIT",
