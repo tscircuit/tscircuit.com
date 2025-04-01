@@ -9,7 +9,11 @@ interface RepoHeaderButtonProps {
   count?: number
 }
 
-export default function RepoHeaderButton({ icon, label, count }: RepoHeaderButtonProps) {
+export default function RepoHeaderButton({
+  icon,
+  label,
+  count,
+}: RepoHeaderButtonProps) {
   return (
     <Button
       variant="outline"
@@ -30,4 +34,3 @@ export default function RepoHeaderButton({ icon, label, count }: RepoHeaderButto
     </Button>
   )
 }
-

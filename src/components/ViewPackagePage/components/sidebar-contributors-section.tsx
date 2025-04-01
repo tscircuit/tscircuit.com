@@ -14,13 +14,18 @@ export default function SidebarContributorsSection() {
       </div>
       <div className="flex flex-wrap gap-1 mb-2">
         {[...Array(10)].map((_, i) => (
-          <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500"></div>
+          <div
+            key={i}
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500"
+          ></div>
         ))}
       </div>
-      <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
+      <a
+        href="#"
+        className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm"
+      >
         + 4 contributors
       </a>
     </div>
   )
 }
-

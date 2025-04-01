@@ -2,7 +2,14 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, CodeIcon, Download, Copy, Check, Hammer } from "lucide-react"
+import {
+  ChevronDown,
+  CodeIcon,
+  Download,
+  Copy,
+  Check,
+  Hammer,
+} from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
   DropdownMenu,
@@ -36,8 +43,12 @@ export default function MainContentHeader({
   onExportClicked,
   packageInfo,
 }: MainContentHeaderProps) {
-  const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">("copy")
-  const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">("copy")
+  const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
+    "copy",
+  )
+  const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
+    "copy",
+  )
 
   const handleCopyInstall = () => {
     const command = `tsci add ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
@@ -55,7 +66,10 @@ export default function MainContentHeader({
 
   return (
     <div className="flex items-center justify-between mb-4">
-      <MainContentViewSelector activeView={activeView} onViewChange={onViewChange} />
+      <MainContentViewSelector
+        activeView={activeView}
+        onViewChange={onViewChange}
+      />
 
       <div className="flex space-x-2">
         {/* Export Dropdown */}
@@ -81,7 +95,9 @@ export default function MainContentHeader({
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer"
-              onClick={() => onExportClicked && onExportClicked("fabrication_files")}
+              onClick={() =>
+                onExportClicked && onExportClicked("fabrication_files")
+              }
             >
               <Hammer className="h-4 w-4 mr-1.5 text-gray-500 dark:text-[#8b949e]" />
               Fabrication Files
@@ -102,7 +118,9 @@ export default function MainContentHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuItem className="cursor-pointer">Edit Online</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              Edit Online
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             {/* Install Option */}
@@ -110,7 +128,8 @@ export default function MainContentHeader({
               <div className="text-sm font-medium mb-1">Install</div>
               <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
                 <code className="flex-1 overflow-x-auto">
-                  tsci add {packageInfo?.name || "@tscircuit/keyboard-default60"}
+                  tsci add{" "}
+                  {packageInfo?.name || "@tscircuit/keyboard-default60"}
                 </code>
                 <button
                   className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
@@ -130,7 +149,8 @@ export default function MainContentHeader({
               <div className="text-sm font-medium mb-1">Clone</div>
               <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
                 <code className="flex-1 overflow-x-auto">
-                  tsci clone {packageInfo?.name || "@tscircuit/keyboard-default60"}
+                  tsci clone{" "}
+                  {packageInfo?.name || "@tscircuit/keyboard-default60"}
                 </code>
                 <button
                   className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
@@ -150,4 +170,3 @@ export default function MainContentHeader({
     </div>
   )
 }
-

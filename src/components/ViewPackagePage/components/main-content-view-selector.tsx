@@ -1,7 +1,18 @@
 "use client"
 import React from "react"
-import { Code, CuboidIcon as Cube, CircuitBoardIcon as Circuit, FileTerminal, ClipboardList } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  Code,
+  CuboidIcon as Cube,
+  CircuitBoardIcon as Circuit,
+  FileTerminal,
+  ClipboardList,
+} from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 
 interface MainContentViewSelectorProps {
@@ -9,13 +20,24 @@ interface MainContentViewSelectorProps {
   onViewChange: (view: string) => void
 }
 
-export default function MainContentViewSelector({ activeView, onViewChange }: MainContentViewSelectorProps) {
+export default function MainContentViewSelector({
+  activeView,
+  onViewChange,
+}: MainContentViewSelectorProps) {
   const views = [
     { id: "files", label: "Files", icon: <Code className="h-4 w-4 mr-1" /> },
     { id: "3d", label: "3D", icon: <Cube className="h-4 w-4 mr-1" /> },
     { id: "pcb", label: "PCB", icon: <Circuit className="h-4 w-4 mr-1" /> },
-    { id: "schematic", label: "Schematic", icon: <FileTerminal className="h-4 w-4 mr-1" /> },
-    { id: "bom", label: "BOM", icon: <ClipboardList className="h-4 w-4 mr-1" /> },
+    {
+      id: "schematic",
+      label: "Schematic",
+      icon: <FileTerminal className="h-4 w-4 mr-1" />,
+    },
+    {
+      id: "bom",
+      label: "BOM",
+      icon: <ClipboardList className="h-4 w-4 mr-1" />,
+    },
   ]
 
   return (
@@ -82,4 +104,3 @@ export default function MainContentViewSelector({ activeView, onViewChange }: Ma
     </>
   )
 }
-

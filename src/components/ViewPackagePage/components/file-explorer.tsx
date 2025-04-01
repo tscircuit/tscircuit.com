@@ -73,7 +73,9 @@ export default function FileExplorer() {
         {/* Mobile view */}
         <div className="md:hidden flex items-center justify-between w-full">
           <div className="flex items-center">
-            <span className="text-xs text-gray-500 dark:text-[#8b949e]">v0.0.361</span>
+            <span className="text-xs text-gray-500 dark:text-[#8b949e]">
+              v0.0.361
+            </span>
             <div className="ml-1 text-green-500 dark:text-[#3fb950]">✓</div>
           </div>
           <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-[#8b949e]">
@@ -102,12 +104,15 @@ export default function FileExplorer() {
               <FileText className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
             )}
             <span className="text-sm">{file.name}</span>
-            <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">{file.message}</span>
-            <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">{file.time}</span>
+            <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
+              {file.message}
+            </span>
+            <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">
+              {file.time}
+            </span>
           </div>
         ))}
       </div>
     </div>
   )
 }
-
