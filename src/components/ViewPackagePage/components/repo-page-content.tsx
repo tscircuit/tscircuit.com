@@ -117,7 +117,9 @@ export default function RepoPageContent({
   const importantFiles = useMemo(() => {
     if (!packageFiles || !importantFilePaths) return []
 
-    return packageFiles.filter((file) => importantFilePaths.some((path) => file.file_path.endsWith(path)))
+    return packageFiles.filter((file) =>
+      importantFilePaths.some((path) => file.file_path.endsWith(path)),
+    )
   }, [packageFiles, importantFilePaths])
 
   // Render the appropriate content based on the active view
@@ -155,51 +157,48 @@ export default function RepoPageContent({
   }
 
   return (
-    <ThemeProvider defaultTheme="light" attribute="class" storageKey="github-theme">
-      <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
-        {/* Header - Removed as it's being handled by a different team */}
+    <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
+      {/* Header - Removed as it's being handled by a different team */}
 
-        {/* Navigation Tabs - Removed as it's being handled by a different team */}
+      {/* Navigation Tabs - Removed as it's being handled by a different team */}
 
-        {/* Repository Header - Removed as it's being handled by a different team */}
+      {/* Repository Header - Removed as it's being handled by a different team */}
 
-        {/* Mobile Sidebar */}
-        <div className="max-w-[1200px] mx-auto">
-          <MobileSidebar packageInfo={packageInfo} isLoading={!packageInfo} />
-        </div>
+      {/* Mobile Sidebar */}
+      <div className="max-w-[1200px] mx-auto">
+        <MobileSidebar packageInfo={packageInfo} isLoading={!packageInfo} />
+      </div>
 
-        {/* Main Content */}
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex flex-col md:flex-row">
-            {/* Main Content Area */}
-            <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4">
-              {/* Main Content Header with Tabs */}
-              <MainContentHeader
-                activeView={activeView}
-                onViewChange={setActiveView}
-                onExportClicked={onExportClicked}
-                packageInfo={packageInfo}
-              />
+      {/* Main Content */}
+      <div className="max-w-[1200px] mx-auto">
+        <div className="flex flex-col md:flex-row">
+          {/* Main Content Area */}
+          <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4">
+            {/* Main Content Header with Tabs */}
+            <MainContentHeader
+              activeView={activeView}
+              onViewChange={setActiveView}
+              onExportClicked={onExportClicked}
+              packageInfo={packageInfo}
+            />
 
-              {/* Dynamic Content based on active view */}
-              {renderContent()}
+            {/* Dynamic Content based on active view */}
+            {renderContent()}
 
-              {/* Important Files View - Always shown */}
-              <ImportantFilesView
-                importantFiles={importantFiles}
-                isLoading={!packageFiles}
-                onEditClicked={onEditClicked}
-              />
-            </div>
+            {/* Important Files View - Always shown */}
+            <ImportantFilesView
+              importantFiles={importantFiles}
+              isLoading={!packageFiles}
+              onEditClicked={onEditClicked}
+            />
+          </div>
 
-            {/* Sidebar - Hidden on mobile, shown on md and up */}
-            <div className="hidden md:block md:w-[296px] sm:w-[240px] flex-shrink-0">
-              <Sidebar packageInfo={packageInfo} isLoading={!packageInfo} />
-            </div>
+          {/* Sidebar - Hidden on mobile, shown on md and up */}
+          <div className="hidden md:block md:w-[296px] sm:w-[240px] flex-shrink-0">
+            <Sidebar packageInfo={packageInfo} isLoading={!packageInfo} />
           </div>
         </div>
       </div>
-    </ThemeProvider>
+    </div>
   )
 }
-

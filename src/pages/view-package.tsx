@@ -1,3 +1,4 @@
+import SimulatePage from "@/components/ViewPackagePage/simulate-page"
 import { useLocation } from "wouter"
 
 export const ViewPackagePage = () => {
@@ -7,5 +8,5 @@ export const ViewPackagePage = () => {
   const author = pathParts[2]
   const urlPackageName = pathParts[3]
 
-  return "hello world"
+  return <SimulatePage />
 }

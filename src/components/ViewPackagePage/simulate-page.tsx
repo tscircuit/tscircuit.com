@@ -118,4 +118,3 @@ export default function SimulatePage() {
     />
   )
 }
-
