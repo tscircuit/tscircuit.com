@@ -13,10 +13,13 @@ export default withRouteSpec({
   jsonBody: z.any().optional(),
   jsonResponse: z.object({
     ok: z.boolean(),
-    package: packageSchema.optional(),
+    package: packageSchema.extend({
+      is_starred: z.boolean()
+    }).optional(),
   }),
 })(async (req, ctx) => {
   const { package_id, name } = req.commonParams
+  const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
 
   const foundPackage =
     (package_id && ctx.db.getPackageById(package_id)) ||
@@ -31,6 +34,9 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package: publicMapPackage(foundPackage),
+    package: {
+      ...publicMapPackage(foundPackage),
+      is_starred: auth ? ctx.db.hasStarred(auth.account_id, foundPackage.package_id) : false
+    },
   })
 })
