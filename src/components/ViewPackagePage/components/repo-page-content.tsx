@@ -14,6 +14,10 @@ import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
 import { isPackageFileImportant } from "../utils/is-package-file-important"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
+import ViewSnippetHeader from "@/components/ViewSnippetHeader"
+import PackageHeader from "./package-header"
 
 interface PackageFile {
   package_file_id: string
@@ -54,16 +58,10 @@ export default function RepoPageContent({
 }: RepoPageContentProps) {
   const [activeTab, setActiveTab] = useState("code")
   const [activeView, setActiveView] = useState("files")
-  const [mounted, setMounted] = useState(false)
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
     ?.map((pf) => pf.file_path)
-
-  // Ensure component is mounted before rendering content
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Parse package files to determine directories and files structure
   const { directories, files } = useMemo(() => {
@@ -160,11 +158,8 @@ export default function RepoPageContent({
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
-      {/* Header - Removed as it's being handled by a different team */}
-
-      {/* Navigation Tabs - Removed as it's being handled by a different team */}
-
-      {/* Repository Header - Removed as it's being handled by a different team */}
+      <Header />
+      <PackageHeader packageInfo={packageInfo} />
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">
@@ -201,6 +196,7 @@ export default function RepoPageContent({
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   )
 }
