@@ -24,7 +24,8 @@ interface PackageFile {
   package_file_id: string
   package_release_id: string
   file_path: string
-  content_text: string
+  file_content: string
+  content_text?: string // Keep for backward compatibility
   created_at: string // iso-8601
 }
 
@@ -128,6 +129,35 @@ export default function RepoPageContent({
     )
   }, [packageFiles, importantFilePaths])
 
+  // Generate package name with version for file lookups
+  const packageNameWithVersion = useMemo(() => {
+    if (!packageInfo) return ""
+
+    // Format: @scope/packageName@version or packageName@version
+    const name = packageInfo.name
+
+    // Extract the latest version from the files (assuming version information is available)
+    const versionFile = packageFiles?.find(
+      (file) => file.file_path === "package.json",
+    )
+    let version = "latest"
+
+    if (versionFile) {
+      try {
+        const content =
+          versionFile.file_content || versionFile.content_text || "{}"
+        const packageJson = JSON.parse(content)
+        if (packageJson.version) {
+          version = packageJson.version
+        }
+      } catch (e) {
+        // If package.json can't be parsed, use "latest"
+      }
+    }
+
+    return `${name}@${version}`
+  }, [packageInfo, packageFiles])
+
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
@@ -144,7 +174,7 @@ export default function RepoPageContent({
       case "3d":
         return <ThreeDView />
       case "pcb":
-        return <PCBView />
+        return <PCBView packageName={packageInfo?.name} />
       case "schematic":
         return <SchematicView />
       case "bom":
