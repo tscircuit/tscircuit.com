@@ -43,7 +43,7 @@ test("list newest snippets", async () => {
 
   expect(data.snippets).toHaveLength(3)
   // Order might vary in test runs, just check all snippets are there
-  const names = data.snippets.map((s) => s.unscoped_name)
+  const names = data.snippets.map((s: any) => s.unscoped_name)
   expect(names).toContain("Snippet1")
   expect(names).toContain("Snippet2")
   expect(names).toContain("Snippet3")
