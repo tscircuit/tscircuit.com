@@ -5,6 +5,7 @@ import { Edit, FileText, Code } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
+import { SparklesIcon } from "lucide-react"
 
 interface PackageFile {
   package_file_id: string
@@ -19,24 +20,44 @@ interface ImportantFilesViewProps {
   onEditClicked?: () => void
 
   aiDescription?: string
-  aiUsage?: string
+  aiUsageInstructions?: string
 }
 
 export default function ImportantFilesView({
   importantFiles = [],
   aiDescription,
-  aiUsage,
+  aiUsageInstructions: aiUsage,
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string | null>(null)
 
-  // Select the first file when importantFiles changes
+  // Determine if we have AI content
+  const hasAiContent = Boolean(aiDescription || aiUsage)
+
+  // Select the appropriate tab/file when content changes
   useEffect(() => {
-    if (importantFiles.length > 0 && !activeFilePath) {
+    // First priority: README file if it exists
+    const readmeFile = importantFiles.find(
+      (file) =>
+        file.file_path.toLowerCase().endsWith("readme.md") ||
+        file.file_path.toLowerCase().endsWith("readme"),
+    )
+
+    if (readmeFile) {
+      setActiveFilePath(readmeFile.file_path)
+      setActiveTab("file")
+    } else if (hasAiContent) {
+      // Second priority: AI content if available
+      setActiveTab("ai")
+      setActiveFilePath(null)
+    } else if (importantFiles.length > 0) {
+      // Third priority: First important file
       setActiveFilePath(importantFiles[0].file_path)
+      setActiveTab("file")
     }
-  }, [importantFiles, activeFilePath])
+  }, [importantFiles, aiDescription, aiUsage, hasAiContent])
 
   // Get file name from path
   const getFileName = (path: string) => {
@@ -55,6 +76,26 @@ export default function ImportantFilesView({
       return <Code className="h-3.5 w-3.5 mr-1.5" />
     }
     return <FileText className="h-3.5 w-3.5 mr-1.5" />
+  }
+
+  // Render AI content
+  const renderAiContent = () => {
+    return (
+      <div className="markdown-content">
+        {aiDescription && (
+          <div className="mb-6">
+            <h3 className="font-semibold text-lg mb-2">Description</h3>
+            <p className="whitespace-pre-wrap">{aiDescription}</p>
+          </div>
+        )}
+        {aiUsage && (
+          <div>
+            <h3 className="font-semibold text-lg mb-2">Usage</h3>
+            <p className="whitespace-pre-wrap">{aiUsage}</p>
+          </div>
+        )}
+      </div>
+    )
   }
 
   // Get active file content
@@ -120,15 +161,37 @@ export default function ImportantFilesView({
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
         <div className="flex items-center space-x-4">
+          {/* AI Description Tab */}
+          {hasAiContent && (
+            <button
+              className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
+                activeTab === "ai"
+                  ? "bg-gray-200 dark:bg-[#30363d] font-medium"
+                  : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
+              }`}
+              onClick={() => {
+                setActiveTab("ai")
+                setActiveFilePath(null)
+              }}
+            >
+              <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />
+              <span>Description</span>
+            </button>
+          )}
+
+          {/* File Tabs */}
           {importantFiles.map((file) => (
             <button
               key={file.package_file_id}
               className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
-                activeFilePath === file.file_path
+                activeTab === "file" && activeFilePath === file.file_path
                   ? "bg-gray-200 dark:bg-[#30363d] font-medium"
                   : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
               }`}
-              onClick={() => setActiveFilePath(file.file_path)}
+              onClick={() => {
+                setActiveTab("file")
+                setActiveFilePath(file.file_path)
+              }}
             >
               {getFileIcon(file.file_path)}
               <span>{getFileName(file.file_path)}</span>
@@ -146,7 +209,9 @@ export default function ImportantFilesView({
         </div>
       </div>
       <div className="p-4 bg-white dark:bg-[#0d1117]">
-        {activeFilePath && activeFilePath.endsWith(".md") ? (
+        {activeTab === "ai" ? (
+          renderAiContent()
+        ) : activeFilePath && activeFilePath.endsWith(".md") ? (
           <div className="markdown-content">
             {/* In a real app, you'd use a markdown renderer here */}
             <pre className="whitespace-pre-wrap">{activeFileContent}</pre>

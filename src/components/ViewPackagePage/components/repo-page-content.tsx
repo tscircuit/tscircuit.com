@@ -34,6 +34,7 @@ interface PackageInfo {
   star_count: string
   description: string
   ai_description: string
+  ai_usage_instructions: string
   creator_account_id?: string
   owner_org_id?: string
 }
@@ -187,6 +188,8 @@ export default function RepoPageContent({
               importantFiles={importantFiles}
               isLoading={!packageFiles}
               onEditClicked={onEditClicked}
+              aiDescription={packageInfo?.ai_description}
+              aiUsageInstructions={packageInfo?.ai_usage_instructions}
             />
           </div>
 

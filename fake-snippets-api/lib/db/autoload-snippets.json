@@ -17,6 +17,10 @@
       "name": "usb-c-flashlight"
     },
     {
+      "owner": "seveibar",
+      "name": "nine-key-keyboard"
+    },
+    {
       "owner": "AnasSarkiz",
       "name": "grid-of-LEDs-with-an-ESP32"
     }
