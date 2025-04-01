@@ -24,14 +24,10 @@ export const ViewPackagePage = () => {
     packageRelease?.package_release_id,
   )
 
-  // const { data: packageFiles } = usePackageFiles({
-
-  // })
-
   return (
     <RepoPageContent
-      packageFiles={packageFiles}
-      packageInfo={packageInfo}
+      packageFiles={packageFiles as any}
+      packageInfo={packageInfo as any}
       importantFilePaths={["README.md", "LICENSE", "package.json"]}
       onFileClicked={() => {}}
       onDirectoryClicked={() => {}}

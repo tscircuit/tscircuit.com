@@ -40,8 +40,8 @@ export default function PackageHeader({
     : 0
 
   return (
-    <header className="bg-white border-b border-gray-200 py-4 px-6">
-      <div className="max-w-[1200px] mx-auto">
+    <header className="bg-white border-b border-gray-200 py-4">
+      <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             {author && packageName ? (
