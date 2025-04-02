@@ -1,9 +1,10 @@
 "use client"
 
-import { FileText, Folder } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { FileText, Folder } from "lucide-react"
+import { useMemo, useState } from "react"
+import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
-import { useState, useMemo } from "react"
 
 interface Directory {
   type: "directory"
@@ -50,26 +51,34 @@ export default function FilesView({
     const dirs = new Set<string>()
     const filesList: File[] = []
 
-    packageFiles.forEach((file) => {
-      // Extract directory path
-      const pathParts = file.file_path.split("/")
-      const fileName = pathParts.pop() || ""
+    packageFiles
+      .filter(file => !isHiddenFile(file.file_path))
+      .forEach((file) => {
+        // Extract directory path
+        const pathParts = file.file_path.split("/")
+        const fileName = pathParts.pop() || ""
 
-      // Add all parent directories
-      let currentPath = ""
-      pathParts.forEach((part) => {
-        currentPath += (currentPath ? "/" : "") + part
-        dirs.add(currentPath)
-      })
+        // Add all parent directories
+        let currentPath = ""
+        pathParts.forEach((part) => {
+          currentPath += (currentPath ? "/" : "") + part
+          // Only add directory if it contains visible files
+          if (packageFiles.some(f => 
+            f.file_path.startsWith(currentPath + "/") && 
+            !isHiddenFile(f.file_path)
+          )) {
+            dirs.add(currentPath)
+          }
+        })
 
-      filesList.push({
-        type: "file",
-        path: file.file_path,
-        name: fileName,
-        content: file.file_content || file.content_text || "",
-        created_at: file.created_at,
+        filesList.push({
+          type: "file",
+          path: file.file_path,
+          name: fileName,
+          content: file.file_content || file.content_text || "",
+          created_at: file.created_at,
+        })
       })
-    })
 
     // Convert directories set to array of directory objects
     const dirsList = Array.from(dirs)
@@ -225,7 +234,7 @@ export default function FilesView({
             {/* Directory contents */}
             {items
               .filter((item) =>
-                isWithinDirectory({ dir: activeDir, path: item.path }),
+                isWithinDirectory({ dir: activeDir, path: item.path })
               )
               .map((item, index) => (
                 <div
@@ -254,7 +263,7 @@ export default function FilesView({
 
             {/* No files in current directory */}
             {items.filter((item) =>
-              isWithinDirectory({ dir: activeDir, path: item.path }),
+              isWithinDirectory({ dir: activeDir, path: item.path })
             ).length === 0 && (
               <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">
                 No files in this directory
