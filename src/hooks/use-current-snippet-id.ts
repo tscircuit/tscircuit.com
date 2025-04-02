@@ -14,7 +14,7 @@ export const useCurrentSnippetId = (): {
   error: (Error & { status: number }) | null
 } => {
   const urlParams = useUrlParams()
-  const urlSnippetId = urlParams.snippet_id
+  const urlSnippetId = urlParams.snippet_id ?? urlParams.package_id
   const templateName = urlParams.template
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const wouter = useParams()

@@ -46,7 +46,7 @@ interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: PackageInfo
-  onFileClicked?: (file: any) => void
+  onFileClicked?: (file: PackageFile) => void
   onExportClicked?: (exportType: string) => void
   onEditClicked?: () => void
 }
@@ -65,58 +65,7 @@ export default function RepoPageContent({
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
     ?.map((pf) => pf.file_path)
 
-  // Parse package files to determine directories and files structure
-  const { directories, files } = useMemo(() => {
-    if (!packageFiles) {
-      return { directories: [], files: [] }
-    }
-
-    const dirs = new Set<string>()
-    const filesList: Array<{
-      type: "file"
-      path: string
-      name: string
-      created_at: string
-    }> = []
-
-    packageFiles.forEach((file) => {
-      // Extract directory path
-      const pathParts = file.file_path.split("/")
-      const fileName = pathParts.pop() || ""
-
-      // Add all parent directories
-      let currentPath = ""
-      pathParts.forEach((part) => {
-        currentPath += (currentPath ? "/" : "") + part
-        dirs.add(currentPath)
-      })
-
-      filesList.push({
-        type: "file",
-        path: file.file_path,
-        name: fileName,
-        created_at: file.created_at,
-      })
-    })
-
-    // Convert directories set to array of directory objects
-    const dirsList = Array.from(dirs)
-      .map((path) => {
-        const pathParts = path.split("/")
-        if (!path) return null
-        return {
-          type: "directory",
-          path,
-          name: pathParts[pathParts.length - 1],
-        }
-      })
-      .filter((dir) => dir !== null)
-
-    return {
-      directories: dirsList,
-      files: filesList,
-    }
-  }, [packageFiles])
+  // We've moved the directory and file computation to the FilesView component
 
   // Find important files based on importantFilePaths
   const importantFiles = useMemo(() => {
@@ -162,8 +111,7 @@ export default function RepoPageContent({
       case "files":
         return (
           <FilesView
-            directories={directories as any}
-            files={files as any}
+            packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
           />
@@ -179,8 +127,7 @@ export default function RepoPageContent({
       default:
         return (
           <FilesView
-            directories={directories as any}
-            files={files as any}
+            packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
           />

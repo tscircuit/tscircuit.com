@@ -80,7 +80,7 @@ export default function MainContentHeader({
               size="sm"
               className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
             >
-              <Download className="h-4 w-4 mr-0.5" />
+              <Download className="h-4 w-4 mr-1.5" />
               Export
               <ChevronDown className="h-4 w-4 ml-0.5" />
             </Button>
@@ -112,7 +112,7 @@ export default function MainContentHeader({
               size="sm"
               className="h-9 bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
             >
-              <CodeIcon className="h-4 w-4 mr-0.5" />
+              <CodeIcon className="h-4 w-4 mr-1.5" />
               Code
               <ChevronDown className="h-4 w-4 ml-0.5" />
             </Button>

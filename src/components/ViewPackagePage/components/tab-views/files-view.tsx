@@ -3,7 +3,7 @@
 import { FileText, Folder } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { isWithinDirectory } from "../../utils/is-within-directory"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 interface Directory {
   type: "directory"
@@ -19,20 +19,76 @@ interface File {
   created_at: string
 }
 
+interface PackageFile {
+  package_file_id: string
+  package_release_id: string
+  file_path: string
+  file_content: string
+  content_text?: string // Keep for backward compatibility
+  created_at: string // iso-8601
+}
+
 interface FilesViewProps {
-  directories?: Directory[]
-  files?: File[]
+  packageFiles?: PackageFile[]
   isLoading?: boolean
-  onFileClicked?: (file: File) => void
+  onFileClicked?: (file: PackageFile) => void
 }
 
 export default function FilesView({
-  directories = [],
-  files = [],
+  packageFiles = [],
   isLoading = false,
   onFileClicked,
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
+
+  // Parse package files to determine directories and files structure
+  const { directories, files } = useMemo(() => {
+    if (!packageFiles.length) {
+      return { directories: [], files: [] }
+    }
+
+    const dirs = new Set<string>()
+    const filesList: File[] = []
+
+    packageFiles.forEach((file) => {
+      // Extract directory path
+      const pathParts = file.file_path.split("/")
+      const fileName = pathParts.pop() || ""
+
+      // Add all parent directories
+      let currentPath = ""
+      pathParts.forEach((part) => {
+        currentPath += (currentPath ? "/" : "") + part
+        dirs.add(currentPath)
+      })
+
+      filesList.push({
+        type: "file",
+        path: file.file_path,
+        name: fileName,
+        content: file.file_content || file.content_text || "",
+        created_at: file.created_at,
+      })
+    })
+
+    // Convert directories set to array of directory objects
+    const dirsList = Array.from(dirs)
+      .map((path) => {
+        const pathParts = path.split("/")
+        if (!path) return null
+        return {
+          type: "directory",
+          path,
+          name: pathParts[pathParts.length - 1],
+        }
+      })
+      .filter((dir): dir is Directory => dir !== null)
+
+    return {
+      directories: dirsList,
+      files: filesList,
+    }
+  }, [packageFiles])
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -73,7 +129,10 @@ export default function FilesView({
       // When directory is clicked, navigate into it by setting it as the active directory
       setActiveDir(item.path)
     } else if (item.type === "file" && onFileClicked) {
-      onFileClicked(item)
+      const file = packageFiles.find((f) => f.file_path === item.path)
+      if (file) {
+        onFileClicked(file)
+      }
     }
   }
 

@@ -7,7 +7,7 @@ import { useLocation } from "wouter"
 
 export const ViewPackagePage = () => {
   // Get the current path and extract author/packageName
-  const [location] = useLocation()
+  const [location, setLocation] = useLocation()
   const pathParts = location.split("/")
   const author = pathParts[2]
   const urlPackageName = pathParts[3]
@@ -30,10 +30,14 @@ export const ViewPackagePage = () => {
       packageInfo={packageInfo as any}
       importantFilePaths={["README.md", "LICENSE", "package.json"]}
       onFileClicked={(file) => {
-        // TODO go to /editor?package_id=...&file_path=...
+        setLocation(
+          `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
+        )
       }}
       onExportClicked={() => {}}
-      onEditClicked={() => {}}
+      onEditClicked={() => {
+        setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+      }}
     />
   )
 }
