@@ -2,6 +2,7 @@
 
 import { FileText, Folder } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { isWithinDirectory } from "../../utils/is-within-directory"
 
 interface Directory {
   type: "directory"
@@ -137,28 +138,32 @@ export default function FilesView({
             No files found
           </div>
         ) : (
-          items.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
-              onClick={() => handleItemClick(item)}
-            >
-              {item.type === "directory" ? (
-                <Folder className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-              ) : (
-                <FileText className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-              )}
-              <span className="text-sm group-hover:underline">{item.name}</span>
-              <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
-                {item.message}
-              </span>
-              {item.time && (
-                <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">
-                  {item.time}
+          items
+            .filter((item) => isWithinDirectory({ dir: "", path: item.path }))
+            .map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
+                onClick={() => handleItemClick(item)}
+              >
+                {item.type === "directory" ? (
+                  <Folder className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+                ) : (
+                  <FileText className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+                )}
+                <span className="text-sm group-hover:underline">
+                  {item.name}
                 </span>
-              )}
-            </div>
-          ))
+                <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
+                  {item.message}
+                </span>
+                {item.time && (
+                  <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">
+                    {item.time}
+                  </span>
+                )}
+              </div>
+            ))
         )}
       </div>
     </div>
