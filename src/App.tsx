@@ -120,7 +120,11 @@ function App() {
             <Route path="/preview" component={PreviewPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
-            <Route path="/:author/:snippetName" component={ViewSnippetPage} />
+            <Route path="/:author/:snippetName" component={ViewPackagePage} />
+            <Route
+              path="/snippets/:author/:snippetName"
+              component={ViewSnippetPage}
+            />
           </Switch>
         </Suspense>
         <Toaster />
