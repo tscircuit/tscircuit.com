@@ -19,6 +19,7 @@ import Footer from "@/components/Footer"
 import ViewSnippetHeader from "@/components/ViewSnippetHeader"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useLocation } from "wouter"
 
 interface PackageFile {
   package_file_id: string
@@ -56,8 +57,22 @@ export default function RepoPageContent({
   onFileClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [activeView, setActiveView] = useState("files")
+  const [location, setLocation] = useLocation()
+  const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
+
+  // Handle hash-based view selection
+  useEffect(() => {
+    // Get the hash without the # character
+    const hash = window.location.hash.slice(1)
+    // Valid views
+    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+
+    // If hash is a valid view, set it as active
+    if (validViews.includes(hash)) {
+      setActiveView(hash)
+    }
+  }, [])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
@@ -146,7 +161,11 @@ export default function RepoPageContent({
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">
         <MobileSidebar
-          onViewChange={setActiveView}
+          onViewChange={(view) => {
+            setActiveView(view)
+            // Update URL hash when view changes
+            window.location.hash = view
+          }}
           packageInfo={packageInfo}
           isLoading={!packageInfo}
         />
@@ -160,7 +179,11 @@ export default function RepoPageContent({
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
-              onViewChange={setActiveView}
+              onViewChange={(view) => {
+                setActiveView(view)
+                // Update URL hash when view changes
+                window.location.hash = view
+              }}
               packageInfo={packageInfo}
             />
 
@@ -184,6 +207,8 @@ export default function RepoPageContent({
               isLoading={!packageInfo}
               onViewChange={(view) => {
                 setActiveView(view)
+                // Update URL hash when view changes
+                window.location.hash = view
               }}
             />
           </div>
