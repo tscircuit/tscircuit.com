@@ -23,10 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
-import TimeAgo from "javascript-time-ago"
-import en from "javascript-time-ago/locale/en"
-
-TimeAgo.addDefaultLocale(en)
+import { timeAgo } from "@/lib/utils/timeAgo"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -61,7 +58,6 @@ export const UserProfilePage = () => {
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
-  const timeAgo = new TimeAgo("en-US")
 
   const snippetsToShow =
     activeTab === "starred" ? starredSnippets : userSnippets
@@ -220,9 +216,7 @@ export const UserProfilePage = () => {
                           )}
                           <div className="flex items-center text-xs gap-1 text-gray-500">
                             <PencilIcon height={12} width={12} />
-                            <span>
-                              {timeAgo.format(new Date(snippet.updated_at))}
-                            </span>
+                            <span>{timeAgo(new Date(snippet.updated_at))}</span>
                           </div>
                         </div>
                       </div>

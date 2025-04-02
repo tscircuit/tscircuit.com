@@ -34,7 +34,7 @@ export default function Sidebar({
         packageInfo={packageInfo}
         onViewChange={onViewChange}
       />
-      <SidebarReleasesSection isLoading={isLoading} />
+      <SidebarReleasesSection />
     </div>
   )
 }

@@ -103,7 +103,7 @@ export default function PackageHeader({
               <Skeleton className="h-6 w-72" />
             )}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="items-center space-x-2 hidden md:flex">
             <Button
               variant="outline"
               size="sm"

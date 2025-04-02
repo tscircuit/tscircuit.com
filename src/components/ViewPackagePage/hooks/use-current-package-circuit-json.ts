@@ -17,6 +17,10 @@ export function useCurrentPackageCircuitJson() {
           file_path: "dist/circuit.json",
         }
       : null,
+    {
+      cacheTime: 60_000 * 2,
+      staleTime: 60_000 * 2,
+    },
   )
 
   useEffect(() => {

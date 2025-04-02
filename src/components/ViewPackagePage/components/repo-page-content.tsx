@@ -147,7 +147,11 @@ export default function RepoPageContent({
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">
-        <MobileSidebar packageInfo={packageInfo} isLoading={!packageInfo} />
+        <MobileSidebar
+          onViewChange={setActiveView}
+          packageInfo={packageInfo}
+          isLoading={!packageInfo}
+        />
       </div>
 
       {/* Main Content */}
