@@ -30,7 +30,7 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
   let packageData
   try {
     const response = await registryApi.post("/packages/get", {
-      name: fullName
+      name: fullName,
     })
     packageData = response.data
   } catch (e) {
@@ -64,7 +64,7 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
   return {
     package: packageData.package as Package,
     release: releaseData.package_release as PackageRelease,
-    files: filesData.package_files as PackageFile[]
+    files: filesData.package_files as PackageFile[],
   }
 }
 
@@ -119,19 +119,28 @@ const loadPackageWithDependencies = async (
   console.log(`✓ Loaded ${packageKey}`)
 
   // Load dependencies
-  const mainFile = files.find(f => f.file_path === "index.tsx" || f.file_path === "index.ts")
+  const mainFile = files.find(
+    (f) => f.file_path === "index.tsx" || f.file_path === "index.ts",
+  )
   if (!mainFile?.content_text) {
     return true
   }
 
   const dependencies = extractTsciDependencies(mainFile.content_text)
   let allDepsLoaded = true
-  
+
   for (const dep of dependencies) {
-    const depLoaded = await loadPackageWithDependencies(db, dep.owner, dep.name, loadedPackages)
+    const depLoaded = await loadPackageWithDependencies(
+      db,
+      dep.owner,
+      dep.name,
+      loadedPackages,
+    )
     if (!depLoaded) {
       allDepsLoaded = false
-      console.warn(`⚠️ Failed to load dependency ${dep.owner}/${dep.name} for ${packageKey}`)
+      console.warn(
+        `⚠️ Failed to load dependency ${dep.owner}/${dep.name} for ${packageKey}`,
+      )
     }
   }
 
@@ -139,7 +148,6 @@ const loadPackageWithDependencies = async (
 }
 
 export const loadAutoloadPackages = async (db: DbClient) => {
-  console.log("Before loading autoload packages, db.packages:", db.packages)
   const autoloadPath = path.join(
     path.dirname(__dirname),
     "db",
@@ -171,7 +179,6 @@ export const loadAutoloadPackages = async (db: DbClient) => {
 
   console.log(`\nPackage loading complete:`)
   console.log(`✓ Successfully loaded: ${successCount} packages`)
-  console.log(`After loading autoload packages, db.packages:`, db.packages)
   if (failureCount > 0) {
     console.log(`✗ Failed to load: ${failureCount} packages`)
   }
