@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 
 interface PackageInfo {
   name: string
@@ -64,6 +66,8 @@ export default function MainContentHeader({
     setTimeout(() => setCopyCloneState("copy"), 2000)
   }
 
+  const { circuitJson } = useCurrentPackageCircuitJson()
+
   return (
     <div className="flex items-center justify-between mb-4">
       <MainContentViewSelector
@@ -73,17 +77,9 @@ export default function MainContentHeader({
 
       <div className="flex space-x-2">
         {/* Export Dropdown */}
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
-            >
-              <Download className="h-4 w-4 mr-1.5" />
-              Export
-              <ChevronDown className="h-4 w-4 ml-0.5" />
-            </Button>
+  
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem
@@ -103,7 +99,11 @@ export default function MainContentHeader({
               Fabrication Files
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
+        <DownloadButtonAndMenu
+          snippetUnscopedName={packageInfo?.unscoped_name}
+          circuitJson={circuitJson}
+        />
 
         {/* Code Dropdown */}
         <DropdownMenu>

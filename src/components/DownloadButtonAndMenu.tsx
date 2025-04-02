@@ -15,9 +15,9 @@ import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-ne
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
-import { ChevronDown, Download } from "lucide-react"
-import React from "react"
+import { ChevronDown, Download, Hammer } from "lucide-react"
 import { downloadGltf } from "@/lib/download-fns/download-gltf"
+import { CubeIcon } from "@radix-ui/react-icons"
 
 interface DownloadButtonAndMenuProps {
   className?: string
@@ -34,9 +34,15 @@ export function DownloadButtonAndMenu({
 
   if (!circuitJson) {
     return (
-      <Button disabled variant="ghost" size="sm" className="px-2 text-xs">
-        <Download className="mr-1 h-3 w-3" />
-        Download
+      <Button
+        disabled
+        variant="ghost"
+        size="sm"
+        className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+      >
+        <Download className="h-4 w-4 mr-1.5" />
+        Export
+        <ChevronDown className="h-4 w-4 ml-0.5" />
       </Button>
     )
   }
@@ -45,10 +51,14 @@ export function DownloadButtonAndMenu({
     <div className={className}>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button variant="ghost" size="sm" className="px-2 text-xs">
-            <Download className="mr-1 h-3 w-3" />
-            Download
-            <ChevronDown className="ml-1 h-3 w-3" />
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+          >
+            <Download className="h-4 w-4 mr-1.5" />
+            Export
+            <ChevronDown className="h-4 w-4 ml-0.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -83,7 +93,7 @@ export function DownloadButtonAndMenu({
               }
             }}
           >
-            <Download className="mr-1 h-3 w-3" />
+            <CubeIcon className="mr-1 h-3 w-3" />
             <span className="flex-grow  mr-6">3D Model</span>
             <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               glb
@@ -104,7 +114,7 @@ export function DownloadButtonAndMenu({
               })
             }}
           >
-            <Download className="mr-1 h-3 w-3" />
+            <Hammer className="mr-1 h-3 w-3" />
             <span className="flex-grow  mr-6">Fabrication Files</span>
             <span className="text-[0.6rem] bg-purple-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               gerber/pnp/bom/csv
