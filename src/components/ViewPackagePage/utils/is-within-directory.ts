@@ -4,15 +4,29 @@
  * @param params.path File or directory path to check
  * @returns True if the path is within the specified directory
  */
-export function isWithinDirectory({ dir, path }: { dir: string; path: string }): boolean {
+export function isWithinDirectory({
+  dir,
+  path,
+}: { dir: string; path: string }): boolean {
+  if (path.startsWith("/")) {
+    path = path.substring(1)
+  }
+
   // If directory is empty, we're at the root, so show all top-level items
   if (!dir) {
-    // Check that path doesn't contain any directory separators
-    // or only contains one at the beginning
-    return !path.includes("/") || path.indexOf("/") === path.lastIndexOf("/");
+    // Check if this is a top-level path (no directory separators or just one at the beginning)
+    return !path.includes("/")
   }
-  
-  // For non-root directories, check if the path starts with the directory and has proper structure
-  return path.startsWith(dir) && 
-    path.substring(dir.length + 1).split("/").length === 1;
+
+  // Skip the current directory
+  if (path === dir) {
+    return false
+  }
+
+  // For non-root directories, find direct children
+  // Path must start with the dir + / and not have additional directory separators
+  return (
+    path.startsWith(dir + "/") &&
+    path.substring(dir.length + 1).split("/").length === 1
+  )
 }
