@@ -56,6 +56,20 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
       package_release_id: releaseData.package_release.package_release_id,
     })
     filesData = response.data
+
+    // Fetch content_text for each file individually
+    for (const file of filesData.package_files) {
+      try {
+        const fileResponse = await registryApi.post("/package_files/get", {
+          package_release_id: releaseData.package_release.package_release_id,
+          file_path: file.file_path,
+        })
+        file.content_text = fileResponse.data.package_file.content_text
+      } catch (e) {
+        console.error(`Failed to fetch content for file ${file.file_path} in package ${fullName}:`, e)
+        throw e
+      }
+    } 
   } catch (e) {
     console.error(`Failed to fetch files data for ${fullName}:`, e)
     throw e

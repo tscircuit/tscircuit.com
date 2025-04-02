@@ -1,6 +1,6 @@
 const importanceMap = {
   "readme.md": 200,
-  license: 100,
+  "license": 100,
   "license.md": 100,
   "index.ts": 90,
   "index.tsx": 90,
@@ -8,8 +8,9 @@ const importanceMap = {
 }
 
 export const scorePackageFileImportance = (filePath: string) => {
+  const lowerCaseFilePath = filePath.toLowerCase()
   for (const [key, value] of Object.entries(importanceMap)) {
-    if (filePath.endsWith(key)) {
+    if (lowerCaseFilePath.endsWith(key)) {
       return value
     }
   }
