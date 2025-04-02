@@ -1,44 +1,10 @@
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
 import { useEffect, useState } from "react"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
-interface PCBViewProps {
-  packageName?: string | null
-}
-
-export default function PCBView({ packageName }: PCBViewProps) {
-  const [circuitJson, setCircuitJson] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  // Try to load circuit.json from the standard location
-  const { data: circuitJsonFile, isError } = usePackageFile(
-    packageName
-      ? {
-          package_name: packageName,
-          file_path: "dist/circuit.json",
-        }
-      : null,
-  )
-
-  useEffect(() => {
-    setIsLoading(true)
-    setError(null)
-
-    if (circuitJsonFile) {
-      try {
-        const parsedCircuitJson = JSON.parse(circuitJsonFile.content_text!)
-        setCircuitJson(parsedCircuitJson)
-        setIsLoading(false)
-      } catch (e) {
-        setError("Invalid circuit.json format")
-        setIsLoading(false)
-      }
-    } else if (isError) {
-      setError("Circuit JSON not found in package")
-      setIsLoading(false)
-    }
-  }, [circuitJsonFile, isError])
+export default function PCBView() {
+  const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
 
   if (isLoading) {
     return (

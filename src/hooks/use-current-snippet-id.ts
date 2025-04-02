@@ -10,6 +10,7 @@ import { useCreateSnippetMutation } from "./use-create-snippet-mutation"
 
 export const useCurrentSnippetId = (): {
   snippetId: string | null
+  packageId: string | null
   isLoading: boolean
   error: (Error & { status: number }) | null
 } => {
@@ -32,8 +33,8 @@ export const useCurrentSnippetId = (): {
     isLoading: isLoadingSnippetByName,
     error: errorSnippetByName,
   } = useSnippetByName(
-    wouter.author && wouter.snippetName
-      ? `${wouter.author}/${wouter.snippetName}`
+    wouter.author && (wouter.snippetName || wouter.packageName)
+      ? `${wouter.author}/${wouter.snippetName || wouter.packageName}`
       : null,
   )
 
@@ -67,8 +68,10 @@ export const useCurrentSnippetId = (): {
     }
   }, [templateName])
 
+  const snippetId = snippetIdFromUrl ?? snippetByName?.snippet_id ?? null
   return {
-    snippetId: snippetIdFromUrl ?? snippetByName?.snippet_id ?? null,
+    snippetId,
+    packageId: snippetId,
     isLoading: isLoadingSnippetByName,
     error: errorSnippetByName,
   }

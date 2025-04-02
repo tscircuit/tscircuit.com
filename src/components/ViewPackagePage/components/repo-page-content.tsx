@@ -119,7 +119,7 @@ export default function RepoPageContent({
       case "3d":
         return <ThreeDView />
       case "pcb":
-        return <PCBView packageName={packageInfo?.name} />
+        return <PCBView />
       case "schematic":
         return <SchematicView />
       case "bom":
