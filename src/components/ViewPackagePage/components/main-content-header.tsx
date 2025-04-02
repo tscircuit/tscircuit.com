@@ -9,6 +9,9 @@ import {
   Copy,
   Check,
   Hammer,
+  Pencil,
+  GitForkIcon,
+  DownloadIcon,
 } from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
@@ -20,8 +23,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { useLocation } from "wouter"
 
 interface PackageInfo {
+  package_id: string
   name: string
   unscoped_name: string
   owner_github_username: string
@@ -42,9 +47,9 @@ interface MainContentHeaderProps {
 export default function MainContentHeader({
   activeView,
   onViewChange,
-  onExportClicked,
   packageInfo,
 }: MainContentHeaderProps) {
+  const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
     "copy",
   )
@@ -76,30 +81,6 @@ export default function MainContentHeader({
       />
 
       <div className="flex space-x-2">
-        {/* Export Dropdown */}
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-  
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => onExportClicked && onExportClicked("circuit_json")}
-            >
-              <Download className="h-4 w-4 mr-1.5 text-gray-500 dark:text-[#8b949e]" />
-              Circuit JSON
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() =>
-                onExportClicked && onExportClicked("fabrication_files")
-              }
-            >
-              <Hammer className="h-4 w-4 mr-1.5 text-gray-500 dark:text-[#8b949e]" />
-              Fabrication Files
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
         <DownloadButtonAndMenu
           snippetUnscopedName={packageInfo?.unscoped_name}
           circuitJson={circuitJson}
@@ -118,15 +99,24 @@ export default function MainContentHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => {
+                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+              }}
+              className="cursor-pointer p-2 py-4"
+            >
+              <Pencil className="h-4 w-4 mx-3" />
               Edit Online
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             {/* Install Option */}
             <div className="p-2">
-              <div className="text-sm font-medium mb-1">Install</div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
+              <div className="text-sm font-medium mb-4 flex items-center">
+                <DownloadIcon className="h-4 w-4 inline-block mr-1.5" />
+                Install
+              </div>
+              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
                 <code className="flex-1 overflow-x-auto">
                   tsci add{" "}
                   {packageInfo?.name || "@tscircuit/keyboard-default60"}
@@ -146,8 +136,11 @@ export default function MainContentHeader({
 
             {/* Clone Option */}
             <div className="p-2">
-              <div className="text-sm font-medium mb-1">Clone</div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
+              <div className="text-sm font-medium mb-4 flex items-center">
+                <GitForkIcon className="h-4 w-4 inline-block mr-1.5" />
+                Clone
+              </div>
+              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
                 <code className="flex-1 overflow-x-auto">
                   tsci clone{" "}
                   {packageInfo?.name || "@tscircuit/keyboard-default60"}

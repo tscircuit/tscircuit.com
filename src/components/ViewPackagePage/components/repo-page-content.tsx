@@ -47,7 +47,6 @@ interface RepoPageContentProps {
   importantFilePaths?: string[]
   packageInfo?: PackageInfo
   onFileClicked?: (file: PackageFile) => void
-  onExportClicked?: (exportType: string) => void
   onEditClicked?: () => void
 }
 
@@ -55,7 +54,6 @@ export default function RepoPageContent({
   packageFiles,
   packageInfo,
   onFileClicked,
-  onExportClicked,
   onEditClicked,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState("files")
@@ -163,7 +161,6 @@ export default function RepoPageContent({
             <MainContentHeader
               activeView={activeView}
               onViewChange={setActiveView}
-              onExportClicked={onExportClicked}
               packageInfo={packageInfo}
             />
 

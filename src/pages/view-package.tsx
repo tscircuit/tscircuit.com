@@ -34,7 +34,6 @@ export const ViewPackagePage = () => {
           `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
         )
       }}
-      onExportClicked={() => {}}
       onEditClicked={() => {
         setLocation(`/editor?package_id=${packageInfo?.package_id}`)
       }}
