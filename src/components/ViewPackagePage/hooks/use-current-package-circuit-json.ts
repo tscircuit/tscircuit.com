@@ -1,9 +1,9 @@
-import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { useEffect, useState } from "react"
 
 export function useCurrentPackageCircuitJson() {
-  const { packageId } = useCurrentSnippetId()
+  const { packageId } = useCurrentPackageId()
 
   const [circuitJson, setCircuitJson] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
