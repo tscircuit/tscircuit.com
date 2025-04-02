@@ -257,7 +257,7 @@ export const PreviewContent = ({
                 {circuitJson ? (
                   <PcbViewerWithContainerHeight
                     key={circuitJsonKey}
-                    soup={circuitJson}
+                    circuitJson={circuitJson}
                     containerClassName={cn(
                       "h-full w-full",
                       isFullScreen

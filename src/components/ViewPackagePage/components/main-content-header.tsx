@@ -9,6 +9,9 @@ import {
   Copy,
   Check,
   Hammer,
+  Pencil,
+  GitForkIcon,
+  DownloadIcon,
 } from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
@@ -18,8 +21,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { useLocation } from "wouter"
 
 interface PackageInfo {
+  package_id: string
   name: string
   unscoped_name: string
   owner_github_username: string
@@ -40,9 +47,9 @@ interface MainContentHeaderProps {
 export default function MainContentHeader({
   activeView,
   onViewChange,
-  onExportClicked,
   packageInfo,
 }: MainContentHeaderProps) {
+  const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
     "copy",
   )
@@ -64,6 +71,8 @@ export default function MainContentHeader({
     setTimeout(() => setCopyCloneState("copy"), 2000)
   }
 
+  const { circuitJson } = useCurrentPackageCircuitJson()
+
   return (
     <div className="flex items-center justify-between mb-4">
       <MainContentViewSelector
@@ -72,38 +81,10 @@ export default function MainContentHeader({
       />
 
       <div className="flex space-x-2">
-        {/* Export Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
-            >
-              <Download className="h-4 w-4 mr-0.5" />
-              Export
-              <ChevronDown className="h-4 w-4 ml-0.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => onExportClicked && onExportClicked("circuit_json")}
-            >
-              <Download className="h-4 w-4 mr-1.5 text-gray-500 dark:text-[#8b949e]" />
-              Circuit JSON
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() =>
-                onExportClicked && onExportClicked("fabrication_files")
-              }
-            >
-              <Hammer className="h-4 w-4 mr-1.5 text-gray-500 dark:text-[#8b949e]" />
-              Fabrication Files
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DownloadButtonAndMenu
+          snippetUnscopedName={packageInfo?.unscoped_name}
+          circuitJson={circuitJson}
+        />
 
         {/* Code Dropdown */}
         <DropdownMenu>
@@ -112,21 +93,30 @@ export default function MainContentHeader({
               size="sm"
               className="h-9 bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
             >
-              <CodeIcon className="h-4 w-4 mr-0.5" />
+              <CodeIcon className="h-4 w-4 mr-1.5" />
               Code
               <ChevronDown className="h-4 w-4 ml-0.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              onClick={() => {
+                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+              }}
+              className="cursor-pointer p-2 py-4"
+            >
+              <Pencil className="h-4 w-4 mx-3" />
               Edit Online
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             {/* Install Option */}
             <div className="p-2">
-              <div className="text-sm font-medium mb-1">Install</div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
+              <div className="text-sm font-medium mb-4 flex items-center">
+                <DownloadIcon className="h-4 w-4 inline-block mr-1.5" />
+                Install
+              </div>
+              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
                 <code className="flex-1 overflow-x-auto">
                   tsci add{" "}
                   {packageInfo?.name || "@tscircuit/keyboard-default60"}
@@ -146,8 +136,11 @@ export default function MainContentHeader({
 
             {/* Clone Option */}
             <div className="p-2">
-              <div className="text-sm font-medium mb-1">Clone</div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-sm font-mono">
+              <div className="text-sm font-medium mb-4 flex items-center">
+                <GitForkIcon className="h-4 w-4 inline-block mr-1.5" />
+                Clone
+              </div>
+              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
                 <code className="flex-1 overflow-x-auto">
                   tsci clone{" "}
                   {packageInfo?.name || "@tscircuit/keyboard-default60"}

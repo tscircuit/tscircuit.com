@@ -29,12 +29,12 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <div className="h-full p-4 bg-white dark:bg-[#0d1117] overflow-y-auto">
-      <SidebarAboutSection packageInfo={packageInfo} isLoading={isLoading} />
+      <SidebarAboutSection />
       <PreviewImageSquares
         packageInfo={packageInfo}
         onViewChange={onViewChange}
       />
-      <SidebarReleasesSection isLoading={isLoading} />
+      <SidebarReleasesSection />
     </div>
   )
 }

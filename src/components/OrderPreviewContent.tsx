@@ -25,7 +25,7 @@ export const OrderPreviewContent: React.FC<OrderPreviewContentProps> = ({
         <TabsContent value="pcb">
           <div className="h-[500px] shadow overflow-hidden sm:rounded-lg mb-6">
             {circuitJson ? (
-              <PCBViewer height={500} soup={circuitJson} />
+              <PCBViewer height={500} circuitJson={circuitJson} />
             ) : (
               <div className="flex items-center justify-center h-full bg-gray-100">
                 No PCB data available

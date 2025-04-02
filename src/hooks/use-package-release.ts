@@ -42,7 +42,7 @@ export const usePackageRelease = (query: PackageReleaseQuery | null) => {
 }
 
 // Convenience hooks for common use cases
-export const usePackageReleaseById = (packageReleaseId: string | null) => {
+export const usePackageReleaseById = (packageReleaseId?: string | null) => {
   return usePackageRelease(
     packageReleaseId ? { package_release_id: packageReleaseId } : null,
   )

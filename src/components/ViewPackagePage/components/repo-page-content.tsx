@@ -19,12 +19,14 @@ import Footer from "@/components/Footer"
 import ViewSnippetHeader from "@/components/ViewSnippetHeader"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useLocation } from "wouter"
 
 interface PackageFile {
   package_file_id: string
   package_release_id: string
   file_path: string
-  content_text: string
+  file_content: string
+  content_text?: string // Keep for backward compatibility
   created_at: string // iso-8601
 }
 
@@ -45,9 +47,7 @@ interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: PackageInfo
-  onFileClicked?: (file: any) => void
-  onDirectoryClicked?: (directory: any) => void
-  onExportClicked?: (exportType: string) => void
+  onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
 }
 
@@ -55,69 +55,30 @@ export default function RepoPageContent({
   packageFiles,
   packageInfo,
   onFileClicked,
-  onDirectoryClicked,
-  onExportClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [activeView, setActiveView] = useState("files")
+  const [location, setLocation] = useLocation()
+  const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
+
+  // Handle hash-based view selection
+  useEffect(() => {
+    // Get the hash without the # character
+    const hash = window.location.hash.slice(1)
+    // Valid views
+    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+
+    // If hash is a valid view, set it as active
+    if (validViews.includes(hash)) {
+      setActiveView(hash)
+    }
+  }, [])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
     ?.map((pf) => pf.file_path)
 
-  // Parse package files to determine directories and files structure
-  const { directories, files } = useMemo(() => {
-    if (!packageFiles) {
-      return { directories: [], files: [] }
-    }
-
-    const dirs = new Set<string>()
-    const filesList: Array<{
-      type: "file"
-      path: string
-      name: string
-      created_at: string
-    }> = []
-
-    packageFiles.forEach((file) => {
-      // Extract directory path
-      const pathParts = file.file_path.split("/")
-      const fileName = pathParts.pop() || ""
-
-      // Add all parent directories
-      let currentPath = ""
-      pathParts.forEach((part) => {
-        currentPath += (currentPath ? "/" : "") + part
-        dirs.add(currentPath)
-      })
-
-      filesList.push({
-        type: "file",
-        path: file.file_path,
-        name: fileName,
-        created_at: file.created_at,
-      })
-    })
-
-    // Convert directories set to array of directory objects
-    const dirsList = Array.from(dirs)
-      .map((path) => {
-        const pathParts = path.split("/")
-        if (!path) return null
-        return {
-          type: "directory",
-          path,
-          name: pathParts[pathParts.length - 1],
-        }
-      })
-      .filter((dir) => dir !== null)
-
-    return {
-      directories: dirsList,
-      files: filesList,
-    }
-  }, [packageFiles])
+  // We've moved the directory and file computation to the FilesView component
 
   // Find important files based on importantFilePaths
   const importantFiles = useMemo(() => {
@@ -128,17 +89,44 @@ export default function RepoPageContent({
     )
   }, [packageFiles, importantFilePaths])
 
+  // Generate package name with version for file lookups
+  const packageNameWithVersion = useMemo(() => {
+    if (!packageInfo) return ""
+
+    // Format: @scope/packageName@version or packageName@version
+    const name = packageInfo.name
+
+    // Extract the latest version from the files (assuming version information is available)
+    const versionFile = packageFiles?.find(
+      (file) => file.file_path === "package.json",
+    )
+    let version = "latest"
+
+    if (versionFile) {
+      try {
+        const content =
+          versionFile.file_content || versionFile.content_text || "{}"
+        const packageJson = JSON.parse(content)
+        if (packageJson.version) {
+          version = packageJson.version
+        }
+      } catch (e) {
+        // If package.json can't be parsed, use "latest"
+      }
+    }
+
+    return `${name}@${version}`
+  }, [packageInfo, packageFiles])
+
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
       case "files":
         return (
           <FilesView
-            directories={directories as any}
-            files={files as any}
+            packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
-            onDirectoryClicked={onDirectoryClicked}
           />
         )
       case "3d":
@@ -152,11 +140,9 @@ export default function RepoPageContent({
       default:
         return (
           <FilesView
-            directories={directories as any}
-            files={files as any}
+            packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
-            onDirectoryClicked={onDirectoryClicked}
           />
         )
     }
@@ -174,7 +160,15 @@ export default function RepoPageContent({
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">
-        <MobileSidebar packageInfo={packageInfo} isLoading={!packageInfo} />
+        <MobileSidebar
+          onViewChange={(view) => {
+            setActiveView(view)
+            // Update URL hash when view changes
+            window.location.hash = view
+          }}
+          packageInfo={packageInfo}
+          isLoading={!packageInfo}
+        />
       </div>
 
       {/* Main Content */}
@@ -185,8 +179,11 @@ export default function RepoPageContent({
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
-              onViewChange={setActiveView}
-              onExportClicked={onExportClicked}
+              onViewChange={(view) => {
+                setActiveView(view)
+                // Update URL hash when view changes
+                window.location.hash = view
+              }}
               packageInfo={packageInfo}
             />
 
@@ -210,6 +207,8 @@ export default function RepoPageContent({
               isLoading={!packageInfo}
               onViewChange={(view) => {
                 setActiveView(view)
+                // Update URL hash when view changes
+                window.location.hash = view
               }}
             />
           </div>

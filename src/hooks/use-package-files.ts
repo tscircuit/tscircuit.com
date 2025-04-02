@@ -1,5 +1,5 @@
 import { PackageFile } from "fake-snippets-api/lib/db/schema"
-import { useQuery } from "react-query"
+import { useQuery, UseQueryOptions } from "react-query"
 import { useAxios } from "./use-axios"
 
 type PackageFileQuery =
@@ -25,7 +25,10 @@ type PackageFileQuery =
       file_path: string
     }
 
-export const usePackageFile = (query: PackageFileQuery | null) => {
+export const usePackageFile = (
+  query: PackageFileQuery | null,
+  opts?: UseQueryOptions,
+) => {
   const axios = useAxios()
 
   return useQuery<PackageFile, Error & { status: number }>(
@@ -44,6 +47,7 @@ export const usePackageFile = (query: PackageFileQuery | null) => {
     {
       retry: false,
       enabled: Boolean(query),
+      ...(opts as any),
     },
   )
 }
