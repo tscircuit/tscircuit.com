@@ -29,8 +29,9 @@ export const ViewPackagePage = () => {
       packageFiles={packageFiles as any}
       packageInfo={packageInfo as any}
       importantFilePaths={["README.md", "LICENSE", "package.json"]}
-      onFileClicked={() => {}}
-      onDirectoryClicked={() => {}}
+      onFileClicked={(file) => {
+        // TODO go to /editor?package_id=...&file_path=...
+      }}
       onExportClicked={() => {}}
       onEditClicked={() => {}}
     />

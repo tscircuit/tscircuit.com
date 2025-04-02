@@ -47,7 +47,6 @@ interface RepoPageContentProps {
   importantFilePaths?: string[]
   packageInfo?: PackageInfo
   onFileClicked?: (file: any) => void
-  onDirectoryClicked?: (directory: any) => void
   onExportClicked?: (exportType: string) => void
   onEditClicked?: () => void
 }
@@ -56,7 +55,6 @@ export default function RepoPageContent({
   packageFiles,
   packageInfo,
   onFileClicked,
-  onDirectoryClicked,
   onExportClicked,
   onEditClicked,
 }: RepoPageContentProps) {
@@ -168,7 +166,6 @@ export default function RepoPageContent({
             files={files as any}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
-            onDirectoryClicked={onDirectoryClicked}
           />
         )
       case "3d":
@@ -186,7 +183,6 @@ export default function RepoPageContent({
             files={files as any}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
-            onDirectoryClicked={onDirectoryClicked}
           />
         )
     }
