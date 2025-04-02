@@ -1,0 +1,21 @@
+{
+  "packages": [
+      {
+        "owner": "imrishabh18",
+        "name": "Arduino-nano"
+      },
+      {
+        "owner": "seveibar",
+        "name": "usb-c-flashlight"
+      },
+      {
+        "owner": "seveibar",
+        "name": "nine-key-keyboard"
+      },
+      {
+        "owner": "AnasSarkiz",
+        "name": "grid-of-LEDs-with-an-ESP32"
+      }
+    ]
+  }
+  

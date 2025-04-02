@@ -1,5 +1,5 @@
 import { DbClient } from "./db-client"
-import { loadAutoloadSnippets } from "./autoload-dev-snippets"
+import { loadAutoloadPackages } from "./autoload-dev-packages"
 
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
@@ -22,8 +22,8 @@ export const seed = (db: DbClient) => {
     github_username: "seveibar",
   })
 
-  if (process.env.AUTOLOAD_SNIPPETS === "true") {
-    loadAutoloadSnippets(db)
+  if (process.env.AUTOLOAD_PACKAGES === "true") {
+    loadAutoloadPackages(db)
   }
 
   db.addSnippet({

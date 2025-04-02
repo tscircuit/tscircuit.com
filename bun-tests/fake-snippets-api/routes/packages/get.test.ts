@@ -1,6 +1,5 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
-import { packageSchema } from "fake-snippets-api/lib/db/schema"
 
 test("GET /api/packages/get - should return package by package_id", async () => {
   const { axios } = await getTestServer()
@@ -56,4 +55,25 @@ test("GET /api/packages/get - should return 404 if package not found", async () 
       'Package not found (searched using {"package_id":"non_existent_package_id"})',
     )
   }
+})
+
+test("GET /api/packages/get - should return package by name", async () => {
+  const { axios } = await getTestServer()
+
+  await axios.post("/api/packages/create", {
+    name: "test-package",
+    description: "A test package",
+    creator_account_id: "test_account_id",
+    owner_org_id: "test_org_id",
+    owner_github_username: "test_github_username",
+  })
+
+  const getResponse = await axios.get("/api/packages/get", {
+    params: { name: "test-package" },
+  })
+
+  expect(getResponse.status).toBe(200)
+  const responseBody = getResponse.data
+  expect(responseBody.ok).toBe(true)
+  expect(responseBody.package).toBeDefined()
 })
