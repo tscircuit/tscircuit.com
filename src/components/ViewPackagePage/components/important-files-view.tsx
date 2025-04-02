@@ -12,7 +12,7 @@ interface PackageFile {
   package_release_id: string
   file_path: string
   created_at: string
-  content_text: string
+  content_text?: string
 }
 
 interface ImportantFilesViewProps {

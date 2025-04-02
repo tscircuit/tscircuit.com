@@ -66,10 +66,13 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
         })
         file.content_text = fileResponse.data.package_file.content_text
       } catch (e) {
-        console.error(`Failed to fetch content for file ${file.file_path} in package ${fullName}:`, e)
+        console.error(
+          `Failed to fetch content for file ${file.file_path} in package ${fullName}:`,
+          e,
+        )
         throw e
       }
-    } 
+    }
   } catch (e) {
     console.error(`Failed to fetch files data for ${fullName}:`, e)
     throw e

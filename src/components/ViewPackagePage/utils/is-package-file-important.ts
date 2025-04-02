@@ -1,6 +1,6 @@
 const importanceMap = {
   "readme.md": 200,
-  "license": 100,
+  license: 100,
   "license.md": 100,
   "index.ts": 90,
   "index.tsx": 90,
