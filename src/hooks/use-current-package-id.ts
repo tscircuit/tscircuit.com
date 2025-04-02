@@ -20,9 +20,10 @@ export const useCurrentPackageId = (): {
     }
   }, [urlPackageId])
 
-  const packageName = wouter.author && wouter.packageName 
-    ? `${wouter.author}/${wouter.packageName}`
-    : null
+  const packageName =
+    wouter.author && wouter.packageName
+      ? `${wouter.author}/${wouter.packageName}`
+      : null
 
   const {
     data: packageByName,
