@@ -1,5 +1,5 @@
 {
-  "snippets": [
+  "packages": [
     {
       "owner": "Abse2001",
       "name": "Arduino-Nano-Servo-Breakout"
@@ -23,6 +23,10 @@
     {
       "owner": "AnasSarkiz",
       "name": "grid-of-LEDs-with-an-ESP32"
+    },
+    {
+      "owner": "seveibar",
+      "name": "keyboard-default60"
     }
   ]
 }
