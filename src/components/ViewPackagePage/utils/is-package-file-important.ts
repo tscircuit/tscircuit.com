@@ -8,8 +8,9 @@ const importanceMap = {
 }
 
 export const scorePackageFileImportance = (filePath: string) => {
+  const lowerCaseFilePath = filePath.toLowerCase()
   for (const [key, value] of Object.entries(importanceMap)) {
-    if (filePath.endsWith(key)) {
+    if (lowerCaseFilePath.endsWith(key)) {
       return value
     }
   }
