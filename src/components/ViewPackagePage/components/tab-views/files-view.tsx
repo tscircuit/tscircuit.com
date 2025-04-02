@@ -52,7 +52,7 @@ export default function FilesView({
     const filesList: File[] = []
 
     packageFiles
-      .filter(file => !isHiddenFile(file.file_path))
+      .filter((file) => !isHiddenFile(file.file_path))
       .forEach((file) => {
         // Extract directory path
         const pathParts = file.file_path.split("/")
@@ -63,10 +63,13 @@ export default function FilesView({
         pathParts.forEach((part) => {
           currentPath += (currentPath ? "/" : "") + part
           // Only add directory if it contains visible files
-          if (packageFiles.some(f => 
-            f.file_path.startsWith(currentPath + "/") && 
-            !isHiddenFile(f.file_path)
-          )) {
+          if (
+            packageFiles.some(
+              (f) =>
+                f.file_path.startsWith(currentPath + "/") &&
+                !isHiddenFile(f.file_path),
+            )
+          ) {
             dirs.add(currentPath)
           }
         })
@@ -234,7 +237,7 @@ export default function FilesView({
             {/* Directory contents */}
             {items
               .filter((item) =>
-                isWithinDirectory({ dir: activeDir, path: item.path })
+                isWithinDirectory({ dir: activeDir, path: item.path }),
               )
               .map((item, index) => (
                 <div
@@ -263,7 +266,7 @@ export default function FilesView({
 
             {/* No files in current directory */}
             {items.filter((item) =>
-              isWithinDirectory({ dir: activeDir, path: item.path })
+              isWithinDirectory({ dir: activeDir, path: item.path }),
             ).length === 0 && (
               <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">
                 No files in this directory
