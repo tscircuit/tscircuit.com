@@ -61,6 +61,7 @@ export default function PCBView({ packageName }: PCBViewProps) {
   return (
     <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117]">
       <PcbViewerWithContainerHeight
+        clickToInteractEnabled
         circuitJson={circuitJson}
         containerClassName="w-full h-[620px]"
       />

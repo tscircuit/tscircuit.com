@@ -1,5 +1,6 @@
 import { NotFoundError } from "winterspec/middleware"
 import * as ZT from "../db/schema"
+import { normalizeProjectFilePath } from "fake-snippets-api/utils/normalizeProjectFilePath"
 export const getPackageFileIdFromFileDescriptor = async (
   descriptor:
     | { package_file_id: string }
@@ -26,7 +27,8 @@ export const getPackageFileIdFromFileDescriptor = async (
     const packageFile = ctx.db.packageFiles.find(
       (pf: ZT.PackageFile) =>
         pf.package_release_id === package_release_id &&
-        pf.file_path === file_path,
+        normalizeProjectFilePath(pf.file_path) ===
+          normalizeProjectFilePath(file_path),
     )
 
     if (!packageFile) {
@@ -68,7 +70,8 @@ export const getPackageFileIdFromFileDescriptor = async (
     const packageFile = ctx.db.packageFiles.find(
       (pf: ZT.PackageFile) =>
         pf.package_release_id === packageRelease.package_release_id &&
-        pf.file_path === file_path,
+        normalizeProjectFilePath(pf.file_path) ===
+          normalizeProjectFilePath(file_path),
     )
 
     if (!packageFile) {
@@ -109,7 +112,8 @@ export const getPackageFileIdFromFileDescriptor = async (
     const packageFile = ctx.db.packageFiles.find(
       (pf: ZT.PackageFile) =>
         pf.package_release_id === packageRelease.package_release_id &&
-        pf.file_path === file_path,
+        normalizeProjectFilePath(pf.file_path) ===
+          normalizeProjectFilePath(file_path),
     )
 
     if (!packageFile) {
@@ -154,7 +158,8 @@ export const getPackageFileIdFromFileDescriptor = async (
     const packageFile = ctx.db.packageFiles.find(
       (pf: ZT.PackageFile) =>
         pf.package_release_id === packageRelease.package_release_id &&
-        pf.file_path === file_path,
+        normalizeProjectFilePath(pf.file_path) ===
+          normalizeProjectFilePath(file_path),
     )
 
     if (!packageFile) {
