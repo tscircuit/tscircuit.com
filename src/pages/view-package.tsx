@@ -23,7 +23,7 @@ export const ViewPackagePage = () => {
   return (
     <>
       <Helmet>
-        <title>{`${author}/${packageName}`}</title>
+        <title>{`${author}/${packageName}-tscircuit`}</title>
       </Helmet>
       <RepoPageContent
         packageFiles={packageFiles as any}
