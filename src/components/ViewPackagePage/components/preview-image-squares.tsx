@@ -16,7 +16,7 @@ export default function PreviewImageSquares({
 
   const views = [
     {
-      id: "3d", 
+      id: "3d",
       label: "3D View",
       imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/3d.png`,
     },
