@@ -52,7 +52,7 @@ export const DashboardPage = () => {
   return (
     <div>
       <Helmet>
-        <title>Dashboard</title>
+        <title>Dashboard - tscircuit</title>
       </Helmet>
       <Header />
       <div className="container mx-auto px-4 py-8">
