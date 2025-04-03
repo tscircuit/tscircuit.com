@@ -15,7 +15,11 @@ export default function PreviewImageSquares({
   const [activeView, setActiveView] = useState("code")
 
   const views = [
-    { id: "3d", label: "3D View" },
+    {
+      id: "3d", 
+      label: "3D View",
+      imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/3d.png`,
+    },
     {
       id: "pcb",
       label: "PCB View",
