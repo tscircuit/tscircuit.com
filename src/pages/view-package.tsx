@@ -4,6 +4,7 @@ import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
 import { useLocation, useParams } from "wouter"
+import { Helmet } from "react-helmet-async"
 
 export const ViewPackagePage = () => {
   const { packageInfo } = useCurrentPackageInfo()
@@ -20,18 +21,23 @@ export const ViewPackagePage = () => {
   )
 
   return (
-    <RepoPageContent
-      packageFiles={packageFiles as any}
-      packageInfo={packageInfo as any}
-      importantFilePaths={["README.md", "LICENSE", "package.json"]}
-      onFileClicked={(file) => {
-        setLocation(
-          `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
-        )
-      }}
-      onEditClicked={() => {
-        setLocation(`/editor?package_id=${packageInfo?.package_id}`)
-      }}
-    />
+    <>
+      <Helmet>
+        <title>{`${author}/${packageName} - tscircuit`}</title>
+      </Helmet>
+      <RepoPageContent
+        packageFiles={packageFiles as any}
+        packageInfo={packageInfo as any}
+        importantFilePaths={["README.md", "LICENSE", "package.json"]}
+        onFileClicked={(file) => {
+          setLocation(
+            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
+          )
+        }}
+        onEditClicked={() => {
+          setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+        }}
+      />
+    </>
   )
 }
