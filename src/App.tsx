@@ -4,8 +4,6 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
-import { HelmetProvider } from "react-helmet-async"
-
 const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
     <div className="w-48">
@@ -98,40 +96,38 @@ class ErrorBoundary extends React.Component<
 function App() {
   return (
     <ContextProviders>
-      <HelmetProvider>
-        <ErrorBoundary>
-          <Suspense fallback={<FullPageLoader />}>
-            <Switch>
-              <Route path="/" component={LandingPage} />
-              <Route path="/beta" component={BetaPage} />
-              <Route path="/beta/:author/:packageName" component={BetaPage} />
-              <Route
-                path="/view-package/:author/:packageName"
-                component={ViewPackagePage}
-              />
-              <Route path="/editor" component={EditorPage} />
-              <Route path="/quickstart" component={QuickstartPage} />
-              <Route path="/dashboard" component={DashboardPage} />
-              <Route path="/ai" component={AiPage} />
-              <Route path="/newest" component={NewestPage} />
-              <Route path="/settings" component={SettingsPage} />
-              <Route path="/search" component={SearchPage} />
-              <Route path="/authorize" component={AuthenticatePage} />
-              <Route path="/my-orders" component={MyOrdersPage} />
-              <Route path="/orders/:orderId" component={ViewOrderPage} />
-              <Route path="/preview" component={PreviewPage} />
-              <Route path="/dev-login" component={DevLoginPage} />
-              <Route path="/:username" component={UserProfilePage} />
-              <Route path="/:author/:packageName" component={ViewPackagePage} />
-              <Route
-                path="/snippets/:author/:snippetName"
-                component={ViewSnippetPage}
-              />
-            </Switch>
-          </Suspense>
-          <Toaster />
-        </ErrorBoundary>
-      </HelmetProvider>
+      <ErrorBoundary>
+        <Suspense fallback={<FullPageLoader />}>
+          <Switch>
+            <Route path="/" component={LandingPage} />
+            <Route path="/beta" component={BetaPage} />
+            <Route path="/beta/:author/:packageName" component={BetaPage} />
+            <Route
+              path="/view-package/:author/:packageName"
+              component={ViewPackagePage}
+            />
+            <Route path="/editor" component={EditorPage} />
+            <Route path="/quickstart" component={QuickstartPage} />
+            <Route path="/dashboard" component={DashboardPage} />
+            <Route path="/ai" component={AiPage} />
+            <Route path="/newest" component={NewestPage} />
+            <Route path="/settings" component={SettingsPage} />
+            <Route path="/search" component={SearchPage} />
+            <Route path="/authorize" component={AuthenticatePage} />
+            <Route path="/my-orders" component={MyOrdersPage} />
+            <Route path="/orders/:orderId" component={ViewOrderPage} />
+            <Route path="/preview" component={PreviewPage} />
+            <Route path="/dev-login" component={DevLoginPage} />
+            <Route path="/:username" component={UserProfilePage} />
+            <Route path="/:author/:packageName" component={ViewPackagePage} />
+            <Route
+              path="/snippets/:author/:snippetName"
+              component={ViewSnippetPage}
+            />
+          </Switch>
+        </Suspense>
+        <Toaster />
+      </ErrorBoundary>
     </ContextProviders>
   )
 }

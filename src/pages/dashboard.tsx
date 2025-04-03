@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import { SnippetList } from "@/components/SnippetList"
+import { Helmet } from "react-helmet-async"
 
 export const DashboardPage = () => {
   const axios = useAxios()
@@ -50,6 +51,9 @@ export const DashboardPage = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Dashboard</title>
+      </Helmet>
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
