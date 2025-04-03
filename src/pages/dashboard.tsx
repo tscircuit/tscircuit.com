@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
@@ -18,6 +18,10 @@ export const DashboardPage = () => {
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const [showAllTrending, setShowAllTrending] = useState(false)
   const [showAllNewest, setShowAllNewest] = useState(false)
+
+  useEffect(() => {
+    document.title = "Dashboard - TSCircuit";
+  }, []);
 
   const {
     data: mySnippets,
