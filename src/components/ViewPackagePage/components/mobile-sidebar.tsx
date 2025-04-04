@@ -142,6 +142,8 @@ function PreviewButton({
     imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/pcb.png`
   } else if (packageInfo && view === "Schematic View") {
     imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/schematic.png`
+  } else if (packageInfo && view === "3D View") {
+    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/3d.png`
   }
 
   if (imageUrl) {
