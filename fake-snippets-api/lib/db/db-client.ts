@@ -11,6 +11,7 @@ import {
   type LoginPage,
   type Order,
   type OrderFile,
+  OrderQuote,
   type Package,
   type PackageFile,
   type PackageRelease,
@@ -120,6 +121,23 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       }
     })
     return newOrderFile
+  },
+  addOrderQuote: (orderQuote: Omit<OrderQuote, "order_quote_id">): OrderQuote => {
+    const newOrderQuote = {
+      order_quote_id: `order_quote_${get().idCounter + 1}`,
+      ...orderQuote,
+    }
+    set((state) => {
+      return {
+        orderQuotes: [...state.orderQuotes, newOrderQuote],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newOrderQuote
+  },
+  getOrderQuoteById: (orderQuoteId: string): OrderQuote | undefined => {
+    const state = get()
+    return state.orderQuotes.find((quote) => quote.order_quote_id === orderQuoteId)
   },
   getOrderFileById: (orderFileId: string): OrderFile | undefined => {
     const state = get()

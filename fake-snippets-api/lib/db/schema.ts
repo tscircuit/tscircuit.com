@@ -100,6 +100,39 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
+export const orderQuoteComponentSchema = z.object({
+  component_id: z.string(),
+  name: z.string(),
+  manufacturer_part_number: z.string().nullable(),
+  jlcpcb_part_number: z.string().nullable(),
+  quantity: z.number(),
+  unit_price: z.number(),
+  total_price: z.number(),
+  type: z.string(), // e.g., "resistor", "capacitor", etc.
+  available: z.boolean().default(true),
+})
+export type OrderQuoteComponent = z.infer<typeof orderQuoteComponentSchema>
+
+export const orderQuoteSchema = z.object({
+  order_quote_id: z.string(),
+  account_id: z.string().nullable(),
+  package_release_id: z.string().nullable(),
+  is_completed: z.boolean().default(false),
+  is_processing: z.boolean().default(true),
+  error: errorSchema.nullable(),
+  has_error: z.boolean().default(false),
+  created_at: z.string(),
+  updated_at: z.string(),
+  completed_at: z.string().nullable(),
+  bom_rows: z.string(),
+  components: z.array(orderQuoteComponentSchema).default([]),
+  pcb_price: z.number().default(0),
+  components_price: z.number().default(0),
+  shipping_price: z.number().default(0),
+  total_price: z.number().default(0),
+})
+export type OrderQuote = z.infer<typeof orderQuoteSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -223,5 +256,6 @@ export const databaseSchema = z.object({
   accountPackages: z.array(accountPackageSchema).default([]),
   jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
+  orderQuotes: z.array(orderQuoteSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
