@@ -13,7 +13,7 @@ export default function PreviewImageSquares({
   onViewChange,
 }: ViewPlaceholdersProps) {
   const [activeView, setActiveView] = useState("code")
-  const [loadedViews, setLoadedViews] = useState<string[]>([])
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
 
   const views = [
     {
@@ -31,7 +31,11 @@ export default function PreviewImageSquares({
       label: "Schematic View",
       imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/schematic.png`,
     },
-  ]
+  ] satisfies {
+    id: "3d" | "pcb" | "schematic"
+    label: string
+    imageUrl?: string
+  }[]
 
   const handleViewClick = (viewId: string) => {
     setActiveView(viewId)
@@ -39,21 +43,26 @@ export default function PreviewImageSquares({
   }
 
   const handleImageLoad = (viewId: string) => {
-    setLoadedViews((prev) => [...prev, viewId])
+    setLoadedImages((prev) => ({ ...prev, [viewId]: true }))
   }
 
   const handleImageError = (viewId: string) => {
-    setLoadedViews((prev) => prev.filter((id) => id !== viewId))
+    console.error(`Failed to load image for view: ${viewId}`)
+    setLoadedImages((prev) => ({ ...prev, [viewId]: false }))
   }
 
-  return loadedViews.length > 0 ? (
-    <div className="grid grid-cols-3 gap-2 mb-6">
+  const isAnyImageLoaded = views.some((view) => loadedImages[view.id])
+
+  return (
+    <div className={`grid grid-cols-3 gap-2 ${isAnyImageLoaded && "mb-6"}`}>
       {views.map(
         (view) =>
-          loadedViews.includes(view.id) && (
+          view.imageUrl && (
             <button
               key={view.id}
-              className={`aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors`}
+              className={`aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors ${
+                loadedImages[view.id] ? "" : "hidden"
+              }`}
               onClick={() => handleViewClick(view.id)}
             >
               <img
@@ -67,5 +76,5 @@ export default function PreviewImageSquares({
           ),
       )}
     </div>
-  ) : null
+  )
 }
