@@ -68,11 +68,11 @@ export default function PreviewImageSquares({
     }))
   }
 
-  const isAnyImageLoaded = Object.values(imageStatus).includes("loaded")
-
   const availableViews = views.filter(
     (view) => !view.imageUrl || imageStatus[view.id] !== "error",
   )
+
+  const isAnyImageLoaded = Object.values(imageStatus).includes("loaded")
 
   return (
     <div className={`grid grid-cols-3 gap-2 ${isAnyImageLoaded && "mb-6"}`}>
