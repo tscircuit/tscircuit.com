@@ -1,5 +1,5 @@
 "use client"
-
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
 
@@ -13,23 +13,35 @@ export default function PreviewImageSquares({
   onViewChange,
 }: ViewPlaceholdersProps) {
   const [activeView, setActiveView] = useState("code")
-  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({})
+  const [imageStatus, setImageStatus] = useState<
+    Record<string, "loading" | "loaded" | "error">
+  >({
+    "3d": "loading",
+    pcb: "loading",
+    schematic: "loading",
+  })
 
   const views = [
     {
       id: "3d",
       label: "3D View",
-      imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/3d.png`,
+      imageUrl: packageInfo?.name
+        ? `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/3d.png`
+        : undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
-      imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/pcb.png`,
+      imageUrl: packageInfo?.name
+        ? `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/pcb.png`
+        : undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
-      imageUrl: `https://registry-api.tscircuit.com/snippets/images/${packageInfo?.name}/schematic.png`,
+      imageUrl: packageInfo?.name
+        ? `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/schematic.png`
+        : undefined,
     },
   ] satisfies {
     id: "3d" | "pcb" | "schematic"
@@ -43,38 +55,52 @@ export default function PreviewImageSquares({
   }
 
   const handleImageLoad = (viewId: string) => {
-    setLoadedImages((prev) => ({ ...prev, [viewId]: true }))
+    setImageStatus((prev) => ({
+      ...prev,
+      [viewId]: "loaded",
+    }))
   }
 
   const handleImageError = (viewId: string) => {
-    console.error(`Failed to load image for view: ${viewId}`)
-    setLoadedImages((prev) => ({ ...prev, [viewId]: false }))
+    setImageStatus((prev) => ({
+      ...prev,
+      [viewId]: "error",
+    }))
   }
 
-  const isAnyImageLoaded = views.some((view) => loadedImages[view.id])
+  const availableViews = views.filter(
+    (view) => !view.imageUrl || imageStatus[view.id] !== "error",
+  )
 
   return (
-    <div className={`grid grid-cols-3 gap-2 ${isAnyImageLoaded && "mb-6"}`}>
-      {views.map(
-        (view) =>
-          view.imageUrl && (
-            <button
-              key={view.id}
-              className={`aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors ${
-                loadedImages[view.id] ? "" : "hidden"
-              }`}
-              onClick={() => handleViewClick(view.id)}
-            >
+    <div
+      className={`grid grid-cols-3 gap-2 ${
+        Object.values(imageStatus).includes("loaded") ? "mb-6" : ""
+      }`}
+    >
+      {availableViews.map((view) => (
+        <button
+          key={view.id}
+          className={`aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors`}
+          onClick={() => handleViewClick(view.id)}
+        >
+          {view.imageUrl && (
+            <>
+              {imageStatus[view.id] === "loading" && (
+                <Skeleton className="w-full h-full rounded-lg" />
+              )}
+
               <img
                 src={view.imageUrl}
                 alt={view.label}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover rounded-lg ${imageStatus[view.id] === "loaded" ? "block" : "hidden"}`}
                 onLoad={() => handleImageLoad(view.id)}
                 onError={() => handleImageError(view.id)}
               />
-            </button>
-          ),
-      )}
+            </>
+          )}
+        </button>
+      ))}
     </div>
   )
 }
