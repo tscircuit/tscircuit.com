@@ -37,6 +37,8 @@ export default function PreviewImageSquares({
     imageUrl?: string
   }[]
 
+  const isAnyImageLoaded = views.some((view) => loadedImages[view.id])
+
   const handleViewClick = (viewId: string) => {
     setActiveView(viewId)
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")
@@ -50,8 +52,6 @@ export default function PreviewImageSquares({
     console.error(`Failed to load image for view: ${viewId}`)
     setLoadedImages((prev) => ({ ...prev, [viewId]: false }))
   }
-
-  const isAnyImageLoaded = views.some((view) => loadedImages[view.id])
 
   return (
     <div className={`grid grid-cols-3 gap-2 ${isAnyImageLoaded && "mb-6"}`}>
