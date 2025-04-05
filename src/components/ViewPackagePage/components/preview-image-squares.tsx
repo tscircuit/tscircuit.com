@@ -72,12 +72,10 @@ export default function PreviewImageSquares({
     (view) => !view.imageUrl || imageStatus[view.id] !== "error",
   )
 
+  const isAnyImageLoaded = Object.values(imageStatus).includes("loaded")
+
   return (
-    <div
-      className={`grid grid-cols-3 gap-2 ${
-        Object.values(imageStatus).includes("loaded") ? "mb-6" : ""
-      }`}
-    >
+    <div className={`grid grid-cols-3 gap-2 ${isAnyImageLoaded && "mb-6"}`}>
       {availableViews.map((view) => (
         <button
           key={view.id}
