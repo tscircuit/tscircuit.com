@@ -14,7 +14,6 @@ export default function PreviewImageSquares({
 }: ViewPlaceholdersProps) {
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
-    onViewChange,
   })
 
   const handleViewClick = (viewId: string) => {

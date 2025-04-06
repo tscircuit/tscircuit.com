@@ -2,13 +2,9 @@ import { useState } from "react"
 
 interface UsePreviewImagesProps {
   packageName?: string
-  onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }
 
-export function usePreviewImages({
-  packageName,
-  onViewChange,
-}: UsePreviewImagesProps) {
+export function usePreviewImages({ packageName }: UsePreviewImagesProps) {
   const [imageStatus, setImageStatus] = useState<
     Record<string, "loading" | "loaded" | "error">
   >({
