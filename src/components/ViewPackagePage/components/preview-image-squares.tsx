@@ -12,11 +12,14 @@ export default function PreviewImageSquares({
   packageInfo,
   onViewChange,
 }: ViewPlaceholdersProps) {
-  const { availableViews, handleImageLoad, handleImageError, handleViewClick } =
-    usePreviewImages({
-      packageName: packageInfo?.name,
-      onViewChange,
-    })
+  const { availableViews } = usePreviewImages({
+    packageName: packageInfo?.name,
+    onViewChange,
+  })
+
+  const handleViewClick = (viewId: string) => {
+    onViewChange?.(viewId as "3d" | "pcb" | "schematic")
+  }
 
   return (
     <div className="grid grid-cols-3 gap-2">
@@ -37,8 +40,8 @@ export default function PreviewImageSquares({
                 className={`w-full h-full object-cover rounded-lg ${
                   view.status === "loaded" ? "block" : "hidden"
                 }`}
-                onLoad={() => handleImageLoad(view.id)}
-                onError={() => handleImageError(view.id)}
+                onLoad={view.onLoad}
+                onError={view.onError}
               />
             </>
           )}

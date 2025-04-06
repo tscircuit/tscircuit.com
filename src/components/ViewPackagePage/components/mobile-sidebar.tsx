@@ -29,12 +29,14 @@ export default function MobileSidebar({
   onViewChange,
 }: MobileSidebarProps) {
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
-  const { availableViews, handleImageLoad, handleImageError, handleViewClick } =
-    usePreviewImages({
-      packageName: packageInfo?.name,
-      onViewChange,
-    })
+  const { availableViews } = usePreviewImages({
+    packageName: packageInfo?.name,
+    onViewChange,
+  })
 
+  const handleViewClick = (viewId: string) => {
+    onViewChange?.(viewId as "3d" | "pcb" | "schematic")
+  }
   if (isLoading) {
     return (
       <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
@@ -125,8 +127,8 @@ export default function MobileSidebar({
             onClick={() => handleViewClick(view.id)}
             imageUrl={view.imageUrl}
             status={view.status}
-            handleImageLoad={() => handleImageLoad(view.id)}
-            handleImageError={() => handleImageError(view.id)}
+            onLoad={view.onLoad}
+            onError={view.onError}
           />
         ))}
       </div>
@@ -139,15 +141,15 @@ function PreviewButton({
   onClick,
   imageUrl,
   status,
-  handleImageLoad,
-  handleImageError,
+  onLoad,
+  onError,
 }: {
   view: string
   onClick: () => void
   imageUrl?: string
   status: "loading" | "loaded" | "error"
-  handleImageLoad: () => void
-  handleImageError: () => void
+  onLoad: () => void
+  onError: () => void
 }) {
   if (status === "error") {
     return null
@@ -156,7 +158,7 @@ function PreviewButton({
   return (
     <button
       onClick={onClick}
-      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors overflow-hidden mt-4"
+      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors mt-4"
     >
       {status === "loading" && (
         <Skeleton className="w-full h-full rounded-lg" />
@@ -168,8 +170,8 @@ function PreviewButton({
           className={`w-full h-full object-cover rounded-lg ${
             status === "loaded" ? "block" : "hidden"
           }`}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
+          onLoad={onLoad}
+          onError={onError}
         />
       )}
     </button>
