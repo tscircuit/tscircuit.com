@@ -1,6 +1,8 @@
+"use client"
 import { GitFork, Star, Tag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { usePreviewImages } from "@/hooks/use-preview-images"
 
 interface PackageInfo {
   name: string
@@ -28,6 +30,13 @@ export default function MobileSidebar({
 }: MobileSidebarProps) {
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
 
+  const { availableViews } = usePreviewImages({
+    packageName: packageInfo?.name,
+  })
+
+  const handleViewClick = (viewId: string) => {
+    onViewChange?.(viewId as "3d" | "pcb" | "schematic")
+  }
   if (isLoading) {
     return (
       <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
@@ -110,17 +119,16 @@ export default function MobileSidebar({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mt-4">
-        {["3D View", "PCB View", "Schematic View"].map((view, index) => (
+      <div className="grid grid-cols-3 gap-2">
+        {availableViews.map((view) => (
           <PreviewButton
-            onClick={() =>
-              onViewChange(
-                view.split(" ")[0].toLowerCase() as "schematic" | "pcb" | "3d",
-              )
-            }
-            packageInfo={packageInfo}
-            key={index}
-            view={view}
+            key={view.id}
+            view={view.label}
+            onClick={() => handleViewClick(view.id)}
+            imageUrl={view.imageUrl}
+            status={view.status}
+            onLoad={view.onLoad}
+            onError={view.onError}
           />
         ))}
       </div>
@@ -129,42 +137,43 @@ export default function MobileSidebar({
 }
 
 function PreviewButton({
-  packageInfo,
   view,
   onClick,
+  imageUrl,
+  status,
+  onLoad,
+  onError,
 }: {
-  packageInfo?: PackageInfo
   view: string
   onClick: () => void
+  imageUrl?: string
+  status: "loading" | "loaded" | "error"
+  onLoad: () => void
+  onError: () => void
 }) {
-  let imageUrl: string | null = null
-  if (packageInfo && view === "PCB View") {
-    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/pcb.png`
-  } else if (packageInfo && view === "Schematic View") {
-    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/schematic.png`
-  } else if (packageInfo && view === "3D View") {
-    imageUrl = `https://registry-api.tscircuit.com/snippets/images/${packageInfo.name}/3d.png`
-  }
-
-  if (imageUrl) {
-    return (
-      <button
-        onClick={onClick}
-        className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors"
-      >
-        <img src={imageUrl} alt={view} className="w-full h-full object-cover" />
-      </button>
-    )
+  if (status === "error") {
+    return null
   }
 
   return (
     <button
       onClick={onClick}
-      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors"
+      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors mt-4"
     >
-      <span className="text-xs font-medium text-gray-700 dark:text-[#c9d1d9]">
-        {view}
-      </span>
+      {status === "loading" && (
+        <Skeleton className="w-full h-full rounded-lg" />
+      )}
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={view}
+          className={`w-full h-full object-cover rounded-lg ${
+            status === "loaded" ? "block" : "hidden"
+          }`}
+          onLoad={onLoad}
+          onError={onError}
+        />
+      )}
     </button>
   )
 }
