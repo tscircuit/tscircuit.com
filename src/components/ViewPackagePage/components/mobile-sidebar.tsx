@@ -29,6 +29,7 @@ export default function MobileSidebar({
   onViewChange,
 }: MobileSidebarProps) {
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
+
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
   })
