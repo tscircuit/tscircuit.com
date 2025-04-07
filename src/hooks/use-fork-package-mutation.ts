@@ -52,7 +52,7 @@ export const useForkPackageMutation = ({
 
       // Step 4: Create new package
       const newPackage = await createPackage({
-        name: sourcePackage.unscoped_name,
+        name: `${session.github_username}/${sourcePackage.unscoped_name}`,
         description: `Fork of ${sourcePackage.name}`,
       })
 

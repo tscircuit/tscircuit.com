@@ -8,7 +8,7 @@ test("update package", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "test-package",
+      name: "testuser/test-package",
       description: "Test Description",
     },
     {
@@ -52,7 +52,7 @@ test("update package privacy settings", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "public-package",
+      name: "testuser/public-package",
       description: "Public Package",
       is_private: false,
     },
@@ -119,7 +119,7 @@ test("update package without permission", async () => {
   const { axios, db } = await getTestServer()
 
   db.addPackage({
-    name: "Package3",
+    name: "testuser/Package3",
     unscoped_name: "Package3",
     owner_github_username: "user1",
     creator_account_id: "creator1",

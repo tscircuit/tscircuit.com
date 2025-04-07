@@ -6,7 +6,7 @@ test("GET /api/packages/get - should return package by package_id", async () => 
 
   // Create a new package using the /create endpoint
   const newPackageData = {
-    name: "test-package",
+    name: "testuser/test-package",
     description: "A test package",
     creator_account_id: "test_account_id",
     owner_org_id: "test_org_id",
@@ -61,7 +61,7 @@ test("GET /api/packages/get - should return package by name", async () => {
   const { axios } = await getTestServer()
 
   await axios.post("/api/packages/create", {
-    name: "test-package",
+    name: "testuser/test-package",
     description: "A test package",
     creator_account_id: "test_account_id",
     owner_org_id: "test_org_id",
@@ -69,7 +69,7 @@ test("GET /api/packages/get - should return package by name", async () => {
   })
 
   const getResponse = await axios.get("/api/packages/get", {
-    params: { name: "test-package" },
+    params: { name: "testuser/test-package" },
   })
 
   expect(getResponse.status).toBe(200)

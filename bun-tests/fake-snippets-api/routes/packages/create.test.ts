@@ -7,7 +7,7 @@ test("create package", async () => {
   const response = await axios.post(
     "/api/packages/create",
     {
-      name: "TestPackage",
+      name: "testuser/TestPackage",
       description: "Test Description",
     },
     {
@@ -18,7 +18,8 @@ test("create package", async () => {
   )
 
   expect(response.status).toBe(200)
-  expect(response.data.package.name).toBe("TestPackage")
+  expect(response.data.package.name).toBe("testuser/TestPackage")
+  expect(response.data.package.unscoped_name).toBe("TestPackage")
   expect(response.data.package.description).toBe("Test Description")
   expect(response.data.package.owner_github_username).toBe("testuser")
   expect(response.data.package.description).toBe("Test Description")
@@ -32,7 +33,7 @@ test("create package with private flag", async () => {
   const { axios } = await getTestServer()
 
   const response = await axios.post("/api/packages/create", {
-    name: "TestPackage",
+    name: "testuser/TestPackage",
     description: "Test Description",
     is_private: true,
   })
