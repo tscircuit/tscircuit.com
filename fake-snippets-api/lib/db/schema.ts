@@ -101,14 +101,11 @@ export const orderFileSchema = z.object({
 export type OrderFile = z.infer<typeof orderFileSchema>
 
 export const orderQuoteComponentSchema = z.object({
-  component_id: z.string(),
-  name: z.string(),
   manufacturer_part_number: z.string().nullable(),
-  jlcpcb_part_number: z.string().nullable(),
-  quantity: z.number(),
-  unit_price: z.number(),
-  total_price: z.number(),
-  type: z.string(), // e.g., "resistor", "capacitor", etc.
+  supplier_part_number: z.string().nullable(),
+  quantity: z.number().default(0),
+  unit_price: z.number().default(0),
+  total_price: z.number().default(0),
   available: z.boolean().default(true),
 })
 export type OrderQuoteComponent = z.infer<typeof orderQuoteComponentSchema>
@@ -124,10 +121,9 @@ export const orderQuoteSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
   completed_at: z.string().nullable(),
-  bom_rows: z.string(),
-  components: z.array(orderQuoteComponentSchema).default([]),
+  quoted_components: z.array(orderQuoteComponentSchema).default([]),
   pcb_price: z.number().default(0),
-  components_price: z.number().default(0),
+  total_components_price: z.number().default(0),
   shipping_price: z.number().default(0),
   total_price: z.number().default(0),
 })
