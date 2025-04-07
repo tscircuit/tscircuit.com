@@ -8,7 +8,7 @@ test("list package releases", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "test-package",
+      name: "testuser/test-package",
       description: "Test Description",
     },
     {
@@ -66,7 +66,7 @@ test("list package releases", async () => {
   const { data: packageNameData } = await axios.post(
     "/api/package_releases/list",
     {
-      package_name: "test-package",
+      package_name: "testuser/test-package",
     },
   )
   expect(packageNameData.ok).toBe(true)

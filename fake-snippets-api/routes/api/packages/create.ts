@@ -33,6 +33,8 @@ export default withRouteSpec({
     })
   }
 
+  const unscoped_name = name.split("/")[1]
+
   const newPackage = ctx.db.addPackage({
     name,
     description: description ?? null,
@@ -45,7 +47,7 @@ export default withRouteSpec({
     is_source_from_github: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    unscoped_name: name,
+    unscoped_name,
     star_count: 0,
     ai_description: "placeholder ai description",
     is_private: is_private ?? false,

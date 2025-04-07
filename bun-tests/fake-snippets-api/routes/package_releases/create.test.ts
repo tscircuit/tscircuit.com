@@ -8,7 +8,7 @@ test("create package release", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "test-package",
+      name: "testuser/test-package",
       description: "Test Description",
     },
     {
@@ -45,7 +45,7 @@ test("create package release using package_name_with_version", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "test-package-2",
+      name: "testuser/test-package-2",
       description: "Test Description",
     },
     {
@@ -79,7 +79,7 @@ test("create package release - version already exists", async () => {
   const packageResponse = await axios.post(
     "/api/packages/create",
     {
-      name: "test-package-3",
+      name: "testuser/test-package-3",
       description: "Test Description",
     },
     {

@@ -6,7 +6,7 @@ test("add star to package using package_id", async () => {
 
   // Create a test package using the create endpoint
   const newPackageData = {
-    name: "test-package",
+    name: "testuser/test-package",
     description: "Test Description",
   }
   const createResponse = await axios.post(
@@ -39,7 +39,7 @@ test("add star to package using name", async () => {
 
   // Create a test package using the create endpoint
   const newPackageData = {
-    name: "test-package-2",
+    name: "testuser/test-package-2",
     description: "Test Description",
   }
   const createResponse = await axios.post(
@@ -115,7 +115,7 @@ test("add star to already starred package", async () => {
 
   // Create a test package using the create endpoint
   const newPackageData = {
-    name: "test-package-3",
+    name: "testuser/test-package-3",
     description: "Test Description",
   }
   const createResponse = await axios.post(
