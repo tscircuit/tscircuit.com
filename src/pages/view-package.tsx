@@ -30,15 +30,28 @@ export const ViewPackagePage = () => {
     packageRelease?.package_release_id,
   )
   useEffect(() => {
-    if (!isLoadingPackageInfo && !isLoadingPackageRelease) {
-      if (
-        packageInfoError?.status === 404 ||
-        packageReleaseError?.status === 404 ||
-        (!packageInfo && !isLoadingPackageInfo) ||
-        (!packageRelease && !isLoadingPackageRelease)
-      ) {
-        setIsNotFound(true)
-      }
+    // Early return if still loading
+    if (isLoadingPackageInfo || isLoadingPackageRelease) return
+
+    // Check for 404 errors
+    if (
+      packageInfoError?.status === 404 ||
+      packageReleaseError?.status === 404
+    ) {
+      setIsNotFound(true)
+      return
+    }
+
+    // Check if package info is missing
+    if (!packageInfo) {
+      setIsNotFound(true)
+      return
+    }
+
+    // Check if package release is missing
+    if (!packageRelease) {
+      setIsNotFound(true)
+      return
     }
   }, [
     packageInfo,
@@ -50,7 +63,7 @@ export const ViewPackagePage = () => {
   ])
 
   if (isNotFound) {
-    return <NotFoundPage />
+    return <NotFoundPage heading="Package Not Found" />
   }
 
   return (

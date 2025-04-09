@@ -5,11 +5,13 @@ import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
-export function NotFoundPage() {
+export function NotFoundPage({
+  heading = "Page Not Found",
+}: { heading?: string }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
-        <title>404 - Page Not Found | tscircuit</title>
+        <title>404 - {heading} | tscircuit</title>
         <meta
           name="description"
           content="The page you're looking for doesn't exist."
@@ -26,7 +28,7 @@ export function NotFoundPage() {
             </div>
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
-            Package Not Found
+            {heading}
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             The page you're looking for doesn't exist or has been moved to
