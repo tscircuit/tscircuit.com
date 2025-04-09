@@ -123,14 +123,14 @@ export const EditPackageDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] rounded-sm w-[95vw] sm:w-full p-4 sm:p-6 gap-4">
+        <DialogHeader className="space-y-2">
           <DialogTitle>Edit package details</DialogTitle>
           <DialogDescription>
             Update the website URL and description for your package.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="website">Website</Label>
             <Input
@@ -140,6 +140,7 @@ export const EditPackageDetailsDialog = ({
               placeholder="https://example.com"
               disabled={updatePackageDetailsMutation.isLoading}
               aria-invalid={!!websiteError}
+              className="w-full"
             />
             {websiteError && (
               <p className="text-sm text-red-500 mt-1">{websiteError}</p>
@@ -153,15 +154,16 @@ export const EditPackageDetailsDialog = ({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter package description"
               disabled={updatePackageDetailsMutation.isLoading}
-              className="resize-none min-h-[100px]"
+              className="resize-none min-h-[100px] w-full"
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex justify-end gap-2">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={updatePackageDetailsMutation.isLoading}
+            className="sm:w-auto w-full"
           >
             Cancel
           </Button>
@@ -172,6 +174,7 @@ export const EditPackageDetailsDialog = ({
               !isFormValid
             }
             onClick={() => updatePackageDetailsMutation.mutate()}
+            className="sm:w-auto w-full"
           >
             {updatePackageDetailsMutation.isLoading
               ? "Updating..."

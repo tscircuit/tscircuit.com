@@ -1,11 +1,17 @@
 "use client"
-import { GitFork, Star, Tag } from "lucide-react"
+import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePreviewImages } from "@/hooks/use-preview-images"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { Button } from "@/components/ui/button"
+import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
+import { useState, useEffect } from "react"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 
 interface PackageInfo {
   name: string
+  package_id: string
   unscoped_name: string
   owner_github_username: string
   star_count: string
@@ -15,6 +21,7 @@ interface PackageInfo {
   creator_account_id?: string
   owner_org_id?: string
   is_package?: boolean
+  website?: string
 }
 
 interface MobileSidebarProps {
@@ -28,7 +35,36 @@ export default function MobileSidebar({
   isLoading = false,
   onViewChange,
 }: MobileSidebarProps) {
+  const { refetch: refetchPackageInfo } = useCurrentPackageInfo()
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const isOwner =
+    isLoggedIn &&
+    packageInfo?.creator_account_id ===
+      useGlobalStore((s) => s.session?.account_id)
+
+  const {
+    Dialog: EditPackageDetailsDialog,
+    openDialog: openEditPackageDetailsDialog,
+  } = useEditPackageDetailsDialog()
+
+  const [localDescription, setLocalDescription] = useState<string>("")
+  const [localWebsite, setLocalWebsite] = useState<string>("")
+
+  useEffect(() => {
+    if (packageInfo) {
+      setLocalDescription(
+        packageInfo.description || packageInfo.ai_description || "",
+      )
+      setLocalWebsite((packageInfo as any)?.website || "")
+    }
+  }, [packageInfo])
+
+  const handlePackageUpdate = (newDescription: string, newWebsite: string) => {
+    setLocalDescription(newDescription)
+    setLocalWebsite(newWebsite)
+    refetchPackageInfo()
+  }
 
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
@@ -37,25 +73,21 @@ export default function MobileSidebar({
   const handleViewClick = (viewId: string) => {
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")
   }
+
   if (isLoading) {
     return (
       <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
-        {/* Description skeleton */}
         <Skeleton className="h-4 w-full mb-4" />
-
-        {/* Tags/Topics skeleton */}
         <div className="flex flex-wrap gap-2 mb-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-6 w-20 rounded-full" />
           ))}
         </div>
-
         <div className="flex justify-between text-sm">
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-24" />
         </div>
-
         <div className="grid grid-cols-3 gap-2 mt-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="aspect-square rounded-lg" />
@@ -67,11 +99,37 @@ export default function MobileSidebar({
 
   return (
     <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
-      {/* Description */}
-      <p className="text-sm mb-4 text-gray-700 dark:text-[#c9d1d9]">
-        {packageInfo?.description ||
-          "A Default 60 keyboard created with tscircuit"}
-      </p>
+      <div className="flex justify-between items-start mb-4">
+        <p className="text-sm text-gray-700 dark:text-[#c9d1d9]">
+          {localDescription ||
+            packageInfo?.description ||
+            packageInfo?.ai_description ||
+            "A Default 60 keyboard created with tscircuit"}
+        </p>
+        {isOwner && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 ml-2 flex-shrink-0"
+            onClick={openEditPackageDetailsDialog}
+            title="Edit package details"
+          >
+            <Settings className="h-4 w-4 text-gray-500" />
+          </Button>
+        )}
+      </div>
+
+      {localWebsite && (
+        <a
+          href={localWebsite}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
+        >
+          <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
+          <span className="truncate">{localWebsite}</span>
+        </a>
+      )}
 
       {/* Tags/Topics */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -132,6 +190,16 @@ export default function MobileSidebar({
           />
         ))}
       </div>
+      {packageInfo && (
+        <EditPackageDetailsDialog
+          packageId={packageInfo.package_id}
+          currentDescription={
+            packageInfo.description || packageInfo?.ai_description || ""
+          }
+          currentWebsite={(packageInfo as any)?.website || ""}
+          onUpdate={handlePackageUpdate}
+        />
+      )}
     </div>
   )
 }

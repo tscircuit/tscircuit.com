@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { GitFork, Star, Settings } from "lucide-react"
+import { GitFork, Star, Settings, LinkIcon } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
@@ -27,12 +27,6 @@ interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
   isLoading?: boolean
 }
-
-const LinkIcon = () => (
-  <svg className="h-4 w-4 mr-1" viewBox="0 0 16 16" fill="currentColor">
-    <path d="M7.775 3.275a.75.75 0 0 0 1.06 1.06l1.25-1.25a2 2 0 1 1 2.83 2.83l-2.5 2.5a2 2 0 0 1-2.83 0 .75.75 0 0 0-1.06 1.06 3.5 3.5 0 0 0 4.95 0l2.5-2.5a3.5 3.5 0 0 0-4.95-4.95l-1.25 1.25Zm-4.69 9.64a2 2 0 0 1 0-2.83l2.5-2.5a2 2 0 0 1 2.83 0 .75.75 0 0 0 1.06-1.06 3.5 3.5 0 0 0-4.95 0l-2.5 2.5a3.5 3.5 0 0 0 4.95 4.95l1.25-1.25a.75.75 0 0 0-1.06-1.06l-1.25 1.25a2 2 0 0 1-2.83 0Z"></path>
-  </svg>
-)
 
 export default function SidebarAboutSection() {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
@@ -122,11 +116,12 @@ export default function SidebarAboutSection() {
         {localWebsite && (
           <a
             href={localWebsite}
-            target="_blankk"
-            className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
           >
-            <LinkIcon />
-            {localWebsite}
+            <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
+            <span className="truncate">{localWebsite}</span>
           </a>
         )}
         <div className="flex flex-wrap gap-2 mb-4">
