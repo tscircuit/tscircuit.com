@@ -37,7 +37,7 @@ export function DownloadButtonAndMenu({
       <div>
         <Button
           disabled
-          var="ghost"
+          variant="ghost"
           size="sm"
           className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
         >
