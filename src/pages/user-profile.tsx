@@ -124,8 +124,8 @@ export const UserProfilePage = () => {
         {isLoading ? (
           <div>
             {activeTab === "starred"
-              ? "Loading starred Packages..."
-              : "Loading user Packages..."}
+              ? "Loading Starred Packages..."
+              : "Loading User Packages..."}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
