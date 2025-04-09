@@ -164,6 +164,7 @@ export const packageSchema = z.object({
   latest_package_release_id: z.string().nullable(),
   latest_version: z.string().nullable(),
   license: z.string().nullable(),
+  website: z.string().nullable().default(null),
   star_count: z.number().default(0),
   ai_description: z.string().nullable(),
   ai_usage_instructions: z.string().nullable(),

@@ -17,6 +17,7 @@ export default withRouteSpec({
         .transform((name) => name.replace(/^@/, ""))
         .optional(),
       description: z.string().optional(),
+      website: z.string().optional(),
       is_private: z.boolean().optional(),
       is_unlisted: z.boolean().optional(),
     })
@@ -29,7 +30,7 @@ export default withRouteSpec({
     package: packageSchema,
   }),
 })(async (req, ctx) => {
-  const { package_id, name, description, is_private, is_unlisted } =
+  const { package_id, name, description, website, is_private, is_unlisted } =
     req.jsonBody
 
   const packageIndex = ctx.db.packages.findIndex(
@@ -70,6 +71,7 @@ export default withRouteSpec({
   const updatedPackage = ctx.db.updatePackage(package_id, {
     name: name ? `${ctx.auth.github_username}/${name}` : existingPackage.name,
     description: description ?? existingPackage.description,
+    website: website ?? existingPackage.website,
     is_private: is_private ?? existingPackage.is_private,
     is_public:
       is_private !== undefined ? !is_private : existingPackage.is_public,

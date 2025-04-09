@@ -12,6 +12,7 @@ export const publicMapPackage = (internalPackage: {
   latest_package_release_id?: string | null
   star_count?: number | null
   name: string
+  website: string | null
   unscoped_name: string
   updated_at: string
   created_at: string
@@ -31,6 +32,7 @@ export const publicMapPackage = (internalPackage: {
       internalPackage.latest_package_release_id ?? null,
     latest_version: internalPackage.latest_version ?? null,
     license: internalPackage.latest_license ?? null,
+    website: internalPackage.website ?? null,
     star_count: internalPackage.star_count ?? 0,
     created_at: internalPackage.created_at,
     updated_at: internalPackage.updated_at,
