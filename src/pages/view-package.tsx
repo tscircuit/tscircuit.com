@@ -35,7 +35,6 @@ export const ViewPackagePage = () => {
     const is404Error =
       packageInfoError?.status === 404 || packageReleaseError?.status === 404
     const isMissingData = !packageInfo || !packageRelease
-    console.log(is404Error, isMissingData)
     if (is404Error || isMissingData) {
       setIsNotFound(true)
       return
