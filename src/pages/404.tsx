@@ -26,7 +26,7 @@ export function NotFoundPage() {
             </div>
           </div>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
-            Circuit Disconnected
+            Package Not Found
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
             The page you're looking for doesn't exist or has been moved to
