@@ -30,26 +30,13 @@ export const ViewPackagePage = () => {
     packageRelease?.package_release_id,
   )
   useEffect(() => {
-    // Early return if still loading
     if (isLoadingPackageInfo || isLoadingPackageRelease) return
 
-    // Check for 404 errors
-    if (
-      packageInfoError?.status === 404 ||
-      packageReleaseError?.status === 404
-    ) {
-      setIsNotFound(true)
-      return
-    }
-
-    // Check if package info is missing
-    if (!packageInfo) {
-      setIsNotFound(true)
-      return
-    }
-
-    // Check if package release is missing
-    if (!packageRelease) {
+    const is404Error =
+      packageInfoError?.status === 404 || packageReleaseError?.status === 404
+    const isMissingData = !packageInfo || !packageRelease
+    console.log(is404Error, isMissingData)
+    if (is404Error || isMissingData) {
       setIsNotFound(true)
       return
     }
