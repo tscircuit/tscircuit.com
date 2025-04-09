@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -42,10 +42,18 @@ const TrendingPage: React.FC = () => {
     data: snippets,
     isLoading,
     error,
-  } = useQuery<Snippet[]>("trendingSnippets", async () => {
-    const response = await axios.get("/snippets/list_trending")
-    return response.data.snippets
-  })
+    refetch,
+  } = useQuery<Snippet[]>(
+    ["trendingSnippets", category],
+    async () => {
+      const params = category !== "all" ? { tag: category } : {}
+      const response = await axios.get("/snippets/list_trending", { params })
+      return response.data.snippets
+    },
+    {
+      keepPreviousData: true,
+    },
+  )
 
   const filteredSnippets = snippets?.filter((snippet) => {
     if (!searchQuery) return true
@@ -64,57 +72,9 @@ const TrendingPage: React.FC = () => {
     })
   })
 
-  const filteredByTypeSnippets = filteredSnippets?.filter((snippet) => {
-    if (category !== "all") {
-      const description = (
-        (snippet.description || "") + ((snippet as any).ai_description || "")
-      ).toLowerCase()
-      const name = snippet.unscoped_name.toLowerCase()
-
-      switch (category) {
-        case "keyboard":
-          return (
-            description.includes("keyboard") ||
-            name.includes("keyboard") ||
-            description.includes("keycap") ||
-            name.includes("keycap") ||
-            description.includes("keyboards") ||
-            name.includes("keyboards")
-          )
-        case "microcontroller":
-          return (
-            description.includes("microcontroller") ||
-            name.includes("mcu") ||
-            description.includes("arduino") ||
-            description.includes("esp32") ||
-            description.includes("raspberry") ||
-            name.includes("arduino") ||
-            name.includes("esp32") ||
-            name.includes("raspberry")
-          )
-        case "connector":
-          return (
-            description.includes("connector") ||
-            name.includes("connector") ||
-            description.includes("jack") ||
-            name.includes("jack") ||
-            description.includes("socket") ||
-            name.includes("socket")
-          )
-        case "sensor":
-          return (
-            description.includes("sensor") ||
-            name.includes("sensor") ||
-            description.includes("detector") ||
-            name.includes("detector")
-          )
-        default:
-          return true
-      }
-    }
-
-    return true
-  })
+  useEffect(() => {
+    refetch()
+  }, [category])
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -226,7 +186,7 @@ const TrendingPage: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : filteredByTypeSnippets?.length === 0 ? (
+        ) : filteredSnippets?.length === 0 ? (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
               <Search className="w-8 h-8 text-slate-400" />
@@ -244,7 +204,7 @@ const TrendingPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredByTypeSnippets
+            {filteredSnippets
               ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
               ?.map((snippet) => (
                 <Link
