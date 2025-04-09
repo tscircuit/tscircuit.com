@@ -116,7 +116,7 @@ export const UserProfilePage = () => {
         </Tabs>
         <Input
           type="text"
-          placeholder="Search Packages..."
+          placeholder="Searching User Packages..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="mb-4"
