@@ -18,15 +18,12 @@ import {
   Keyboard,
   Cpu,
   Layers,
-  Footprints,
-  Box,
   LucideBellElectric,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Select,
   SelectContent,
@@ -39,7 +36,6 @@ const TrendingPage: React.FC = () => {
   const axios = useAxios()
   const apiBaseUrl = useSnippetsBaseApiUrl()
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
   const [category, setCategory] = useState("all")
 
   const {
@@ -69,13 +65,6 @@ const TrendingPage: React.FC = () => {
   })
 
   const filteredByTypeSnippets = filteredSnippets?.filter((snippet) => {
-    if (
-      activeTab !== "all" &&
-      snippet.snippet_type.toLowerCase() !== activeTab.toLowerCase()
-    ) {
-      return false
-    }
-
     if (category !== "all") {
       const description = (
         (snippet.description || "") + ((snippet as any).ai_description || "")
@@ -200,49 +189,6 @@ const TrendingPage: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-
-          <Tabs
-            defaultValue="all"
-            onValueChange={setActiveTab}
-            className="mb-4"
-          >
-            <TabsList className="w-full">
-              <TabsTrigger
-                value="all"
-                className="flex-1 text-xs sm:text-sm px-1 sm:px-2"
-              >
-                All
-              </TabsTrigger>
-              <TabsTrigger
-                value="board"
-                className="flex-1 text-xs sm:text-sm px-1 sm:px-2"
-              >
-                <Box className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-0.5 sm:mr-1 hidden sm:inline" />
-                Board
-              </TabsTrigger>
-              <TabsTrigger
-                value="package"
-                className="flex-1 text-xs sm:text-sm px-1 sm:px-2"
-              >
-                <Box className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-0.5 sm:mr-1 hidden sm:inline" />
-                Package
-              </TabsTrigger>
-              <TabsTrigger
-                value="footprint"
-                className="flex-1 text-xs sm:text-sm px-1 sm:px-2"
-              >
-                <Footprints className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-0.5 sm:mr-1 hidden sm:inline" />
-                Footprint
-              </TabsTrigger>
-              <TabsTrigger
-                value="model"
-                className="flex-1 text-xs sm:text-sm px-1 sm:px-2"
-              >
-                <Layers className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-0.5 sm:mr-1 hidden sm:inline" />
-                Model
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         {isLoading ? (
@@ -293,9 +239,7 @@ const TrendingPage: React.FC = () => {
                 ? `No snippets match your search for "${searchQuery}".`
                 : category !== "all"
                   ? `No ${category} snippets found in the trending list.`
-                  : activeTab !== "all"
-                    ? `No ${activeTab} snippets found in the trending list.`
-                    : "There are no trending snippets at the moment."}
+                  : "There are no trending snippets at the moment."}
             </p>
           </div>
         ) : (
