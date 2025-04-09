@@ -213,6 +213,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       unscoped_name: snippet.unscoped_name,
       latest_version: "0.0.1",
       license: null,
+      website: null,
       star_count: 0,
       created_at: currentTime,
       updated_at: currentTime,

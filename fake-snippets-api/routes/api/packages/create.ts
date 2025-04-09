@@ -44,6 +44,7 @@ export default withRouteSpec({
     latest_package_release_id: null,
     latest_version: null,
     license: null,
+    website: null,
     is_source_from_github: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
