@@ -110,13 +110,13 @@ export const UserProfilePage = () => {
         </div>
         <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
           <TabsList>
-            <TabsTrigger value="all">Snippets</TabsTrigger>
+            <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
           </TabsList>
         </Tabs>
         <Input
           type="text"
-          placeholder="Search snippets..."
+          placeholder="Searching User Packages..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="mb-4"
@@ -124,8 +124,8 @@ export const UserProfilePage = () => {
         {isLoading ? (
           <div>
             {activeTab === "starred"
-              ? "Loading starred Packages..."
-              : "Loading user snippets..."}
+              ? "Loading Starred Packages..."
+              : "Loading User Packages..."}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
