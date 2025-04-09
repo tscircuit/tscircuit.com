@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet"
 import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
-import { CircuitBoard } from "lucide-react"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export function NotFoundPage() {
