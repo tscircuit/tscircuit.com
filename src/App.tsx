@@ -125,6 +125,7 @@ function App() {
               path="/snippets/:author/:snippetName"
               component={ViewSnippetPage}
             />
+            <Route component={lazyImport(() => import("@/pages/404"))} />
           </Switch>
         </Suspense>
         <Toaster />
