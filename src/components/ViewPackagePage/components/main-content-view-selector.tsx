@@ -14,15 +14,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 interface MainContentViewSelectorProps {
   activeView: string
   onViewChange: (view: string) => void
+  disabledViews?: string[]
 }
 
 export default function MainContentViewSelector({
   activeView,
   onViewChange,
+  disabledViews = [],
 }: MainContentViewSelectorProps) {
   const views = [
     { id: "files", label: "Files", icon: <Code className="h-4 w-4 mr-1" /> },
@@ -40,28 +50,50 @@ export default function MainContentViewSelector({
     },
   ]
 
+  const isViewDisabled = (viewId: string) => disabledViews.includes(viewId)
+
   return (
     <>
       {/* Desktop Tabs */}
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
-        {views.map((view) => (
-          <button
-            key={view.id}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
-              activeView === view.id
-                ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
-            }`}
-            onClick={() => onViewChange(view.id)}
-          >
-            {React.cloneElement(view.icon, { className: "h-4 w-4 mr-1" })}
-            {view.label}
-          </button>
-        ))}
+        <TooltipProvider>
+          {views.map((view) => {
+            const disabled = isViewDisabled(view.id);
+            return (
+              <Tooltip key={view.id} delayDuration={100}>
+                <TooltipTrigger asChild>
+                  <button
+                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${activeView === view.id
+                      ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
+                      : disabled
+                        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
+                      }`}
+                    onClick={() => !disabled && onViewChange(view.id)}
+                    disabled={disabled}
+                  >
+                    {React.cloneElement(view.icon, {
+                      className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ''}`
+                    })}
+                    {view.label}
+                  </button>
+                </TooltipTrigger>
+                {disabled && (
+                  <TooltipContent
+                    className="bg-gray-800 text-white text-xs px-2 py-1 rounded z-50"
+                    side="top"
+                  >
+                    Circuit JSON not available
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            );
+          })}
+        </TooltipProvider>
       </div>
 
       {/* Mobile Dropdown */}
-      <div className="lg:hidden">
+      < div className="lg:hidden" >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -88,16 +120,34 @@ export default function MainContentViewSelector({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {views.map((view) => (
-              <DropdownMenuItem
-                key={view.id}
-                onClick={() => onViewChange(view.id)}
-                className="flex items-center cursor-pointer"
-              >
-                {view.icon}
-                {view.label}
-              </DropdownMenuItem>
-            ))}
+            <TooltipProvider>
+              {views.map((view) => {
+                const disabled = isViewDisabled(view.id)
+                return (
+                  <Tooltip key={view.id}>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuItem
+                        key={view.id}
+                        onClick={() => !disabled && onViewChange(view.id)}
+                        className={`flex items-center ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                          }`}
+                        disabled={disabled}
+                      >
+                        {React.cloneElement(view.icon, {
+                          className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ''}`
+                        })}
+                        {view.label}
+                        {disabled && (
+                          <span className="ml-auto text-xs text-gray-500">
+                            Circuit JSON not found
+                          </span>
+                        )}
+                      </DropdownMenuItem>
+                    </TooltipTrigger>
+                  </Tooltip>
+                )
+              })}
+            </TooltipProvider>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
