@@ -134,8 +134,7 @@ export default function MainContentViewSelector({
           <DropdownMenuContent align="start">
             <TooltipProvider>
               {views.map((view) => {
-                const isDisabled =
-                  !circuitJson && tabsRequireCircuitJson.includes(view.id)
+                const isDisabled = !circuitJson && view.requiresCircuitJson
                 return (
                   <Tooltip key={view.id}>
                     <TooltipTrigger asChild>
