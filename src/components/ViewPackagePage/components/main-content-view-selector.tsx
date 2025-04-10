@@ -21,7 +21,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-
 interface MainContentViewSelectorProps {
   activeView: string
   onViewChange: (view: string) => void
@@ -62,7 +61,8 @@ export default function MainContentViewSelector({
               <Tooltip key={view.id} delayDuration={100}>
                 <TooltipTrigger asChild>
                   <button
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${activeView === view.id
+                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
+                      activeView === view.id
                       ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
                       : disabled
                         ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
@@ -72,7 +72,7 @@ export default function MainContentViewSelector({
                     disabled={disabled}
                   >
                     {React.cloneElement(view.icon, {
-                      className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ""}`,
+                      className: `h-4 w-4 mr-1 ${disabled ? "opacity-50" : ""}`,
                     })}
                     {view.label}
                   </button>
@@ -82,7 +82,7 @@ export default function MainContentViewSelector({
                     className="bg-gray-800 text-white text-xs px-2 py-1 rounded z-50"
                     side="top"
                   >
-                    Circuit JSON not available
+                    Circuit JSON not found in package
                   </TooltipContent>
                 )}
               </Tooltip>
@@ -128,17 +128,20 @@ export default function MainContentViewSelector({
                       <DropdownMenuItem
                         key={view.id}
                         onClick={() => !disabled && onViewChange(view.id)}
-                        className={`flex items-center ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                        className={`flex items-center ${
+                          disabled 
+                          ? "opacity-50 cursor-not-allowed" 
+                          : "cursor-pointer"
                           }`}
                         disabled={disabled}
                       >
                         {React.cloneElement(view.icon, {
-                          className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ""}`,
+                          className: `h-4 w-4 mr-1 ${disabled ? "opacity-50" : ""}`,
                         })}
                         {view.label}
                         {disabled && (
                           <span className="ml-auto text-xs text-gray-500">
-                            Circuit JSON not found
+                            Circuit JSON not found in package
                           </span>
                         )}
                       </DropdownMenuItem>
