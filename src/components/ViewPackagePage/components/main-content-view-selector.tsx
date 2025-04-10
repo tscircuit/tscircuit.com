@@ -61,12 +61,11 @@ export default function MainContentViewSelector({
               <Tooltip key={view.id} delayDuration={100}>
                 <TooltipTrigger asChild>
                   <button
-                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${
-                      activeView === view.id
-                      ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
-                      : disabled
-                        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                        : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
+                    className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center ${activeView === view.id
+                        ? "bg-white dark:bg-[#0d1117] text-gray-800 dark:text-white"
+                        : disabled
+                          ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                          : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white"
                       }`}
                     onClick={() => !disabled && onViewChange(view.id)}
                     disabled={disabled}
@@ -128,10 +127,9 @@ export default function MainContentViewSelector({
                       <DropdownMenuItem
                         key={view.id}
                         onClick={() => !disabled && onViewChange(view.id)}
-                        className={`flex items-center ${
-                          disabled 
-                          ? "opacity-50 cursor-not-allowed" 
-                          : "cursor-pointer"
+                        className={`flex items-center ${disabled
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
                           }`}
                         disabled={disabled}
                       >
