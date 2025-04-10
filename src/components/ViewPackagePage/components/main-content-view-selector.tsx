@@ -27,8 +27,6 @@ interface MainContentViewSelectorProps {
   onViewChange: (view: string) => void
 }
 
-const needsCircuitJson = ["3d", "pcb", "schematic", "bom"]
-
 export default function MainContentViewSelector({
   activeView,
   onViewChange,
@@ -36,18 +34,20 @@ export default function MainContentViewSelector({
   const { circuitJson } = useCurrentPackageCircuitJson()
 
   const views = [
-    { id: "files", label: "Files", icon: <Code className="h-4 w-4 mr-1" /> },
-    { id: "3d", label: "3D", icon: <Cube className="h-4 w-4 mr-1" /> },
-    { id: "pcb", label: "PCB", icon: <Circuit className="h-4 w-4 mr-1" /> },
+    { id: "files", label: "Files", icon: <Code className="h-4 w-4 mr-1" />, requiresCircuitJson: false },
+    { id: "3d", label: "3D", icon: <Cube className="h-4 w-4 mr-1" />, requiresCircuitJson: true },
+    { id: "pcb", label: "PCB", icon: <Circuit className="h-4 w-4 mr-1" />, requiresCircuitJson: true },
     {
       id: "schematic",
       label: "Schematic",
       icon: <FileTerminal className="h-4 w-4 mr-1" />,
+      requiresCircuitJson: true,
     },
     {
       id: "bom",
       label: "BOM",
       icon: <ClipboardList className="h-4 w-4 mr-1" />,
+      requiresCircuitJson: true,
     },
   ]
 
@@ -57,8 +57,7 @@ export default function MainContentViewSelector({
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
         <TooltipProvider>
           {views.map((view) => {
-            const isDisabled =
-              !circuitJson && needsCircuitJson.includes(view.id)
+            const isDisabled = !circuitJson && view.requiresCircuitJson
             return (
               <Tooltip key={view.id}>
                 <TooltipTrigger asChild>
@@ -121,7 +120,7 @@ export default function MainContentViewSelector({
             <TooltipProvider>
               {views.map((view) => {
                 const isDisabled =
-                  !circuitJson && needsCircuitJson.includes(view.id)
+                  !circuitJson && tabsRequireCircuitJson.includes(view.id)
                 return (
                   <Tooltip key={view.id}>
                     <TooltipTrigger asChild>
