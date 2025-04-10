@@ -14,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
 import {
   Tooltip,
   TooltipContent,
@@ -58,7 +57,7 @@ export default function MainContentViewSelector({
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
         <TooltipProvider>
           {views.map((view) => {
-            const disabled = isViewDisabled(view.id);
+            const disabled = isViewDisabled(view.id)
             return (
               <Tooltip key={view.id} delayDuration={100}>
                 <TooltipTrigger asChild>
@@ -73,7 +72,7 @@ export default function MainContentViewSelector({
                     disabled={disabled}
                   >
                     {React.cloneElement(view.icon, {
-                      className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ''}`
+                      className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ""}`,
                     })}
                     {view.label}
                   </button>
@@ -87,13 +86,13 @@ export default function MainContentViewSelector({
                   </TooltipContent>
                 )}
               </Tooltip>
-            );
+            )
           })}
         </TooltipProvider>
       </div>
 
       {/* Mobile Dropdown */}
-      < div className="lg:hidden" >
+      <div className="lg:hidden">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -134,7 +133,7 @@ export default function MainContentViewSelector({
                         disabled={disabled}
                       >
                         {React.cloneElement(view.icon, {
-                          className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ''}`
+                          className: `h-4 w-4 mr-1 ${disabled ? 'opacity-50' : ""}`,
                         })}
                         {view.label}
                         {disabled && (
