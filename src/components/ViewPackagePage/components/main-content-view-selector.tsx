@@ -34,9 +34,24 @@ export default function MainContentViewSelector({
   const { circuitJson } = useCurrentPackageCircuitJson()
 
   const views = [
-    { id: "files", label: "Files", icon: <Code className="h-4 w-4 mr-1" />, requiresCircuitJson: false },
-    { id: "3d", label: "3D", icon: <Cube className="h-4 w-4 mr-1" />, requiresCircuitJson: true },
-    { id: "pcb", label: "PCB", icon: <Circuit className="h-4 w-4 mr-1" />, requiresCircuitJson: true },
+    {
+      id: "files",
+      label: "Files",
+      icon: <Code className="h-4 w-4 mr-1" />,
+      requiresCircuitJson: false,
+    },
+    {
+      id: "3d",
+      label: "3D",
+      icon: <Cube className="h-4 w-4 mr-1" />,
+      requiresCircuitJson: true,
+    },
+    {
+      id: "pcb",
+      label: "PCB",
+      icon: <Circuit className="h-4 w-4 mr-1" />,
+      requiresCircuitJson: true,
+    },
     {
       id: "schematic",
       label: "Schematic",
