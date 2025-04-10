@@ -8,19 +8,15 @@ import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
 
 export const ViewPackagePage = () => {
-  const {
-    packageInfo,
-    isLoading: isLoadingPackageInfo,
-    error: packageInfoError,
-  } = useCurrentPackageInfo()
+  const { packageInfo } = useCurrentPackageInfo()
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
 
   const {
     data: packageRelease,
-    isLoading: isLoadingPackageRelease,
     error: packageReleaseError,
+    isLoading: isLoadingPackageRelease,
   } = usePackageRelease({
     is_latest: true,
     package_name: `${author}/${packageName}`,
@@ -30,23 +26,11 @@ export const ViewPackagePage = () => {
     packageRelease?.package_release_id,
   )
   useEffect(() => {
-    if (isLoadingPackageInfo || isLoadingPackageRelease) return
-
-    const is404Error =
-      packageInfoError?.status === 404 || packageReleaseError?.status === 404
-    const isMissingData = !packageInfo || !packageRelease
-    if (is404Error || isMissingData) {
+    if (isLoadingPackageRelease) return
+    if (packageReleaseError?.status == 404) {
       setIsNotFound(true)
-      return
     }
-  }, [
-    packageInfo,
-    packageRelease,
-    isLoadingPackageInfo,
-    isLoadingPackageRelease,
-    packageInfoError,
-    packageReleaseError,
-  ])
+  }, [isLoadingPackageRelease, packageReleaseError])
 
   if (isNotFound) {
     return <NotFoundPage heading="Package Not Found" />
