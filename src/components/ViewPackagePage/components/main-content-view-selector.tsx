@@ -57,7 +57,8 @@ export default function MainContentViewSelector({
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
         <TooltipProvider>
           {views.map((view) => {
-            const isDisabled = !circuitJson && needsCircuitJson.includes(view.id)
+            const isDisabled =
+              !circuitJson && needsCircuitJson.includes(view.id)
             return (
               <Tooltip key={view.id}>
                 <TooltipTrigger asChild>
@@ -72,7 +73,9 @@ export default function MainContentViewSelector({
                     onClick={() => !isDisabled && onViewChange(view.id)}
                     disabled={isDisabled}
                   >
-                    {React.cloneElement(view.icon, { className: "h-4 w-4 mr-1" })}
+                    {React.cloneElement(view.icon, {
+                      className: "h-4 w-4 mr-1",
+                    })}
                     {view.label}
                   </button>
                 </TooltipTrigger>
@@ -117,7 +120,8 @@ export default function MainContentViewSelector({
           <DropdownMenuContent align="start">
             <TooltipProvider>
               {views.map((view) => {
-                const isDisabled = !circuitJson && needsCircuitJson.includes(view.id)
+                const isDisabled =
+                  !circuitJson && needsCircuitJson.includes(view.id)
                 return (
                   <Tooltip key={view.id}>
                     <TooltipTrigger asChild>
