@@ -22,6 +22,7 @@ interface PackageInfo {
   owner_org_id?: string
   is_package?: boolean
   website?: string
+  license?: string
 }
 
 interface MobileSidebarProps {
@@ -196,8 +197,11 @@ export default function MobileSidebar({
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""
           }
+          currentLicense={packageInfo.license}
+          packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
           onUpdate={handlePackageUpdate}
+          packageName={packageInfo.name}
         />
       )}
     </div>

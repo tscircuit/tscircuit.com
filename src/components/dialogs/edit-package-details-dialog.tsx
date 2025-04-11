@@ -14,6 +14,14 @@ import { useToast } from "@/hooks/use-toast"
 import { Textarea } from "../ui/textarea"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content"
 
 const isValidUrl = (url: string): boolean => {
   if (!url) return true
@@ -31,17 +39,28 @@ export const EditPackageDetailsDialog = ({
   packageId,
   currentDescription,
   currentWebsite,
+  currentLicense,
   onUpdate,
+  packageAuthor,
+  packageName,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageId: string
   currentDescription: string
   currentWebsite: string
-  onUpdate?: (newDescription: string, newWebsite: string) => void
+  currentLicense?: string | null
+  packageAuthor?: string | null
+  packageName: string
+  onUpdate?: (
+    newDescription: string,
+    newWebsite: string,
+    newLicense: string | null,
+  ) => void
 }) => {
   const [description, setDescription] = useState(currentDescription)
   const [website, setWebsite] = useState(currentWebsite)
+  const [license, setLicense] = useState<string | null>(currentLicense || null)
   const [websiteError, setWebsiteError] = useState<string | null>(null)
   const axios = useAxios()
   const { toast } = useToast()
@@ -51,9 +70,10 @@ export const EditPackageDetailsDialog = ({
     if (open) {
       setDescription(currentDescription)
       setWebsite(currentWebsite)
+      setLicense(currentLicense || null)
       setWebsiteError(null)
     }
-  }, [open, currentDescription, currentWebsite])
+  }, [open, currentDescription, currentWebsite, currentLicense])
 
   useEffect(() => {
     if (website && !isValidUrl(website)) {
@@ -64,8 +84,19 @@ export const EditPackageDetailsDialog = ({
   }, [website])
 
   const hasChanges = useMemo(() => {
-    return description !== currentDescription || website !== currentWebsite
-  }, [description, website, currentDescription, currentWebsite])
+    return (
+      description !== currentDescription ||
+      website !== currentWebsite ||
+      license !== currentLicense
+    )
+  }, [
+    description,
+    website,
+    license,
+    currentDescription,
+    currentWebsite,
+    currentLicense,
+  ])
 
   const isFormValid = useMemo(() => {
     return !websiteError
@@ -81,11 +112,25 @@ export const EditPackageDetailsDialog = ({
         package_id: packageId,
         description: description,
         website: website,
+        license: license,
       })
       if (response.status !== 200) {
         console.error("Failed to update package details:", response.data)
         throw new Error("Failed to update package details")
       }
+      console.log(66, license, license && license !== "unset")
+      // Create LICENSE file if a license is selected
+      if (license && license !== "unset") {
+        const licenseContent = getLicenseContent(license, packageAuthor)
+        if (!licenseContent) return
+        // Create the LICENSE file
+        await axios.post("/package_files/create", {
+          package_name_with_version: `${packageName}`,
+          file_path: "LICENSE",
+          content_text: licenseContent,
+        })
+      }
+
       return response.data
     },
     onMutate: async () => {
@@ -95,11 +140,12 @@ export const EditPackageDetailsDialog = ({
         ...old,
         description: description,
         website: website,
+        license: license,
       }))
       return { previousPackage }
     },
     onSuccess: () => {
-      onUpdate?.(description, website)
+      onUpdate?.(description, website, license)
       onOpenChange(false)
       toast({
         title: "Package details updated",
@@ -145,6 +191,24 @@ export const EditPackageDetailsDialog = ({
             {websiteError && (
               <p className="text-sm text-red-500 mt-1">{websiteError}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="license">License</Label>
+            <Select
+              value={license || "unset"}
+              onValueChange={(value) =>
+                setLicense(value === "unset" ? null : value)
+              }
+              disabled={updatePackageDetailsMutation.isLoading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a license" />
+              </SelectTrigger>
+              <SelectContent className="!z-[999]">
+                <SelectItem value="MIT">MIT</SelectItem>
+                <SelectItem value="unset">Unset</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
