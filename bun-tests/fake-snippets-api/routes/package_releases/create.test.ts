@@ -5,18 +5,10 @@ test("create package release", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package",
+    description: "Test Description",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -42,18 +34,10 @@ test("create package release using package_name_with_version", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package-2",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-2",
+    description: "Test Description",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -76,18 +60,10 @@ test("create package release - version already exists", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package-3",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-3",
+    description: "Test Description",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 

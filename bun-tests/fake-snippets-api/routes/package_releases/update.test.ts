@@ -5,18 +5,10 @@ test("update package release", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package",
+    description: "Test Description",
+  })
   const packageId = packageResponse.data.package.package_id
 
   // Create a package release
@@ -49,18 +41,10 @@ test("update package release using package_name_with_version", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package-2",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-2",
+    description: "Test Description",
+  })
   const packageName = packageResponse.data.package.name
   const version = "2.0.0"
 
@@ -89,18 +73,10 @@ test("update package release - handle is_latest flag", async () => {
   const { axios, db } = await getTestServer()
 
   // Create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package-3",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-3",
+    description: "Test Description",
+  })
   const packageId = packageResponse.data.package.package_id
 
   // Create two releases
@@ -158,18 +134,10 @@ test("update package release - no fields provided", async () => {
   const { axios } = await getTestServer()
 
   // Create a package and release first
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package-4",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-4",
+    description: "Test Description",
+  })
   const releaseResponse = await axios.post("/api/package_releases/create", {
     package_id: packageResponse.data.package.package_id,
     version: "1.0.0",

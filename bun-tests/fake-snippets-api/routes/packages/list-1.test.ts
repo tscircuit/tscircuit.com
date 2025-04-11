@@ -106,10 +106,6 @@ test("list packages", async () => {
   expect(nonExistentData.packages).toHaveLength(0)
 
   // Test with authenticated request
-  const { data: authData } = await axios.get("/api/packages/list", {
-    headers: {
-      Authorization: "Bearer 1234",
-    },
-  })
+  const { data: authData } = await axios.get("/api/packages/list")
   expect(authData.packages).toHaveLength(3) // Should return all packages when authenticated
 })

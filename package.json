@@ -23,7 +23,8 @@
     "build:fake-api:bundle": "winterspec bundle -o dist/bundle.js",
     "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle",
     "generate-images": "bun run scripts/generate-image-sizes.ts",
-    "generate-sitemap": "bun run scripts/generate-sitemap.ts"
+    "generate-sitemap": "bun run scripts/generate-sitemap.ts",
+    "test": "BUN_TEST=true && bun run test:fake-snippets-api"
   },
   "dependencies": {
     "@babel/preset-react": "^7.25.9",

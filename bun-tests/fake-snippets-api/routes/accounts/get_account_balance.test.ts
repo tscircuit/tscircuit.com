@@ -4,11 +4,7 @@ import { test, expect } from "bun:test"
 test("get account balance", async () => {
   const { axios } = await getTestServer()
 
-  const response = await axios.get("/api/accounts/get_account_balance", {
-    headers: {
-      Authorization: "Bearer 1234",
-    },
-  })
+  const response = await axios.get("/api/accounts/get_account_balance")
 
   expect(response.status).toBe(200)
   expect(response.data.account_balance).toBeDefined()

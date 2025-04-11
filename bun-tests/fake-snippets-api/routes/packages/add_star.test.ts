@@ -70,17 +70,9 @@ test("add star to non-existent package", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/add_star",
-      {
-        package_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/add_star", {
+      package_id: "non-existent-id",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -92,17 +84,9 @@ test("add star to non-existent package by name", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/add_star",
-      {
-        name: "non-existent-package",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/add_star", {
+      name: "non-existent-package",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -126,31 +110,15 @@ test("add star to already starred package", async () => {
   const createdPackage = createResponse.data.package
 
   // Star the package first time
-  await axios.post(
-    "/api/packages/add_star",
-    {
-      package_id: createdPackage.package_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  await axios.post("/api/packages/add_star", {
+    package_id: createdPackage.package_id,
+  })
 
   // Try to star again
   try {
-    await axios.post(
-      "/api/packages/add_star",
-      {
-        package_id: createdPackage.package_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/add_star", {
+      package_id: createdPackage.package_id,
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(400)

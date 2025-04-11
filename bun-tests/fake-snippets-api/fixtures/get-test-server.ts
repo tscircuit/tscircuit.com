@@ -8,6 +8,7 @@ interface TestFixture {
   url: string
   server: any
   axios: typeof defaultAxios
+  jane_axios: typeof defaultAxios
   unauthenticatedAxios: typeof defaultAxios
   db: DbClient
   seed: ReturnType<typeof seedDatabase>
@@ -31,6 +32,12 @@ export const getTestServer = async (): Promise<TestFixture> => {
       Authorization: `Bearer ${seed.account.account_id}`,
     },
   })
+  const jane_axios = defaultAxios.create({
+    baseURL: url,
+    headers: {
+      Authorization: `Bearer ${seed.account2.account_id}`,
+    },
+  })
   const unauthenticatedAxios = defaultAxios.create({
     baseURL: url,
   })
@@ -45,6 +52,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
     url,
     server,
     axios,
+    jane_axios,
     unauthenticatedAxios,
     db,
     seed,
@@ -67,6 +75,9 @@ const seedDatabase = (db: DbClient) => {
       phone: "555-123-4567",
     },
   })
+  const account2 = db.addAccount({
+    github_username: "jane",
+  })
   const order = db.addOrder({
     account_id: account.account_id,
     is_running: false,
@@ -88,5 +99,5 @@ const seedDatabase = (db: DbClient) => {
     completed_at: null,
   })
 
-  return { account, order }
+  return { account, order, account2 }
 }

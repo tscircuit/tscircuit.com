@@ -69,9 +69,6 @@ test("remove star from package using name", async () => {
   // Verify star was removed by checking the package again
   const getResponse = await axios.get("/api/packages/get", {
     params: { package_id: createdPackage.package_id },
-    headers: {
-      Authorization: "Bearer 1234",
-    },
   })
 
   expect(getResponse.status).toBe(200)
@@ -82,17 +79,9 @@ test("remove star from non-existent package", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/remove_star",
-      {
-        package_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/remove_star", {
+      package_id: "non-existent-id",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -104,17 +93,9 @@ test("remove star from non-existent package by name", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/remove_star",
-      {
-        name: "non-existent-package",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/remove_star", {
+      name: "non-existent-package",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -139,17 +120,9 @@ test("remove star from unstarred package", async () => {
 
   // Try to remove star without starring first
   try {
-    await axios.post(
-      "/api/packages/remove_star",
-      {
-        package_id: createdPackage.package_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/remove_star", {
+      package_id: createdPackage.package_id,
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(400)
