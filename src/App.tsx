@@ -17,36 +17,52 @@ const FullPageLoader = () => (
 
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      const module = await importFn()
+    const maxRetries = 3
+    let retryCount = 0
+    let lastError: Error | null = null
 
-      if (module.default) {
-        return { default: module.default }
-      }
+    while (retryCount < maxRetries) {
+      try {
+        if (retryCount > 0) {
+          await new Promise((resolve) => setTimeout(resolve, 1000 * retryCount))
+        }
 
-      const pageExportNames = ["Page", "Component", "View"]
-      for (const suffix of pageExportNames) {
-        const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
-        if (keys.length > 0) {
-          return { default: module[keys[0]] }
+        const module = await importFn()
+
+        if (module.default) {
+          return { default: module.default }
+        }
+
+        const pageExportNames = ["Page", "Component", "View"]
+        for (const suffix of pageExportNames) {
+          const keys = Object.keys(module).filter((key) => key.endsWith(suffix))
+          if (keys.length > 0) {
+            return { default: module[keys[0]] }
+          }
+        }
+
+        const componentExport = Object.values(module).find(
+          (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
+        )
+        if (componentExport) {
+          return { default: componentExport }
+        }
+
+        throw new Error(
+          `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
+        )
+      } catch (error) {
+        lastError = error as Error
+        console.error(`Failed to load component (attempt ${retryCount + 1}/${maxRetries}):`, error)
+        retryCount++
+        
+        if (retryCount === maxRetries) {
+          throw new Error(`Failed to load component after ${maxRetries} attempts: ${lastError.message}`)
         }
       }
-
-      const componentExport = Object.values(module).find(
-        (exp) => typeof exp === "function" && exp.prototype?.isReactComponent,
-      )
-      if (componentExport) {
-        return { default: componentExport }
-      }
-
-      throw new Error(
-        `No valid React component found in module. Available exports: ${Object.keys(module).join(", ")}`,
-      )
-    } catch (error) {
-      console.error("Failed to load component:", error)
-      throw error
     }
+
+    throw lastError || new Error("Failed to load component")
   })
 
 const AiPage = lazyImport(() => import("@/pages/ai"))
@@ -76,20 +92,48 @@ const TrendingPage = lazyImport(() => import("@/pages/trending"))
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
-  { hasError: boolean }
+  { hasError: boolean; error: Error | null }
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, error: null }
   }
 
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo)
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null })
+    if (this.state.error?.message.includes('Failed to fetch dynamically imported module')) {
+      window.location.reload()
+    }
   }
 
   render() {
     if (this.state.hasError) {
-      return <div>Something went wrong loading the page.</div>
+      return (
+        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+          <div className="max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold text-red-600 mb-4">Something went wrong loading the page</h2>
+            <p className="text-gray-600 mb-4">
+              {this.state.error?.message.includes('Failed to fetch dynamically imported module')
+                ? 'The page resources failed to load. This might be due to a deployment or network issue.'
+                : 'An unexpected error occurred while loading the page.'}
+            </p>
+            <button
+              onClick={this.handleRetry}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              Retry Loading
+            </button>
+          </div>
+        </div>
+      )
     }
     return this.props.children
   }
