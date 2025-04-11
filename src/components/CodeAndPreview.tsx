@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "./EditorNav"
 import { SuspenseRunFrame } from "./SuspenseRunFrame"
-import { applyPcbEditEventsToManualEditsFile } from "@tscircuit/core"
+import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 
 interface Props {
   snippet?: Snippet | null
@@ -284,7 +284,7 @@ export function CodeAndPreview({ snippet }: Props) {
               }}
               onEditEvent={(event) => {
                 const newManualEditsFileContent =
-                  applyPcbEditEventsToManualEditsFile({
+                  applyEditEventsToManualEditsFile({
                     circuitJson: circuitJson,
                     editEvents: [event],
                     manualEditsFile: JSON.parse(manualEditsFileContent ?? "{}"),
