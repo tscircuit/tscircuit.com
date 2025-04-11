@@ -22,10 +22,7 @@ export const withOptionalSessionAuth: Middleware<
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
   if (!token) {
-    return ctx.error(401, {
-      error_code: "no_token",
-      message: "No token provided",
-    })
+    return next(req, ctx)
   }
 
   if (process.env.BUN_TEST === "true" && ctx.db?.accounts) {
