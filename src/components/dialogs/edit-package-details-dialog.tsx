@@ -118,9 +118,28 @@ export const EditPackageDetailsDialog = ({
         console.error("Failed to update package details:", response.data)
         throw new Error("Failed to update package details")
       }
-      console.log(66, license, license && license !== "unset")
+      // get package files list
+      const packageFiles = []
+      const packageFilesResponse = await axios.post("/package_files/list", {
+        package_name_with_version: `${packageName}`,
+      })
+      if (packageFilesResponse.status == 200) {
+        packageFiles.push(
+          ...packageFilesResponse.data.package_files.map(
+            (x: { file_path: string }) => x.file_path,
+          ),
+        )
+      }
       // Create LICENSE file if a license is selected
-      if (license && license !== "unset") {
+      if (packageFiles.includes("LICENSE") && license && license !== "unset") {
+        // Update already present license file
+        alert("Update already present license file has to be implemented")
+        // await axios.post("/package_files/update", {
+        //   package_name_with_version: `${packageName}`,
+        //   file_path: "LICENSE",
+        //   content_text: getLicenseContent(license, packageAuthor),
+        // })
+      } else if (license && license !== "unset") {
         const licenseContent = getLicenseContent(license, packageAuthor)
         if (!licenseContent) return
         // Create the LICENSE file
@@ -129,6 +148,16 @@ export const EditPackageDetailsDialog = ({
           file_path: "LICENSE",
           content_text: licenseContent,
         })
+        try {
+          window.location.reload()
+        } catch {}
+      } else if (license && license === "unset") {
+        // Delete the LICENSE file
+        alert("Delete the LICENSE file has to be implemented")
+        // await axios.post("/package_files/delete", {
+        //   package_name_with_version: `${packageName}`,
+        //   file_path: "LICENSE",
+        // })
       }
 
       return response.data
