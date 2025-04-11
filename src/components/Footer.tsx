@@ -26,7 +26,6 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
-                { name: "Create with AI", href: "https://chat.tscircuit.com" },
                 {
                   name: "My Profile",
                   href: `/${session?.github_username}`,
@@ -44,6 +43,13 @@ export default function Footer() {
                     {item.name}
                   </PrefetchPageLink>
                 ))}
+              <a
+                href="https://chat.tscircuit.com"
+                className="hover:underline"
+                target="_blank"
+              >
+                Create with AI
+              </a>
             </footer>
           </div>
 
