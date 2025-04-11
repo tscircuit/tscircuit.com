@@ -165,8 +165,11 @@ export default function SidebarAboutSection() {
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""
           }
+          currentLicense={packageInfo.license}
+          packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
           onUpdate={handlePackageUpdate}
+          packageName={packageInfo.name}
         />
       )}
     </>
