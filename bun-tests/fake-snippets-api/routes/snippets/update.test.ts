@@ -82,18 +82,10 @@ test("update snippet with null compiled_js", async () => {
   const addedPackage = db.packages[0]
 
   // Update the snippet with null compiled_js
-  const response = await axios.post(
-    "/api/snippets/update",
-    {
-      snippet_id: addedPackage.package_id,
-      compiled_js: "",
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${addedPackage.creator_account_id}`,
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/update", {
+    snippet_id: addedPackage.package_id,
+    compiled_js: "",
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.snippet.compiled_js).toBeEmpty()
@@ -122,18 +114,10 @@ test("update snippet after create snippet", async () => {
   const createdSnippet = db.packages[0]
 
   const updatedCode = "Updated Content"
-  const response = await axios.post(
-    "/api/snippets/update",
-    {
-      snippet_id: createdSnippet.package_id,
-      code: updatedCode,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${createdSnippet.creator_account_id}`,
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/update", {
+    snippet_id: createdSnippet.package_id,
+    code: updatedCode,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.snippet.code).toBe(updatedCode)
@@ -154,18 +138,10 @@ test("update snippet visibility", async () => {
 
   const createdSnippet = db.packages[0]
 
-  const response = await axios.post(
-    "/api/snippets/update",
-    {
-      snippet_id: createdSnippet.package_id,
-      is_private: true,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${createdSnippet.creator_account_id}`,
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/update", {
+    snippet_id: createdSnippet.package_id,
+    is_private: true,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.snippet.is_private).toBe(true)

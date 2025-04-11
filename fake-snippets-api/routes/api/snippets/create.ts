@@ -67,8 +67,8 @@ export default withRouteSpec({
 
   try {
     // Create the package directly (which will serve as our snippet)
-    const newPackage = {
-      package_id: `pkg_${timestamp}`,
+    console.log(ctx.auth)
+    const newPackage = ctx.db.addPackage({
       creator_account_id: ctx.auth.account_id,
       owner_org_id: ctx.auth.personal_org_id,
       owner_github_username: ctx.auth.github_username,
@@ -91,22 +91,21 @@ export default withRouteSpec({
       is_private: is_private || false,
       is_public: is_public || true,
       is_unlisted: is_unlisted || false,
-      latest_package_release_id: `package_release_${timestamp}`,
+      latest_package_release_id: null,
       ai_usage_instructions: "placeholder ai usage instructions",
-    }
+    })
 
-    ctx.db.addPackage(newPackage)
-
-    const newPackageRelease = {
-      package_release_id: `package_release_${timestamp}`,
+    const newPackageRelease = ctx.db.addPackageRelease({
       package_id: newPackage.package_id,
       version: "0.0.1",
       is_latest: true,
       is_locked: false,
       created_at: currentTime,
-    }
+    })
 
-    ctx.db.addPackageRelease(newPackageRelease)
+    ctx.db.updatePackage(newPackage.package_id, {
+      latest_package_release_id: newPackageRelease.package_release_id,
+    })
 
     // Add package files
     // Add index.tsx file with the code content

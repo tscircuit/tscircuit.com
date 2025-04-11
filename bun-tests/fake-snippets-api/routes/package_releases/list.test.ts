@@ -5,18 +5,10 @@ test("list package releases", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a test package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package",
+    description: "Test Description",
+  })
   const packageId = packageResponse.data.package.package_id
 
   // Add some test package releases

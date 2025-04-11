@@ -15,14 +15,14 @@ test("list orders", async () => {
 
   expect(response.status).toBe(200)
   expect(response.data.orders).toBeDefined()
-  expect(response.data.orders).toHaveLength(1)
+  expect(response.data.orders).toHaveLength(2)
   expect(response.data.orders[0].circuit_json).toEqual(order.circuit_json)
 })
 
 test("list orders with empty result", async () => {
-  const { axios } = await getTestServer()
+  const { jane_axios } = await getTestServer()
 
-  const response = await axios.get("/api/orders/list")
+  const response = await jane_axios.get("/api/orders/list")
 
   expect(response.status).toBe(200)
   expect(response.data.orders).toBeDefined()

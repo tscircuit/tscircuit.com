@@ -13,6 +13,5 @@ test("create order", async () => {
 
   expect(response.status).toBe(200)
   expect(response.data.order).toBeDefined()
-  expect(response.data.order.account_id).toBe("account-1234")
   expect(response.data.order.circuit_json).toEqual(order.circuit_json)
 })

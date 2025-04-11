@@ -5,33 +5,23 @@ test("delete package", async () => {
   const { axios, db } = await getTestServer()
 
   // Add a test package
-  const pkg = {
-    name: "test-package",
-    owner_org_id: "org-1234", // Changed to match the default auth context's personal_org_id
-    created_at: "2023-01-01T00:00:00Z",
-    updated_at: "2023-01-01T00:00:00Z",
+  const createdPackage = await axios.post("/api/packages/create", {
+    name: "testuser/test-package",
     description: "Test Description",
-  }
-  const addedPackage: any = db.addPackage(pkg as any)
+  })
 
   // Delete the package
-  const response = await axios.post(
-    "/api/packages/delete",
-    {
-      package_id: addedPackage.package_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/packages/delete", {
+    package_id: createdPackage.data.package.package_id,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
 
   // Verify the package was deleted from the database
-  const deletedPackage = db.getPackageById(addedPackage.package_id)
+  const deletedPackage = db.getPackageById(
+    createdPackage.data.package.package_id,
+  )
   expect(deletedPackage).toBeUndefined()
 
   // List all the packages and verify the deleted package is not in the list
@@ -45,17 +35,9 @@ test("delete non-existent package", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/delete",
-      {
-        package_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/delete", {
+      package_id: "non-existent-id",
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
@@ -78,17 +60,9 @@ test("delete package without permission", async () => {
   const addedPackage: any = db.addPackage(pkg as any)
 
   try {
-    await axios.post(
-      "/api/packages/delete",
-      {
-        package_id: addedPackage.package_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/delete", {
+      package_id: addedPackage.package_id,
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {

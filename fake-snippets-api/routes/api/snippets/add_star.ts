@@ -47,15 +47,13 @@ export default withRouteSpec({
     existing.updated_at = new Date().toISOString()
   } else {
     // Add star by creating a new account_package record
-    const newAccountPackage = {
-      account_package_id: `ap_${Math.random().toString(36).substring(2, 15)}`,
+    ctx.db.addAccountPackage({
       account_id: ctx.auth.account_id,
       package_id: snippet_id,
       is_starred: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }
-    ctx.db.addAccountPackage(newAccountPackage)
+    })
   }
 
   return ctx.json({

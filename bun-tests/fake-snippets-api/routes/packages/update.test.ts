@@ -5,34 +5,18 @@ test("update package", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/test-package",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package",
+    description: "Test Description",
+  })
   const packageId = packageResponse.data.package.package_id
 
   // Update the package
-  const response = await axios.post(
-    "/api/packages/update",
-    {
-      package_id: packageId,
-      name: "updated-package",
-      description: "Updated Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/packages/update", {
+    package_id: packageId,
+    name: "updated-package",
+    description: "Updated Description",
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
@@ -49,34 +33,18 @@ test("update package privacy settings", async () => {
   const { axios, db } = await getTestServer()
 
   // Create initial public package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/public-package",
-      description: "Public Package",
-      is_private: false,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/public-package",
+    description: "Public Package",
+    is_private: false,
+  })
   const packageId = packageResponse.data.package.package_id
 
   // Update to make it private
-  const response = await axios.post(
-    "/api/packages/update",
-    {
-      package_id: packageId,
-      is_private: true,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/packages/update", {
+    package_id: packageId,
+    is_private: true,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
@@ -95,18 +63,10 @@ test("update non-existent package", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/packages/update",
-      {
-        package_id: "non-existent-id",
-        name: "updated-name",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/packages/update", {
+      package_id: "non-existent-id",
+      name: "updated-name",
+    })
     throw new Error("Expected request to fail")
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -138,18 +98,10 @@ test("update package without permission", async () => {
 
   // Try to update with different user
   try {
-    await axios.post(
-      "/api/packages/update",
-      {
-        package_id: packageId,
-        name: "stolen-package",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 5678", // Different user
-        },
-      },
-    )
+    await axios.post("/api/packages/update", {
+      package_id: packageId,
+      name: "stolen-package",
+    })
     throw new Error("Expected request to fail")
   } catch (error: any) {
     expect(error.status).toBe(403)

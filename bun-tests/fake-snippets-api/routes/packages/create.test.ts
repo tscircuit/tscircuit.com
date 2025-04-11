@@ -4,18 +4,10 @@ import { test, expect } from "bun:test"
 test("create package", async () => {
   const { axios } = await getTestServer()
 
-  const response = await axios.post(
-    "/api/packages/create",
-    {
-      name: "testuser/TestPackage",
-      description: "Test Description",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/packages/create", {
+    name: "testuser/TestPackage",
+    description: "Test Description",
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.package.name).toBe("testuser/TestPackage")

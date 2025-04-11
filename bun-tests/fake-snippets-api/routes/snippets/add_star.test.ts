@@ -18,17 +18,9 @@ test("add star to snippet", async () => {
   const createdSnippet = createResponse.data.snippet
 
   // Star the snippet
-  const response = await axios.post(
-    "/api/snippets/add_star",
-    {
-      snippet_id: createdSnippet.snippet_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippet.snippet_id,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
@@ -36,9 +28,6 @@ test("add star to snippet", async () => {
   // Verify star was added by checking the snippet again
   const getResponse = await axios.get("/api/snippets/get", {
     params: { snippet_id: createdSnippet.snippet_id },
-    headers: {
-      Authorization: "Bearer 1234",
-    },
   })
 
   expect(getResponse.status).toBe(200)
@@ -49,17 +38,9 @@ test("add star to non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/snippets/add_star",
-      {
-        snippet_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/add_star", {
+      snippet_id: "non-existent-id",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -84,31 +65,15 @@ test("add star to already starred snippet", async () => {
   const createdSnippet = createResponse.data.snippet
 
   // Star the snippet first time
-  await axios.post(
-    "/api/snippets/add_star",
-    {
-      snippet_id: createdSnippet.snippet_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippet.snippet_id,
+  })
 
   // Try to star again
   try {
-    await axios.post(
-      "/api/snippets/add_star",
-      {
-        snippet_id: createdSnippet.snippet_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/add_star", {
+      snippet_id: createdSnippet.snippet_id,
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(400)

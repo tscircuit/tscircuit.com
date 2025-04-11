@@ -18,17 +18,9 @@ test("delete snippet", async () => {
   const addedSnippet: any = db.addSnippet(snippet as any)
 
   // Delete the snippet
-  const response = await axios.post(
-    "/api/snippets/delete",
-    {
-      snippet_id: addedSnippet.snippet_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/delete", {
+    snippet_id: addedSnippet.snippet_id,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
@@ -48,17 +40,9 @@ test("delete non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/snippets/delete",
-      {
-        snippet_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/delete", {
+      snippet_id: "non-existent-id",
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
@@ -84,17 +68,9 @@ test("delete snippet without permission", async () => {
   const addedSnippet: any = db.addSnippet(snippet as any)
 
   try {
-    await axios.post(
-      "/api/snippets/delete",
-      {
-        snippet_id: addedSnippet.snippet_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/delete", {
+      snippet_id: addedSnippet.snippet_id,
+    })
     // If the request doesn't throw an error, fail the test
     expect(true).toBe(false)
   } catch (error: any) {
