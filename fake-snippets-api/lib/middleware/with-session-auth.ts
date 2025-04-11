@@ -21,13 +21,6 @@ export const withSessionAuth: Middleware<
 
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
-  if (!token) {
-    return ctx.error(401, {
-      error_code: "no_token",
-      message: "No token provided",
-    })
-  }
-
   // Only check database accounts when we're in a Bun test environment
   if (process.env.BUN_TEST === "true" && ctx.db?.accounts) {
     const account = ctx.db.accounts.find((acc: any) => acc.account_id === token)
