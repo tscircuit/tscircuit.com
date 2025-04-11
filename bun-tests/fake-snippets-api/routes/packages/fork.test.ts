@@ -41,10 +41,13 @@ test("POST /packages/fork - successful fork using package_id", async () => {
   expect(forkedPackage.is_private).toBe(false)
 
   // List files from the forked package
-  const packageFilesResponse = await jane_axios.post("/api/package_files/list", {
-    package_name: forkedPackage.name,
-    use_latest_version: true,
-  })
+  const packageFilesResponse = await jane_axios.post(
+    "/api/package_files/list",
+    {
+      package_name: forkedPackage.name,
+      use_latest_version: true,
+    },
+  )
 
   const package_files = packageFilesResponse.data.package_files
 
