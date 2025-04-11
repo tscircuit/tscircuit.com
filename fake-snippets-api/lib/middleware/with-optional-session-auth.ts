@@ -1,5 +1,5 @@
 import type { Middleware } from "winterspec/middleware"
-import { CtxErrorFn } from "./with-ctx-error"
+import type { CtxErrorFn } from "./with-ctx-error"
 
 export const withOptionalSessionAuth: Middleware<
   {
@@ -21,8 +21,14 @@ export const withOptionalSessionAuth: Middleware<
 
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
-  if (token) {
-    // In testing mode, the token is the account_id
+  if (!token) {
+    return ctx.error(401, {
+      error_code: "no_token",
+      message: "No token provided",
+    })
+  }
+
+  if (process.env.BUN_TEST === "true" && ctx.db?.accounts) {
     const account = ctx.db.accounts.find((acc: any) => acc.account_id === token)
 
     if (account) {
@@ -34,6 +40,16 @@ export const withOptionalSessionAuth: Middleware<
         session_id: `session-${account.account_id}`,
       }
     }
+
+    return next(req, ctx)
+  }
+
+  ctx.auth = {
+    type: "session",
+    account_id: "account-1234",
+    personal_org_id: "org-1234",
+    github_username: "testuser",
+    session_id: "session-1234",
   }
 
   return next(req, ctx)
