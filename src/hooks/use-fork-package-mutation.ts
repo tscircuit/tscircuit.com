@@ -33,7 +33,7 @@ export const useForkPackageMutation = ({
           title: "Package Forked",
           description: `Successfully forked package to @${session?.github_username}/${result.unscoped_name}`,
         })
-        
+
         const url = new URL(window.location.href)
         url.pathname = `/${session?.github_username}/${result.unscoped_name}`
         url.search = ""
