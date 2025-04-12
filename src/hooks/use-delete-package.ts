@@ -7,7 +7,7 @@ export const useDeletePackage = ({
 }: { onSuccess?: () => void } = {}) => {
   const axios = useAxios()
   const { toast } = useToast()
-  
+
   return useMutation(
     ["deletePackage"],
     async ({ package_id }: { package_id: string }) => {
@@ -35,6 +35,6 @@ export const useDeletePackage = ({
           description: "Failed to delete package",
         })
       },
-    }
+    },
   )
 }
