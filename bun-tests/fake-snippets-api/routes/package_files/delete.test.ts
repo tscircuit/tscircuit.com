@@ -196,3 +196,38 @@ test("delete package file - 403 for unauthorized user", async () => {
     )
   }
 })
+
+test("delete package file - 400 when neither package_release_id nor package_name_with_version is provided", async () => {
+  const { axios } = await getTestServer()
+
+  try {
+    await axios.post("/api/package_files/delete", {
+      file_path: "/test.js",
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    console.log(59, error)
+    expect(error.status).toBe(400)
+    expect(error.data.message).toInclude(
+      "Must specify either package_release_id or package_name_with_version",
+    )
+  }
+})
+
+test("delete package file - 400 when both package_release_id and package_name_with_version are provided", async () => {
+  const { axios } = await getTestServer()
+
+  try {
+    await axios.post("/api/package_files/delete", {
+      package_release_id: "some-id",
+      package_name_with_version: "@test/package@1.0.0",
+      file_path: "/test.js",
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(400)
+    expect(error.data.message).toInclude(
+      "Cannot specify both package_release_id and package_name_with_version",
+    )
+  }
+})

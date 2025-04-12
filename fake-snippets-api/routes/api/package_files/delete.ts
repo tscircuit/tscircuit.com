@@ -5,11 +5,21 @@ import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z.object({
-    package_release_id: z.string().optional(),
-    package_name_with_version: z.string().optional(),
-    file_path: z.string(),
-  }),
+  jsonBody: z
+    .object({
+      package_release_id: z.string().optional(),
+      package_name_with_version: z.string().optional(),
+      file_path: z.string(),
+    })
+    .refine((v) => {
+      if (v.package_release_id) return true
+      if (v.package_name_with_version) return true
+      return false
+    }, "Must specify either package_release_id or package_name_with_version")
+    .refine((v) => {
+      if (v.package_release_id && v.package_name_with_version) return false
+      return true
+    }, "Cannot specify both package_release_id and package_name_with_version"),
   jsonResponse: z.object({
     ok: z.boolean(),
   }),
