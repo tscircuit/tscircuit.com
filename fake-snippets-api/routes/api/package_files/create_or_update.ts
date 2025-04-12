@@ -5,7 +5,7 @@ import { z } from "zod"
 
 const routeSpec = {
   methods: ["POST"],
-  auth: "none",
+  auth: "session",
   jsonBody: z
     .object({
       file_path: z.string(),
@@ -65,7 +65,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
 
   if (!packageReleaseId && req.jsonBody.package_name_with_version) {
     const foundPackageReleaseId = await findPackageReleaseId(
-      req.jsonBody.package_name_with_version,
+      { package_name_with_version: req.jsonBody.package_name_with_version },
       ctx,
     )
     if (foundPackageReleaseId) {
@@ -89,6 +89,26 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     return ctx.error(404, {
       error_code: "package_release_not_found",
       message: "Package release not found",
+    })
+  }
+
+  // Get the package to check permissions
+  const existingPackage = ctx.db.packages.find(
+    (p) => p.package_id === packageRelease.package_id,
+  )
+
+  if (!existingPackage) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: "Package not found",
+    })
+  }
+
+  // Check if user has permission to create/update the file
+  if (existingPackage.creator_account_id !== ctx.auth.account_id) {
+    return ctx.error(403, {
+      error_code: "forbidden",
+      message: "You don't have permission to modify files in this package",
     })
   }
 
