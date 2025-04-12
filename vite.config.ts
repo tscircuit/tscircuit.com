@@ -107,6 +107,12 @@ export default defineConfig(async (): Promise<UserConfig> => {
     define: {
       global: {},
     },
+    optimizeDeps: {
+      force: true,
+      esbuildOptions: {
+        target: 'es2020'
+      }
+    },
     server: {
       host: "127.0.0.1",
       proxy: proxyConfig,
