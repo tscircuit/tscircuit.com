@@ -110,8 +110,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
     optimizeDeps: {
       force: true,
       esbuildOptions: {
-        target: 'es2020'
-      }
+        target: "es2020",
+      },
     },
     server: {
       host: "127.0.0.1",
