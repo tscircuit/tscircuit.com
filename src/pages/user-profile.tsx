@@ -1,19 +1,20 @@
-import React, { useState } from "react"
-import { useParams } from "wouter"
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { Button } from "@/components/ui/button"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { Input } from "@/components/ui/input"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useConfirmDeleteSnippetDialog } from "@/components/dialogs/confirm-delete-snippet-dialog"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import Header from "@/components/Header"
 import { SnippetCard } from "@/components/SnippetCard"
+import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAxios } from "@/hooks/use-axios"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import type React from "react"
+import { useState } from "react"
+import { useQuery } from "react-query"
+import { useParams } from "wouter"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -23,7 +24,7 @@ export const UserProfilePage = () => {
   const session = useGlobalStore((s) => s.session)
   const isCurrentUserProfile = username === session?.github_username
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
-    useConfirmDeleteSnippetDialog()
+    useConfirmDeletePackageDialog()
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
   const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
@@ -138,8 +139,8 @@ export const UserProfilePage = () => {
       </div>
       {snippetToDelete && (
         <DeleteDialog
-          snippetId={snippetToDelete.snippet_id}
-          snippetName={snippetToDelete.unscoped_name}
+          packageId={snippetToDelete.snippet_id}
+          packageName={snippetToDelete.unscoped_name}
         />
       )}
       <Footer />
