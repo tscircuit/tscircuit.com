@@ -38,7 +38,7 @@ import { useMutation, useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "../hooks/use-axios"
 import { useToast } from "../hooks/use-toast"
-import { useConfirmDeleteSnippetDialog } from "./dialogs/confirm-delete-snippet-dialog"
+import { useConfirmDeletePackageDialog } from "./dialogs/confirm-delete-package-dialog"
 import { useCreateOrderDialog } from "./dialogs/create-order-dialog"
 import { useFilesDialog } from "./dialogs/files-dialog"
 import { useViewTsFilesDialog } from "./dialogs/view-ts-files-dialog"
@@ -83,7 +83,7 @@ export default function EditorNav({
     openDialog: openupdateDescriptionDialog,
   } = useUpdateDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
-    useConfirmDeleteSnippetDialog()
+    useConfirmDeletePackageDialog()
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
     useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
@@ -479,8 +479,8 @@ export default function EditorNav({
         currentName={snippet?.unscoped_name ?? ""}
       />
       <DeleteDialog
-        snippetId={snippet?.snippet_id ?? ""}
-        snippetName={snippet?.unscoped_name ?? ""}
+        packageId={snippet?.snippet_id ?? ""}
+        packageName={snippet?.unscoped_name ?? ""}
       />
       <CreateOrderDialog />
       <FilesDialog snippetId={snippet?.snippet_id ?? ""} />
