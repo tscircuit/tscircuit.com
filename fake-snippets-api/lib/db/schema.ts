@@ -138,6 +138,9 @@ export const packageFileSchema = z.object({
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
   created_at: z.string().datetime(),
+  content_mimetype: z.string().nullable().optional(),
+  is_release_tarball: z.boolean().optional(),
+  npm_pack_output: z.any().nullable().optional(),
 })
 export type PackageFile = z.infer<typeof packageFileSchema>
 
