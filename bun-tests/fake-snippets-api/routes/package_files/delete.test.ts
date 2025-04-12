@@ -166,3 +166,49 @@ test("delete package file - 404 for non-existent file", async () => {
     expect(error.data.error.message).toBe("Package file not found")
   }
 })
+
+test("delete package file - 403 for unauthorized user", async () => {
+  const { axios, db } = await getTestServer()
+
+  // Create a package with a different owner
+  const pkg = {
+    name: "@test/package-files-delete-unauthorized",
+    owner_org_id: "different-org", // Different from the personal_org_id in auth
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+    description: "A test package for unauthorized delete",
+  }
+  const addedPackage: any = db.addPackage(pkg as any)
+
+  // Create a package release
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_id: addedPackage.package_id,
+    version: "1.0.0",
+  })
+  expect(releaseResponse.status).toBe(200)
+  const createdRelease = releaseResponse.data.package_release
+
+  // Create a package file
+  const filePath = "/test.js"
+  const createResponse = await axios.post("/api/package_files/create", {
+    package_release_id: createdRelease.package_release_id,
+    file_path: filePath,
+    content_text: "console.log('test');",
+  })
+  expect(createResponse.status).toBe(200)
+
+  // Attempt to delete the file as an unauthorized user
+  try {
+    await axios.post("/api/package_files/delete", {
+      package_release_id: createdRelease.package_release_id,
+      file_path: filePath,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(403)
+    expect(error.data.error.error_code).toBe("forbidden")
+    expect(error.data.error.message).toBe(
+      "You don't have permission to delete files in this package",
+    )
+  }
+})

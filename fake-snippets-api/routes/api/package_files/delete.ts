@@ -35,6 +35,38 @@ export default withRouteSpec({
     })
   }
 
+  // Get the package release to check permissions
+  const packageRelease = ctx.db.packageReleases.find(
+    (pr) => pr.package_release_id === packageReleaseId,
+  )
+
+  if (!packageRelease) {
+    return ctx.error(404, {
+      error_code: "package_release_not_found",
+      message: "Package release not found",
+    })
+  }
+
+  // Get the package to check permissions
+  const existingpackage = ctx.db.packages.find(
+    (p) => p.package_id === packageRelease.package_id,
+  )
+
+  if (!existingpackage) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: "Package not found",
+    })
+  }
+
+  // Check if user has permission to delete the file
+  if (existingpackage.creator_account_id !== ctx.auth.account_id) {
+    return ctx.error(403, {
+      error_code: "forbidden",
+      message: "You don't have permission to delete files in this package",
+    })
+  }
+
   // Find the file
   const packageFile = ctx.db.packageFiles.find(
     (f) =>
