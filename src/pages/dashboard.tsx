@@ -129,7 +129,7 @@ export const DashboardPage = () => {
             />
             <div className="mt-8">
               <SnippetList
-                title="Newest Snippets"
+                title="Latest Snippets"
                 snippets={newestSnippets}
                 showAll={showAllNewest}
                 onToggleShowAll={() => setShowAllNewest(!showAllNewest)}

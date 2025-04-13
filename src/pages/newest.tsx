@@ -72,7 +72,7 @@ const NewestPage: React.FC = () => {
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-6 h-6 text-blue-500" />
             <h1 className="text-4xl font-bold text-gray-900">
-              Newest Snippets
+              Latest Snippets
             </h1>
           </div>
           <p className="text-lg text-gray-600 mb-4">
@@ -98,7 +98,7 @@ const NewestPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search newest snippets..."
+                placeholder="Search latest snippets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -168,7 +168,7 @@ const NewestPage: React.FC = () => {
                   Error Loading Snippets
                 </h3>
                 <p className="text-red-600">
-                  We couldn't load the newest snippets. Please try again later.
+                  We couldn't load the latest snippets. Please try again later.
                 </p>
               </div>
             </div>
