@@ -5,6 +5,14 @@ import { FileText, Folder } from "lucide-react"
 import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Settings } from "lucide-react"
+import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 
 interface Directory {
   type: "directory"
@@ -157,6 +165,8 @@ export default function FilesView({
     setActiveDir(parentDir)
   }
 
+  const toggleHiddenFiles = () => setShowHiddenFiles((prev) => !prev)
+
   if (isLoading) {
     return (
       <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
@@ -194,17 +204,16 @@ export default function FilesView({
           <span className="text-gray-500 dark:text-[#8b949e]">
             {activeDir ? `Files in ${activeDir}` : "Files"}
           </span>
-          <button
-            className="ml-[0.7rem] text-[12px] text-gray-500 hover:text-gray-600 underline dark:text-[#8b949e] dark:hover:text-gray-500"
-            onClick={() => setShowHiddenFiles((prev) => !prev)}
-          >
-            {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
-          </button>
         </div>
         <div className="hidden md:flex ml-auto items-center text-xs text-gray-500 dark:text-[#8b949e]">
           <span>
             {files.length} files, {directories.length} directories
           </span>
+
+          <HiddenFilesDropdown
+            showHiddenFiles={showHiddenFiles}
+            onToggleHiddenFiles={toggleHiddenFiles}
+          />
         </div>
 
         {/* Mobile view */}
@@ -213,15 +222,13 @@ export default function FilesView({
             <span className="text-xs text-gray-500 dark:text-[#8b949e]">
               {activeDir ? `Files in ${activeDir}` : "Files"}
             </span>
-            <button
-              className="ml-[0.7rem] text-[12px] text-gray-500 hover:text-gray-600 underline dark:text-[#8b949e] dark:hover:text-gray-500"
-              onClick={() => setShowHiddenFiles((prev) => !prev)}
-            >
-              {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
-            </button>
           </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
+            <HiddenFilesDropdown
+              showHiddenFiles={showHiddenFiles}
+              onToggleHiddenFiles={toggleHiddenFiles}
+            />
           </div>
         </div>
       </div>
