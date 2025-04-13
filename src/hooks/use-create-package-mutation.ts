@@ -26,7 +26,12 @@ export const useCreatePackageMutation = ({
       is_unlisted?: boolean
     }) => {
       if (!session) throw new Error("No session")
-
+      console.log("creating package", {
+        name,
+        description,
+        is_private,
+        is_unlisted,
+      })
       const {
         data: { package: newPackage },
       } = await axios.post("/packages/create", {

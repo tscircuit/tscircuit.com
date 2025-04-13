@@ -152,6 +152,15 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     })
   }
 
+  if (
+    !req.jsonBody.package_release_id &&
+    !req.jsonBody.package_name_with_version
+  )
+    return ctx.error(404, {
+      error_code: "missing_options",
+      message:
+        "Must specify either package_release_id or package_name_with_version",
+    })
   // Create the package file
   const newPackageFile = {
     package_file_id: crypto.randomUUID(),
