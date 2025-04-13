@@ -88,30 +88,23 @@ export const usePackageFileByRelease = (
 }
 
 // Hook to list all files for a package release
-export const usePackageFiles = (packageReleaseId?: string | null) => {
+export const usePackageFiles = (packageReleaseId: string | undefined) => {
   const axios = useAxios()
 
   return useQuery<PackageFile[], Error & { status: number }>(
-    ["packageFiles", packageReleaseId],
+    ["package-files", packageReleaseId],
     async () => {
-      if (!packageReleaseId) return []
-
-      try {
-        const { data } = await axios.post("/package_files/list", {
-          package_release_id: packageReleaseId,
-        })
-
-        if (!data.package_files) {
-          return []
-        }
-
-        return data.package_files
-      } catch (error) {
-        throw error
+      if (!packageReleaseId) {
+        throw new Error("Package release ID is required")
       }
+      const { data } = await axios.post("/package_files/list", {
+        package_release_id: packageReleaseId,
+      })
+      return data.package_files
     },
     {
       enabled: Boolean(packageReleaseId),
+      retry: false,
     },
   )
 }

@@ -21,9 +21,10 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 
 interface Props {
   snippet?: Snippet | null
+  packageFiles?: Record<string, string>
 }
 
-export function CodeAndPreview({ snippet }: Props) {
+export function CodeAndPreview({ snippet, packageFiles }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const urlParams = useUrlParams()
@@ -45,13 +46,13 @@ export function CodeAndPreview({ snippet }: Props) {
   // Initialize with template or snippet's manual edits if available
   const [manualEditsFileContent, setManualEditsFileContent] = useState<
     string | null
-  >(null)
-  const [code, setCode] = useState(defaultCode ?? "")
-  const [dts, setDts] = useState("")
+  >(snippet?.manual_edits_json_content || null)
+  const [code, setCode] = useState(snippet?.code || "")
+  const [dts, setDts] = useState(snippet?.dts || "")
   const [showPreview, setShowPreview] = useState(true)
-  const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
+  const [lastRunCode, setLastRunCode] = useState(code)
   const [fullScreen, setFullScreen] = useState(false)
-  const [circuitJson, setCircuitJson] = useState<any>(null)
+  const [circuitJson, setCircuitJson] = useState<any>(snippet?.circuit_json)
   const {
     Dialog: PackageVisibilitySettingsDialog,
     openDialog: openPackageVisibilitySettingsDialog,
@@ -262,6 +263,7 @@ export function CodeAndPreview({ snippet }: Props) {
               setCode(newCode)
             }}
             onDtsChange={(newDts) => setDts(newDts)}
+            packageFiles={packageFiles}
           />
         </div>
         {showPreview && (

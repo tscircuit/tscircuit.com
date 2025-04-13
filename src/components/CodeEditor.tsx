@@ -28,6 +28,7 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { EditorFileTree } from "./EditorFileTree"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -42,6 +43,7 @@ export const CodeEditor = ({
   isStreaming = false,
   showImportAndFormatButtons = true,
   onManualEditsFileContentChanged,
+  packageFiles = {},
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -51,6 +53,7 @@ export const CodeEditor = ({
   manualEditsFileContent: string
   showImportAndFormatButtons?: boolean
   onManualEditsFileContentChanged?: (newContent: string) => void
+  packageFiles?: Record<string, string>
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -60,13 +63,15 @@ export const CodeEditor = ({
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
+  const [fileTreeCollapsed, setFileTreeCollapsed] = useState(false)
 
   const files = useMemo(
     () => ({
       "index.tsx": code,
       "manual-edits.json": manualEditsFileContent,
+      ...packageFiles,
     }),
-    [code, manualEditsFileContent],
+    [code, manualEditsFileContent, packageFiles],
   )
   const [currentFile, setCurrentFile] =
     useState<keyof typeof files>("index.tsx")
@@ -445,19 +450,30 @@ export const CodeEditor = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {showImportAndFormatButtons && (
-        <CodeEditorHeader
-          currentFile={currentFile}
-          files={files}
-          handleFileChange={handleFileChange}
-          updateFileContent={(...args) => {
-            return updateFileContent(...args)
-          }}
-          cursorPosition={cursorPosition}
-        />
-      )}
-      <div ref={editorRef} className="flex-1 overflow-auto" />
+    <div className="flex h-full">
+      <EditorFileTree
+        files={files}
+        currentFile={currentFile}
+        onFileSelect={(filename) =>
+          handleFileChange(filename as keyof typeof files)
+        }
+        collapsed={fileTreeCollapsed}
+        onToggleCollapse={() => setFileTreeCollapsed(!fileTreeCollapsed)}
+      />
+      <div className="flex flex-col flex-1">
+        {showImportAndFormatButtons && (
+          <CodeEditorHeader
+            currentFile={currentFile}
+            files={files}
+            handleFileChange={handleFileChange}
+            updateFileContent={(...args) => {
+              return updateFileContent(...args)
+            }}
+            cursorPosition={cursorPosition}
+          />
+        )}
+        <div ref={editorRef} className="flex-1 overflow-auto" />
+      </div>
     </div>
   )
 }

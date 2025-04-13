@@ -3,11 +3,13 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
 import { useSnippet } from "@/hooks/use-snippet"
+import { usePackageFiles } from "@/hooks/use-package-files"
 import { Helmet } from "react-helmet-async"
 
 export const EditorPage = () => {
   const { snippetId } = useCurrentSnippetId()
   const { data: snippet, isLoading, error } = useSnippet(snippetId)
+  const { data: packageFiles } = usePackageFiles(snippet?.package_release_id)
 
   return (
     <div className="overflow-x-hidden">
@@ -36,7 +38,18 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      {!error && <CodeAndPreview snippet={snippet} />}
+      <div className="min-h-screen">
+        <CodeAndPreview
+          snippet={snippet}
+          packageFiles={packageFiles?.reduce(
+            (acc, file) => ({
+              ...acc,
+              [file.file_path]: file.content_text || "",
+            }),
+            {},
+          )}
+        />
+      </div>
       {error && error.status === 404 && (
         <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
           Snippet not found
