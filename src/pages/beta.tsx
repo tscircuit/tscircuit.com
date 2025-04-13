@@ -130,8 +130,9 @@ export const BetaPage = () => {
   const { data: releaseData } = useLatestPackageRelease(createdPackageId, null)
 
   // All package files for the release
-  const { data: packageFiles, isLoading: filesLoading } =
-    usePackageFiles(createdReleaseId)
+  const { data: packageFiles, isLoading: filesLoading } = usePackageFiles(
+    createdReleaseId ?? undefined,
+  )
 
   // Log the files data for debugging
   console.log(
