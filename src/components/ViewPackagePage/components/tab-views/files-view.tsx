@@ -195,7 +195,7 @@ export default function FilesView({
             {activeDir ? `Files in ${activeDir}` : "Files"}
           </span>
           <button
-            className="ml-[0.7rem] text-[12px] text-blue-500 hover:text-blue-600 underline dark:text-blue-400 dark:hover:text-blue-300"
+            className="ml-[0.7rem] text-[12px] text-gray-500 hover:text-gray-600 underline dark:text-[#8b949e] dark:hover:text-gray-500"
             onClick={() => setShowHiddenFiles((prev) => !prev)}
           >
             {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
@@ -214,7 +214,7 @@ export default function FilesView({
               {activeDir ? `Files in ${activeDir}` : "Files"}
             </span>
             <button
-              className="ml-[0.7rem] text-[12px] text-blue-500 hover:text-blue-600 underline dark:text-blue-400 dark:hover:text-blue-300"
+              className="ml-[0.7rem] text-[12px] text-gray-500 hover:text-gray-600 underline dark:text-[#8b949e] dark:hover:text-gray-500"
               onClick={() => setShowHiddenFiles((prev) => !prev)}
             >
               {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
