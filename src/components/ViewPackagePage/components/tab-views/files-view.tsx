@@ -41,6 +41,7 @@ export default function FilesView({
   onFileClicked,
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
+  const [showHiddenFiles, setShowHiddenFiles] = useState(false)
 
   // Parse package files to determine directories and files structure
   const { directories, files } = useMemo(() => {
@@ -52,7 +53,7 @@ export default function FilesView({
     const filesList: File[] = []
 
     packageFiles
-      .filter((file) => !isHiddenFile(file.file_path))
+      .filter((file) => showHiddenFiles || !isHiddenFile(file.file_path))
       .forEach((file) => {
         // Extract directory path
         const pathParts = file.file_path.split("/")
@@ -64,6 +65,7 @@ export default function FilesView({
           currentPath += (currentPath ? "/" : "") + part
           // Only add directory if it contains visible files
           if (
+            showHiddenFiles ||
             packageFiles.some(
               (f) =>
                 f.file_path.startsWith(currentPath + "/") &&
@@ -100,7 +102,7 @@ export default function FilesView({
       directories: dirsList,
       files: filesList,
     }
-  }, [packageFiles])
+  }, [packageFiles, showHiddenFiles])
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -192,6 +194,12 @@ export default function FilesView({
           <span className="text-gray-500 dark:text-[#8b949e]">
             {activeDir ? `Files in ${activeDir}` : "Files"}
           </span>
+          <button
+            className="ml-[0.7rem] text-[12px] text-blue-500 hover:text-blue-600 underline dark:text-blue-400 dark:hover:text-blue-300"
+            onClick={() => setShowHiddenFiles((prev) => !prev)}
+          >
+            {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
+          </button>
         </div>
         <div className="hidden md:flex ml-auto items-center text-xs text-gray-500 dark:text-[#8b949e]">
           <span>
@@ -205,6 +213,12 @@ export default function FilesView({
             <span className="text-xs text-gray-500 dark:text-[#8b949e]">
               {activeDir ? `Files in ${activeDir}` : "Files"}
             </span>
+            <button
+              className="ml-[0.7rem] text-[12px] text-blue-500 hover:text-blue-600 underline dark:text-blue-400 dark:hover:text-blue-300"
+              onClick={() => setShowHiddenFiles((prev) => !prev)}
+            >
+              {showHiddenFiles ? "Hide Hidden Files" : "Show Hidden Files"}
+            </button>
           </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
