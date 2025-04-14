@@ -117,7 +117,6 @@ export default function RepoPageContent({
 
     return `${name}@${version}`
   }, [packageInfo, packageFiles])
-
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
@@ -166,7 +165,6 @@ export default function RepoPageContent({
             // Update URL hash when view changes
             window.location.hash = view
           }}
-          packageInfo={packageInfo}
           isLoading={!packageInfo}
         />
       </div>
@@ -203,7 +201,6 @@ export default function RepoPageContent({
           {/* Sidebar - Hidden on mobile, shown on md and up */}
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
             <Sidebar
-              packageInfo={packageInfo}
               isLoading={!packageInfo}
               onViewChange={(view) => {
                 setActiveView(view)

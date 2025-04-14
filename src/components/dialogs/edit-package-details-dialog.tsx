@@ -41,8 +41,8 @@ export const EditPackageDetailsDialog = ({
   currentWebsite,
   currentLicense,
   onUpdate,
-  packageAuthor,
   packageName,
+  packageReleaseId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -52,6 +52,7 @@ export const EditPackageDetailsDialog = ({
   currentLicense?: string | null;
   packageAuthor?: string | null;
   packageName: string;
+  packageReleaseId: string | null;
   onUpdate?: (
     newDescription: string,
     newWebsite: string,
@@ -83,6 +84,9 @@ export const EditPackageDetailsDialog = ({
     }
   }, [website]);
 
+  const hasLicenseChanged = useMemo(() => {
+    return license!== currentLicense;
+  }, [license, currentLicense]);
   const hasChanges = useMemo(() => {
     return (
       description !== currentDescription ||
@@ -108,11 +112,20 @@ export const EditPackageDetailsDialog = ({
         throw new Error("Please fix the form errors before submitting");
       }
 
-      const response = await axios.post("/package_release/update", {
+      if(hasLicenseChanged) {
+        await axios.post("/package_releases/update", {
+          package_id: packageId,
+          description: description,
+          package_release_id: packageReleaseId,
+          website: website,
+          license: license ?? "unset",
+        });
+      }
+      const response = await axios.post("/packages/update", {
         package_id: packageId,
         description: description,
+        package_release_id: packageReleaseId,
         website: website,
-        license: license,
       });
       if (response.status !== 200) {
         console.error("Failed to update package details:", response.data);
@@ -131,30 +144,31 @@ export const EditPackageDetailsDialog = ({
         );
       }
       const licenseContent = getLicenseContent(license ?? "");
-
-      if (packageFiles.includes("LICENSE") && !licenseContent) {
-        //  Delete license file
-        const responseLicense = await axios.post(
-          "/package_files/delete",
-          {
+      if (hasLicenseChanged) {
+        let concludedLicenseResult;
+        if (packageFiles.includes("LICENSE") && !licenseContent) {
+          // Delete license file
+          concludedLicenseResult = await axios.post("/package_files/delete", {
             package_name_with_version: `${packageName}`,
             file_path: "LICENSE",
-          } 
-        )
-        console.log(responseLicense)
-      }
-      if (licenseContent) {
-        const responseLicense = await axios.post(
-          "/package_files/create_or_update",
-          {
-            package_name_with_version: `${packageName}`,
-            file_path: "LICENSE",
-            content_text: licenseContent,
+          });
+        }
+        if (licenseContent) {
+          concludedLicenseResult = await axios.post(
+            "/package_files/create_or_update",
+            {
+              package_name_with_version: `${packageName}`,
+              file_path: "LICENSE",
+              content_text: licenseContent,
+            }
+          );
+        }
+        try {
+          if (concludedLicenseResult) {
+            window?.location?.reload?.();
           }
-        );
-        console.log(responseLicense);
+        } catch {}
       }
-      return response.data;
     },
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: ["packages", packageId] });
@@ -229,6 +243,9 @@ export const EditPackageDetailsDialog = ({
               </SelectTrigger>
               <SelectContent className="!z-[999]">
                 <SelectItem value="MIT">MIT</SelectItem>
+                <SelectItem value="Apache-2.0">Apache-2.0</SelectItem>
+                <SelectItem value="BSD-3-Clause">BSD-3-Clause</SelectItem>
+                <SelectItem value="GPL-3.0">GPL-3.0</SelectItem>
                 <SelectItem value="unset">Unset</SelectItem>
               </SelectContent>
             </Select>

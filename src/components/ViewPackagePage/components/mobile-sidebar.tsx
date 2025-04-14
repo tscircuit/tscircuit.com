@@ -6,37 +6,32 @@ import { usePreviewImages } from "@/hooks/use-preview-images"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-
-interface PackageInfo {
-  name: string
-  package_id: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  latest_version?: string
-  description: string
-  ai_description: string
-  creator_account_id?: string
-  owner_org_id?: string
-  is_package?: boolean
-  website?: string
-  license?: string
-}
+import { PackageInfo } from "./sidebar-about-section"
+import { usePackageFile } from "@/hooks/use-package-files"
+import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 
 interface MobileSidebarProps {
-  packageInfo?: PackageInfo
   isLoading?: boolean
   onViewChange: (view: "schematic" | "pcb" | "3d") => void
 }
 
 export default function MobileSidebar({
-  packageInfo,
   isLoading = false,
   onViewChange,
 }: MobileSidebarProps) {
-  const { refetch: refetchPackageInfo } = useCurrentPackageInfo()
+  const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
+  const {data: licenseFileMeta} = usePackageFile({package_release_id:packageInfo?.latest_package_release_id??'', file_path: 'LICENSE'})
+  const currentLicense = useMemo(() => {
+    if(packageInfo?.latest_license) {
+      return packageInfo?.latest_license
+    }
+    if(licenseFileMeta?.content_text) {
+      return getLicenseFromLicenseContent(licenseFileMeta?.content_text)
+    }
+    return undefined
+  }, [licenseFileMeta?.content_text])
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const isOwner =
@@ -193,11 +188,12 @@ export default function MobileSidebar({
       </div>
       {packageInfo && (
         <EditPackageDetailsDialog
+        packageReleaseId={packageInfo.latest_package_release_id}
           packageId={packageInfo.package_id}
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""
           }
-          currentLicense={packageInfo.license}
+          currentLicense={currentLicense}
           packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
           onUpdate={handlePackageUpdate}
