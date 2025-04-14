@@ -320,7 +320,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_unlisted: false,
     }
   },
-  getNewestSnippets: (limit: number): Snippet[] => {
+  getLatestSnippets: (limit: number): Snippet[] => {
     const state = get()
 
     // Get all packages that are snippets

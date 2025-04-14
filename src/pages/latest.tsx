@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select"
 import { SnippetCard } from "@/components/SnippetCard"
 
-const NewestPage: React.FC = () => {
+const LatestPage: React.FC = () => {
   const axios = useAxios()
   const apiBaseUrl = useSnippetsBaseApiUrl()
   const [searchQuery, setSearchQuery] = useState("")
@@ -36,10 +36,10 @@ const NewestPage: React.FC = () => {
     isLoading,
     error,
   } = useQuery<Snippet[]>(
-    ["newestSnippets", category],
+    ["latestSnippets", category],
     async () => {
       const params = category !== "all" ? { tag: category } : {}
-      const response = await axios.get("/snippets/list_newest", { params })
+      const response = await axios.get("/snippets/list_latest", { params })
       return response.data.snippets
     },
     {
@@ -185,7 +185,7 @@ const NewestPage: React.FC = () => {
               {searchQuery
                 ? `No snippets match your search for "${searchQuery}".`
                 : category !== "all"
-                  ? `No ${category} snippets found in the newest list.`
+                  ? `No ${category} snippets found in the latest list.`
                   : "There are no new snippets at the moment."}
             </p>
           </div>
@@ -209,4 +209,4 @@ const NewestPage: React.FC = () => {
   )
 }
 
-export default NewestPage
+export default LatestPage
