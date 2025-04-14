@@ -123,7 +123,7 @@ export const orderQuoteSchema = z.object({
   completed_at: z.string().nullable(),
   quoted_components: z.array(orderQuoteComponentSchema).nullable(),
   pcb_price: z.number().default(0),
-  total_components_price: z.number().default(0),
+  total_price_of_components: z.number().default(0),
   shipping_price: z.number().default(0),
   total_price: z.number().default(0),
 })
