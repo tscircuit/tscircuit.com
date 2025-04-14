@@ -9,7 +9,7 @@ const staticRoutes = [
   { url: "/playground", changefreq: "weekly", priority: 0.9 },
   { url: "/quickstart", changefreq: "monthly", priority: 0.8 },
   { url: "/dashboard", changefreq: "weekly", priority: 0.7 },
-  { url: "/newest", changefreq: "daily", priority: 0.8 },
+  { url: "/latest", changefreq: "daily", priority: 0.8 },
   { url: "/search", changefreq: "weekly", priority: 0.7 },
   { url: "/settings", changefreq: "monthly", priority: 0.6 },
   { url: "/community/join-redirect", changefreq: "monthly", priority: 0.6 },

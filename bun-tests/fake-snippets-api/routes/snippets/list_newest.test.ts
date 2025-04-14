@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("list newest snippets", async () => {
+test("list latest snippets", async () => {
   const { axios, db } = await getTestServer()
 
   // Add some test snippets
@@ -39,7 +39,7 @@ test("list newest snippets", async () => {
     db.addSnippet(snippet as any)
   }
 
-  const { data } = await axios.get("/api/snippets/list_newest")
+  const { data } = await axios.get("/api/snippets/list_latest")
 
   expect(data.snippets).toHaveLength(3)
   // Order might vary in test runs, just check all snippets are there

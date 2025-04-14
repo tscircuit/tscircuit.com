@@ -26,7 +26,6 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
-                { name: "Create with AI", href: "https://chat.tscircuit.com" },
                 {
                   name: "My Profile",
                   href: `/${session?.github_username}`,
@@ -44,14 +43,24 @@ export default function Footer() {
                     {item.name}
                   </PrefetchPageLink>
                 ))}
+              <a
+                href="https://chat.tscircuit.com"
+                className="hover:underline"
+                target="_blank"
+              >
+                Create with AI
+              </a>
             </footer>
           </div>
 
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Explore</h3>
             <footer className="flex flex-col space-y-2">
-              <PrefetchPageLink href="/newest" className="hover:underline">
-                Newest Snippets
+              <PrefetchPageLink href="/latest" className="hover:underline">
+                Latest Snippets
+              </PrefetchPageLink>
+              <PrefetchPageLink href="/trending" className="hover:underline">
+                Trending Snippets
               </PrefetchPageLink>
               <a href="https://docs.tscircuit.com" className="hover:underline">
                 Docs

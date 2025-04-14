@@ -1,9 +1,10 @@
 import type { Middleware } from "winterspec/middleware"
-import { CtxErrorFn } from "./with-ctx-error"
+import type { CtxErrorFn } from "./with-ctx-error"
 
 export const withSessionAuth: Middleware<
   {
     error: CtxErrorFn
+    db: any
   },
   {
     auth: {
@@ -20,13 +21,23 @@ export const withSessionAuth: Middleware<
 
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
-  if (!token) {
-    return ctx.error(401, {
-      error_code: "no_token",
-      message: "No token provided",
-    })
+  // Only check database accounts when we're in a Bun test environment
+  if (process.env.BUN_TEST === "true" && ctx.db?.accounts) {
+    const account = ctx.db.accounts.find((acc: any) => acc.account_id === token)
+
+    if (account) {
+      ctx.auth = {
+        type: "session",
+        account_id: account.account_id,
+        personal_org_id: `org-${account.account_id}`,
+        github_username: account.github_username,
+        session_id: `session-${account.account_id}`,
+      }
+      return next(req, ctx)
+    }
   }
 
+  // For all other environments or if account not found in test, use hardcoded auth
   ctx.auth = {
     type: "session",
     account_id: "account-1234",

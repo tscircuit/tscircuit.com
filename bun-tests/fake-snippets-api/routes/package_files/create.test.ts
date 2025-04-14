@@ -5,18 +5,10 @@ test("create package file with content_text", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create",
-      description: "A test package for creating files",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create",
+    description: "A test package for creating files",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -60,18 +52,10 @@ test("create package file with content_base64", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create-base64",
-      description: "A test package for creating files with base64",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-base64",
+    description: "A test package for creating files with base64",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -115,18 +99,10 @@ test("create package file using package_name_with_version", async () => {
   // First create a package
   const packageName = "@test/package-files-create-by-name"
   const version = "2.0.0"
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: packageName,
-      description: "A test package for creating files by name",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: packageName,
+    description: "A test package for creating files by name",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -206,18 +182,10 @@ test("create package file - 400 for missing content", async () => {
   const { axios } = await getTestServer()
 
   // First create a package and release
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create-error",
-      description: "A test package for error cases",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-error",
+    description: "A test package for error cases",
+  })
   const createdPackage = packageResponse.data.package
 
   const releaseResponse = await axios.post("/api/package_releases/create", {
@@ -243,18 +211,10 @@ test("create package file - 400 for both content_text and content_base64", async
   const { axios } = await getTestServer()
 
   // First create a package and release
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create-error-2",
-      description: "Another test package for error cases",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-error-2",
+    description: "Another test package for error cases",
+  })
   const createdPackage = packageResponse.data.package
 
   const releaseResponse = await axios.post("/api/package_releases/create", {
@@ -281,18 +241,10 @@ test("create release tarball package file", async () => {
   const { axios } = await getTestServer()
 
   // First create a package
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create-tarball",
-      description: "A test package for creating tarball files",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-tarball",
+    description: "A test package for creating tarball files",
+  })
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
@@ -335,18 +287,10 @@ test("create package file - 400 for release tarball without npm_pack_output", as
   const { axios } = await getTestServer()
 
   // First create a package and release
-  const packageResponse = await axios.post(
-    "/api/packages/create",
-    {
-      name: "@test/package-files-create-tarball-error",
-      description: "Test package for tarball error cases",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-tarball-error",
+    description: "Test package for tarball error cases",
+  })
   const createdPackage = packageResponse.data.package
 
   const releaseResponse = await axios.post("/api/package_releases/create", {

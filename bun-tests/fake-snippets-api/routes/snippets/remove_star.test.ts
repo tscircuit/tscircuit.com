@@ -18,30 +18,14 @@ test("remove star from snippet", async () => {
 
   const createdSnippet = await axios.post("/api/snippets/create", snippet)
   // Star the snippet
-  await axios.post(
-    "/api/snippets/add_star",
-    {
-      snippet_id: createdSnippet.data.snippet.snippet_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
+  await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippet.data.snippet.snippet_id,
+  })
 
   // remove star from snippet
-  const response = await axios.post(
-    "/api/snippets/remove_star",
-    {
-      snippet_id: createdSnippet.data.snippet.snippet_id,
-    },
-    {
-      headers: {
-        Authorization: "Bearer 123",
-      },
-    },
-  )
+  const response = await axios.post("/api/snippets/remove_star", {
+    snippet_id: createdSnippet.data.snippet.snippet_id,
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
@@ -57,17 +41,9 @@ test("remove star from non-existent snippet", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post(
-      "/api/snippets/remove_star",
-      {
-        snippet_id: "non-existent-id",
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/remove_star", {
+      snippet_id: "non-existent-id",
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(404)
@@ -93,17 +69,9 @@ test("remove star from unstarred snippet", async () => {
 
   // Remove star
   try {
-    await axios.post(
-      "/api/snippets/remove_star",
-      {
-        snippet_id: createdSnippet.data.snippet.snippet_id,
-      },
-      {
-        headers: {
-          Authorization: "Bearer 1234",
-        },
-      },
-    )
+    await axios.post("/api/snippets/remove_star", {
+      snippet_id: createdSnippet.data.snippet.snippet_id,
+    })
     expect(true).toBe(false) // Should not reach here
   } catch (error: any) {
     expect(error.status).toBe(400)

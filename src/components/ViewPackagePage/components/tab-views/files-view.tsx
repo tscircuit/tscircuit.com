@@ -5,6 +5,14 @@ import { FileText, Folder } from "lucide-react"
 import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Settings } from "lucide-react"
+import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 
 interface Directory {
   type: "directory"
@@ -41,6 +49,7 @@ export default function FilesView({
   onFileClicked,
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
+  const [showHiddenFiles, setShowHiddenFiles] = useState(false)
 
   // Parse package files to determine directories and files structure
   const { directories, files } = useMemo(() => {
@@ -52,7 +61,7 @@ export default function FilesView({
     const filesList: File[] = []
 
     packageFiles
-      .filter((file) => !isHiddenFile(file.file_path))
+      .filter((file) => showHiddenFiles || !isHiddenFile(file.file_path))
       .forEach((file) => {
         // Extract directory path
         const pathParts = file.file_path.split("/")
@@ -64,6 +73,7 @@ export default function FilesView({
           currentPath += (currentPath ? "/" : "") + part
           // Only add directory if it contains visible files
           if (
+            showHiddenFiles ||
             packageFiles.some(
               (f) =>
                 f.file_path.startsWith(currentPath + "/") &&
@@ -100,7 +110,7 @@ export default function FilesView({
       directories: dirsList,
       files: filesList,
     }
-  }, [packageFiles])
+  }, [packageFiles, showHiddenFiles])
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -155,6 +165,8 @@ export default function FilesView({
     setActiveDir(parentDir)
   }
 
+  const toggleHiddenFiles = () => setShowHiddenFiles((prev) => !prev)
+
   if (isLoading) {
     return (
       <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
@@ -197,6 +209,11 @@ export default function FilesView({
           <span>
             {files.length} files, {directories.length} directories
           </span>
+
+          <HiddenFilesDropdown
+            showHiddenFiles={showHiddenFiles}
+            onToggleHiddenFiles={toggleHiddenFiles}
+          />
         </div>
 
         {/* Mobile view */}
@@ -208,6 +225,10 @@ export default function FilesView({
           </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
+            <HiddenFilesDropdown
+              showHiddenFiles={showHiddenFiles}
+              onToggleHiddenFiles={toggleHiddenFiles}
+            />
           </div>
         </div>
       </div>

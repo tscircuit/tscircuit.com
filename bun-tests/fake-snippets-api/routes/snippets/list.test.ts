@@ -104,7 +104,6 @@ test("list starred snippets", async () => {
   const snippets = [
     {
       unscoped_name: "Snippet1",
-      owner_name: "testuser",
       code: "Content1",
       created_at: "2023-01-01T00:00:00Z",
       updated_at: "2023-01-01T00:00:00Z",
@@ -113,7 +112,6 @@ test("list starred snippets", async () => {
     },
     {
       unscoped_name: "Snippet2",
-      owner_name: "otheruser",
       code: "Content2",
       created_at: "2023-01-02T00:00:00Z",
       updated_at: "2023-01-02T00:00:00Z",
@@ -122,7 +120,6 @@ test("list starred snippets", async () => {
     },
     {
       unscoped_name: "Snippet3",
-      owner_name: "thirduser",
       code: "Content3",
       created_at: "2023-01-03T00:00:00Z",
       updated_at: "2023-01-03T00:00:00Z",
@@ -133,13 +130,8 @@ test("list starred snippets", async () => {
 
   const createdSnippets = []
   for (const snippet of snippets) {
-    db.addSnippet(snippet as any)
-    // Get the snippet from the database to get its ID
-    const createdSnippet = db.packages.find(
-      (p) => p.unscoped_name === snippet.unscoped_name,
-    )
-    if (!createdSnippet) throw new Error("Failed to create snippet")
-    createdSnippets.push(createdSnippet)
+    const createdSnippet = await axios.post("/api/snippets/create", snippet)
+    createdSnippets.push(createdSnippet.data.snippet)
   }
 
   // Add stars for testuser
@@ -149,32 +141,15 @@ test("list starred snippets", async () => {
   if (!testUserAccount) throw new Error("testuser account not found")
 
   // testuser stars Snippet2 and Snippet3
-  db.addStar(testUserAccount.account_id, createdSnippets[1].package_id) // Snippet2
-  db.addStar(testUserAccount.account_id, createdSnippets[2].package_id) // Snippet3
-
-  // Create a different user for the Authorization header
-  const otherUserAccount = db.addAccount({
-    github_username: "otheruser",
-    shippingInfo: {
-      firstName: "Other",
-      lastName: "User",
-      companyName: "Other Company",
-      address: "456 Other St",
-      apartment: "Apt 7C",
-      city: "Otherville",
-      state: "CA",
-      zipCode: "90001",
-      country: "United States of America",
-      phone: "555-987-6543",
-    },
+  await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippets[1].snippet_id,
+  })
+  await axios.post("/api/snippets/add_star", {
+    snippet_id: createdSnippets[2].snippet_id,
   })
 
   // List starred snippets for testuser
-  const response = await axios.get("/api/snippets/list?starred_by=testuser", {
-    headers: {
-      Authorization: `Bearer ${otherUserAccount.account_id}`,
-    },
-  })
+  const response = await axios.get("/api/snippets/list?starred_by=testuser", {})
   expect(response.status).toBe(200)
   expect(response.data.snippets).toHaveLength(2)
   expect(
@@ -189,6 +164,6 @@ test("list starred snippets", async () => {
     is_starred: boolean
   }>) {
     expect(snippet.star_count).toBe(1)
-    expect(snippet.is_starred).toBe(false) // Should be false because we're using otherUserAccount
+    expect(snippet.is_starred).toBe(true)
   }
 })

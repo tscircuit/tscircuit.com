@@ -61,10 +61,6 @@ export default function PackageHeader({
   const handleForkClick = async () => {
     if (!packageInfo?.package_id) return
     await forkPackage(packageInfo.package_id)
-    toast({
-      title: "Forked package",
-      description: "Package forked successfully",
-    })
   }
 
   const isStarLoading =

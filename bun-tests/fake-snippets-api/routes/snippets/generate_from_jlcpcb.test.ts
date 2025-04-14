@@ -4,18 +4,9 @@ import { test, expect } from "bun:test"
 test.skip("generate snippet from JLCPCB part number", async () => {
   const { axios } = await getTestServer()
 
-  const response = await axios.post(
-    "/api/snippets/generate_from_jlcpcb",
-    {
-      jlcpcb_part_number: "C46749",
-    },
-    {
-      headers: {
-        Authorization: "Bearer 1234",
-      },
-    },
-  )
-
+  const response = await axios.post("/api/snippets/generate_from_jlcpcb", {
+    jlcpcb_part_number: "C46749",
+  })
   expect(response.status).toBe(200)
   expect(response.data.snippet).toBeDefined()
   expect(response.data.snippet.unscoped_name).toBe("C46749")

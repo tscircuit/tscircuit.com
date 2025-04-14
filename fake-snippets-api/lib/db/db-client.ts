@@ -320,7 +320,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_unlisted: false,
     }
   },
-  getNewestSnippets: (limit: number): Snippet[] => {
+  getLatestSnippets: (limit: number): Snippet[] => {
     const state = get()
 
     // Get all packages that are snippets
@@ -1147,6 +1147,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ),
     }))
   },
+  deletePackageFile: (packageFileId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.packageFiles.findIndex(
+        (file) => file.package_file_id === packageFileId,
+      )
+      if (index !== -1) {
+        state.packageFiles.splice(index, 1)
+        deleted = true
+      }
+      return state
+    })
+    return deleted
+  },
   addPackageFile: (
     packageFile: Omit<PackageFile, "package_file_id">,
   ): PackageFile => {
@@ -1158,6 +1172,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageFiles: [...state.packageFiles, newPackageFile],
     }))
     return newPackageFile
+  },
+  updatePackageFile: (
+    packageFileId: string,
+    updates: Partial<Omit<PackageFile, "package_file_id">>,
+  ): PackageFile => {
+    set((state) => ({
+      packageFiles: state.packageFiles.map((file) =>
+        file.package_file_id === packageFileId ? { ...file, ...updates } : file,
+      ),
+    }))
+    const state = get()
+    return state.packageFiles.find(
+      (file) => file.package_file_id === packageFileId,
+    )!
   },
   getStarCount: (packageId: string): number => {
     const state = get()
