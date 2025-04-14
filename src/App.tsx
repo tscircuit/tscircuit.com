@@ -74,6 +74,19 @@ const BetaPage = lazyImport(() => import("@/pages/beta"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 
+// Wip Package Port Routes
+const PackageEditorPage = lazyImport(async () => {
+  const [editorModule] = await Promise.all([
+    import("@/pages/p/editor"),
+    import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
+  ])
+  return editorModule
+})
+const PackageUserProfilePage = lazyImport(
+  () => import("@/pages/p/user-profile"),
+)
+const PackageViewPage = lazyImport(() => import("@/pages/p/view-package"))
+
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }
@@ -123,6 +136,12 @@ function App() {
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
+
+            {/* Package Wip Routes  */}
+            <Route path="/p/PackageEditorPage" component={PackageEditorPage} />
+            <Route path="/p/:username" component={PackageUserProfilePage} />
+            <Route path="/p/:author/:packageName" component={PackageViewPage} />
+
             <Route
               path="/snippets/:author/:snippetName"
               component={ViewSnippetPage}

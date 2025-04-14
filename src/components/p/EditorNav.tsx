@@ -14,7 +14,7 @@ import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 import { cn } from "@/lib/utils"
 import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { AnyCircuitElement } from "circuit-json"
-import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import {
   ChevronDown,
   CodeIcon,
@@ -36,21 +36,17 @@ import {
 import { useEffect, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
-import { useAxios } from "../hooks/use-axios"
-import { useToast } from "../hooks/use-toast"
-import { useConfirmDeletePackageDialog } from "./dialogs/confirm-delete-package-dialog"
-import { useCreateOrderDialog } from "./dialogs/create-order-dialog"
-import { useFilesDialog } from "./dialogs/files-dialog"
-import { useViewTsFilesDialog } from "./dialogs/view-ts-files-dialog"
-import { useRenameSnippetDialog } from "./dialogs/rename-snippet-dialog"
-import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
-import { SnippetLink } from "./SnippetLink"
-import { TypeBadge } from "./TypeBadge"
-import { useUpdateDescriptionDialog } from "./dialogs/edit-description-dialog"
-import {
-  useForkSnippetMutation,
-  usePackageForkSnippetMutation,
-} from "@/hooks/useForkSnippetMutation"
+import { useAxios } from "src/hooks/use-axios"
+import { useToast } from "src/hooks/use-toast"
+import { useConfirmDeletePackageDialog } from "src/components/dialogs/confirm-delete-package-dialog"
+import { useCreateOrderDialog } from "src/components/dialogs/create-order-dialog"
+import { useFilesDialog } from "src/components/dialogs/files-dialog"
+import { useViewTsFilesDialog } from "src/components/dialogs/view-ts-files-dialog"
+import { useRenameSnippetDialog } from "src/components/dialogs/rename-snippet-dialog"
+import { DownloadButtonAndMenu } from "src/components/DownloadButtonAndMenu"
+import { TypeBadge } from "src/components/TypeBadge"
+import { useUpdateDescriptionDialog } from "src/components/dialogs/edit-description-dialog"
+import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import tscircuitCorePkg from "@tscircuit/core/package.json"
 
 export default function EditorNav({
@@ -102,17 +98,16 @@ export default function EditorNav({
   const { toast } = useToast()
   const qc = useQueryClient()
 
-  const { mutate: forkSnippet, isLoading: isForking } =
-    usePackageForkSnippetMutation({
-      pkg: pkg!,
-      currentCode: code,
-      onSuccess: (forkedPackage) => {
-        navigate("/editor?snippet_id=" + forkedPackage.package_id)
-        setTimeout(() => {
-          window.location.reload() //reload the page
-        }, 2000)
-      },
-    })
+  const { mutate: forkSnippet, isLoading: isForking } = useForkPackageMutation({
+    pkg: pkg!,
+    currentCode: code,
+    onSuccess: (forkedPackage) => {
+      navigate("/editor?snippet_id=" + forkedPackage.package_id)
+      setTimeout(() => {
+        window.location.reload() //reload the page
+      }, 2000)
+    },
+  })
 
   // Update currentType when snippet or snippetType changes
   useEffect(() => {

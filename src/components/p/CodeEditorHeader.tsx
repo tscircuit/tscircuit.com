@@ -6,16 +6,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
+import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { FootprintDialog } from "./FootprintDialog"
+import { FootprintDialog } from "@/components/p/FootprintDialog"
 import { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { AlertTriangle } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"

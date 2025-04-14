@@ -1,5 +1,4 @@
-import { CodePreview } from "@/components/p/CodeAndPreview"
-import { CodeAndPreview } from "@/components/CodeAndPreview"
+import { CodeAndPreview } from "@/components/p/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
@@ -33,7 +32,7 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      {!error && <CodePreview pkg={pkg} />}
+      {!error && <CodeAndPreview pkg={pkg} />}
       {error && error.status === 404 && (
         <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
           Package not found

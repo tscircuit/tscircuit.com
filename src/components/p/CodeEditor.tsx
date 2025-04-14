@@ -9,7 +9,7 @@ import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
-import { TSCI_PACKAGE_PATTERN } from "../lib/constants"
+import { TSCI_PACKAGE_PATTERN } from "@/lib/constants"
 import {
   createDefaultMapFromCDN,
   createSystem,
@@ -25,7 +25,7 @@ import {
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
-import CodeEditorHeader from "./CodeEditorHeader"
+import CodeEditorHeader from "@/components/p/CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 const defaultImports = `
