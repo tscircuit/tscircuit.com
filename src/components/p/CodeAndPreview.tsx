@@ -15,8 +15,8 @@ import type { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
-import EditorNav from "./EditorNav"
-import { SuspenseRunFrame } from "./SuspenseRunFrame"
+import EditorNav from "../EditorNav"
+import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import {
   usePackageFileById,
@@ -40,7 +40,7 @@ export function Code1Preview({ pkg }: Props) {
   // console.log(11, indexFileContent)
   return <h1>hi</h1>
 }
-export function CodePreview({ pkg }: Props) {
+export function CodeAndPreview({ pkg }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const loggedInUser = useGlobalStore((s) => s.session)
