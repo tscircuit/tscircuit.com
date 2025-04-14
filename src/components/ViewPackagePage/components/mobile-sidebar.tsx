@@ -22,12 +22,15 @@ export default function MobileSidebar({
   onViewChange,
 }: MobileSidebarProps) {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
-  const {data: licenseFileMeta} = usePackageFile({package_release_id:packageInfo?.latest_package_release_id??'', file_path: 'LICENSE'})
+  const { data: licenseFileMeta } = usePackageFile({
+    package_release_id: packageInfo?.latest_package_release_id ?? "",
+    file_path: "LICENSE",
+  })
   const currentLicense = useMemo(() => {
-    if(packageInfo?.latest_license) {
+    if (packageInfo?.latest_license) {
       return packageInfo?.latest_license
     }
-    if(licenseFileMeta?.content_text) {
+    if (licenseFileMeta?.content_text) {
       return getLicenseFromLicenseContent(licenseFileMeta?.content_text)
     }
     return undefined
@@ -188,7 +191,7 @@ export default function MobileSidebar({
       </div>
       {packageInfo && (
         <EditPackageDetailsDialog
-        packageReleaseId={packageInfo.latest_package_release_id}
+          packageReleaseId={packageInfo.latest_package_release_id}
           packageId={packageInfo.package_id}
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""

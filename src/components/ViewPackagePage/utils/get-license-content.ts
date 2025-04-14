@@ -4,7 +4,13 @@
  * @param authorName The name of the package author
  * @returns The license content as a string
  */
-export type LicenseType = 'MIT' | 'Apache-2.0' | 'BSD-3-Clause' | 'GPL-3.0' | 'unset' | string
+export type LicenseType =
+  | "MIT"
+  | "Apache-2.0"
+  | "BSD-3-Clause"
+  | "GPL-3.0"
+  | "unset"
+  | string
 
 export const getLicenseContent = (
   licenseType: LicenseType,
@@ -105,9 +111,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.`
+    }
+    default: {
+      return ""
+    }
   }
-  default: {
-    return "" 
-  }
-}
 }
