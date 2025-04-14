@@ -20,7 +20,7 @@ import { AlertTriangle } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
 
-export type FileName = string
+export type FileName = "index.tsx" | "manual-edits.json"
 
 interface CodeEditorHeaderProps {
   currentFile: FileName

@@ -33,27 +33,24 @@ import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-export interface FileContent {
-  path: string
-  content: string
-}
-
 export const CodeEditor = ({
   onCodeChange,
   onDtsChange,
   readOnly = false,
-  files = [],
+  initialCode = "",
+  manualEditsFileContent,
   isStreaming = false,
   showImportAndFormatButtons = true,
-  onFileContentChanged,
+  onManualEditsFileContentChanged,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
-  files: FileContent[]
+  initialCode: string
   readOnly?: boolean
   isStreaming?: boolean
+  manualEditsFileContent: string
   showImportAndFormatButtons?: boolean
-  onFileContentChanged?: (path: string, content: string) => void
+  onManualEditsFileContentChanged?: (newContent: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -62,39 +59,38 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
-  const [code, setCode] = useState(files[0]?.content || "")
-  const [currentFile, setCurrentFile] = useState<string>("")
+  const [code, setCode] = useState(initialCode)
 
-  const fileMap = useMemo(() => {
-    const map: Record<string, string> = {}
-    files.forEach((file) => {
-      map[file.path] = file.content
-    })
-    setCurrentFile(files[0]?.path ?? "")
-    setCode(files[0]?.path ?? "")
-    return map
-  }, [files])
+  const files = useMemo(
+    () => ({
+      "index.tsx": code,
+      "manual-edits.json": manualEditsFileContent,
+    }),
+    [code, manualEditsFileContent],
+  )
+  const [currentFile, setCurrentFile] =
+    useState<keyof typeof files>("index.tsx")
+
+  const isInitialCodeLoaded = Boolean(initialCode)
 
   useEffect(() => {
-    const currentFileContent =
-      files.find((f) => f.path === currentFile)?.content || ""
-    if (currentFileContent !== code) {
-      setCode(currentFileContent)
-      updateCurrentEditorContent(currentFileContent)
+    if (initialCode !== code) {
+      setCode(initialCode)
+      if (currentFile === "index.tsx") {
+        updateCurrentEditorContent(initialCode)
+      }
     }
-  }, [files])
+  }, [isInitialCodeLoaded])
 
   // Whenever streaming completes, reset the code to the initial code
   useEffect(() => {
-    if (!isStreaming) {
-      const currentFileContent =
-        files.find((f) => f.path === currentFile)?.content || ""
-      if (code !== currentFileContent && currentFileContent) {
-        setCode(currentFileContent)
-        setTimeout(() => {
-          updateCurrentEditorContent(currentFileContent)
-        }, 200)
-      }
+    if (!isStreaming && code !== initialCode && initialCode) {
+      setCode(initialCode)
+
+      // HACK: Timeout because we need to wait for the editor to mount again
+      setTimeout(() => {
+        updateCurrentEditorContent(initialCode)
+      }, 200)
     }
   }, [isStreaming])
 
@@ -102,8 +98,8 @@ export const CodeEditor = ({
     if (!editorRef.current) return
 
     const fsMap = new Map<string, string>()
-    files.forEach(({ path, content }) => {
-      fsMap.set(path, content)
+    Object.entries(files).forEach(([filename, content]) => {
+      fsMap.set(filename, content)
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
@@ -148,13 +144,9 @@ export const CodeEditor = ({
             .replace(registryPrefixes[2], "")
           const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
           const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
+          const jsdelivrPath = `${packageName}${pathInPackage ? `/${pathInPackage}` : ""}`
           return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
           )
         }
         return fetch(input, init)
@@ -211,21 +203,23 @@ export const CodeEditor = ({
           if (newContent === lastFilesEventContent[currentFile]) return
           lastFilesEventContent[currentFile] = newContent
 
-          // setCode(newContent)
-          onCodeChange(newContent, currentFile)
-          onFileContentChanged?.(currentFile, newContent)
+          if (currentFile === "index.tsx") {
+            setCode(newContent)
+            onCodeChange(newContent)
+          } else if (currentFile === "manual-edits.json") {
+            onManualEditsFileContentChanged?.(newContent)
+          }
 
-          // Generate TypeScript declarations for TypeScript/TSX files
-          if (currentFile.endsWith(".ts") || currentFile.endsWith(".tsx")) {
+          if (currentFile === "index.tsx") {
             const { outputFiles } = env.languageService.getEmitOutput(
               currentFile,
               true,
             )
-            const dtsFile = outputFiles.find((file) =>
-              file.name.endsWith(".d.ts"),
+            const indexDts = outputFiles.find(
+              (file) => file.name === "index.d.ts",
             )
-            if (dtsFile?.text && onDtsChange) {
-              onDtsChange(dtsFile.text)
+            if (indexDts?.text && onDtsChange) {
+              onDtsChange(indexDts.text)
             }
           }
         }
@@ -360,7 +354,7 @@ export const CodeEditor = ({
         : []
 
     const state = EditorState.create({
-      doc: fileMap[currentFile] || "",
+      doc: files[currentFile],
       extensions: [...baseExtensions, ...tsExtensions],
     })
 
@@ -375,11 +369,6 @@ export const CodeEditor = ({
     if (currentFile === "index.tsx") {
       ata(`${defaultImports}${code}`)
     }
-    // files.forEach(({path, content}) => {
-    //   if (path.endsWith(".tsx") || path.endsWith(".ts")) {
-    //     ata(`${defaultImports}${content}`)
-    //   }
-    // })
 
     return () => {
       view.destroy()
@@ -398,33 +387,34 @@ export const CodeEditor = ({
   }
 
   const updateEditorToMatchCurrentFile = () => {
-    const currentContent = fileMap[currentFile] || ""
+    const currentContent = files[currentFile] || ""
     updateCurrentEditorContent(currentContent)
   }
 
   const codeImports = getImportsFromCode(code)
 
   useEffect(() => {
-    if (
-      ataRef.current &&
-      (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts"))
-    ) {
+    if (ataRef.current && currentFile === "index.tsx") {
       ataRef.current(`${defaultImports}${code}`)
     }
   }, [codeImports])
 
-  const handleFileChange = (path: string) => {
-    setCurrentFile(path)
+  const handleFileChange = (filename: keyof typeof files) => {
+    setCurrentFile(filename)
   }
 
-  const updateFileContent = (path: string, newContent: string) => {
-    if (currentFile === path) {
+  const updateFileContent = (
+    filename: keyof typeof files,
+    newContent: string,
+  ) => {
+    if (filename === "index.tsx") {
       setCode(newContent)
-      onCodeChange(newContent, path)
+      onCodeChange(newContent)
+    } else if (filename === "manual-edits.json") {
+      onManualEditsFileContentChanged?.(newContent)
     }
-    onFileContentChanged?.(path, newContent)
 
-    if (viewRef.current && currentFile === path) {
+    if (viewRef.current && currentFile === filename) {
       viewRef.current.dispatch({
         changes: {
           from: 0,
@@ -440,8 +430,18 @@ export const CodeEditor = ({
     updateEditorToMatchCurrentFile()
   }, [currentFile])
 
+  // Whenever the manual edits json content changes, update the editor if
+  // it's currently viewing the manual edits file
+  useEffect(() => {
+    if (currentFile === "manual-edits.json") {
+      updateEditorToMatchCurrentFile()
+    }
+  }, [manualEditsFileContent])
+
   if (isStreaming) {
-    return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
+    return (
+      <div className="font-mono whitespace-pre-wrap text-xs">{initialCode}</div>
+    )
   }
 
   return (
@@ -449,7 +449,7 @@ export const CodeEditor = ({
       {showImportAndFormatButtons && (
         <CodeEditorHeader
           currentFile={currentFile}
-          files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
+          files={files}
           handleFileChange={handleFileChange}
           updateFileContent={(...args) => {
             return updateFileContent(...args)

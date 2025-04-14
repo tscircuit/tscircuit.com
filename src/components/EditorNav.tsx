@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { GitFork, Star } from "lucide-react"
+import { GitFork } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 import { cn } from "@/lib/utils"
 import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { AnyCircuitElement } from "circuit-json"
-import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
+import { Snippet } from "fake-snippets-api/lib/db/schema"
 import {
   ChevronDown,
   CodeIcon,
@@ -25,7 +25,7 @@ import {
   File,
   FilePenLine,
   MoreVertical,
-  Package as PackageIcon,
+  Package,
   Pencil,
   Save,
   Share,
@@ -47,15 +47,12 @@ import { DownloadButtonAndMenu } from "./DownloadButtonAndMenu"
 import { SnippetLink } from "./SnippetLink"
 import { TypeBadge } from "./TypeBadge"
 import { useUpdateDescriptionDialog } from "./dialogs/edit-description-dialog"
-import {
-  useForkSnippetMutation,
-  usePackageForkSnippetMutation,
-} from "@/hooks/useForkSnippetMutation"
+import { useForkSnippetMutation } from "@/hooks/useForkSnippetMutation"
 import tscircuitCorePkg from "@tscircuit/core/package.json"
 
 export default function EditorNav({
   circuitJson,
-  pkg,
+  snippet,
   code,
   hasUnsavedChanges,
   onTogglePreview,
@@ -65,7 +62,7 @@ export default function EditorNav({
   isSaving,
   canSave,
 }: {
-  pkg?: Package | null
+  snippet?: Snippet | null
   circuitJson?: AnyCircuitElement[] | null
   code: string
   snippetType?: string
@@ -95,38 +92,37 @@ export default function EditorNav({
 
   const [isChangingType, setIsChangingType] = useState(false)
   const [currentType, setCurrentType] = useState(
-    snippetType ?? pkg?.snippet_type,
+    snippetType ?? snippet?.snippet_type,
   )
-  const [isPrivate, setIsPrivate] = useState(pkg?.is_private ?? false)
+  const [isPrivate, setIsPrivate] = useState(snippet?.is_private)
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
 
-  const { mutate: forkSnippet, isLoading: isForking } =
-    usePackageForkSnippetMutation({
-      pkg: pkg!,
-      currentCode: code,
-      onSuccess: (forkedPackage) => {
-        navigate("/editor?snippet_id=" + forkedPackage.package_id)
-        setTimeout(() => {
-          window.location.reload() //reload the page
-        }, 2000)
-      },
-    })
+  const { mutate: forkSnippet, isLoading: isForking } = useForkSnippetMutation({
+    snippet: snippet!,
+    currentCode: code,
+    onSuccess: (forkedSnippet) => {
+      navigate("/editor?snippet_id=" + forkedSnippet.snippet_id)
+      setTimeout(() => {
+        window.location.reload() //reload the page
+      }, 2000)
+    },
+  })
 
   // Update currentType when snippet or snippetType changes
   useEffect(() => {
-    setCurrentType(snippetType ?? pkg?.snippet_type)
-  }, [snippetType, pkg?.snippet_type])
+    setCurrentType(snippetType ?? snippet?.snippet_type)
+  }, [snippetType, snippet?.snippet_type])
 
   const handleTypeChange = async (newType: string) => {
-    if (!pkg || newType === currentType) return
+    if (!snippet || newType === currentType) return
 
     try {
       setIsChangingType(true)
 
-      const response = await axios.post("/packages/update", {
-        package_id: pkg.package_id,
+      const response = await axios.post("/snippets/update", {
+        snippet_id: snippet.snippet_id,
         snippet_type: newType,
       })
 
@@ -139,8 +135,8 @@ export default function EditorNav({
 
         // Invalidate queries to refetch data
         await Promise.all([
-          qc.invalidateQueries({ queryKey: ["packages"] }),
-          qc.invalidateQueries({ queryKey: ["packages", pkg.package_id] }),
+          qc.invalidateQueries({ queryKey: ["snippets"] }),
+          qc.invalidateQueries({ queryKey: ["snippets", snippet.snippet_id] }),
         ])
 
         // Reload the page to ensure all components reflect the new type
@@ -158,17 +154,17 @@ export default function EditorNav({
         variant: "destructive",
       })
       // Reset to previous type on error
-      setCurrentType(pkg.snippet_type)
+      setCurrentType(snippet.snippet_type)
     } finally {
       setIsChangingType(false)
     }
   }
 
   const updatePackageVisibilityToPrivate = async (isPrivate: boolean) => {
-    if (!pkg) return
+    if (!snippet) return
 
-    const response = await axios.post("/packages/update", {
-      package_id: pkg.package_id,
+    const response = await axios.post("/snippets/update", {
+      snippet_id: snippet.snippet_id,
       is_private: isPrivate,
     })
 
@@ -176,12 +172,10 @@ export default function EditorNav({
       setIsPrivate(isPrivate)
       toast({
         title: "Package visibility changed",
-        description: `Successfully changed visibility to ${
-          isPrivate ? "private" : "public"
-        }`,
+        description: `Successfully changed visibility to ${isPrivate ? "private" : "public"}`,
       })
     } else {
-      setIsPrivate(pkg.is_private ?? false)
+      setIsPrivate(snippet.is_private)
       toast({
         title: "Error",
         description: "Failed to update package visibility",
@@ -191,34 +185,16 @@ export default function EditorNav({
     }
   }
 
-  const canSavePackage =
-    !pkg || pkg.owner_github_username === session?.github_username
+  const canSaveSnippet =
+    !snippet || snippet.owner_name === session?.github_username
 
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
         <div className="flex items-center space-x-1">
-          {pkg && (
+          {snippet && (
             <>
-              <Link
-                className="text-blue-500 font-semibold hover:underline"
-                href={`/${pkg.owner_github_username}`}
-              >
-                {pkg.owner_github_username}
-              </Link>
-              <span className="px-0.5 text-gray-500">/</span>
-              <Link
-                className="text-blue-500  font-semibold hover:underline"
-                href={`/${pkg.name}`}
-              >
-                {pkg.unscoped_name}
-              </Link>
-              {pkg.star_count !== undefined && (
-                <span className="ml-2 text-gray-500 text-xs flex items-center">
-                  <Star className="w-3 h-3 mr-1" />
-                  {pkg.star_count}
-                </span>
-              )}
+              <SnippetLink snippet={snippet} />
               <Button
                 variant="ghost"
                 size="icon"
@@ -235,7 +211,7 @@ export default function EditorNav({
                   </span>
                 </div>
               )}
-              <Link href={`/${pkg.name}`}>
+              <Link href={`/${snippet.name}`}>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
                   <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
                 </Button>
@@ -254,9 +230,9 @@ export default function EditorNav({
             size="sm"
             className={"ml-1 h-6 px-2 text-xs save-button"}
             disabled={!isLoggedIn}
-            onClick={canSavePackage ? onSave : () => forkSnippet()}
+            onClick={canSaveSnippet ? onSave : () => forkSnippet()}
           >
-            {canSavePackage ? (
+            {canSaveSnippet ? (
               <>
                 <Save className="mr-1 h-3 w-3" />
                 Save
@@ -295,25 +271,25 @@ export default function EditorNav({
           )}
           {hasUnsavedChanges && !isSaving && isLoggedIn && (
             <div className="animate-fadeIn bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
-              {pkg ? "unsaved changes" : "unsaved"}
+              {snippet ? "unsaved changes" : "unsaved"}
             </div>
           )}
         </div>
       </div>
       <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
-          {pkg && <TypeBadge type={`${snippetType ?? pkg.snippet_type}`} />}
+          {snippet && <TypeBadge type={snippetType ?? snippet.snippet_type} />}
           <Button
             variant="ghost"
             size="sm"
-            disabled={hasUnsavedChanges || isSaving || !pkg}
-            onClick={() => navigate(`/ai?snippet_id=${pkg!.package_id}`)}
+            disabled={hasUnsavedChanges || isSaving || !snippet}
+            onClick={() => navigate(`/ai?snippet_id=${snippet!.snippet_id}`)}
           >
             <Sparkles className="mr-1 h-3 w-3" />
             Edit with AI
           </Button>
           <DownloadButtonAndMenu
-            snippetUnscopedName={pkg?.unscoped_name}
+            snippetUnscopedName={snippet?.unscoped_name}
             circuitJson={circuitJson}
             className="hidden md:flex"
           />
@@ -338,7 +314,7 @@ export default function EditorNav({
             <Eye className="mr-1 h-3 w-3" />
             Public
           </Button> */}
-          {pkg && (
+          {snippet && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="hidden md:flex">
@@ -350,7 +326,7 @@ export default function EditorNav({
                   className="text-xs"
                   onClick={() => openCreateOrderDialog()}
                 >
-                  <PackageIcon className="mr-2 h-3 w-3" />
+                  <Package className="mr-2 h-3 w-3" />
                   Submit Order
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -495,19 +471,19 @@ export default function EditorNav({
         </div>
       </div>
       <UpdateDescriptionDialog
-        snippetId={pkg?.package_id ?? ""}
-        currentDescription={pkg?.description ?? ""}
+        snippetId={snippet?.snippet_id ?? ""}
+        currentDescription={snippet?.description ?? ""}
       />
       <RenameDialog
-        snippetId={pkg?.package_id ?? ""}
-        currentName={pkg?.unscoped_name ?? ""}
+        snippetId={snippet?.snippet_id ?? ""}
+        currentName={snippet?.unscoped_name ?? ""}
       />
       <DeleteDialog
-        packageId={pkg?.package_id ?? ""}
-        packageName={pkg?.unscoped_name ?? ""}
+        packageId={snippet?.snippet_id ?? ""}
+        packageName={snippet?.unscoped_name ?? ""}
       />
       <CreateOrderDialog />
-      <FilesDialog snippetId={pkg?.package_id ?? ""} />
+      <FilesDialog snippetId={snippet?.snippet_id ?? ""} />
       <ViewTsFilesDialog />
     </nav>
   )
