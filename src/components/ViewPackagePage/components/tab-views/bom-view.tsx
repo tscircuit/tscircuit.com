@@ -23,7 +23,7 @@ export default function BOMView() {
   }
 
   return (
-    <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117] w-full h-[620px]">
+    <div className="border border-gray-200 dark:border-[#30363d] rounded-md p-4 mb-4 bg-white dark:bg-[#0d1117] w-full h-[620px] overflow-y-scroll">
       <BomTable circuitJson={circuitJson} />
     </div>
   )
