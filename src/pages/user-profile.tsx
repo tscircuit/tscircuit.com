@@ -27,11 +27,11 @@ export const UserProfilePage = () => {
     useConfirmDeletePackageDialog()
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
-  const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
+  const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
     Snippet[]
-  >(["userPackages", username], async () => {
-    const response = await axios.get(`/packages/list?owner_name=${username}`)
-    return response.data.packages
+  >(["userSnippets", username], async () => {
+    const response = await axios.get(`/snippets/list?owner_name=${username}`)
+    return response.data.snippets
   })
 
   const { data: starredSnippets, isLoading: isLoadingStarredSnippets } =
@@ -51,9 +51,9 @@ export const UserProfilePage = () => {
   const baseUrl = useSnippetsBaseApiUrl()
 
   const snippetsToShow =
-    activeTab === "starred" ? starredSnippets : userPackages
+    activeTab === "starred" ? starredSnippets : userSnippets
   const isLoading =
-    activeTab === "starred" ? isLoadingStarredSnippets : isLoadingUserPackages
+    activeTab === "starred" ? isLoadingStarredSnippets : isLoadingUserSnippets
 
   const filteredSnippets = snippetsToShow?.filter((snippet) => {
     return (
@@ -82,7 +82,7 @@ export const UserProfilePage = () => {
               {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
-              {userPackages?.length || 0} packages
+              {userSnippets?.length || 0} packages
             </div>
           </div>
         </div>
@@ -124,10 +124,7 @@ export const UserProfilePage = () => {
               ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
               ?.map((snippet) => (
                 <SnippetCard
-                  // TODO
-                  key={
-                    (snippet as any).creator_account_id ?? snippet.snippet_id
-                  }
+                  key={snippet.snippet_id}
                   snippet={snippet}
                   baseUrl={baseUrl}
                   showOwner={activeTab === "starred"}
