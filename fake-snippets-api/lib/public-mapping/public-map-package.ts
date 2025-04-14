@@ -31,7 +31,7 @@ export const publicMapPackage = (internalPackage: {
     latest_package_release_id:
       internalPackage.latest_package_release_id ?? null,
     latest_version: internalPackage.latest_version ?? null,
-    latest_license: internalPackage.latest_license ?? null,
+    license: internalPackage.latest_license ?? null,
     website: internalPackage.website ?? null,
     star_count: internalPackage.star_count ?? 0,
     created_at: internalPackage.created_at,
