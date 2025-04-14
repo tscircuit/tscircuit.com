@@ -26,6 +26,7 @@ export default function SchematicView() {
   return (
     <div className="h-[620px]">
       <SchematicViewer
+        clickToInteractEnabled
         circuitJson={circuitJson}
         containerStyle={{
           height: 620,
