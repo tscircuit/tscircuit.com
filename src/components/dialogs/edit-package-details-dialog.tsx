@@ -4,34 +4,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { useState, useEffect, useMemo } from "react"
-import { useMutation, useQueryClient } from "react-query"
-import { createUseDialog } from "./create-use-dialog"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { Textarea } from "../ui/textarea"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { useState, useEffect, useMemo } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { createUseDialog } from "./create-use-dialog";
+import { useAxios } from "@/hooks/use-axios";
+import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content"
+} from "@/components/ui/select";
+import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content";
 
 const isValidUrl = (url: string): boolean => {
-  if (!url) return true
+  if (!url) return true;
   try {
-    new URL(url)
-    return true
+    new URL(url);
+    return true;
   } catch (e) {
-    return false
+    return false;
   }
-}
+};
 
 export const EditPackageDetailsDialog = ({
   open,
@@ -44,51 +44,51 @@ export const EditPackageDetailsDialog = ({
   packageAuthor,
   packageName,
 }: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  packageId: string
-  currentDescription: string
-  currentWebsite: string
-  currentLicense?: string | null
-  packageAuthor?: string | null
-  packageName: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  packageId: string;
+  currentDescription: string;
+  currentWebsite: string;
+  currentLicense?: string | null;
+  packageAuthor?: string | null;
+  packageName: string;
   onUpdate?: (
     newDescription: string,
     newWebsite: string,
-    newLicense: string | null,
-  ) => void
+    newLicense: string | null
+  ) => void;
 }) => {
-  const [description, setDescription] = useState(currentDescription)
-  const [website, setWebsite] = useState(currentWebsite)
-  const [license, setLicense] = useState<string | null>(currentLicense || null)
-  const [websiteError, setWebsiteError] = useState<string | null>(null)
-  const axios = useAxios()
-  const { toast } = useToast()
-  const qc = useQueryClient()
+  const [description, setDescription] = useState(currentDescription);
+  const [website, setWebsite] = useState(currentWebsite);
+  const [license, setLicense] = useState<string | null>(currentLicense || null);
+  const [websiteError, setWebsiteError] = useState<string | null>(null);
+  const axios = useAxios();
+  const { toast } = useToast();
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (open) {
-      setDescription(currentDescription)
-      setWebsite(currentWebsite)
-      setLicense(currentLicense || null)
-      setWebsiteError(null)
+      setDescription(currentDescription);
+      setWebsite(currentWebsite);
+      setLicense(currentLicense || null);
+      setWebsiteError(null);
     }
-  }, [open, currentDescription, currentWebsite, currentLicense])
+  }, [open, currentDescription, currentWebsite, currentLicense]);
 
   useEffect(() => {
     if (website && !isValidUrl(website)) {
-      setWebsiteError("Please enter a valid URL (e.g., https://tscircuit.com)")
+      setWebsiteError("Please enter a valid URL (e.g., https://tscircuit.com)");
     } else {
-      setWebsiteError(null)
+      setWebsiteError(null);
     }
-  }, [website])
+  }, [website]);
 
   const hasChanges = useMemo(() => {
     return (
       description !== currentDescription ||
       website !== currentWebsite ||
       license !== currentLicense
-    )
+    );
   }, [
     description,
     website,
@@ -96,105 +96,99 @@ export const EditPackageDetailsDialog = ({
     currentDescription,
     currentWebsite,
     currentLicense,
-  ])
+  ]);
 
   const isFormValid = useMemo(() => {
-    return !websiteError
-  }, [websiteError])
+    return !websiteError;
+  }, [websiteError]);
 
   const updatePackageDetailsMutation = useMutation({
     mutationFn: async () => {
       if (!isFormValid) {
-        throw new Error("Please fix the form errors before submitting")
+        throw new Error("Please fix the form errors before submitting");
       }
 
-      const response = await axios.post("/packages/update", {
+      const response = await axios.post("/package_release/update", {
         package_id: packageId,
         description: description,
         website: website,
         license: license,
-      })
+      });
       if (response.status !== 200) {
-        console.error("Failed to update package details:", response.data)
-        throw new Error("Failed to update package details")
+        console.error("Failed to update package details:", response.data);
+        throw new Error("Failed to update package details");
       }
       // get package files list
-      const packageFiles = []
+      const packageFiles = [];
       const packageFilesResponse = await axios.post("/package_files/list", {
         package_name_with_version: `${packageName}`,
-      })
+      });
       if (packageFilesResponse.status == 200) {
         packageFiles.push(
           ...packageFilesResponse.data.package_files.map(
-            (x: { file_path: string }) => x.file_path,
-          ),
-        )
+            (x: { file_path: string }) => x.file_path
+          )
+        );
       }
-      // Create LICENSE file if a license is selected
-      if (packageFiles.includes("LICENSE") && license && license !== "unset") {
-        // Update already present license file
-        alert("Update already present license file has to be implemented")
-        // await axios.post("/package_files/update", {
-        //   package_name_with_version: `${packageName}`,
-        //   file_path: "LICENSE",
-        //   content_text: getLicenseContent(license, packageAuthor),
-        // })
-      } else if (license && license !== "unset") {
-        const licenseContent = getLicenseContent(license, packageAuthor)
-        if (!licenseContent) return
-        // Create the LICENSE file
-        await axios.post("/package_files/create", {
-          package_name_with_version: `${packageName}`,
-          file_path: "LICENSE",
-          content_text: licenseContent,
-        })
-        try {
-          window.location.reload()
-        } catch {}
-      } else if (license && license === "unset") {
-        // Delete the LICENSE file
-        alert("Delete the LICENSE file has to be implemented")
-        // await axios.post("/package_files/delete", {
-        //   package_name_with_version: `${packageName}`,
-        //   file_path: "LICENSE",
-        // })
-      }
+      const licenseContent = getLicenseContent(license ?? "");
 
-      return response.data
+      if (packageFiles.includes("LICENSE") && !licenseContent) {
+        //  Delete license file
+        const responseLicense = await axios.post(
+          "/package_files/delete",
+          {
+            package_name_with_version: `${packageName}`,
+            file_path: "LICENSE",
+          } 
+        )
+        console.log(responseLicense)
+      }
+      if (licenseContent) {
+        const responseLicense = await axios.post(
+          "/package_files/create_or_update",
+          {
+            package_name_with_version: `${packageName}`,
+            file_path: "LICENSE",
+            content_text: licenseContent,
+          }
+        );
+        console.log(responseLicense);
+      }
+      return response.data;
     },
     onMutate: async () => {
-      await qc.cancelQueries({ queryKey: ["packages", packageId] })
-      const previousPackage = qc.getQueryData(["packages", packageId])
+      await qc.cancelQueries({ queryKey: ["packages", packageId] });
+      const previousPackage = qc.getQueryData(["packages", packageId]);
       qc.setQueryData(["packages", packageId], (old: any) => ({
         ...old,
         description: description,
         website: website,
         license: license,
-      }))
-      return { previousPackage }
+      }));
+      return { previousPackage };
     },
     onSuccess: () => {
-      onUpdate?.(description, website, license)
-      onOpenChange(false)
+      onUpdate?.(description, website, license);
+      onOpenChange(false);
       toast({
         title: "Package details updated",
         description: "Successfully updated package details",
-      })
+      });
     },
     onError: (error, _, context) => {
-      qc.setQueryData(["packages", packageId], context?.previousPackage)
-      console.error("Error updating package details:", error)
+      qc.setQueryData(["packages", packageId], context?.previousPackage);
+      console.error("Error updating package details:", error);
       toast({
         title: "Error",
         description: "Failed to update package details. Please try again.",
         variant: "destructive",
-      })
+      });
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["packages", packageId] })
-      qc.invalidateQueries({ queryKey: ["current-package-info"] })
+      qc.invalidateQueries({ queryKey: ["packages", packageId] });
+      qc.invalidateQueries({ queryKey: ["current-package-info"] });
     },
-  })
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -276,9 +270,9 @@ export const EditPackageDetailsDialog = ({
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
 export const useEditPackageDetailsDialog = createUseDialog(
-  EditPackageDetailsDialog,
-)
+  EditPackageDetailsDialog
+);
