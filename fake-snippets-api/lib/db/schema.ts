@@ -100,7 +100,14 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
-export const orderQuoteComponentSchema = z.object({
+const shippingOptionSchema = z.object({
+  carrier: z.string(),
+  service: z.string(),
+  cost: z.number(),
+})
+export type ShippingOption = z.infer<typeof shippingOptionSchema>
+
+export const quotedComponentSchema = z.object({
   manufacturer_part_number: z.string().nullable(),
   supplier_part_number: z.string().nullable(),
   quantity: z.number().default(0),
@@ -108,7 +115,7 @@ export const orderQuoteComponentSchema = z.object({
   total_price: z.number().default(0),
   available: z.boolean().default(true),
 })
-export type OrderQuoteComponent = z.infer<typeof orderQuoteComponentSchema>
+export type QuotedComponent = z.infer<typeof quotedComponentSchema>
 
 export const orderQuoteSchema = z.object({
   order_quote_id: z.string(),
@@ -116,16 +123,16 @@ export const orderQuoteSchema = z.object({
   package_release_id: z.string().nullable(),
   is_completed: z.boolean().default(false),
   is_processing: z.boolean().default(true),
+  vendor_name: z.string(),
   error: errorSchema.nullable(),
   has_error: z.boolean().default(false),
   created_at: z.string(),
   updated_at: z.string(),
   completed_at: z.string().nullable(),
-  quoted_components: z.array(orderQuoteComponentSchema).nullable(),
-  pcb_price: z.number().default(0),
-  total_price_of_components: z.number().default(0),
-  shipping_price: z.number().default(0),
-  total_price: z.number().default(0),
+  quoted_components: z.array(quotedComponentSchema).nullable(),
+  bare_pcb_cost: z.number().default(0),
+  shipping_options: z.array(shippingOptionSchema),
+  total_cost: z.number().default(0),
 })
 export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
