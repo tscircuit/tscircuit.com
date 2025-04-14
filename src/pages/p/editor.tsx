@@ -1,13 +1,12 @@
 import { CodeAndPreview } from "@/components/p/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
 import { usePackage } from "@/hooks/use-package"
-import { useSnippet } from "@/hooks/use-snippet"
 import { Helmet } from "react-helmet-async"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 
 export const EditorPage = () => {
-  const { snippetId: packageId } = useCurrentSnippetId()
+  const { packageId } = useCurrentPackageId()
   const { data: pkg, isLoading, error } = usePackage(packageId)
   return (
     <div className="overflow-x-hidden">

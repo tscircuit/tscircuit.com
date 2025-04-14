@@ -34,20 +34,20 @@ import {
   Trash2,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useMutation, useQueryClient } from "react-query"
+import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
-import { useAxios } from "src/hooks/use-axios"
-import { useToast } from "src/hooks/use-toast"
-import { useConfirmDeletePackageDialog } from "src/components/dialogs/confirm-delete-package-dialog"
-import { useCreateOrderDialog } from "src/components/dialogs/create-order-dialog"
-import { useFilesDialog } from "src/components/dialogs/files-dialog"
-import { useViewTsFilesDialog } from "src/components/dialogs/view-ts-files-dialog"
-import { useRenameSnippetDialog } from "src/components/dialogs/rename-snippet-dialog"
-import { DownloadButtonAndMenu } from "src/components/DownloadButtonAndMenu"
-import { TypeBadge } from "src/components/TypeBadge"
-import { useUpdateDescriptionDialog } from "src/components/dialogs/edit-description-dialog"
+import { useAxios } from "@/hooks/use-axios"
+import { useToast } from "@/hooks/use-toast"
+import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
+import { useCreateOrderDialog } from "@/components/dialogs/create-order-dialog"
+import { useFilesDialog } from "@/components/dialogs/files-dialog"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
+import { TypeBadge } from "@/components/TypeBadge"
 import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import tscircuitCorePkg from "@tscircuit/core/package.json"
+import { useRenamePackageDialog } from "../dialogs/rename=package-dialog"
+import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
 
 export default function EditorNav({
   circuitJson,
@@ -57,14 +57,14 @@ export default function EditorNav({
   onTogglePreview,
   previewOpen,
   onSave,
-  snippetType,
+  packageType,
   isSaving,
   canSave,
 }: {
   pkg?: Package | null
   circuitJson?: AnyCircuitElement[] | null
   code: string
-  snippetType?: string
+  packageType?: string
   hasUnsavedChanges: boolean
   previewOpen: boolean
   onTogglePreview: () => void
@@ -76,11 +76,11 @@ export default function EditorNav({
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
-    useRenameSnippetDialog()
+    useRenamePackageDialog()
   const {
     Dialog: UpdateDescriptionDialog,
     openDialog: openupdateDescriptionDialog,
-  } = useUpdateDescriptionDialog()
+  } = useUpdatePackageDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
   const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
@@ -91,7 +91,7 @@ export default function EditorNav({
 
   const [isChangingType, setIsChangingType] = useState(false)
   const [currentType, setCurrentType] = useState(
-    snippetType ?? pkg?.snippet_type,
+    packageType ?? pkg?.snippet_type,
   )
   const [isPrivate, setIsPrivate] = useState(pkg?.is_private ?? false)
   const axios = useAxios()
@@ -102,17 +102,17 @@ export default function EditorNav({
     pkg: pkg!,
     currentCode: code,
     onSuccess: (forkedPackage) => {
-      navigate("/editor?snippet_id=" + forkedPackage.package_id)
+      navigate("/p/editor?package_id=" + forkedPackage.package_id)
       setTimeout(() => {
         window.location.reload() //reload the page
       }, 2000)
     },
   })
 
-  // Update currentType when snippet or snippetType changes
+  // Update currentType when snippet or packageType changes
   useEffect(() => {
-    setCurrentType(snippetType ?? pkg?.snippet_type)
-  }, [snippetType, pkg?.snippet_type])
+    setCurrentType(packageType ?? pkg?.snippet_type)
+  }, [packageType, pkg?.snippet_type])
 
   const handleTypeChange = async (newType: string) => {
     if (!pkg || newType === currentType) return
@@ -197,14 +197,14 @@ export default function EditorNav({
             <>
               <Link
                 className="text-blue-500 font-semibold hover:underline"
-                href={`/${pkg.owner_github_username}`}
+                href={`/p/${pkg.owner_github_username}`}
               >
                 {pkg.owner_github_username}
               </Link>
               <span className="px-0.5 text-gray-500">/</span>
               <Link
                 className="text-blue-500  font-semibold hover:underline"
-                href={`/${pkg.name}`}
+                href={`/p/${pkg.name}`}
               >
                 {pkg.unscoped_name}
               </Link>
@@ -230,7 +230,7 @@ export default function EditorNav({
                   </span>
                 </div>
               )}
-              <Link href={`/${pkg.name}`}>
+              <Link href={`/p/${pkg.name}`}>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
                   <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
                 </Button>
@@ -297,7 +297,7 @@ export default function EditorNav({
       </div>
       <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
-          {pkg && <TypeBadge type={`${snippetType ?? pkg.snippet_type}`} />}
+          {pkg && <TypeBadge type={`${packageType ?? pkg.snippet_type}`} />}
           <Button
             variant="ghost"
             size="sm"
@@ -317,7 +317,7 @@ export default function EditorNav({
             size="sm"
             className="hidden md:flex px-2 text-xs"
             onClick={() => {
-              const url = encodeTextToUrlHash(code, snippetType)
+              const url = encodeTextToUrlHash(code, packageType)
               navigator.clipboard.writeText(url)
               alert("URL copied to clipboard!")
             }}
@@ -449,10 +449,12 @@ export default function EditorNav({
         </div>
         <div className="flex items-center ">
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="md:hidden" variant="secondary" size="sm">
-                <ChevronDown className="h-4 w-4" />
-              </Button>
+            <DropdownMenuTrigger asChild>
+              <div className="md:hidden rounded-full p-1 hover:bg-gray-100 cursor-pointer">
+                <Button className="md:hidden" variant="secondary" size="sm">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="text-xs">
@@ -490,11 +492,11 @@ export default function EditorNav({
         </div>
       </div>
       <UpdateDescriptionDialog
-        snippetId={pkg?.package_id ?? ""}
+        packageId={pkg?.package_id ?? ""}
         currentDescription={pkg?.description ?? ""}
       />
       <RenameDialog
-        snippetId={pkg?.package_id ?? ""}
+        packageId={pkg?.package_id ?? ""}
         currentName={pkg?.unscoped_name ?? ""}
       />
       <DeleteDialog

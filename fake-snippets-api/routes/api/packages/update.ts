@@ -71,6 +71,7 @@ export default withRouteSpec({
   const updatedPackage = ctx.db.updatePackage(package_id, {
     name: name ? `${ctx.auth.github_username}/${name}` : existingPackage.name,
     description: description ?? existingPackage.description,
+    unscoped_name: name ?? existingPackage.unscoped_name,
     website: website ?? existingPackage.website,
     is_private: is_private ?? existingPackage.is_private,
     is_public:

@@ -47,11 +47,11 @@ export const ViewPackagePage = () => {
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
         onFileClicked={(file) => {
           setLocation(
-            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
+            `/p/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
           )
         }}
         onEditClicked={() => {
-          setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+          setLocation(`/p/editor?package_id=${packageInfo?.package_id}`)
         }}
       />
     </>

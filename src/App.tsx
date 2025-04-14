@@ -114,6 +114,11 @@ function App() {
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader />}>
           <Switch>
+            {/* Package Wip Routes  */}
+            <Route path="/p/editor" component={PackageEditorPage} />
+            <Route path="/p/:username" component={PackageUserProfilePage} />
+            <Route path="/p/:author/:packageName" component={PackageViewPage} />
+
             <Route path="/" component={LandingPage} />
             <Route path="/beta" component={BetaPage} />
             <Route path="/beta/:author/:packageName" component={BetaPage} />
@@ -136,12 +141,6 @@ function App() {
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
-
-            {/* Package Wip Routes  */}
-            <Route path="/p/PackageEditorPage" component={PackageEditorPage} />
-            <Route path="/p/:username" component={PackageUserProfilePage} />
-            <Route path="/p/:author/:packageName" component={PackageViewPage} />
-
             <Route
               path="/snippets/:author/:snippetName"
               component={ViewSnippetPage}

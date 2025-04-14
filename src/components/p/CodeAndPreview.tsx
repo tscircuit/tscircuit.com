@@ -1,7 +1,6 @@
 import { CodeEditor } from "@/components/p/CodeEditor"
 import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
 import { useAxios } from "@/hooks/use-axios"
-import { useCreateSnippetMutation } from "@/hooks/use-create-snippet-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -18,13 +17,10 @@ import { useMutation, useQueryClient } from "react-query"
 import EditorNav from "@/components/p/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
-import {
-  usePackageFileById,
-  usePackageFileByPath,
-  usePackageFiles,
-} from "@/hooks/use-package-files"
+import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { useLatestPackageRelease } from "@/hooks/use-package-release"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
+import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
 
 interface Props {
   pkg?: Package
@@ -33,17 +29,11 @@ interface Props {
 const randomPackageName = () =>
   `untitled-${"package"}-${Math.floor(Math.random() * 90) + 10}`
 
-export function Code1Preview({ pkg }: Props) {
-  // const pkgFiles= usePackageFiles(pkg?.latest_package_release_id)
-  // console.log(22, pkgFiles.data?.find(x=>x.file_path == 'index.tsx').package_file_id)
-  // const indexFileContent = (usePackageFileById( pkgFiles.data?.find(x=>x.file_path == 'index.tsx')?.package_file_id ?? null )).data?.content_text
-  // console.log(11, indexFileContent)
-  return <h1>hi</h1>
-}
 export function CodeAndPreview({ pkg }: Props) {
   const axios = useAxios()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const loggedInUser = useGlobalStore((s) => s.session)
+
   const urlParams = useUrlParams()
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -54,41 +44,39 @@ export function CodeAndPreview({ pkg }: Props) {
     path: string
     content: string
   }
-  const indexFileContent = usePackageFileById(
-    pkgFiles.data?.find((x) => x.file_path == "index.tsx")?.package_file_id ??
+  const [indexFileContent, setIndexFileContent] = useState<string | null>(null)
+  const indexFile = usePackageFileById(
+    pkgFiles.data?.find((x) => x.file_path === "index.tsx")?.package_file_id ??
       null,
-  ).data?.content_text
+  )
+
+  useEffect(() => {
+    if (indexFile.data?.content_text) {
+      setIndexFileContent(indexFile.data.content_text)
+      setPkgFilesWithContent([
+        {
+          path: "index.tsx",
+          content: indexFile.data.content_text,
+        },
+      ])
+    }
+  }, [indexFile.data])
 
   const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
-    [
-      {
-        path: "index.tsx",
-        content:
-          decodeUrlHashToText(window.location.toString()) ??
-          indexFileContent ??
-          // If the snippet_id is in the url, use an empty string as the default
-          // code until the snippet code is loaded
-          (urlParams.snippet_id && "") ??
-          templateFromUrl?.code ??
-          `
-  export default () => (
-    <board width="10mm" height="10mm">
-      {/* write your code here! */}
-    </board>
-  )`.trim(),
-      },
-    ],
+    [],
   )
   const [initialFilesLoad, setInitialFilesLoad] = useState<PackageFile[]>([])
   const defaultCode: string = useMemo(() => {
+    // If package files exist, use the index file content
+    if (pkgFiles.data?.length && indexFile.data?.content_text) {
+      return indexFile.data.content_text
+    }
+
+    // Otherwise, use template or other fallbacks
     return (
-      decodeUrlHashToText(window.location.toString()) ??
-      pkgFilesWithContent[0].content ??
-      indexFileContent ??
-      // If the snippet_id is in the url, use an empty string as the default
-      // code until the snippet code is loaded
-      (urlParams.snippet_id && "") ??
       templateFromUrl?.code ??
+      decodeUrlHashToText(window.location.toString()) ??
+      (urlParams.package_id && "") ??
       `
 export default () => (
   <board width="10mm" height="10mm">
@@ -96,7 +84,13 @@ export default () => (
   </board>
 )`.trim()
     )
-  }, [])
+  }, [
+    indexFile.data,
+    pkgFiles.data,
+    pkgFilesWithContent,
+    urlParams.package_id,
+    templateFromUrl,
+  ])
   useEffect(() => {
     const loadPkgFiles = async () => {
       // Skip if no package files data
@@ -133,8 +127,17 @@ export default () => (
           const processedResults = results.filter(
             (x): x is PackageFile => x !== null,
           )
-          setPkgFilesWithContent(processedResults)
-          setInitialFilesLoad(processedResults)
+          const newFiles = processedResults.filter(
+            (file) =>
+              !pkgFilesWithContent.find(
+                (existingFile) => existingFile.path === file.path,
+              ),
+          )
+          setPkgFilesWithContent([...pkgFilesWithContent, ...newFiles])
+          setInitialFilesLoad([...pkgFilesWithContent, ...newFiles])
+          setLastRunCode(
+            processedResults.find((x) => x.path == "index.tsx")?.content ?? "",
+          )
         }
       } catch (error) {
         console.error("Error loading package files:", error)
@@ -168,7 +171,7 @@ export default () => (
     openDialog: openPackageVisibilitySettingsDialog,
   } = usePackageVisibilitySettingsDialog()
   const [isPrivate, setIsPrivate] = useState(false)
-  const snippetType: "board" | "package" | "model" | "footprint" =
+  const packageType: "board" | "package" | "model" | "footprint" =
     pkg?.snippet_type ??
     (templateFromUrl?.type as any) ??
     urlParams.snippet_type
@@ -207,7 +210,6 @@ export default () => (
           file.content !==
           initialFilesLoad?.find((x) => x.path === file.path)?.content
         ) {
-          console.log(69, file.content, initialFilesLoad)
           const updatePkgFilePayload = {
             package_file_id:
               pkgFiles.data?.find((x) => x.file_path === file.path)
@@ -216,26 +218,24 @@ export default () => (
             file_path: file.path,
             ...newpackage,
           }
-          try {
-            const response = await axios.post(
-              "/package_files/create_or_update",
-              updatePkgFilePayload,
-            )
-            if (response.status === 200) {
-              updatedFilesCount++
-            }
-          } catch {
-            console.error(`Failed to update ${file.path}`)
+          const response = await axios.post(
+            "/package_files/create_or_update",
+            updatePkgFilePayload,
+          )
+          if (response.status === 200) {
+            updatedFilesCount++
           }
         }
       }
       return updatedFilesCount
     },
-    onSuccess: () => {
-      toast({
-        title: "Package's files saved",
-        description: "Your changes have been saved successfully.",
-      })
+    onSuccess: (updatedFilesCount) => {
+      if (updatedFilesCount) {
+        toast({
+          title: `Package's ${updatedFilesCount} files saved`,
+          description: "Your changes have been saved successfully.",
+        })
+      }
     },
     onError: (error) => {
       console.error("Error updating pkg files:", error)
@@ -325,22 +325,34 @@ export default () => (
 
     setLastSavedAt(Date.now())
     if (pkg) {
-      console.log("is a pkg")
       updatePackageMutation.mutate()
       updatePackageFilesMutation.mutate({
-        package_name_with_version: `${pkg.owner_github_username}/${pkg.name}@latest`,
+        package_name_with_version: `${pkg.name}@latest`,
         ...pkg,
       })
     } else {
-      console.log(
-        "not a pkg",
-        createPackageMutation.mutate({
-          name: `${loggedInUser?.github_username}/${randomPackageName()}`,
-        }),
-      )
-      // updatePackageFilesMutation.mutate(newpkg);
+      const new_package = await createPackageMutation.mutateAsync({
+        name: `${loggedInUser?.github_username}/${randomPackageName()}`,
+        is_private: isPrivate,
+      })
+      createRelease({
+        package_name_with_version: `${new_package?.name}@latest`,
+      })
+      updatePackageFilesMutation.mutate({
+        package_name_with_version: `${new_package?.name}@latest`,
+        ...new_package,
+      })
     }
   }
+  const { mutate: createRelease, isLoading: isCreatingRelease } =
+    useCreatePackageReleaseMutation({
+      onSuccess: () => {
+        toast({
+          title: "Package released",
+          description: "Your package has been released successfully.",
+        })
+      },
+    })
 
   const hasManualEditsChanged =
     (manualEditsFileContentFromPkgFiles ?? "") !==
@@ -356,6 +368,7 @@ export default () => (
     pkgFilesWithContent.some((file) => {
       if (initialFilesLoad.length == 0) return
       if (pkgFilesWithContent.length == 0) return
+      console.log(pkgFilesWithContent)
       return (
         initialFilesLoad?.find((x) => x.path === file.path)?.content !==
         file.content
@@ -374,7 +387,7 @@ export default () => (
     const exportName = possibleExportNames[0]
 
     let entrypointContent: string
-    if (snippetType === "board") {
+    if (packageType === "board") {
       entrypointContent = `
         import ${
           exportName ? `{ ${exportName} as Snippet }` : "Snippet"
@@ -394,13 +407,24 @@ export default () => (
       `.trim()
     }
     return {
-      "index.tsx": pkgFilesWithContent[0].content ?? "",
+      "index.tsx": defaultCode ?? "// No Default Code Found",
       "manual-edits.json": manualEditsFileContent ?? "{}",
       "main.tsx": entrypointContent,
     }
   }, [code, manualEditsFileContent])
 
-  if (!pkg && urlParams.snippet_id) {
+  if (!pkg && urlParams.package_id) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-lg text-gray-500 mb-4">Loading</div>
+          <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+        </div>
+      </div>
+    )
+  }
+
+  if (pkgFiles.isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center justify-center">
@@ -417,7 +441,7 @@ export default () => (
       <EditorNav
         circuitJson={circuitJson}
         pkg={pkg}
-        snippetType={snippetType}
+        packageType={packageType}
         code={code}
         isSaving={updatePackageMutation.isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
@@ -442,22 +466,21 @@ export default () => (
             // initialCode={defaultCode}
             onCodeChange={(newCode, filename) => {
               setCode(newCode)
+              // Update the file content based on the filename
               setPkgFilesWithContent(
-                pkgFilesWithContent.map((x) =>
-                  x.path == "index.tsx"
-                    ? { path: "index.tsx", content: newCode }
-                    : x,
-                ),
+                pkgFilesWithContent.map((x) => {
+                  // If filename is provided, update that specific file
+                  if (filename && x.path === filename) {
+                    return { path: filename, content: newCode }
+                  }
+                  // If no filename but path is index.tsx, update it
+                  if (!filename && x.path === "index.tsx") {
+                    return { path: "index.tsx", content: newCode }
+                  }
+                  // Keep other files unchanged
+                  return x
+                }),
               )
-              if (filename) {
-                setPkgFilesWithContent(
-                  pkgFilesWithContent.map((x) =>
-                    x.path == filename
-                      ? { path: filename, content: newCode }
-                      : x,
-                  ),
-                )
-              }
             }}
             onDtsChange={(newDts) => setDts(newDts)}
           />
@@ -505,7 +528,9 @@ export default () => (
             name: `${loggedInUser?.github_username}/${randomPackageName()}`,
             is_private: isPrivate,
           })
-
+          createRelease({
+            package_name_with_version: `${new_package?.name}@latest`,
+          })
           updatePackageFilesMutation.mutate({
             package_name_with_version: `${new_package?.name}@latest`,
             ...new_package,
