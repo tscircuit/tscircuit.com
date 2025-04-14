@@ -166,6 +166,7 @@ export const packageSchema = z.object({
   snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
   latest_package_release_id: z.string().nullable(),
   latest_version: z.string().nullable(),
+  license: z.string().nullable(),
   website: z.string().nullable().default(null),
   star_count: z.number().default(0),
   ai_description: z.string().nullable(),
