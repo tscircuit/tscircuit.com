@@ -118,21 +118,18 @@ export const EditPackageDetailsDialog = ({
           })
         }
         if (licenseContent) {
-          await axios.post(
-            "/package_files/create_or_update",
-            {
-              package_name_with_version: packageName,
-              file_path: "LICENSE",
-              content_text: licenseContent,
-            },
-          )
+          await axios.post("/package_files/create_or_update", {
+            package_name_with_version: packageName,
+            file_path: "LICENSE",
+            content_text: licenseContent,
+          })
         }
       }
-      
+
       return {
         description: formData.description,
         website: formData.website,
-        license: formData.license
+        license: formData.license,
       }
     },
     onMutate: async () => {
@@ -150,8 +147,10 @@ export const EditPackageDetailsDialog = ({
       onUpdate?.(data.description, data.website, data.license)
       onOpenChange(false)
 
-      qc.invalidateQueries({ queryKey: ["packageFile", { package_release_id: packageReleaseId }] })
-      
+      qc.invalidateQueries({
+        queryKey: ["packageFile", { package_release_id: packageReleaseId }],
+      })
+
       toast({
         title: "Package details updated",
         description: "Successfully updated package details",
