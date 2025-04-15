@@ -430,10 +430,10 @@ export default function EditorNav({
         </div>
         <div className="flex items-center ">
           <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="md:hidden" variant="secondary" size="sm">
+            <DropdownMenuTrigger asChild>
+              <button className="md:hidden inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 py-2">
                 <ChevronDown className="h-4 w-4" />
-              </Button>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="text-xs">
