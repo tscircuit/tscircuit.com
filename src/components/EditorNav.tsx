@@ -375,35 +375,42 @@ export default function EditorNav({
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="text-xs">
-                    <Edit2 className="mr-2 h-3 w-3" />
-                    Change Package Visibility
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                {snippet?.owner_name === session?.github_username && (
+                  <>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="text-xs">
+                        <Edit2 className="mr-2 h-3 w-3" />
+                        Change Package Visibility
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={isPrivate}
+                          onClick={() => updatePackageVisibilityToPrivate(true)}
+                        >
+                          Private {isPrivate && "✓"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={!isPrivate}
+                          onClick={() =>
+                            updatePackageVisibilityToPrivate(false)
+                          }
+                        >
+                          Public {!isPrivate && "✓"}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
                     <DropdownMenuItem
-                      className="text-xs"
-                      disabled={isPrivate}
-                      onClick={() => updatePackageVisibilityToPrivate(true)}
+                      className="text-xs text-red-600"
+                      onClick={() => openDeleteDialog()}
                     >
-                      Private {isPrivate && "✓"}
+                      <Trash2 className="mr-2 h-3 w-3" />
+                      Delete Snippet
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-xs"
-                      disabled={!isPrivate}
-                      onClick={() => updatePackageVisibilityToPrivate(false)}
-                    >
-                      Public {!isPrivate && "✓"}
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuItem
-                  className="text-xs text-red-600"
-                  onClick={() => openDeleteDialog()}
-                >
-                  <Trash2 className="mr-2 h-3 w-3" />
-                  Delete Snippet
-                </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuItem className="text-xs text-gray-500" disabled>
                   @tscircuit/core@{tscircuitCorePkg.version}
                 </DropdownMenuItem>
