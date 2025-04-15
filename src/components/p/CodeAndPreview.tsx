@@ -44,23 +44,10 @@ export function CodeAndPreview({ pkg }: Props) {
     path: string
     content: string
   }
-  const [indexFileContent, setIndexFileContent] = useState<string | null>(null)
   const indexFile = usePackageFileById(
     pkgFiles.data?.find((x) => x.file_path === "index.tsx")?.package_file_id ??
       null,
   )
-
-  useEffect(() => {
-    if (indexFile.data?.content_text) {
-      setIndexFileContent(indexFile.data.content_text)
-      setPkgFilesWithContent([
-        {
-          path: "index.tsx",
-          content: indexFile.data.content_text,
-        },
-      ])
-    }
-  }, [indexFile.data])
 
   const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
     [],
@@ -91,75 +78,83 @@ export default () => (
     urlParams.package_id,
     templateFromUrl,
   ])
-  useEffect(() => {
-    const loadPkgFiles = async () => {
-      // Skip if no package files data
-      if (!pkgFiles.data?.length) {
-        return
-      }
 
-      // Track if component is still mounted
-      let isMounted = true
-
-      try {
-        const results = await Promise.all(
-          pkgFiles.data.map(async (x) => {
-            try {
-              const response = await axios.post(`/package_files/get`, {
-                package_file_id: x.package_file_id,
-              })
-              const content = response.data.package_file?.content_text ?? ""
-              return content
-                ? {
-                    path: x.file_path,
-                    content: content,
-                  }
-                : null
-            } catch (error) {
-              console.error(`Failed to load ${x.file_path}:`, error)
-              return null
-            }
-          }),
-        )
-
-        // Only update state if component is still mounted
-        if (isMounted) {
-          const processedResults = results.filter(
-            (x): x is PackageFile => x !== null,
-          )
-          const newFiles = processedResults.filter(
-            (file) =>
-              !pkgFilesWithContent.find(
-                (existingFile) => existingFile.path === file.path,
-              ),
-          )
-          setPkgFilesWithContent([...pkgFilesWithContent, ...newFiles])
-          setInitialFilesLoad([...pkgFilesWithContent, ...newFiles])
-          setLastRunCode(
-            processedResults.find((x) => x.path == "index.tsx")?.content ?? "",
-          )
-        }
-      } catch (error) {
-        console.error("Error loading package files:", error)
-      }
-
-      return () => {
-        isMounted = false
-      }
+  const entryPointCode = useMemo(() => {
+    if (pkgFilesWithContent.find((x) => x.path == "index.tsx")) {
+      return pkgFilesWithContent.find((x) => x.path == "index.tsx")?.content
+    } else {
+      return defaultCode
+    }
+  }, [pkgFilesWithContent, defaultCode])
+  const loadPkgFiles = async () => {
+    // Skip if no package files data
+    if (!pkgFiles.data?.length) {
+      return
     }
 
+    // Track if component is still mounted
+    let isMounted = true
+
+    try {
+      const results = await Promise.all(
+        pkgFiles.data.map(async (x) => {
+          try {
+            const response = await axios.post(`/package_files/get`, {
+              package_file_id: x.package_file_id,
+            })
+            const content = response.data.package_file?.content_text ?? ""
+            return content
+              ? {
+                  path: x.file_path,
+                  content: content,
+                }
+              : null
+          } catch (error) {
+            console.error(`Failed to load ${x.file_path}:`, error)
+            return null
+          }
+        }),
+      )
+
+      // Only update state if component is still mounted
+      if (isMounted) {
+        const processedResults = results.filter(
+          (x): x is PackageFile => x !== null,
+        )
+        const newFiles = processedResults.filter(
+          (file) =>
+            !pkgFilesWithContent.find(
+              (existingFile) => existingFile.path === file.path,
+            ),
+        )
+        setPkgFilesWithContent([...pkgFilesWithContent, ...newFiles])
+        setInitialFilesLoad([...pkgFilesWithContent, ...newFiles])
+        setLastRunCode(
+          processedResults.find((x) => x.path == "index.tsx")?.content ?? "",
+        )
+      }
+    } catch (error) {
+      console.error("Error loading package files:", error)
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }
+  useEffect(() => {
     loadPkgFiles()
   }, [pkgFiles.data])
 
-  const manualEditsFileContentFromPkgFiles = usePackageFileById(
-    pkgFiles.data?.find((x) => x.file_path == "manual-edits.json")
-      ?.package_file_id ?? null,
-  ).data?.content_text
+  const manualEditsFileContentFromPkgFiles =
+    usePackageFileById(
+      pkgFiles.data?.find((x) => x.file_path == "manual-edits.json")
+        ?.package_file_id ?? null,
+    ).data?.content_text ?? "{}"
 
   // Initialize with template or snippet's manual edits if available
-  const [manualEditsFileContent, setManualEditsFileContent] = useState<
-    string | null
-  >(null)
+  const [manualEditsFileContent, setManualEditsFileContent] = useState<string>(
+    manualEditsFileContentFromPkgFiles,
+  )
   const [code, setCode] = useState(defaultCode ?? "")
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
@@ -178,15 +173,9 @@ export default () => (
 
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (manualEditsFileContentFromPkgFiles) {
-      setManualEditsFileContent(manualEditsFileContentFromPkgFiles ?? "")
-    }
-  }, [Boolean(manualEditsFileContentFromPkgFiles)])
-
   const userImports = useMemo(
     () => ({
-      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? "",
+      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? {},
     }),
     [manualEditsFileContent],
   )
@@ -235,6 +224,7 @@ export default () => (
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
+        loadPkgFiles()
       }
     },
     onError: (error) => {
@@ -406,11 +396,11 @@ export default () => (
       `.trim()
     }
     return {
-      "index.tsx": defaultCode ?? "// No Default Code Found",
+      "index.tsx": entryPointCode ?? "// No Default Code Found",
       "manual-edits.json": manualEditsFileContent ?? "{}",
       "main.tsx": entrypointContent,
     }
-  }, [code, manualEditsFileContent])
+  }, [manualEditsFileContent, entryPointCode])
 
   if (!pkg && urlParams.package_id) {
     return (
@@ -436,7 +426,6 @@ export default () => (
 
   return (
     <div className="flex flex-col">
-      <h1>{initialFilesLoad.length}</h1>
       <EditorNav
         circuitJson={circuitJson}
         pkg={pkg}
@@ -448,6 +437,7 @@ export default () => (
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
         canSave={!hasUnrunChanges} // Disable save if there are unrun changes
+        manualEditsFileContent={manualEditsFileContent}
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div
@@ -507,7 +497,7 @@ export default () => (
                   applyEditEventsToManualEditsFile({
                     circuitJson: circuitJson,
                     editEvents: [event],
-                    manualEditsFile: JSON.parse(manualEditsFileContent ?? "{}"),
+                    manualEditsFile: JSON.parse(manualEditsFileContent),
                   })
                 setManualEditsFileContent(
                   JSON.stringify(newManualEditsFileContent, null, 2),

@@ -4,6 +4,7 @@ import Header from "@/components/Header"
 import { usePackage } from "@/hooks/use-package"
 import { Helmet } from "react-helmet-async"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { NotFound } from "@/components/NotFound"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
@@ -33,9 +34,7 @@ export const EditorPage = () => {
       <Header />
       {!error && <CodeAndPreview pkg={pkg} />}
       {error && error.status === 404 && (
-        <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
-          Package not found
-        </div>
+        <NotFound heading="Package Not Found" />
       )}
       {error && error.status !== 404 && (
         <div className="flex flex-col">
