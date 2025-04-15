@@ -353,7 +353,6 @@ export default function EditorNav({
                   <File className="mr-2 h-3 w-3" />
                   [Debug] View TS Files
                 </DropdownMenuItem>
-
                 {snippet?.owner_name === session?.github_username && (
                   <>
                     <DropdownMenuSub>
