@@ -1,27 +1,27 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../ui/dialog"
-import { Button } from "../ui/button"
-import { useMutation, useQueryClient } from "react-query"
-import { createUseDialog } from "./create-use-dialog"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { Textarea } from "../ui/textarea"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content"
+import { useAxios } from "@/hooks/use-axios"
 import { usePackageDetailsForm } from "@/hooks/use-package-details-form"
+import { useToast } from "@/hooks/use-toast"
+import { useMutation, useQueryClient } from "react-query"
+import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content"
+import { Button } from "../ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
+import { Textarea } from "../ui/textarea"
+import { createUseDialog } from "./create-use-dialog"
 
 export const EditPackageDetailsDialog = ({
   open,
@@ -77,9 +77,7 @@ export const EditPackageDetailsDialog = ({
       if (hasLicenseChanged) {
         await axios.post("/package_releases/update", {
           package_id: packageId,
-          description: formData.description,
           package_release_id: packageReleaseId,
-          website: formData.website,
           license: formData.license ?? "unset",
         })
       }
@@ -87,7 +85,6 @@ export const EditPackageDetailsDialog = ({
       const response = await axios.post("/packages/update", {
         package_id: packageId,
         description: formData.description,
-        package_release_id: packageReleaseId,
         website: formData.website,
       })
 
@@ -98,7 +95,7 @@ export const EditPackageDetailsDialog = ({
 
       const packageFiles = []
       const packageFilesResponse = await axios.post("/package_files/list", {
-        package_name_with_version: `${packageName}`,
+        package_name_with_version: packageName,
       })
 
       if (packageFilesResponse.status === 200) {
@@ -114,28 +111,28 @@ export const EditPackageDetailsDialog = ({
         packageAuthor,
       )
       if (hasLicenseChanged) {
-        let concludedLicenseResult
         if (packageFiles.includes("LICENSE") && !licenseContent) {
-          concludedLicenseResult = await axios.post("/package_files/delete", {
-            package_name_with_version: `${packageName}`,
+          await axios.post("/package_files/delete", {
+            package_name_with_version: packageName,
             file_path: "LICENSE",
           })
         }
         if (licenseContent) {
-          concludedLicenseResult = await axios.post(
+          await axios.post(
             "/package_files/create_or_update",
             {
-              package_name_with_version: `${packageName}`,
+              package_name_with_version: packageName,
               file_path: "LICENSE",
               content_text: licenseContent,
             },
           )
         }
-        try {
-          if (concludedLicenseResult) {
-            window?.location?.reload?.()
-          }
-        } catch {}
+      }
+      
+      return {
+        description: formData.description,
+        website: formData.website,
+        license: formData.license
       }
     },
     onMutate: async () => {
@@ -149,9 +146,12 @@ export const EditPackageDetailsDialog = ({
       }))
       return { previousPackage }
     },
-    onSuccess: () => {
-      onUpdate?.(formData.description, formData.website, formData.license)
+    onSuccess: (data) => {
+      onUpdate?.(data.description, data.website, data.license)
       onOpenChange(false)
+
+      qc.invalidateQueries({ queryKey: ["packageFile", { package_release_id: packageReleaseId }] })
+      
       toast({
         title: "Package details updated",
         description: "Successfully updated package details",
@@ -168,7 +168,6 @@ export const EditPackageDetailsDialog = ({
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ["packages", packageId] })
-      qc.invalidateQueries({ queryKey: ["current-package-info"] })
     },
   })
 
