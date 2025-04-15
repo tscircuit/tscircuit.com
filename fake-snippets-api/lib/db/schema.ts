@@ -206,6 +206,7 @@ export const packageSchema = z.object({
   website: z.string().nullable().default(null),
   star_count: z.number().default(0),
   ai_description: z.string().nullable(),
+  latest_license: z.string().nullable().optional(),
   ai_usage_instructions: z.string().nullable(),
 })
 export type Package = z.infer<typeof packageSchema>
