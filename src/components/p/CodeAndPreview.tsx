@@ -368,7 +368,6 @@ export default () => (
     pkgFilesWithContent.some((file) => {
       if (initialFilesLoad.length == 0) return
       if (pkgFilesWithContent.length == 0) return
-      console.log(pkgFilesWithContent)
       return (
         initialFilesLoad?.find((x) => x.path === file.path)?.content !==
         file.content
