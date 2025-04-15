@@ -336,13 +336,16 @@ export default function EditorNav({
                   <File className="mr-2 h-3 w-3" />
                   View Files
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
-                  onClick={() => openupdateDescriptionDialog()}
-                >
-                  <FilePenLine className="mr-2 h-3 w-3" />
-                  Edit Description
-                </DropdownMenuItem>
+                {snippet?.owner_name === session?.github_username && (
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => openupdateDescriptionDialog()}
+                  >
+                    <FilePenLine className="mr-2 h-3 w-3" />
+                    Edit Description
+                  </DropdownMenuItem>
+                )}
+
                 <DropdownMenuItem
                   className="text-xs"
                   onClick={() => openViewTsFilesDialog()}
@@ -350,60 +353,67 @@ export default function EditorNav({
                   <File className="mr-2 h-3 w-3" />
                   [Debug] View TS Files
                 </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger
-                    className="text-xs"
-                    disabled={isChangingType || hasUnsavedChanges}
-                  >
-                    <Edit2 className="mr-2 h-3 w-3" />
-                    {isChangingType ? "Changing..." : "Change Type"}
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                {snippet?.owner_name === session?.github_username && (
+                  <>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger
+                        className="text-xs"
+                        disabled={isChangingType || hasUnsavedChanges}
+                      >
+                        <Edit2 className="mr-2 h-3 w-3" />
+                        {isChangingType ? "Changing..." : "Change Type"}
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={currentType === "board" || isChangingType}
+                          onClick={() => handleTypeChange("board")}
+                        >
+                          Board {currentType === "board" && "✓"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={currentType === "package" || isChangingType}
+                          onClick={() => handleTypeChange("package")}
+                        >
+                          Module {currentType === "package" && "✓"}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="text-xs">
+                        <Edit2 className="mr-2 h-3 w-3" />
+                        Change Package Visibility
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={isPrivate}
+                          onClick={() => updatePackageVisibilityToPrivate(true)}
+                        >
+                          Private {isPrivate && "✓"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-xs"
+                          disabled={!isPrivate}
+                          onClick={() =>
+                            updatePackageVisibilityToPrivate(false)
+                          }
+                        >
+                          Public {!isPrivate && "✓"}
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
                     <DropdownMenuItem
-                      className="text-xs"
-                      disabled={currentType === "board" || isChangingType}
-                      onClick={() => handleTypeChange("board")}
+                      className="text-xs text-red-600"
+                      onClick={() => openDeleteDialog()}
                     >
-                      Board {currentType === "board" && "✓"}
+                      <Trash2 className="mr-2 h-3 w-3" />
+                      Delete Snippet
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-xs"
-                      disabled={currentType === "package" || isChangingType}
-                      onClick={() => handleTypeChange("package")}
-                    >
-                      Module {currentType === "package" && "✓"}
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="text-xs">
-                    <Edit2 className="mr-2 h-3 w-3" />
-                    Change Package Visibility
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem
-                      className="text-xs"
-                      disabled={isPrivate}
-                      onClick={() => updatePackageVisibilityToPrivate(true)}
-                    >
-                      Private {isPrivate && "✓"}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-xs"
-                      disabled={!isPrivate}
-                      onClick={() => updatePackageVisibilityToPrivate(false)}
-                    >
-                      Public {!isPrivate && "✓"}
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuItem
-                  className="text-xs text-red-600"
-                  onClick={() => openDeleteDialog()}
-                >
-                  <Trash2 className="mr-2 h-3 w-3" />
-                  Delete Snippet
-                </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuItem className="text-xs text-gray-500" disabled>
                   @tscircuit/core@{tscircuitCorePkg.version}
                 </DropdownMenuItem>
