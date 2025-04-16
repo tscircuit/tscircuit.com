@@ -32,7 +32,7 @@ export const RenamePackageDialog = ({
         name: newName,
       })
       if (response.status !== 200) {
-        throw new Error("Failed to rename snippet")
+        throw new Error("Failed to rename package")
       }
       return response.data
     },

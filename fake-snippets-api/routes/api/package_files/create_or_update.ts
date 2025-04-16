@@ -156,7 +156,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     !req.jsonBody.package_release_id &&
     !req.jsonBody.package_name_with_version
   )
-    return ctx.error(404, {
+    return ctx.error(400, {
       error_code: "missing_options",
       message:
         "Must specify either package_release_id or package_name_with_version",

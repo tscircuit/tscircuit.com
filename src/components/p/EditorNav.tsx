@@ -46,7 +46,7 @@ import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { TypeBadge } from "@/components/TypeBadge"
 import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import tscircuitCorePkg from "@tscircuit/core/package.json"
-import { useRenamePackageDialog } from "../dialogs/rename=package-dialog"
+import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
 
 export default function EditorNav({
