@@ -69,17 +69,20 @@ export default function PackageHeader({
   return (
     <header className="bg-white border-b border-gray-200 py-4">
       <div className="max-w-[1200px] mx-auto px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between flex-wrap gap-y-2">
+          <div className="flex items-center min-w-0 flex-wrap">
             {author && packageName ? (
               <>
-                <h1 className="text-xl font-bold mr-2">
-                  <Link href={`/${author}`} className="text-blue-600">
+                <h1 className="text-lg md:text-xl font-bold mr-2 break-words">
+                  <Link
+                    href={`/${author}`}
+                    className="text-blue-600 hover:underline"
+                  >
                     {author}
                   </Link>
                   <span className="px-1 text-gray-500">/</span>
                   <Link
-                    className="text-blue-600"
+                    className="text-blue-600 hover:underline"
                     href={`/${author}/${packageName}`}
                   >
                     {packageName}
@@ -100,6 +103,37 @@ export default function PackageHeader({
             )}
           </div>
           <div className="items-center space-x-2 hidden md:flex">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleStarClick}
+              disabled={isStarLoading || !packageInfo?.name}
+            >
+              <Star
+                className={`w-4 h-4 mr-2 ${starData?.is_starred ? "fill-yellow-500 text-yellow-500" : ""}`}
+              />
+              {starData?.is_starred ? "Starred" : "Star"}
+              {(starData?.star_count ?? 0) > 0 && (
+                <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
+                  {starData?.star_count}
+                </span>
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleForkClick}
+              disabled={
+                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
+              }
+            >
+              <GitFork className="w-4 h-4 mr-2" />
+              Fork
+            </Button>
+          </div>
+          {/* Mobile buttons - shown below md breakpoint */}
+          <div className="flex items-center space-x-2 md:hidden w-full justify-end pt-2">
             <Button
               variant="outline"
               size="sm"
