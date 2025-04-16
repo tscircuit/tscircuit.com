@@ -25,6 +25,10 @@ import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-rele
 interface Props {
   pkg?: Package
 }
+interface PackageFile {
+  path: string
+  content: string
+}
 
 const randomPackageName = () =>
   `untitled-${"package"}-${Math.floor(Math.random() * 90) + 10}`
@@ -40,30 +44,23 @@ export function CodeAndPreview({ pkg }: Props) {
     [],
   )
   const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
-  interface PackageFile {
-    path: string
-    content: string
-  }
-  const indexFile = usePackageFileById(
+
+  const indexFileFromHook = usePackageFileById(
     pkgFiles.data?.find((x) => x.file_path === "index.tsx")?.package_file_id ??
       null,
   )
 
-  const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
-    [],
-  )
-  const [initialFilesLoad, setInitialFilesLoad] = useState<PackageFile[]>([])
   const defaultCode: string = useMemo(() => {
-    // If package files exist, use the index file content
-    if (pkgFiles.data?.length && indexFile.data?.content_text) {
-      return indexFile.data.content_text
+    // If package files exist and index file content is loaded, use it
+    if (indexFileFromHook.data?.content_text) {
+      return indexFileFromHook.data.content_text
     }
 
     // Otherwise, use template or other fallbacks
     return (
       templateFromUrl?.code ??
       decodeUrlHashToText(window.location.toString()) ??
-      (urlParams.package_id && "") ??
+      (urlParams.package_id && "") ?? // Use empty string if package_id exists but data not loaded
       `
 export default () => (
   <board width="10mm" height="10mm">
@@ -72,23 +69,49 @@ export default () => (
 )`.trim()
     )
   }, [
-    indexFile.data,
-    pkgFiles.data,
-    pkgFilesWithContent,
-    urlParams.package_id,
+    indexFileFromHook.data,
     templateFromUrl,
+    urlParams.package_id, // Keep dependency on urlParams.package_id
   ])
 
+  const defaultManualEdits = "{}"
+
+  const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
+    () => {
+      // Initialize with default files ONLY if no package is provided (new/template scenario)
+      if (!pkg) {
+        return [
+          { path: "index.tsx", content: defaultCode },
+          { path: "manual-edits.json", content: defaultManualEdits },
+        ]
+      }
+      // Otherwise, start empty; loadPkgFiles will populate if pkg exists
+      return []
+    },
+  )
+
+  const [initialFilesLoad, setInitialFilesLoad] = useState<PackageFile[]>([])
+
   const entryPointCode = useMemo(() => {
-    if (pkgFilesWithContent.find((x) => x.path == "index.tsx")) {
-      return pkgFilesWithContent.find((x) => x.path == "index.tsx")?.content
-    } else {
-      return defaultCode
-    }
+    const indexFile = pkgFilesWithContent.find((x) => x.path == "index.tsx")
+    return indexFile?.content ?? defaultCode // Fallback to defaultCode if not found
   }, [pkgFilesWithContent, defaultCode])
+
   const loadPkgFiles = async () => {
-    // Skip if no package files data
+    // Skip if no package files data from the hook
     if (!pkgFiles.data?.length) {
+      // If pkg exists but no files, initialize with defaults (edge case?)
+      if (pkg && pkgFilesWithContent.length === 0) {
+        setPkgFilesWithContent([
+          { path: "index.tsx", content: defaultCode },
+          { path: "manual-edits.json", content: defaultManualEdits },
+        ])
+        setInitialFilesLoad([
+          { path: "index.tsx", content: defaultCode },
+          { path: "manual-edits.json", content: defaultManualEdits },
+        ])
+        setLastRunCode(defaultCode)
+      }
       return
     }
 
@@ -99,6 +122,17 @@ export default () => (
       const results = await Promise.all(
         pkgFiles.data.map(async (x) => {
           try {
+            // Use the hook data directly if available (avoids extra fetch for index)
+            if (
+              x.file_path === "index.tsx" &&
+              indexFileFromHook.data?.content_text
+            ) {
+              return {
+                path: x.file_path,
+                content: indexFileFromHook.data.content_text,
+              }
+            }
+            // Fetch other files
             const response = await axios.post(`/package_files/get`, {
               package_file_id: x.package_file_id,
             })
@@ -121,16 +155,20 @@ export default () => (
         const processedResults = results.filter(
           (x): x is PackageFile => x !== null,
         )
-        const newFiles = processedResults.filter(
-          (file) =>
-            !pkgFilesWithContent.find(
-              (existingFile) => existingFile.path === file.path,
-            ),
-        )
-        setPkgFilesWithContent([...pkgFilesWithContent, ...newFiles])
-        setInitialFilesLoad([...pkgFilesWithContent, ...newFiles])
+
+        // Ensure manual-edits.json exists if not loaded
+        if (!processedResults.some((f) => f.path === "manual-edits.json")) {
+          processedResults.push({
+            path: "manual-edits.json",
+            content: defaultManualEdits,
+          })
+        }
+
+        setPkgFilesWithContent(processedResults)
+        setInitialFilesLoad(processedResults) // Set initial load state after fetching
         setLastRunCode(
-          processedResults.find((x) => x.path == "index.tsx")?.content ?? "",
+          processedResults.find((x) => x.path == "index.tsx")?.content ??
+            defaultCode,
         )
       }
     } catch (error) {
@@ -141,21 +179,47 @@ export default () => (
       isMounted = false
     }
   }
+
   useEffect(() => {
-    loadPkgFiles()
-  }, [pkgFiles.data])
+    // Load files only when a package exists and its files data is available
+    if (pkg && pkgFiles.data) {
+      loadPkgFiles()
+    }
+    // If no package, ensure default state is set (handled by useState initializer)
+  }, [pkg, pkgFiles.data]) // Depend on pkg and pkgFiles.data
 
-  const manualEditsFileContentFromPkgFiles =
-    usePackageFileById(
-      pkgFiles.data?.find((x) => x.file_path == "manual-edits.json")
-        ?.package_file_id ?? null,
-    ).data?.content_text ?? "{}"
+  const manualEditsFileContentFromState = useMemo(() => {
+    return (
+      pkgFilesWithContent.find((f) => f.path === "manual-edits.json")
+        ?.content ?? defaultManualEdits
+    )
+  }, [pkgFilesWithContent])
 
-  // Initialize with template or snippet's manual edits if available
+  // State for manual edits, derived from pkgFilesWithContent
   const [manualEditsFileContent, setManualEditsFileContent] = useState<string>(
-    manualEditsFileContentFromPkgFiles,
+    manualEditsFileContentFromState,
   )
-  const [code, setCode] = useState(defaultCode ?? "")
+
+  // Effect to sync manualEditsFileContent state when pkgFilesWithContent changes
+  useEffect(() => {
+    const contentFromFiles =
+      pkgFilesWithContent.find((f) => f.path === "manual-edits.json")
+        ?.content ?? defaultManualEdits
+    if (contentFromFiles !== manualEditsFileContent) {
+      setManualEditsFileContent(contentFromFiles)
+    }
+  }, [pkgFilesWithContent])
+
+  // State for the code editor's current content (primarily index.tsx)
+  const [code, setCode] = useState(entryPointCode)
+
+  // Effect to sync code state when entryPointCode changes
+  useEffect(() => {
+    if (entryPointCode !== code) {
+      setCode(entryPointCode)
+    }
+  }, [entryPointCode])
+
   const [dts, setDts] = useState("")
   const [showPreview, setShowPreview] = useState(true)
   const [lastRunCode, setLastRunCode] = useState(defaultCode ?? "")
@@ -345,25 +409,19 @@ export default () => (
     })
 
   const hasManualEditsChanged =
-    (manualEditsFileContentFromPkgFiles ?? "") !==
-    (manualEditsFileContent ?? "")
+    initialFilesLoad.find((f) => f.path === "manual-edits.json")?.content !==
+    pkgFilesWithContent.find((f) => f.path === "manual-edits.json")?.content
 
-  // const hasUnsavedChanges =
-  //   !updatePackageMutation.isLoading &&
-  //   Date.now() - lastSavedAt > 1000 &&
-  //   (indexFileContent !== code || hasManualEditsChanged);
   const hasUnsavedChanges =
     !updatePackageMutation.isLoading &&
     Date.now() - lastSavedAt > 1000 &&
     pkgFilesWithContent.some((file) => {
-      if (initialFilesLoad.length == 0) return
-      if (pkgFilesWithContent.length == 0) return
-      return (
-        initialFilesLoad?.find((x) => x.path === file.path)?.content !==
-        file.content
-      )
+      // Check against initialFilesLoad, which is set after files are loaded/defaults applied
+      const initialFile = initialFilesLoad.find((x) => x.path === file.path)
+      return initialFile?.content !== file.content
     })
-  const hasUnrunChanges = code !== lastRunCode
+
+  const hasUnrunChanges = entryPointCode !== lastRunCode // Compare against entryPointCode derived from state
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
@@ -425,7 +483,7 @@ export default () => (
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col min-h-[50vh]">
       <EditorNav
         circuitJson={circuitJson}
         pkg={pkg}
@@ -452,24 +510,19 @@ export default () => (
             // onManualEditsFileContentChanged={(newContent) => {
             //   setManualEditsFileContent(newContent)
             // }}
-            // initialCode={defaultCode}
+            // initialCode={defaultCode} // Remove initialCode prop, files prop handles it
             onCodeChange={(newCode, filename) => {
-              setCode(newCode)
-              // Update the file content based on the filename
-              setPkgFilesWithContent(
-                pkgFilesWithContent.map((x) => {
-                  // If filename is provided, update that specific file
-                  if (filename && x.path === filename) {
-                    return { path: filename, content: newCode }
+              const targetFilename = filename ?? "index.tsx" // Default to index.tsx
+              setPkgFilesWithContent((currentFiles) =>
+                currentFiles.map((file) => {
+                  if (file.path === targetFilename) {
+                    return { ...file, content: newCode }
                   }
-                  // If no filename but path is index.tsx, update it
-                  if (!filename && x.path === "index.tsx") {
-                    return { path: "index.tsx", content: newCode }
-                  }
-                  // Keep other files unchanged
-                  return x
+                  return file
                 }),
               )
+              // No need to call setCode or setManualEditsFileContent here,
+              // useEffect hooks handle syncing those states from pkgFilesWithContent
             }}
             onDtsChange={(newDts) => setDts(newDts)}
           />

@@ -28,6 +28,7 @@ import ts from "typescript"
 import CodeEditorHeader from "@/components/p/CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { FileSidebar } from "../FileSidebar"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -476,19 +477,26 @@ export const CodeEditor = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {showImportAndFormatButtons && (
-        <CodeEditorHeader
-          currentFile={currentFile}
-          files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
-          handleFileChange={handleFileChange}
-          updateFileContent={(...args) => {
-            return updateFileContent(...args)
-          }}
-          cursorPosition={cursorPosition}
-        />
-      )}
-      <div ref={editorRef} className="flex-1 overflow-auto" />
+    <div className="flex h-full">
+      <FileSidebar
+        files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
+        currentFile={currentFile}
+        onFileSelect={handleFileChange}
+        className="border-r border-gray-200"
+      />
+      <div className="flex flex-col flex-1">
+        {showImportAndFormatButtons && (
+          <CodeEditorHeader
+            currentFile={currentFile}
+            files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
+            updateFileContent={(...args) => {
+              return updateFileContent(...args)
+            }}
+            cursorPosition={cursorPosition}
+          />
+        )}
+        <div ref={editorRef} className="flex-1 overflow-auto max-w-[100%]" />
+      </div>
     </div>
   )
 }
