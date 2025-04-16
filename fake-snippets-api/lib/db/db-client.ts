@@ -6,11 +6,12 @@ import { combine } from "zustand/middleware"
 import {
   type Account,
   type AccountPackage,
-  JlcpcbOrderState,
-  JlcpcbOrderStepRun,
+  type JlcpcbOrderState,
+  type JlcpcbOrderStepRun,
   type LoginPage,
   type Order,
   type OrderFile,
+  OrderQuote,
   type Package,
   type PackageFile,
   type PackageRelease,
@@ -50,6 +51,47 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrderFilesByOrderId: (orderId: string): OrderFile[] => {
     const state = get()
     return state.orderFiles.filter((file) => file.order_id === orderId)
+  },
+  addOrderQuote: ({
+    account_id,
+    package_release_id,
+    vendor_name,
+  }: {
+    account_id: string
+    package_release_id: string
+    vendor_name: string
+  }): string => {
+    // Details for the order quote will be updated by the job with the cost
+    const newOrderQuote = {
+      order_quote_id: `order_quote_${get().idCounter + 1}`,
+      account_id,
+      package_release_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      completed_at: null,
+      error: null,
+      has_error: false,
+      is_completed: false,
+      is_processing: true,
+      vendor_name,
+      quoted_components: [],
+      bare_pcb_cost: 0,
+      shipping_options: [],
+      total_cost: 0,
+    }
+    set((state) => {
+      return {
+        orderQuotes: [...state.orderQuotes, newOrderQuote],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newOrderQuote.order_quote_id
+  },
+  getOrderQuoteById: (orderQuoteId: string): OrderQuote | undefined => {
+    const state = get()
+    return state.orderQuotes.find(
+      (quote) => quote.order_quote_id === orderQuoteId,
+    )
   },
   getJlcpcbOrderStatesByOrderId: (
     orderId: string,
