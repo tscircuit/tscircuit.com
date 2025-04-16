@@ -201,6 +201,7 @@ export default function RepoPageContent({
           {/* Sidebar - Hidden on mobile, shown on md and up */}
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
             <Sidebar
+              packageInfo={packageInfo}
               isLoading={!packageInfo}
               onViewChange={(view) => {
                 setActiveView(view)
