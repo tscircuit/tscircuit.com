@@ -12,7 +12,7 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { package_release_id } = req.jsonBody
-  const vendorNames = ["JLCPCB", "PCBFab"]
+  const vendorNames = ["JLCPCB", "MacroFab"]
 
   let orderQuoteIds = []
   for (const vendorName of vendorNames) {
