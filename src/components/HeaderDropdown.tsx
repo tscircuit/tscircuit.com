@@ -55,7 +55,7 @@ export default function HeaderDropdown() {
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
             <a
-              href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
+              href={`/p/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
               className={cn(
                 "flex items-center cursor-pointer",
                 template.disabled && "opacity-50 cursor-not-allowed",

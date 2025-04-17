@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-
+import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
 import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { FootprintDialog } from "@/components/p/FootprintDialog"
@@ -75,69 +75,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     }
   }, [currentFile, files, toast, updateFileContent])
 
-  const handleManualEditsImport = useCallback(() => {
-    // Implement the logic to import manual edits from manual-edits.json
-    // This will likely involve reading the file content and applying the edits to index.tsx
-    // Since I don't have the actual implementation of handleManualEditsImport, I'll leave a placeholder here.
-
-    if (!files["manual-edits.json"]) {
-      toast({
-        title: "Error",
-        description: "manual-edits.json not found.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const manualEditsContent = files["manual-edits.json"]
-
-    // Find the target file.  If index.tsx doesn't exist, use the first .tsx file
-    let targetFile = files["index.tsx"]
-      ? "index.tsx"
-      : Object.keys(files).find((filename) => filename.endsWith(".tsx"))
-    if (!targetFile) {
-      toast({
-        title: "Error",
-        description: "No target .tsx file found to apply manual edits to.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const targetFileContent = files[targetFile]
-    const manualEditsLines = manualEditsContent.split("\n")
-    const targetFileLines = targetFileContent.split("\n")
-    const mergedContent: string[] = []
-
-    let editsApplied = 0
-
-    manualEditsLines.forEach((editLine) => {
-      const matchingIndex = targetFileLines.findIndex(
-        (targetLine) => targetLine.trim() === editLine.trim(),
-      )
-
-      if (matchingIndex !== -1) {
-        // Replace the line in the target file with the edit line
-        mergedContent.push(editLine)
-        targetFileLines.splice(matchingIndex, 1) // Remove the matched line
-        editsApplied++
-      } else {
-        // Add the edit line to the merged content
-        mergedContent.push(editLine)
-      }
-    })
-
-    // Add any remaining lines from the target file to the merged content
-    mergedContent.push(...targetFileLines)
-
-    updateFileContent(targetFile, mergedContent.join("\n"))
-
-    toast({
-      title: "Manual Edits Imported",
-      description: `Successfully imported ${editsApplied} manual edits into ${targetFile}`,
-    })
-  }, [files, toast, updateFileContent])
-
   return (
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
@@ -157,7 +94,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               <DropdownMenuContent>
                 <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
-                  onClick={handleManualEditsImport}
+                  onClick={() =>
+                    handleManualEditsImport(files, updateFileContent, toast)
+                  }
                 >
                   Manual edits exist but have not been imported. (Click to fix)
                 </DropdownMenuItem>

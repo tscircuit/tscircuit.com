@@ -4,7 +4,9 @@ import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
 import { NotFound } from "@/components/NotFound"
 
-export function NotFoundPage({heading="Page Not Found"}: { heading?: string }) {
+export function NotFoundPage({
+  heading = "Page Not Found",
+}: { heading?: string }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
