@@ -15,26 +15,26 @@ import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 
 export interface PackageCardProps {
-  /** The snippet data to display */
+  /** The package data to display */
   pkg: Package
-  /** Base URL for snippet images */
+  /** Base URL for package images */
   baseUrl: string
   /** Whether to show the owner name (useful in starred views) */
   showOwner?: boolean
-  /** Whether this is the current user's snippet (enables edit/delete options) */
+  /** Whether this is the current user's package (enables edit/delete options) */
   isCurrentUserSnippet?: boolean
   /** Callback when delete is clicked */
-  onDeleteClick?: (e: React.MouseEvent, snippet: Package) => void
+  onDeleteClick?: (e: React.MouseEvent, pkg: Package) => void
   /** Custom class name for the card container */
   className?: string
   /** Custom image size (default is h-16 w-16) */
   imageSize?: string
   /** Custom image transform style */
   imageTransform?: string
-  /** Whether to render the card with a link to the snippet page */
+  /** Whether to render the card with a link to the package page */
   withLink?: boolean
   /** Custom render function for actions */
-  renderActions?: (snippet: Package) => React.ReactNode
+  renderActions?: (pkg: Package) => React.ReactNode
 }
 
 export const PackageCard: React.FC<PackageCardProps> = ({
@@ -115,7 +115,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                       onClick={handleDeleteClick}
                     >
                       <Trash2 className="mr-2 h-3 w-3" />
-                      Delete Snippet
+                      Delete Package
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
