@@ -74,7 +74,7 @@ export default () => (
     urlParams.package_id, // Keep dependency on urlParams.package_id
   ])
 
-  const defaultManualEdits = "{}"
+  const defaultManualEdits = ""
 
   const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
     () => {
