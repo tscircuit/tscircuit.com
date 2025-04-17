@@ -28,7 +28,8 @@ import ts from "typescript"
 import CodeEditorHeader from "@/components/p/CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
-import { FileSidebar } from "../FileSidebar"
+import FileSidebar from "../FileSidebar"
+
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
