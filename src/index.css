@@ -1,16 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --radius: 0.5rem;
   }
 }
 
+/* Override styles for CodeMirror tooltips to fix overflow issues */
+.cm-tooltip-hover {
+  bottom: auto !important;
+  transform: none !important;
+  height: auto !important;
+  max-height: none !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }

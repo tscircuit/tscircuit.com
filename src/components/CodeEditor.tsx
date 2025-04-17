@@ -327,13 +327,94 @@ export const CodeEditor = ({
                 textDecorationColor: "rgba(0, 0, 255, 0.3)",
                 cursor: "pointer",
               },
+              ".code-editor-tooltip": {
+                maxWidth: "200px",
+                whiteSpace: "normal",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                padding: "4px 8px",
+                borderRadius: "4px",
+                backgroundColor: "white",
+                border: "1px solid #ddd",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                zIndex: "100",
+                fontSize: "12px",
+              },
               ".cm-tooltip": {
-                maxWidth: "none",
+                maxWidth: "500px",
                 overflow: "visible",
+                position: "absolute",
+                zIndex: "9999",
+                backgroundColor: "white",
+                border: "1px solid #ddd",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+                borderRadius: "4px",
               },
               ".cm-tooltip-hover": {
-                maxWidth: "none",
+                maxWidth: "none !important",
+                padding: "6px 10px",
+                lineHeight: "1.3",
+                overflow: "visible !important",
+                zIndex: "1000",
+              },
+              ".cm-tooltip-hover .cm-tooltip-section": {
+                maxWidth: "none !important",
+                fontFamily: "monospace",
+                fontSize: "12px",
+                whiteSpace: "pre-wrap",
+                color: "#333",
+                overflow: "visible !important",
+              },
+              ".cm-tooltip-section": {
+                maxWidth: "none !important",
+                overflow: "visible !important",
+                textOverflow: "ellipsis",
+              },
+              ".cm-tooltip-lint": {
+                maxWidth: "500px",
                 overflow: "visible",
+              },
+              ".cm-completionInfo": {
+                maxWidth: "500px",
+                overflow: "visible",
+              },
+              ".cm-tooltipText": {
+                fontFamily: "monospace",
+                fontSize: "12px",
+                whiteSpace: "pre-wrap",
+                overflow: "visible",
+              },
+              ".cm-completionInfo.cm-completionInfo-right": {
+                left: "100%",
+                right: "auto",
+              },
+              ".cm-tooltip-autocomplete": {
+                "& > ul": {
+                  maxHeight: "300px",
+                  overflow: "auto",
+                },
+                "& > ul > li": {
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                },
+              },
+              ".cm-tooltip *": {
+                overflow: "visible !important",
+                whiteSpace: "pre-wrap !important",
+              },
+              ".cm-type": {
+                color: "#0000cc",
+              },
+              ".cm-typeName, .cm-interface": {
+                color: "#0000cc",
+                fontWeight: "bold",
+              },
+              ".cm-propertyName": {
+                color: "#660e7a",
+              },
+              ".cm-keyword": {
+                color: "#0000ff",
+                fontWeight: "bold",
               },
             }),
             EditorView.decorations.of((view) => {
