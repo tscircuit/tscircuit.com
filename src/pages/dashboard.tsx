@@ -18,7 +18,7 @@ export const DashboardPage = () => {
 
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const [showAllTrending, setShowAllTrending] = useState(false)
-  const [showAllNewest, setShowAllNewest] = useState(false)
+  const [showAllLatest, setShowAllLatest] = useState(false)
 
   const {
     data: mySnippets,
@@ -41,10 +41,10 @@ export const DashboardPage = () => {
     },
   )
 
-  const { data: newestSnippets } = useQuery<Snippet[]>(
-    "newestSnippets",
+  const { data: latestSnippets } = useQuery<Snippet[]>(
+    "latestSnippets",
     async () => {
-      const response = await axios.get("/snippets/list_newest")
+      const response = await axios.get("/snippets/list_latest")
       return response.data.snippets
     },
   )
@@ -129,10 +129,10 @@ export const DashboardPage = () => {
             />
             <div className="mt-8">
               <SnippetList
-                title="Newest Snippets"
-                snippets={newestSnippets}
-                showAll={showAllNewest}
-                onToggleShowAll={() => setShowAllNewest(!showAllNewest)}
+                title="Latest Snippets"
+                snippets={latestSnippets}
+                showAll={showAllLatest}
+                onToggleShowAll={() => setShowAllLatest(!showAllLatest)}
               />
             </div>
           </div>

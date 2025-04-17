@@ -24,7 +24,7 @@ export default function ThreeDView() {
 
   return (
     <div className="h-[620px]">
-      <CadViewer circuitJson={circuitJson} />
+      <CadViewer clickToInteractEnabled circuitJson={circuitJson} />
     </div>
   )
 }

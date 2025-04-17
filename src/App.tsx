@@ -61,7 +61,7 @@ const EditorPage = lazyImport(async () => {
 })
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
-const NewestPage = lazyImport(() => import("@/pages/newest"))
+const LatestPage = lazyImport(() => import("@/pages/latest"))
 const PreviewPage = lazyImport(() => import("@/pages/preview"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
@@ -130,7 +130,7 @@ function App() {
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
             <Route path="/ai" component={AiPage} />
-            <Route path="/newest" component={NewestPage} />
+            <Route path="/latest" component={LatestPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/search" component={SearchPage} />
             <Route path="/trending" component={TrendingPage} />

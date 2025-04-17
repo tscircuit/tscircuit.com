@@ -222,7 +222,12 @@ export default function ImportantFilesView({
             activeFilePath.endsWith(".jsx") ||
             activeFilePath.endsWith(".ts") ||
             activeFilePath.endsWith(".tsx")) ? (
-          <ShikiCodeViewer code={activeFileContent} filePath={activeFilePath} />
+          <div className="overflow-x-auto">
+            <ShikiCodeViewer
+              code={activeFileContent}
+              filePath={activeFilePath}
+            />
+          </div>
         ) : (
           <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
         )}

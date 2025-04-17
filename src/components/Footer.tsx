@@ -56,8 +56,8 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Explore</h3>
             <footer className="flex flex-col space-y-2">
-              <PrefetchPageLink href="/newest" className="hover:underline">
-                Newest Snippets
+              <PrefetchPageLink href="/latest" className="hover:underline">
+                Latest Snippets
               </PrefetchPageLink>
               <PrefetchPageLink href="/trending" className="hover:underline">
                 Trending Snippets

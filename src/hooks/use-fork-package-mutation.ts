@@ -42,6 +42,13 @@ export const useForkPackageMutation = ({
         onSuccess?.(result)
       },
       onError: (error: any) => {
+        if (error.data.error_code === "cannot_fork_own_package") {
+          toast({
+            title: "Cannot Fork Package",
+            description: "You cannot fork your own package.",
+          })
+          return
+        }
         toast({
           title: "Error",
           description: "Failed to fork package. Please try again.",

@@ -33,6 +33,7 @@ export const useDeletePackage = ({
         toast({
           title: "Error deleting package",
           description: "Failed to delete package",
+          variant: "destructive",
         })
       },
     },

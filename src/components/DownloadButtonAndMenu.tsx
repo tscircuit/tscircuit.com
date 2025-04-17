@@ -39,7 +39,7 @@ export function DownloadButtonAndMenu({
           disabled
           variant="ghost"
           size="sm"
-          className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+          className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
         >
           <Download className="h-4 w-4 mr-1.5" />
           Export
@@ -56,7 +56,7 @@ export function DownloadButtonAndMenu({
           <Button
             variant="outline"
             size="sm"
-            className="h-9 border-gray-300 dark:border-[#30363d] bg-gray-100 hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+            className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
           >
             <Download className="h-4 w-4 mr-1.5" />
             Export
@@ -109,6 +109,7 @@ export function DownloadButtonAndMenu({
                 snippetUnscopedName: snippetUnscopedName || "snippet",
               }).catch((error) => {
                 console.error(error)
+                console.log(error, error.stack)
                 toast({
                   title: "Error Downloading Fabrication Files",
                   description: error.toString(),

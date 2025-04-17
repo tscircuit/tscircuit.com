@@ -4,6 +4,7 @@ import { useState } from "react"
 import SidebarAboutSection from "./sidebar-about-section"
 import SidebarReleasesSection from "./sidebar-releases-section"
 import PreviewImageSquares from "./preview-image-squares"
+import { PackageFile } from "fake-snippets-api/lib/db/schema"
 
 interface PackageInfo {
   name: string

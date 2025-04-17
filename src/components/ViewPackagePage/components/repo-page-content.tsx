@@ -117,7 +117,6 @@ export default function RepoPageContent({
 
     return `${name}@${version}`
   }, [packageInfo, packageFiles])
-
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
@@ -166,7 +165,6 @@ export default function RepoPageContent({
             // Update URL hash when view changes
             window.location.hash = view
           }}
-          packageInfo={packageInfo}
           isLoading={!packageInfo}
         />
       </div>

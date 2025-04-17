@@ -8,6 +8,6 @@ export default withRouteSpec({
     snippets: z.array(snippetSchema),
   }),
 })(async (req, ctx) => {
-  const newestSnippets = ctx.db.getNewestSnippets(20)
-  return ctx.json({ snippets: newestSnippets })
+  const latestSnippets = ctx.db.getLatestSnippets(20)
+  return ctx.json({ snippets: latestSnippets })
 })
