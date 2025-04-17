@@ -277,6 +277,7 @@ export const CodeEditor = ({
                       above: true,
                       create() {
                         const dom = document.createElement("div")
+                        dom.className = "code-editor-tooltip"
                         dom.textContent = "Ctrl/Cmd+Click to open snippet"
                         return { dom }
                       },
@@ -325,6 +326,14 @@ export const CodeEditor = ({
                 textDecoration: "underline",
                 textDecorationColor: "rgba(0, 0, 255, 0.3)",
                 cursor: "pointer",
+              },
+              ".cm-tooltip": {
+                maxWidth: "none",
+                overflow: "visible",
+              },
+              ".cm-tooltip-hover": {
+                maxWidth: "none",
+                overflow: "visible",
               },
             }),
             EditorView.decorations.of((view) => {
