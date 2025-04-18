@@ -202,7 +202,9 @@ export function CodeAndPreview({ pkg }: Props) {
         })
       },
     })
-  const loadPkgFiles = () => {}
+  const loadPkgFiles = () => {
+    pkgFiles.refetch()
+  }
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
     pkgFilesWithContent,
