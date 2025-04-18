@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const treeVariants = cva(
-  "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 px-2 before:w-full before:opacity-0 before:bg-slate-100/70 before:h-[2rem] before:-z-10' dark:before:bg-slate-800/70",
+  "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 before:w-full before:opacity-0 before:bg-slate-100/70 before:h-[2rem] before:-z-10' dark:before:bg-slate-800/70",
 )
 
 const selectedTreeVariants = cva(
@@ -377,7 +377,7 @@ const TreeLeaf = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "ml-5 flex text-left items-center py-2 cursor-pointer before:right-1",
+          "ml-[2px] flex text-left items-center py-2 cursor-pointer before:right-1",
           treeVariants(),
           className,
           selectedItemId === item.id && selectedTreeVariants(),

@@ -57,16 +57,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     <div
       className={cn(
         "flex-shrink-0 transition-all duration-300 border-r relative",
-        !sidebarOpen ? "w-0 overflow-hidden" : "w-64",
+        !sidebarOpen ? "w-0 overflow-hidden" : "w-[14rem]",
         className,
       )}
     >
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="z-[99] mt-2 ml-2 text-black/60 scale-90"
+        className={`z-[99] mt-2 ml-2 text-black/60 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       >
         <PanelRightOpen />
       </button>
+
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
