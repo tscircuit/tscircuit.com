@@ -10,17 +10,18 @@ import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 import "@/prettier"
-import type { Package, Snippet } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import { useMutation, useQueryClient } from "react-query"
+import { useQueryClient } from "react-query"
 import EditorNav from "@/components/p/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
-import { useLatestPackageRelease } from "@/hooks/use-package-release"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
+import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMutation"
+import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
 
 interface Props {
   pkg?: Package
@@ -230,102 +231,22 @@ export function CodeAndPreview({ pkg }: Props) {
       },
     })
 
-  const updatePackageFilesMutation = useMutation({
-    mutationFn: async (
-      newpackage: Pick<Package, "package_id" | "name"> & {
-        package_name_with_version: string
-      },
-    ) => {
-      if (pkg) {
-        newpackage = { ...pkg, ...newpackage }
-      }
-      if (!newpackage) throw new Error("No package to update")
-
-      let updatedFilesCount = 0
-
-      for (const file of pkgFilesWithContent) {
-        const initialFile = initialFilesLoad.find((x) => x.path === file.path)
-        if (file.content && file.content !== initialFile?.content) {
-          const updatePkgFilePayload = {
-            package_file_id:
-              pkgFiles.data?.find((x) => x.file_path === file.path)
-                ?.package_file_id ?? null,
-            content_text: file.content,
-            file_path: file.path,
-            package_name_with_version: `${newpackage.name}`,
-          }
-
-          const response = await axios.post(
-            "/package_files/create_or_update",
-            updatePkgFilePayload,
-          )
-
-          if (response.status === 200) {
-            updatedFilesCount++
-          }
-        }
-      }
-      return updatedFilesCount
-    },
-    onSuccess: (updatedFilesCount) => {
-      if (updatedFilesCount) {
-        toast({
-          title: `Package's ${updatedFilesCount} files saved`,
-          description: "Your changes have been saved successfully.",
-        })
-        loadPkgFiles()
-      }
-    },
-    onError: (error) => {
-      console.error("Error updating pkg files:", error)
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to update package files. Please try again.",
-        variant: "destructive",
-      })
-    },
+  const updatePackageFilesMutation = useUpdatePackageFilesMutation({
+    pkg,
+    pkgFilesWithContent,
+    initialFilesLoad,
+    pkgFiles,
+    axios,
+    toast,
+    loadPkgFiles,
   })
 
-  const updatePackageMutation = useMutation({
-    mutationFn: async () => {
-      if (!pkg) throw new Error("No package to update")
-
-      const updatePkgPayload = {
-        package_id: pkg.package_id,
-        code,
-        dts,
-        circuit_json: circuitJson,
-        manual_edits_json_content: manualEditsFileContent,
-      }
-
-      try {
-        const response = await axios.post("/packages/update", updatePkgPayload)
-        return response.data
-      } catch (error: any) {
-        throw error
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["package", pkg?.package_id] })
-      toast({
-        title: "Package saved",
-        description: "Your changes have been saved successfully.",
-      })
-    },
-    onError: (error) => {
-      console.error("Error saving pkg:", error)
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to save the package. Please try again.",
-        variant: "destructive",
-      })
-    },
+  const updatePackageMutation = useUpdatePackageMutation({
+    pkg,
+    code,
+    dts,
+    circuitJson,
+    manualEditsFileContent,
   })
 
   const hasUnrunChanges = entryPointCode !== lastRunCode

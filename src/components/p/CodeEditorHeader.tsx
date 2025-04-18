@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
 import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { FootprintDialog } from "@/components/p/FootprintDialog"
+import { FootprintDialog } from "@/components/FootprintDialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,7 +129,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           }}
         />
         <FootprintDialog
-          currentFile={currentFile}
+          currentFile={currentFile as `${string}.${string}`}
           open={footprintDialogOpen}
           onOpenChange={setFootprintDialogOpen}
           updateFileContent={updateFileContent}
