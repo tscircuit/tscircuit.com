@@ -73,6 +73,13 @@ const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const BetaPage = lazyImport(() => import("@/pages/beta"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
+const PackageEditorPage = lazyImport(async () => {
+  const [editorModule] = await Promise.all([
+    import("@/pages/package-editor"),
+    import("@/lib/utils/load-prettier").then((m) => m.loadPrettier()),
+  ])
+  return editorModule
+})
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -108,6 +115,7 @@ function App() {
               path="/view-package/:author/:packageName"
               component={ViewPackagePage}
             />
+            <Route path="/p/editor" component={PackageEditorPage} />
             <Route path="/editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
