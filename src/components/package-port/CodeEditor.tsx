@@ -25,7 +25,7 @@ import {
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
-import CodeEditorHeader from "@/components/p/CodeEditorHeader"
+import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"

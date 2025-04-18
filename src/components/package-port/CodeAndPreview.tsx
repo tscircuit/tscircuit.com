@@ -1,4 +1,4 @@
-import { CodeEditor } from "@/components/p/CodeEditor"
+import { CodeEditor } from "@/components/package-port/CodeEditor"
 import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -14,7 +14,7 @@ import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
-import EditorNav from "@/components/p/EditorNav"
+import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
@@ -22,6 +22,7 @@ import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
 import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMutation"
 import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
+import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 
 interface Props {
   pkg?: Package
@@ -143,7 +144,10 @@ export function CodeAndPreview({ pkg }: Props) {
     }
   }, [manualEditsFileContentFromState, manualEditsFileContent])
 
-  const loadPkgFiles = async () => {
+  const { data: loadedFiles, isLoading: isLoadingFiles } =
+    usePackageFilesLoader(pkg)
+
+  useEffect(() => {
     if (!pkgFiles.data?.length) {
       if (pkg && pkgFilesWithContent.length === 0) {
         const defaultFiles = [
@@ -157,67 +161,35 @@ export function CodeAndPreview({ pkg }: Props) {
       return
     }
 
-    let isMounted = true
-
-    try {
-      const results = await Promise.all(
-        pkgFiles.data.map(async (x) => {
-          try {
-            if (
-              x.file_path === "index.tsx" &&
-              indexFileFromHook.data?.content_text
-            ) {
-              return {
-                path: x.file_path,
-                content: indexFileFromHook.data.content_text,
-              }
-            }
-
-            const response = await axios.post(`/package_files/get`, {
-              package_file_id: x.package_file_id,
-            })
-            const content = response.data.package_file?.content_text ?? ""
-            return content ? { path: x.file_path, content } : null
-          } catch (error) {
-            console.error(`Failed to load ${x.file_path}:`, error)
-            return null
-          }
-        }),
-      )
-
-      if (isMounted) {
-        const processedResults = results.filter(
-          (x): x is PackageFile => x !== null,
-        )
-
-        if (!processedResults.some((f) => f.path === "manual-edits.json")) {
-          processedResults.push({
-            path: "manual-edits.json",
-            content: DEFAULT_MANUAL_EDITS,
-          })
-        }
-
-        setPkgFilesWithContent(processedResults)
-        setInitialFilesLoad(processedResults)
-        setLastRunCode(
-          processedResults.find((x) => x.path === "index.tsx")?.content ??
-            defaultCode,
-        )
+    if (loadedFiles && !isLoadingFiles) {
+      const processedResults = [...loadedFiles]
+      if (!processedResults.some((f) => f.path === "manual-edits.json")) {
+        processedResults.push({
+          path: "manual-edits.json",
+          content: DEFAULT_MANUAL_EDITS,
+        })
       }
-    } catch (error) {
-      console.error("Error loading package files:", error)
-    }
 
-    return () => {
-      isMounted = false
+      setPkgFilesWithContent(processedResults)
+      setInitialFilesLoad(processedResults)
+      setLastRunCode(
+        processedResults.find((x) => x.path === "index.tsx")?.content ??
+          defaultCode,
+      )
     }
-  }
+  }, [
+    isLoadingFiles,
+    pkg,
+    pkgFiles.data,
+    pkgFilesWithContent.length,
+    defaultCode,
+  ])
 
-  useEffect(() => {
-    if (pkg && pkgFiles.data) {
-      loadPkgFiles()
-    }
-  }, [pkg, pkgFiles.data])
+  // useEffect(() => {
+  //   if (pkg && pkgFiles.data) {
+  //     loadPkgFiles()
+  //   }
+  // }, [pkg, pkgFiles.data])
 
   const createPackageMutation = useCreatePackageMutation()
 
@@ -230,7 +202,7 @@ export function CodeAndPreview({ pkg }: Props) {
         })
       },
     })
-
+  const loadPkgFiles = () => {}
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
     pkgFilesWithContent,

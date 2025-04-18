@@ -201,14 +201,14 @@ export default function EditorNav({
             <>
               <Link
                 className="text-blue-500 font-semibold hover:underline"
-                href={`/p/${pkg.owner_github_username}`}
+                href={`/${pkg.owner_github_username}`}
               >
                 {pkg.owner_github_username}
               </Link>
               <span className="px-0.5 text-gray-500">/</span>
               <Link
                 className="text-blue-500  font-semibold hover:underline"
-                href={`/p/${pkg.name}`}
+                href={`/${pkg.name}`}
               >
                 {pkg.unscoped_name}
               </Link>
@@ -234,7 +234,7 @@ export default function EditorNav({
                   </span>
                 </div>
               )}
-              <Link href={`/p/${pkg.name}`}>
+              <Link href={`/${pkg.name}`}>
                 <Button variant="ghost" size="icon" className="h-6 w-6">
                   <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
                 </Button>

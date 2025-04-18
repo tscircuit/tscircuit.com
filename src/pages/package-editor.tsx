@@ -1,4 +1,4 @@
-import { CodeAndPreview } from "@/components/p/CodeAndPreview"
+import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { usePackage } from "@/hooks/use-package"
@@ -32,9 +32,7 @@ export const EditorPage = () => {
       </Helmet>
       <Header />
       {!error && <CodeAndPreview pkg={pkg} />}
-      {error && error.status === 404 && (
-       <h1>"Package Not Found"</h1>
-      )}
+      {error && error.status === 404 && <h1>"Package Not Found"</h1>}
       {error && error.status !== 404 && (
         <div className="flex flex-col">
           Something strange happened<div>{error.message}</div>
