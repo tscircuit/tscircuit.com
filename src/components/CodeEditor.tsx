@@ -399,8 +399,8 @@ export const CodeEditor = ({
     }
   }, [codeImports])
 
-  const handleFileChange = (filename: keyof typeof files) => {
-    setCurrentFile(filename)
+  const handleFileChange = (filename: `${string}.${string}`) => {
+    setCurrentFile(filename as keyof typeof files)
   }
 
   const updateFileContent = (
@@ -452,7 +452,7 @@ export const CodeEditor = ({
           files={files}
           handleFileChange={handleFileChange}
           updateFileContent={(...args) => {
-            return updateFileContent(...args)
+            return updateFileContent(...args as Parameters<typeof updateFileContent>);
           }}
           cursorPosition={cursorPosition}
         />
