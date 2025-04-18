@@ -452,7 +452,9 @@ export const CodeEditor = ({
           files={files}
           handleFileChange={handleFileChange}
           updateFileContent={(...args) => {
-            return updateFileContent(...args as Parameters<typeof updateFileContent>);
+            return updateFileContent(
+              ...(args as Parameters<typeof updateFileContent>),
+            )
           }}
           cursorPosition={cursorPosition}
         />
