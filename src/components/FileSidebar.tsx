@@ -63,7 +63,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     >
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={`z-[99] mt-2 ml-2 text-black/60 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       >
         <PanelRightOpen />
       </button>

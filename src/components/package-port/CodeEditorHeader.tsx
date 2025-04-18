@@ -81,7 +81,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
         <button
-          className={`text-black/60 scale-90 transition-opacity duration-200 ${sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          className={`text-gray-400 scale-90 transition-opacity duration-200 ${sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
           onClick={() => setSidebarOpen(true)}
         >
           <PanelRightClose />
