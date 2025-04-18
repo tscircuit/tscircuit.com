@@ -476,18 +476,25 @@ export const CodeEditor = ({
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
-
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
     <div className="flex h-full">
       <FileSidebar
         files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
         currentFile={currentFile}
+        fileSidebarState={
+          [sidebarOpen, setSidebarOpen] as ReturnType<typeof useState<boolean>>
+        }
         onFileSelect={handleFileChange}
-        className="border-r border-gray-200"
       />
       <div className="flex flex-col flex-1">
         {showImportAndFormatButtons && (
           <CodeEditorHeader
+            fileSidebarState={
+              [sidebarOpen, setSidebarOpen] as ReturnType<
+                typeof useState<boolean>
+              >
+            }
             currentFile={currentFile}
             files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
             updateFileContent={(...args) => {

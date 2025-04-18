@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, PanelRightClose } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 
 export type FileName = string
@@ -20,6 +20,7 @@ interface CodeEditorHeaderProps {
   files: Record<FileName, string>
   updateFileContent: (filename: FileName, content: string) => void
   cursorPosition: number | null
+  fileSidebarState: ReturnType<typeof useState<boolean>>
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -27,12 +28,13 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   files,
   updateFileContent,
   cursorPosition,
+  fileSidebarState,
 }) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
   const [footprintDialogOpen, setFootprintDialogOpen] = useState(false)
   const { toast } = useToast()
-
+  const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
 
@@ -78,6 +80,15 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   return (
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
+        {!sidebarOpen && (
+          <button
+            className="text-black/60 scale-90"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <PanelRightClose />
+          </button>
+        )}
+
         <div className="flex items-center gap-2 px-2 py-1 ml-auto">
           {checkIfManualEditsImported(files) && (
             <DropdownMenu>

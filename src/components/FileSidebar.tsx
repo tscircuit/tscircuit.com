@@ -1,6 +1,6 @@
-import React from "react"
+import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder } from "lucide-react"
+import { File, Folder, PanelRightOpen } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 
 type FileName = string
@@ -10,6 +10,7 @@ interface FileSidebarProps {
   currentFile: FileName
   onFileSelect: (filename: FileName) => void
   className?: string
+  fileSidebarState: ReturnType<typeof useState<boolean>>
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -17,7 +18,9 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   currentFile,
   onFileSelect,
   className,
+  fileSidebarState,
 }) => {
+  const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
   ): TreeDataItem[] => {
@@ -51,7 +54,19 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const treeData = transformFilesToTreeData(files)
 
   return (
-    <div className={cn("flex-shrink-0", className)}>
+    <div
+      className={cn(
+        "flex-shrink-0 transition-all duration-300 border-r relative",
+        !sidebarOpen ? "w-0 overflow-hidden" : "w-64",
+        className,
+      )}
+    >
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="z-[99] mt-2 ml-2 text-black/60 scale-90"
+      >
+        <PanelRightOpen />
+      </button>
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
