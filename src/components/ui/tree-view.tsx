@@ -9,7 +9,7 @@ const treeVariants = cva(
 )
 
 const selectedTreeVariants = cva(
-  "before:opacity-100 before:bg-slate-100/70 text-accent-foreground' dark:before:bg-slate-800/70",
+  "before:opacity-100 before:bg-slate-100/70 text-accent-foreground dark:before:bg-slate-800/70",
 )
 
 const dragOverVariants = cva(
@@ -57,6 +57,10 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
     const [selectedItemId, setSelectedItemId] = React.useState<
       string | undefined
     >(initialSelectedItemId)
+
+    React.useEffect(() => {
+      setSelectedItemId(initialSelectedItemId)
+    }, [initialSelectedItemId])
 
     const [draggedItem, setDraggedItem] = React.useState<TreeDataItem | null>(
       null,
