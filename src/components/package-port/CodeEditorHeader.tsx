@@ -12,6 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { AlertTriangle, PanelRightClose } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 export type FileName = string
 
@@ -21,6 +29,7 @@ interface CodeEditorHeaderProps {
   updateFileContent: (filename: FileName, content: string) => void
   cursorPosition: number | null
   fileSidebarState: ReturnType<typeof useState<boolean>>
+  handleFileChange: (filename: FileName) => void
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -29,6 +38,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   updateFileContent,
   cursorPosition,
   fileSidebarState,
+  handleFileChange,
 }) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
@@ -86,6 +96,22 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         >
           <PanelRightClose />
         </button>
+        <div>
+          <Select value={currentFile} onValueChange={handleFileChange}>
+            <SelectTrigger className="h-7 px-3 bg-white">
+              <SelectValue placeholder="Select file" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.keys(files)
+                .filter((filename) => !isHiddenFile(filename))
+                .map((filename) => (
+                  <SelectItem className="py-1" key={filename} value={filename}>
+                    <span className="text-xs pr-1">{filename}</span>
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex items-center gap-2 px-2 py-1 ml-auto">
           {checkIfManualEditsImported(files) && (
