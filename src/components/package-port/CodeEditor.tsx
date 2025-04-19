@@ -478,7 +478,7 @@ export const CodeEditor = ({
   }
   const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
-    <div className="flex h-full">
+    <div className="flex h-full w-full">
       <FileSidebar
         files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
         currentFile={currentFile}
@@ -487,7 +487,7 @@ export const CodeEditor = ({
         }
         onFileSelect={handleFileChange}
       />
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 w-full">
         {showImportAndFormatButtons && (
           <CodeEditorHeader
             fileSidebarState={

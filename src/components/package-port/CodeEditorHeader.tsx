@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 export type FileName = string
 
@@ -101,11 +102,13 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
             <SelectContent>
-              {Object.keys(files).map((filename) => (
-                <SelectItem className="py-1" key={filename} value={filename}>
-                  <span className="text-xs pr-1">{filename}</span>
-                </SelectItem>
-              ))}
+              {Object.keys(files)
+                .filter((filename) => !isHiddenFile(filename))
+                .map((filename) => (
+                  <SelectItem className="py-1" key={filename} value={filename}>
+                    <span className="text-xs pr-1">{filename}</span>
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
