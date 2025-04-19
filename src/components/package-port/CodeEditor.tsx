@@ -501,6 +501,7 @@ export const CodeEditor = ({
               return updateFileContent(...args)
             }}
             cursorPosition={cursorPosition}
+            handleFileChange={handleFileChange}
           />
         )}
         <div ref={editorRef} className="flex-1 overflow-auto max-w-[100%]" />
