@@ -4,10 +4,15 @@ import Header from "@/components/Header"
 import { usePackage } from "@/hooks/use-package"
 import { Helmet } from "react-helmet-async"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { NotFound } from "@/components/NotFound"
+import { ErrorOutline } from "@/components/ErrorOutline"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
   const { data: pkg, isLoading, error } = usePackage(packageId)
+  const uuid4RegExp = new RegExp(
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
+  )
   return (
     <div className="overflow-x-hidden">
       <Helmet>
@@ -32,10 +37,16 @@ export const EditorPage = () => {
       </Helmet>
       <Header />
       {!error && <CodeAndPreview pkg={pkg} />}
-      {error && error.status === 404 && <h1>"Package Not Found"</h1>}
+      {error &&
+        (error.status === 404 || !uuid4RegExp.test(packageId ?? "")) && (
+          <NotFound heading="Package not found" />
+        )}
       {error && error.status !== 404 && (
-        <div className="flex flex-col">
-          Something strange happened<div>{error.message}</div>
+        <div className="min-h-screen grid place-items-center">
+          <ErrorOutline
+            error={error}
+            description={"There was an error loading the editor page"}
+          />
         </div>
       )}
       <Footer />

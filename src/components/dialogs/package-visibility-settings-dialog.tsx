@@ -1,6 +1,12 @@
 import { useState } from "react"
 import { Button } from "../ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog"
 import { Label } from "../ui/label"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { createUseDialog } from "./create-use-dialog"
@@ -23,6 +29,9 @@ export const PackageVisibilitySettingsDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Package Privacy Settings</DialogTitle>
+          <DialogDescription>
+            Control whether your package is publicly visible or private.
+          </DialogDescription>
         </DialogHeader>
         <div className="py-1">
           <RadioGroup
