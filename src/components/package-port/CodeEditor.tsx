@@ -449,6 +449,12 @@ export const CodeEditor = ({
 
   const handleFileChange = (path: string) => {
     setCurrentFile(path)
+    try {
+      // Set url query to file path
+      const urlParams = new URLSearchParams(window.location.search)
+      urlParams.set("file_path", path)
+      window.history.replaceState(null, "", `?${urlParams.toString()}`)
+    } catch {}
   }
 
   const updateFileContent = (path: string, newContent: string) => {
