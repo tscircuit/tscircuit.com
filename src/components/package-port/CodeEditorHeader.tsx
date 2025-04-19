@@ -103,17 +103,26 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             </SelectTrigger>
             <SelectContent>
               {Object.keys(files)
-                .filter((filename) => !isHiddenFile(filename))
+                .filter(
+                  (filename) =>
+                    !isHiddenFile(
+                      filename.startsWith("/") ? filename.slice(1) : filename,
+                    ),
+                )
                 .map((filename) => (
                   <SelectItem className="py-1" key={filename} value={filename}>
-                    <span className="text-xs pr-1">{filename}</span>
+                    <span
+                      className={`text-xs pr-1 block truncate ${sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"}`}
+                    >
+                      {filename}
+                    </span>
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center gap-2 px-2 py-1 ml-auto">
+        <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
           {checkIfManualEditsImported(files) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

@@ -147,6 +147,10 @@ export function CodeAndPreview({ pkg }: Props) {
   const { data: loadedFiles, isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
 
+  const [pkgFilesLoaded, setPkgFilesLoaded] = useState<boolean>(
+    urlParams.package_id ? false : true,
+  )
+
   useEffect(() => {
     if (!pkgFiles.data?.length) {
       if (pkg && pkgFilesWithContent.length === 0) {
@@ -171,6 +175,7 @@ export function CodeAndPreview({ pkg }: Props) {
       }
 
       setPkgFilesWithContent(processedResults)
+      setPkgFilesLoaded(true)
       setInitialFilesLoad(processedResults)
       setLastRunCode(
         processedResults.find((x) => x.path === "index.tsx")?.content ??
@@ -184,12 +189,6 @@ export function CodeAndPreview({ pkg }: Props) {
     pkgFilesWithContent.length,
     defaultCode,
   ])
-
-  // useEffect(() => {
-  //   if (pkg && pkgFiles.data) {
-  //     loadPkgFiles()
-  //   }
-  // }, [pkg, pkgFiles.data])
 
   const createPackageMutation = useCreatePackageMutation()
 
@@ -355,6 +354,7 @@ export function CodeAndPreview({ pkg }: Props) {
               )
             }}
             onDtsChange={setDts}
+            pkgFilesLoaded={pkgFilesLoaded}
           />
         </div>
         {showPreview && (

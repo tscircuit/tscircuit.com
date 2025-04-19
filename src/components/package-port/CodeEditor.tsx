@@ -48,12 +48,14 @@ export const CodeEditor = ({
   isStreaming = false,
   showImportAndFormatButtons = true,
   onFileContentChanged,
+  pkgFilesLoaded,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
   files: FileContent[]
   readOnly?: boolean
   isStreaming?: boolean
+  pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
 }) => {
@@ -72,34 +74,27 @@ export const CodeEditor = ({
   // Set current file on component mount
   useEffect(() => {
     if (files.length === 0) return
+    if (!pkgFilesLoaded) return
     if (currentFile) return
     let targetFile = null
 
-    // Priority 1: Use file_path from URL if it exists in files
     if (filePathFromUrl) {
       targetFile = files.find((file) => file.path === filePathFromUrl)
     }
-
-    // Priority 2: Use index.tsx if it exists
     if (!targetFile) {
       targetFile = files.find((file) => file.path === "index.tsx")
     }
-
-    // Priority 3: Use first .tsx file
     if (!targetFile) {
       targetFile = files.find((file) => file.path.endsWith(".tsx"))
     }
-
-    // Fallback: Use first file
     if (!targetFile && files[0]) {
       targetFile = files[0]
     }
-
     if (targetFile) {
       setCurrentFile(targetFile.path)
       setCode(targetFile.content)
     }
-  }, [files, filePathFromUrl])
+  }, [filePathFromUrl, pkgFilesLoaded])
 
   const fileMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -494,7 +489,7 @@ export const CodeEditor = ({
         }
         onFileSelect={handleFileChange}
       />
-      <div className="flex flex-col flex-1 w-full">
+      <div className="flex flex-col flex-1 w-full min-w-0">
         {showImportAndFormatButtons && (
           <CodeEditorHeader
             fileSidebarState={
@@ -511,7 +506,10 @@ export const CodeEditor = ({
             handleFileChange={handleFileChange}
           />
         )}
-        <div ref={editorRef} className="flex-1 overflow-auto max-w-[100%]" />
+        <div
+          ref={editorRef}
+          className="flex-1 overflow-auto [&_.cm-editor]:h-full"
+        />
       </div>
     </div>
   )
