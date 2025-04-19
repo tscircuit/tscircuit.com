@@ -91,7 +91,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
         <button
-          className={`text-gray-400 scale-90 transition-opacity duration-200 ${sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          className={`text-gray-400 scale-90 transition-opacity duration-200 ${
+            sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
           onClick={() => setSidebarOpen(true)}
         >
           <PanelRightClose />
@@ -112,12 +114,31 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 .map((filename) => (
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
-                      className={`text-xs pr-1 block truncate ${sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"}`}
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                      }`}
                     >
                       {filename}
                     </span>
                   </SelectItem>
                 ))}
+              {currentFile &&
+                Object.keys(files).includes(currentFile) &&
+                isHiddenFile(
+                  currentFile.startsWith("/")
+                    ? currentFile.slice(1)
+                    : currentFile,
+                ) && (
+                  <SelectItem className="py-1" value={currentFile}>
+                    <span
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                      }`}
+                    >
+                      {currentFile}
+                    </span>
+                  </SelectItem>
+                )}
             </SelectContent>
           </Select>
         </div>

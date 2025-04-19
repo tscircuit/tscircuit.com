@@ -87,6 +87,9 @@ export const CodeEditor = ({
     if (!targetFile) {
       targetFile = files.find((file) => file.path.endsWith(".tsx"))
     }
+    if (!targetFile) {
+      targetFile = files.find((file) => file.path === "index.ts")
+    }
     if (!targetFile && files[0]) {
       targetFile = files[0]
     }
