@@ -62,7 +62,6 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
-
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [currentFile, setCurrentFile] = useState<string>("")
@@ -70,35 +69,37 @@ export const CodeEditor = ({
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
-
   // Set current file on component mount
   useEffect(() => {
-    if (files.length > 0 && currentFile === "") {
-      // Priority 1: Use file_path from URL if it exists in files
-      if (
-        filePathFromUrl &&
-        files.some((file) => file.path === filePathFromUrl)
-      ) {
-        setCurrentFile(filePathFromUrl)
-      }
-      // Priority 2: Use index.tsx if it exists in files
-      else if (files.some((file) => file.path === "index.tsx")) {
-        setCurrentFile("index.tsx")
-      }
-      // Priority 3: Use the first file with .tsx extension
-      else {
-        const tsxFile = files.find((file) => file.path.endsWith(".tsx"))
-        if (tsxFile) {
-          setCurrentFile(tsxFile.path)
-        }
-        // Fallback: Use the first file in the array
-        else if (files[0]) {
-          setCurrentFile(files[0].path)
-        }
-      }
-      return
+    if (files.length === 0) return
+    if (currentFile) return
+    let targetFile = null
+
+    // Priority 1: Use file_path from URL if it exists in files
+    if (filePathFromUrl) {
+      targetFile = files.find((file) => file.path === filePathFromUrl)
     }
-  }, [files])
+
+    // Priority 2: Use index.tsx if it exists
+    if (!targetFile) {
+      targetFile = files.find((file) => file.path === "index.tsx")
+    }
+
+    // Priority 3: Use first .tsx file
+    if (!targetFile) {
+      targetFile = files.find((file) => file.path.endsWith(".tsx"))
+    }
+
+    // Fallback: Use first file
+    if (!targetFile && files[0]) {
+      targetFile = files[0]
+    }
+
+    if (targetFile) {
+      setCurrentFile(targetFile.path)
+      setCode(targetFile.content)
+    }
+  }, [files, filePathFromUrl])
 
   const fileMap = useMemo(() => {
     const map: Record<string, string> = {}
