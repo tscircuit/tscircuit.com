@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { cn } from "@/lib/utils"
 import { File, Folder, PanelRightOpen } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
+import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 
 type FileName = string
 
@@ -24,35 +25,57 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
   ): TreeDataItem[] => {
-    const root: { [key: string]: TreeDataItem } = {}
+    type TreeNode = Omit<TreeDataItem, "children"> & {
+      children?: Record<string, TreeNode>
+    }
+    const root: Record<string, TreeNode> = {}
 
     Object.keys(files).forEach((path) => {
-      const parts = path.split("/")
+      const startsWithSlash = path.startsWith("/")
+      const parts = (startsWithSlash ? path.slice(1) : path).trim().split("/")
       let current = root
 
-      let currentPath = ""
       parts.forEach((part, index) => {
-        const id = currentPath ? `${currentPath}/${part}` : part
-        currentPath = id
-
-        if (!current[part]) {
-          const isFile = index === parts.length - 1
+        const isFile = index === parts.length - 1
+        const parentPath = parts.slice(0, index).join("/")
+        const currentPath = parentPath ? `${parentPath}/${part}` : part
+        const evaluatedFilePath = startsWithSlash
+          ? `/${currentPath}`
+          : currentPath
+        if (!current[part] && !isHiddenFile(currentPath)) {
           current[part] = {
-            id: id,
-            name: part,
+            id: currentPath,
+            name: isFile ? part : part,
             icon: isFile ? File : Folder,
-            onClick: isFile ? () => onFileSelect(id) : undefined,
+            onClick: isFile ? () => onFileSelect(evaluatedFilePath) : undefined,
+            draggable: isFile,
+            droppable: !isFile,
+            children: isFile ? undefined : {},
           }
         }
-        current = (current[part] as any).children || (current[part] as any)
+
+        if (!isFile && current[part].children) {
+          current = current[part].children
+        }
       })
     })
 
-    return Object.values(root)
+    // Convert the nested object structure to array structure
+    const convertToArray = (
+      items: Record<string, TreeNode>,
+    ): TreeDataItem[] => {
+      return Object.values(items).map((item) => ({
+        ...item,
+        children: item.children ? convertToArray(item.children) : undefined,
+      }))
+    }
+    return convertToArray(root).filter((x) => {
+      if (x.children?.length === 0) return false
+      return true
+    })
   }
 
   const treeData = transformFilesToTreeData(files)
-
   return (
     <div
       className={cn(
@@ -67,7 +90,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       >
         <PanelRightOpen />
       </button>
-
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
