@@ -98,7 +98,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         jsx: "babel",
         ts: "typescript",
         tsx: "typescript",
-        html: "html",
         md: "markdown",
         markdown: "markdown",
       }

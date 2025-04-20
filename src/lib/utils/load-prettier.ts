@@ -9,7 +9,6 @@ export async function loadPrettier() {
     loadScript(
       "https://cdn.jsdelivr.net/npm/prettier@2.8.8/parser-markdown.js",
     ),
-    loadScript("https://cdn.jsdelivr.net/npm/prettier@2.8.8/parser-html.js"),
   ])
 }
 
