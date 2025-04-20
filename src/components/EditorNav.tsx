@@ -195,14 +195,16 @@ export default function EditorNav({
           {snippet && (
             <>
               <SnippetLink snippet={snippet} />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 ml-2"
-                onClick={() => openRenameDialog()}
-              >
-                <Pencil className="h-3 w-3 text-gray-700" />
-              </Button>
+              {snippet?.owner_name === session?.github_username && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-2"
+                  onClick={() => openRenameDialog()}
+                >
+                  <Pencil className="h-3 w-3 text-gray-700" />
+                </Button>
+              )}
               {isPrivate && (
                 <div className="relative group">
                   <LockClosedIcon className="h-3 w-3 text-gray-700" />
