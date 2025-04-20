@@ -35,7 +35,6 @@ export const UserProfilePage = () => {
       searchInput.focus()
     }
   }, [])
-  
   const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
     Snippet[]
   >(["userSnippets", username], async () => {
