@@ -42,7 +42,7 @@ const TrendingPage: React.FC = () => {
   useEffect(() => {
     const searchInput = document.querySelector(
       'input[placeholder="Search"]',
-    ) as HTMLInputElement;
+    ) as HTMLInputElement
     if (searchInput) {
       searchInput.focus()
     }
