@@ -17,6 +17,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   const [searchQuery, setSearchQuery] = useState("")
   const axios = useAxios()
   const [location] = useLocation()
+  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -77,7 +78,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
               >
                 <div className="w-16 h-16 overflow-hidden flex-shrink-0 rounded-sm border border-gray-100">
                   <img
-                    src={`${useSnippetsBaseApiUrl()}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
+                    src={`${snippetsBaseApiUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
                     alt={`PCB preview for ${snippet.name}`}
                     className="w-full h-full object-contain p-1 scale-[4] rotate-45"
                     onError={(e) => {
