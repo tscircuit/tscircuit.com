@@ -67,7 +67,9 @@ export const UserProfilePage = () => {
     ?.filter((snippet) => {
       return (
         !searchQuery ||
-        snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+        snippet.unscoped_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase().trim())
       )
     })
     ?.sort((a, b) => {
