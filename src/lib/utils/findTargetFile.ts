@@ -23,7 +23,7 @@ export const findTargetFile = (
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
   console.log('Found configFile:', configFile)
   
-  if (configFile) {
+  if (configFile && !targetFile) {
     try {
       const config = JSON.parse(configFile.content)
       console.log('Parsed config:', config, typeof config.mainComponent)
