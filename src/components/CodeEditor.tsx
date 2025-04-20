@@ -322,7 +322,7 @@ export const CodeEditor = ({
               },
             }),
             EditorView.theme({
-              ".cm-content .cm-underline": {
+                ".cm-content .cm-underline": {
                 textDecoration: "underline",
                 textDecorationColor: "rgba(0, 0, 255, 0.3)",
                 cursor: "pointer",
@@ -345,10 +345,10 @@ export const CodeEditor = ({
                 overflow: "visible",
                 position: "absolute",
                 zIndex: "9999",
-                backgroundColor: "white",
-                border: "1px solid #ddd",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-                borderRadius: "4px",
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.15)",
+                borderRadius: "0.5rem",
               },
               ".cm-tooltip-hover": {
                 maxWidth: "none !important",
@@ -356,13 +356,20 @@ export const CodeEditor = ({
                 lineHeight: "1.3",
                 overflow: "visible !important",
                 zIndex: "1000",
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "0.5rem",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.10)",
+                border: "1px solid #e2e8f0",
+                fontSize: "0.875rem",
+                transition: "opacity 150ms ease-in-out, transform 150ms ease-in-out",
               },
               ".cm-tooltip-hover .cm-tooltip-section": {
                 maxWidth: "none !important",
-                fontFamily: "monospace",
-                fontSize: "12px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.875rem",
                 whiteSpace: "pre-wrap",
-                color: "#333",
+                color: "black",
                 overflow: "visible !important",
               },
               ".cm-tooltip-section": {
@@ -379,8 +386,8 @@ export const CodeEditor = ({
                 overflow: "visible",
               },
               ".cm-tooltipText": {
-                fontFamily: "monospace",
-                fontSize: "12px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "0.875rem",
                 whiteSpace: "pre-wrap",
                 overflow: "visible",
               },
