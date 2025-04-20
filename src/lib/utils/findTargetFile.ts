@@ -1,22 +1,11 @@
 import type { FileContent } from "@/components/package-port/CodeEditor"
 
-export const findTargetFile = (
+export const findMainEntrypointFileFromTscircuitConfig = (
   files: FileContent[],
-  filePathFromUrl: string | null,
 ): FileContent | null => {
-  if (files.length === 0) {
-    return null
-  }
-
-  let targetFile: FileContent | null = null
-
-  if (!targetFile && filePathFromUrl) {
-    targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
-  }
-
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
 
-  if (configFile && !targetFile) {
+  if (configFile) {
     try {
       const config = JSON.parse(configFile.content)
 
@@ -27,9 +16,30 @@ export const findTargetFile = (
           ? mainComponentPath.substring(2)
           : mainComponentPath
 
-        targetFile = files.find((file) => file.path === normalizedPath) ?? null
+        return files.find((file) => file.path === normalizedPath) ?? null
       }
     } catch {}
+  }
+
+  return null
+}
+
+export const findTargetFile = (
+  files: FileContent[],
+  filePathFromUrl: string | null,
+): FileContent | null => {
+  if (files.length === 0) {
+    return null
+  }
+
+  let targetFile: FileContent | null = null
+
+  if (filePathFromUrl) {
+    targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
+  }
+
+  if (!targetFile) {
+    targetFile = findMainEntrypointFileFromTscircuitConfig(files)
   }
 
   if (!targetFile) {
