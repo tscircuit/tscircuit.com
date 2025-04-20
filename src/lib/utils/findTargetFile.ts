@@ -1,8 +1,8 @@
-import type { FileContent } from "@/components/package-port/CodeEditor"
+import { PackageFile } from "@/components/package-port/CodeAndPreview"
 
 export const findMainEntrypointFileFromTscircuitConfig = (
-  files: FileContent[],
-): FileContent | null => {
+  files: PackageFile[],
+): PackageFile | null => {
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
 
   if (configFile) {
@@ -25,14 +25,14 @@ export const findMainEntrypointFileFromTscircuitConfig = (
 }
 
 export const findTargetFile = (
-  files: FileContent[],
+  files: PackageFile[],
   filePathFromUrl: string | null,
-): FileContent | null => {
+): PackageFile | null => {
   if (files.length === 0) {
     return null
   }
 
-  let targetFile: FileContent | null = null
+  let targetFile: PackageFile | null = null
 
   if (filePathFromUrl) {
     targetFile = files.find((file) => file.path === filePathFromUrl) ?? null

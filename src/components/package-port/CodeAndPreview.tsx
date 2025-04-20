@@ -29,7 +29,7 @@ interface Props {
   pkg?: Package
 }
 
-interface PackageFile {
+export interface PackageFile {
   path: string
   content: string
 }

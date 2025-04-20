@@ -29,16 +29,12 @@ import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-
+import type { PackageFile } from "./CodeAndPreview"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-export interface FileContent {
-  path: string
-  content: string
-}
 
 export const CodeEditor = ({
   onCodeChange,
@@ -52,7 +48,7 @@ export const CodeEditor = ({
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
-  files: FileContent[]
+  files: PackageFile[]
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
