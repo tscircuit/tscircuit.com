@@ -28,11 +28,14 @@ export const UserProfilePage = () => {
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
   useEffect(() => {
-    const searchInput = document.querySelector('input[placeholder="Search"]') as HTMLInputElement;
-    if(searchInput) {
+    const searchInput = document.querySelector(
+      'input[placeholder="Search"]',
+    ) as HTMLInputElement;
+    if (searchInput) {
       searchInput.focus()
     }
   }, [])
+  
   const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
     Snippet[]
   >(["userSnippets", username], async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -40,8 +40,10 @@ const TrendingPage: React.FC = () => {
   const [category, setCategory] = useState("all")
 
   useEffect(() => {
-    const searchInput = document.querySelector('input[placeholder="Search') as HTMLInputElement;
-    if(searchInput) {
+    const searchInput = document.querySelector(
+      'input[placeholder="Search"]',
+    ) as HTMLInputElement;
+    if (searchInput) {
       searchInput.focus()
     }
   }, [])
