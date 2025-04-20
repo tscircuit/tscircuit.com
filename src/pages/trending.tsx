@@ -39,6 +39,13 @@ const TrendingPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("")
   const [category, setCategory] = useState("all")
 
+  useEffect(() => {
+    const searchInput = document.querySelector('input[placeholder="Search') as HTMLInputElement;
+    if(searchInput) {
+      searchInput.focus()
+    }
+  }, [])
+
   const {
     data: snippets,
     isLoading,

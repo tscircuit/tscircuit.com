@@ -12,7 +12,7 @@ import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQuery } from "react-query"
 import { useParams } from "wouter"
 
@@ -27,6 +27,12 @@ export const UserProfilePage = () => {
     useConfirmDeletePackageDialog()
   const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
 
+  useEffect(() => {
+    const searchInput = document.querySelector('input[placeholder="Search"]') as HTMLInputElement;
+    if(searchInput) {
+      searchInput.focus()
+    }
+  }, [])
   const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
     Snippet[]
   >(["userSnippets", username], async () => {
