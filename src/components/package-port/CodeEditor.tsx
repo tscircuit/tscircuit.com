@@ -26,9 +26,9 @@ import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ts from "typescript"
 import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
-// import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -73,31 +73,15 @@ export const CodeEditor = ({
   const filePathFromUrl = urlParams.get("file_path")
   // Set current file on component mount
   useEffect(() => {
-    if (files.length === 0) return
-    if (!pkgFilesLoaded) return
-    if (currentFile) return
-    let targetFile = null
+    if (files.length === 0 || !pkgFilesLoaded || currentFile) return
 
-    if (filePathFromUrl) {
-      targetFile = files.find((file) => file.path === filePathFromUrl)
-    }
-    if (!targetFile) {
-      targetFile = files.find((file) => file.path === "index.tsx")
-    }
-    if (!targetFile) {
-      targetFile = files.find((file) => file.path.endsWith(".tsx"))
-    }
-    if (!targetFile) {
-      targetFile = files.find((file) => file.path === "index.ts")
-    }
-    if (!targetFile && files[0]) {
-      targetFile = files[0]
-    }
+    const targetFile = findTargetFile(files, filePathFromUrl)
+
     if (targetFile) {
       setCurrentFile(targetFile.path)
       setCode(targetFile.content)
     }
-  }, [filePathFromUrl, pkgFilesLoaded])
+  }, [files, filePathFromUrl, pkgFilesLoaded, currentFile])
 
   const fileMap = useMemo(() => {
     const map: Record<string, string> = {}
