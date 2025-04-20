@@ -1,6 +1,6 @@
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import SearchComponent from "@/components/SearchComponent"
+import PageSearchComponent from "@/components/PageSearchComponent"
 import { useState } from "react"
 import { Search, Zap, Tag, Filter } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -12,12 +12,12 @@ export const SearchPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow bg-gray-50">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-3xl mx-auto">
-            <div className="mb-8">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Search className="w-6 h-6 text-blue-500" />
-                <h1 className="text-4xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold text-gray-900">
                   Search Packages
                 </h1>
               </div>
@@ -39,8 +39,7 @@ export const SearchPage = () => {
             </div>
 
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <SearchComponent
-                showFullResults
+              <PageSearchComponent
                 onResultsFetched={(results) => setSearchResults(results)}
               />
             </div>
