@@ -15,12 +15,20 @@ import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
 import { useParams } from "wouter"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
+  const [filter, setFilter] = useState("most-recent") // Changed default from "newest" to "most-recent"
   const session = useGlobalStore((s) => s.session)
   const isCurrentUserProfile = username === session?.github_username
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
@@ -55,12 +63,31 @@ export const UserProfilePage = () => {
   const isLoading =
     activeTab === "starred" ? isLoadingStarredSnippets : isLoadingUserSnippets
 
-  const filteredSnippets = snippetsToShow?.filter((snippet) => {
-    return (
-      !searchQuery ||
-      snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })
+  const filteredSnippets = snippetsToShow
+    ?.filter((snippet) => {
+      return (
+        !searchQuery ||
+        snippet.unscoped_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase().trim())
+      )
+    })
+    ?.sort((a, b) => {
+      switch (filter) {
+        case "most-recent":
+          return b.updated_at.localeCompare(a.updated_at)
+        case "least-recent":
+          return a.updated_at.localeCompare(b.updated_at)
+        case "most-starred":
+          return (b.star_count || 0) - (a.star_count || 0)
+        case "a-z":
+          return a.unscoped_name.localeCompare(b.unscoped_name)
+        case "z-a":
+          return b.unscoped_name.localeCompare(a.unscoped_name)
+        default:
+          return 0
+      }
+    })
 
   const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
     e.preventDefault() // Prevent navigation
@@ -105,13 +132,27 @@ export const UserProfilePage = () => {
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
           </TabsList>
         </Tabs>
-        <Input
-          type="text"
-          placeholder="Searching User Packages..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4"
-        />
+        <div className="flex gap-4 mb-4">
+          <Input
+            type="text"
+            placeholder="Searching User Packages..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mb-4"
+          />
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="most-recent">Most Recent</SelectItem>
+              <SelectItem value="least-recent">Least Recent</SelectItem>
+              <SelectItem value="most-starred">Most Starred</SelectItem>
+              <SelectItem value="a-z">A-Z</SelectItem>
+              <SelectItem value="z-a">Z-A</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         {isLoading ? (
           <div>
             {activeTab === "starred"
@@ -120,20 +161,18 @@ export const UserProfilePage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets
-              ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
-              ?.map((snippet) => (
-                <SnippetCard
-                  key={snippet.snippet_id}
-                  snippet={snippet}
-                  baseUrl={baseUrl}
-                  showOwner={activeTab === "starred"}
-                  isCurrentUserSnippet={
-                    isCurrentUserProfile && activeTab === "all"
-                  }
-                  onDeleteClick={handleDeleteClick}
-                />
-              ))}
+            {filteredSnippets?.map((snippet) => (
+              <SnippetCard
+                key={snippet.snippet_id}
+                snippet={snippet}
+                baseUrl={baseUrl}
+                showOwner={activeTab === "starred"}
+                isCurrentUserSnippet={
+                  isCurrentUserProfile && activeTab === "all"
+                }
+                onDeleteClick={handleDeleteClick}
+              />
+            ))}
           </div>
         )}
       </div>
