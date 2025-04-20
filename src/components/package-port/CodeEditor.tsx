@@ -81,7 +81,7 @@ export const CodeEditor = ({
       setCurrentFile(targetFile.path)
       setCode(targetFile.content)
     }
-  }, [files, filePathFromUrl, pkgFilesLoaded, currentFile])
+  }, [filePathFromUrl, pkgFilesLoaded])
 
   const fileMap = useMemo(() => {
     const map: Record<string, string> = {}
