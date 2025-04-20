@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
 import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { FootprintDialog } from "@/components/FootprintDialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +25,6 @@ interface CodeEditorHeaderProps {
   currentFile: FileName
   files: Record<FileName, string>
   updateFileContent: (filename: FileName, content: string) => void
-  cursorPosition: number | null
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
 }
@@ -35,13 +33,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   currentFile,
   files,
   updateFileContent,
-  cursorPosition,
   fileSidebarState,
   handleFileChange,
 }) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
-  const [footprintDialogOpen, setFootprintDialogOpen] = useState(false)
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
 
@@ -214,18 +210,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="ghost">
-                Insert
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFootprintDialogOpen(true)}>
-                Chip
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
           </Button>
@@ -238,14 +222,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
             updateFileContent(currentFile, newContent)
           }}
-        />
-        <FootprintDialog
-          currentFile={currentFile as `${string}.${string}`}
-          open={footprintDialogOpen}
-          onOpenChange={setFootprintDialogOpen}
-          updateFileContent={updateFileContent}
-          files={files}
-          cursorPosition={cursorPosition}
         />
       </div>
     </>

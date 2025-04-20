@@ -505,7 +505,6 @@ export const CodeEditor = ({
             updateFileContent={(...args) => {
               return updateFileContent(...args)
             }}
-            cursorPosition={cursorPosition}
             handleFileChange={handleFileChange}
           />
         )}
