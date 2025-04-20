@@ -135,7 +135,7 @@ export const UserProfilePage = () => {
             type="text"
             placeholder="Searching User Packages..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value.trim())}
             className="mb-4"
           />
           <Select value={filter} onValueChange={setFilter}>
