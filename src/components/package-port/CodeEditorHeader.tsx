@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -45,13 +44,41 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const [footprintDialogOpen, setFootprintDialogOpen] = useState(false)
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
+
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
-
     try {
       const currentContent = files[currentFile]
+      let fileExtension = currentFile.split(".").pop()?.toLowerCase()
+      if (currentContent.trim().length === 0) {
+        toast({
+          title: "Empty file",
+          description: "Cannot format an empty file.",
+        })
+        return
+      }
+      if (!fileExtension) {
+        toast({
+          title: "Cannot determine file type",
+          description: "Unable to format file without an extension.",
+        })
+        return
+      }
 
-      if (currentFile.endsWith(".json")) {
+      if (["readme"].includes(currentFile.toLowerCase())) {
+        fileExtension = "md"
+      }
+
+      if (fileExtension === currentFile.toLowerCase()) {
+        toast({
+          title: "Cannot determine file type",
+          description: "Unable to format file without an extension.",
+        })
+        return
+      }
+
+      // Handle JSON formatting separately
+      if (fileExtension === "json") {
         try {
           const jsonObj = JSON.parse(currentContent)
           const formattedJson = JSON.stringify(jsonObj, null, 2)
@@ -62,28 +89,48 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             description: "Failed to format JSON: invalid syntax.",
             variant: "destructive",
           })
-          return
         }
         return
       }
 
+      const parserMap: Record<string, string> = {
+        js: "babel",
+        jsx: "babel",
+        ts: "typescript",
+        tsx: "typescript",
+        html: "html",
+        md: "markdown",
+        markdown: "markdown",
+      }
+
+      const parser = parserMap[fileExtension] || "typescript"
       const formattedCode = window.prettier.format(currentContent, {
         semi: false,
-        parser: "typescript",
+        parser: parser,
         plugins: window.prettierPlugins,
       })
 
       updateFileContent(currentFile, formattedCode)
     } catch (error) {
       console.error("Formatting error:", error)
-      toast({
-        title: "Formatting error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to format the code. Please check for syntax errors.",
-        variant: "destructive",
-      })
+      if (
+        error instanceof Error &&
+        error.message.includes("No parser could be inferred")
+      ) {
+        toast({
+          title: "Unsupported File Type",
+          description: `Formatting not supported for .${currentFile.split(".").pop()?.toLowerCase()} files. Tried default parser.`,
+        })
+      } else {
+        toast({
+          title: "Formatting error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to format the code. Please check for syntax errors.",
+          variant: "destructive",
+        })
+      }
     }
   }, [currentFile, files, toast, updateFileContent])
 
