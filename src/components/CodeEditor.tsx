@@ -322,7 +322,7 @@ export const CodeEditor = ({
               },
             }),
             EditorView.theme({
-                ".cm-content .cm-underline": {
+              ".cm-content .cm-underline": {
                 textDecoration: "underline",
                 textDecorationColor: "rgba(0, 0, 255, 0.3)",
                 cursor: "pointer",
@@ -362,7 +362,8 @@ export const CodeEditor = ({
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.10)",
                 border: "1px solid #e2e8f0",
                 fontSize: "0.875rem",
-                transition: "opacity 150ms ease-in-out, transform 150ms ease-in-out",
+                transition:
+                  "opacity 150ms ease-in-out, transform 150ms ease-in-out",
               },
               ".cm-tooltip-hover .cm-tooltip-section": {
                 maxWidth: "none !important",
