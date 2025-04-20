@@ -456,7 +456,6 @@ export const CodeEditor = ({
               ...(args as Parameters<typeof updateFileContent>),
             )
           }}
-          cursorPosition={cursorPosition}
         />
       )}
       <div ref={editorRef} className="flex-1 overflow-auto" />

@@ -25,7 +25,6 @@ interface CodeEditorHeaderProps {
   files: Record<FileName, string>
   handleFileChange: (filename: FileName) => void
   updateFileContent: (filename: FileName, content: string) => void
-  cursorPosition: number | null
 }
 
 export const CodeEditorHeader = ({
@@ -33,7 +32,6 @@ export const CodeEditorHeader = ({
   files,
   handleFileChange,
   updateFileContent,
-  cursorPosition,
 }: CodeEditorHeaderProps) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
