@@ -42,7 +42,13 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         const evaluatedFilePath = startsWithSlash
           ? `/${currentPath}`
           : currentPath
-        if (!current[part] && !isHiddenFile(currentPath)) {
+        if (
+          !current[part] &&
+          (!isHiddenFile(currentPath) ||
+            isHiddenFile(
+              currentFile.startsWith("/") ? currentFile.slice(1) : currentFile,
+            ))
+        ) {
           current[part] = {
             id: currentPath,
             name: isFile ? part : part,
@@ -86,7 +92,9 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     >
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${
+          !sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}
       >
         <PanelRightOpen />
       </button>
