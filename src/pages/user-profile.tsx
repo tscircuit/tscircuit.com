@@ -67,7 +67,7 @@ export const UserProfilePage = () => {
     ?.filter((snippet) => {
       return (
         !searchQuery ||
-        snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase())
+        snippet.unscoped_name.toLowerCase().includes(searchQuery.toLowerCase().trim())
       )
     })
     ?.sort((a, b) => {
@@ -135,7 +135,7 @@ export const UserProfilePage = () => {
             type="text"
             placeholder="Searching User Packages..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value.trim())}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="mb-4"
           />
           <Select value={filter} onValueChange={setFilter}>
