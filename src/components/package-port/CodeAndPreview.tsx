@@ -298,6 +298,11 @@ export function CodeAndPreview({ pkg }: Props) {
       ? `import { ${exportName} as Snippet } from "./index.tsx"`
       : `import Snippet from "./index.tsx"`
 
+    const entrypointContent =
+      packageType === "board"
+        ? `${importStatement}\ncircuit.add(<Snippet />)`
+        : `${importStatement}\ncircuit.add(\n  <board>\n    <Snippet name="U1" />\n  </board>\n)`
+    
     return {
       ...pkgFilesWithContent.reduce(
         (acc, file) => {
