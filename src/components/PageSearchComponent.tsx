@@ -23,7 +23,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     () => new URLSearchParams(window.location.search).get("q") ?? "",
   )
 
-  const { data: searchResults, isLoading } = useQuery(
+  const { data: searchResults, isLoading: isLoadingSearchResults } = useQuery(
     ["snippetSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
@@ -60,7 +60,6 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     }
   }
 
-
   return (
     <div className="min-h-[400px]">
       <div className="mb-6">
@@ -80,7 +79,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
         </div>
       </div>
 
-      {isLoading ? (
+      {isLoadingSearchResults ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="border p-4 rounded-md animate-pulse">
@@ -106,9 +105,8 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
               snippet={snippet}
               baseUrl={snippetsBaseApiUrl}
               showOwner={true}
-              withLink={!shouldOpenInEditor}
+              withLink={true}
               className="hover:bg-gray-50"
-              renderActions={shouldOpenInEditor ? () => null : undefined}
             />
           ))}
         </div>
