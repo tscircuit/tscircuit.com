@@ -8,8 +8,9 @@ import {
 } from "@/hooks/use-package-stars"
 import { LockClosedIcon } from "@radix-ui/react-icons"
 import { GitFork, Star } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 import { Link } from "wouter"
+import { useOrderDialog } from "@tscircuit/runframe"
+import { useEffect } from "react"
 
 interface PackageInfo {
   name: string
@@ -37,8 +38,7 @@ export default function PackageHeader({
   const author = packageInfo?.owner_github_username
   const packageName = packageInfo?.unscoped_name
 
-  const { toast } = useToast()
-
+  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
@@ -65,6 +65,12 @@ export default function PackageHeader({
 
   const isStarLoading =
     isStarDataLoading || addStar.isLoading || removeStar.isLoading
+
+  useEffect(() => {
+    window.TSCIRCUIT_REGISTRY_API_BASE_URL =
+      import.meta.env.VITE_TSCIRCUIT_REGISTRY_API_URL ??
+      `${window.location.origin}/api`
+  }, [])
 
   return (
     <header className="bg-white border-b border-gray-200 py-4">
@@ -103,6 +109,15 @@ export default function PackageHeader({
             )}
           </div>
           <div className="items-center space-x-2 hidden md:flex">
+            {/* WIP: add order button */}
+            {/* <Button
+              size="sm"
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={open}
+            >
+              Place Order
+            </Button> */}
             <Button
               variant="outline"
               size="sm"
@@ -165,6 +180,12 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
+      <OrderDialog
+        isOpen={isOpen}
+        onClose={close}
+        stage={stage}
+        setStage={setStage}
+      />
     </header>
   )
 }

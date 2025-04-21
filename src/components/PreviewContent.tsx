@@ -55,12 +55,6 @@ export interface PreviewContentProps {
   onManualEditsFileContentChange?: (newmanualEditsFileContent: string) => void
 }
 
-declare global {
-  interface Window {
-    TSCIRCUIT_3D_OBJECT_REF: any
-  }
-}
-
 export const PreviewContent = ({
   code,
   triggerRunTsx,

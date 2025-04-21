@@ -13,12 +13,6 @@ interface ViewTsFilesDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-declare global {
-  interface Window {
-    __DEBUG_CODE_EDITOR_FS_MAP: Map<string, string>
-  }
-}
-
 export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
   open,
   onOpenChange,
