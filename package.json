@@ -7,6 +7,10 @@
     "url": "https://github.com/tscircuit/snippets"
   },
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./schema": "./dist/schema.js"
+  },
   "scripts": {
     "start": "bun run dev",
     "snapshot": "bun scripts/snapshot.ts",
@@ -21,7 +25,8 @@
     "lint": "biome format .",
     "build:fake-api:tsup": "tsup-node ./fake-snippets-api/lib/index.ts --format esm --dts",
     "build:fake-api:bundle": "winterspec bundle -o dist/bundle.js",
-    "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle",
+    "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle && bun run build:fake-api:schema",
+    "build:fake-api:schema": "tsup-node ./fake-snippets-api/lib/db/schema.ts --format esm --dts",
     "generate-images": "bun run scripts/generate-image-sizes.ts",
     "generate-sitemap": "bun run scripts/generate-sitemap.ts"
   },
