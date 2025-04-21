@@ -5,8 +5,8 @@ import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { PrefetchPageLink } from "./PrefetchPageLink"
 import { Loader2 } from "lucide-react"
+import { SnippetCard } from "./SnippetCard"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -39,11 +39,10 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     e.preventDefault()
   }
 
-  const shouldOpenInNewTab = location === "/editor" || location === "/ai"
   const shouldOpenInEditor = location === "/editor" || location === "/ai"
 
   return (
-    <div>
+    <div className="min-h-[400px]">
       <form onSubmit={handleSearch} className="w-full">
         <Input
           type="search"
@@ -57,57 +56,23 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
       </form>
 
       {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
         </div>
       )}
 
       {searchResults && searchResults.length > 0 && (
-        <div className="mt-6 divide-y divide-gray-200 border border-gray-200 rounded-lg bg-white">
+        <div className="mt-6 grid grid-cols-1 gap-4">
           {searchResults.map((snippet: any) => (
-            <div
+            <SnippetCard
               key={snippet.snippet_id}
-              className="p-4 hover:bg-gray-50 transition-colors"
-            >
-              <PrefetchPageLink
-                href={
-                  shouldOpenInEditor
-                    ? `/editor?snippet_id=${snippet.snippet_id}`
-                    : `/${snippet.owner_name}/${snippet.unscoped_name}`
-                }
-                className="flex items-start gap-4"
-              >
-                <div className="w-16 h-16 overflow-hidden flex-shrink-0 rounded-sm border border-gray-100">
-                  <img
-                    src={`${snippetsBaseApiUrl}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
-                    alt={`PCB preview for ${snippet.name}`}
-                    className="w-full h-full object-contain p-1 scale-[4] rotate-45"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      target.style.display = "none"
-                    }}
-                  />
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h3 className="font-medium text-blue-600 hover:underline truncate">
-                    {snippet.name}
-                  </h3>
-                  {snippet.description && (
-                    <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                      {snippet.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-                    <span>{snippet.owner_name}</span>
-                    <span>•</span>
-                    <span>
-                      Created{" "}
-                      {new Date(snippet.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </PrefetchPageLink>
-            </div>
+              snippet={snippet}
+              baseUrl={snippetsBaseApiUrl}
+              showOwner={true}
+              withLink={!shouldOpenInEditor}
+              className="hover:bg-gray-50"
+              renderActions={shouldOpenInEditor ? () => null : undefined}
+            />
           ))}
         </div>
       )}
