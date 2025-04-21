@@ -23,12 +23,13 @@ import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-rele
 import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMutation"
 import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
 import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
 
 interface Props {
   pkg?: Package
 }
 
-interface PackageFile {
+export interface PackageFile {
   path: string
   content: string
 }
@@ -94,6 +95,8 @@ export function CodeAndPreview({ pkg }: Props) {
   const [isPrivate, setIsPrivate] = useState(false)
 
   const entryPointCode = useMemo(() => {
+    const entryPointFile = findTargetFile(pkgFilesWithContent, null)
+    if (entryPointFile && entryPointFile.content) return entryPointFile.content
     return (
       pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
       defaultCode

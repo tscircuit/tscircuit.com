@@ -25,7 +25,6 @@ export const isHiddenFile = (filePath: string): boolean => {
     /\.eslintrc(\.[^/]*)?$/,
     /\.prettierrc(\.[^/]*)?$/,
     /\.babelrc$/,
-    /tscircuit\.config\.json/,
     /tsconfig\.json$/,
     /jest\.config\.[^/]*$/,
     /vite\.config\.[^/]*$/,
