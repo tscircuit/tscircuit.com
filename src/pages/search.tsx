@@ -22,11 +22,6 @@ export const SearchPage = () => {
                   Search tscircuit Packages
                 </h1>
               </div>
-              <p className="text-lg text-gray-600 mb-4">
-                Find circuit packages for your next project. Browse through our
-                collection of community-created circuit designs, footprints, and
-                components.
-              </p>
               <div className="flex flex-wrap gap-3">
                 <Badge variant="secondary" className="px-3 py-1">
                   <Filter className="w-3.5 h-3.5 mr-1" />
