@@ -23,10 +23,6 @@ export const SearchPage = () => {
                 </h1>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Badge variant="secondary" className="px-3 py-1">
-                  <Filter className="w-3.5 h-3.5 mr-1" />
-                  <span>Search by Name</span>
-                </Badge>
                 <PrefetchPageLink href="/trending">
                   <Badge
                     variant="secondary"
