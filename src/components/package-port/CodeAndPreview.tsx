@@ -298,22 +298,6 @@ export function CodeAndPreview({ pkg }: Props) {
       ? `import { ${exportName} as Snippet } from "./index.tsx"`
       : `import Snippet from "./index.tsx"`
 
-    const entrypointContent =
-      packageType === "board"
-        ? `${importStatement}\ncircuit.add(<Snippet />)`
-        : `${importStatement}\ncircuit.add(\n  <board>\n    <Snippet name="U1" />\n  </board>\n)`
-    console.log("fsmap", {
-      ...pkgFilesWithContent.reduce(
-        (acc, file) => {
-          acc[file.path] = file.content
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-      "index.tsx": entryPointCode ?? "// No Default Code Found",
-      "manual-edits.json": manualEditsFileContent ?? "{}",
-      "main.tsx": entrypointContent.trim(),
-    })
     return {
       ...pkgFilesWithContent.reduce(
         (acc, file) => {
