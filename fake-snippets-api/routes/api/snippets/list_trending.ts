@@ -8,14 +8,32 @@ export default withRouteSpec({
   jsonResponse: z.object({
     snippets: z.array(snippetSchema),
   }),
+  queryParams: z.object({
+    timeRange: z.enum(["7days", "30days", "all"]).optional().default("7days"),
+    tag: z.string().optional(),
+  }),
 })(async (req, ctx) => {
-  // Get trending snippets from last 7 days
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const { timeRange, tag } = req.query
+
+  let sinceDate = new Date()
+  if (timeRange === "7days") {
+    sinceDate.setDate(sinceDate.getDate() - 7)
+  } else if (timeRange === "30days") {
+    sinceDate.setDate(sinceDate.getDate() - 30)
+  } else {
+    // For "all", use a very old date
+    sinceDate = new Date(0)
+  }
 
   const trendingSnippets = ctx.db.getTrendingSnippets(
     20,
-    sevenDaysAgo.toISOString(),
+    sinceDate.toISOString(),
   )
-  return ctx.json({ snippets: trendingSnippets })
+
+  // Filter by tag if provided
+  const filteredSnippets = tag
+    ? trendingSnippets.filter((snippet) => snippet.snippet_type === tag)
+    : trendingSnippets
+
+  return ctx.json({ snippets: filteredSnippets })
 })
