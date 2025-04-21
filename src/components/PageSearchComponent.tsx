@@ -18,6 +18,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   const axios = useAxios()
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
 
+  // Initialize search query directly from URL
   const [searchQuery, setSearchQuery] = useState(
     () => new URLSearchParams(window.location.search).get("q") ?? "",
   )
@@ -37,12 +38,23 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     { enabled: Boolean(searchQuery) },
   )
 
+  // Update URL while preserving other parameters
   const handleSearchChange = (newQuery: string) => {
     setSearchQuery(newQuery)
+
+    // Preserve existing URL parameters
+    const params = new URLSearchParams(window.location.search)
+    if (newQuery) {
+      params.set("q", newQuery)
+    } else {
+      params.delete("q")
+    }
+
+    // Get base URL without query parameters
     const baseUrl = location.split("?")[0]
-    const newUrl = newQuery
-      ? `${baseUrl}?q=${encodeURIComponent(newQuery)}`
-      : baseUrl
+    const queryString = params.toString()
+    const newUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl
+
     if (newUrl !== location) {
       setLocation(newUrl)
     }
