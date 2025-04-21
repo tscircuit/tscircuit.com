@@ -304,11 +304,24 @@ export function CodeAndPreview({ pkg }: Props) {
         : `${importStatement}\ncircuit.add(\n  <board>\n    <Snippet name="U1" />\n  </board>\n)`
 
     return {
+      ...pkgFilesWithContent.reduce(
+        (acc, file) => {
+          acc[file.path] = file.content
+          return acc
+        },
+        {} as Record<string, string>,
+      ),
       "index.tsx": entryPointCode ?? "// No Default Code Found",
       "manual-edits.json": manualEditsFileContent ?? "{}",
       "main.tsx": entrypointContent.trim(),
     }
-  }, [manualEditsFileContent, entryPointCode, code, packageType])
+  }, [
+    manualEditsFileContent,
+    entryPointCode,
+    code,
+    packageType,
+    pkgFilesWithContent,
+  ])
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading) {
     return (
