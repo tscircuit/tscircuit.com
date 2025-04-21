@@ -9,7 +9,6 @@ import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void // optional
-  showFullResults?: boolean
 }
 
 const LinkWithNewTabHandling = ({
@@ -44,7 +43,6 @@ const LinkWithNewTabHandling = ({
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
   onResultsFetched,
-  showFullResults = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [showResults, setShowResults] = useState(false)
@@ -93,15 +91,15 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const shouldOpenInEditor = location === "/editor" || location === "/ai"
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full">
+    <form onSubmit={handleSearch} className="relative">
       <Input
         type="search"
         placeholder="Search packages..."
-        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm w-full"
+        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
-          setShowResults(true)
+          setShowResults(!!e.target.value)
         }}
         aria-label="Search packages"
         role="searchbox"
@@ -115,7 +113,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 w-full max-h-screen overflow-y-auto overflow-x-visible"
+          className="absolute top-full md:left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-10 w-80 max-h-screen overflow-y-auto overflow-x-visible"
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
