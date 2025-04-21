@@ -67,28 +67,35 @@ export default withRouteSpec({
     })
   }
 
-  // Handle is_latest updates
-  if (is_latest !== undefined && is_latest) {
-    ctx.db.packageReleases
-      .filter(
-        (pr) =>
-          pr.package_id === release.package_id &&
-          pr.package_release_id !== releaseId &&
-          pr.is_latest,
-      )
-      .forEach((pr) => {
-        pr.is_latest = false
-      })
-  }
-
-  // Update the release
-  Object.assign(release, {
+  // Create updated release object
+  const updatedRelease = {
+    ...release,
     ...(is_locked !== undefined && { is_locked }),
     ...(is_latest !== undefined && { is_latest }),
     ...(license !== undefined && { license }),
-  })
+  }
 
-  ctx.db.updatePackageRelease(release)
+  // Handle is_latest updates atomically
+  if (is_latest !== undefined && is_latest) {
+    // Get all releases for this package that are currently marked as latest
+    const otherLatestReleases = ctx.db.packageReleases.filter(
+      (pr) =>
+        pr.package_id === release.package_id &&
+        pr.package_release_id !== releaseId &&
+        pr.is_latest,
+    )
+
+    // Update all releases in a single operation
+    for (const latestRelease of otherLatestReleases) {
+      ctx.db.updatePackageRelease({
+        ...latestRelease,
+        is_latest: false,
+      })
+    }
+  }
+
+  // Update the target release
+  ctx.db.updatePackageRelease(updatedRelease)
 
   return ctx.json({
     ok: true,
