@@ -315,7 +315,13 @@ export function CodeAndPreview({ pkg }: Props) {
       "manual-edits.json": manualEditsFileContent ?? "{}",
       "main.tsx": entrypointContent.trim(),
     }
-  }, [manualEditsFileContent, entryPointCode, code, packageType, pkgFilesWithContent])
+  }, [
+    manualEditsFileContent,
+    entryPointCode,
+    code,
+    packageType,
+    pkgFilesWithContent,
+  ])
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading) {
     return (
