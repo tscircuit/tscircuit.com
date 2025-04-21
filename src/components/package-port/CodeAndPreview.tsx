@@ -302,7 +302,7 @@ export function CodeAndPreview({ pkg }: Props) {
       packageType === "board"
         ? `${importStatement}\ncircuit.add(<Snippet />)`
         : `${importStatement}\ncircuit.add(\n  <board>\n    <Snippet name="U1" />\n  </board>\n)`
-    
+
     return {
       ...pkgFilesWithContent.reduce(
         (acc, file) => {
