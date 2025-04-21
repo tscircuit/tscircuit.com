@@ -2,8 +2,9 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PageSearchComponent from "@/components/PageSearchComponent"
 import { useState } from "react"
-import { Search, Zap, Tag, Filter } from "lucide-react"
+import { Search, Tag, Filter } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export const SearchPage = () => {
   const [searchResults, setSearchResults] = useState<any[]>([])
@@ -31,10 +32,15 @@ export const SearchPage = () => {
                   <Filter className="w-3.5 h-3.5 mr-1" />
                   <span>Search by Name</span>
                 </Badge>
-                <Badge variant="secondary" className="px-3 py-1">
-                  <Tag className="w-3.5 h-3.5 mr-1" />
-                  <span>Browse Packages</span>
-                </Badge>
+                <PrefetchPageLink href="/trending">
+                  <Badge
+                    variant="secondary"
+                    className="px-3 py-1 cursor-pointer hover:bg-gray-200"
+                  >
+                    <Tag className="w-3.5 h-3.5 mr-1" />
+                    <span>Browse Packages</span>
+                  </Badge>
+                </PrefetchPageLink>
               </div>
             </div>
 

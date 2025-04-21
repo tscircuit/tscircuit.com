@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { Loader2 } from "lucide-react"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -56,8 +57,8 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
       </form>
 
       {isLoading && (
-        <div className="mt-6 text-center text-gray-500">
-          Searching packages...
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
         </div>
       )}
 
