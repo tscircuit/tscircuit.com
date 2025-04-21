@@ -32,7 +32,7 @@ export const TrendingSnippetCarousel = () => {
       {trendingSnippets?.length ? (
         <>
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-semibold mb-6">Trending Snippets</h2>
+            <h2 className="text-2xl font-semibold mb-6">Trending Packages</h2>
           </div>
           <div
             className="flex gap-6 overflow-x-hidden relative"
