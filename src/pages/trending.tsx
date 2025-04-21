@@ -38,7 +38,7 @@ const TrendingPage: React.FC = () => {
   const apiBaseUrl = useSnippetsBaseApiUrl()
   const [searchQuery, setSearchQuery] = useState("")
   const [category, setCategory] = useState("all")
-  const [timeRange, setTimeRange] = useState("7days")
+  const [timeRange, setTimeRange] = useState("all")
   const [sortBy, setSortBy] = useState("stars")
 
   const {
@@ -49,11 +49,11 @@ const TrendingPage: React.FC = () => {
   } = useQuery<Snippet[]>(
     ["trendingSnippets", category, timeRange],
     async () => {
-      const params = {
-        ...(category !== "all" ? { tag: category } : {}),
-        timeRange,
-      }
-      const response = await axios.get("/snippets/list_trending", { params })
+      const params = new URLSearchParams()
+      if (category !== "all") params.append("tag", category)
+      params.append("timeRange", timeRange)
+      
+      const response = await axios.get(`/snippets/list_trending?${params.toString()}`)
       return response.data.snippets
     },
     {

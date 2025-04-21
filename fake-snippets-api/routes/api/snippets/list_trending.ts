@@ -9,7 +9,7 @@ export default withRouteSpec({
     snippets: z.array(snippetSchema),
   }),
   queryParams: z.object({
-    timeRange: z.enum(["7days", "30days", "all"]).optional().default("7days"),
+    timeRange: z.enum(["7days", "30days", "all"]).optional().default("all"),
     tag: z.string().optional(),
   }),
 })(async (req, ctx) => {
@@ -25,15 +25,13 @@ export default withRouteSpec({
     sinceDate = new Date(0)
   }
 
-  const trendingSnippets = ctx.db.getTrendingSnippets(
-    20,
-    sinceDate.toISOString(),
-  )
+  // Get all snippets first
+  const allSnippets = ctx.db.getTrendingSnippets(20, sinceDate.toISOString())
 
   // Filter by tag if provided
   const filteredSnippets = tag
-    ? trendingSnippets.filter((snippet) => snippet.snippet_type === tag)
-    : trendingSnippets
+    ? allSnippets.filter((snippet) => snippet.snippet_type === tag)
+    : allSnippets
 
   return ctx.json({ snippets: filteredSnippets })
 })
