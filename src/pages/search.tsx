@@ -14,7 +14,7 @@ export const SearchPage = () => {
       <Header />
       <main className="flex-grow bg-gray-50 pb-12">
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-8xl mx-auto">
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Search className="w-6 h-6 text-blue-500" />
