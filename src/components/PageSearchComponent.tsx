@@ -6,10 +6,13 @@ import { useQuery } from "react-query"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { Search } from "lucide-react"
 import { SnippetCard } from "./SnippetCard"
+import { Button } from "./ui/button"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void
 }
+
+const EXAMPLE_SEARCHES = ["keyboard", "esp32", "arduino"]
 
 const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   onResultsFetched,
@@ -61,7 +64,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   }
 
   return (
-    <div className="min-h-[400px]">
+    <div className="min-h-[calc(100vh-20rem)]">
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="relative flex-grow">
@@ -116,13 +119,36 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
             <Search className="w-8 h-8 text-slate-400" />
           </div>
           <h3 className="text-xl font-medium text-slate-900 mb-2">
-            No Matching Packages
+            No Results for "{searchQuery}"
           </h3>
           <p className="text-slate-500 max-w-md mx-auto mb-6">
-            No packages match your search for "{searchQuery}".
+            Try searching for something else or browse trending packages.
           </p>
         </div>
-      ) : null}
+      ) : (
+        <div className="text-center py-12 px-4">
+          <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
+            <Search className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-xl font-medium text-slate-900 mb-2">
+            Search for any package above
+          </h3>
+          <p className="text-slate-500 max-w-md mx-auto mb-6">
+            Try searching for:
+          </p>
+          <div className="flex gap-2 justify-center flex-wrap">
+            {EXAMPLE_SEARCHES.map((term) => (
+              <Button
+                key={term}
+                variant="outline"
+                onClick={() => handleSearchChange(term)}
+              >
+                {term}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
