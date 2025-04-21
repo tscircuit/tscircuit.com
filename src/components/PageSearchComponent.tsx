@@ -60,7 +60,6 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     }
   }
 
-  const shouldOpenInEditor = location === "/editor" || location === "/ai"
 
   return (
     <div className="min-h-[400px]">
