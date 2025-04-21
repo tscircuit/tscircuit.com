@@ -94,7 +94,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     <form onSubmit={handleSearch} className="relative">
       <Input
         type="search"
-        placeholder="Search packages..."
+        placeholder="Search"
         className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
         value={searchQuery}
         onChange={(e) => {

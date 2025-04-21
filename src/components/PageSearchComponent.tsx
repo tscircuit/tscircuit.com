@@ -1,11 +1,10 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
 import { useLocation } from "wouter"
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useQuery } from "react-query"
-import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { Loader2, Search } from "lucide-react"
+import { Search } from "lucide-react"
 import { SnippetCard } from "./SnippetCard"
 
 interface PageSearchComponentProps {
@@ -19,9 +18,9 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   const axios = useAxios()
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
 
-  const initialQuery =
-    new URLSearchParams(window.location.search).get("q") || ""
-  const [searchQuery, setSearchQuery] = useState(initialQuery)
+  const [searchQuery, setSearchQuery] = useState(
+    () => new URLSearchParams(window.location.search).get("q") ?? "",
+  )
 
   const { data: searchResults, isLoading } = useQuery(
     ["snippetSearch", searchQuery],
@@ -38,26 +37,15 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
     { enabled: Boolean(searchQuery) },
   )
 
-  useEffect(() => {
+  const handleSearchChange = (newQuery: string) => {
+    setSearchQuery(newQuery)
     const baseUrl = location.split("?")[0]
-    const newUrl = searchQuery
-      ? `${baseUrl}?q=${encodeURIComponent(searchQuery)}`
+    const newUrl = newQuery
+      ? `${baseUrl}?q=${encodeURIComponent(newQuery)}`
       : baseUrl
     if (newUrl !== location) {
       setLocation(newUrl)
     }
-  }, [searchQuery, location, setLocation])
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const urlQuery = params.get("q")
-    if (urlQuery !== null && urlQuery !== searchQuery) {
-      setSearchQuery(urlQuery)
-    }
-  }, [location])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
   }
 
   const shouldOpenInEditor = location === "/editor" || location === "/ai"
@@ -73,7 +61,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
               placeholder="Search packages..."
               className="pl-10"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               aria-label="Search packages"
               role="searchbox"
             />
