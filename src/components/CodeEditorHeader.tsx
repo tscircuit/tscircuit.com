@@ -8,8 +8,6 @@ import {
 } from "@/components/ui/select"
 import { useImportSnippetDialog } from "./dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { FootprintDialog } from "./FootprintDialog"
-import { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +25,6 @@ interface CodeEditorHeaderProps {
   files: Record<FileName, string>
   handleFileChange: (filename: FileName) => void
   updateFileContent: (filename: FileName, content: string) => void
-  cursorPosition: number | null
 }
 
 export const CodeEditorHeader = ({
@@ -35,11 +32,9 @@ export const CodeEditorHeader = ({
   files,
   handleFileChange,
   updateFileContent,
-  cursorPosition,
 }: CodeEditorHeaderProps) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
-  const [footprintDialogOpen, setFootprintDialogOpen] = useState(false)
   const { toast } = useToast()
 
   const formatCurrentFile = () => {
@@ -120,18 +115,6 @@ export const CodeEditorHeader = ({
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="ghost">
-              Insert
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setFootprintDialogOpen(true)}>
-              Chip
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
         <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
           Import
         </Button>
@@ -144,14 +127,6 @@ export const CodeEditorHeader = ({
           const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
           updateFileContent(currentFile, newContent)
         }}
-      />
-      <FootprintDialog
-        currentFile={currentFile}
-        open={footprintDialogOpen}
-        onOpenChange={setFootprintDialogOpen}
-        updateFileContent={updateFileContent}
-        files={files}
-        cursorPosition={cursorPosition}
       />
     </div>
   )
