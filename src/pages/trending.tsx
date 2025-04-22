@@ -63,14 +63,16 @@ const TrendingPage: React.FC = () => {
     ?.filter((snippet) => {
       if (!searchQuery.trim()) return true
       const queryWords = searchQuery.toLowerCase().trim().split(/\s+/)
+
       return
-      ;[
+      [
         snippet.unscoped_name,
         snippet.owner_name,
         snippet.description || "",
       ].some((field) =>
         queryWords.every((word) => field.toLowerCase().includes(word)),
       )
+
     })
     ?.sort((a, b) => {
       if (sortBy === "stars") {
