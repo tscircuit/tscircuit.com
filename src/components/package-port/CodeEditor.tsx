@@ -139,6 +139,10 @@ export const CodeEditor = ({
       resolveJsonModule: true,
     })
 
+    // Add alias for tscircuit -> @tscircuit/core
+    const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+    env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
@@ -383,8 +387,7 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    // Initial ATA run for index.tsx
-    if (currentFile === "index.tsx") {
+    if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
     // files.forEach(({path, content}) => {
