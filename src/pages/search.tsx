@@ -35,11 +35,9 @@ export const SearchPage = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <PageSearchComponent
-                onResultsFetched={(results) => setSearchResults(results)}
-              />
-            </div>
+            <PageSearchComponent
+              onResultsFetched={(results) => setSearchResults(results)}
+            />
           </div>
         </div>
       </main>
