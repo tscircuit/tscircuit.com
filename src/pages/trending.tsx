@@ -43,8 +43,8 @@ const TrendingPage: React.FC = () => {
   const [category, setCategory] = useState(
     searchParams.get("category") || "all",
   )
-  const [timeRange, setTimeRange] = useState(
-    searchParams.get("timeRange") || "all",
+  const [time_period, setTimePeriod] = useState(
+    searchParams.get("time_period") || "all",
   )
   const [sortBy, setSortBy] = useState(searchParams.get("sort") || "stars")
 
@@ -53,10 +53,10 @@ const TrendingPage: React.FC = () => {
     const params = new URLSearchParams()
     if (searchQuery) params.set("q", searchQuery)
     if (category !== "all") params.set("category", category)
-    if (timeRange !== "all") params.set("timeRange", timeRange)
+    if (time_period !== "all") params.set("time_period", time_period)
     if (sortBy !== "stars") params.set("sort", sortBy)
     setSearchParams(params)
-  }, [searchQuery, category, timeRange, sortBy, setSearchParams])
+  }, [searchQuery, category, time_period, sortBy, setSearchParams])
 
   const {
     data: snippets,
@@ -64,11 +64,11 @@ const TrendingPage: React.FC = () => {
     error,
     refetch,
   } = useQuery<Snippet[]>(
-    ["trendingSnippets", category, timeRange],
+    ["trendingSnippets", category, time_period],
     async () => {
       const params = new URLSearchParams()
       if (category !== "all") params.append("tag", category)
-      params.append("timeRange", timeRange)
+      params.append("time_period", time_period)
 
       const response = await axios.get(
         `/snippets/list_trending?${params.toString()}`,
@@ -126,12 +126,12 @@ const TrendingPage: React.FC = () => {
               </SelectContent>
             </Select>
             <Select
-              value={timeRange}
-              onValueChange={setTimeRange}
+              value={time_period}
+              onValueChange={setTimePeriod}
               disabled={sortBy === "recent"}
             >
               <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Time Range" />
+                <SelectValue placeholder="Time Period" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7days">Last 7 Days</SelectItem>

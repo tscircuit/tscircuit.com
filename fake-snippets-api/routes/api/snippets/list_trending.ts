@@ -9,16 +9,16 @@ export default withRouteSpec({
     snippets: z.array(snippetSchema),
   }),
   queryParams: z.object({
-    timeRange: z.enum(["7days", "30days", "all"]).optional().default("all"),
+    time_period: z.enum(["7days", "30days", "all"]).optional().default("all"),
     tag: z.string().optional(),
   }),
 })(async (req, ctx) => {
-  const { timeRange, tag } = req.query
+  const { time_period, tag } = req.query
 
   let sinceDate = new Date()
-  if (timeRange === "7days") {
+  if (time_period === "7days") {
     sinceDate.setDate(sinceDate.getDate() - 7)
-  } else if (timeRange === "30days") {
+  } else if (time_period === "30days") {
     sinceDate.setDate(sinceDate.getDate() - 30)
   } else {
     sinceDate = new Date(0) // For "all", use earliest possible date
