@@ -125,18 +125,20 @@ const TrendingPage: React.FC = () => {
                 <SelectItem value="recent">Most Recent</SelectItem>
               </SelectContent>
             </Select>
-            {sortBy === "stars" && (
-              <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Time Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7days">Last 7 Days</SelectItem>
-                  <SelectItem value="30days">Last 30 Days</SelectItem>
-                  <SelectItem value="all">All Time</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={timeRange}
+              onValueChange={setTimeRange}
+              disabled={sortBy === "recent"}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Time Range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7days">Last 7 Days</SelectItem>
+                <SelectItem value="30days">Last 30 Days</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
