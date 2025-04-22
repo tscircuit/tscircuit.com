@@ -4,7 +4,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Link } from "wouter"
+import { Link, useLocation, useSearchParams } from "wouter"
 import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { OptimizedImage } from "@/components/OptimizedImage"
@@ -36,10 +36,27 @@ import { SnippetCard } from "@/components/SnippetCard"
 const TrendingPage: React.FC = () => {
   const axios = useAxios()
   const apiBaseUrl = useSnippetsBaseApiUrl()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [category, setCategory] = useState("all")
-  const [timeRange, setTimeRange] = useState("all")
-  const [sortBy, setSortBy] = useState("stars")
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Initialize state from URL params or defaults
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
+  const [category, setCategory] = useState(
+    searchParams.get("category") || "all",
+  )
+  const [timeRange, setTimeRange] = useState(
+    searchParams.get("timeRange") || "all",
+  )
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "stars")
+
+  // Update URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set("q", searchQuery)
+    if (category !== "all") params.set("category", category)
+    if (timeRange !== "all") params.set("timeRange", timeRange)
+    if (sortBy !== "stars") params.set("sort", sortBy)
+    setSearchParams(params)
+  }, [searchQuery, category, timeRange, sortBy, setSearchParams])
 
   const {
     data: snippets,
@@ -99,16 +116,6 @@ const TrendingPage: React.FC = () => {
             Check out some of the top circuit designs from our community.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Time Range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7days">Last 7 Days</SelectItem>
-                <SelectItem value="30days">Last 30 Days</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
-              </SelectContent>
-            </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Sort By" />
@@ -118,6 +125,18 @@ const TrendingPage: React.FC = () => {
                 <SelectItem value="recent">Most Recent</SelectItem>
               </SelectContent>
             </Select>
+            {sortBy === "stars" && (
+              <Select value={timeRange} onValueChange={setTimeRange}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Time Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7days">Last 7 Days</SelectItem>
+                  <SelectItem value="30days">Last 30 Days</SelectItem>
+                  <SelectItem value="all">All Time</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
 
