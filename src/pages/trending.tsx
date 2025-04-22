@@ -4,7 +4,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Link } from "wouter"
+import { Link, useLocation, useSearchParams } from "wouter"
 import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { OptimizedImage } from "@/components/OptimizedImage"
@@ -36,8 +36,27 @@ import { SnippetCard } from "@/components/SnippetCard"
 const TrendingPage: React.FC = () => {
   const axios = useAxios()
   const apiBaseUrl = useSnippetsBaseApiUrl()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [category, setCategory] = useState("all")
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // Initialize state from URL params or defaults
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
+  const [category, setCategory] = useState(
+    searchParams.get("category") || "all",
+  )
+  const [time_period, setTimePeriod] = useState(
+    searchParams.get("time_period") || "all",
+  )
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "stars")
+
+  // Update URL params when filters change
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set("q", searchQuery)
+    if (category !== "all") params.set("category", category)
+    if (time_period !== "all") params.set("time_period", time_period)
+    if (sortBy !== "stars") params.set("sort", sortBy)
+    setSearchParams(params)
+  }, [searchQuery, category, time_period, sortBy, setSearchParams])
 
   const {
     data: snippets,
@@ -45,10 +64,15 @@ const TrendingPage: React.FC = () => {
     error,
     refetch,
   } = useQuery<Snippet[]>(
-    ["trendingSnippets", category],
+    ["trendingSnippets", category, time_period],
     async () => {
-      const params = category !== "all" ? { tag: category } : {}
-      const response = await axios.get("/snippets/list_trending", { params })
+      const params = new URLSearchParams()
+      if (category !== "all") params.append("tag", category)
+      params.append("time_period", time_period)
+
+      const response = await axios.get(
+        `/snippets/list_trending?${params.toString()}`,
+      )
       return response.data.snippets
     },
     {
@@ -56,48 +80,65 @@ const TrendingPage: React.FC = () => {
     },
   )
 
-  const filteredSnippets = snippets?.filter((snippet) => {
-    if (!searchQuery) return true
+  const filteredSnippets = snippets
+    ?.filter((snippet) => {
+      if (!searchQuery) return true
 
-    const query = searchQuery.toLowerCase().trim()
+      const query = searchQuery.toLowerCase().trim()
 
-    const searchableFields = [
-      snippet.unscoped_name.toLowerCase(),
-      snippet.owner_name.toLowerCase(),
-      (snippet.description || "").toLowerCase(),
-    ]
+      const searchableFields = [
+        snippet.unscoped_name.toLowerCase(),
+        snippet.owner_name.toLowerCase(),
+        (snippet.description || "").toLowerCase(),
+      ]
 
-    return searchableFields.some((field) => {
-      const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
-      return queryWords.every((word) => field.includes(word))
+      return searchableFields.some((field) => {
+        const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
+        return queryWords.every((word) => field.includes(word))
+      })
     })
-  })
+    ?.sort((a, b) => {
+      if (sortBy === "stars") {
+        return (b.star_count || 0) - (a.star_count || 0)
+      }
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+    })
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8 max-w-3xl">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-6 h-6 text-amber-500" />
-            <h1 className="text-4xl font-bold text-gray-900">
-              Trending Snippets
-            </h1>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            Trending Snippets
+          </h1>
           <p className="text-lg text-gray-600 mb-4">
-            Discover the most popular and innovative snippets from the community
-            over the last 7 days. These trending designs showcase the best in
-            circuit creativity and technical excellence.
+            Check out some of the top circuit designs from our community.
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Badge variant="secondary" className="px-3 py-1">
-              <Tag className="w-3.5 h-3.5 mr-1" />
-              <span>Most Starred</span>
-            </Badge>
-            <Badge variant="secondary" className="px-3 py-1">
-              <Calendar className="w-3.5 h-3.5 mr-1" />
-              <span>Last 7 Days</span>
-            </Badge>
+          <div className="flex flex-wrap gap-4">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Sort By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="stars">Most Starred</SelectItem>
+                <SelectItem value="recent">Most Recent</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={time_period}
+              onValueChange={setTimePeriod}
+              disabled={sortBy === "recent"}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Time Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7days">Last 7 Days</SelectItem>
+                <SelectItem value="30days">Last 30 Days</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -201,16 +242,14 @@ const TrendingPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets
-              ?.sort((a, b) => b.updated_at.localeCompare(a.updated_at))
-              ?.map((snippet) => (
-                <SnippetCard
-                  key={snippet.snippet_id}
-                  snippet={snippet}
-                  baseUrl={apiBaseUrl}
-                  showOwner={true}
-                />
-              ))}
+            {filteredSnippets?.map((snippet) => (
+              <SnippetCard
+                key={snippet.snippet_id}
+                snippet={snippet}
+                baseUrl={apiBaseUrl}
+                showOwner={true}
+              />
+            ))}
           </div>
         )}
       </main>
