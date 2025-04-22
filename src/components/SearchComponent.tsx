@@ -101,7 +101,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           setSearchQuery(e.target.value)
           setShowResults(!!e.target.value)
         }}
-        aria-label="Search snippets"
+        aria-label="Search packages"
         role="searchbox"
       />
       {isLoading && (
