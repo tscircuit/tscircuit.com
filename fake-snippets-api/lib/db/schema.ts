@@ -133,6 +133,7 @@ export const orderQuoteSchema = z.object({
   bare_pcb_cost: z.number().default(0),
   shipping_options: z.array(shippingOptionSchema),
   total_cost: z.number().default(0),
+  total_cost_after_discount: z.number().default(0),
 })
 export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
