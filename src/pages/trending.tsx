@@ -198,7 +198,7 @@ const TrendingPage: React.FC = () => {
                   Error Loading Snippets
                 </h3>
                 <p className="text-red-600">
-                  We couldn't load the trending snippets. Please try again 
+                  We couldn't load the trending snippets. Please try again
                   later.
                 </p>
               </div>
