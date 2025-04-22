@@ -52,7 +52,7 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
         is_private: visibility === "private",
       })
 
-      if (response?.ok) {
+      if (response.status == 200) {
         toast({
           title: "Visibility updated",
           description: `Package is now ${visibility}.`,
@@ -86,7 +86,7 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
         package_id: packageInfo.package_id,
       })
 
-      if (response?.ok) {
+      if (response.status == 200) {
         toast({
           title: "Package deleted",
           description: "Your package was successfully deleted.",

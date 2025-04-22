@@ -80,7 +80,7 @@ export default function MainContentHeader({
         onViewChange={onViewChange}
       />
 
-      <SettingsModal packageInfo={packageInfo} />
+      <SettingsModal packageInfo={packageInfo as PackageInfo & { is_private: boolean }} />
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu
