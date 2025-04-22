@@ -12,7 +12,6 @@ import {
   Pencil,
   GitForkIcon,
   DownloadIcon,
-  Settings,
 } from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
