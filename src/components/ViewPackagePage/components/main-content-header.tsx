@@ -12,6 +12,7 @@ import {
   Pencil,
   GitForkIcon,
   DownloadIcon,
+  Settings,
 } from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
@@ -24,6 +25,7 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
+import SettingsModal from "@/components/SettingsModal"
 
 interface PackageInfo {
   package_id: string
@@ -72,13 +74,14 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
-
   return (
     <div className="flex items-center justify-between mb-4">
       <MainContentViewSelector
         activeView={activeView}
         onViewChange={onViewChange}
       />
+
+      <SettingsModal packageInfo={packageInfo} />
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu
