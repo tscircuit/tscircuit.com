@@ -43,20 +43,23 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
 
   // Update URL while preserving other parameters
   const handleSearchChange = (newQuery: string) => {
-    setSearchQuery(newQuery)
-
-    // Preserve existing URL parameters
-    const params = new URLSearchParams(window.location.search)
-    if (newQuery) {
-      params.set("q", newQuery)
-    } else {
+    if (!newQuery.trim()) {
+      // if empty reset
+      setSearchQuery("")
+      const params = new URLSearchParams(window.location.search)
       params.delete("q")
+      const baseUrl = location.split("?")[0]
+      const newUrl = params.toString()
+        ? `${baseUrl}?${params.toString()}`
+        : baseUrl
+      setLocation(newUrl)
+      return
     }
-
-    // Get base URL without query parameters
+    setSearchQuery(newQuery)
+    const params = new URLSearchParams(window.location.search)
+    params.set("q", newQuery)
     const baseUrl = location.split("?")[0]
-    const queryString = params.toString()
-    const newUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl
+    const newUrl = `${baseUrl}?${params.toString()}`
 
     if (newUrl !== location) {
       setLocation(newUrl)
