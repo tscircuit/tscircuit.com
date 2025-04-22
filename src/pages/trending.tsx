@@ -64,8 +64,7 @@ const TrendingPage: React.FC = () => {
       if (!searchQuery.trim()) return true
       const queryWords = searchQuery.toLowerCase().trim().split(/\s+/)
 
-      return
-      [
+      return [
         snippet.unscoped_name,
         snippet.owner_name,
         snippet.description || "",
