@@ -25,14 +25,10 @@ export default withRouteSpec({
   }
 
   // Fetch trending snippets since calculated date
-  const allSnippets = ctx.db.getTrendingSnippets(
-    20,
-    sinceDate.toISOString()
-  )
-
+  const allSnippets = ctx.db.getTrendingSnippets(20, sinceDate.toISOString())
 
   const filteredSnippets = tag
-    ? allSnippets.filter(snippet => snippet.snippet_type === tag)
+    ? allSnippets.filter((snippet) => snippet.snippet_type === tag)
     : allSnippets
 
   return ctx.json({ snippets: filteredSnippets })

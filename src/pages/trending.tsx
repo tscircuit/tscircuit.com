@@ -42,7 +42,11 @@ const TrendingPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState("all")
   const [sortBy, setSortBy] = useState("stars")
 
-  const { data: snippets, isLoading, error } = useQuery<Snippet[]>(
+  const {
+    data: snippets,
+    isLoading,
+    error,
+  } = useQuery<Snippet[]>(
     ["trendingSnippets", category, timeRange],
     async () => {
       const params: Record<string, string> = {}
@@ -59,8 +63,13 @@ const TrendingPage: React.FC = () => {
     ?.filter((snippet) => {
       if (!searchQuery.trim()) return true
       const queryWords = searchQuery.toLowerCase().trim().split(/\s+/)
-      return [snippet.unscoped_name, snippet.owner_name, snippet.description || ""].some((field) =>
-        queryWords.every((word) => field.toLowerCase().includes(word))
+      return
+      ;[
+        snippet.unscoped_name,
+        snippet.owner_name,
+        snippet.description || "",
+      ].some((field) =>
+        queryWords.every((word) => field.toLowerCase().includes(word)),
       )
     })
     ?.sort((a, b) => {
@@ -68,7 +77,9 @@ const TrendingPage: React.FC = () => {
         return (b.star_count || 0) - (a.star_count || 0)
       }
       if (sortBy === "recent") {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        return (
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        )
       }
       return 0
     })
@@ -84,12 +95,12 @@ const TrendingPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-lg text-gray-600 mb-4">
-          Explore trending snippets from our creative community.
+            Explore trending snippets from our creative community.
           </p>
           <div className="flex flex-wrap gap-4">
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-[140px]">
-                <Tag className="w-3.5 h-3.5 mr-1"/>
+                <Tag className="w-3.5 h-3.5 mr-1" />
                 <SelectValue placeholder="Time Range" />
               </SelectTrigger>
               <SelectContent>
@@ -100,7 +111,7 @@ const TrendingPage: React.FC = () => {
             </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[150px]">
-                <Calendar className="w-3.5 h-3.5 mr-1"/>
+                <Calendar className="w-3.5 h-3.5 mr-1" />
                 <SelectValue placeholder="Sort By" />
               </SelectTrigger>
               <SelectContent>
@@ -108,7 +119,7 @@ const TrendingPage: React.FC = () => {
                 <SelectItem value="recent">Most Recent</SelectItem>
               </SelectContent>
             </Select>
-        </div>
+          </div>
         </div>
 
         <div className="mb-6">
@@ -187,7 +198,7 @@ const TrendingPage: React.FC = () => {
                   Error Loading Snippets
                 </h3>
                 <p className="text-red-600">
-                  We couldn't load the trending snippets. Please try again
+                  We couldn't load the trending snippets. Please try again 
                   later.
                 </p>
               </div>
@@ -211,13 +222,13 @@ const TrendingPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-           {filteredSnippets?.map((snippet) => (
-                <SnippetCard
-                  key={snippet.snippet_id}
-                  snippet={snippet}
-                  baseUrl={apiBaseUrl}
-                  showOwner={true}
-                />
+            {filteredSnippets?.map((snippet) => (
+              <SnippetCard
+                key={snippet.snippet_id}
+                snippet={snippet}
+                baseUrl={apiBaseUrl}
+                showOwner={true}
+              />
             ))}
           </div>
         )}
