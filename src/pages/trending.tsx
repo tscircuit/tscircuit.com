@@ -52,8 +52,10 @@ const TrendingPage: React.FC = () => {
       const params = new URLSearchParams()
       if (category !== "all") params.append("tag", category)
       params.append("timeRange", timeRange)
-      
-      const response = await axios.get(`/snippets/list_trending?${params.toString()}`)
+
+      const response = await axios.get(
+        `/snippets/list_trending?${params.toString()}`,
+      )
       return response.data.snippets
     },
     {
