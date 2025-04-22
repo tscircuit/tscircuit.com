@@ -32,7 +32,6 @@ export const snippetSchema = z.object({
   is_private: z.boolean().default(false),
   is_public: z.boolean().default(true),
   is_unlisted: z.boolean().default(false),
-  tags: z.array(z.string()).optional(),
 })
 export type Snippet = z.infer<typeof snippetSchema>
 
