@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Star } from "lucide-react"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -161,18 +162,29 @@ export const UserProfilePage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <SnippetCard
-                key={snippet.snippet_id}
-                snippet={snippet}
-                baseUrl={baseUrl}
-                showOwner={activeTab === "starred"}
-                isCurrentUserSnippet={
-                  isCurrentUserProfile && activeTab === "all"
-                }
-                onDeleteClick={handleDeleteClick}
-              />
-            ))}
+            {filteredSnippets?.length !== 0 ? (
+              filteredSnippets?.map((snippet) => (
+                <SnippetCard
+                  key={snippet.snippet_id}
+                  snippet={snippet}
+                  baseUrl={baseUrl}
+                  showOwner={activeTab === "starred"}
+                  isCurrentUserSnippet={
+                    isCurrentUserProfile && activeTab === "all"
+                  }
+                  onDeleteClick={handleDeleteClick}
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center">
+                <div className="flex flex-col items-center py-12 text-gray-500">
+                  <Star />
+                  <span className="text-lg font-medium">
+                    No starred packages
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
