@@ -49,11 +49,22 @@ export default withRouteSpec({
     packages = packages.filter((p) => p.owner_org_id === auth.personal_org_id)
   }
 
+  // Get star timestamps for authenticated user
+  const starTimestamps = new Map<string, string>()
+  if (auth) {
+    ctx.db.accountPackages
+      .filter((ap) => ap.account_id === auth.account_id && ap.is_starred)
+      .forEach((ap) => {
+        starTimestamps.set(ap.package_id, ap.updated_at)
+      })
+  }
+
   return ctx.json({
     ok: true,
     packages: packages.map((p) => ({
       ...p,
       latest_package_release_id: p.latest_package_release_id || null,
+      starred_at: starTimestamps.get(p.package_id) || null,
     })),
   })
 })
