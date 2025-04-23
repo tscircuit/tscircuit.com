@@ -129,11 +129,167 @@ test("update non-existent package release", async () => {
     expect(error.data.error.message).toBe("Package release not found")
   }
 })
+test("update package release - set is_latest to false when already latest", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/latest-false-test",
+  })
+  const pkgId = pkgRes.data.package.package_id
+  const relRes = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    is_locked: false,
+  })
+  const relId = relRes.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: relId,
+    is_latest: false,
+    is_locked: true,
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRelease = db.packageReleases.find(
+    (pr) => pr.package_release_id === relId,
+  )
+  expect(updatedRelease?.is_latest).toBe(false)
+  expect(updatedRelease?.is_locked).toBe(true)
+})
+
+test("update package release - set another release to latest and update fields", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/multi-update-test",
+  })
+  const pkgId = pkgRes.data.package.package_id
+
+  const rel1Res = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    license: "OLD_LICENSE",
+  })
+  const rel1Id = rel1Res.data.package_release.package_release_id
+
+  const rel2Res = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "2.0.0",
+    is_latest: false,
+    is_locked: false,
+  })
+  const rel2Id = rel2Res.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: rel2Id,
+    is_latest: true,
+    is_locked: true,
+    license: "MIT",
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRel1 = db.packageReleases.find(
+    (pr) => pr.package_release_id === rel1Id,
+  )
+  expect(updatedRel1?.is_latest).toBe(false)
+
+  const updatedRel2 = db.packageReleases.find(
+    (pr) => pr.package_release_id === rel2Id,
+  )
+  expect(updatedRel2?.is_latest).toBe(true)
+  expect(updatedRel2?.is_locked).toBe(true)
+  expect(updatedRel2?.license).toBe("MIT")
+})
+
+test("update package release - only update non-latest fields", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/non-latest-update",
+  })
+  const pkgId = pkgRes.data.package.package_id
+  const relRes = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    is_locked: false,
+    license: "GPL",
+  })
+  const relId = relRes.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: relId,
+    is_locked: true,
+    license: "Apache-2.0",
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRelease = db.packageReleases.find(
+    (pr) => pr.package_release_id === relId,
+  )
+  expect(updatedRelease?.is_latest).toBe(true)
+  expect(updatedRelease?.is_locked).toBe(true)
+  expect(updatedRelease?.license).toBe("Apache-2.0")
+})
+
+test("update package release - invalid package_name_with_version format", async () => {
+  const { axios } = await getTestServer()
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "invalid-format",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
+  }
+})
+
+test("update package release - package_name_with_version not found", async () => {
+  const { axios } = await getTestServer()
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "nonexistent/package@1.0.0",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
+  }
+})
+
+test("update package release - version in package_name_with_version not found", async () => {
+  const { axios } = await getTestServer()
+
+  await axios.post("/api/packages/create", {
+    name: "testuser/no-version-match",
+  })
+
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "testuser/no-version-match@1.0.0",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
+  }
+})
 
 test("update package release - no fields provided", async () => {
   const { axios } = await getTestServer()
 
-  // Create a package and release first
   const packageResponse = await axios.post("/api/packages/create", {
     name: "testuser/test-package-4",
     description: "Test Description",
@@ -153,5 +309,163 @@ test("update package release - no fields provided", async () => {
     expect(error.status).toBe(400)
     expect(error.data.error.error_code).toBe("no_fields_provided")
     expect(error.data.error.message).toBe("No fields provided to update")
+  }
+})
+
+test("update package release - set is_latest to false when already latest", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/latest-false-test",
+  })
+  const pkgId = pkgRes.data.package.package_id
+  const relRes = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    is_locked: false,
+  })
+  const relId = relRes.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: relId,
+    is_latest: false,
+    is_locked: true,
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRelease = db.packageReleases.find(
+    (pr) => pr.package_release_id === relId,
+  )
+  expect(updatedRelease?.is_latest).toBe(false)
+  expect(updatedRelease?.is_locked).toBe(true)
+})
+
+test("update package release - set another release to latest and update fields", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/multi-update-test",
+  })
+  const pkgId = pkgRes.data.package.package_id
+
+  const rel1Res = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    license: "OLD_LICENSE",
+  })
+  const rel1Id = rel1Res.data.package_release.package_release_id
+
+  const rel2Res = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "2.0.0",
+    is_latest: false,
+    is_locked: false,
+  })
+  const rel2Id = rel2Res.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: rel2Id,
+    is_latest: true,
+    is_locked: true,
+    license: "MIT",
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRel1 = db.packageReleases.find(
+    (pr) => pr.package_release_id === rel1Id,
+  )
+  expect(updatedRel1?.is_latest).toBe(false)
+
+  const updatedRel2 = db.packageReleases.find(
+    (pr) => pr.package_release_id === rel2Id,
+  )
+  expect(updatedRel2?.is_latest).toBe(true)
+  expect(updatedRel2?.is_locked).toBe(true)
+  expect(updatedRel2?.license).toBe("MIT")
+})
+
+test("update package release - only update non-latest fields", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/non-latest-update",
+  })
+  const pkgId = pkgRes.data.package.package_id
+  const relRes = await axios.post("/api/package_releases/create", {
+    package_id: pkgId,
+    version: "1.0.0",
+    is_latest: true,
+    is_locked: false,
+    license: "GPL",
+  })
+  const relId = relRes.data.package_release.package_release_id
+
+  const updateRes = await axios.post("/api/package_releases/update", {
+    package_release_id: relId,
+    is_locked: true,
+    license: "Apache-2.0",
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.ok).toBe(true)
+
+  const updatedRelease = db.packageReleases.find(
+    (pr) => pr.package_release_id === relId,
+  )
+  expect(updatedRelease?.is_latest).toBe(true)
+  expect(updatedRelease?.is_locked).toBe(true)
+  expect(updatedRelease?.license).toBe("Apache-2.0")
+})
+
+test("update package release - invalid package_name_with_version format", async () => {
+  const { axios } = await getTestServer()
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "invalid-format",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
+  }
+})
+
+test("update package release - package_name_with_version not found", async () => {
+  const { axios } = await getTestServer()
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "nonexistent/package@1.0.0",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
+  }
+})
+
+test("update package release - version in package_name_with_version not found", async () => {
+  const { axios } = await getTestServer()
+
+  await axios.post("/api/packages/create", {
+    name: "testuser/no-version-match",
+  })
+
+  try {
+    await axios.post("/api/package_releases/update", {
+      package_name_with_version: "testuser/no-version-match@1.0.0",
+      is_locked: true,
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(404)
+    expect(error.data.error.error_code).toBe("package_release_not_found")
   }
 })
