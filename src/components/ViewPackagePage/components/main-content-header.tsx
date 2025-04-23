@@ -24,7 +24,6 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import SettingsModal from "@/components/SettingsModal"
 
 interface PackageInfo {
   package_id: string
@@ -80,9 +79,6 @@ export default function MainContentHeader({
         onViewChange={onViewChange}
       />
 
-      <SettingsModal
-        packageInfo={packageInfo as PackageInfo & { is_private: boolean }}
-      />
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu

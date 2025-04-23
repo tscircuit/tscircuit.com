@@ -111,7 +111,7 @@ export default function SidebarAboutSection() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">About</h2>
-          {isOwner && (
+          {!isOwner && (
             <Button
               variant="ghost"
               size="sm"
