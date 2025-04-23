@@ -25,6 +25,7 @@ export const snippetSchema = z.object({
   manual_edits_json_content: z.string().optional().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
+  star_timestamp: z.string().optional(),
   snippet_type: z.enum(["board", "package", "model", "footprint"]),
   description: z.string().optional(),
   version: z.string().default("0.0.1"),
