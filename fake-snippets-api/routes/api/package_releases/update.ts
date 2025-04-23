@@ -68,61 +68,79 @@ export default withRouteSpec({
   }
 
   // Handle updates
+  const targetRelease = ctx.db.packageReleases.find(
+    (pr) => pr.package_release_id === releaseId,
+  )
+  if (!targetRelease) {
+    // This check is redundant as it's done above, but kept for safety
+    return ctx.error(404, {
+      error_code: "package_release_not_found",
+      message: "Package release not found",
+    })
+  }
+
   if (is_latest !== undefined) {
     if (is_latest === true) {
       // Setting this release to latest
-      const allReleasesForPackage = ctx.db.packageReleases.filter(
-        (pr) => pr.package_id === release.package_id,
+
+      // 1. Update all other releases for this package to is_latest: false
+      const otherReleasesToUpdate = ctx.db.packageReleases.filter(
+        (pr) =>
+          pr.package_id === targetRelease.package_id &&
+          pr.package_release_id !== releaseId &&
+          pr.is_latest === true, // Only update those that are currently latest
       )
 
-      for (const pr of allReleasesForPackage) {
-        const isTargetRelease = pr.package_release_id === releaseId
-        const needsUpdate = isTargetRelease || pr.is_latest
-
-        if (needsUpdate) {
-          const updateData = {
-            ...pr,
-            is_latest: isTargetRelease, // Set target to true, others potentially to false
-          }
-
-          // Apply other requested changes only to the target release
-          if (isTargetRelease) {
-            if (is_locked !== undefined) updateData.is_locked = is_locked
-            if (license !== undefined) updateData.license = license
-          }
-
-          // Only update if there's a change in is_latest or other fields for the target
-          if (
-            updateData.is_latest !== pr.is_latest ||
-            (isTargetRelease &&
-              (updateData.is_locked !== pr.is_locked ||
-                updateData.license !== pr.license))
-          ) {
-            ctx.db.updatePackageRelease(updateData)
-          }
+      for (const pr of otherReleasesToUpdate) {
+        // Only update if it's actually changing
+        if (pr.is_latest) {
+          ctx.db.updatePackageRelease({ ...pr, is_latest: false })
         }
       }
+
+      // 2. Update the target release
+      const updatedTargetRelease = {
+        ...targetRelease,
+        is_latest: true,
+        ...(is_locked !== undefined && { is_locked }),
+        ...(license !== undefined && { license }),
+      }
+      // Only update if there's an actual change
+      if (
+        updatedTargetRelease.is_latest !== targetRelease.is_latest ||
+        updatedTargetRelease.is_locked !== targetRelease.is_locked ||
+        updatedTargetRelease.license !== targetRelease.license
+      ) {
+        ctx.db.updatePackageRelease(updatedTargetRelease)
+      }
     } else {
-      // Setting this release to NOT latest (or just updating other fields)
+      // Setting this release to NOT latest
       const updatedRelease = {
-        ...release,
+        ...targetRelease,
         is_latest: false,
         ...(is_locked !== undefined && { is_locked }),
         ...(license !== undefined && { license }),
       }
-      ctx.db.updatePackageRelease(updatedRelease)
+      // Only update if there's an actual change
+      if (
+        updatedRelease.is_latest !== targetRelease.is_latest ||
+        updatedRelease.is_locked !== targetRelease.is_locked ||
+        updatedRelease.license !== targetRelease.license
+      ) {
+        ctx.db.updatePackageRelease(updatedRelease)
+      }
     }
   } else {
     // is_latest not specified, just update other fields
     const updatedRelease = {
-      ...release,
+      ...targetRelease,
       ...(is_locked !== undefined && { is_locked }),
       ...(license !== undefined && { license }),
     }
     // Only update if there are actual changes
     if (
-      updatedRelease.is_locked !== release.is_locked ||
-      updatedRelease.license !== release.license
+      updatedRelease.is_locked !== targetRelease.is_locked ||
+      updatedRelease.license !== targetRelease.license
     ) {
       ctx.db.updatePackageRelease(updatedRelease)
     }
