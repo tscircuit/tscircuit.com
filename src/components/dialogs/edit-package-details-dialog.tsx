@@ -296,13 +296,15 @@ export const EditPackageDetailsDialog = ({
               <Label htmlFor="visibility">Visibility</Label>
               <Select
                 value={visibility}
-                onValueChange={async (val) => {
+
                 onValueChange={async (val) => {
                   setVisibility(val)
                   await handleChangeVisibility(val)
                 }}
+                disabled={
                   savingVisibility || updatePackageDetailsMutation.isLoading
                 }
+
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select visibility" />
