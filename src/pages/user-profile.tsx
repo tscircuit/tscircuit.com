@@ -48,13 +48,13 @@ export const UserProfilePage = () => {
       ["starredSnippets", username],
       async () => {
         const response = await axios.get(
-          `/snippets/list?starred_by=${username}`,
+          `/snippets/list?starred_by=${username}`
         )
         return response.data.snippets
       },
       {
         enabled: activeTab === "starred",
-      },
+      }
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
@@ -77,15 +77,15 @@ export const UserProfilePage = () => {
       switch (filter) {
         case "most-recent":
           if (activeTab === "starred") {
-            const aTime = a.star_timestamp || a.updated_at
-            const bTime = b.star_timestamp || b.updated_at
+            const aTime = a.starred_at || a.updated_at
+            const bTime = b.starred_at || b.updated_at
             return bTime.localeCompare(aTime)
           }
           return b.updated_at.localeCompare(a.updated_at)
         case "least-recent":
           if (activeTab === "starred") {
-            return (a.star_timestamp || a.updated_at).localeCompare(
-              b.star_timestamp || b.updated_at,
+            return (a.starred_at || a.updated_at).localeCompare(
+              b.starred_at || b.updated_at
             )
           }
           return a.updated_at.localeCompare(b.updated_at)
