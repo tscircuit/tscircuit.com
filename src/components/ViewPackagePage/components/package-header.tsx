@@ -7,7 +7,7 @@ import {
   usePackageStarsByName,
 } from "@/hooks/use-package-stars"
 import { LockClosedIcon } from "@radix-ui/react-icons"
-import { GitFork, Star } from "lucide-react"
+import { GitFork, Package, Star } from "lucide-react"
 import { Link } from "wouter"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useEffect } from "react"
@@ -115,7 +115,8 @@ export default function PackageHeader({
               className="bg-blue-600 hover:bg-blue-700"
               onClick={open}
             >
-              Place Order ~$50
+              <Package className="w-3.5 h-3.5 mr-1"/>
+              Order ~$50
             </Button>
             <Button
               variant="outline"
