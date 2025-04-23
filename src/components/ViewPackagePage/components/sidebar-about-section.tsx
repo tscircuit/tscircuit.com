@@ -124,7 +124,6 @@ export default function SidebarAboutSection() {
           )}
         </div>
         <p className="text-sm mb-3">
-          {/* Use local state if available, otherwise fall back to packageInfo */}
           {localDescription ||
             packageInfo?.description ||
             packageInfo?.ai_description}

@@ -23,6 +23,7 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Textarea } from "../ui/textarea"
 import { createUseDialog } from "./create-use-dialog"
+import { ChevronDown } from "lucide-react"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -77,6 +78,7 @@ export const EditPackageDetailsDialog = ({
   const [savingVisibility, setSavingVisibility] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [dangerOpen, setDangerOpen] = useState(false)
 
   useEffect(() => {
     setVisibility(isPrivate ? "private" : "public")
@@ -352,11 +354,17 @@ export const EditPackageDetailsDialog = ({
               </Select>
             </div>
           </div>
-          <details className="mt-2 border border-black-200 rounded-md">
-            <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none">
+          <details
+            className="mt-2 border border-black-200 rounded-md"
+            onToggle={(e) => setDangerOpen(e.currentTarget.open)}
+          >
+            <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
               Danger Zone
+              <ChevronDown
+                className={`w-4 h-4 mr-1 transition-transform ${dangerOpen ? "rotate-180" : ""}`}
+              />
             </summary>
-            <div className="p-2 pr-4">
+            <div className="p-2 pr-2">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-muted-foreground">
@@ -376,7 +384,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </details>
 
-          <div className="mt-6 px-4 flex flex-col sm:flex-row justify-end gap-3">
+          <div className="mt-6 px-2 flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
