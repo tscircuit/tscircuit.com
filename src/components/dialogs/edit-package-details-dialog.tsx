@@ -297,10 +297,10 @@ export const EditPackageDetailsDialog = ({
               <Select
                 value={visibility}
                 onValueChange={async (val) => {
+                onValueChange={async (val) => {
                   setVisibility(val)
-                  await handleChangeVisibility()
+                  await handleChangeVisibility(val)
                 }}
-                disabled={
                   savingVisibility || updatePackageDetailsMutation.isLoading
                 }
               >
