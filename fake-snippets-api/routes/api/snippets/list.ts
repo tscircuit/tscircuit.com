@@ -52,8 +52,6 @@ export default withRouteSpec({
         accountPackages.map((ap) => [ap.package_id, ap.updated_at]),
       )
 
-      console.log("Star timestamps map:", Object.fromEntries(starTimestamps))
-
       // Filter packages to only include starred ones
       packages = packages.filter((pkg) => starTimestamps.has(pkg.package_id))
     } else {
@@ -92,7 +90,7 @@ export default withRouteSpec({
         compiled_js: "",
         created_at: pkg.created_at,
         updated_at: pkg.updated_at,
-        star_timestamp: starTimestamp, // Add star timestamp
+        starred_at: starTimestamp, // Add star timestamp
         star_count: ctx.db.getStarCount(pkg.package_id),
         is_starred: ctx.auth
           ? ctx.db.hasStarred(ctx.auth.account_id, pkg.package_id)
