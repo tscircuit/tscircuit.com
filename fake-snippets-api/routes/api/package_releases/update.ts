@@ -67,35 +67,66 @@ export default withRouteSpec({
     })
   }
 
-  // Create updated release object
-  const updatedRelease = {
-    ...release,
-    ...(is_locked !== undefined && { is_locked }),
-    ...(is_latest !== undefined && { is_latest }),
-    ...(license !== undefined && { license }),
-  }
+  // Handle updates
+  if (is_latest !== undefined) {
+    if (is_latest === true) {
+      // Setting this release to latest
+      const allReleasesForPackage = ctx.db.packageReleases.filter(
+        (pr) => pr.package_id === release.package_id,
+      )
 
-  // Handle is_latest updates atomically
-  if (is_latest !== undefined && is_latest) {
-    // Get all releases for this package that are currently marked as latest
-    const otherLatestReleases = ctx.db.packageReleases.filter(
-      (pr) =>
-        pr.package_id === release.package_id &&
-        pr.package_release_id !== releaseId &&
-        pr.is_latest,
-    )
+      for (const pr of allReleasesForPackage) {
+        const isTargetRelease = pr.package_release_id === releaseId
+        const needsUpdate = isTargetRelease || pr.is_latest
 
-    // Update all releases in a single operation
-    for (const latestRelease of otherLatestReleases) {
-      ctx.db.updatePackageRelease({
-        ...latestRelease,
+        if (needsUpdate) {
+          const updateData = {
+            ...pr,
+            is_latest: isTargetRelease, // Set target to true, others potentially to false
+          }
+
+          // Apply other requested changes only to the target release
+          if (isTargetRelease) {
+            if (is_locked !== undefined) updateData.is_locked = is_locked
+            if (license !== undefined) updateData.license = license
+          }
+
+          // Only update if there's a change in is_latest or other fields for the target
+          if (
+            updateData.is_latest !== pr.is_latest ||
+            (isTargetRelease &&
+              (updateData.is_locked !== pr.is_locked ||
+                updateData.license !== pr.license))
+          ) {
+            ctx.db.updatePackageRelease(updateData)
+          }
+        }
+      }
+    } else {
+      // Setting this release to NOT latest (or just updating other fields)
+      const updatedRelease = {
+        ...release,
         is_latest: false,
-      })
+        ...(is_locked !== undefined && { is_locked }),
+        ...(license !== undefined && { license }),
+      }
+      ctx.db.updatePackageRelease(updatedRelease)
+    }
+  } else {
+    // is_latest not specified, just update other fields
+    const updatedRelease = {
+      ...release,
+      ...(is_locked !== undefined && { is_locked }),
+      ...(license !== undefined && { license }),
+    }
+    // Only update if there are actual changes
+    if (
+      updatedRelease.is_locked !== release.is_locked ||
+      updatedRelease.license !== release.license
+    ) {
+      ctx.db.updatePackageRelease(updatedRelease)
     }
   }
-
-  // Update the target release
-  ctx.db.updatePackageRelease(updatedRelease)
 
   return ctx.json({
     ok: true,
