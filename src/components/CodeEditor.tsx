@@ -336,7 +336,7 @@ export const CodeEditor = ({
                 lineHeight: "1.6",
                 overflow: "auto",
                 zIndex: "9999",
-              }
+              },
             }),
             EditorView.decorations.of((view) => {
               const decorations = []
