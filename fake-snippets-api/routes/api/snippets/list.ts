@@ -25,14 +25,14 @@ export default withRouteSpec({
   if (owner_name) {
     packages = packages.filter(
       (pkg) =>
-        pkg.owner_github_username?.toLowerCase() === owner_name.toLowerCase()
+        pkg.owner_github_username?.toLowerCase() === owner_name.toLowerCase(),
     )
   }
 
   // Filter by unscoped_name if provided
   if (unscoped_name) {
     packages = packages.filter(
-      (pkg) => pkg.unscoped_name.toLowerCase() === unscoped_name.toLowerCase()
+      (pkg) => pkg.unscoped_name.toLowerCase() === unscoped_name.toLowerCase(),
     )
   }
 
@@ -40,16 +40,16 @@ export default withRouteSpec({
   if (starred_by) {
     starredByAccount =
       ctx.db.accounts.find(
-        (acc) => acc.github_username.toLowerCase() === starred_by.toLowerCase()
+        (acc) => acc.github_username.toLowerCase() === starred_by.toLowerCase(),
       ) || null
 
     if (starredByAccount) {
       const accountPackages = ctx.db.accountPackages.filter(
-        (ap) => ap.account_id === starredByAccount?.account_id && ap.is_starred
+        (ap) => ap.account_id === starredByAccount?.account_id && ap.is_starred,
       )
 
       const starTimestamps = new Map(
-        accountPackages.map((ap) => [ap.package_id, ap.updated_at])
+        accountPackages.map((ap) => [ap.package_id, ap.updated_at]),
       )
 
       console.log("Star timestamps map:", Object.fromEntries(starTimestamps))
@@ -64,7 +64,7 @@ export default withRouteSpec({
   // Convert packages to snippets
   const snippets = packages.map((pkg) => {
     const packageRelease = ctx.db.getPackageReleaseById(
-      pkg.latest_package_release_id || ""
+      pkg.latest_package_release_id || "",
     )
 
     let starTimestamp
@@ -73,7 +73,7 @@ export default withRouteSpec({
         (ap) =>
           ap.account_id === starredByAccount.account_id &&
           ap.package_id === pkg.package_id &&
-          ap.is_starred
+          ap.is_starred,
       )
       starTimestamp = accountPackage?.updated_at
     }
@@ -105,11 +105,11 @@ export default withRouteSpec({
     }
 
     const packageFiles = ctx.db.getPackageFilesByReleaseId(
-      packageRelease.package_release_id
+      packageRelease.package_release_id,
     )
     const codeFile = packageFiles.find(
       (file: { file_path: string }) =>
-        file.file_path === "index.ts" || file.file_path === "index.tsx"
+        file.file_path === "index.ts" || file.file_path === "index.tsx",
     )
 
     const snippet = {
@@ -123,11 +123,12 @@ export default withRouteSpec({
       code: codeFile?.content_text || "",
       dts:
         packageFiles.find(
-          (file: { file_path: string }) => file.file_path === "/dist/index.d.ts"
+          (file: { file_path: string }) =>
+            file.file_path === "/dist/index.d.ts",
         )?.content_text || "",
       compiled_js:
         packageFiles.find(
-          (file: { file_path: string }) => file.file_path === "/dist/index.js"
+          (file: { file_path: string }) => file.file_path === "/dist/index.js",
         )?.content_text || "",
       created_at: pkg.created_at,
       updated_at: pkg.updated_at,

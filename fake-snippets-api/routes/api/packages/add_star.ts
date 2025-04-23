@@ -46,7 +46,8 @@ export default withRouteSpec({
 
   // Check if already starred
   const existing = ctx.db.accountPackages.find(
-    (ap) => ap.account_id === ctx.auth.account_id && ap.package_id === packageId
+    (ap) =>
+      ap.account_id === ctx.auth.account_id && ap.package_id === packageId,
   )
 
   if (existing?.is_starred) {
