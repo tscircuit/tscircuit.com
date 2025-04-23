@@ -109,10 +109,7 @@ export default function PackageHeader({
             )}
           </div>
           <div className="items-center space-x-2 hidden md:flex">
-          <Button
-              variant="outline"
-              size="sm"
-            >
+            <Button variant="outline" size="sm">
               <Package className="w-4 h-4 mr-2" />
               Order ~$50
             </Button>
