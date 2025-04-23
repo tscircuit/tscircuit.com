@@ -109,13 +109,11 @@ export default function PackageHeader({
             )}
           </div>
           <div className="items-center space-x-2 hidden md:flex">
-            <Button
+          <Button
+              variant="outline"
               size="sm"
-              variant="default"
-              className="bg-blue-600 hover:bg-blue-700"
-              onClick={open}
             >
-              <Package className="w-3.5 h-3.5 mr-1" />
+              <Package className="w-4 h-4 mr-2" />
               Order ~$50
             </Button>
             <Button
