@@ -124,9 +124,9 @@ export const EditPackageDetailsDialog = ({
           description: "Your package was successfully deleted.",
           variant: "destructive",
         })
-        window.location.reload()
         await qc.invalidateQueries(["packages"])
         onOpenChange(false)
+        window.location.reload()
       }
     } catch (err: any) {
       toast({
