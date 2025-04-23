@@ -115,7 +115,7 @@ export default function PackageHeader({
               className="bg-blue-600 hover:bg-blue-700"
               onClick={open}
             >
-              <Package className="w-3.5 h-3.5 mr-1"/>
+              <Package className="w-3.5 h-3.5 mr-1" />
               Order ~$50
             </Button>
             <Button
