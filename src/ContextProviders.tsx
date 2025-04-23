@@ -4,12 +4,20 @@ import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
 
+const staffGithubUsernames = [
+  "imrishabh18",
+  "seveibar",
+  "testuser",
+  ...(import.meta.env.VITE_STAFF_GITHUB_USERNAMES?.split(",") || []),
+]
+
 const queryClient = new QueryClient()
 
 const isInternalGithubUser = (githubUsername?: string | null) => {
   if (!githubUsername) return false
-  return import.meta.env.VITE_INTERNAL_GITHUB_USERNAMES.split(",").some((internalGithubUsername: string) => 
-    internalGithubUsername.toLowerCase() === githubUsername.toLowerCase()
+  return staffGithubUsernames.some(
+    (internalGithubUsername: string) =>
+      internalGithubUsername.toLowerCase() === githubUsername.toLowerCase(),
   )
 }
 
@@ -32,8 +40,8 @@ function PostHogIdentifier() {
         const githubUsername = session?.github_username
 
         if (isInternalGithubUser(githubUsername)) {
-          posthog.identify(session?.account_id, {
-            is_internal_user: true,
+          posthog.identify(session?.github_username, {
+            is_tscircuit_staff: true,
           })
         }
       } catch (error) {
