@@ -72,13 +72,13 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
+
   return (
     <div className="flex items-center justify-between mb-4">
       <MainContentViewSelector
         activeView={activeView}
         onViewChange={onViewChange}
       />
-
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu

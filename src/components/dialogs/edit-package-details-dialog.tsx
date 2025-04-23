@@ -76,6 +76,7 @@ export const EditPackageDetailsDialog = ({
   const [visibility, setVisibility] = useState(isPrivate ? "private" : "public")
   const [savingVisibility, setSavingVisibility] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
 
   useEffect(() => {
     setVisibility(isPrivate ? "private" : "public")
@@ -112,12 +113,6 @@ export const EditPackageDetailsDialog = ({
   }
 
   const handleDelete = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this package? This action cannot be undone.",
-      )
-    )
-      return
     setDeleting(true)
     try {
       const res = await axios.post("/packages/delete", {
@@ -129,6 +124,7 @@ export const EditPackageDetailsDialog = ({
           description: "Your package was successfully deleted.",
           variant: "destructive",
         })
+        window.location.reload()
         await qc.invalidateQueries(["packages"])
         onOpenChange(false)
       }
@@ -141,6 +137,7 @@ export const EditPackageDetailsDialog = ({
       console.error(err)
     } finally {
       setDeleting(false)
+      setShowConfirmDelete(false)
     }
   }
 
@@ -234,153 +231,178 @@ export const EditPackageDetailsDialog = ({
   })
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
-        <DialogHeader className="space-y-2">
-          <DialogTitle>Edit Package Details</DialogTitle>
-          <DialogDescription>
-            Update your package’s description, website, visibility, or delete
-            it.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-4">
-          <div className="space-y-1">
-            <Label htmlFor="website">Website</Label>
-            <Input
-              id="website"
-              value={formData.website}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, website: e.target.value }))
-              }
-              placeholder="https://example.com"
-              disabled={updatePackageDetailsMutation.isLoading}
-              className="w-full"
-              aria-invalid={!!websiteError}
-            />
-            {websiteError && (
-              <p className="text-sm text-red-500">{websiteError}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              placeholder="Enter package description"
-              disabled={updatePackageDetailsMutation.isLoading}
-              className="w-full min-h-[100px] resize-none"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="license">License</Label>
-            <Select
-              value={formData.license || "unset"}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  license: value === "unset" ? null : value,
-                }))
-              }
-              disabled={updatePackageDetailsMutation.isLoading}
+    <div>
+      <Dialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
+        <DialogContent className="max-w-md p-6 rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this package? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDelete(false)}
+              disabled={deleting}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a license" />
-              </SelectTrigger>
-              <SelectContent className="!z-[999]">
-                {["MIT", "Apache-2.0", "BSD-3-Clause", "GPL-3.0", "unset"].map(
-                  (l) => (
-                    <SelectItem key={l} value={l}>
-                      {l}
-                    </SelectItem>
-                  ),
-                )}
-              </SelectContent>
-            </Select>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
           </div>
-        </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
+          <DialogHeader className="space-y-2">
+            <DialogTitle>Edit Package Details</DialogTitle>
+            <DialogDescription>
+              Update your package’s description, website, visibility, or delete
+              it.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="mt-6">
-          <h3 className="text-lg font-bold text-red-600">Danger Zone</h3>
-          <p className="text-sm text-slate-500 text-muted-foreground mb-4">
-            Caution: these actions are irreversible.
-          </p>
-
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center border border-gray-200 rounded-md p-4">
-              <div>
-                <p className="font-medium">Change Visibility</p>
-                <p className="text-sm text-muted-foreground">
-                  Currently <strong>{visibility}</strong>.
-                </p>
-              </div>
-              <Button
-                size="default"
-                onClick={handleChangeVisibility}
-                disabled={savingVisibility}
-                className="w-[115px]"
-              >
-                {savingVisibility
-                  ? "Saving..."
-                  : visibility === "private"
-                    ? "Make Public"
-                    : "Make Private"}
-              </Button>
+          <div className="grid gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={formData.website}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    website: e.target.value,
+                  }))
+                }
+                placeholder="https://example.com"
+                disabled={updatePackageDetailsMutation.isLoading}
+                className="w-full"
+                aria-invalid={!!websiteError}
+              />
+              {websiteError && (
+                <p className="text-sm text-red-500">{websiteError}</p>
+              )}
             </div>
-
-            <div className="flex justify-between items-center border border-red-200 rounded-md p-4">
-              <div>
-                <p className="font-medium text-red-600">Delete Package</p>
-                <p className="text-sm text-muted-foreground">
-                  Once deleted, it cannot be recovered.
-                </p>
-              </div>
-              <Button
-                variant="destructive"
-                size="default"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="shrink-0 w-[115px]"
+            <div className="space-y-1">
+              <Label htmlFor="visibility">Visibility</Label>
+              <Select
+                id="visibility"
+                value={visibility}
+                onValueChange={async (val) => {
+                  setVisibility(val)
+                  await handleChangeVisibility()
+                }}
+                disabled={
+                  savingVisibility || updatePackageDetailsMutation.isLoading
+                }
               >
-                {deleting ? "Deleting..." : "Delete"}
-              </Button>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select visibility" />
+                </SelectTrigger>
+                <SelectContent className="!z-[999]">
+                  <SelectItem value="public">public</SelectItem>
+                  <SelectItem value="private">private</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Enter package description"
+                disabled={updatePackageDetailsMutation.isLoading}
+                className="w-full min-h-[100px] resize-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="license">License</Label>
+              <Select
+                value={formData.license || "unset"}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    license: value === "unset" ? null : value,
+                  }))
+                }
+                disabled={updatePackageDetailsMutation.isLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a license" />
+                </SelectTrigger>
+                <SelectContent className="!z-[999]">
+                  <SelectItem value="MIT">MIT</SelectItem>
+                  <SelectItem value="Apache-2.0">Apache-2.0</SelectItem>
+                  <SelectItem value="BSD-3-Clause">BSD-3-Clause</SelectItem>
+                  <SelectItem value="GPL-3.0">GPL-3.0</SelectItem>
+                  <SelectItem value="unset">Unset</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        </div>
+          <details className="mt-2 border border-black-200 rounded-md">
+            <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none">
+              Danger Zone
+            </summary>
+            <div className="p-2 pr-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Once deleted, it cannot be recovered.
+                  </p>
+                </div>
+                <Button
+                  variant="destructive"
+                  size="default"
+                  onClick={() => setShowConfirmDelete(true)}
+                  disabled={deleting}
+                  className="shrink-0 w-[115px]"
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </div>
+          </details>
 
-        <div className="mt-6 px-4 flex flex-col sm:flex-row justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={updatePackageDetailsMutation.isLoading}
-            className="sm:w-auto w-full"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => updatePackageDetailsMutation.mutate()}
-            disabled={
-              updatePackageDetailsMutation.isLoading ||
-              !hasChanges ||
-              !isFormValid
-            }
-            className="sm:w-auto lg:w-[115px]"
-          >
-            {updatePackageDetailsMutation.isLoading
-              ? "Updating..."
-              : "Save Changes"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="mt-6 px-4 flex flex-col sm:flex-row justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={updatePackageDetailsMutation.isLoading}
+              className="sm:w-auto w-full"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => updatePackageDetailsMutation.mutate()}
+              disabled={
+                updatePackageDetailsMutation.isLoading ||
+                !hasChanges ||
+                !isFormValid
+              }
+              className="sm:w-auto lg:w-[115px]"
+            >
+              {updatePackageDetailsMutation.isLoading
+                ? "Updating..."
+                : "Save Changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 
