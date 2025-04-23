@@ -26,6 +26,8 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
+  // Control dialog open state
+  const [open, setOpen] = useState(false)
   const [visibility, setVisibility] = useState(
     packageInfo?.is_private ? "private" : "public",
   )
@@ -38,32 +40,36 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
     }
   }, [packageInfo])
 
-  const toggleVisibility = () => {
-    setVisibility((prev) => (prev === "private" ? "public" : "private"))
-  }
-
   const handleChangeVisibility = async () => {
     if (!packageInfo) return
 
     try {
       setSaving(true)
+      const newPrivacy = visibility === "private" ? false : true
       const response = await axios.post("/snippets/update", {
         snippet_id: packageInfo.package_id,
-        is_private: visibility === "private",
+        is_private: newPrivacy,
       })
 
-      if (response.status == 200) {
+      if (response.status === 200) {
+        const updatedVisibility = newPrivacy ? "private" : "public"
+        setVisibility(updatedVisibility)
         toast({
           title: "Visibility updated",
-          description: `Package is now ${visibility}.`,
+          description: `Package is now ${updatedVisibility}.`,
         })
-
         await queryClient.invalidateQueries([
           "snippets",
           packageInfo.package_id,
         ])
+        setOpen(false)
       }
     } catch (error: any) {
+      toast({
+        title: "Failed to Update Visibility",
+        description: error.message,
+        variant: "destructive",
+      })
       console.error("Failed to update visibility:", error)
     } finally {
       setSaving(false)
@@ -86,26 +92,31 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
         package_id: packageInfo.package_id,
       })
 
-      if (response.status == 200) {
+      if (response.status === 200) {
         toast({
           title: "Package deleted",
           description: "Your package was successfully deleted.",
           variant: "destructive",
         })
-
         await queryClient.invalidateQueries(["packages"])
+        setOpen(false)
       }
     } catch (error: any) {
+      toast({
+        title: "Failed to delete package",
+        description: error.message,
+        variant: "destructive",
+      })
       console.error("Failed to delete package:", error)
     } finally {
       setDeleteLoading(false)
     }
   }
 
-  if (!packageInfo) return null // or fallback UI
+  if (!packageInfo) return null
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" disabled={saving || deleteLoading}>
           <Settings className="h-4 w-4" />
@@ -126,18 +137,17 @@ export default function SettingsModal({ packageInfo }: SettingsModalProps) {
                 This package is currently <strong>{visibility}</strong>.
               </p>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <Button variant="outline" size="sm" onClick={toggleVisibility}>
-                Make {visibility === "private" ? "Public" : "Private"}
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleChangeVisibility}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Change visibility"}
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              onClick={handleChangeVisibility}
+              disabled={saving}
+            >
+              {saving
+                ? "Saving..."
+                : visibility === "private"
+                  ? "Make Public"
+                  : "Make Private"}
+            </Button>
           </div>
 
           <div className="border border-red-500/20 rounded-md p-4 flex justify-between items-start">
