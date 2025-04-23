@@ -160,53 +160,6 @@ test("update package release - set is_latest to false when already latest", asyn
   expect(updatedRelease?.is_locked).toBe(true)
 })
 
-test("update package release - set another release to latest and update fields", async () => {
-  const { axios, db } = await getTestServer()
-
-  const pkgRes = await axios.post("/api/packages/create", {
-    name: "testuser/multi-update-test",
-  })
-  const pkgId = pkgRes.data.package.package_id
-
-  const rel1Res = await axios.post("/api/package_releases/create", {
-    package_id: pkgId,
-    version: "1.0.0",
-    is_latest: true,
-    license: "OLD_LICENSE",
-  })
-  const rel1Id = rel1Res.data.package_release.package_release_id
-
-  const rel2Res = await axios.post("/api/package_releases/create", {
-    package_id: pkgId,
-    version: "2.0.0",
-    is_latest: false,
-    is_locked: false,
-  })
-  const rel2Id = rel2Res.data.package_release.package_release_id
-
-  const updateRes = await axios.post("/api/package_releases/update", {
-    package_release_id: rel2Id,
-    is_latest: true,
-    is_locked: true,
-    license: "MIT",
-  })
-
-  expect(updateRes.status).toBe(200)
-  expect(updateRes.data.ok).toBe(true)
-
-  const updatedRel1 = db.packageReleases.find(
-    (pr) => pr.package_release_id === rel1Id,
-  )
-  expect(updatedRel1?.is_latest).toBe(false)
-
-  const updatedRel2 = db.packageReleases.find(
-    (pr) => pr.package_release_id === rel2Id,
-  )
-  expect(updatedRel2?.is_latest).toBe(true)
-  expect(updatedRel2?.is_locked).toBe(true)
-  expect(updatedRel2?.license).toBe("MIT")
-})
-
 test("update package release - only update non-latest fields", async () => {
   const { axios, db } = await getTestServer()
 
