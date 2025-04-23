@@ -293,7 +293,6 @@ export const EditPackageDetailsDialog = ({
             <div className="space-y-1">
               <Label htmlFor="visibility">Visibility</Label>
               <Select
-                id="visibility"
                 value={visibility}
                 onValueChange={async (val) => {
                   setVisibility(val)
