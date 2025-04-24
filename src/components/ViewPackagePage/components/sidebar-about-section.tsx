@@ -111,7 +111,7 @@ export default function SidebarAboutSection() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">About</h2>
-          {isOwner && (
+          {!isOwner && (
             <Button
               variant="ghost"
               size="sm"
@@ -182,8 +182,9 @@ export default function SidebarAboutSection() {
             packageInfo.description || packageInfo?.ai_description || ""
           }
           currentLicense={currentLicense}
-          packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
+          isPrivate={!!packageInfo.is_private}
+          packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
         />
