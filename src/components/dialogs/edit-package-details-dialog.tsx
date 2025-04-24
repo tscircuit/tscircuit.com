@@ -237,8 +237,8 @@ export const EditPackageDetailsDialog = ({
       <Dialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
         <DialogContent className="max-w-md p-6 rounded-2xl shadow-lg">
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-left">Confirm Deletion</DialogTitle>
+            <DialogDescription className="text-left">
               Are you sure you want to delete this package? This action cannot
               be undone.
             </DialogDescription>
@@ -262,8 +262,8 @@ export const EditPackageDetailsDialog = ({
         </DialogContent>
       </Dialog>
       <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
-          <DialogHeader className="space-y-2">
+        <DialogContent className="sm:max-w-[500px] lg:h-[70vh] sm:h-[90vh] overflow-y-auto w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
+          <DialogHeader>
             <DialogTitle>Edit Package Details</DialogTitle>
             <DialogDescription>
               Update your package’s description, website, visibility, or delete
@@ -384,7 +384,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </details>
 
-          <div className="mt-6 px-2 flex flex-col sm:flex-row justify-end gap-3">
+          <div className="mt-6 lg:px-2 flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
