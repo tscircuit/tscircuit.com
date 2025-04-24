@@ -84,21 +84,20 @@ export const EditPackageDetailsDialog = ({
     setVisibility(isPrivate ? "private" : "public")
   }, [isPrivate])
 
-  const handleChangeVisibility = async () => {
+  const handleChangeVisibility = async (newVisibility: string) => {
     if (savingVisibility) return
     setSavingVisibility(true)
     try {
-      const newPrivacy = visibility === "private" ? false : true
+      const newPrivacy = newVisibility === "private" ? false : true
       const res = await axios.post("/snippets/update", {
         snippet_id: packageId,
         is_private: newPrivacy,
       })
       if (res.status === 200) {
-        const updated = newPrivacy ? "private" : "public"
-        setVisibility(updated)
+        setVisibility(newVisibility)
         toast({
           title: "Visibility updated",
-          description: `Package is now ${updated}.`,
+          description: `Package is now ${newVisibility}.`,
         })
         await qc.invalidateQueries(["packages", packageId])
       }
@@ -296,7 +295,6 @@ export const EditPackageDetailsDialog = ({
               <Label htmlFor="visibility">Visibility</Label>
               <Select
                 value={visibility}
-
                 onValueChange={async (val) => {
                   setVisibility(val)
                   await handleChangeVisibility(val)
@@ -304,7 +302,6 @@ export const EditPackageDetailsDialog = ({
                 disabled={
                   savingVisibility || updatePackageDetailsMutation.isLoading
                 }
-
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select visibility" />
