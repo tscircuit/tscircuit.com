@@ -102,8 +102,10 @@ export const orderFileSchema = z.object({
 export type OrderFile = z.infer<typeof orderFileSchema>
 
 const shippingOptionSchema = z.object({
-  carrier: z.string(),
-  service: z.string(),
+  carrier: z.enum(["dhl","fedex","usps","ups"]),
+  service_level: z.string().description("Service (e.g. express, ground international)"),
+  display_carrier: z.enum(["DHL", "Fedex", "USPS", "UPS"]),
+  display_service_level: z.string(),
   cost: z.number(),
 })
 export type ShippingOption = z.infer<typeof shippingOptionSchema>
