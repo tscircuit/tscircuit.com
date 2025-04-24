@@ -355,7 +355,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </div>
           <details
-            className="mt-2 border border-black-200 rounded-md"
+            className="mt-2 rounded-md"
             onToggle={(e) => setDangerOpen(e.currentTarget.open)}
           >
             <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
@@ -384,7 +384,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </details>
 
-          <div className="mt-6 lg:px-2 flex flex-col sm:flex-row justify-end gap-3">
+          <div className=" lg:px-2 flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
