@@ -33,7 +33,6 @@ import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-
 import { getSingletonHighlighter, Highlighter } from "shiki"
 
 export const CodeEditor = ({
@@ -81,15 +80,6 @@ export const CodeEditor = ({
   const isInitialCodeLoaded = Boolean(initialCode)
 
   useEffect(() => {
-    getSingletonHighlighter({
-      themes: ["github-dark", "github-light"],
-      langs: ["typescript", "tsx"],
-    }).then((highlighter) => {
-      highlighterRef.current = highlighter
-    })
-  }, [])
-
-  useEffect(() => {
     if (initialCode !== code) {
       setCode(initialCode)
       if (currentFile === "index.tsx") {
@@ -112,6 +102,13 @@ export const CodeEditor = ({
 
   useEffect(() => {
     if (!editorRef.current) return
+
+    getSingletonHighlighter({
+      themes: ["github-dark", "github-light"],
+      langs: ["typescript", "tsx"],
+    }).then((highlighter) => {
+      highlighterRef.current = highlighter
+    })
 
     const fsMap = new Map<string, string>()
     Object.entries(files).forEach(([filename, content]) => {
