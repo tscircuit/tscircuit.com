@@ -139,6 +139,10 @@ export const CodeEditor = ({
       resolveJsonModule: true,
     })
 
+    // Add alias for tscircuit -> @tscircuit/core
+    const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+    env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
@@ -339,10 +343,21 @@ export const CodeEditor = ({
               },
             }),
             EditorView.theme({
-              ".cm-content .cm-underline": {
-                textDecoration: "underline",
-                textDecorationColor: "rgba(0, 0, 255, 0.3)",
-                cursor: "pointer",
+              ".cm-tooltip-hover": {
+                maxWidth: "600px",
+                padding: "12px",
+                maxHeight: "400px",
+                borderRadius: "0.5rem",
+                backgroundColor: "#fff",
+                color: "#0f172a",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                fontSize: "14px",
+                fontFamily: "monospace",
+                whiteSpace: "pre-wrap",
+                lineHeight: "1.6",
+                overflow: "auto",
+                zIndex: "9999",
               },
             }),
             EditorView.decorations.of((view) => {
@@ -383,8 +398,7 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    // Initial ATA run for index.tsx
-    if (currentFile === "index.tsx") {
+    if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
     // files.forEach(({path, content}) => {
