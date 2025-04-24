@@ -253,8 +253,6 @@ export const CodeEditor = ({
       )
     }
 
-    console.log("IsLoading", isLoading)
-
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
       currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
