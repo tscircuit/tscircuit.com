@@ -17,7 +17,7 @@ export default function MarkdownViewer({
 
             // Don't use code tags cause of it's backticks not being removed
             return isCodeBlock ? (
-              <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto my-4 w-full">
+              <div className="bg-gray-100 dark:bg-gray-800 rounded overflow-auto w-full">
                 <span className="text-gray-800 dark:text-gray-200 font-mono whitespace-pre">
                   {children}
                 </span>
