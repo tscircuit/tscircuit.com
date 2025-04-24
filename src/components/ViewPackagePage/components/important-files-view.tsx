@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
+import MarkdownViewer from "./markdown-viewer"
 
 interface PackageFile {
   package_file_id: string
@@ -86,13 +87,13 @@ export default function ImportantFilesView({
         {aiDescription && (
           <div className="mb-6">
             <h3 className="font-semibold text-lg mb-2">Description</h3>
-            <p className="whitespace-pre-wrap">{aiDescription}</p>
+            <MarkdownViewer markdownContent={aiDescription} />
           </div>
         )}
         {aiUsageInstructions && (
           <div>
             <h3 className="font-semibold text-lg mb-2">Instructions</h3>
-            <p className="whitespace-pre-wrap">{aiUsageInstructions}</p>
+            <MarkdownViewer markdownContent={aiUsageInstructions} />
           </div>
         )}
       </div>
@@ -213,10 +214,7 @@ export default function ImportantFilesView({
         {activeTab === "ai" ? (
           renderAiContent()
         ) : activeFilePath && activeFilePath.endsWith(".md") ? (
-          <div className="markdown-content">
-            {/* In a real app, you'd use a markdown renderer here */}
-            <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
-          </div>
+          <MarkdownViewer markdownContent={activeFileContent} />
         ) : activeFilePath &&
           (activeFilePath.endsWith(".js") ||
             activeFilePath.endsWith(".jsx") ||
