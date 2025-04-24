@@ -105,7 +105,7 @@ export default function MobileSidebar({
             packageInfo?.ai_description ||
             "A Default 60 keyboard created with tscircuit"}
         </p>
-        {!isOwner && (
+        {isOwner && (
           <Button
             variant="ghost"
             size="sm"
