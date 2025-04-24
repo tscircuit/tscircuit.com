@@ -5,7 +5,14 @@ import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState } from "@codemirror/state"
-import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import {
+  Decoration,
+  hoverTooltip,
+  keymap,
+  Tooltip,
+  showTooltip,
+  ViewUpdate,
+} from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
@@ -28,6 +35,22 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { createHighlighter, Highlighter } from "shiki"
+
+// Global highlighter instance
+let globalHighlighter$: any
+let globalHighlighter: Highlighter
+
+const setupHighlighter = async () => {
+  if (globalHighlighter$) return globalHighlighter
+  globalHighlighter$ = await createHighlighter({
+    langs: ["typescript"],
+    themes: ["github-light"],
+  })
+  globalHighlighter = await globalHighlighter$
+  return globalHighlighter
+}
+
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -96,6 +119,9 @@ export const CodeEditor = ({
 
   useEffect(() => {
     if (!editorRef.current) return
+
+    // Initialize Shiki highlighter
+    setupHighlighter()
 
     const fsMap = new Map<string, string>()
     Object.entries(files).forEach(([filename, content]) => {
@@ -257,7 +283,42 @@ export const CodeEditor = ({
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
             tsHover(),
-            hoverTooltip((view, pos) => {
+            hoverTooltip((view, pos, side) => {
+              const tooltips = document.querySelectorAll(".cm-tooltip-hover")
+              tooltips.forEach((tooltip) => {
+                if (!(tooltip as HTMLElement).dataset.highlighted) {
+                  const rawContent = tooltip.textContent || ""
+                  if (globalHighlighter && rawContent) {
+                    // Use requestAnimationFrame to batch DOM updates
+                    requestAnimationFrame(() => {
+                      const formattedContent = rawContent
+                        .trim()
+                        .replace(/\s+/g, " ")
+                        .replace(/\{/g, "{\n  ")
+                        .replace(/\}/g, "\n}")
+                        .replace(/;/g, ";\n  ")
+
+                      const html = globalHighlighter.codeToHtml(
+                        formattedContent,
+                        {
+                          lang: "typescript",
+                          theme: "github-light",
+                        },
+                      )
+
+                      const container = document.createElement("div")
+                      container.className = "typescript-hover-content"
+                      container.innerHTML = html
+
+                      tooltip.innerHTML = ""
+                      tooltip.appendChild(container)
+                      ;(tooltip as HTMLElement).dataset.highlighted = "true"
+                    })
+                  }
+                }
+              })
+
+              // Check for package pattern matches
               const line = view.state.doc.lineAt(pos)
               const lineStart = line.from
               const lineEnd = line.to
@@ -277,7 +338,19 @@ export const CodeEditor = ({
                       above: true,
                       create() {
                         const dom = document.createElement("div")
-                        dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                        dom.className = "cm-tooltip-hover"
+                        if (globalHighlighter) {
+                          const html = globalHighlighter.codeToHtml(
+                            "Ctrl/Cmd+Click to open snippet",
+                            {
+                              lang: "typescript",
+                              theme: "vitesse-light",
+                            },
+                          )
+                          dom.innerHTML = html
+                        } else {
+                          dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                        }
                         return { dom }
                       },
                     }
@@ -286,6 +359,7 @@ export const CodeEditor = ({
               }
               return null
             }),
+            // Add click handler for package links
             EditorView.domEventHandlers({
               click: (event, view) => {
                 if (!event.ctrlKey && !event.metaKey) return false
@@ -336,6 +410,30 @@ export const CodeEditor = ({
                 lineHeight: "1.6",
                 overflow: "auto",
                 zIndex: "9999",
+              },
+              // Style the shiki container
+              ".cm-tooltip-hover .shiki": {
+                margin: 0,
+                padding: 0,
+                backgroundColor: "transparent !important",
+                border: "none",
+                width: "100%",
+                height: "auto",
+                display: "block",
+              },
+              // Style the code element
+              ".cm-tooltip-hover .shiki code": {
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                display: "block",
+                width: "100%",
+              },
+              // Style individual lines
+              ".cm-tooltip-hover .shiki .line": {
+                display: "inline-block",
+                width: "100%",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
               },
             }),
             EditorView.decorations.of((view) => {
