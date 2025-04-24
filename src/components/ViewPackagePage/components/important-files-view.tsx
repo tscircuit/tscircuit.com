@@ -6,8 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
-import Markdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import MarkdownViewer from "./markdown-viewer"
 
 interface PackageFile {
   package_file_id: string
@@ -88,13 +87,13 @@ export default function ImportantFilesView({
         {aiDescription && (
           <div className="mb-6">
             <h3 className="font-semibold text-lg mb-2">Description</h3>
-            <p className="whitespace-pre-wrap">{aiDescription}</p>
+            <MarkdownViewer markdownContent={aiDescription} />
           </div>
         )}
         {aiUsageInstructions && (
           <div>
             <h3 className="font-semibold text-lg mb-2">Instructions</h3>
-            <p className="whitespace-pre-wrap">{aiUsageInstructions}</p>
+            <MarkdownViewer markdownContent={aiUsageInstructions} />
           </div>
         )}
       </div>
@@ -215,33 +214,7 @@ export default function ImportantFilesView({
         {activeTab === "ai" ? (
           renderAiContent()
         ) : activeFilePath && activeFilePath.endsWith(".md") ? (
-          <div className="prose dark:prose-invert prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-code:font-mono markdown-content">
-            <Markdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                code({ node, className, children, ...props }) {
-                  const isCodeBlock =
-                    className?.includes("language-") ||
-                    /\n/.test(String(children))
-
-                  // Don't use code tags cause of it's backticks not being removed
-                  return isCodeBlock ? (
-                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto my-4 w-full">
-                      <span className="text-gray-800 dark:text-gray-200 font-mono whitespace-pre">
-                        {children}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="bg-gray-100 dark:bg-gray-800 text-gray-800 font-semibold font-mono dark:text-gray-200 px-1 py-0.5 rounded">
-                      {children}
-                    </span>
-                  )
-                },
-              }}
-            >
-              {activeFileContent}
-            </Markdown>
-          </div>
+          <MarkdownViewer markdownContent={activeFileContent} />
         ) : activeFilePath &&
           (activeFilePath.endsWith(".js") ||
             activeFilePath.endsWith(".jsx") ||
