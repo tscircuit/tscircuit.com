@@ -18,7 +18,6 @@ import {
 import {
   tsAutocomplete,
   tsFacet,
-  tsHover,
   tsLinter,
   tsSync,
 } from "@valtown/codemirror-ts"
@@ -33,7 +32,7 @@ import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-import { getSingletonHighlighter, Highlighter } from "shiki"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 export const CodeEditor = ({
   onCodeChange,
@@ -60,9 +59,7 @@ export const CodeEditor = ({
   const apiUrl = useSnippetsBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
 
-  const highlighterRef = useRef<Awaited<
-    ReturnType<typeof getSingletonHighlighter>
-  > | null>(null)
+  const { highlighter, isLoading } = useShikiHighlighter()
 
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(initialCode)
@@ -78,20 +75,6 @@ export const CodeEditor = ({
     useState<keyof typeof files>("index.tsx")
 
   const isInitialCodeLoaded = Boolean(initialCode)
-
-  let cachedHighlighter: Awaited<
-    ReturnType<typeof getSingletonHighlighter>
-  > | null = null
-
-  const getMemoizedHighlighter = async () => {
-    if (!cachedHighlighter) {
-      cachedHighlighter = await getSingletonHighlighter({
-        themes: ["github-dark", "github-light"],
-        langs: ["typescript", "tsx"],
-      })
-    }
-    return cachedHighlighter
-  }
 
   useEffect(() => {
     if (initialCode !== code) {
@@ -116,11 +99,6 @@ export const CodeEditor = ({
 
   useEffect(() => {
     if (!editorRef.current) return
-
-    const initializeHighlighter = async () => {
-      highlighterRef.current = await getMemoizedHighlighter()
-    }
-    initializeHighlighter()
 
     const fsMap = new Map<string, string>()
     Object.entries(files).forEach(([filename, content]) => {
@@ -294,8 +272,37 @@ export const CodeEditor = ({
               const content = ts.displayPartsToString(info.displayParts || [])
 
               const dom = document.createElement("div")
-              if (highlighterRef.current) {
-                dom.innerHTML = highlighterRef.current.codeToHtml(content, {
+              if (isLoading) {
+                // Show a loading indicator in the tooltip
+                dom.innerHTML = `
+                  <div style="display: flex; align-items: center; gap: 8px; border-radius: 0.5rem; 
+                   background-color: #fff;
+                   border: 1px solid #e2e8f0;
+                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                   font-family: monospace;
+                  ">
+                    <div class="spinner" style="width: 18px; height: 18px;  animation: spin 1s linear infinite;"></div>
+                    <span style="color: #666; font-size: 14px;">Loading...</span>
+                  </div>
+                `
+                const style = document.createElement("style")
+                style.textContent = `
+                  @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                  }
+                `
+                dom.appendChild(style)
+
+                return {
+                  pos: start,
+                  end,
+                  above: true,
+                  create: () => ({ dom }),
+                }
+              }
+              if (highlighter) {
+                dom.innerHTML = highlighter.codeToHtml(content, {
                   lang: "typescript",
                   themes: {
                     light: "github-light",
@@ -410,7 +417,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== ""])
+  }, [!isStreaming, currentFile, code !== "", isLoading])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
