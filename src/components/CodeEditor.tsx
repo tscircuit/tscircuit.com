@@ -27,12 +27,12 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
-import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 export const CodeEditor = ({
   onCodeChange,
