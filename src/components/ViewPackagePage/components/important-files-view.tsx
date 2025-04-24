@@ -6,8 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
-import Markdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import Markdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface PackageFile {
   package_file_id: string
