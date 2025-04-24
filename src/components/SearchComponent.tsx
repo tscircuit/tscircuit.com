@@ -48,6 +48,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const [showResults, setShowResults] = useState(false)
   const axios = useAxios()
   const resultsRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [location] = useLocation()
   const { snippetsBaseApiUrl } = useSnippetsBaseApiUrl()
 
@@ -71,6 +72,11 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     setShowResults(!!searchQuery)
   }
 
+  // Focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -93,6 +99,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   return (
     <form onSubmit={handleSearch} className="relative">
       <Input
+        ref={inputRef}
         type="search"
         placeholder="Search"
         className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
