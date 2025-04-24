@@ -79,6 +79,20 @@ export const CodeEditor = ({
 
   const isInitialCodeLoaded = Boolean(initialCode)
 
+  let cachedHighlighter: Awaited<
+    ReturnType<typeof getSingletonHighlighter>
+  > | null = null
+
+  const getMemoizedHighlighter = async () => {
+    if (!cachedHighlighter) {
+      cachedHighlighter = await getSingletonHighlighter({
+        themes: ["github-dark", "github-light"],
+        langs: ["typescript", "tsx"],
+      })
+    }
+    return cachedHighlighter
+  }
+
   useEffect(() => {
     if (initialCode !== code) {
       setCode(initialCode)
@@ -103,12 +117,10 @@ export const CodeEditor = ({
   useEffect(() => {
     if (!editorRef.current) return
 
-    getSingletonHighlighter({
-      themes: ["github-dark", "github-light"],
-      langs: ["typescript", "tsx"],
-    }).then((highlighter) => {
-      highlighterRef.current = highlighter
-    })
+    const initializeHighlighter = async () => {
+      highlighterRef.current = await getMemoizedHighlighter()
+    }
+    initializeHighlighter()
 
     const fsMap = new Map<string, string>()
     Object.entries(files).forEach(([filename, content]) => {
@@ -282,8 +294,6 @@ export const CodeEditor = ({
               const content = ts.displayPartsToString(info.displayParts || [])
 
               const dom = document.createElement("div")
-              console.log("content", content)
-              console.log("highlighterRef.current", highlighterRef.current)
               if (highlighterRef.current) {
                 dom.innerHTML = highlighterRef.current.codeToHtml(content, {
                   lang: "typescript",
