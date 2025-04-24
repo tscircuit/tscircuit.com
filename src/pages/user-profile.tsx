@@ -53,7 +53,7 @@ export const UserProfilePage = () => {
         return response.data.snippets
       },
       {
-        enabled: activeTab === "starred", // Only fetch when starred tab is active
+        enabled: activeTab === "starred",
       },
     )
 
@@ -76,8 +76,18 @@ export const UserProfilePage = () => {
     ?.sort((a, b) => {
       switch (filter) {
         case "most-recent":
+          if (activeTab === "starred") {
+            const aTime = a.starred_at || a.updated_at
+            const bTime = b.starred_at || b.updated_at
+            return bTime.localeCompare(aTime)
+          }
           return b.updated_at.localeCompare(a.updated_at)
         case "least-recent":
+          if (activeTab === "starred") {
+            return (a.starred_at || a.updated_at).localeCompare(
+              b.starred_at || b.updated_at,
+            )
+          }
           return a.updated_at.localeCompare(b.updated_at)
         case "most-starred":
           return (b.star_count || 0) - (a.star_count || 0)

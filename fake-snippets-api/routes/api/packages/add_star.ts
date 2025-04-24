@@ -66,12 +66,14 @@ export default withRouteSpec({
     existing.updated_at = new Date().toISOString()
   } else {
     // Add star by creating a new account_package record
+    const newTimestamp = new Date().toISOString()
     const newAccountPackage = {
+      account_package_id: `ap_${Date.now()}`,
       account_id: ctx.auth.account_id,
       package_id: packageId,
       is_starred: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: newTimestamp,
+      updated_at: newTimestamp,
     }
     ctx.db.addAccountPackage(newAccountPackage)
   }
