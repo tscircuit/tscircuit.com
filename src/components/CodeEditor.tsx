@@ -274,30 +274,6 @@ export const CodeEditor = ({
               const content = ts.displayPartsToString(info.displayParts || [])
 
               const dom = document.createElement("div")
-              if (isLoading) {
-                // Show a loading indicator in the tooltip
-                dom.innerHTML = `
-                  <div style="display: flex; align-items: center; gap: 8px; background-color: #fff; padding: 4px; border-radius: 8px;">
-                    <div class="spinner" style="width: 16px; height: 16px; border: 2px solid #ccc; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <span style="color: #666; font-size: 12px;">Loading...</span>
-                  </div>
-                `
-                const style = document.createElement("style")
-                style.textContent = `
-                  @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                  }
-                `
-                dom.appendChild(style)
-
-                return {
-                  pos: start,
-                  end,
-                  above: true,
-                  create: () => ({ dom }),
-                }
-              }
               if (highlighter) {
                 dom.innerHTML = highlighter.codeToHtml(content, {
                   lang: "typescript",
@@ -414,7 +390,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== "", isLoading])
+  }, [!isStreaming, currentFile, code !== ""])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
