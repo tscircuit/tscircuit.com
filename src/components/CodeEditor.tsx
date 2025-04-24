@@ -18,6 +18,7 @@ import {
 import {
   tsAutocomplete,
   tsFacet,
+  tsHover,
   tsLinter,
   tsSync,
 } from "@valtown/codemirror-ts"
@@ -27,12 +28,13 @@ import ts from "typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
-import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
+import { getSingletonHighlighter, Highlighter } from "shiki"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 export const CodeEditor = ({
   onCodeChange,
@@ -251,6 +253,8 @@ export const CodeEditor = ({
       )
     }
 
+    console.log("IsLoading", isLoading)
+
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
       currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
@@ -275,14 +279,9 @@ export const CodeEditor = ({
               if (isLoading) {
                 // Show a loading indicator in the tooltip
                 dom.innerHTML = `
-                  <div style="display: flex; align-items: center; gap: 8px; border-radius: 0.5rem; 
-                   background-color: #fff;
-                   border: 1px solid #e2e8f0;
-                   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-                   font-family: monospace;
-                  ">
-                    <div class="spinner" style="width: 18px; height: 18px;  animation: spin 1s linear infinite;"></div>
-                    <span style="color: #666; font-size: 14px;">Loading...</span>
+                  <div style="display: flex; align-items: center; gap: 8px; background-color: #fff; padding: 4px; border-radius: 8px;">
+                    <div class="spinner" style="width: 16px; height: 16px; border: 2px solid #ccc; border-top-color: #333; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span style="color: #666; font-size: 12px;">Loading...</span>
                   </div>
                 `
                 const style = document.createElement("style")
