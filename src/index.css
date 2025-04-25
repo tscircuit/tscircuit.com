@@ -7,6 +7,12 @@
   }
 }
 
+.shiki {
+  font-family: "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
