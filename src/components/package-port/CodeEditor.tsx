@@ -67,6 +67,13 @@ export const CodeEditor = ({
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
+
+  const entryPointFileName = useMemo(() => {
+    const entryPointFile = findTargetFile(files, null)
+    if (entryPointFile?.path) return entryPointFile.path
+    return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
+  }, [files])
+
   // Set current file on component mount
   useEffect(() => {
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
@@ -401,11 +408,6 @@ export const CodeEditor = ({
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
-    // files.forEach(({path, content}) => {
-    //   if (path.endsWith(".tsx") || path.endsWith(".ts")) {
-    //     ata(`${defaultImports}${content}`)
-    //   }
-    // })
 
     return () => {
       view.destroy()
@@ -453,6 +455,8 @@ export const CodeEditor = ({
     if (currentFile === path) {
       setCode(newContent)
       onCodeChange(newContent, path)
+    } else {
+      fileMap[path] = newContent
     }
     onFileContentChanged?.(path, newContent)
 
@@ -477,7 +481,7 @@ export const CodeEditor = ({
   }
   const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       <FileSidebar
         files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
         currentFile={currentFile}
@@ -486,9 +490,10 @@ export const CodeEditor = ({
         }
         onFileSelect={handleFileChange}
       />
-      <div className="flex flex-col flex-1 w-full min-w-0">
+      <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
           <CodeEditorHeader
+            entrypointFileName={entryPointFileName}
             fileSidebarState={
               [sidebarOpen, setSidebarOpen] as ReturnType<
                 typeof useState<boolean>
@@ -496,15 +501,13 @@ export const CodeEditor = ({
             }
             currentFile={currentFile}
             files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
-            updateFileContent={(...args) => {
-              return updateFileContent(...args)
-            }}
+            updateFileContent={updateFileContent}
             handleFileChange={handleFileChange}
           />
         )}
         <div
           ref={editorRef}
-          className="flex-1 overflow-auto [&_.cm-editor]:h-full"
+          className="flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
         />
       </div>
     </div>

@@ -197,8 +197,9 @@ export default function MobileSidebar({
             packageInfo.description || packageInfo?.ai_description || ""
           }
           currentLicense={currentLicense}
-          packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
+          isPrivate={Boolean(packageInfo.is_private)}
+          packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
         />
