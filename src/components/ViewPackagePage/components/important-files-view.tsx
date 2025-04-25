@@ -214,7 +214,10 @@ export default function ImportantFilesView({
         {activeTab === "ai" ? (
           renderAiContent()
         ) : activeFilePath && activeFilePath.endsWith(".md") ? (
-          <MarkdownViewer markdownContent={activeFileContent} />
+          <MarkdownViewer
+            markdownContent={activeFileContent}
+            useShikiForCodeBlocks={true}
+          />
         ) : activeFilePath &&
           (activeFilePath.endsWith(".js") ||
             activeFilePath.endsWith(".jsx") ||

@@ -1,10 +1,13 @@
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { MarkdownShikiCodeViewer } from "./MarkdownShikiCodeViewer"
 
 export default function MarkdownViewer({
   markdownContent,
+  useShikiForCodeBlocks = true,
 }: {
   markdownContent: string
+  useShikiForCodeBlocks?: boolean
 }) {
   return (
     <div className="prose dark:prose-invert prose-pre:bg-gray-100 dark:prose-pre:bg-gray-800 prose-code:font-mono markdown-content">
@@ -14,6 +17,18 @@ export default function MarkdownViewer({
           code({ node, className, children, ...props }) {
             const isCodeBlock =
               className?.includes("language-") || /\n/.test(String(children))
+
+            const language = className?.replace(/language-/, "") || ""
+            const codeContent = String(children).replace(/\n$/, "")
+
+            if (isCodeBlock && useShikiForCodeBlocks) {
+              return (
+                <MarkdownShikiCodeViewer
+                  code={codeContent}
+                  language={language}
+                />
+              )
+            }
 
             // Don't use code tags cause of it's backticks not being removed
             return isCodeBlock ? (
