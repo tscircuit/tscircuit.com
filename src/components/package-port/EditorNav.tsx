@@ -59,8 +59,7 @@ export default function EditorNav({
   onSave,
   packageType,
   isSaving,
-  canSave,
-  manualEditsFileContent,
+  hasUnrunChanges,
 }: {
   pkg?: Package | null
   circuitJson?: AnyCircuitElement[] | null
@@ -71,8 +70,7 @@ export default function EditorNav({
   onTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
-  canSave: boolean
-  manualEditsFileContent: string
+  hasUnrunChanges: boolean
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -188,11 +186,9 @@ export default function EditorNav({
     }
   }
 
-  const canSavePackage =
-    !pkg || pkg.owner_github_username === session?.github_username
-
-  const hasManualEditsChangedFromDefault = manualEditsFileContent !== "{}"
-
+  const canSavePackage = Boolean(
+    isLoggedIn && pkg?.owner_github_username === session?.github_username,
+  )
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -254,10 +250,7 @@ export default function EditorNav({
             variant="outline"
             size="sm"
             className={"ml-1 h-6 px-2 text-xs save-button"}
-            disabled={
-              !isLoggedIn ||
-              (!canSavePackage && hasManualEditsChangedFromDefault)
-            }
+            disabled={canSavePackage ? !hasUnsavedChanges : !isLoggedIn}
             onClick={canSavePackage ? onSave : () => forkSnippet()}
           >
             {canSavePackage ? (

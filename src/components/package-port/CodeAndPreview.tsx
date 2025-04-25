@@ -346,8 +346,7 @@ export function CodeAndPreview({ pkg }: Props) {
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
         }
         previewOpen={state.showPreview}
-        canSave={!hasUnrunChanges}
-        manualEditsFileContent={state.manualEditsFileContent}
+        hasUnrunChanges={hasUnrunChanges}
       />
       <div
         className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
