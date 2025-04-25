@@ -11,6 +11,7 @@ import { GitFork, Package, Star } from "lucide-react"
 import { Link } from "wouter"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useEffect } from "react"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface PackageInfo {
   name: string
@@ -22,6 +23,7 @@ interface PackageInfo {
   creator_account_id?: string
   owner_org_id?: string
   package_id: string
+  latest_package_release_id: string
 }
 
 interface PackageHeaderProps {
@@ -37,6 +39,7 @@ export default function PackageHeader({
 }: PackageHeaderProps) {
   const author = packageInfo?.owner_github_username
   const packageName = packageInfo?.unscoped_name
+  const sessionToken = useGlobalStore((s) => s.session?.token)
 
   const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
   const { data: starData, isLoading: isStarDataLoading } =
@@ -70,7 +73,11 @@ export default function PackageHeader({
     window.TSCIRCUIT_REGISTRY_API_BASE_URL =
       import.meta.env.VITE_TSCIRCUIT_REGISTRY_API_URL ??
       `${window.location.origin}/api`
-  }, [])
+    window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
+    // TODO: Update stripe checkout base url when we are ready for production
+    window.TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL =
+      import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_TEST_BASE_URL
+  }, [sessionToken])
 
   return (
     <header className="bg-white border-b border-gray-200 py-4">
@@ -180,6 +187,7 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
+        packageReleaseId={packageInfo?.latest_package_release_id}
       />
     </header>
   )
