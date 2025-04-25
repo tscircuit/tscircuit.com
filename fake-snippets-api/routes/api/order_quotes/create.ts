@@ -4,10 +4,29 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z.object({
-    package_release_id: z.string(),
-    vendor_name: z.string(),
-  }),
+  jsonBody: z
+    .object({
+      package_release_id: z.string().optional(),
+      circuit_json: z.any().optional(),
+      vendor_name: z.string(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.circuit_json && data.package_release_id) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "You must provide either circuit_json or package_release_id, but not both.",
+        })
+      }
+      if (!data.circuit_json && !data.package_release_id) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "You must provide either circuit_json or package_release_id.",
+        })
+      }
+    }),
+
   jsonResponse: z.object({
     order_quote_id: z.string().optional(),
     error: z.string().optional(),
