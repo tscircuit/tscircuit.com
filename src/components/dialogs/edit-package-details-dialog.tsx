@@ -74,7 +74,7 @@ export const EditPackageDetailsDialog = ({
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
     isDialogOpen: open,
-    initialVisibility: isPrivate ? "private": "public"
+    initialVisibility: isPrivate ? "private" : "public",
   })
 
   const [deleting, setDeleting] = useState(false)
@@ -82,64 +82,6 @@ export const EditPackageDetailsDialog = ({
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
 
-
-  // const handleChangeVisibility = async (newVisibility: string) => {
-  //   if (savingVisibility) return
-  //   setSavingVisibility(true)
-  //   try {
-  //     const newPrivacy = newVisibility === "private" ? true : false
-  //     const res = await axios.post("/snippets/update", {
-  //       snippet_id: packageId,
-  //       is_private: newPrivacy,
-  //     })
-  //     if (res.status === 200) {
-  //       setVisibility(newVisibility)
-  //       toast({
-  //         title: "Visibility updated",
-  //         description: `Package is now ${newVisibility}.`,
-  //       })
-  //       await qc.invalidateQueries(["packages", packageId])
-  //     }
-  //   } catch (err: any) {
-  //     toast({
-  //       title: "Failed to update visibility",
-  //       description: err.message,
-  //       variant: "destructive",
-  //     })
-  //     console.error(err)
-  //   } finally {
-  //     setSavingVisibility(false)
-  //   }
-  // }
-
-  const handleDelete = async () => {
-    setDeleting(true)
-    try {
-      const res = await axios.post("/packages/delete", {
-        package_id: packageId,
-      })
-      if (res.status === 200) {
-        toast({
-          title: "Package deleted",
-          description: "Your package was successfully deleted.",
-          variant: "destructive",
-        })
-        await qc.invalidateQueries(["packages"])
-        onOpenChange(false)
-        setLocation("/dashboard")
-      }
-    } catch (err: any) {
-      toast({
-        title: "Failed to delete package",
-        description: err.message,
-        variant: "destructive",
-      })
-      console.error(err)
-    } finally {
-      setDeleting(false)
-      setShowConfirmDelete(false)
-    }
-  }
   const deletePackageMutation = useDeletePackage({
     onSuccess: async () => {
       await qc.invalidateQueries(["packages"]) // Invalidate the packages query
@@ -170,14 +112,12 @@ export const EditPackageDetailsDialog = ({
         snippet_id: packageId,
         is_private: formData.visibility === "private",
       })
-      console.log("Data",privacyUpdateResponse)
       if (response.status !== 200)
         throw new Error("Failed to update package details")
 
       const filesRes = await axios.post("/package_files/list", {
         package_name_with_version: packageName,
       })
-      console.log("Res ::::::::",filesRes)
       const packageFiles: string[] =
         filesRes.status === 200
           ? filesRes.data.package_files.map((x: any) => x.file_path)
@@ -267,7 +207,7 @@ export const EditPackageDetailsDialog = ({
             <Button
               variant="destructive"
               onClick={() => {
-                deletePackageMutation.mutate({package_id: packageId})
+                deletePackageMutation.mutate({ package_id: packageId })
               }}
               disabled={deletePackageMutation.isLoading}
             >
@@ -314,12 +254,10 @@ export const EditPackageDetailsDialog = ({
                 onValueChange={(val) => {
                   setFormData((prev) => ({
                     ...prev,
-                    visibility: val
+                    visibility: val,
                   }))
                 }}
-                disabled={
-                updatePackageDetailsMutation.isLoading
-                }
+                disabled={updatePackageDetailsMutation.isLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select visibility" />
