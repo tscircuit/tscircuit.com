@@ -29,7 +29,6 @@ interface PackageFile {
   created_at: string // iso-8601
 }
 
-
 interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
