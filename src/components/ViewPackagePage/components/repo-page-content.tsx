@@ -5,7 +5,6 @@ import MainContentHeader from "./main-content-header"
 import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
 import ImportantFilesView from "./important-files-view"
-import { ShikiCodeViewer } from "./ShikiCodeViewer"
 
 // Tab Views
 import FilesView from "./tab-views/files-view"
@@ -16,10 +15,10 @@ import BOMView from "./tab-views/bom-view"
 import { isPackageFileImportant } from "../utils/is-package-file-important"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import ViewSnippetHeader from "@/components/ViewSnippetHeader"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
+import { PackageInfo } from "@/lib/types"
 
 interface PackageFile {
   package_file_id: string
@@ -28,19 +27,6 @@ interface PackageFile {
   file_content: string
   content_text?: string // Keep for backward compatibility
   created_at: string // iso-8601
-}
-
-interface PackageInfo {
-  name: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  description: string
-  ai_description: string
-  ai_usage_instructions: string
-  creator_account_id?: string
-  owner_org_id?: string
-  package_id: string
 }
 
 interface RepoPageContentProps {

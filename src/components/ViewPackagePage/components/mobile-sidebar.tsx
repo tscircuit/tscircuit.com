@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import { useState, useEffect, useMemo } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { PackageInfo } from "./sidebar-about-section"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
+import { PackageInfo } from "@/lib/types"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -197,8 +197,9 @@ export default function MobileSidebar({
             packageInfo.description || packageInfo?.ai_description || ""
           }
           currentLicense={currentLicense}
-          packageAuthor={packageInfo.owner_github_username}
           currentWebsite={(packageInfo as any)?.website || ""}
+          isPrivate={Boolean(packageInfo.is_private)}
+          packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
         />
