@@ -25,6 +25,7 @@ import { Textarea } from "../ui/textarea"
 import { createUseDialog } from "./create-use-dialog"
 import { ChevronDown } from "lucide-react"
 import { useLocation } from "wouter"
+import { useDeletePackage } from "@/hooks/use-delete-package"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -73,76 +74,21 @@ export const EditPackageDetailsDialog = ({
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
     isDialogOpen: open,
+    initialVisibility: isPrivate ? "private" : "public",
   })
 
-  const [visibility, setVisibility] = useState(isPrivate ? "private" : "public")
-  const [savingVisibility, setSavingVisibility] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
-  useEffect(() => {
-    setVisibility(isPrivate ? "private" : "public")
-  }, [isPrivate])
 
-  const handleChangeVisibility = async (newVisibility: string) => {
-    if (savingVisibility) return
-    setSavingVisibility(true)
-    try {
-      const newPrivacy = newVisibility === "private" ? true : false
-      const res = await axios.post("/snippets/update", {
-        snippet_id: packageId,
-        is_private: newPrivacy,
-      })
-      if (res.status === 200) {
-        setVisibility(newVisibility)
-        toast({
-          title: "Visibility updated",
-          description: `Package is now ${newVisibility}.`,
-        })
-        await qc.invalidateQueries(["packages", packageId])
-      }
-    } catch (err: any) {
-      toast({
-        title: "Failed to update visibility",
-        description: err.message,
-        variant: "destructive",
-      })
-      console.error(err)
-    } finally {
-      setSavingVisibility(false)
-    }
-  }
-
-  const handleDelete = async () => {
-    setDeleting(true)
-    try {
-      const res = await axios.post("/packages/delete", {
-        package_id: packageId,
-      })
-      if (res.status === 200) {
-        toast({
-          title: "Package deleted",
-          description: "Your package was successfully deleted.",
-          variant: "destructive",
-        })
-        await qc.invalidateQueries(["packages"])
-        onOpenChange(false)
-        setLocation("/dashboard")
-      }
-    } catch (err: any) {
-      toast({
-        title: "Failed to delete package",
-        description: err.message,
-        variant: "destructive",
-      })
-      console.error(err)
-    } finally {
-      setDeleting(false)
-      setShowConfirmDelete(false)
-    }
-  }
-
+  const deletePackageMutation = useDeletePackage({
+    onSuccess: async () => {
+      await qc.invalidateQueries(["packages"]) // Invalidate the packages query
+      onOpenChange(false) // Close the dialog
+      setLocation("/dashboard") // Redirect to the dashboard
+    },
+  })
   const updatePackageDetailsMutation = useMutation({
     mutationFn: async () => {
       if (!isFormValid)
@@ -160,6 +106,11 @@ export const EditPackageDetailsDialog = ({
         package_id: packageId,
         description: formData.description,
         website: formData.website,
+        is_private: formData.visibility == "private",
+      })
+      const privacyUpdateResponse = await axios.post("/snippets/update", {
+        snippet_id: packageId,
+        is_private: formData.visibility === "private",
       })
       if (response.status !== 200)
         throw new Error("Failed to update package details")
@@ -196,6 +147,7 @@ export const EditPackageDetailsDialog = ({
         description: formData.description,
         website: formData.website,
         license: formData.license,
+        visibility: formData.visibility,
       }
     },
     onMutate: async () => {
@@ -206,6 +158,7 @@ export const EditPackageDetailsDialog = ({
         description: formData.description,
         website: formData.website,
         license: formData.license,
+        is_private: formData.visibility == "private",
       }))
       return { previous }
     },
@@ -247,16 +200,18 @@ export const EditPackageDetailsDialog = ({
             <Button
               variant="outline"
               onClick={() => setShowConfirmDelete(false)}
-              disabled={deleting}
+              disabled={deletePackageMutation.isLoading}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
+              onClick={() => {
+                deletePackageMutation.mutate({ package_id: packageId })
+              }}
+              disabled={deletePackageMutation.isLoading}
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deletePackageMutation.isLoading ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>
@@ -295,14 +250,14 @@ export const EditPackageDetailsDialog = ({
             <div className="space-y-1">
               <Label htmlFor="visibility">Visibility</Label>
               <Select
-                value={visibility}
-                onValueChange={async (val) => {
-                  setVisibility(val)
-                  await handleChangeVisibility(val)
+                value={formData.visibility}
+                onValueChange={(val) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    visibility: val,
+                  }))
                 }}
-                disabled={
-                  savingVisibility || updatePackageDetailsMutation.isLoading
-                }
+                disabled={updatePackageDetailsMutation.isLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select visibility" />
