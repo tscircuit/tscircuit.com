@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { handleManualEditsImport } from "@/lib/handleManualEditsImport"
+import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -27,6 +28,7 @@ interface CodeEditorHeaderProps {
   updateFileContent: (filename: FileName, content: string) => void
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
+  entrypointFileName?: string
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -35,6 +37,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   updateFileContent,
   fileSidebarState,
   handleFileChange,
+  entrypointFileName = "index.tsx",
 }) => {
   const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
     useImportSnippetDialog()
@@ -202,7 +205,12 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
                   onClick={() =>
-                    handleManualEditsImport(files, updateFileContent, toast)
+                    handleManualEditsImportWithSupportForMultipleFiles(
+                      files,
+                      updateFileContent,
+                      entrypointFileName,
+                      toast,
+                    )
                   }
                 >
                   Manual edits exist but have not been imported. (Click to fix)

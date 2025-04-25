@@ -8,11 +8,9 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
-import { parseJsonOrNull } from "@/lib/utils/parseJsonOrNull"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import { useQueryClient } from "react-query"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
@@ -45,8 +43,6 @@ const generateRandomPackageName = () =>
   `untitled-package-${Math.floor(Math.random() * 90) + 10}`
 
 export function CodeAndPreview({ pkg }: Props) {
-  const axios = useAxios()
-  const queryClient = useQueryClient()
   const { toast } = useToast()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const loggedInUser = useGlobalStore((s) => s.session)
@@ -58,17 +54,14 @@ export function CodeAndPreview({ pkg }: Props) {
   )
 
   const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
-
   const indexFileFromHook = usePackageFileById(
     pkgFiles.data?.find((x) => x.file_path === "index.tsx")?.package_file_id ??
       null,
   )
 
   const defaultCode = useMemo(() => {
-    if (indexFileFromHook.data?.content_text) {
+    if (indexFileFromHook.data?.content_text)
       return indexFileFromHook.data.content_text
-    }
-
     return (
       templateFromUrl?.code ??
       decodeUrlHashToText(window.location.toString()) ??
@@ -76,93 +69,96 @@ export function CodeAndPreview({ pkg }: Props) {
     )
   }, [indexFileFromHook.data, templateFromUrl, urlParams.package_id])
 
-  const [pkgFilesWithContent, setPkgFilesWithContent] = useState<PackageFile[]>(
-    !pkg
+  const manualEditsFileFromHook = usePackageFileById(
+    pkgFiles.data?.find((x) => x.file_path === "manual-edits.json")
+      ?.package_file_id ?? null,
+  )
+
+  const defaultManualEditsContent = useMemo(() => {
+    if (manualEditsFileFromHook.data?.content_text)
+      return manualEditsFileFromHook.data.content_text
+    else return null
+  }, [manualEditsFileFromHook.data])
+  interface CodeAndPreviewState {
+    pkgFilesWithContent: PackageFile[]
+    initialFilesLoad: PackageFile[]
+    showPreview: boolean
+    fullScreen: boolean
+    dts: string
+    lastSavedAt: number
+    circuitJson: null | any
+    isPrivate: boolean
+    lastRunCode: string
+    code: string
+    manualEditsFileContent: string
+    pkgFilesLoaded: boolean
+  }
+
+  const [state, setState] = useState<CodeAndPreviewState>({
+    pkgFilesWithContent: !pkg
       ? [
           { path: "index.tsx", content: defaultCode },
-          { path: "manual-edits.json", content: DEFAULT_MANUAL_EDITS },
+          {
+            path: "manual-edits.json",
+            content: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
+          },
         ]
       : [],
-  )
-
-  const [initialFilesLoad, setInitialFilesLoad] = useState<PackageFile[]>([])
-  const [showPreview, setShowPreview] = useState(true)
-  const [fullScreen, setFullScreen] = useState(false)
-  const [dts, setDts] = useState("")
-  const [lastSavedAt, setLastSavedAt] = useState(Date.now())
-  const [circuitJson, setCircuitJson] = useState<any>(null)
-  const [isPrivate, setIsPrivate] = useState(false)
+    initialFilesLoad: [],
+    showPreview: true,
+    fullScreen: false,
+    dts: "",
+    lastSavedAt: Date.now(),
+    circuitJson: null,
+    isPrivate: false,
+    lastRunCode: defaultCode,
+    code: defaultCode,
+    manualEditsFileContent: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
+    pkgFilesLoaded: !urlParams.package_id,
+  })
 
   const entryPointCode = useMemo(() => {
-    const entryPointFile = findTargetFile(pkgFilesWithContent, null)
-    if (entryPointFile && entryPointFile.content) return entryPointFile.content
+    const entryPointFile = findTargetFile(state.pkgFilesWithContent, null)
+    if (entryPointFile?.content) return entryPointFile.content
     return (
-      pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
+      state.pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
       defaultCode
     )
-  }, [pkgFilesWithContent, defaultCode])
+  }, [state.pkgFilesWithContent, defaultCode])
 
-  const [lastRunCode, setLastRunCode] = useState(defaultCode)
-  const [code, setCode] = useState(entryPointCode)
-
-  const manualEditsFileContentFromState = useMemo(() => {
-    return (
-      pkgFilesWithContent.find((f) => f.path === "manual-edits.json")
-        ?.content ?? DEFAULT_MANUAL_EDITS
-    )
-  }, [pkgFilesWithContent])
-
-  const [manualEditsFileContent, setManualEditsFileContent] = useState(
-    manualEditsFileContentFromState,
-  )
-
-  const packageType: "board" | "package" | "model" | "footprint" =
-    pkg?.snippet_type ??
-    (templateFromUrl?.type as any) ??
-    urlParams.snippet_type
+  const packageType =
+    pkg?.snippet_type ?? templateFromUrl?.type ?? urlParams.snippet_type
 
   const {
     Dialog: PackageVisibilitySettingsDialog,
     openDialog: openPackageVisibilitySettingsDialog,
   } = usePackageVisibilitySettingsDialog()
 
-  const userImports = useMemo(
-    () => ({
-      "./manual-edits.json": parseJsonOrNull(manualEditsFileContent) ?? {},
-    }),
-    [manualEditsFileContent],
-  )
-
   useEffect(() => {
-    if (entryPointCode !== code) {
-      setCode(entryPointCode)
+    if (entryPointCode !== state.code) {
+      setState((prev) => ({ ...prev, code: entryPointCode }))
     }
-  }, [entryPointCode, code])
-
-  useEffect(() => {
-    const contentFromFiles = manualEditsFileContentFromState
-    if (contentFromFiles !== manualEditsFileContent) {
-      setManualEditsFileContent(contentFromFiles)
-    }
-  }, [manualEditsFileContentFromState, manualEditsFileContent])
+  }, [entryPointCode])
 
   const { data: loadedFiles, isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
 
-  const [pkgFilesLoaded, setPkgFilesLoaded] = useState<boolean>(
-    urlParams.package_id ? false : true,
-  )
-
   useEffect(() => {
     if (!pkgFiles.data?.length) {
-      if (pkg && pkgFilesWithContent.length === 0) {
+      if (pkg && state.pkgFilesWithContent.length === 0) {
         const defaultFiles = [
           { path: "index.tsx", content: defaultCode },
-          { path: "manual-edits.json", content: DEFAULT_MANUAL_EDITS },
+          {
+            path: "manual-edits.json",
+            content: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
+          },
         ]
-        setPkgFilesWithContent(defaultFiles)
-        setInitialFilesLoad(defaultFiles)
-        setLastRunCode(defaultCode)
+        setState((prev) => ({
+          ...prev,
+          pkgFilesWithContent: defaultFiles,
+          initialFilesLoad: defaultFiles,
+          lastRunCode: defaultCode,
+        }))
       }
       return
     }
@@ -176,40 +172,41 @@ export function CodeAndPreview({ pkg }: Props) {
         })
       }
 
-      setPkgFilesWithContent(processedResults)
-      setPkgFilesLoaded(true)
-      setInitialFilesLoad(processedResults)
-      setLastRunCode(
-        processedResults.find((x) => x.path === "index.tsx")?.content ??
+      setState((prev) => ({
+        ...prev,
+        pkgFilesWithContent: processedResults,
+        pkgFilesLoaded: true,
+        initialFilesLoad: processedResults,
+        lastRunCode:
+          processedResults.find((x) => x.path === "index.tsx")?.content ??
           defaultCode,
-      )
+      }))
     }
   }, [
     isLoadingFiles,
     pkg,
     pkgFiles.data,
-    pkgFilesWithContent.length,
+    state.pkgFilesWithContent.length,
     defaultCode,
   ])
 
   const createPackageMutation = useCreatePackageMutation()
+  const { mutate: createRelease } = useCreatePackageReleaseMutation({
+    onSuccess: () => {
+      toast({
+        title: "Package released",
+        description: "Your package has been released successfully.",
+      })
+    },
+  })
 
-  const { mutate: createRelease, isLoading: isCreatingRelease } =
-    useCreatePackageReleaseMutation({
-      onSuccess: () => {
-        toast({
-          title: "Package released",
-          description: "Your package has been released successfully.",
-        })
-      },
-    })
-  const loadPkgFiles = () => {
-    pkgFiles.refetch()
-  }
+  const axios = useAxios()
+  const loadPkgFiles = () => pkgFiles.refetch()
+
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
-    pkgFilesWithContent,
-    initialFilesLoad,
+    pkgFilesWithContent: state.pkgFilesWithContent,
+    initialFilesLoad: state.initialFilesLoad,
     pkgFiles,
     axios,
     toast,
@@ -218,27 +215,29 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const updatePackageMutation = useUpdatePackageMutation({
     pkg,
-    code,
-    dts,
-    circuitJson,
-    manualEditsFileContent,
+    code: state.code,
+    dts: state.dts,
+    circuitJson: state.circuitJson,
+    manualEditsFileContent: state.manualEditsFileContent,
   })
 
-  const hasUnrunChanges = entryPointCode !== lastRunCode
+  const hasUnrunChanges = entryPointCode !== state.lastRunCode
 
   const hasUnsavedChanges = useMemo(
     () =>
       !updatePackageMutation.isLoading &&
-      Date.now() - lastSavedAt > 1000 &&
-      pkgFilesWithContent.some((file) => {
-        const initialFile = initialFilesLoad.find((x) => x.path === file.path)
+      Date.now() - state.lastSavedAt > 1000 &&
+      state.pkgFilesWithContent.some((file) => {
+        const initialFile = state.initialFilesLoad.find(
+          (x) => x.path === file.path,
+        )
         return initialFile?.content !== file.content
       }),
     [
-      pkgFilesWithContent,
-      initialFilesLoad,
+      state.pkgFilesWithContent,
+      state.initialFilesLoad,
       updatePackageMutation.isLoading,
-      lastSavedAt,
+      state.lastSavedAt,
     ],
   )
 
@@ -259,7 +258,7 @@ export function CodeAndPreview({ pkg }: Props) {
       return
     }
 
-    setLastSavedAt(Date.now())
+    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
       updatePackageMutation.mutate()
@@ -270,7 +269,7 @@ export function CodeAndPreview({ pkg }: Props) {
     } else {
       const newPackage = await createPackageMutation.mutateAsync({
         name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
-        is_private: isPrivate,
+        is_private: state.isPrivate,
       })
 
       if (newPackage) {
@@ -288,12 +287,11 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const fsMap = useMemo(() => {
     const possibleExportNames = [
-      ...(code.match(/export function (\w+)/)?.slice(1) ?? []),
-      ...(code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
+      ...(state.code.match(/export function (\w+)/)?.slice(1) ?? []),
+      ...(state.code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
     ]
 
     const exportName = possibleExportNames[0]
-
     const importStatement = exportName
       ? `import { ${exportName} as Snippet } from "./index.tsx"`
       : `import Snippet from "./index.tsx"`
@@ -304,7 +302,7 @@ export function CodeAndPreview({ pkg }: Props) {
         : `${importStatement}\ncircuit.add(\n  <board>\n    <Snippet name="U1" />\n  </board>\n)`
 
     return {
-      ...pkgFilesWithContent.reduce(
+      ...state.pkgFilesWithContent.reduce(
         (acc, file) => {
           acc[file.path] = file.content
           return acc
@@ -312,15 +310,15 @@ export function CodeAndPreview({ pkg }: Props) {
         {} as Record<string, string>,
       ),
       "index.tsx": entryPointCode ?? "// No Default Code Found",
-      "manual-edits.json": manualEditsFileContent ?? "{}",
+      "manual-edits.json": state.manualEditsFileContent ?? "{}",
       "main.tsx": entrypointContent.trim(),
     }
   }, [
-    manualEditsFileContent,
+    state.manualEditsFileContent,
     entryPointCode,
-    code,
+    state.code,
     packageType,
-    pkgFilesWithContent,
+    state.pkgFilesWithContent,
   ])
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading) {
@@ -337,46 +335,51 @@ export function CodeAndPreview({ pkg }: Props) {
   return (
     <div className="flex flex-col min-h-[50vh]">
       <EditorNav
-        circuitJson={circuitJson}
+        circuitJson={state.circuitJson}
         pkg={pkg}
         packageType={packageType}
-        code={code}
+        code={state.code}
         isSaving={updatePackageMutation.isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={handleSave}
-        onTogglePreview={() => setShowPreview(!showPreview)}
-        previewOpen={showPreview}
+        onTogglePreview={() =>
+          setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
+        }
+        previewOpen={state.showPreview}
         canSave={!hasUnrunChanges}
-        manualEditsFileContent={manualEditsFileContent}
+        manualEditsFileContent={state.manualEditsFileContent}
       />
-      <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
+      <div
+        className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
+      >
         <div
           className={cn(
             "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            showPreview ? "w-full md:w-1/2" : "w-full flex",
+            state.showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
           <CodeEditor
-            files={pkgFilesWithContent}
+            files={state.pkgFilesWithContent}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? "index.tsx"
-              setPkgFilesWithContent((currentFiles) =>
-                currentFiles.map((file) =>
+              setState((prev) => ({
+                ...prev,
+                pkgFilesWithContent: prev.pkgFilesWithContent.map((file) =>
                   file.path === targetFilename
                     ? { ...file, content: newCode }
                     : file,
                 ),
-              )
+              }))
             }}
-            onDtsChange={setDts}
-            pkgFilesLoaded={pkgFilesLoaded}
+            onDtsChange={(dts) => setState((prev) => ({ ...prev, dts }))}
+            pkgFilesLoaded={state.pkgFilesLoaded}
           />
         </div>
-        {showPreview && (
+        {state.showPreview && (
           <div
             className={cn(
               "flex p-0 flex-col min-h-[640px]",
-              fullScreen
+              state.fullScreen
                 ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
                 : "w-full md:w-1/2",
             )}
@@ -384,21 +387,42 @@ export function CodeAndPreview({ pkg }: Props) {
             <SuspenseRunFrame
               showRunButton
               forceLatestEvalVersion
-              onRenderStarted={() => setLastRunCode(code)}
+              onRenderStarted={() =>
+                setState((prev) => ({ ...prev, lastRunCode: state.code }))
+              }
               onRenderFinished={({ circuitJson }) =>
-                setCircuitJson(circuitJson)
+                setState((prev) => ({ ...prev, circuitJson }))
               }
               onEditEvent={(event) => {
-                const parsedManualEdits = JSON.parse(manualEditsFileContent)
+                const parsedManualEdits = JSON.parse(
+                  state.manualEditsFileContent || "{}",
+                )
                 const newManualEditsFileContent =
                   applyEditEventsToManualEditsFile({
-                    circuitJson,
+                    circuitJson: state.circuitJson,
                     editEvents: [event],
                     manualEditsFile: parsedManualEdits,
                   })
-                setManualEditsFileContent(
-                  JSON.stringify(newManualEditsFileContent, null, 2),
-                )
+                setState((prev) => ({
+                  ...prev,
+                  manualEditsFileContent: JSON.stringify(
+                    newManualEditsFileContent,
+                    null,
+                    2,
+                  ),
+                  pkgFilesWithContent: prev.pkgFilesWithContent.map((file) =>
+                    file.path === "manual-edits.json"
+                      ? {
+                          ...file,
+                          content: JSON.stringify(
+                            newManualEditsFileContent,
+                            null,
+                            2,
+                          ),
+                        }
+                      : file,
+                  ),
+                }))
               }}
               fsMap={fsMap}
               entrypoint="main.tsx"
@@ -409,7 +433,7 @@ export function CodeAndPreview({ pkg }: Props) {
       <PackageVisibilitySettingsDialog
         initialIsPrivate={false}
         onSave={async (isPrivate: boolean) => {
-          setLastSavedAt(Date.now())
+          setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
           const newPackage = await createPackageMutation.mutateAsync({
             name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
             is_private: isPrivate,

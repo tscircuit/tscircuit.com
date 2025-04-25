@@ -108,6 +108,18 @@ export default function MainContentHeader({
               <Pencil className="h-4 w-4 mx-3" />
               Edit Online
             </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setLocation(`/p/editor?package_id=${packageInfo?.package_id}`)
+              }}
+              className="cursor-pointer p-2 py-4 flex"
+            >
+              <Hammer className="h-4 w-4 mx-3" />
+              Edit
+              <span className="ml-2 px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded">
+                BETA
+              </span>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
 
             {/* Install Option */}
