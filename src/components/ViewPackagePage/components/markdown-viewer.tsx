@@ -2,6 +2,7 @@ import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import { useEffect } from "react"
 
 export default function MarkdownViewer({
   markdownContent,
@@ -10,6 +11,19 @@ export default function MarkdownViewer({
 }) {
   const { highlighter } = useShikiHighlighter()
 
+  useEffect(() => {
+    const styleEl = document.createElement("style")
+    styleEl.textContent = `
+      .markdown-content .shiki .line::before {
+        content: none !important;
+        display: none !important;
+      }
+    `
+    document.head.appendChild(styleEl)
+    return () => {
+      document.head.removeChild(styleEl)
+    }
+  }, [])
   return (
     <div className="prose dark:prose-invert prose-pre:bg-white dark:prose-pre:bg-gray-800 prose-code:font-mono markdown-content">
       <Markdown
@@ -35,7 +49,7 @@ export default function MarkdownViewer({
             return isCodeBlock ? (
               <div
                 dangerouslySetInnerHTML={{ __html: dom.innerHTML }}
-                className="border rounded-lg"
+                className="prose border rounded-lg"
               ></div>
             ) : (
               <span className="bg-gray-100 dark:bg-gray-800 text-gray-800 font-semibold font-mono dark:text-gray-200 px-1 py-0.5 rounded">
