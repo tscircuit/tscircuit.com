@@ -40,3 +40,17 @@
   text-align: right;
   color: rgba(115, 138, 148, 0.4);
 }
+
+.markdown-code .shiki .line::before {
+  content: none !important;
+  display: none !important;
+}
+
+.markdown-code .shiki .line {
+  padding-left: 0 !important;
+}
+
+.markdown-code pre {
+  padding: 12px !important;
+  margin: 0 !important;
+}

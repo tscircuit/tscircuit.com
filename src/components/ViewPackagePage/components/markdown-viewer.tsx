@@ -12,23 +12,6 @@ export default function MarkdownViewer({
   const { highlighter } = useShikiHighlighter()
   return (
     <div className="markdown-code">
-      {/* Inject global CSS once to hide Shiki’s line-number pseudo-elements */}
-      <style>{`
-        .markdown-code .shiki .line::before {
-          content: none !important;
-          display: none !important;
-        }
-
-        .markdown-code .shiki .line {
-          padding-left: 0 !important;
-        }
-
-        .markdown-code pre {
-          padding: 12px !important;
-          margin: 0 !important;
-        }
-      `}</style>
-
       <div className="prose dark:prose-invert prose-pre:py-0 prose-pre:px-6 prose-pre:bg-white dark:prose-pre:bg-gray-800 prose-code:font-mono markdown-content">
         <Markdown
           remarkPlugins={[remarkGfm]}
