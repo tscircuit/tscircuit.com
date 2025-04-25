@@ -346,8 +346,7 @@ export function CodeAndPreview({ pkg }: Props) {
         onSave={handleSave}
         onTogglePreview={() => setShowPreview(!showPreview)}
         previewOpen={showPreview}
-        canSave={!hasUnrunChanges}
-        manualEditsFileContent={manualEditsFileContent}
+        hasUnrunChanges={hasUnrunChanges}
       />
       <div className={`flex ${showPreview ? "flex-col md:flex-row" : ""}`}>
         <div
