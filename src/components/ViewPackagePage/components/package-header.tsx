@@ -62,9 +62,9 @@ export default function PackageHeader({
       import.meta.env.VITE_TSCIRCUIT_REGISTRY_API_URL ??
       `${window.location.origin}/api`
     window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
-    // TODO: Update stripe checkout base url when we are ready for production
+    // TODO: replace with production stripe checkout base url
     window.TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL =
-      import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_TEST_BASE_URL
+      import.meta.env.VITE_TSCIRCUIT_TEST_STRIPE_CHECKOUT_BASE_URL
   }, [sessionToken])
 
   return (
