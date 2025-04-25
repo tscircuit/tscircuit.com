@@ -100,5 +100,14 @@ const seedDatabase = (db: DbClient) => {
     completed_at: null,
   })
 
-  return { account, order, account2 }
+  // Seed a package release
+  const packageRelease = db.addPackageRelease({
+    package_id: "pkg_1",
+    version: "0.0.1",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+  })
+
+  return { account, account2, order, packageRelease }
 }

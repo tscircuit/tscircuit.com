@@ -58,14 +58,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     vendor_name,
   }: {
     account_id: string
-    package_release_id: string
+    package_release_id?: string
     vendor_name: string
   }): string => {
     // Details for the order quote will be updated by the job with the cost
     const newOrderQuote = {
       order_quote_id: `order_quote_${get().idCounter + 1}`,
       account_id,
-      package_release_id,
+      package_release_id: package_release_id ?? null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       completed_at: null,
