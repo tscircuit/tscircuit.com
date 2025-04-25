@@ -25,6 +25,7 @@ import { Textarea } from "../ui/textarea"
 import { createUseDialog } from "./create-use-dialog"
 import { ChevronDown } from "lucide-react"
 import { useLocation } from "wouter"
+import { useDeletePackage } from "@/hooks/use-delete-package"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -73,46 +74,43 @@ export const EditPackageDetailsDialog = ({
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
     isDialogOpen: open,
+    initialVisibility: isPrivate ? "private": "public"
   })
 
-  const [visibility, setVisibility] = useState(isPrivate ? "private" : "public")
-  const [savingVisibility, setSavingVisibility] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
-  useEffect(() => {
-    setVisibility(isPrivate ? "private" : "public")
-  }, [isPrivate])
 
-  const handleChangeVisibility = async (newVisibility: string) => {
-    if (savingVisibility) return
-    setSavingVisibility(true)
-    try {
-      const newPrivacy = newVisibility === "private" ? true : false
-      const res = await axios.post("/snippets/update", {
-        snippet_id: packageId,
-        is_private: newPrivacy,
-      })
-      if (res.status === 200) {
-        setVisibility(newVisibility)
-        toast({
-          title: "Visibility updated",
-          description: `Package is now ${newVisibility}.`,
-        })
-        await qc.invalidateQueries(["packages", packageId])
-      }
-    } catch (err: any) {
-      toast({
-        title: "Failed to update visibility",
-        description: err.message,
-        variant: "destructive",
-      })
-      console.error(err)
-    } finally {
-      setSavingVisibility(false)
-    }
-  }
+
+  // const handleChangeVisibility = async (newVisibility: string) => {
+  //   if (savingVisibility) return
+  //   setSavingVisibility(true)
+  //   try {
+  //     const newPrivacy = newVisibility === "private" ? true : false
+  //     const res = await axios.post("/snippets/update", {
+  //       snippet_id: packageId,
+  //       is_private: newPrivacy,
+  //     })
+  //     if (res.status === 200) {
+  //       setVisibility(newVisibility)
+  //       toast({
+  //         title: "Visibility updated",
+  //         description: `Package is now ${newVisibility}.`,
+  //       })
+  //       await qc.invalidateQueries(["packages", packageId])
+  //     }
+  //   } catch (err: any) {
+  //     toast({
+  //       title: "Failed to update visibility",
+  //       description: err.message,
+  //       variant: "destructive",
+  //     })
+  //     console.error(err)
+  //   } finally {
+  //     setSavingVisibility(false)
+  //   }
+  // }
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -142,7 +140,13 @@ export const EditPackageDetailsDialog = ({
       setShowConfirmDelete(false)
     }
   }
-
+  const deletePackageMutation = useDeletePackage({
+    onSuccess: async () => {
+      await qc.invalidateQueries(["packages"]) // Invalidate the packages query
+      onOpenChange(false) // Close the dialog
+      setLocation("/dashboard") // Redirect to the dashboard
+    },
+  })
   const updatePackageDetailsMutation = useMutation({
     mutationFn: async () => {
       if (!isFormValid)
@@ -160,13 +164,20 @@ export const EditPackageDetailsDialog = ({
         package_id: packageId,
         description: formData.description,
         website: formData.website,
+        is_private: formData.visibility == "private",
       })
+      const privacyUpdateResponse = await axios.post("/snippets/update", {
+        snippet_id: packageId,
+        is_private: formData.visibility === "private",
+      })
+      console.log("Data",privacyUpdateResponse)
       if (response.status !== 200)
         throw new Error("Failed to update package details")
 
       const filesRes = await axios.post("/package_files/list", {
         package_name_with_version: packageName,
       })
+      console.log("Res ::::::::",filesRes)
       const packageFiles: string[] =
         filesRes.status === 200
           ? filesRes.data.package_files.map((x: any) => x.file_path)
@@ -196,6 +207,7 @@ export const EditPackageDetailsDialog = ({
         description: formData.description,
         website: formData.website,
         license: formData.license,
+        visibility: formData.visibility,
       }
     },
     onMutate: async () => {
@@ -206,6 +218,7 @@ export const EditPackageDetailsDialog = ({
         description: formData.description,
         website: formData.website,
         license: formData.license,
+        is_private: formData.visibility == "private",
       }))
       return { previous }
     },
@@ -237,8 +250,8 @@ export const EditPackageDetailsDialog = ({
       <Dialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
         <DialogContent className="max-w-md p-6 rounded-2xl shadow-lg">
           <DialogHeader>
-            <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-left">Confirm Deletion</DialogTitle>
+            <DialogDescription className="text-left">
               Are you sure you want to delete this package? This action cannot
               be undone.
             </DialogDescription>
@@ -247,23 +260,25 @@ export const EditPackageDetailsDialog = ({
             <Button
               variant="outline"
               onClick={() => setShowConfirmDelete(false)}
-              disabled={deleting}
+              disabled={deletePackageMutation.isLoading}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDelete}
-              disabled={deleting}
+              onClick={() => {
+                deletePackageMutation.mutate({package_id: packageId})
+              }}
+              disabled={deletePackageMutation.isLoading}
             >
-              {deleting ? "Deleting..." : "Delete"}
+              {deletePackageMutation.isLoading ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
       <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
-          <DialogHeader className="space-y-2">
+        <DialogContent className="sm:max-w-[500px] lg:h-[70vh] sm:h-[90vh] overflow-y-auto w-[95vw] p-6 gap-6 rounded-2xl shadow-lg">
+          <DialogHeader>
             <DialogTitle>Edit Package Details</DialogTitle>
             <DialogDescription>
               Update your package’s description, website, visibility, or delete
@@ -295,13 +310,15 @@ export const EditPackageDetailsDialog = ({
             <div className="space-y-1">
               <Label htmlFor="visibility">Visibility</Label>
               <Select
-                value={visibility}
-                onValueChange={async (val) => {
-                  setVisibility(val)
-                  await handleChangeVisibility(val)
+                value={formData.visibility}
+                onValueChange={(val) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    visibility: val
+                  }))
                 }}
                 disabled={
-                  savingVisibility || updatePackageDetailsMutation.isLoading
+                updatePackageDetailsMutation.isLoading
                 }
               >
                 <SelectTrigger className="w-full">
@@ -355,7 +372,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </div>
           <details
-            className="mt-2 border border-black-200 rounded-md"
+            className="mt-2 rounded-md"
             onToggle={(e) => setDangerOpen(e.currentTarget.open)}
           >
             <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
@@ -384,7 +401,7 @@ export const EditPackageDetailsDialog = ({
             </div>
           </details>
 
-          <div className="mt-6 px-2 flex flex-col sm:flex-row justify-end gap-3">
+          <div className=" lg:px-2 flex flex-col sm:flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
