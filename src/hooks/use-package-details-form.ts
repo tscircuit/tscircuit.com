@@ -14,12 +14,14 @@ interface PackageDetailsForm {
   description: string
   website: string
   license: string | null
+  visibility: string
 }
 
 interface UsePackageDetailsFormProps {
   initialDescription: string
   initialWebsite: string
   initialLicense: string | null
+  initialVisibility: string
   isDialogOpen: boolean
 }
 
@@ -27,12 +29,14 @@ export const usePackageDetailsForm = ({
   initialDescription,
   initialWebsite,
   initialLicense,
+  initialVisibility,
   isDialogOpen,
 }: UsePackageDetailsFormProps) => {
   const [formData, setFormData] = useState<PackageDetailsForm>({
     description: initialDescription,
     website: initialWebsite,
     license: initialLicense || null,
+    visibility: initialVisibility,
   })
   const [websiteError, setWebsiteError] = useState<string | null>(null)
 
@@ -42,10 +46,17 @@ export const usePackageDetailsForm = ({
         description: initialDescription,
         website: initialWebsite,
         license: initialLicense || null,
+        visibility: initialVisibility,
       })
       setWebsiteError(null)
     }
-  }, [isDialogOpen, initialDescription, initialWebsite, initialLicense])
+  }, [
+    isDialogOpen,
+    initialDescription,
+    initialWebsite,
+    initialLicense,
+    initialVisibility,
+  ])
 
   useEffect(() => {
     if (formData.website && !isValidUrl(formData.website)) {
@@ -60,12 +71,24 @@ export const usePackageDetailsForm = ({
     [formData.license, initialLicense],
   )
 
+  const hasVisibilityChanged = useMemo(
+    () => formData.visibility !== initialVisibility,
+    [formData.visibility, initialVisibility],
+  )
+
   const hasChanges = useMemo(
     () =>
       formData.description !== initialDescription ||
       formData.website !== initialWebsite ||
-      formData.license !== initialLicense,
-    [formData, initialDescription, initialWebsite, initialLicense],
+      formData.license !== initialLicense ||
+      formData.visibility !== initialVisibility,
+    [
+      formData,
+      initialDescription,
+      initialWebsite,
+      initialLicense,
+      initialVisibility,
+    ],
   )
 
   const isFormValid = useMemo(() => !websiteError, [websiteError])
@@ -75,6 +98,7 @@ export const usePackageDetailsForm = ({
     setFormData,
     websiteError,
     hasLicenseChanged,
+    hasVisibilityChanged,
     hasChanges,
     isFormValid,
   }
