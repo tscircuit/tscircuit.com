@@ -198,7 +198,7 @@ export default function MobileSidebar({
           }
           currentLicense={currentLicense}
           currentWebsite={(packageInfo as any)?.website || ""}
-          isPrivate={!!packageInfo.is_private}
+          isPrivate={Boolean(packageInfo.is_private)}
           packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
