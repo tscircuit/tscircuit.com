@@ -143,7 +143,7 @@
     "@biomejs/biome": "^1.9.2",
     "@playwright/test": "^1.48.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@tscircuit/core": "^0.0.370",
+    "@tscircuit/core": "^0.0.380",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/runframe": "^0.0.370",
     "@types/babel__standalone": "^7.1.7",
