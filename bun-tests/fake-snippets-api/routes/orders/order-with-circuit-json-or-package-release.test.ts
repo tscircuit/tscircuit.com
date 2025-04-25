@@ -45,7 +45,6 @@ test("create order with both circuit_json and package_release_id (✅)", async (
     })
     .catch((error) => error) // Capture response even on error
 
-
   // Expecting backend to fail with 400
   expect(response?.status).toBe(400)
   expect(response?.data.message).toContain(
@@ -61,7 +60,6 @@ test("create order with neither circuit_json nor package_release_id (✅)", asyn
       vendor_name: "jlcpcb",
     })
     .catch((error) => error) // Capture response even on error
-
 
   // Expecting backend to fail with 400
   expect(response?.status).toBe(400)
