@@ -35,7 +35,7 @@ export default withRouteSpec({
   const { package_release_id, vendor_name } = req.jsonBody
 
   // check package release exists
-  const packageRelease = ctx.db.getPackageReleaseById(package_release_id || "")
+  const packageRelease = ctx.db.getPackageReleaseById(package_release_id!)
   if (!packageRelease) {
     return ctx.json(
       {
