@@ -12,19 +12,7 @@ import { Link } from "wouter"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useEffect } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
-
-interface PackageInfo {
-  name: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  description: string
-  ai_description: string
-  creator_account_id?: string
-  owner_org_id?: string
-  package_id: string
-  latest_package_release_id: string
-}
+import { PackageInfo } from "@/lib/types"
 
 interface PackageHeaderProps {
   packageInfo?: PackageInfo
