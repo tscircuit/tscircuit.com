@@ -1,4 +1,5 @@
 import { CodeEditor } from "@/components/package-port/CodeEditor"
+import { handleCustomEditsRemoval } from "@/lib/handleCustomEditsRemoval"
 import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -9,7 +10,7 @@ import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { Loader2 } from "lucide-react"
+import { AlertTriangleIcon, Loader2 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
@@ -21,7 +22,6 @@ import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMuta
 import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
 import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import { getCircuitFromJson } from "@/lib/utils/getCircuitFromJson"
 
 interface Props {
   pkg?: Package
@@ -40,6 +40,16 @@ export default () => (
     height="10mm"
     manualEdits={{
       pcb_placements: [
+        {
+          selector: "C1",
+          center: {
+            x: -2.56989247311828,
+            y: 3.7849462365591395,
+          },
+          relative_to: "group_center",
+        },
+      ],
+            schematic_placements: [
         {
           selector: "C1",
           center: {
@@ -414,10 +424,79 @@ export function CodeAndPreview({ pkg }: Props) {
               onRenderStarted={() =>
                 setState((prev) => ({ ...prev, lastRunCode: state.code }))
               }
-              onRenderFinished={({ circuitJson }) =>
-              {
-                console.log("onRenderFinished", getCircuitFromJson(circuitJson).db.pcb_manual_edit_conflict_warning) 
-                setState((prev) => ({...prev, circuitJson }))
+              onRenderFinished={({ circuitJson }) => {
+                setState((prev) => ({ ...prev, circuitJson }))
+                const pcb_manual_edit_conflict_warnings = circuitJson.filter(
+                  (x: { type: string }) =>
+                    x.type === "pcb_manual_edit_conflict_warning",
+                )
+                const schematic_manual_edit_conflict_warnings =
+                  circuitJson.filter(
+                    (x: { type: string }) =>
+                      x.type === "schematic_manual_edit_conflict_warning",
+                  )
+                // Check for manual edit conflicts
+                if (
+                  pcb_manual_edit_conflict_warnings.length > 0 ||
+                  schematic_manual_edit_conflict_warnings.length > 0
+                ) {
+                  const warnings = [
+                    ...(pcb_manual_edit_conflict_warnings || []),
+                    ...(schematic_manual_edit_conflict_warnings || []),
+                  ]
+
+                  warnings.forEach((warning) => {
+                    const isSchematicWarning =
+                      warning.type === "schematic_manual_edit_conflict_warning"
+                    toast({
+                      title: !isSchematicWarning
+                        ? "Pcb Manual Edit Conflicts"
+                        : "Schematic Manual Edit Conflicts",
+                      description: (
+                        <div className="flex items-center justify-between gap-2">
+                          <span>{warning.message}</span>
+                          <div className="flex flex-col w-full mt-2 mb-1">
+                            <button
+                              className="flex items-center gap-2 px-3 py-1.5 bg-white text-amber-700 hover:bg-white/90 rounded-md cursor-pointer font-medium transition-colors duration-200 w-full justify-center border border-white"
+                              onClick={() =>
+                                handleCustomEditsRemoval(
+                                  state.pkgFilesWithContent.reduce(
+                                    (acc, file) => ({
+                                      ...acc,
+                                      [file.path]: file.content,
+                                    }),
+                                    {},
+                                  ),
+                                  (filename, content) => {
+                                    setState((prev) => ({
+                                      ...prev,
+                                      pkgFilesWithContent:
+                                        prev.pkgFilesWithContent.map((f) =>
+                                          f.path === filename
+                                            ? { ...f, content }
+                                            : f,
+                                        ),
+                                    }))
+                                  },
+                                  toast,
+                                  findTargetFile(
+                                    state.pkgFilesWithContent,
+                                    null,
+                                  )?.path,
+                                  isSchematicWarning,
+                                )
+                              }
+                            >
+                              <AlertTriangleIcon className="h-4 w-4" />
+                              <span>Autofix</span>
+                            </button>
+                          </div>
+                        </div>
+                      ),
+                      variant: "destructive",
+                    })
+                  })
+                }
               }}
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
