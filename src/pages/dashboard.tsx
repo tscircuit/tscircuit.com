@@ -71,17 +71,16 @@ export const DashboardPage = () => {
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
             {!isLoggedIn ? (
-              <div className="flex flex-col items-center justify-center h-64 border border-gray-200 rounded-md">
+              <div className="flex flex-col items-center justify-center h-64 border border-gray-200 rounded-md p-4">
                 <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
                   <KeyRound className="text-blue-500" size={32} />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
                   You're not logged in
                 </h2>
 
-                <p className="text-gray-600 mb-6 text-center max-w-md">
-                  Log in to access your dashboard, create and manage circuit
-                  snippets, and collaborate with others.
+                <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
+                  Log in to access your dashboard and manage your snippets.
                 </p>
                 <Button onClick={() => signIn()} variant="outline">
                   Log in
