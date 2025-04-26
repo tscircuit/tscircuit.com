@@ -24,7 +24,7 @@ export default function MarkdownViewer({
                 dom.innerHTML = highlighter.codeToHtml(
                   children?.toString() || "",
                   {
-                    lang: "typescript",
+                    lang: "tsx",
                     themes: {
                       light: "github-light",
                       dark: "github-dark",
