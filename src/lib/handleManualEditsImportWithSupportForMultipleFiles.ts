@@ -10,10 +10,6 @@ export const handleManualEditsImportWithSupportForMultipleFiles = (
     variant?: "default" | "destructive"
   }) => void,
 ) => {
-  console.log(
-    "handleManualEditsImportWithSupportForMultipleFiles",
-    entrypointFileName,
-  )
   try {
     let currentContent = files[entrypointFileName]
     const importRegex =
