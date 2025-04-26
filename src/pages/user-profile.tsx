@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Star } from "lucide-react"
+import { Box, Star } from "lucide-react"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -188,10 +188,21 @@ export const UserProfilePage = () => {
             ) : (
               <div className="col-span-full flex justify-center">
                 <div className="flex flex-col items-center py-12 text-gray-500">
-                  <Star />
-                  <span className="text-lg font-medium">
-                    No starred packages
-                  </span>
+                  {activeTab === "starred" ? (
+                    <>
+                      <Star />
+                      <span className="text-lg font-medium">
+                        No starred packages
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Box />
+                      <span className="text-lg font-medium">
+                        No packages available
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             )}
