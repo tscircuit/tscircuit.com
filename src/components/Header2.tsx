@@ -17,7 +17,7 @@ const SearchButtonComponent = () => {
       {isExpanded ? (
         <div className="flex items-center gap-2">
           <div className="w-32 bg-white">
-            <SearchComponent />
+            <SearchComponent autofocus />
           </div>
           {/* <Button
             variant="ghost"
