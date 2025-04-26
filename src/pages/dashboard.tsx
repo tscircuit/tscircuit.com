@@ -71,7 +71,7 @@ export const DashboardPage = () => {
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
             {!isLoggedIn ? (
-              <div className="flex flex-col items-center justify-center h-64 border border-gray-200 rounded-md p-4">
+              <div className="flex flex-col items-center justify-center h-64 border border-gray-200 rounded-md p-4 mb-2 sm:mb-4">
                 <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
                   <KeyRound className="text-blue-500" size={32} />
                 </div>
