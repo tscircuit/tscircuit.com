@@ -103,7 +103,25 @@ export const DashboardPage = () => {
             <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
               Your Recent Snippets
             </h2>
-            {isLoading && <div>Loading...</div>}
+            {isLoading && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="border p-4 rounded-md animate-pulse">
+                    <div className="flex items-start gap-4">
+                      <div className="h-16 w-16 flex-shrink-0 rounded-md bg-slate-200"></div>
+                      <div className="flex-1">
+                        <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
+                        <div className="flex gap-2">
+                          <div className="h-3 bg-slate-200 rounded w-16"></div>
+                          <div className="h-3 bg-slate-200 rounded w-16"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {mySnippets && mySnippets.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {mySnippets.slice(0, 10).map((snippet) => (
