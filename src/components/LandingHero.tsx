@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link, useLocation } from "wouter"
 import { useGlobalStore } from "../hooks/use-global-store"
-import { CreateNewSnippetWithAiHero } from "./CreateNewSnippetWithAiHero"
+// import { CreateNewSnippetWithAiHero } from "./CreateNewSnippetWithAiHero"
 import { TypeBadge } from "./TypeBadge"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -167,7 +167,7 @@ export const LandingHero = () => {
           </div>
         </div>
         <div className="mt-6">
-          <CreateNewSnippetWithAiHero />
+          {/* <CreateNewSnippetWithAiHero /> */}
         </div>
       </div>
     </div>
