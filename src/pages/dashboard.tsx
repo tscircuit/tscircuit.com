@@ -116,52 +116,51 @@ export const DashboardPage = () => {
                   </div>
                 </div>
                 <CreateNewSnippetWithAiHero />
-              </>
-            )}
-
-            <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
-              Your Recent Snippets
-            </h2>
-            {isLoading && <div>Loading...</div>}
-            {mySnippets && (
-              <ul className="space-y-1">
-                {mySnippets.slice(0, 10).map((snippet) => (
-                  <li
-                    key={snippet.snippet_id}
-                    className="flex items-center justify-between"
+                <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
+                  Your Recent Packages
+                </h2>
+                {isLoading && <div>Loading...</div>}
+                {mySnippets && (
+                  <ul className="space-y-1">
+                    {mySnippets.slice(0, 10).map((snippet) => (
+                      <li
+                        key={snippet.snippet_id}
+                        className="flex items-center justify-between"
+                      >
+                        <Link
+                          href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
+                          className="text-blue-600 hover:underline text-sm"
+                        >
+                          {snippet.unscoped_name}
+                        </Link>
+                        <span className="text-xs text-gray-500">
+                          {new Date(snippet.created_at).toLocaleDateString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {mySnippets && mySnippets.length > 10 && (
+                  <Link
+                    href={`/${currentUser}`}
+                    className="text-sm text-blue-600 hover:underline mt-2 inline-block"
                   >
-                    <Link
-                      href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      {snippet.unscoped_name}
-                    </Link>
-                    <span className="text-xs text-gray-500">
-                      {new Date(snippet.created_at).toLocaleDateString()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {mySnippets && mySnippets.length > 10 && (
-              <Link
-                href={`/${currentUser}`}
-                className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-              >
-                View all snippets
-              </Link>
+                    View all packages
+                  </Link>
+                )}
+              </>
             )}
           </div>
           <div className="md:w-1/4">
             <SnippetList
-              title="Trending Snippets"
+              title="Trending Packages"
               snippets={trendingSnippets}
               showAll={showAllTrending}
               onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
             />
             <div className="mt-8">
               <SnippetList
-                title="Latest Snippets"
+                title="Latest Packages"
                 snippets={latestSnippets}
                 showAll={showAllLatest}
                 onToggleShowAll={() => setShowAllLatest(!showAllLatest)}
