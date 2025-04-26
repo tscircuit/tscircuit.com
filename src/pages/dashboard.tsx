@@ -6,17 +6,28 @@ import Footer from "@/components/Footer"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiHero"
-import { Edit2, Star, ChevronDown, ChevronUp } from "lucide-react"
+import {
+  Edit2,
+  Star,
+  ChevronDown,
+  ChevronUp,
+  Key,
+  KeyRound,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import { SnippetList } from "@/components/SnippetList"
 import { Helmet } from "react-helmet-async"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 export const DashboardPage = () => {
   const axios = useAxios()
 
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const isLoggedIn = Boolean(currentUser)
+  const signIn = useSignIn()
+
   const [showAllTrending, setShowAllTrending] = useState(false)
   const [showAllLatest, setShowAllLatest] = useState(false)
 
@@ -59,34 +70,56 @@ export const DashboardPage = () => {
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
-            <div className="mt-6 mb-4">
-              <div className="flex items-center">
-                <h2 className="text-sm text-gray-600 whitespace-nowrap">
-                  Edit Recent
-                </h2>
-                <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden ">
-                  {mySnippets &&
-                    mySnippets.slice(0, 3).map((snippet) => (
-                      <div key={snippet.snippet_id}>
-                        <PrefetchPageLink
-                          href={`/editor?snippet_id=${snippet.snippet_id}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="font-medium"
-                          >
-                            {snippet.unscoped_name}
-                            <Edit2 className="w-3 h-3 ml-2" />
-                          </Button>
-                        </PrefetchPageLink>
-                      </div>
-                    ))}
+            {!isLoggedIn ? (
+              <div className="flex flex-col items-center justify-center h-64 border border-gray-200 rounded-md">
+                <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
+                  <KeyRound className="text-blue-500" size={32} />
                 </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  You're not logged in
+                </h2>
+
+                <p className="text-gray-600 mb-6 text-center max-w-md">
+                  Log in to access your dashboard, create and manage circuit
+                  snippets, and collaborate with others.
+                </p>
+                <Button onClick={() => signIn()} variant="outline">
+                  Log in
+                </Button>
               </div>
-            </div>
-            <CreateNewSnippetWithAiHero />
+            ) : (
+              <>
+                <div className="mt-6 mb-4">
+                  <div className="flex items-center">
+                    <h2 className="text-sm text-gray-600 whitespace-nowrap">
+                      Edit Recent
+                    </h2>
+                    <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden ">
+                      {mySnippets &&
+                        mySnippets.slice(0, 3).map((snippet) => (
+                          <div key={snippet.snippet_id}>
+                            <PrefetchPageLink
+                              href={`/editor?snippet_id=${snippet.snippet_id}`}
+                              className="text-blue-600 hover:underline"
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="font-medium"
+                              >
+                                {snippet.unscoped_name}
+                                <Edit2 className="w-3 h-3 ml-2" />
+                              </Button>
+                            </PrefetchPageLink>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+                <CreateNewSnippetWithAiHero />
+              </>
+            )}
+
             <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
               Your Recent Snippets
             </h2>
