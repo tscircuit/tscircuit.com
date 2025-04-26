@@ -166,9 +166,9 @@ export const LandingHero = () => {
             </p>
           </div>
         </div>
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <CreateNewSnippetWithAiHero />
-        </div>
+        </div> */}
       </div>
     </div>
   )

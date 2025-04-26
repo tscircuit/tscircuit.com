@@ -86,7 +86,7 @@ export const DashboardPage = () => {
                 </div>
               </div>
             </div>
-            <CreateNewSnippetWithAiHero />
+            {/* <CreateNewSnippetWithAiHero /> */}
             <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
               Your Recent Snippets
             </h2>
