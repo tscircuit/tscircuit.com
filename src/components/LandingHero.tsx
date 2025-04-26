@@ -167,6 +167,7 @@ export const LandingHero = () => {
           </div>
         </div>
         <div className="mt-6">
+          {/* Commenting temporarily until it works */}
           {/* <CreateNewSnippetWithAiHero /> */}
         </div>
       </div>
