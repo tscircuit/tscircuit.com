@@ -118,7 +118,7 @@ export const DashboardPage = () => {
               </div>
             ) : (
               !isLoading && (
-                <span className="text-lg font-medium text-sm text-gray-500">
+                <span className="font-medium text-sm text-gray-500">
                   No snippets found
                 </span>
               )
