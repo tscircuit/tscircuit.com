@@ -125,17 +125,17 @@ export default function PackageHeader({
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleForkClick}
-              disabled={
-                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
-              }
-            >
-              <GitFork className="w-4 h-4 mr-2" />
-              Fork
-            </Button>
+            {!isCurrentUserAuthor && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleForkClick}
+                disabled={isForkLoading || !packageInfo?.package_id}
+              >
+                <GitFork className="w-4 h-4 mr-2" />
+                Fork
+              </Button>
+            )}
           </div>
           {/* Mobile buttons - shown below md breakpoint */}
           <div className="flex items-center space-x-2 md:hidden w-full justify-end pt-2">
@@ -156,17 +156,17 @@ export default function PackageHeader({
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleForkClick}
-              disabled={
-                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
-              }
-            >
-              <GitFork className="w-4 h-4 mr-2" />
-              Fork
-            </Button>
+            {!isCurrentUserAuthor && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleForkClick}
+                disabled={isForkLoading || !packageInfo?.package_id}
+              >
+                <GitFork className="w-4 h-4 mr-2" />
+                Fork
+              </Button>
+            )}
           </div>
         </div>
       </div>
