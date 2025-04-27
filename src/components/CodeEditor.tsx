@@ -249,6 +249,15 @@ export const CodeEditor = ({
           ".cm-ghostText:hover": {
             background: "#eee",
           },
+          ".cm-content": {
+            cursor: "text",
+          },
+          ".cm-underline": {
+            cursor: "text",
+          },
+          ".cm-underline:hover": {
+            cursor: "pointer",
+          },
         }),
       )
     }
@@ -262,6 +271,33 @@ export const CodeEditor = ({
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
             hoverTooltip((view, pos) => {
+              const line = view.state.doc.lineAt(pos)
+              const lineStart = line.from
+              const lineEnd = line.to
+              const lineText = view.state.sliceDoc(lineStart, lineEnd)
+              const matches = Array.from(
+                lineText.matchAll(TSCI_PACKAGE_PATTERN),
+              )
+
+              for (const match of matches) {
+                if (match.index !== undefined) {
+                  const start = lineStart + match.index
+                  const end = start + match[0].length
+                  if (pos >= start && pos <= end) {
+                    return {
+                      pos: start,
+                      end: end,
+                      above: true,
+                      create() {
+                        const dom = document.createElement("div")
+                        dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                        return { dom }
+                      },
+                    }
+                  }
+                }
+              }
+
               const facet = view.state.facet(tsFacet)
               if (!facet) return null
 
@@ -293,6 +329,28 @@ export const CodeEditor = ({
               return null
             }),
             EditorView.domEventHandlers({
+              keydown: (event, view) => {
+                if (event.ctrlKey || event.metaKey) {
+                  const content = view.contentDOM
+                  const underlinedElements =
+                    content.querySelectorAll<HTMLElement>(".cm-underline")
+                  underlinedElements.forEach((el) => {
+                    el.style.cursor = "pointer"
+                  })
+                }
+                return false
+              },
+              keyup: (event, view) => {
+                if (event.key === "Control" || event.key === "Meta") {
+                  const content = view.contentDOM
+                  const underlinedElements =
+                    content.querySelectorAll<HTMLElement>(".cm-underline")
+                  underlinedElements.forEach((el) => {
+                    el.style.cursor = "text"
+                  })
+                }
+                return false
+              },
               click: (event, view) => {
                 if (!event.ctrlKey && !event.metaKey) return false
                 const pos = view.posAtCoords({
