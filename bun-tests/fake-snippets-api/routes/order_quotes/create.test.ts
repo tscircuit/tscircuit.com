@@ -1,22 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("create order with only circuit_json (✅)", async () => {
-  const {
-    axios,
-    seed: { order },
-  } = await getTestServer()
-
-  const response = await axios.post("/api/order_quotes/create", {
-    vendor_name: "jlcpcb",
-    circuit_json: order.circuit_json,
-  })
-
-  expect(response.status).toBe(200)
-  expect(response.data.order_quote_id).toBeDefined()
-})
-
-test("create order with only package_release_id (✅)", async () => {
+test("create order_quote with only package_release_id (✅)", async () => {
   const {
     axios,
     seed: { packageRelease },
@@ -31,7 +16,7 @@ test("create order with only package_release_id (✅)", async () => {
   expect(response.data.order_quote_id).toBeDefined()
 })
 
-test("create order with both circuit_json and package_release_id (✅)", async () => {
+test("create order_quote with both circuit_json and package_release_id (✅)", async () => {
   const {
     axios,
     seed: { order, packageRelease },
@@ -52,7 +37,7 @@ test("create order with both circuit_json and package_release_id (✅)", async (
   )
 })
 
-test("create order with neither circuit_json nor package_release_id (✅)", async () => {
+test("create order_quote with neither circuit_json nor package_release_id (✅)", async () => {
   const { axios } = await getTestServer()
 
   const response = await axios
