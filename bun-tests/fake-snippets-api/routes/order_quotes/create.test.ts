@@ -1,6 +1,21 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
+test("create order_quote with only circuit_json (✅)", async () => {
+  const {
+    axios,
+    seed: { order },
+  } = await getTestServer()
+
+  const response = await axios.post("/api/order_quotes/create", {
+    vendor_name: "jlcpcb",
+    circuit_json: order.circuit_json,
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.order_quote_id).toBeDefined()
+})
+
 test("create order_quote with only package_release_id (✅)", async () => {
   const {
     axios,
