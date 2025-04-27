@@ -391,9 +391,10 @@ export function CodeAndPreview({ pkg }: Props) {
               onRenderStarted={() =>
                 setState((prev) => ({ ...prev, lastRunCode: state.code }))
               }
-              onRenderFinished={({ circuitJson }) =>
+              onRenderFinished={({ circuitJson }) => {
+                setState((prev) => ({ ...prev, circuitJson }))
                 informManualEditConflicts(circuitJson, toast)
-              }
+              }}
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
                   state.manualEditsFileContent || "{}",
