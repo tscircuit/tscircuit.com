@@ -1,6 +1,6 @@
 import { ToasterToast } from "@/hooks/use-toast"
 
-export function informManualEditConflicts(
+export function toastManualEditConflicts(
   circuitJson: { type: string; message: string }[],
   toast: (props: Omit<ToasterToast, "id">) => void,
 ) {
