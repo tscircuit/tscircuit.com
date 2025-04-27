@@ -341,7 +341,7 @@ export const CodeEditor = ({
                 return false
               },
               keyup: (event, view) => {
-                if (!event.ctrlKey && !event.metaKey) {
+                if (event.key === "Control" || event.key === "Meta") {
                   const content = view.contentDOM
                   const underlinedElements =
                     content.querySelectorAll<HTMLElement>(".cm-underline")
