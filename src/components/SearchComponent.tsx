@@ -9,6 +9,7 @@ import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void // optional
+  autofocus?: boolean
 }
 
 const LinkWithNewTabHandling = ({
@@ -43,6 +44,7 @@ const LinkWithNewTabHandling = ({
 
 const SearchComponent: React.FC<SearchComponentProps> = ({
   onResultsFetched,
+  autofocus = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [showResults, setShowResults] = useState(false)
@@ -74,7 +76,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 
   // Focus input on mount
   useEffect(() => {
-    inputRef.current?.focus()
+    if (autofocus) {
+      inputRef.current?.focus()
+    }
   }, [])
 
   useEffect(() => {
