@@ -65,13 +65,13 @@ export default function MarkdownViewer({
                   {copiedCode === codeString ? (
                     <Check
                       size={25}
-                      className="text-green-500 hover:bg-gray-100 p-1 m-3.5 ml-6 cursor-pointer rounded-md absolute top-2 right-2"
+                      className="text-green-500 hover:bg-gray-100 p-1 mt-1 mr-1 cursor-pointer rounded-md absolute top-2 right-2"
                     />
                   ) : (
                     <Copy
                       onClick={() => handleCopy(codeString)}
                       size={25}
-                      className="text-slate-500 hover:bg-gray-100 p-1 m-3.5 ml-6 cursor-pointer rounded-md absolute top-2 right-2"
+                      className="text-slate-500 hover:bg-gray-100 p-1 mt-1 mr-1 cursor-pointer rounded-md absolute top-2 right-2"
                     />
                   )}
                 </div>
