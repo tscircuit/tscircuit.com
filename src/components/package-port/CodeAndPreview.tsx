@@ -21,6 +21,7 @@ import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMuta
 import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
 import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
+import { informManualEditConflicts } from "@/lib/utils/informManualEditConflicts"
 
 interface Props {
   pkg?: Package
@@ -37,7 +38,8 @@ export default () => (
   <board width="10mm" height="10mm">
     {/* write your code here! */}
   </board>
-)`.trim()
+)
+`.trim()
 
 const generateRandomPackageName = () =>
   `untitled-package-${Math.floor(Math.random() * 90) + 10}`
@@ -390,7 +392,7 @@ export function CodeAndPreview({ pkg }: Props) {
                 setState((prev) => ({ ...prev, lastRunCode: state.code }))
               }
               onRenderFinished={({ circuitJson }) =>
-                setState((prev) => ({ ...prev, circuitJson }))
+                informManualEditConflicts(circuitJson, toast)
               }
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
