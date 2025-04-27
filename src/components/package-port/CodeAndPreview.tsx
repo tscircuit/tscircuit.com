@@ -21,7 +21,7 @@ import { useUpdatePackageFilesMutation } from "@/hooks/useUpdatePackageFilesMuta
 import { useUpdatePackageMutation } from "@/hooks/useUpdatePackageMutation"
 import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import { informManualEditConflicts } from "@/lib/utils/informManualEditConflicts"
+import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 
 interface Props {
   pkg?: Package
@@ -393,7 +393,7 @@ export function CodeAndPreview({ pkg }: Props) {
               }
               onRenderFinished={({ circuitJson }) => {
                 setState((prev) => ({ ...prev, circuitJson }))
-                informManualEditConflicts(circuitJson, toast)
+                toastManualEditConflicts(circuitJson, toast)
               }}
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
