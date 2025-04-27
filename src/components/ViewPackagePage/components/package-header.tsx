@@ -28,7 +28,9 @@ export default function PackageHeader({
   const author = packageInfo?.owner_github_username
   const packageName = packageInfo?.unscoped_name
   const sessionToken = useGlobalStore((s) => s.session?.token)
-
+  const isOwner =
+    packageInfo?.owner_github_username ===
+    useGlobalStore((s) => s.session?.github_username)
   const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
@@ -125,17 +127,21 @@ export default function PackageHeader({
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleForkClick}
-              disabled={
-                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
-              }
-            >
-              <GitFork className="w-4 h-4 mr-2" />
-              Fork
-            </Button>
+            {!isOwner && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleForkClick}
+                disabled={
+                  isCurrentUserAuthor ||
+                  isForkLoading ||
+                  !packageInfo?.package_id
+                }
+              >
+                <GitFork className="w-4 h-4 mr-2" />
+                Fork
+              </Button>
+            )}
           </div>
           {/* Mobile buttons - shown below md breakpoint */}
           <div className="flex items-center space-x-2 md:hidden w-full justify-end pt-2">
@@ -156,17 +162,21 @@ export default function PackageHeader({
               )}
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleForkClick}
-              disabled={
-                isCurrentUserAuthor || isForkLoading || !packageInfo?.package_id
-              }
-            >
-              <GitFork className="w-4 h-4 mr-2" />
-              Fork
-            </Button>
+            {!isOwner && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleForkClick}
+                disabled={
+                  isCurrentUserAuthor ||
+                  isForkLoading ||
+                  !packageInfo?.package_id
+                }
+              >
+                <GitFork className="w-4 h-4 mr-2" />
+                Fork
+              </Button>
+            )}
           </div>
         </div>
       </div>
