@@ -122,7 +122,7 @@ export const CodeEditor = ({
 
     const fsMap = new Map<string, string>()
     files.forEach(({ path, content }) => {
-      fsMap.set(path, content)
+      fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
@@ -136,7 +136,7 @@ export const CodeEditor = ({
         fsMap.set(filename, content)
       })
     })
-
+    console.info(fsMap.keys())
     const system = createSystem(fsMap)
     const env = createVirtualTypeScriptEnvironment(system, [], ts, {
       jsx: ts.JsxEmit.ReactJSX,
@@ -185,7 +185,7 @@ export const CodeEditor = ({
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
-				  declare module "*.json" {
+				  declare module "manual-edits.json" {
 				  const value: {
 					  pcb_placements?: any[],
             schematic_placements?: any[],
