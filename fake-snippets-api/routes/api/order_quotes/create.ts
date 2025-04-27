@@ -32,17 +32,14 @@ export default withRouteSpec({
     error: z.string().optional(),
   }),
 })(async (req, ctx) => {
-  const { package_release_id, vendor_name } = req.jsonBody
+  const { package_release_id, vendor_name, circuit_json } = req.jsonBody
 
-  // check package release exists
-  const packageRelease = ctx.db.getPackageReleaseById(package_release_id!)
-  if (!packageRelease) {
-    return ctx.json(
-      {
-        error: "Package release not found",
-      },
-      { status: 404 },
-    )
+  if (package_release_id) {
+    // check package release exists
+    const packageRelease = ctx.db.getPackageReleaseById(package_release_id)
+    if (!packageRelease) {
+      return ctx.json({ error: "Package release not found" }, { status: 404 })
+    }
   }
 
   const orderQuoteId = ctx.db.addOrderQuote({
