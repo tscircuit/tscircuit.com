@@ -187,7 +187,8 @@ export default function EditorNav({
   }
 
   const canSavePackage = Boolean(
-    isLoggedIn && pkg?.owner_github_username === session?.github_username,
+    isLoggedIn &&
+      (!pkg || pkg?.owner_github_username === session?.github_username),
   )
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
@@ -250,7 +251,7 @@ export default function EditorNav({
             variant="outline"
             size="sm"
             className={"ml-1 h-6 px-2 text-xs save-button"}
-            disabled={canSavePackage ? !hasUnsavedChanges : !isLoggedIn}
+            disabled={canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn}
             onClick={canSavePackage ? onSave : () => forkSnippet()}
           >
             {canSavePackage ? (
