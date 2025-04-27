@@ -41,14 +41,22 @@ export const DashboardPage = () => {
     data: mySnippets,
     isLoading,
     error,
-  } = useQuery<Snippet[]>("userSnippets", async () => {
-    const response = await axios.get(`/snippets/list?owner_name=${currentUser}`)
-    return response.data.snippets.sort(
-      (a: any, b: any) =>
-        new Date(b.updated_at || b.created_at).getTime() -
-        new Date(a.updated_at || a.created_at).getTime(),
-    )
-  })
+  } = useQuery<Snippet[]>(
+    "userSnippets",
+    async () => {
+      const response = await axios.get(
+        `/snippets/list?owner_name=${currentUser}`,
+      )
+      return response.data.snippets.sort(
+        (a: any, b: any) =>
+          new Date(b.updated_at || b.created_at).getTime() -
+          new Date(a.updated_at || a.created_at).getTime(),
+      )
+    },
+    {
+      enabled: isLoggedIn,
+    },
+  )
 
   const { data: trendingSnippets } = useQuery<Snippet[]>(
     "trendingSnippets",
@@ -106,7 +114,7 @@ export const DashboardPage = () => {
                     <h2 className="text-sm text-gray-600 whitespace-nowrap">
                       Edit Recent
                     </h2>
-                    <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden ">
+                    <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden">
                       {mySnippets &&
                         mySnippets.slice(0, 3).map((snippet) => (
                           <div key={snippet.snippet_id}>
@@ -128,30 +136,53 @@ export const DashboardPage = () => {
                     </div>
                   </div>
                 </div>
-                <CreateNewSnippetWithAiHero />
+                {/* <CreateNewSnippetWithAiHero/> */}
                 <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
                   Your Recent Packages
                 </h2>
-                {isLoading && <div>Loading...</div>}
-                {mySnippets && (
-                  <ul className="space-y-1">
-                    {mySnippets.slice(0, 10).map((snippet) => (
-                      <li
-                        key={snippet.snippet_id}
-                        className="flex items-center justify-between"
+                {isLoading && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(6)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="border p-4 rounded-md animate-pulse"
                       >
-                        <Link
-                          href={`/${snippet.owner_name}/${snippet.unscoped_name}`}
-                          className="text-blue-600 hover:underline text-sm"
-                        >
-                          {snippet.unscoped_name}
-                        </Link>
-                        <span className="text-xs text-gray-500">
-                          {new Date(snippet.created_at).toLocaleDateString()}
-                        </span>
-                      </li>
+                        <div className="flex items-start gap-4">
+                          <div className="h-16 w-16 flex-shrink-0 rounded-md bg-slate-200"></div>
+                          <div className="flex-1">
+                            <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
+                            <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
+                            <div className="flex gap-2">
+                              <div className="h-3 bg-slate-200 rounded w-16"></div>
+                              <div className="h-3 bg-slate-200 rounded w-16"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+                )}
+                {mySnippets && mySnippets.length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {mySnippets.slice(0, 10).map((snippet) => (
+                      <SnippetCard
+                        key={snippet.snippet_id}
+                        snippet={snippet}
+                        baseUrl={baseUrl}
+                        isCurrentUserSnippet={
+                          snippet.owner_name === currentUser
+                        }
+                        onDeleteClick={handleDeleteClick}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  !isLoading &&
+                  mySnippets?.length === 0 && (
+                    <span className="font-medium text-sm text-gray-500">
+                      No packages found
+                    </span>
+                  )
                 )}
                 {mySnippets && mySnippets.length > 10 && (
                   <Link
@@ -162,58 +193,6 @@ export const DashboardPage = () => {
                   </Link>
                 )}
               </>
-                </div>
-              </div>
-            </div>
-            {/* <CreateNewSnippetWithAiHero /> */}
-            <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
-              Your Recent Snippets
-            </h2>
-            {isLoading && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="border p-4 rounded-md animate-pulse">
-                    <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 flex-shrink-0 rounded-md bg-slate-200"></div>
-                      <div className="flex-1">
-                        <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
-                        <div className="flex gap-2">
-                          <div className="h-3 bg-slate-200 rounded w-16"></div>
-                          <div className="h-3 bg-slate-200 rounded w-16"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {mySnippets && mySnippets.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {mySnippets.slice(0, 10).map((snippet) => (
-                  <SnippetCard
-                    key={snippet.snippet_id}
-                    snippet={snippet}
-                    baseUrl={baseUrl}
-                    isCurrentUserSnippet={snippet.owner_name === currentUser}
-                    onDeleteClick={handleDeleteClick}
-                  />
-                ))}
-              </div>
-            ) : (
-              !isLoading && (
-                <span className="font-medium text-sm text-gray-500">
-                  No snippets found
-                </span>
-              )
-            )}
-            {mySnippets && mySnippets.length > 10 && (
-              <Link
-                href={`/${currentUser}`}
-                className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-              >
-                View all snippets
-              </Link>
             )}
           </div>
           <div className="md:w-1/4">
@@ -232,13 +211,13 @@ export const DashboardPage = () => {
               />
             </div>
           </div>
-          {snippetToDelete && (
-            <DeleteDialog
-              packageId={snippetToDelete.snippet_id}
-              packageName={snippetToDelete.unscoped_name}
-            />
-          )}
         </div>
+        {snippetToDelete && (
+          <DeleteDialog
+            packageId={snippetToDelete.snippet_id}
+            packageName={snippetToDelete.unscoped_name}
+          />
+        )}
       </div>
       <Footer />
     </div>
