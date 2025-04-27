@@ -321,7 +321,7 @@ export function CodeAndPreview({ pkg }: Props) {
     state.pkgFilesWithContent,
   ])
 
-  if ((!pkg && urlParams.package_id) || pkgFiles.isLoading) {
+  if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center justify-center">
