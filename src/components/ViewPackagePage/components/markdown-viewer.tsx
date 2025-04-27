@@ -1,8 +1,10 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import { Check, Copy } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 export default function MarkdownViewer({
   markdownContent,
@@ -10,6 +12,21 @@ export default function MarkdownViewer({
   markdownContent: string
 }) {
   const { highlighter } = useShikiHighlighter()
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopiedCode(text)
+    toast({
+      title: "Copied to clipboard",
+      description: "Your code has been copied successfully.",
+    })
+    setTimeout(() => {
+      setCopiedCode(null)
+    }, 1500)
+  }
+
   return (
     <div className="markdown-code">
       <div className="prose dark:prose-invert prose-pre:py-0 prose-pre:px-6 prose-pre:bg-white dark:prose-pre:bg-gray-800 prose-code:font-mono markdown-content">
@@ -19,27 +36,39 @@ export default function MarkdownViewer({
             code({ node, className, children, ...props }) {
               const isCodeBlock =
                 className?.includes("language-") || /\n/.test(String(children))
+              const codeString = children?.toString() || ""
               const dom = document.createElement("div")
               if (highlighter) {
-                dom.innerHTML = highlighter.codeToHtml(
-                  children?.toString() || "",
-                  {
-                    lang: "typescript",
-                    themes: {
-                      light: "github-light",
-                      dark: "github-dark",
-                    },
+                dom.innerHTML = highlighter.codeToHtml(codeString, {
+                  lang: "tsx",
+                  themes: {
+                    light: "github-light",
+                    dark: "github-dark",
                   },
-                )
+                })
               }
-              // Don’t use <code> tags (they leave backticks intact)
+
               return isCodeBlock ? (
-                <div
-                  dangerouslySetInnerHTML={{ __html: dom.innerHTML }}
-                  className="border rounded-lg"
-                ></div>
+                <div className="flex border rounded-lg relative">
+                  <div
+                    dangerouslySetInnerHTML={{ __html: dom.innerHTML }}
+                    className="flex-1 overflow-auto"
+                  ></div>
+                  {copiedCode === codeString ? (
+                    <Check
+                      size={25}
+                      className="text-green-500 hover:bg-gray-100 p-1 mt-1 mr-1 cursor-pointer rounded-md absolute top-2 right-2"
+                    />
+                  ) : (
+                    <Copy
+                      onClick={() => handleCopy(codeString)}
+                      size={25}
+                      className="text-slate-500 hover:bg-gray-100 p-1 mt-1 mr-1  cursor-pointer rounded-md absolute top-2 right-2"
+                    />
+                  )}
+                </div>
               ) : (
-                <span className="bg-gray-100 dark:bg-gray-800 text-gray-800 font-semibold font-mono dark:text-gray-200 px-1 py-0.5 rounded">
+                <span className="bg-gray-100  dark:bg-gray-800 text-gray-800 font-semibold font-mono dark:text-gray-200 px-1 py-0.5 rounded">
                   {children}
                 </span>
               )
