@@ -136,7 +136,7 @@ export const CodeEditor = ({
         fsMap.set(filename, content)
       })
     })
-    console.info(fsMap.keys())
+
     const system = createSystem(fsMap)
     const env = createVirtualTypeScriptEnvironment(system, [], ts, {
       jsx: ts.JsxEmit.ReactJSX,
