@@ -66,7 +66,7 @@ export default function MarkdownViewer({
                     />
                   ) : (
                     <Copy
-                      onClick={() => handleCopy(codeString)}
+                      onClick={() => copyCodeToClipboard(codeString)}
                       size={25}
                       className="text-slate-500 hover:bg-gray-100 p-1 mt-1 mr-1 cursor-pointer rounded-md absolute top-2 right-2"
                     />
