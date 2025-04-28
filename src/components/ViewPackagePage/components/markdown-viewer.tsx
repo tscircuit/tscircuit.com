@@ -19,10 +19,7 @@ export default function MarkdownViewer({
     try {
       await navigator.clipboard.writeText(text)
       setCopiedCode(text)
-      toast({
-        title: "Copied to clipboard",
-        description: "Your code has been copied successfully.",
-      })
+      // changes check icon back to clipboard
       setTimeout(() => {
         setCopiedCode(null)
       }, 1500)
