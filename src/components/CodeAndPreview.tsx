@@ -198,8 +198,8 @@ export function CodeAndPreview({ snippet }: Props) {
     let entrypointContent: string
     if (snippetType === "board") {
       entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
-        circuit.add(<Snippet />)
+        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
+        circuit.add(<Package />)
       `.trim()
     } else {
       const hasBoard =
@@ -207,8 +207,8 @@ export function CodeAndPreview({ snippet }: Props) {
           code,
         )
       entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
-        circuit.add(${hasBoard ? '<Snippet name="U1" />' : `<board>\n  <Snippet name="U1" />\n</board>`})
+        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
+        circuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})
       `.trim()
     }
 
