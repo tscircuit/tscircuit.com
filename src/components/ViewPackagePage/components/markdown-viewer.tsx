@@ -15,7 +15,7 @@ export default function MarkdownViewer({
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const { toast } = useToast()
 
-  const handleCopy = async (text: string) => {
+  const copyCodeToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
       setCopiedCode(text)
