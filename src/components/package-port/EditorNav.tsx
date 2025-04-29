@@ -201,7 +201,7 @@ export default function EditorNav({
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [onSave, hasUnsavedChanges, isLoggedIn, canSavePackage])
+  }, [onSave, hasUnsavedChanges, canSavePackage])
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
