@@ -33,7 +33,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
@@ -186,10 +186,26 @@ export default function EditorNav({
     }
   }
 
-  const canSavePackage = Boolean(
-    isLoggedIn &&
-      (!pkg || pkg?.owner_github_username === session?.github_username),
+  const canSavePackage = useMemo(
+    () =>
+      Boolean(
+        isLoggedIn &&
+          (!pkg || pkg?.owner_github_username === session?.github_username),
+      ),
+    [isLoggedIn, pkg, session?.github_username],
   )
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault()
+        if (!hasUnsavedChanges || !canSavePackage) return
+        onSave()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [onSave, hasUnsavedChanges, canSavePackage])
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
