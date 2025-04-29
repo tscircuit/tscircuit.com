@@ -127,7 +127,9 @@ export default function PackageHeader({
                   <Button
                     variant="outline"
                     size="sm"
-                    className={!isLoggedIn ? "text-gray-400 hover:text-gray-400": ""}
+                    className={
+                      !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
+                    }
                     onClick={handleStarClick}
                     disabled={isStarLoading || !packageInfo?.name}
                   >
@@ -161,7 +163,9 @@ export default function PackageHeader({
                     <Button
                       variant="outline"
                       size="sm"
-                      className={!isLoggedIn ? "text-gray-400 hover:text-gray-400": ""}
+                      className={
+                        !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
+                      }
                       onClick={handleForkClick}
                       disabled={isForkLoading || !packageInfo?.name}
                     >
@@ -184,6 +188,7 @@ export default function PackageHeader({
             <Button
               variant="outline"
               size="sm"
+              className={!isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""}
               onClick={handleStarClick}
               disabled={isStarLoading || !packageInfo?.name}
             >
@@ -205,6 +210,9 @@ export default function PackageHeader({
                 variant="outline"
                 size="sm"
                 onClick={handleForkClick}
+                className={
+                  !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
+                }
                 disabled={
                   isCurrentUserAuthor ||
                   isForkLoading ||
