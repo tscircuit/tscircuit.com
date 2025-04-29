@@ -33,7 +33,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
@@ -186,9 +186,13 @@ export default function EditorNav({
     }
   }
 
-  const canSavePackage = Boolean(
-    isLoggedIn &&
-      (!pkg || pkg?.owner_github_username === session?.github_username),
+  const canSavePackage = useMemo(
+    () =>
+      Boolean(
+        isLoggedIn &&
+          (!pkg || pkg?.owner_github_username === session?.github_username),
+      ),
+    [isLoggedIn, pkg, session?.github_username],
   )
 
   useEffect(() => {
