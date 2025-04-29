@@ -202,13 +202,9 @@ export function CodeAndPreview({ snippet }: Props) {
         circuit.add(<Package />)
       `.trim()
     } else {
-      const hasBoard =
-        /<\s*board\s*\/\s*>|<\s*board\s*[^>]*>[\s\S]*?<\/\s*board\s*>/.test(
-          code,
-        )
       entrypointContent = `
         import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
-        circuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})
+        circuit.add(<Package name="U1" />)
       `.trim()
     }
 

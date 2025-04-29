@@ -298,15 +298,7 @@ export function CodeAndPreview({ pkg }: Props) {
       ? `import { ${exportName} as Package } from "./index.tsx"`
       : `import Package from "./index.tsx"`
 
-    const hasBoard =
-      /<\s*board\s*\/\s*>|<\s*board\s*[^>]*>[\s\S]*?<\/\s*board\s*>/.test(
-        state.code,
-      )
-
-    const entrypointContent =
-      packageType === "board"
-        ? `${importStatement}\ncircuit.add(<Package />)`
-        : `${importStatement}\ncircuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})`
+    const entrypointContent = `${importStatement}\ncircuit.add(<Package />)`
 
     return {
       ...state.pkgFilesWithContent.reduce(
