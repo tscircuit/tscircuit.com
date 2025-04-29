@@ -127,6 +127,7 @@ export default function PackageHeader({
                   <Button
                     variant="outline"
                     size="sm"
+                    className={!isLoggedIn ? "text-gray-400 hover:text-gray-400": ""}
                     onClick={handleStarClick}
                     disabled={isStarLoading || !packageInfo?.name}
                   >
@@ -160,7 +161,9 @@ export default function PackageHeader({
                     <Button
                       variant="outline"
                       size="sm"
+                      className={!isLoggedIn ? "text-gray-400 hover:text-gray-400": ""}
                       onClick={handleForkClick}
+                      disabled={isForkLoading || !packageInfo?.name}
                     >
                       <GitFork className="w-4 h-4 mr-2" />
                       Fork
