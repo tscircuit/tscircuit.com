@@ -54,7 +54,9 @@ export default function SidebarReleasesSection() {
           {
             id: "circuit_json_build",
             name: "Circuit JSON Build",
-            status: packageRelease.circuit_json_build_error ? "failed" : "success",
+            status: packageRelease.circuit_json_build_error
+              ? "failed"
+              : "success",
             message: packageRelease.circuit_json_build_error || undefined,
           },
         ]}

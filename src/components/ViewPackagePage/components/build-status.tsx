@@ -33,11 +33,9 @@ const defaultSteps: BuildStep[] = [
   },
 ]
 
-export const BuildStatus = ({
-  steps = defaultSteps,
-}: BuildStatusProps) => {
+export const BuildStatus = ({ steps = defaultSteps }: BuildStatusProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  
+
   const overallStatus = steps.every((step) => step.status === "success")
     ? "success"
     : "failed"
