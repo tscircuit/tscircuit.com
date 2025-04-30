@@ -26,7 +26,10 @@ const AuthenticatePageInnerContent = () => {
           ...(decodedToken as any),
           token: session_token,
         })
-        setLocation("/")
+        // Get stored redirect path or default to home
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/'
+        sessionStorage.removeItem('redirectAfterLogin') // Clean up
+        setLocation(redirectPath)
         return
       }
     }
