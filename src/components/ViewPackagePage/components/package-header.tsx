@@ -124,29 +124,35 @@ export default function PackageHeader({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={
-                      !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
-                    }
-                    onClick={handleStarClick}
-                    disabled={isStarLoading || !packageInfo?.name}
-                  >
-                    <Star
-                      className={`w-4 h-4 mr-2 ${
-                        starData?.is_starred
-                          ? "fill-yellow-500 text-yellow-500"
+                  <span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={
+                        isForkLoading || !packageInfo?.name || !isLoggedIn
+                          ? "pointer-events-none"
                           : ""
-                      }`}
-                    />
-                    {starData?.is_starred ? "Starred" : "Star"}
-                    {(starData?.star_count ?? 0) > 0 && (
-                      <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
-                        {starData?.star_count}
-                      </span>
-                    )}
-                  </Button>
+                      }
+                      onClick={handleStarClick}
+                      disabled={
+                        isStarLoading || !packageInfo?.name || !isLoggedIn
+                      }
+                    >
+                      <Star
+                        className={`w-4 h-4 mr-2 ${
+                          starData?.is_starred
+                            ? "fill-yellow-500 text-yellow-500"
+                            : ""
+                        }`}
+                      />
+                      {starData?.is_starred ? "Starred" : "Star"}
+                      {(starData?.star_count ?? 0) > 0 && (
+                        <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
+                          {starData?.star_count}
+                        </span>
+                      )}
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 {!isLoggedIn && (
                   <TooltipContent>
@@ -160,18 +166,24 @@ export default function PackageHeader({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={
-                        !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
-                      }
-                      onClick={handleForkClick}
-                      disabled={isForkLoading || !packageInfo?.name}
-                    >
-                      <GitFork className="w-4 h-4 mr-2" />
-                      Fork
-                    </Button>
+                    <span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleForkClick}
+                        disabled={
+                          isForkLoading || !packageInfo?.name || !isLoggedIn
+                        }
+                        className={
+                          isForkLoading || !packageInfo?.name || !isLoggedIn
+                            ? "pointer-events-none"
+                            : ""
+                        }
+                      >
+                        <GitFork className="w-4 h-4 mr-2" />
+                        Fork
+                      </Button>
+                    </span>
                   </TooltipTrigger>
                   {!isLoggedIn && (
                     <TooltipContent>
@@ -188,7 +200,11 @@ export default function PackageHeader({
             <Button
               variant="outline"
               size="sm"
-              className={!isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""}
+              className={
+                isForkLoading || !packageInfo?.name || !isLoggedIn
+                  ? "pointer-events-none"
+                  : ""
+              }
               onClick={handleStarClick}
               disabled={isStarLoading || !packageInfo?.name}
             >
@@ -211,7 +227,9 @@ export default function PackageHeader({
                 size="sm"
                 onClick={handleForkClick}
                 className={
-                  !isLoggedIn ? "text-gray-400 hover:text-gray-400" : ""
+                  isForkLoading || !packageInfo?.name || !isLoggedIn
+                    ? "pointer-events-none"
+                    : ""
                 }
                 disabled={
                   isCurrentUserAuthor ||
