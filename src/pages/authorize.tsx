@@ -8,32 +8,30 @@ import Footer from "@/components/Footer"
 import { useLocation } from "wouter"
 
 const AuthenticatePageInnerContent = () => {
-  const [location, setLocation] = useLocation()
+  const [, navigate] = useLocation()
   const setSession = useGlobalStore((s) => s.setSession)
-  const [message, setMessage] = useState("logging you in...")
-  const searchParams = new URLSearchParams(window.location.search.split("?")[1])
-  const session_token = searchParams.get("session_token")
-  useEffect(() => {
-    async function login() {
-      if (!session_token) {
-        setMessage("couldn't log in - no token")
-        return
-      }
+  const [message, setMessage] = useState("Logging you in...")
 
-      if (session_token) {
-        const decodedToken = jose.decodeJwt(session_token)
-        setSession({
-          ...(decodedToken as any),
-          token: session_token,
-        })
-        setLocation("/")
-        return
-      }
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionToken = params.get("session_token")
+
+    if (!sessionToken) {
+      setMessage("Couldn't log in - no token provided.")
+      return
     }
-    login().catch((e) => {
-      setMessage(`error logging you in\n\n${e.toString()}`)
-    })
-  }, [session_token])
+
+    try {
+      const decoded: any = jose.decodeJwt(sessionToken)
+      setSession({
+        ...decoded,
+        token: sessionToken,
+      })
+      navigate("/")
+    } catch (error: any) {
+      setMessage(`Error logging you in: ${error.message}`)
+    }
+  }, [setSession, navigate])
 
   return (
     <div className="bg-white p-8 min-h-screen">

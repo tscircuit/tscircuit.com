@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useIsUsingFakeApi } from "./use-is-using-fake-api"
 import { useSnippetsBaseApiUrl } from "./use-snippets-base-api-url"
@@ -6,10 +7,15 @@ export const useSignIn = () => {
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
   const isUsingFakeApi = useIsUsingFakeApi()
   const setSession = useGlobalStore((s) => s.setSession)
-  return () => {
+
+  return useCallback(() => {
     if (!isUsingFakeApi) {
-      const nextUrl = window.location.origin.replace("127.0.0.1", "localhost")
-      window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}/authorize`
+      const nextPath = "/authorize"
+      const nextUrl = encodeURIComponent(
+        window.location.origin.replace("127.0.0.1", "localhost") + nextPath
+      )
+      window.location.href =
+        `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}`
     } else {
       setSession({
         account_id: "account-1234",
@@ -17,6 +23,7 @@ export const useSignIn = () => {
         token: "1234",
         session_id: "session-1234",
       })
+      window.location.reload()
     }
-  }
+  }, [snippetsBaseApiUrl, isUsingFakeApi, setSession])
 }
