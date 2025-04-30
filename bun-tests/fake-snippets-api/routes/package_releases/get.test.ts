@@ -86,3 +86,33 @@ test("POST /api/package_releases/get - should find release by package_name_with_
     packageReleaseSchema.parse(createdRelease),
   )
 })
+
+test("POST /api/package_releases/get - should return circuit_json_build_error if it exists", async () => {
+  const { axios, seed } = await getTestServer()
+
+  // First create a package with valid name format
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-3",
+    description: "Another test package",
+  })
+  expect(packageResponse.status).toBe(200)
+  const createdPackage = packageResponse.data.package
+
+  // Create a package release with a circuit_json_build_error
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_id: createdPackage.package_id,
+    version: "1.0.0",
+    is_latest: true,
+  })
+  expect(releaseResponse.status).toBe(200)
+  const createdRelease = releaseResponse.data.package_release
+
+  // Get the release
+  const getResponse = await axios.post("/api/package_releases/get", {
+    package_release_id: createdRelease.package_release_id,
+  })
+  expect(getResponse.status).toBe(200)
+  const responseBody = getResponse.data
+  expect(responseBody.ok).toBe(true)
+  expect(responseBody.package_release.circuit_json_build_error).toBe(null)
+})

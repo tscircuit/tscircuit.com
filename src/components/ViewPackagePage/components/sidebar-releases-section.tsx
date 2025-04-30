@@ -3,8 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-
-interface SidebarReleasesSectionProps {}
+import { BuildStatus } from "./build-status"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -43,6 +42,23 @@ export default function SidebarReleasesSection() {
       {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
         Push a new release
       </a> */}
+      <BuildStatus
+        steps={[
+          // TODO: Add step for package transpilation
+          {
+            id: "package_transpilation",
+            name: "Package Transpilation",
+            status: "success",
+            message: "TBD",
+          },
+          {
+            id: "circuit_json_build",
+            name: "Circuit JSON Build",
+            status: packageRelease.circuit_json_build_error ? "failed" : "success",
+            message: packageRelease.circuit_json_build_error || undefined,
+          },
+        ]}
+      />
     </div>
   )
 }
