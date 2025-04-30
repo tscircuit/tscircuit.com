@@ -12,10 +12,9 @@ export const useSignIn = () => {
     if (!isUsingFakeApi) {
       const nextPath = "/authorize"
       const nextUrl = encodeURIComponent(
-        window.location.origin.replace("127.0.0.1", "localhost") + nextPath
+        window.location.origin.replace("127.0.0.1", "localhost") + nextPath,
       )
-      window.location.href =
-        `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}`
+      window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}`
     } else {
       setSession({
         account_id: "account-1234",
@@ -23,7 +22,6 @@ export const useSignIn = () => {
         token: "1234",
         session_id: "session-1234",
       })
-      window.location.reload()
     }
   }, [snippetsBaseApiUrl, isUsingFakeApi, setSession])
 }
