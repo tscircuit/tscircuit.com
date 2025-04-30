@@ -169,8 +169,11 @@ export const packageReleaseSchema = z.object({
   commit_sha: z.string().nullable().optional(),
   license: z.string().nullable().optional(),
   circuit_json_build_error: z.string().nullable().optional(),
-  circuit_json_build_error_last_updated_at: z.string().datetime().nullable().optional(),
-
+  circuit_json_build_error_last_updated_at: z
+    .string()
+    .datetime()
+    .nullable()
+    .optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
