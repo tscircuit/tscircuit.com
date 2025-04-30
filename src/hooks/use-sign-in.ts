@@ -10,7 +10,7 @@ export const useSignIn = () => {
     if (!isUsingFakeApi) {
       const currentPath = window.location.pathname + window.location.search
       // Store current path for redirect after login
-      sessionStorage.setItem('redirectAfterLogin', currentPath)
+      sessionStorage.setItem("redirectAfterLogin", currentPath)
       const nextUrl = window.location.origin.replace("127.0.0.1", "localhost")
       window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}/authorize`
     } else {
