@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, Check, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -17,54 +16,36 @@ export interface BuildStep {
 }
 
 export interface BuildStatusProps {
-  steps: BuildStep[]
+  step: BuildStep
 }
 
-const defaultSteps: BuildStep[] = [
-  {
-    id: "package_transpilation",
-    name: "Package Transpilation",
-    status: "success",
-  },
-  {
-    id: "circuit_json_build",
-    name: "Circuit JSON Build",
-    status: "success",
-  },
-]
-
-export const BuildStatus = ({ steps = defaultSteps }: BuildStatusProps) => {
+export const BuildStatus = ({ step }: BuildStatusProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const overallStatus = steps.every((step) => step.status === "success")
+  const overallStatus = step.status === "success"
     ? "success"
     : "failed"
 
   return (
     <>
-      <Button
+      <div
         onClick={() => setIsDialogOpen(true)}
-        variant="outline"
-        size="sm"
-        className={cn(
-          "gap-2 font-medium transition-all",
-          overallStatus === "success"
-            ? "hover:bg-green-50 text-green-600 hover:text-green-700"
-            : "hover:bg-red-50 text-red-600 hover:text-red-700",
-        )}
+        className={"flex items-center cursor-pointer"}
       >
         {overallStatus === "success" ? (
           <>
-            <CheckCircle className="h-4 w-4" />
-            Build passing
+            <CheckCircle className="h-4 w-4 mr-2 text-green-600 dark:text-[#8b949e]" />
+            <span className="text-sm text-green-600 dark:text-[#8b949e]">
+              {step.name}
+            </span>
           </>
         ) : (
           <>
-            <XCircle className="h-4 w-4" />
-            Build failing
+            <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-[#8b949e]" />
+            <span className="text-sm text-red-600 dark:text-[#8b949e]">Build failing</span>
           </>
         )}
-      </Button>
+      </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
@@ -85,13 +66,10 @@ export const BuildStatus = ({ steps = defaultSteps }: BuildStatusProps) => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="text-sm font-medium">Build Steps</div>
-
             <div className="space-y-3">
-              {steps.map((step) => (
-                <div
-                  key={step.id}
-                  className={cn(
+              <div
+                key={step.id}
+                className={cn(
                     "flex items-start gap-3 rounded-md border p-3",
                     step.status === "success"
                       ? "bg-green-50 border-green-200"
@@ -120,8 +98,7 @@ export const BuildStatus = ({ steps = defaultSteps }: BuildStatusProps) => {
                       </div>
                     )}
                   </div>
-                </div>
-              ))}
+              </div>
             </div>
           </div>
         </DialogContent>
