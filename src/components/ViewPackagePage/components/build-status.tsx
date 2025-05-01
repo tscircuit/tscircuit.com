@@ -22,36 +22,27 @@ export interface BuildStatusProps {
 export const BuildStatus = ({ step }: BuildStatusProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const overallStatus = step.status === "success" ? "success" : "failed"
-
   return (
     <>
       <div
         onClick={() => setIsDialogOpen(true)}
         className={"flex items-center cursor-pointer"}
       >
-        {overallStatus === "success" ? (
-          <>
-            <CheckCircle className="h-4 w-4 mr-2 text-green-600 dark:text-[#8b949e]" />
-            <span className="text-sm text-green-600 dark:text-[#8b949e]">
-              {step.name}
-            </span>
-          </>
+        {step.status === "success" ? (
+          <CheckCircle className="h-4 w-4 mr-2 text-green-600 dark:text-[#8b949e]" />
         ) : (
-          <>
-            <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-[#8b949e]" />
-            <span className="text-sm text-red-600 dark:text-[#8b949e]">
-              Build failing
-            </span>
-          </>
+          <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-[#8b949e]" />
         )}
+        <span className="text-sm text-gray-500 dark:text-[#8b949e]">
+          {step.name}
+        </span>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {overallStatus === "success" ? (
+              {step.status === "success" ? (
                 <>
                   <CheckCircle className="h-5 w-5 text-green-600" />
                   <span>Build Status: Passing</span>
