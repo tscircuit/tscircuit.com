@@ -56,10 +56,7 @@ export default function SidebarReleasesSection() {
           </span>
         </div>
         {buildSteps.map((step) => (
-          <BuildStatus
-            key={step.id}
-            step={step}
-          />
+          <BuildStatus key={step.id} step={step} />
         ))}
       </div>
       {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">

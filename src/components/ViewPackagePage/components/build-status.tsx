@@ -22,9 +22,7 @@ export interface BuildStatusProps {
 export const BuildStatus = ({ step }: BuildStatusProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const overallStatus = step.status === "success"
-    ? "success"
-    : "failed"
+  const overallStatus = step.status === "success" ? "success" : "failed"
 
   return (
     <>
@@ -42,7 +40,9 @@ export const BuildStatus = ({ step }: BuildStatusProps) => {
         ) : (
           <>
             <XCircle className="h-4 w-4 mr-2 text-red-600 dark:text-[#8b949e]" />
-            <span className="text-sm text-red-600 dark:text-[#8b949e]">Build failing</span>
+            <span className="text-sm text-red-600 dark:text-[#8b949e]">
+              Build failing
+            </span>
           </>
         )}
       </div>
@@ -70,34 +70,34 @@ export const BuildStatus = ({ step }: BuildStatusProps) => {
               <div
                 key={step.id}
                 className={cn(
-                    "flex items-start gap-3 rounded-md border p-3",
+                  "flex items-start gap-3 rounded-md border p-3",
+                  step.status === "success"
+                    ? "bg-green-50 border-green-200"
+                    : "bg-red-50 border-red-200",
+                )}
+              >
+                <div
+                  className={cn(
+                    "rounded-full p-1 mt-0.5",
                     step.status === "success"
-                      ? "bg-green-50 border-green-200"
-                      : "bg-red-50 border-red-200",
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600",
                   )}
                 >
-                  <div
-                    className={cn(
-                      "rounded-full p-1 mt-0.5",
-                      step.status === "success"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600",
-                    )}
-                  >
-                    {step.status === "success" ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <X className="h-4 w-4" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium">{step.name}</div>
-                    {step.message && (
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {step.message}
-                      </div>
-                    )}
-                  </div>
+                  {step.status === "success" ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <X className="h-4 w-4" />
+                  )}
+                </div>
+                <div>
+                  <div className="font-medium">{step.name}</div>
+                  {step.message && (
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {step.message}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
