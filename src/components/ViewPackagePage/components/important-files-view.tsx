@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Edit, FileText, Code } from "lucide-react"
+import { Edit, FileText, Code, Copy, CopyCheck } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
@@ -34,7 +34,13 @@ export default function ImportantFilesView({
 }: ImportantFilesViewProps) {
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string | null>(null)
+  const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(activeFileContent)
+    setCopyState("copied")
+    setTimeout(() => setCopyState("copy"), 500)
+  }
   // Determine if we have AI content
   const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
 
@@ -59,7 +65,7 @@ export default function ImportantFilesView({
       setActiveFilePath(importantFiles[0].file_path)
       setActiveTab("file")
     }
-  }, [importantFiles, aiDescription, aiUsageInstructions, hasAiContent])
+  }, [aiDescription, aiUsageInstructions, hasAiContent])
 
   // Get file name from path
   const getFileName = (path: string) => {
@@ -201,6 +207,19 @@ export default function ImportantFilesView({
           ))}
         </div>
         <div className="ml-auto flex items-center">
+          {activeFileContent && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
+              onClick={handleCopy}
+            >
+              {copyState === "copy" ? (
+                <Copy className="h-4 w-4" />
+              ) : (
+                <CopyCheck className="h-4 w-4" />
+              )}
+              <span className="sr-only">Copy</span>
+            </button>
+          )}
           <button
             className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
             onClick={() => onEditClicked?.(activeFilePath)}
