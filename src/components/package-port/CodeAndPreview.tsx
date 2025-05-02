@@ -272,7 +272,7 @@ export function CodeAndPreview({ pkg }: Props) {
   const handleSave = async () => {
     if (!isLoggedIn) {
       toast({
-        title: "Warning",
+        title: “Not Logged In",
         description: "You must be logged in to save your package.",
         variant: "destructive",
       })
