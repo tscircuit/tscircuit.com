@@ -59,7 +59,6 @@ export default function EditorNav({
   onSave,
   packageType,
   isSaving,
-  hasUnrunChanges,
 }: {
   pkg?: Package | null
   circuitJson?: AnyCircuitElement[] | null
@@ -70,7 +69,6 @@ export default function EditorNav({
   onTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
-  hasUnrunChanges: boolean
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))

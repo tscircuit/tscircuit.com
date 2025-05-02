@@ -221,8 +221,6 @@ export function CodeAndPreview({ pkg }: Props) {
     manualEditsFileContent: state.manualEditsFileContent,
   })
 
-  const hasUnrunChanges = entryPointCode !== state.lastRunCode
-
   const hasUnsavedChanges = useMemo(
     () =>
       !updatePackageMutation.isLoading &&
@@ -272,15 +270,6 @@ export function CodeAndPreview({ pkg }: Props) {
       toast({
         title: "Not Logged In",
         description: "You must be logged in to save your package.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (hasUnrunChanges) {
-      toast({
-        title: "Warning",
-        description: "You must run the package before saving your changes.",
         variant: "destructive",
       })
       return
@@ -368,7 +357,6 @@ export function CodeAndPreview({ pkg }: Props) {
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
         }
         previewOpen={state.showPreview}
-        hasUnrunChanges={hasUnrunChanges}
       />
       <div
         className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
