@@ -131,10 +131,8 @@ export function CodeAndPreview({ pkg }: Props) {
   const packageType =
     pkg?.snippet_type ?? templateFromUrl?.type ?? urlParams.snippet_type
 
-  const {
-    Dialog: PackageVisibilitySettingsDialog,
-    openDialog: openPackageVisibilitySettingsDialog,
-  } = usePackageVisibilitySettingsDialog()
+  const { Dialog: NewPackageSaveDialog, openDialog: openNewPackageSaveDialog } =
+    usePackageVisibilitySettingsDialog()
 
   useEffect(() => {
     if (entryPointCode !== state.code) {
@@ -245,7 +243,7 @@ export function CodeAndPreview({ pkg }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
-  const handlePkgVisibilityChange = async (isPrivate: boolean) => {
+  const handleNewPackageSaveRequest = async (isPrivate: boolean) => {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     const newPackage = await createPackageMutation.mutateAsync({
       name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
@@ -272,7 +270,7 @@ export function CodeAndPreview({ pkg }: Props) {
   const handleSave = async () => {
     if (!isLoggedIn) {
       toast({
-        title: “Not Logged In",
+        title: "Not Logged In",
         description: "You must be logged in to save your package.",
         variant: "destructive",
       })
@@ -289,7 +287,7 @@ export function CodeAndPreview({ pkg }: Props) {
     }
 
     if (!pkg) {
-      openPackageVisibilitySettingsDialog()
+      openNewPackageSaveDialog()
       return
     }
 
@@ -454,9 +452,9 @@ export function CodeAndPreview({ pkg }: Props) {
           </div>
         )}
       </div>
-      <PackageVisibilitySettingsDialog
+      <NewPackageSaveDialog
         initialIsPrivate={false}
-        onSave={handlePkgVisibilityChange}
+        onSave={handleNewPackageSaveRequest}
       />
     </div>
   )
