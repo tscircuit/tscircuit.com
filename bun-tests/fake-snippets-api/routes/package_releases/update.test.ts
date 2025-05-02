@@ -92,20 +92,15 @@ test("update package release - handle is_latest flag", async () => {
   })
 
   // Update second release to be latest
-  await axios
-    .post("/api/package_releases/update", {
-      package_release_id: release2.data.package_release.package_release_id,
-      is_latest: true,
-    })
-    .finally(() => {
-      // Verify first release is no longer latest
-      const firstRelease = db.packageReleases.find(
-        (pr) =>
-          pr.package_release_id ===
-          release1.data.package_release.package_release_id,
-      )
-      expect(firstRelease?.is_latest).toBe(false)
-    })
+  await axios.post("/api/package_releases/update", {
+    package_release_id: release2.data.package_release.package_release_id,
+    is_latest: true,
+  })
+  // Verify first release is no longer latest
+  const firstRelease = await axios.post(`/api/package_releases/get`, {
+    package_release_id: release1.data.package_release.package_release_id,
+  })
+  expect(firstRelease.data.package_release.is_latest).toBe(false)
 
   // Verify second release is now latest
   const secondRelease = db.packageReleases.find(
