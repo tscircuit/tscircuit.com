@@ -58,8 +58,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     ["packageSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
-      const { data } = await axios.get("/packages/search", {
-        params: { q: searchQuery },
+      const { data } = await axios.post("/packages/search", {
+        query: searchQuery,
       })
       if (onResultsFetched) {
         onResultsFetched(data.packages)

@@ -3,16 +3,17 @@ import { z } from "zod"
 import { packageSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
-  methods: ["GET"],
+  methods: ["POST"],
   auth: "none",
-  queryParams: z.object({
-    q: z.string(),
+  jsonBody: z.object({
+    query: z.string(),
   }),
   jsonResponse: z.object({
+    ok: z.boolean(),
     packages: z.array(packageSchema),
   }),
 })(async (req, ctx) => {
-  const { q } = req.query
-  const packages = ctx.db.searchPackages(q)
-  return ctx.json({ packages })
+  const { query } = req.jsonBody
+  const packages = ctx.db.searchPackages(query)
+  return ctx.json({ packages, ok: true })
 })
