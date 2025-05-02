@@ -306,7 +306,7 @@ export const CodeEditor = ({
                       above: true,
                       create() {
                         const dom = document.createElement("div")
-                        dom.textContent = "Ctrl/Cmd+Click to open snippet"
+                        dom.textContent = "Ctrl/Cmd+Click to open package"
                         return { dom }
                       },
                     }
@@ -417,9 +417,15 @@ export const CodeEditor = ({
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
       const state = viewRef.current.state
+      const scrollPos = viewRef.current.scrollDOM.scrollTop
       if (state.doc.toString() !== newContent) {
         viewRef.current.dispatch({
           changes: { from: 0, to: state.doc.length, insert: newContent },
+        })
+        requestAnimationFrame(() => {
+          if (viewRef.current) {
+            viewRef.current.scrollDOM.scrollTop = scrollPos
+          }
         })
       }
     }
