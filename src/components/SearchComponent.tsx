@@ -52,19 +52,19 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location] = useLocation()
-  const { snippetsBaseApiUrl } = useSnippetsBaseApiUrl()
+  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
 
   const { data: searchResults, isLoading } = useQuery(
-    ["snippetSearch", searchQuery],
+    ["packageSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
-      const { data } = await axios.get("/snippets/search", {
+      const { data } = await axios.get("/packages/search", {
         params: { q: searchQuery },
       })
       if (onResultsFetched) {
-        onResultsFetched(data.snippets)
+        onResultsFetched(data.packages)
       }
-      return data.snippets
+      return data.packages
     },
     { enabled: Boolean(searchQuery) },
   )
@@ -128,31 +128,31 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
-              {searchResults.map((snippet: any) => (
-                <li key={snippet.snippet_id} className="p-2 hover:bg-gray-50">
+              {searchResults.map((pkg: any) => (
+                <li key={pkg.package_id} className="p-2 hover:bg-gray-50">
                   <LinkWithNewTabHandling
                     href={
                       shouldOpenInEditor
-                        ? `/editor?package_id=${snippet.snippet_id}`
-                        : `/${snippet.owner_name}/${snippet.unscoped_name}`
+                        ? `/editor?package_id=${pkg.package_id}`
+                        : `/${pkg.name}`
                     }
                     shouldOpenInNewTab={shouldOpenInNewTab}
                     className="flex"
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm">
                       <img
-                        src={`${useSnippetsBaseApiUrl()}/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.svg`}
-                        alt={`PCB preview for ${snippet.name}`}
+                        src={`${snippetsBaseApiUrl}/snippets/images/${pkg.name}/pcb.svg`}
+                        alt={`PCB preview for ${pkg.name}`}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
                       />
                     </div>
                     <div className="flex-grow">
                       <div className="font-medium text-blue-600 break-words text-xs">
-                        {snippet.name}
+                        {pkg.name}
                       </div>
-                      {snippet.description && (
+                      {pkg.description && (
                         <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                          {snippet.description}
+                          {pkg.description}
                         </div>
                       )}
                     </div>
