@@ -99,7 +99,7 @@ test("update package release - handle is_latest flag", async () => {
       is_latest: true,
     },
   )
-
+  Bun.sleepSync(1000)
   // Verify first release is no longer latest
   const firstRelease = await axios.post(`/api/package_releases/get`, {
     package_release_id: release1.data.package_release.package_release_id,
