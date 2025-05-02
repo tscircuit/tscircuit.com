@@ -133,7 +133,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                   <LinkWithNewTabHandling
                     href={
                       shouldOpenInEditor
-                        ? `/editor?snippet_id=${snippet.snippet_id}`
+                        ? `/editor?package_id=${snippet.snippet_id}`
                         : `/${snippet.owner_name}/${snippet.unscoped_name}`
                     }
                     shouldOpenInNewTab={shouldOpenInNewTab}
