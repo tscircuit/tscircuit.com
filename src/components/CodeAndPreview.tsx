@@ -198,17 +198,17 @@ export function CodeAndPreview({ snippet }: Props) {
     let entrypointContent: string
     if (snippetType === "board") {
       entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
-        circuit.add(<Snippet />)
+        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
+        circuit.add(<Package />)
       `.trim()
     } else {
-      entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Snippet }` : "Snippet"} from "./index.tsx"
-        circuit.add(
-          <board>
-            <Snippet name="U1" />
-          </board>
+      const hasBoard =
+        /<\s*board\s*\/\s*>|<\s*board\s*[^>]*>[\s\S]*?<\/\s*board\s*>/.test(
+          code,
         )
+      entrypointContent = `
+        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
+        circuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})
       `.trim()
     }
 
