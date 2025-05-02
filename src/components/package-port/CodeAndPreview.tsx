@@ -245,7 +245,40 @@ export function CodeAndPreview({ pkg }: Props) {
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
+  const handlePkgVisibilityChange = async (isPrivate: boolean) => {
+    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
+    const newPackage = await createPackageMutation.mutateAsync({
+      name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
+      is_private: isPrivate,
+    })
+
+    if (newPackage) {
+      createRelease(
+        {
+          package_name_with_version: `${newPackage.name}@latest`,
+        },
+        {
+          onSuccess: () => {
+            updatePackageFilesMutation.mutate({
+              package_name_with_version: `${newPackage.name}@latest`,
+              ...newPackage,
+            })
+          },
+        },
+      )
+    }
+  }
+
   const handleSave = async () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Warning",
+        description: "You must be logged in to save your package.",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (hasUnrunChanges) {
       toast({
         title: "Warning",
@@ -255,7 +288,7 @@ export function CodeAndPreview({ pkg }: Props) {
       return
     }
 
-    if (!pkg && isLoggedIn) {
+    if (!pkg) {
       openPackageVisibilitySettingsDialog()
       return
     }
@@ -268,22 +301,6 @@ export function CodeAndPreview({ pkg }: Props) {
         package_name_with_version: `${pkg.name}@latest`,
         ...pkg,
       })
-    } else {
-      const newPackage = await createPackageMutation.mutateAsync({
-        name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
-        is_private: state.isPrivate,
-      })
-
-      if (newPackage) {
-        createRelease({
-          package_name_with_version: `${newPackage.name}@latest`,
-        })
-
-        updatePackageFilesMutation.mutate({
-          package_name_with_version: `${newPackage.name}@latest`,
-          ...newPackage,
-        })
-      }
     }
   }
 
@@ -439,24 +456,7 @@ export function CodeAndPreview({ pkg }: Props) {
       </div>
       <PackageVisibilitySettingsDialog
         initialIsPrivate={false}
-        onSave={async (isPrivate: boolean) => {
-          setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-          const newPackage = await createPackageMutation.mutateAsync({
-            name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
-            is_private: isPrivate,
-          })
-
-          if (newPackage) {
-            createRelease({
-              package_name_with_version: `${newPackage.name}@latest`,
-            })
-
-            updatePackageFilesMutation.mutate({
-              package_name_with_version: `${newPackage.name}@latest`,
-              ...newPackage,
-            })
-          }
-        }}
+        onSave={handlePkgVisibilityChange}
       />
     </div>
   )
