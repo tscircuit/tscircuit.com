@@ -51,7 +51,6 @@ export const ViewPackagePage = () => {
           )
         }}
         onEditClicked={(file_path?: string) => {
-          console.log("file_path", file_path)
           setLocation(
             `/editor?package_id=${packageInfo?.package_id}${
               file_path ? `&file_path=${file_path}` : ""
