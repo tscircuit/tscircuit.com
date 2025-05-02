@@ -8,7 +8,7 @@ import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface SearchComponentProps {
-  onResultsFetched?: (results: any[]) => void // optional
+  onResultsFetched?: (results: any[]) => void
   autofocus?: boolean
 }
 
