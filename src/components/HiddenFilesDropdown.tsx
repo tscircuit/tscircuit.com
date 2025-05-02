@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings, Check } from "lucide-react"
+import { MoreVertical, Check } from "lucide-react"
 
 interface HiddenFilesDropdownProps {
   showHiddenFiles: boolean
@@ -21,7 +21,7 @@ export default function HiddenFilesDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="ml-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 focus:outline-none">
-          <Settings className="h-4 w-4" />
+          <MoreVertical className="h-4 w-4" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

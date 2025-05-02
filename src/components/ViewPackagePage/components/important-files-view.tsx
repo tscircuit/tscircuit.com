@@ -19,7 +19,7 @@ interface PackageFile {
 interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
   isLoading?: boolean
-  onEditClicked?: () => void
+  onEditClicked?: (file_path?: string | null) => void
 
   aiDescription?: string
   aiUsageInstructions?: string
@@ -203,7 +203,7 @@ export default function ImportantFilesView({
         <div className="ml-auto flex items-center">
           <button
             className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
-            onClick={onEditClicked}
+            onClick={() => onEditClicked?.(activeFilePath)}
           >
             <Edit className="h-4 w-4" />
             <span className="sr-only">Edit</span>
