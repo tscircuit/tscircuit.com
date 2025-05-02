@@ -60,9 +60,7 @@ export default withRouteSpec({
             cost: 200,
           },
         ],
-        // TODO: shipping cost can vary so do the total cost calculation
-        total_cost: 100,
-        total_cost_after_discount: 50,
+        total_cost_without_shipping: 100,
       },
       {
         order_quote_id,
@@ -107,9 +105,7 @@ export default withRouteSpec({
             cost: 200,
           },
         ],
-        // TODO: shipping cost can vary so do the total cost calculation
-        total_cost: 100,
-        total_cost_after_discount: 30,
+        total_cost_without_shipping: 100,
       },
     ],
   })

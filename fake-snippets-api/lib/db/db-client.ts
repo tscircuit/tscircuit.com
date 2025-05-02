@@ -77,8 +77,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       quoted_components: [],
       bare_pcb_cost: 0,
       shipping_options: [],
-      total_cost: 0,
-      total_cost_after_discount: 0,
+      total_cost_without_shipping: 0,
     }
     set((state) => {
       return {
