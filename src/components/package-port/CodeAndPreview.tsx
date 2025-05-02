@@ -288,37 +288,9 @@ export function CodeAndPreview({ pkg }: Props) {
   }
 
   const fsMap = useMemo(() => {
-    const possibleExportNames = [
-      ...(state.code.match(/export function (\w+)/)?.slice(1) ?? []),
-      ...(state.code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
-    ]
-
-    const exportName = possibleExportNames[0]
-    const importStatement = exportName
-      ? `import { ${exportName} as Package } from "./index.tsx"`
-      : `import Package from "./index.tsx"`
-
-    const hasBoard =
-      /<\s*board\s*\/\s*>|<\s*board\s*[^>]*>[\s\S]*?<\/\s*board\s*>/.test(
-        state.code,
-      )
-
-    const entrypointContent =
-      packageType === "board"
-        ? `${importStatement}\ncircuit.add(<Package />)`
-        : `${importStatement}\ncircuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})`
-
     return {
-      ...state.pkgFilesWithContent.reduce(
-        (acc, file) => {
-          acc[file.path] = file.content
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-      "index.tsx": entryPointCode ?? "// No Default Code Found",
-      "manual-edits.json": state.manualEditsFileContent ?? "{}",
-      "main.tsx": entrypointContent.trim(),
+      "index.tsx": state.code,
+      "manual-edits.json": state.manualEditsFileContent,
     }
   }, [
     state.manualEditsFileContent,
@@ -432,7 +404,6 @@ export function CodeAndPreview({ pkg }: Props) {
                 }))
               }}
               fsMap={fsMap}
-              entrypoint="main.tsx"
             />
           </div>
         )}

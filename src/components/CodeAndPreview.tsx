@@ -188,34 +188,9 @@ export function CodeAndPreview({ snippet }: Props) {
   useWarnUserOnPageChange({ hasUnsavedChanges })
 
   const fsMap = useMemo(() => {
-    const possibleExportNames = [
-      ...(code.match(/export function (\w+)/)?.slice(1) ?? []),
-      ...(code.match(/export const (\w+) ?=/)?.slice(1) ?? []),
-    ]
-
-    const exportName = possibleExportNames[0]
-
-    let entrypointContent: string
-    if (snippetType === "board") {
-      entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
-        circuit.add(<Package />)
-      `.trim()
-    } else {
-      const hasBoard =
-        /<\s*board\s*\/\s*>|<\s*board\s*[^>]*>[\s\S]*?<\/\s*board\s*>/.test(
-          code,
-        )
-      entrypointContent = `
-        import ${exportName ? `{ ${exportName} as Package }` : "Package"} from "./index.tsx"
-        circuit.add(${hasBoard ? '<Package name="U1" />' : `<board>\n  <Package name="U1" />\n</board>`})
-      `.trim()
-    }
-
     return {
       "index.tsx": code,
-      "manual-edits.json": manualEditsFileContent ?? "{}",
-      "main.tsx": entrypointContent,
+      "manual-edits.json": manualEditsFileContent || "",
     }
   }, [code, manualEditsFileContent])
 
@@ -293,7 +268,6 @@ export function CodeAndPreview({ snippet }: Props) {
                 )
               }}
               fsMap={fsMap}
-              entrypoint="main.tsx"
             />
           </div>
         )}
