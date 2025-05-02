@@ -115,8 +115,8 @@ function App() {
               path="/view-package/:author/:packageName"
               component={ViewPackagePage}
             />
-            <Route path="/p/editor" component={PackageEditorPage} />
-            <Route path="/editor" component={EditorPage} />
+            <Route path="/editor" component={PackageEditorPage} />
+            <Route path="/legacy-editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
             <Route path="/ai" component={AiPage} />
