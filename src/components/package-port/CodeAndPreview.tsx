@@ -289,6 +289,13 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const fsMap = useMemo(() => {
     return {
+      ...state.pkgFilesWithContent.reduce(
+        (acc, file) => {
+          acc[file.path] = file.content
+          return acc
+        },
+        {} as Record<string, string>,
+      ),
       "index.tsx": state.code,
       "manual-edits.json": state.manualEditsFileContent,
     }
