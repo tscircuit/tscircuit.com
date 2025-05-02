@@ -3,9 +3,9 @@ import { z } from "zod"
 import { orderQuoteSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
-  methods: ["POST"],
+  methods: ["GET", "POST"],
   auth: "session",
-  jsonBody: z.object({
+  commonParams: z.object({
     order_quote_id: z.string(),
   }),
   jsonResponse: z.object({
@@ -13,7 +13,7 @@ export default withRouteSpec({
     error: z.string().optional(),
   }),
 })(async (req, ctx) => {
-  const { order_quote_id } = req.jsonBody
+  const { order_quote_id } = req.commonParams
 
   const orderQuote = ctx.db.getOrderQuoteById(order_quote_id)
 
