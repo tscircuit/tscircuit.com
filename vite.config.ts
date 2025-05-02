@@ -114,16 +114,16 @@ export default defineConfig(async (): Promise<UserConfig> => {
     base: "/",
     build: {
       copyPublicDir: true,
-      minify: "terser",
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-        },
-        format: {
-          comments: false,
-        },
-      },
+      minify: "esbuild",
+      // terserOptions: {
+      //   compress: {
+      //     drop_console: true,
+      //     drop_debugger: true,
+      //   },
+      //   format: {
+      //     comments: false,
+      //   },
+      // },
       reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
         input: {
