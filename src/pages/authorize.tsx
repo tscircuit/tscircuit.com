@@ -27,7 +27,7 @@ const AuthenticatePageInnerContent = () => {
           token: session_token,
         })
         const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/"
-        localStorage.removeItem("redirectAfterLogin") 
+        localStorage.removeItem("redirectAfterLogin")
         setLocation(redirectUrl)
         return
       }
