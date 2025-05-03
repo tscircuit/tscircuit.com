@@ -45,6 +45,7 @@ export const CodeEditor = ({
   showImportAndFormatButtons = true,
   onFileContentChanged,
   pkgFilesLoaded,
+  isLoggedIn,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -54,6 +55,7 @@ export const CodeEditor = ({
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
+  isLoggedIn?: boolean
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -250,6 +252,11 @@ export const CodeEditor = ({
             if (dtsFile?.text && onDtsChange) {
               onDtsChange(dtsFile.text)
             }
+
+            if (!isLoggedIn) {
+              console.log("Saving updated code to localStorage:", newContent)
+              localStorage.setItem("unsavedCode", newContent)
+            }
           }
         }
         if (update.selectionSet) {
@@ -413,6 +420,23 @@ export const CodeEditor = ({
       view.destroy()
     }
   }, [!isStreaming, currentFile, code !== ""])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const savedCode = localStorage.getItem("unsavedCode")
+      if (savedCode) {
+        setCode(savedCode)
+        localStorage.removeItem("unsavedCode")
+      }
+    } else {
+      const saveCode = () => {
+        localStorage.setItem("unsavedCode", code)
+      }
+
+      const interval = setInterval(saveCode, 2000)
+      return () => clearInterval(interval)
+    }
+  }, [code, isLoggedIn])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {

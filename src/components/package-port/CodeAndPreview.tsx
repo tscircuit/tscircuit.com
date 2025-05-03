@@ -382,6 +382,7 @@ export function CodeAndPreview({ pkg }: Props) {
             }}
             onDtsChange={(dts) => setState((prev) => ({ ...prev, dts }))}
             pkgFilesLoaded={state.pkgFilesLoaded}
+            isLoggedIn={isLoggedIn}
           />
         </div>
         {state.showPreview && (

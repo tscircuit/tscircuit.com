@@ -7,6 +7,8 @@ export const useSignIn = () => {
   const isUsingFakeApi = useIsUsingFakeApi()
   const setSession = useGlobalStore((s) => s.setSession)
   return () => {
+    const currentUrl = window.location.href
+    localStorage.setItem("redirectAfterLogin", currentUrl)
     if (!isUsingFakeApi) {
       const nextUrl = window.location.origin.replace("127.0.0.1", "localhost")
       window.location.href = `${snippetsBaseApiUrl}/internal/oauth/github/authorize?next=${nextUrl}/authorize`
