@@ -30,6 +30,7 @@ import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -45,6 +46,7 @@ export const CodeEditor = ({
   showImportAndFormatButtons = true,
   onFileContentChanged,
   pkgFilesLoaded,
+  isLoggedIn,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -54,6 +56,7 @@ export const CodeEditor = ({
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
+  isLoggedIn?: boolean
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -63,6 +66,8 @@ export const CodeEditor = ({
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [currentFile, setCurrentFile] = useState<string>("")
+
+  const { highlighter, isLoading } = useShikiHighlighter()
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
@@ -250,6 +255,11 @@ export const CodeEditor = ({
             if (dtsFile?.text && onDtsChange) {
               onDtsChange(dtsFile.text)
             }
+
+            if (!isLoggedIn) {
+              console.log("Saving updated code to localStorage:", newContent)
+              localStorage.setItem("unsavedCode", newContent)
+            }
           }
         }
         if (update.selectionSet) {
@@ -285,7 +295,6 @@ export const CodeEditor = ({
             tsSync(),
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
-            tsHover(),
             hoverTooltip((view, pos) => {
               const line = view.state.doc.lineAt(pos)
               const lineStart = line.from
@@ -311,6 +320,34 @@ export const CodeEditor = ({
                       },
                     }
                   }
+                }
+              }
+              const facet = view.state.facet(tsFacet)
+              if (!facet) return null
+
+              const { env, path } = facet
+              const info = env.languageService.getQuickInfoAtPosition(path, pos)
+              if (!info) return null
+
+              const start = info.textSpan.start
+              const end = start + info.textSpan.length
+              const content = ts.displayPartsToString(info.displayParts || [])
+
+              const dom = document.createElement("div")
+              if (highlighter) {
+                dom.innerHTML = highlighter.codeToHtml(content, {
+                  lang: "typescript",
+                  themes: {
+                    light: "github-light",
+                    dark: "github-dark",
+                  },
+                })
+
+                return {
+                  pos: start,
+                  end,
+                  above: true,
+                  create: () => ({ dom }),
                 }
               }
               return null
@@ -413,6 +450,23 @@ export const CodeEditor = ({
       view.destroy()
     }
   }, [!isStreaming, currentFile, code !== ""])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const savedCode = localStorage.getItem("unsavedCode")
+      if (savedCode) {
+        setCode(savedCode)
+        localStorage.removeItem("unsavedCode")
+      }
+    } else {
+      const saveCode = () => {
+        localStorage.setItem("unsavedCode", code)
+      }
+
+      const interval = setInterval(saveCode, 2000)
+      return () => clearInterval(interval)
+    }
+  }, [code, isLoggedIn])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
