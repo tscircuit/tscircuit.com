@@ -254,7 +254,6 @@ export const CodeEditor = ({
             }
 
             if (!isLoggedIn) {
-              console.log("Saving updated code to localStorage:", newContent)
               localStorage.setItem("unsavedCode", newContent)
             }
           }
@@ -428,15 +427,8 @@ export const CodeEditor = ({
         setCode(savedCode)
         localStorage.removeItem("unsavedCode")
       }
-    } else {
-      const saveCode = () => {
-        localStorage.setItem("unsavedCode", code)
-      }
-
-      const interval = setInterval(saveCode, 2000)
-      return () => clearInterval(interval)
     }
-  }, [code, isLoggedIn])
+  }, [isLoggedIn])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
