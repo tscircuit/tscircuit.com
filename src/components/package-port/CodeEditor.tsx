@@ -18,7 +18,6 @@ import {
 import {
   tsAutocomplete,
   tsFacet,
-  tsHover,
   tsLinter,
   tsSync,
 } from "@valtown/codemirror-ts"
@@ -30,6 +29,7 @@ import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -67,6 +67,8 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
+
+  const { highlighter, isLoading } = useShikiHighlighter()
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
@@ -289,7 +291,6 @@ export const CodeEditor = ({
             tsSync(),
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
-            tsHover(),
             hoverTooltip((view, pos) => {
               const line = view.state.doc.lineAt(pos)
               const lineStart = line.from
@@ -315,6 +316,34 @@ export const CodeEditor = ({
                       },
                     }
                   }
+                }
+              }
+              const facet = view.state.facet(tsFacet)
+              if (!facet) return null
+
+              const { env, path } = facet
+              const info = env.languageService.getQuickInfoAtPosition(path, pos)
+              if (!info) return null
+
+              const start = info.textSpan.start
+              const end = start + info.textSpan.length
+              const content = ts.displayPartsToString(info.displayParts || [])
+
+              const dom = document.createElement("div")
+              if (highlighter) {
+                dom.innerHTML = highlighter.codeToHtml(content, {
+                  lang: "typescript",
+                  themes: {
+                    light: "github-light",
+                    dark: "github-dark",
+                  },
+                })
+
+                return {
+                  pos: start,
+                  end,
+                  above: true,
+                  create: () => ({ dom }),
                 }
               }
               return null
