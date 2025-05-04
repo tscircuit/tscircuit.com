@@ -49,6 +49,7 @@ export function CodeAndPreview({ pkg }: Props) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const loggedInUser = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
+  const [currentFile, setCurrentFile] = useState<string>("")
 
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -368,6 +369,8 @@ export function CodeAndPreview({ pkg }: Props) {
           )}
         >
           <CodeEditor
+            currentFile={currentFile}
+            setCurrentFile={setCurrentFile}
             files={state.pkgFilesWithContent}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? "index.tsx"
@@ -403,6 +406,12 @@ export function CodeAndPreview({ pkg }: Props) {
                 setState((prev) => ({ ...prev, circuitJson }))
                 toastManualEditConflicts(circuitJson, toast)
               }}
+              mainComponentPath={
+                currentFile?.endsWith(".tsx") &&
+                !!state.pkgFilesWithContent.some((x) => x.path == currentFile)
+                  ? currentFile
+                  : undefined
+              }
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
                   state.manualEditsFileContent || "{}",

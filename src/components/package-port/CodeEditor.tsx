@@ -45,6 +45,8 @@ export const CodeEditor = ({
   showImportAndFormatButtons = true,
   onFileContentChanged,
   pkgFilesLoaded,
+  currentFile,
+  setCurrentFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -54,6 +56,8 @@ export const CodeEditor = ({
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
+  currentFile: string
+  setCurrentFile: (path: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -62,7 +66,6 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [currentFile, setCurrentFile] = useState<string>("")
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
