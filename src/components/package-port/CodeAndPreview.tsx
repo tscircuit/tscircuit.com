@@ -95,6 +95,7 @@ export function CodeAndPreview({ pkg }: Props) {
     manualEditsFileContent: string
     pkgFilesLoaded: boolean
     currentFile: string
+    entryPointFile?: string
   }
 
   const [state, setState] = useState<CodeAndPreviewState>({
@@ -119,11 +120,15 @@ export function CodeAndPreview({ pkg }: Props) {
     manualEditsFileContent: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
     pkgFilesLoaded: !urlParams.package_id,
     currentFile: "",
+    entryPointFile: undefined,
   })
 
   const entryPointCode = useMemo(() => {
     const entryPointFile = findTargetFile(state.pkgFilesWithContent, null)
-    if (entryPointFile?.content) return entryPointFile.content
+    if (entryPointFile?.content) {
+      setState((prev) => ({ ...prev, entryPointFile: entryPointFile.path }))
+      return entryPointFile.content
+    }
     return (
       state.pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
       defaultCode
@@ -293,6 +298,13 @@ export function CodeAndPreview({ pkg }: Props) {
     }
   }
 
+  const currentFileCode = useMemo(
+    () =>
+      state.pkgFilesWithContent.find((x) => x.path === state.currentFile)
+        ?.content ?? state.code,
+    [state.pkgFilesWithContent, state.currentFile],
+  )
+
   const fsMap = useMemo(() => {
     return {
       ...state.pkgFilesWithContent.reduce(
@@ -302,7 +314,6 @@ export function CodeAndPreview({ pkg }: Props) {
         },
         {} as Record<string, string>,
       ),
-      "index.tsx": state.code,
       "manual-edits.json": state.manualEditsFileContent,
     }
   }, [
@@ -378,6 +389,7 @@ export function CodeAndPreview({ pkg }: Props) {
                 : "w-full md:w-1/2",
             )}
           >
+            {currentFileCode}
             <SuspenseRunFrame
               showRunButton
               forceLatestEvalVersion
@@ -392,9 +404,11 @@ export function CodeAndPreview({ pkg }: Props) {
                 state.currentFile?.endsWith(".tsx") &&
                 !!state.pkgFilesWithContent.some(
                   (x) => x.path == state.currentFile,
-                )
+                ) &&
+                (currentFileCode.match(/export function (\w+)/) ||
+                  currentFileCode.match(/export const (\w+) ?=/))
                   ? state.currentFile
-                  : undefined
+                  : state.entryPointFile
               }
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
