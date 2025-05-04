@@ -49,7 +49,6 @@ export function CodeAndPreview({ pkg }: Props) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const loggedInUser = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
-  const [currentFile, setCurrentFile] = useState<string>("")
 
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -95,6 +94,7 @@ export function CodeAndPreview({ pkg }: Props) {
     code: string
     manualEditsFileContent: string
     pkgFilesLoaded: boolean
+    currentFile: string
   }
 
   const [state, setState] = useState<CodeAndPreviewState>({
@@ -118,6 +118,7 @@ export function CodeAndPreview({ pkg }: Props) {
     code: defaultCode,
     manualEditsFileContent: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
     pkgFilesLoaded: !urlParams.package_id,
+    currentFile: "",
   })
 
   const entryPointCode = useMemo(() => {
@@ -369,8 +370,10 @@ export function CodeAndPreview({ pkg }: Props) {
           )}
         >
           <CodeEditor
-            currentFile={currentFile}
-            setCurrentFile={setCurrentFile}
+            currentFile={state.currentFile}
+            setCurrentFile={(file) =>
+              setState((prev) => ({ ...prev, currentFile: file }))
+            }
             files={state.pkgFilesWithContent}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? "index.tsx"
@@ -407,9 +410,11 @@ export function CodeAndPreview({ pkg }: Props) {
                 toastManualEditConflicts(circuitJson, toast)
               }}
               mainComponentPath={
-                currentFile?.endsWith(".tsx") &&
-                !!state.pkgFilesWithContent.some((x) => x.path == currentFile)
-                  ? currentFile
+                state.currentFile?.endsWith(".tsx") &&
+                !!state.pkgFilesWithContent.some(
+                  (x) => x.path == state.currentFile,
+                )
+                  ? state.currentFile
                   : undefined
               }
               onEditEvent={(event) => {

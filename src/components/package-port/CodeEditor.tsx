@@ -30,6 +30,7 @@ import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
+
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -84,7 +85,7 @@ export const CodeEditor = ({
     const targetFile = findTargetFile(files, filePathFromUrl)
 
     if (targetFile) {
-      setCurrentFile(targetFile.path)
+      handleFileChange(targetFile.path)
       setCode(targetFile.content)
     }
   }, [filePathFromUrl, pkgFilesLoaded])
