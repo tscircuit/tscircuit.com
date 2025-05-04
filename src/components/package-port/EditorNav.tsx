@@ -100,7 +100,7 @@ export default function EditorNav({
     pkg: pkg!,
     currentCode: code,
     onSuccess: (forkedPackage) => {
-      navigate("/p/editor?package_id=" + forkedPackage.package_id)
+      navigate("/editor?package_id=" + forkedPackage.package_id)
       setTimeout(() => {
         window.location.reload() //reload the page
       }, 2000)
