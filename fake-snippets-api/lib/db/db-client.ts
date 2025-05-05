@@ -282,6 +282,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_locked: false,
       created_at: currentTime,
       updated_at: currentTime,
+      has_transpiled: true,
+      transpilation_error: null,
     }
 
     // Add all the files

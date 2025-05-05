@@ -15,8 +15,8 @@ export default function SidebarReleasesSection() {
     {
       id: "package_transpilation",
       name: "Package Transpilation",
-      status: "success",
-      message: "TBD",
+      status: packageRelease?.has_transpiled ? "success" : "failed",
+      message: packageRelease?.transpilation_error || undefined,
     },
     {
       id: "circuit_json_build",

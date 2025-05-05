@@ -29,7 +29,12 @@ export default withRouteSpec({
 
   jsonResponse: z.object({
     order_quote_id: z.string().optional(),
-    error: z.string().optional(),
+    error: z
+      .object({
+        error_code: z.string(),
+        message: z.string(),
+      })
+      .optional(),
   }),
 })(async (req, ctx) => {
   const { package_release_id, vendor_name, circuit_json } = req.jsonBody
@@ -38,7 +43,15 @@ export default withRouteSpec({
     // check package release exists
     const packageRelease = ctx.db.getPackageReleaseById(package_release_id)
     if (!packageRelease) {
-      return ctx.json({ error: "Package release not found" }, { status: 404 })
+      return ctx.json(
+        {
+          error: {
+            error_code: "package_release_not_found",
+            message: "Package release not found",
+          },
+        },
+        { status: 404 },
+      )
     }
   }
 

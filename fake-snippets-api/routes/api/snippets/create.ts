@@ -100,6 +100,9 @@ export default withRouteSpec({
       is_latest: true,
       is_locked: false,
       created_at: currentTime,
+      // Setting the transpiled as true on creation
+      has_transpiled: true,
+      transpilation_error: null,
     })
 
     ctx.db.updatePackage(newPackage.package_id, {

@@ -76,6 +76,9 @@ export default withRouteSpec({
     commit_sha: commit_sha ?? null,
     circuit_json_build_error: null,
     circuit_json_build_error_last_updated_at: null,
+    // Setting the transpiled as true on creation
+    has_transpiled: true,
+    transpilation_error: null,
   })
 
   // Update the package's latest_package_release_id if this is the latest release
