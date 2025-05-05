@@ -29,10 +29,12 @@ export default withRouteSpec({
 
   jsonResponse: z.object({
     order_quote_id: z.string().optional(),
-    error: z.object({
-      error_code: z.string(),
-      message: z.string(),
-    }).optional(),
+    error: z
+      .object({
+        error_code: z.string(),
+        message: z.string(),
+      })
+      .optional(),
   }),
 })(async (req, ctx) => {
   const { package_release_id, vendor_name, circuit_json } = req.jsonBody
