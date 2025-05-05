@@ -91,6 +91,7 @@ export function DownloadButtonAndMenu({
                 toast({
                   title: "Error Downloading 3D Model",
                   description: error.toString(),
+                  variant: "destructive",
                 })
               }
             }}
@@ -113,6 +114,7 @@ export function DownloadButtonAndMenu({
                 toast({
                   title: "Error Downloading Fabrication Files",
                   description: error.toString(),
+                  variant: "destructive",
                 })
               })
             }}
