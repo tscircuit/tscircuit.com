@@ -139,6 +139,9 @@ export default withRouteSpec({
     created_at: new Date().toISOString(),
     commit_sha: null,
     license: sourcePackageRelease.license || null,
+    // Setting the transpiled as true on creation
+    has_transpiled: true,
+    transpilation_error: null,
   })
 
   // Update the forked package with release info
