@@ -107,6 +107,8 @@ const seedDatabase = (db: DbClient) => {
     created_at: new Date().toISOString(),
     is_latest: true,
     is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null
   })
 
   return { account, account2, order, packageRelease }
