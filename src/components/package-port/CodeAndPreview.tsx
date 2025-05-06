@@ -244,21 +244,21 @@ export function CodeAndPreview({ pkg }: Props) {
   useEffect(() => {
     if (!isLoggedIn) {
       // Store the current URL before login if not already stored
-      const currentUrl = window.location.href;
+      const currentUrl = window.location.href
       if (!localStorage.getItem("redirectAfterLogin")) {
-        localStorage.setItem("redirectAfterLogin", currentUrl);
+        localStorage.setItem("redirectAfterLogin", currentUrl)
       }
     } else {
       // Redirect to the stored URL after login
-      const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/";
-      localStorage.removeItem("redirectAfterLogin");
+      const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/"
+      localStorage.removeItem("redirectAfterLogin")
 
       // Ensure redirection does not overwrite user code
       if (window.location.href !== redirectUrl) {
-        window.location.replace(redirectUrl);
+        window.location.replace(redirectUrl)
       }
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn])
 
   const handleNewPackageSaveRequest = async (isPrivate: boolean) => {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
