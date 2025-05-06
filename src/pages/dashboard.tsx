@@ -23,6 +23,7 @@ import { useSignIn } from "@/hooks/use-sign-in"
 import { SnippetCard } from "@/components/SnippetCard"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
+import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 
 export const DashboardPage = () => {
   const axios = useAxios()
@@ -143,22 +144,7 @@ export const DashboardPage = () => {
                 {isLoading && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[...Array(6)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="border p-4 rounded-md animate-pulse"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="h-16 w-16 flex-shrink-0 rounded-md bg-slate-200"></div>
-                          <div className="flex-1">
-                            <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
-                            <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
-                            <div className="flex gap-2">
-                              <div className="h-3 bg-slate-200 rounded w-16"></div>
-                              <div className="h-3 bg-slate-200 rounded w-16"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <PackageCardSkeleton key={i} />
                     ))}
                   </div>
                 )}
