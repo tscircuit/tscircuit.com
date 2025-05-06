@@ -293,7 +293,10 @@ export function CodeAndPreview({ pkg }: Props) {
   }
 
   const fsMap = useMemo(() => {
-    const manualEditsContent = state.manualEditsFileContent || defaultManualEditsContent || DEFAULT_MANUAL_EDITS;
+    const manualEditsContent =
+      state.manualEditsFileContent ||
+      defaultManualEditsContent ||
+      DEFAULT_MANUAL_EDITS
     return {
       ...state.pkgFilesWithContent.reduce(
         (acc, file) => {
