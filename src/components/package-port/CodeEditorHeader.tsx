@@ -189,7 +189,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
 
         <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
-          {checkIfManualEditsImported(files) && (
+          {checkIfManualEditsImported(files, entrypointFileName) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
