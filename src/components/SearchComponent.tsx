@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { OptimizedImage } from "./OptimizedImage"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -140,7 +141,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     className="flex"
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm">
-                      <img
+                      <OptimizedImage
                         src={`${snippetsBaseApiUrl}/snippets/images/${pkg.name}/pcb.svg`}
                         alt={`PCB preview for ${pkg.name}`}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
