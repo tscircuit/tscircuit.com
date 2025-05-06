@@ -23,7 +23,7 @@ import { useSignIn } from "@/hooks/use-sign-in"
 import { SnippetCard } from "@/components/SnippetCard"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { SnippetCardSkeleton } from "@/components/SnippetCardSkeleton"
+import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 
 export const DashboardPage = () => {
   const axios = useAxios()
@@ -144,7 +144,7 @@ export const DashboardPage = () => {
                 {isLoading && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[...Array(6)].map((_, i) => (
-                      <SnippetCardSkeleton key={i} />
+                      <PackageCardSkeleton key={i} />
                     ))}
                   </div>
                 )}

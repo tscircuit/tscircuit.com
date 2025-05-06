@@ -7,7 +7,7 @@ import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { Search } from "lucide-react"
 import { SnippetCard } from "./SnippetCard"
 import { Button } from "./ui/button"
-import { SnippetCardSkeleton } from "./SnippetCardSkeleton"
+import { PackageCardSkeleton } from "./PackageCardSkeleton"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -89,7 +89,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
       {isLoadingSearchResults ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <SnippetCardSkeleton key={i} />
+            <PackageCardSkeleton key={i} />
           ))}
         </div>
       ) : searchResults && searchResults.length > 0 ? (

@@ -1,4 +1,4 @@
-export const SnippetCardSkeleton = () => {
+export const PackageCardSkeleton = () => {
   return (
     <div className="border p-4 rounded-md animate-pulse">
       <div className="flex items-start gap-4">
