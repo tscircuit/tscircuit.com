@@ -32,7 +32,22 @@ export interface PackageFile {
   content: string
 }
 
-const DEFAULT_MANUAL_EDITS = ""
+interface CodeAndPreviewState {
+  pkgFilesWithContent: PackageFile[]
+  initialFilesLoad: PackageFile[]
+  showPreview: boolean
+  fullScreen: boolean
+  dts: string
+  lastSavedAt: number
+  circuitJson: null | any
+  isPrivate: boolean
+  lastRunCode: string
+  code: string
+  manualEditsFileContent: string
+  pkgFilesLoaded: boolean
+}
+
+const DEFAULT_MANUAL_EDITS = "{}"
 const DEFAULT_CODE = `
 export default () => (
   <board width="10mm" height="10mm">
@@ -81,20 +96,6 @@ export function CodeAndPreview({ pkg }: Props) {
       return manualEditsFileFromHook.data.content_text
     else return null
   }, [manualEditsFileFromHook.data])
-  interface CodeAndPreviewState {
-    pkgFilesWithContent: PackageFile[]
-    initialFilesLoad: PackageFile[]
-    showPreview: boolean
-    fullScreen: boolean
-    dts: string
-    lastSavedAt: number
-    circuitJson: null | any
-    isPrivate: boolean
-    lastRunCode: string
-    code: string
-    manualEditsFileContent: string
-    pkgFilesLoaded: boolean
-  }
 
   const [state, setState] = useState<CodeAndPreviewState>({
     pkgFilesWithContent: !pkg
@@ -292,6 +293,10 @@ export function CodeAndPreview({ pkg }: Props) {
   }
 
   const fsMap = useMemo(() => {
+    const manualEditsContent =
+      state.manualEditsFileContent ||
+      defaultManualEditsContent ||
+      DEFAULT_MANUAL_EDITS
     return {
       ...state.pkgFilesWithContent.reduce(
         (acc, file) => {
@@ -301,10 +306,11 @@ export function CodeAndPreview({ pkg }: Props) {
         {} as Record<string, string>,
       ),
       "index.tsx": state.code,
-      "manual-edits.json": state.manualEditsFileContent,
+      "manual-edits.json": manualEditsContent,
     }
   }, [
     state.manualEditsFileContent,
+    defaultManualEditsContent,
     entryPointCode,
     state.code,
     packageType,
