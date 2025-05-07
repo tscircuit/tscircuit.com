@@ -284,11 +284,18 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
-      updatePackageMutation.mutate()
-      updatePackageFilesMutation.mutate({
-        package_name_with_version: `${pkg.name}@latest`,
-        ...pkg,
-      })
+      await Promise.all([
+        updatePackageMutation.mutateAsync(),
+        updatePackageFilesMutation.mutateAsync({
+          package_name_with_version: `${pkg.name}@latest`,
+          ...pkg,
+        }),
+      ])
+
+      setState((prev) => ({
+        ...prev,
+        initialFilesLoad: prev.pkgFilesWithContent,
+      }))
     }
   }
 
