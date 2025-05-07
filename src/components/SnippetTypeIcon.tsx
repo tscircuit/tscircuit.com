@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Box, CircuitBoard, Layers, Rotate3D } from "lucide-react"
 import type React from "react"
 
-type SnippetType = "board" | "package" | "footprint" | "model"
+export type SnippetType = "board" | "package" | "footprint" | "model"
 
 interface SnippetTypeIconProps {
   type: SnippetType
