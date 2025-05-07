@@ -83,12 +83,14 @@ test("list trending packages", async () => {
   // Verify that packages with more stars appear first
   // Note: Since the endpoint randomizes the order after sorting by stars,
   // we can only verify that all returned packages have at least one star
-  expect(data.packages.every((pkg: any) => {
-    const starCount = db.accountPackages.filter(
-      (ap) => ap.package_id === pkg.package_id && ap.is_starred
-    ).length
-    return starCount > 0
-  })).toBe(true)
+  expect(
+    data.packages.every((pkg: any) => {
+      const starCount = db.accountPackages.filter(
+        (ap) => ap.package_id === pkg.package_id && ap.is_starred,
+      ).length
+      return starCount > 0
+    }),
+  ).toBe(true)
 
   // Verify that all returned packages have the required fields
   data.packages.forEach((pkg: any) => {

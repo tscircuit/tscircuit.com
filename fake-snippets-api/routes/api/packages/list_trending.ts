@@ -14,7 +14,7 @@ export default withRouteSpec({
   // Get all packages and their star counts
   const packagesWithStars = ctx.db.packages.map((pkg) => {
     const starCount = ctx.db.accountPackages.filter(
-      (ap) => ap.package_id === pkg.package_id && ap.is_starred
+      (ap) => ap.package_id === pkg.package_id && ap.is_starred,
     ).length
 
     return {
