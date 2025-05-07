@@ -145,7 +145,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tscircuit/core": "^0.0.384",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
-    "@tscircuit/runframe": "^0.0.403",
+    "@tscircuit/runframe": "^0.0.412",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
     "@types/country-list": "^2.1.4",
