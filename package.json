@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/fake-snippets",
-  "version": "0.0.61",
+  "version": "0.0.62",
   "type": "module",
   "repository": {
     "type": "git",
@@ -85,7 +85,7 @@
     "change-case": "^5.4.4",
     "circuit-json": "^0.0.164",
     "circuit-json-to-bom-csv": "^0.0.6",
-    "circuit-json-to-gerber": "^0.0.17",
+    "circuit-json-to-gerber": "^0.0.18",
     "circuit-json-to-pnp-csv": "^0.0.6",
     "circuit-json-to-readable-netlist": "^0.0.8",
     "circuit-json-to-tscircuit": "^0.0.4",
@@ -145,7 +145,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tscircuit/core": "^0.0.384",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
-    "@tscircuit/runframe": "^0.0.403",
+    "@tscircuit/runframe": "^0.0.415",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
     "@types/country-list": "^2.1.4",

@@ -67,6 +67,8 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
+  const [currentFile, setCurrentFile] = useState<string>("")
+  const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
 
   const { highlighter, isLoading } = useShikiHighlighter()
 
@@ -189,6 +191,9 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
+        finished: () => {
+          setIsCodeEditorReady(true)
+        },
         started: () => {
           const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
@@ -287,7 +292,12 @@ export const CodeEditor = ({
     const tsExtensions =
       currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
         ? [
-            tsFacet.of({ env, path: currentFile }),
+            tsFacet.of({
+              env,
+              path: currentFile.endsWith(".ts")
+                ? currentFile.replace(/\.ts$/, ".tsx")
+                : currentFile,
+            }),
             tsSync(),
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
@@ -546,7 +556,9 @@ export const CodeEditor = ({
         )}
         <div
           ref={editorRef}
-          className="flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
+          className={`flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full ${
+            !isCodeEditorReady ? "opacity-50" : ""
+          }`}
         />
       </div>
     </div>
