@@ -66,7 +66,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         >
           <OptimizedImage
             src={`${baseUrl}/snippets/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg`}
-            alt={`${pkg.owner_github_username}'s profile`}
+            alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />
         </div>
