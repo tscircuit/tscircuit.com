@@ -42,9 +42,12 @@ interface CodeAndPreviewState {
   circuitJson: null | any
   isPrivate: boolean
   lastRunCode: string
+  /** Content of the entry point code file */
   code: string
   manualEditsFileContent: string
   pkgFilesLoaded: boolean
+  currentFile: string
+  entryPointFile?: string
 }
 
 const DEFAULT_MANUAL_EDITS = "{}"
@@ -96,23 +99,6 @@ export function CodeAndPreview({ pkg }: Props) {
       return manualEditsFileFromHook.data.content_text
     else return null
   }, [manualEditsFileFromHook.data])
-  
-  interface CodeAndPreviewState {
-    pkgFilesWithContent: PackageFile[]
-    initialFilesLoad: PackageFile[]
-    showPreview: boolean
-    fullScreen: boolean
-    dts: string
-    lastSavedAt: number
-    circuitJson: null | any
-    isPrivate: boolean
-    lastRunCode: string
-    code: string
-    manualEditsFileContent: string
-    pkgFilesLoaded: boolean
-    currentFile: string
-    entryPointFile?: string
-  }
 
   const [state, setState] = useState<CodeAndPreviewState>({
     pkgFilesWithContent: !pkg
@@ -334,8 +320,8 @@ export function CodeAndPreview({ pkg }: Props) {
         },
         {} as Record<string, string>,
       ),
-      "manual-edits.json": state.manualEditsFileContent,
-      "index.tsx": state.code
+      "manual-edits.json": manualEditsContent,
+      "index.tsx": currentFileCode,
     }
   }, [
     state.manualEditsFileContent,
@@ -411,7 +397,6 @@ export function CodeAndPreview({ pkg }: Props) {
                 : "w-full md:w-1/2",
             )}
           >
-            {currentFileCode}
             <SuspenseRunFrame
               showRunButton
               forceLatestEvalVersion
