@@ -42,12 +42,10 @@ interface CodeAndPreviewState {
   circuitJson: null | any
   isPrivate: boolean
   lastRunCode: string
-  /** Content of the entry point code file */
-  code: string
   manualEditsFileContent: string
   pkgFilesLoaded: boolean
   currentFile: string
-  entryPointFile?: string
+  defaultComponentFile?: string
 }
 
 const DEFAULT_MANUAL_EDITS = "{}"
@@ -118,18 +116,19 @@ export function CodeAndPreview({ pkg }: Props) {
     circuitJson: null,
     isPrivate: false,
     lastRunCode: defaultCode,
-    code: defaultCode,
     manualEditsFileContent: defaultManualEditsContent || DEFAULT_MANUAL_EDITS,
     pkgFilesLoaded: !urlParams.package_id,
     currentFile: "",
-    entryPointFile: undefined,
   })
 
   const entryPointCode = useMemo(() => {
-    const entryPointFile = findTargetFile(state.pkgFilesWithContent, null)
-    if (entryPointFile?.content) {
-      setState((prev) => ({ ...prev, entryPointFile: entryPointFile.path }))
-      return entryPointFile.content
+    const defaultComponentFile = findTargetFile(state.pkgFilesWithContent, null)
+    if (defaultComponentFile?.content) {
+      setState((prev) => ({
+        ...prev,
+        defaultComponentFile: defaultComponentFile.path,
+      }))
+      return defaultComponentFile.content
     }
     return (
       state.pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
@@ -142,12 +141,6 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const { Dialog: NewPackageSaveDialog, openDialog: openNewPackageSaveDialog } =
     usePackageVisibilitySettingsDialog()
-
-  useEffect(() => {
-    if (entryPointCode !== state.code) {
-      setState((prev) => ({ ...prev, code: entryPointCode }))
-    }
-  }, [entryPointCode])
 
   const { data: loadedFiles, isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
@@ -222,17 +215,9 @@ export function CodeAndPreview({ pkg }: Props) {
     loadPkgFiles,
   })
 
-  const updatePackageMutation = useUpdatePackageMutation({
-    pkg,
-    code: state.code,
-    dts: state.dts,
-    circuitJson: state.circuitJson,
-    manualEditsFileContent: state.manualEditsFileContent,
-  })
-
   const hasUnsavedChanges = useMemo(
     () =>
-      !updatePackageMutation.isLoading &&
+      !updatePackageFilesMutation.isLoading &&
       Date.now() - state.lastSavedAt > 1000 &&
       state.pkgFilesWithContent.some((file) => {
         const initialFile = state.initialFilesLoad.find(
@@ -243,7 +228,7 @@ export function CodeAndPreview({ pkg }: Props) {
     [
       state.pkgFilesWithContent,
       state.initialFilesLoad,
-      updatePackageMutation.isLoading,
+      updatePackageFilesMutation.isLoading,
       state.lastSavedAt,
     ],
   )
@@ -292,7 +277,6 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
-      updatePackageMutation.mutate()
       updatePackageFilesMutation.mutate({
         package_name_with_version: `${pkg.name}@latest`,
         ...pkg,
@@ -303,7 +287,9 @@ export function CodeAndPreview({ pkg }: Props) {
   const currentFileCode = useMemo(
     () =>
       state.pkgFilesWithContent.find((x) => x.path === state.currentFile)
-        ?.content ?? state.code,
+        ?.content ??
+      state.defaultComponentFile ??
+      DEFAULT_CODE,
     [state.pkgFilesWithContent, state.currentFile],
   )
 
@@ -327,7 +313,6 @@ export function CodeAndPreview({ pkg }: Props) {
     state.manualEditsFileContent,
     defaultManualEditsContent,
     entryPointCode,
-    state.code,
     packageType,
     state.pkgFilesWithContent,
   ])
@@ -349,8 +334,8 @@ export function CodeAndPreview({ pkg }: Props) {
         circuitJson={state.circuitJson}
         pkg={pkg}
         packageType={packageType}
-        code={state.code}
-        isSaving={updatePackageMutation.isLoading}
+        code={String(currentFileCode)}
+        isSaving={updatePackageFilesMutation.isLoading}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={handleSave}
         onTogglePreview={() =>
@@ -401,7 +386,7 @@ export function CodeAndPreview({ pkg }: Props) {
               showRunButton
               forceLatestEvalVersion
               onRenderStarted={() =>
-                setState((prev) => ({ ...prev, lastRunCode: state.code }))
+                setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
               }
               onRenderFinished={({ circuitJson }) => {
                 setState((prev) => ({ ...prev, circuitJson }))
@@ -415,7 +400,7 @@ export function CodeAndPreview({ pkg }: Props) {
                 (currentFileCode.match(/export function (\w+)/) ||
                   currentFileCode.match(/export const (\w+) ?=/))
                   ? state.currentFile
-                  : state.entryPointFile
+                  : state.defaultComponentFile
               }
               onEditEvent={(event) => {
                 const parsedManualEdits = JSON.parse(
