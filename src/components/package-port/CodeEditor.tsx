@@ -283,7 +283,12 @@ export const CodeEditor = ({
     const tsExtensions =
       currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
         ? [
-            tsFacet.of({ env, path: currentFile }),
+            tsFacet.of({
+              env,
+              path: currentFile.endsWith(".ts")
+                ? currentFile.replace(/\.ts$/, ".tsx")
+                : currentFile,
+            }),
             tsSync(),
             tsLinter(),
             autocompletion({ override: [tsAutocomplete()] }),
