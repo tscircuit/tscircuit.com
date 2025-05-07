@@ -67,7 +67,6 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [currentFile, setCurrentFile] = useState<string>("")
   const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
 
   const { highlighter, isLoading } = useShikiHighlighter()
