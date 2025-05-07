@@ -83,7 +83,7 @@
     "@valtown/codemirror-ts": "^2.2.0",
     "@vercel/analytics": "^1.4.1",
     "change-case": "^5.4.4",
-    "circuit-json": "^0.0.136",
+    "circuit-json": "^0.0.164",
     "circuit-json-to-bom-csv": "^0.0.6",
     "circuit-json-to-gerber": "^0.0.17",
     "circuit-json-to-pnp-csv": "^0.0.6",
