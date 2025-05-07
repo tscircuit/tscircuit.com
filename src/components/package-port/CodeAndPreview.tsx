@@ -202,7 +202,6 @@ export function CodeAndPreview({ pkg }: Props) {
   })
 
   const axios = useAxios()
-  const loadPkgFiles = () => pkgFiles.refetch()
 
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
@@ -211,7 +210,6 @@ export function CodeAndPreview({ pkg }: Props) {
     pkgFiles,
     axios,
     toast,
-    loadPkgFiles,
   })
 
   const updatePackageMutation = useUpdatePackageMutation({
@@ -284,18 +282,11 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
-      await Promise.all([
-        updatePackageMutation.mutateAsync(),
-        updatePackageFilesMutation.mutateAsync({
-          package_name_with_version: `${pkg.name}@latest`,
-          ...pkg,
-        }),
-      ])
-
-      setState((prev) => ({
-        ...prev,
-        initialFilesLoad: prev.pkgFilesWithContent,
-      }))
+      updatePackageMutation.mutate()
+      updatePackageFilesMutation.mutate({
+        package_name_with_version: `${pkg.name}@latest`,
+        ...pkg,
+      })
     }
   }
 
