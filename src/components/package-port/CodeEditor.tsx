@@ -30,6 +30,7 @@ import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
 import { Circuit, createUseComponent } from "@tscircuit/core"
@@ -45,6 +46,8 @@ export const CodeEditor = ({
   showImportAndFormatButtons = true,
   onFileContentChanged,
   pkgFilesLoaded,
+  currentFile,
+  setCurrentFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
@@ -54,6 +57,8 @@ export const CodeEditor = ({
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
+  currentFile: string
+  setCurrentFile: (path: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -62,7 +67,6 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [currentFile, setCurrentFile] = useState<string>("")
   const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
 
   const { highlighter, isLoading } = useShikiHighlighter()
@@ -84,7 +88,7 @@ export const CodeEditor = ({
     const targetFile = findTargetFile(files, filePathFromUrl)
 
     if (targetFile) {
-      setCurrentFile(targetFile.path)
+      handleFileChange(targetFile.path)
       setCode(targetFile.content)
     }
   }, [filePathFromUrl, pkgFilesLoaded])
