@@ -34,7 +34,7 @@ export const DashboardPage = () => {
 
   const [showAllTrending, setShowAllTrending] = useState(false)
   const [showAllLatest, setShowAllLatest] = useState(false)
-  const [snippetToDelete, setSnippetToDelete] = useState<Package | null>(null)
+  const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
 
@@ -79,7 +79,7 @@ export const DashboardPage = () => {
 
   const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
-    setSnippetToDelete(pkg)
+    setPackageToDelete(pkg)
     openDeleteDialog()
   }
   return (
@@ -198,10 +198,10 @@ export const DashboardPage = () => {
             </div>
           </div>
         </div>
-        {snippetToDelete && (
+        {packageToDelete && (
           <DeleteDialog
-            packageId={snippetToDelete.package_id}
-            packageName={snippetToDelete.unscoped_name}
+            packageId={packageToDelete.package_id}
+            packageName={packageToDelete.unscoped_name}
           />
         )}
       </div>
