@@ -5,18 +5,11 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
-import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiHero"
-import {
-  Edit2,
-  Star,
-  ChevronDown,
-  ChevronUp,
-  Key,
-  KeyRound,
-} from "lucide-react"
+import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { PackageList } from "@/components/PackagesList"
 import { SnippetList } from "@/components/SnippetList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
@@ -67,11 +60,11 @@ export const DashboardPage = () => {
     },
   )
 
-  const { data: latestSnippets } = useQuery<Snippet[]>(
-    "latestSnippets",
+  const { data: latestPackages } = useQuery<Package[]>(
+    "latestPackages",
     async () => {
-      const response = await axios.get("/snippets/list_latest")
-      return response.data.snippets
+      const response = await axios.get("/packages/list_latest")
+      return response.data.packages
     },
   )
 
@@ -189,9 +182,9 @@ export const DashboardPage = () => {
               onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
             />
             <div className="mt-8">
-              <SnippetList
+              <PackageList
                 title="Latest Packages"
-                snippets={latestSnippets}
+                packages={latestPackages}
                 showAll={showAllLatest}
                 onToggleShowAll={() => setShowAllLatest(!showAllLatest)}
               />
