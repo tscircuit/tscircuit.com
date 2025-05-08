@@ -20,7 +20,8 @@ export const SignInDialog = ({
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-gray-500 mb-4">
-            You need to be signed in to perform this action. Sign in with GitHub to continue.
+            You need to be signed in to perform this action. Sign in with GitHub
+            to continue.
           </p>
           <Button onClick={onSignIn} className="w-full">
             <GitHubLogoIcon className="mr-2 h-4 w-4" />

@@ -64,7 +64,8 @@ export default function PackageHeader({
     }
   }
 
-  const { Dialog: SignInDialog, openDialog: openSignInDialog } = useSignInDialog()
+  const { Dialog: SignInDialog, openDialog: openSignInDialog } =
+    useSignInDialog()
 
   const handleOrderClick = () => {
     if (isLoggedIn) {
@@ -271,9 +272,7 @@ export default function PackageHeader({
         setStage={setStage}
         packageReleaseId={packageInfo?.latest_package_release_id}
       />
-      <SignInDialog
-        onSignIn={signIn}
-      />
+      <SignInDialog onSignIn={signIn} />
     </header>
   )
 }
