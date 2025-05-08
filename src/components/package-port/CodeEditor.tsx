@@ -191,6 +191,7 @@ export const CodeEditor = ({
       },
       delegate: {
         finished: () => {
+          console.log("finished", currentFile)
           setIsCodeEditorReady(true)
         },
         started: () => {
@@ -449,6 +450,8 @@ export const CodeEditor = ({
 
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
+    } else {
+      setIsCodeEditorReady(true)
     }
 
     return () => {

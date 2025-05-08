@@ -145,7 +145,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </button>
         <div>
           <Select value={currentFile} onValueChange={handleFileChange}>
-            <SelectTrigger className="h-7 px-3 bg-white">
+            <SelectTrigger className="h-7 px-3 bg-white select-none">
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
             <SelectContent>
@@ -174,7 +174,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                     ? currentFile.slice(1)
                     : currentFile,
                 ) && (
-                  <SelectItem className="py-1" value={currentFile}>
+                  <SelectItem className="select-none py-1" value={currentFile}>
                     <span
                       className={`text-xs pr-1 block truncate ${
                         sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
@@ -189,7 +189,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
 
         <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
-          {checkIfManualEditsImported(files, entrypointFileName) && (
+          {checkIfManualEditsImported(files, currentFile) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -198,7 +198,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   className="text-red-500 hover:bg-red-50"
                 >
                   <AlertTriangle className="mr-2 h-4 w-4" />
-                  Error
+                  File Error
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
