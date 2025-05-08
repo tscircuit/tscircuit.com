@@ -449,6 +449,8 @@ export const CodeEditor = ({
 
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
+    } else if (!!currentFile) {
+      setIsCodeEditorReady(true)
     }
 
     return () => {
