@@ -5,10 +5,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
-import {
-  Edit2,
-  KeyRound,
-} from "lucide-react"
+import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"

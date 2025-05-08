@@ -11,7 +11,7 @@ interface PackageListProps {
   maxItems?: number
 }
 
-  export const PackageList = ({
+export const PackageList = ({
   title,
   packages = [],
   showAll = false,

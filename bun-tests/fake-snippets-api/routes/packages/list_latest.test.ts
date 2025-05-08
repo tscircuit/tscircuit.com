@@ -86,11 +86,11 @@ test("list latest packages", async () => {
   expect(data.packages.length).toBe(3) // Should only return non-snippet packages
 
   // Verify that packages are sorted by creation date (newest first)
-  const sortedPackages = data.packages.sort(
-    (a: any, b: any) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  )
-  expect(data.packages).toEqual(sortedPackages)
+  for (let i = 1; i < data.packages.length; i++) {
+    expect(
+      new Date(data.packages[i - 1].created_at).getTime(),
+    ).toBeGreaterThanOrEqual(new Date(data.packages[i].created_at).getTime())
+  }
 
   // Verify that all returned packages have the required fields
   data.packages.forEach((pkg: any) => {
@@ -103,6 +103,8 @@ test("list latest packages", async () => {
   })
 
   // Test with limit parameter
-  const { data: limitedData } = await axios.get("/api/packages/list_latest?limit=2")
+  const { data: limitedData } = await axios.get(
+    "/api/packages/list_latest?limit=2",
+  )
   expect(limitedData.packages.length).toBe(2)
 })
