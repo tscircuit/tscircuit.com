@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { SnippetCard } from "@/components/SnippetCard"
+import { PackageCard } from "@/components/PackageCard"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
@@ -34,23 +34,25 @@ export const UserProfilePage = () => {
   const isCurrentUserProfile = username === session?.github_username
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
-  const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
+  const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
 
-  const { data: userSnippets, isLoading: isLoadingUserSnippets } = useQuery<
-    Snippet[]
-  >(["userSnippets", username], async () => {
-    const response = await axios.get(`/snippets/list?owner_name=${username}`)
-    return response.data.snippets
+  const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
+    Package[]
+  >(["userPackages", username], async () => {
+    const response = await axios.post(`/packages/list`, {
+      owner_github_username: username,
+    })
+    return response.data.packages
   })
 
-  const { data: starredSnippets, isLoading: isLoadingStarredSnippets } =
-    useQuery<Snippet[]>(
-      ["starredSnippets", username],
+  const { data: starredPackages, isLoading: isLoadingStarredPackages } =
+    useQuery<Package[]>(
+      ["starredPackages", username],
       async () => {
-        const response = await axios.get(
-          `/snippets/list?starred_by=${username}`,
-        )
-        return response.data.snippets
+        const response = await axios.post(`/packages/list`, {
+          starred_by: username,
+        })
+        return response.data.packages
       },
       {
         enabled: activeTab === "starred",
@@ -59,16 +61,16 @@ export const UserProfilePage = () => {
 
   const baseUrl = useSnippetsBaseApiUrl()
 
-  const snippetsToShow =
-    activeTab === "starred" ? starredSnippets : userSnippets
+  const packagesToShow =
+    activeTab === "starred" ? starredPackages : userPackages
   const isLoading =
-    activeTab === "starred" ? isLoadingStarredSnippets : isLoadingUserSnippets
+    activeTab === "starred" ? isLoadingStarredPackages : isLoadingUserPackages
 
-  const filteredSnippets = snippetsToShow
-    ?.filter((snippet) => {
+  const filteredPackages = packagesToShow
+    ?.filter((pkg) => {
       return (
         !searchQuery ||
-        snippet.unscoped_name
+        pkg.unscoped_name
           .toLowerCase()
           .includes(searchQuery.toLowerCase().trim())
       )
@@ -76,18 +78,8 @@ export const UserProfilePage = () => {
     ?.sort((a, b) => {
       switch (filter) {
         case "most-recent":
-          if (activeTab === "starred") {
-            const aTime = a.starred_at || a.updated_at
-            const bTime = b.starred_at || b.updated_at
-            return bTime.localeCompare(aTime)
-          }
           return b.updated_at.localeCompare(a.updated_at)
         case "least-recent":
-          if (activeTab === "starred") {
-            return (a.starred_at || a.updated_at).localeCompare(
-              b.starred_at || b.updated_at,
-            )
-          }
           return a.updated_at.localeCompare(b.updated_at)
         case "most-starred":
           return (b.star_count || 0) - (a.star_count || 0)
@@ -100,9 +92,9 @@ export const UserProfilePage = () => {
       }
     })
 
-  const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
+  const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
-    setSnippetToDelete(snippet)
+    setPackageToDelete(pkg)
     openDeleteDialog()
   }
 
@@ -120,7 +112,7 @@ export const UserProfilePage = () => {
               {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
-              {userSnippets?.length || 0} packages
+              {userPackages?.length || 0} packages
             </div>
           </div>
         </div>
@@ -172,14 +164,14 @@ export const UserProfilePage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.length !== 0 ? (
-              filteredSnippets?.map((snippet) => (
-                <SnippetCard
-                  key={snippet.snippet_id}
-                  snippet={snippet}
+            {filteredPackages?.length !== 0 ? (
+              filteredPackages?.map((pkg) => (
+                <PackageCard
+                  key={pkg.package_id}
+                  pkg={pkg}
                   baseUrl={baseUrl}
                   showOwner={activeTab === "starred"}
-                  isCurrentUserSnippet={
+                  isCurrentUserPackage={
                     isCurrentUserProfile && activeTab === "all"
                   }
                   onDeleteClick={handleDeleteClick}
@@ -209,10 +201,10 @@ export const UserProfilePage = () => {
           </div>
         )}
       </div>
-      {snippetToDelete && (
+      {packageToDelete && (
         <DeleteDialog
-          packageId={snippetToDelete.snippet_id}
-          packageName={snippetToDelete.unscoped_name}
+          packageId={packageToDelete.package_id}
+          packageName={packageToDelete.unscoped_name}
         />
       )}
       <Footer />

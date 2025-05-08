@@ -3,7 +3,7 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
@@ -21,13 +21,13 @@ export const QuickstartPage = () => {
     useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
-  const { data: mySnippets, isLoading } = useQuery<Snippet[]>(
-    "userSnippets",
+  const { data: myPackages, isLoading } = useQuery<Package[]>(
+    "userPackages",
     async () => {
-      const response = await axios.get(
-        `/snippets/list?owner_name=${currentUser}`,
-      )
-      return response.data.snippets
+      const response = await axios.post(`/packages/list`, {
+        owner_github_username: currentUser,
+      })
+      return response.data.packages
     },
   )
 
@@ -53,28 +53,28 @@ export const QuickstartPage = () => {
             <div>Loading...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {mySnippets
+              {myPackages
                 ?.sort(
                   (a, b) =>
                     new Date(b.created_at).getTime() -
                     new Date(a.created_at).getTime(),
                 )
                 .slice(0, 4)
-                .map((snippet) => (
+                .map((pkg) => (
                   <PrefetchPageLink
-                    key={snippet.snippet_id}
-                    href={`/editor?snippet_id=${snippet.snippet_id}`}
+                    key={pkg.package_id}
+                    href={`/editor?snippet_id=${pkg.package_id}`}
                   >
                     <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col h-full">
                       <CardHeader className="pb-0 p-4">
                         <CardTitle className="text-md">
-                          {snippet.unscoped_name}
+                          {pkg.unscoped_name}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-4 pt-0 mt-auto">
                         <p className="text-sm text-gray-500">
                           Last edited:{" "}
-                          {new Date(snippet.updated_at).toLocaleDateString()}
+                          {new Date(pkg.updated_at).toLocaleDateString()}
                         </p>
                       </CardContent>
                     </Card>

@@ -13,7 +13,6 @@ interface UseUpdatePackageFilesMutationProps {
   pkgFiles: any
   axios: any
   toast: any
-  loadPkgFiles: () => void
 }
 
 export function useUpdatePackageFilesMutation({
@@ -23,7 +22,6 @@ export function useUpdatePackageFilesMutation({
   pkgFiles,
   axios,
   toast,
-  loadPkgFiles,
 }: UseUpdatePackageFilesMutationProps) {
   return useMutation({
     mutationFn: async (
@@ -68,7 +66,6 @@ export function useUpdatePackageFilesMutation({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
-        loadPkgFiles()
       }
     },
     onError: (error: any) => {
