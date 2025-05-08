@@ -105,6 +105,9 @@ const TrendingPage: React.FC = () => {
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     })
 
+  console.log("Filtered Snippets:", filteredSnippets)
+  console.log("Snippets:", snippets)
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
