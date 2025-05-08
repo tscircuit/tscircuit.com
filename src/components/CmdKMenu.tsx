@@ -3,7 +3,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { Command } from "cmdk"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import React from "react"
 import { useQuery } from "react-query"
 
@@ -44,14 +44,14 @@ const CmdKMenu = () => {
     },
   )
 
-  // Recent snippets query
-  const { data: recentSnippets = [] } = useQuery<Snippet[]>(
-    ["userSnippets", currentUser],
+  // Recent packages query
+  const { data: recentPackages = [] } = useQuery<Package[]>(
+    ["userPackages", currentUser],
     async () => {
       if (!currentUser) return []
-      const response = await axios.get<{ snippets: Snippet[] }>(
-        `/snippets/list?owner_name=${currentUser}`,
-      )
+      const response = await axios.post(`/packages/list`, {
+        owner_github_username: currentUser,
+      })
       return response.data.snippets || []
     },
     {
@@ -159,28 +159,28 @@ const CmdKMenu = () => {
                 </Command.Group>
               )}
 
-              {!searchQuery && recentSnippets.length > 0 && (
+              {!searchQuery && recentPackages.length > 0 && (
                 <Command.Group
                   heading="Recent Snippets"
                   className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
                 >
-                  {recentSnippets.slice(0, 6).map((snippet) => (
+                  {recentPackages.slice(0, 6).map((pkg) => (
                     <Command.Item
-                      key={snippet.snippet_id}
-                      value={snippet.unscoped_name}
+                      key={pkg.package_id}
+                      value={pkg.unscoped_name}
                       onSelect={() => {
-                        window.location.href = `/editor?snippet_id=${snippet.snippet_id}`
+                        window.location.href = `/editor?snippet_id=${pkg.package_id}`
                         setOpen(false)
                       }}
                       className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                     >
                       <div className="flex flex-col">
                         <span className="text-gray-900 dark:text-gray-100">
-                          {snippet.unscoped_name}
+                          {pkg.unscoped_name}
                         </span>
                         <span className="text-sm text-gray-500">
                           Last edited:{" "}
-                          {new Date(snippet.updated_at).toLocaleDateString()}
+                          {new Date(pkg.updated_at).toLocaleDateString()}
                         </span>
                       </div>
                       <span className="text-sm text-gray-500">snippet</span>

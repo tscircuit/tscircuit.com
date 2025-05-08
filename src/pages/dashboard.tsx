@@ -3,7 +3,7 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { CreateNewSnippetWithAiHero } from "@/components/CreateNewSnippetWithAiHero"
 import {
@@ -20,10 +20,10 @@ import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import { SnippetList } from "@/components/SnippetList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
-import { SnippetCard } from "@/components/SnippetCard"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
+import { PackageCard } from "@/components/PackageCard"
 
 export const DashboardPage = () => {
   const axios = useAxios()
@@ -34,21 +34,21 @@ export const DashboardPage = () => {
 
   const [showAllTrending, setShowAllTrending] = useState(false)
   const [showAllLatest, setShowAllLatest] = useState(false)
-  const [snippetToDelete, setSnippetToDelete] = useState<Snippet | null>(null)
+  const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
 
   const {
-    data: mySnippets,
+    data: myPackages,
     isLoading,
     error,
-  } = useQuery<Snippet[]>(
-    "userSnippets",
+  } = useQuery<Package[]>(
+    "userPackages",
     async () => {
-      const response = await axios.get(
-        `/snippets/list?owner_name=${currentUser}`,
-      )
-      return response.data.snippets.sort(
+      const response = await axios.post(`/packages/list`, {
+        owner_github_username: currentUser,
+      })
+      return response.data.packages.sort(
         (a: any, b: any) =>
           new Date(b.updated_at || b.created_at).getTime() -
           new Date(a.updated_at || a.created_at).getTime(),
@@ -77,9 +77,9 @@ export const DashboardPage = () => {
 
   const baseUrl = useSnippetsBaseApiUrl()
 
-  const handleDeleteClick = (e: React.MouseEvent, snippet: Snippet) => {
+  const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
-    setSnippetToDelete(snippet)
+    setPackageToDelete(pkg)
     openDeleteDialog()
   }
   return (
@@ -116,11 +116,11 @@ export const DashboardPage = () => {
                       Edit Recent
                     </h2>
                     <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden">
-                      {mySnippets &&
-                        mySnippets.slice(0, 3).map((snippet) => (
-                          <div key={snippet.snippet_id}>
+                      {myPackages &&
+                        myPackages.slice(0, 3).map((pkg) => (
+                          <div key={pkg.package_id}>
                             <PrefetchPageLink
-                              href={`/editor?snippet_id=${snippet.snippet_id}`}
+                              href={`/editor?snippet_id=${pkg.package_id}`}
                               className="text-blue-600 hover:underline"
                             >
                               <Button
@@ -128,7 +128,7 @@ export const DashboardPage = () => {
                                 size="sm"
                                 className="font-medium"
                               >
-                                {snippet.unscoped_name}
+                                {pkg.unscoped_name}
                                 <Edit2 className="w-3 h-3 ml-2" />
                               </Button>
                             </PrefetchPageLink>
@@ -148,15 +148,15 @@ export const DashboardPage = () => {
                     ))}
                   </div>
                 )}
-                {mySnippets && mySnippets.length > 0 ? (
+                {myPackages && myPackages.length > 0 ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {mySnippets.slice(0, 10).map((snippet) => (
-                      <SnippetCard
-                        key={snippet.snippet_id}
-                        snippet={snippet}
+                    {myPackages.slice(0, 10).map((pkg) => (
+                      <PackageCard
+                        key={pkg.package_id}
+                        pkg={pkg}
                         baseUrl={baseUrl}
-                        isCurrentUserSnippet={
-                          snippet.owner_name === currentUser
+                        isCurrentUserPackage={
+                          pkg.owner_github_username === currentUser
                         }
                         onDeleteClick={handleDeleteClick}
                       />
@@ -164,13 +164,13 @@ export const DashboardPage = () => {
                   </div>
                 ) : (
                   !isLoading &&
-                  mySnippets?.length === 0 && (
+                  myPackages?.length === 0 && (
                     <span className="font-medium text-sm text-gray-500">
                       No packages found
                     </span>
                   )
                 )}
-                {mySnippets && mySnippets.length > 10 && (
+                {myPackages && myPackages.length > 10 && (
                   <Link
                     href={`/${currentUser}`}
                     className="text-sm text-blue-600 hover:underline mt-2 inline-block"
@@ -198,10 +198,10 @@ export const DashboardPage = () => {
             </div>
           </div>
         </div>
-        {snippetToDelete && (
+        {packageToDelete && (
           <DeleteDialog
-            packageId={snippetToDelete.snippet_id}
-            packageName={snippetToDelete.unscoped_name}
+            packageId={packageToDelete.package_id}
+            packageName={packageToDelete.unscoped_name}
           />
         )}
       </div>
