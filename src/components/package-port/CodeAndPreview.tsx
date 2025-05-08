@@ -202,7 +202,6 @@ export function CodeAndPreview({ pkg }: Props) {
   })
 
   const axios = useAxios()
-  const loadPkgFiles = () => pkgFiles.refetch()
 
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
@@ -211,7 +210,6 @@ export function CodeAndPreview({ pkg }: Props) {
     pkgFiles,
     axios,
     toast,
-    loadPkgFiles,
   })
 
   const updatePackageMutation = useUpdatePackageMutation({
