@@ -52,7 +52,7 @@ const CmdKMenu = () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
       })
-      return response.data.snippets || []
+      return response.data.packages || []
     },
     {
       enabled: !!currentUser && !searchQuery,
