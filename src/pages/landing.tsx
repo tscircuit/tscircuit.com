@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import {
-  CircuitBoard,
   Code2,
   Cpu,
   Layers,
@@ -18,7 +17,7 @@ import { useSignIn } from "@/hooks/use-sign-in"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
-import { TrendingSnippetCarousel } from "@/components/TrendingSnippetCarousel"
+import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export function LandingPage() {
@@ -117,7 +116,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <TrendingSnippetCarousel />
+        <TrendingPackagesCarousel />
         <section
           className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
           id="features"

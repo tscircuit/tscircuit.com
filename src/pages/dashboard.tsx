@@ -52,11 +52,11 @@ export const DashboardPage = () => {
     },
   )
 
-  const { data: trendingSnippets } = useQuery<Snippet[]>(
-    "trendingSnippets",
+  const { data: trendingPackages } = useQuery<Package[]>(
+    "trendingPackages",
     async () => {
-      const response = await axios.get("/snippets/list_trending")
-      return response.data.snippets
+      const response = await axios.get("/packages/list_trending")
+      return response.data.packages
     },
   )
 
@@ -175,9 +175,9 @@ export const DashboardPage = () => {
             )}
           </div>
           <div className="md:w-1/4">
-            <SnippetList
+            <PackageList
               title="Trending Packages"
-              snippets={trendingSnippets}
+              packages={trendingPackages}
               showAll={showAllTrending}
               onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
             />
