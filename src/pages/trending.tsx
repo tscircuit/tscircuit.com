@@ -230,16 +230,19 @@ const TrendingPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <SnippetCard
-                key={snippet.snippet_id}
-                snippet={snippet}
-                baseUrl={apiBaseUrl}
-                showOwner={true}
-              />
-            ))}
-          </div>
+          filteredSnippets &&
+          filteredSnippets.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredSnippets?.map((snippet) => (
+                <SnippetCard
+                  key={snippet.snippet_id}
+                  snippet={snippet}
+                  baseUrl={apiBaseUrl}
+                  showOwner={true}
+                />
+              ))}
+            </div>
+          )
         )}
       </main>
       <Footer />
