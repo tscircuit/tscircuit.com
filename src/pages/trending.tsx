@@ -76,9 +76,6 @@ const TrendingPage: React.FC = () => {
       )
       return response.data.snippets
     },
-    {
-      keepPreviousData: true,
-    },
   )
 
   const filteredSnippets = snippets
