@@ -23,6 +23,8 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { PackageInfo } from "@/lib/types"
 
+import { useSignInDialog } from "@/components/dialogs/sign-in-dialog"
+
 interface PackageHeaderProps {
   packageInfo?: PackageInfo
   isPrivate?: boolean
@@ -62,17 +64,13 @@ export default function PackageHeader({
     }
   }
 
+  const { Dialog: SignInDialog, openDialog: openSignInDialog } = useSignInDialog()
+
   const handleOrderClick = () => {
     if (isLoggedIn) {
       open()
     } else {
-      if (
-        confirm(
-          "You need to be logged in to create an order. Would you like to sign in now?",
-        )
-      ) {
-        signIn()
-      }
+      openSignInDialog()
     }
   }
 
@@ -272,6 +270,9 @@ export default function PackageHeader({
         stage={stage}
         setStage={setStage}
         packageReleaseId={packageInfo?.latest_package_release_id}
+      />
+      <SignInDialog
+        onSignIn={signIn}
       />
     </header>
   )
