@@ -219,18 +219,7 @@ const TrendingPage: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : filteredSnippets && filteredSnippets.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <SnippetCard
-                key={snippet.snippet_id}
-                snippet={snippet}
-                baseUrl={apiBaseUrl}
-                showOwner={true}
-              />
-            ))}
-          </div>
-        ) : (
+        ) : !filteredSnippets || filteredSnippets.length === 0 ? (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
               <Search className="w-8 h-8 text-slate-400" />
@@ -245,6 +234,17 @@ const TrendingPage: React.FC = () => {
                   ? `No ${category} snippets found in the trending list.`
                   : "There are no trending snippets at the moment."}
             </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredSnippets.map((snippet) => (
+              <SnippetCard
+                key={snippet.snippet_id}
+                snippet={snippet}
+                baseUrl={apiBaseUrl}
+                showOwner={true}
+              />
+            ))}
           </div>
         )}
       </main>
