@@ -216,7 +216,7 @@ const TrendingPage: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : filteredSnippets?.length === 0 ? (
+        ) : !filteredSnippets || filteredSnippets?.length === 0 ? (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
               <Search className="w-8 h-8 text-slate-400" />
