@@ -1,29 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Link, useLocation, useSearchParams } from "wouter"
-import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
+import { useSearchParams } from "wouter"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { OptimizedImage } from "@/components/OptimizedImage"
-import {
-  GlobeIcon,
-  PencilIcon,
-  Zap,
-  Tag,
-  Calendar,
-  Search,
-  Keyboard,
-  Cpu,
-  Layers,
-  LucideBellElectric,
-} from "lucide-react"
+import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { SnippetTypeIcon } from "@/components/SnippetTypeIcon"
-import { timeAgo } from "@/lib/utils/timeAgo"
 import {
   Select,
   SelectContent,
@@ -33,6 +16,8 @@ import {
 } from "@/components/ui/select"
 import { SnippetCard } from "@/components/SnippetCard"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { PackageCard } from "@/components/PackageCard"
 
 const TrendingPage: React.FC = () => {
   const axios = useAxios()
@@ -60,41 +45,43 @@ const TrendingPage: React.FC = () => {
   }, [searchQuery, category, time_period, sortBy, setSearchParams])
 
   const {
-    data: snippets,
+    data: packages,
     isLoading,
     error,
     refetch,
-  } = useQuery<Snippet[]>(
-    ["trendingSnippets", category, time_period],
+  } = useQuery<Package[]>(
+    ["trendingPackages", category, time_period],
     async () => {
       const params = new URLSearchParams()
       if (category !== "all") params.append("tag", category)
       params.append("time_period", time_period)
 
       const response = await axios.get(
-        `/snippets/list_trending?${params.toString()}`,
+        `/packages/list_trending?${params.toString()}`,
       )
-      return response.data.snippets
+      return response.data.packages
     },
     {
       keepPreviousData: true,
     },
   )
 
-  const filteredSnippets = snippets
-    ?.filter((snippet) => {
+  const filteredPackages = packages
+    ?.filter((pkg) => {
       if (!searchQuery) return true
 
       const query = searchQuery.toLowerCase().trim()
 
       const searchableFields = [
-        snippet.unscoped_name.toLowerCase(),
-        snippet.owner_name.toLowerCase(),
-        (snippet.description || "").toLowerCase(),
+        pkg.unscoped_name.toLowerCase(),
+        (pkg.owner_github_username || "").toLowerCase(),
+        (pkg.description || "").toLowerCase(),
+        pkg.description?.toLowerCase(),
       ]
 
       return searchableFields.some((field) => {
         const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
+        if (!field) return false
         return queryWords.every((word) => field.includes(word))
       })
     })
@@ -111,7 +98,7 @@ const TrendingPage: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8 max-w-3xl">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Trending Snippets
+            Trending Packages
           </h1>
           <p className="text-lg text-gray-600 mb-4">
             Check out some of the top circuit designs from our community.
@@ -149,7 +136,7 @@ const TrendingPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search trending snippets..."
+                placeholder="Search trending packages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -204,37 +191,37 @@ const TrendingPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-2">
-                  Error Loading Snippets
+                  Error Loading packages
                 </h3>
                 <p className="text-red-600">
-                  We couldn't load the trending snippets. Please try again
+                  We couldn't load the trending packages. Please try again
                   later.
                 </p>
               </div>
             </div>
           </div>
-        ) : filteredSnippets?.length === 0 ? (
+        ) : filteredPackages?.length === 0 ? (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
               <Search className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-xl font-medium text-slate-900 mb-2">
-              No Matching Snippets
+              No Matching Packages
             </h3>
             <p className="text-slate-500 max-w-md mx-auto mb-6">
               {searchQuery
-                ? `No snippets match your search for "${searchQuery}".`
+                ? `No packages match your search for "${searchQuery}".`
                 : category !== "all"
-                  ? `No ${category} snippets found in the trending list.`
-                  : "There are no trending snippets at the moment."}
+                  ? `No ${category} packages found in the trending list.`
+                  : "There are no trending packages at the moment."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets?.map((snippet) => (
-              <SnippetCard
-                key={snippet.snippet_id}
-                snippet={snippet}
+            {filteredPackages?.map((pkg) => (
+              <PackageCard
+                key={pkg.package_id}
+                pkg={pkg}
                 baseUrl={apiBaseUrl}
                 showOwner={true}
               />
