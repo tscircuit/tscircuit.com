@@ -40,7 +40,6 @@ export default withRouteSpec({
       snippet: createdSnippet as any,
     })
   } catch (error: any) {
-    console.error(error)
     return ctx.error(500, {
       error_code: "jlcpcb_generation_failed",
       message: `Failed to generate snippet from JLCPCB part: ${error.message}`,
