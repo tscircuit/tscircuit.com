@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -60,7 +61,7 @@ export function JLCPCBImportDialog({
             <div>
               <PrefetchPageLink
                 className="text-blue-500 hover:underline"
-                href={`/editor?snippet_id=${existingSnippetRes.data.snippet.snippet_id}`}
+                href={`/editor?package_id=${existingSnippetRes.data.snippet.snippet_id}`}
               >
                 View {partNumber}
               </PrefetchPageLink>
@@ -86,9 +87,8 @@ export function JLCPCBImportDialog({
         description: "JLCPCB component has been imported successfully.",
       })
       onOpenChange(false)
-      navigate(`/editor?snippet_id=${snippet.snippet_id}`)
+      navigate(`/editor?package_id=${snippet.snippet_id}`)
     } catch (error) {
-      console.error("Error importing JLCPCB component:", error)
       toast({
         title: "Import Failed",
         description: "Failed to import the JLCPCB component. Please try again.",
@@ -104,8 +104,11 @@ export function JLCPCBImportDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Import from JLCPCB</DialogTitle>
+          <DialogDescription>
+            Enter the JLCPCB part number to import the component.
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
+        <div className="py-4 text-center">
           <a
             href="https://yaqwsx.github.io/jlcparts/#/"
             target="_blank"

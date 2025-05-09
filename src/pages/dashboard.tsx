@@ -113,7 +113,7 @@ export const DashboardPage = () => {
                         myPackages.slice(0, 3).map((pkg) => (
                           <div key={pkg.package_id}>
                             <PrefetchPageLink
-                              href={`/editor?snippet_id=${pkg.package_id}`}
+                              href={`/editor?package_id=${pkg.package_id}`}
                               className="text-blue-600 hover:underline"
                             >
                               <Button
