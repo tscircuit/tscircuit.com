@@ -36,9 +36,11 @@ export const UserProfilePage = () => {
     useConfirmDeletePackageDialog()
   const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
 
-  const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
-    Package[]
-  >(["userPackages", username], async () => {
+  const {
+    data: userPackages,
+    isLoading: isLoadingUserPackages,
+    refetch: refetchUserPackages,
+  } = useQuery<Package[]>(["userPackages", username], async () => {
     const response = await axios.post(`/packages/list`, {
       owner_github_username: username,
     })
@@ -205,6 +207,7 @@ export const UserProfilePage = () => {
         <DeleteDialog
           packageId={packageToDelete.package_id}
           packageName={packageToDelete.unscoped_name}
+          refetchUserPackages={refetchUserPackages}
         />
       )}
       <Footer />

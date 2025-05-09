@@ -8,14 +8,19 @@ export const ConfirmDeletePackageDialog = ({
   onOpenChange,
   packageId,
   packageName,
+  refetchUserPackages,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageId: string
   packageName: string
+  refetchUserPackages?: () => void
 }) => {
   const { mutate: deletePackage, isLoading } = useDeletePackage({
-    onSuccess: () => onOpenChange(false),
+    onSuccess: () => {
+      onOpenChange(false)
+      refetchUserPackages?.()
+    },
   })
 
   return (
