@@ -197,6 +197,10 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
+            <Button variant="outline" size="sm" onClick={open}>
+              <Package className="w-4 h-4 mr-2" />
+              Order
+            </Button>
             <Button
               variant="outline"
               size="sm"
