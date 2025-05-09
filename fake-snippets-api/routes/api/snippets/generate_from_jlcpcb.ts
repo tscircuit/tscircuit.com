@@ -42,7 +42,7 @@ export default withRouteSpec({
   } catch (error: any) {
     return ctx.error(500, {
       error_code: "jlcpcb_generation_failed",
-      message: `Failed to generate snippet from JLCPCB part: ${error.message}`,
+      message: `Failed to generate package from JLCPCB part: ${error.message}`,
     })
   }
 })
