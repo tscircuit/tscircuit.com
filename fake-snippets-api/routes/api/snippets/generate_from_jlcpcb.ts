@@ -17,20 +17,13 @@ export default withRouteSpec({
 
   try {
     // Fetch the EasyEDA component data
-    const rawEasyJson = await fetchEasyEDAComponent(jlcpcb_part_number).catch(
-      (e) => {
-        throw new Error(`Error in fetchEasyEDAComponent: ${e.toString()}`)
-      },
-    )
+    const rawEasyJson = await fetchEasyEDAComponent(jlcpcb_part_number)
 
     // Convert to TypeScript React component
-    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson).catch((e) => {
-      throw new Error(`Error in convertRawEasyEdaToTs ${e.toString()}`)
-    })
+    const tsxComponent = await convertRawEasyEdaToTs(rawEasyJson)
 
     // Create a new snippet
     const newSnippet = {
-      snippet_id: `snippet_${ctx.db.idCounter + 1}`,
       name: `${ctx.auth.github_username}/${jlcpcb_part_number}`,
       unscoped_name: jlcpcb_part_number,
       owner_name: ctx.auth.github_username,
@@ -41,15 +34,16 @@ export default withRouteSpec({
       description: `Generated from JLCPCB part number ${jlcpcb_part_number}`,
     }
 
-    ctx.db.addSnippet(newSnippet as any)
+    const createdSnippet = ctx.db.addSnippet(newSnippet as any)
 
     return ctx.json({
-      snippet: newSnippet as any,
+      snippet: createdSnippet as any,
     })
   } catch (error: any) {
+    console.error(error)
     return ctx.error(500, {
       error_code: "jlcpcb_generation_failed",
-      message: `Failed to generate snippet from JLCPCB part: ${error.message}\n\n${error.stack}`,
+      message: `Failed to generate snippet from JLCPCB part: ${error.message}`,
     })
   }
 })
