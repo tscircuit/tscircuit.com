@@ -34,10 +34,10 @@ export default withRouteSpec({
       description: `Generated from JLCPCB part number ${jlcpcb_part_number}`,
     }
 
-    const createdSnippet = ctx.db.addSnippet(newSnippet as any)
+    const createdPackage = ctx.db.addSnippet(newSnippet as any)
 
     return ctx.json({
-      snippet: createdSnippet as any,
+      snippet: createdPackage as any,
     })
   } catch (error: any) {
     return ctx.error(500, {
