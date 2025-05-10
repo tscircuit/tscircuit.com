@@ -104,7 +104,7 @@ export const usePackageFiles = (packageReleaseId?: string | null) => {
         if (!data.package_files) {
           return []
         }
-
+        
         return data.package_files
       } catch (error) {
         throw error

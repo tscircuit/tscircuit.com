@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SnippetCard } from "@/components/SnippetCard"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { PackageCard } from "@/components/PackageCard"

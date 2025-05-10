@@ -6,6 +6,7 @@ import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef, useState } from "react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { OptimizedImage } from "./OptimizedImage"
+import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 
 export const TrendingPackagesCarousel = () => {
   const axios = useAxios()
@@ -25,6 +26,10 @@ export const TrendingPackagesCarousel = () => {
       refetchOnReconnect: false,
       staleTime: 1000 * 60 * 60 * 24, // 24 hours
     },
+  )
+
+  const fsMapHash = useGetFsMapHashForPackage(
+    trendingPackages?.[0]?.latest_package_release_id ?? "",
   )
 
   return (
@@ -54,11 +59,13 @@ export const TrendingPackagesCarousel = () => {
                         {pkg.owner_github_username}/{pkg.unscoped_name}
                       </div>
                       <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
-                        <OptimizedImage
-                          src={`${apiBaseUrl}/snippets/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg`}
-                          alt="PCB preview"
-                          className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
-                        />
+                        {fsMapHash && (
+                          <OptimizedImage
+                            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${fsMapHash}`}
+                            alt="PCB preview"
+                            className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+                          />
+                        )}
                       </div>
                       <div className="flex items-center text-xs text-gray-500">
                         <StarFilledIcon className="w-3 h-3 mr-1" />
