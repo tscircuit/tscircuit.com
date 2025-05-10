@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
@@ -61,7 +61,7 @@ const TrendingPage: React.FC = () => {
     },
   )
 
-  const filteredPackages = React.useMemo(() => {
+  const filteredPackages = useMemo(() => {
     if (!packages) return []
 
     if (!searchQuery) {
@@ -83,10 +83,11 @@ const TrendingPage: React.FC = () => {
         pkg.unscoped_name.toLowerCase(),
         (pkg.owner_github_username || "").toLowerCase(),
         (pkg.description || "").toLowerCase(),
+        pkg.description?.toLowerCase(),
       ]
 
       return searchableFields.some((field) =>
-        queryWords.every((word) => field.includes(word)),
+        queryWords.every((word) => field?.includes(word)),
       )
     })
 
