@@ -29,7 +29,7 @@ export const TrendingPackagesCarousel = () => {
   )
 
   const fsMapHash = useGetFsMapHashForPackage(
-    trendingPackages?.[0]?.package_id ?? "",
+    trendingPackages?.[0]?.latest_package_release_id ?? "",
   )
 
   return (
