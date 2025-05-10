@@ -39,7 +39,9 @@ export default withRouteSpec({
 
   // Get the package
   const pkg = ctx.db.packages.find(
-    (p) => p.owner_github_username === owner_github_username && p.unscoped_name === unscoped_name
+    (p) =>
+      p.owner_github_username === owner_github_username &&
+      p.unscoped_name === unscoped_name,
   )
 
   // If package is not found, return 404
@@ -52,7 +54,7 @@ export default withRouteSpec({
 
   // Get the package release for the given hash value
   const pkg_release = ctx.db.packageReleases.find(
-    (pr) => pr.package_id === pkg.package_id && pr.fs_sha === fs_sha
+    (pr) => pr.package_id === pkg.package_id && pr.fs_sha === fs_sha,
   )
 
   if (!pkg_release) {
@@ -64,7 +66,9 @@ export default withRouteSpec({
 
   // Get the circuit JSON from the package files
   const circuit_json_file = ctx.db.packageFiles.find(
-    (pf) => pf.package_release_id === pkg_release.package_release_id && pf.file_path === "circuit.json"
+    (pf) =>
+      pf.package_release_id === pkg_release.package_release_id &&
+      pf.file_path === "circuit.json",
   )
 
   if (!circuit_json_file?.content_text) {

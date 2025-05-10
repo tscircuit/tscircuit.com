@@ -45,7 +45,6 @@ export default () => (
     file_path: "circuit.json",
     content_text: JSON.stringify(circuit_json),
   })
-  
 
   // create fsMap by getting all the files in the package with the file_path and content_text
   const fsMap = new Map<string, string>()
