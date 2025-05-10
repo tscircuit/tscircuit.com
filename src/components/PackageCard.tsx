@@ -13,7 +13,7 @@ import {
 import { OptimizedImage } from "./OptimizedImage"
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { getFsMapHashForPackage } from "@/lib/utils/getFsMapHashForPackage"
+import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -57,7 +57,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
-  const fsMapHash = getFsMapHashForPackage(pkg.package_id)
+  const fsMapHash = useGetFsMapHashForPackage(pkg.package_id)
 
   const cardContent = (
     <div
