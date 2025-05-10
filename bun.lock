@@ -57,7 +57,7 @@
         "change-case": "^5.4.4",
         "circuit-json": "^0.0.164",
         "circuit-json-to-bom-csv": "^0.0.6",
-        "circuit-json-to-gerber": "^0.0.19",
+        "circuit-json-to-gerber": "^0.0.21",
         "circuit-json-to-pnp-csv": "^0.0.6",
         "circuit-json-to-readable-netlist": "^0.0.8",
         "circuit-json-to-tscircuit": "^0.0.4",
@@ -1024,7 +1024,7 @@
 
     "circuit-json-to-connectivity-map": ["circuit-json-to-connectivity-map@0.0.20", "", { "dependencies": { "@tscircuit/math-utils": "^0.0.9" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-q8McyEomIZdprsSjGQv5puKLlMOM5w9EGRYA4TxaHPBLe03BoqVoN8wQxhdqmmbe4Tpa30KQFH9eISGVMs6HGg=="],
 
-    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.19", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.2", "fast-json-stable-stringify": "^2.1.0" }, "peerDependencies": { "circuit-json": "^0.0.164", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-icSpEab82iYF0SWOLP5dsyW9G6dvHIzKFu663J/HGD6NT8yM9QXvKP0kNPREOflFO6hbMThiuOsUT/tE+XjIsA=="],
+    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.21", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.2", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "^0.0.164", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-9petb2qmaZyfU7khOwL/jVdwX73FU+jDlbHhXfnNJfTmfZL0yVdV4BK3uyM9+sYNXk7v2JLy9EwvzSL8qK+iIQ=="],
 
     "circuit-json-to-pnp-csv": ["circuit-json-to-pnp-csv@0.0.6", "", { "dependencies": { "papaparse": "^5.4.1" }, "peerDependencies": { "@tscircuit/soup-util": "*", "typescript": "^5.0.0" } }, "sha512-E5bbw0EfOk+6DUaldmsaogzfFni91IwBHI6hzQTbS1qczhqMmUNYkRTpePqa3ewZ12oLLURLbHnd9HDGjxlJ+w=="],
 
@@ -2845,6 +2845,8 @@
     "chokidar/glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
 
     "circuit-json-to-connectivity-map/@tscircuit/math-utils": ["@tscircuit/math-utils@0.0.9", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-sPzfXndijet8z29X6f5vnSZddiso2tRg7m6rB+268bVj60mxnxUMD14rKuMlLn6n84fMOpD/X7pRTZUfi6M+Tg=="],
+
+    "circuit-json-to-gerber/transformation-matrix": ["transformation-matrix@3.0.0", "", {}, "sha512-C6NlNnD6T8JqDeY4BpGznuve4d8/JlLDZLcJbnnx7gQKoyk01+uk2XYVFjBGqvNsVxJUpUwb3WZpjpdPr+05FQ=="],
 
     "circuit-json-to-readable-netlist/@tscircuit/core": ["@tscircuit/core@0.0.299", "", { "dependencies": { "@lume/kiwi": "^0.4.3", "@tscircuit/footprinter": "^0.0.97", "@tscircuit/infgrid-ijump-astar": "^0.0.33", "@tscircuit/math-utils": "^0.0.9", "@tscircuit/props": "^0.0.137", "@tscircuit/schematic-autolayout": "^0.0.6", "@tscircuit/soup-util": "^0.0.41", "circuit-json": "^0.0.135", "circuit-json-to-connectivity-map": "^0.0.17", "format-si-unit": "^0.0.3", "nanoid": "^5.0.7", "performance-now": "^2.1.0", "react-reconciler": "^0.31.0", "react-reconciler-18": "npm:react-reconciler@0.29.2", "schematic-symbols": "^0.0.113", "transformation-matrix": "^2.16.1", "zod": "^3.23.8" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-qTTZr4j5HP0NCb8wIs0JbfWPRaSM/e5EP79nnCvyEQPWMHV+lXz7grLphtSfSjM4m7AwG3JugDhCiRKeaqXtQQ=="],
 
