@@ -4,17 +4,8 @@ import { useAxios } from "@/hooks/use-axios"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import {
-  Search,
-  Tag,
-  Calendar,
-  Keyboard,
-  Cpu,
-  Layers,
-  LucideBellElectric,
-} from "lucide-react"
+import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import {
   Select,
