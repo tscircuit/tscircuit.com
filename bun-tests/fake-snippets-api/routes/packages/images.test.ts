@@ -53,11 +53,7 @@ export default () => (
     package_release_id: pkg_release.data.package_release.package_release_id,
   })
   for (const file of files.data.package_files) {
-    // get the file content
-    const file_content = await axios.post("/api/package_files/get", {
-      package_file_id: file.package_file_id,
-    })
-    fsMap.set(file.file_path, file_content.data.package_file.content_text)
+    fsMap.set(file.file_path, file.content_text)
   }
 
   const fsMapHash = md5(JSON.stringify(fsMap))

@@ -1,5 +1,4 @@
 import { usePackageFiles } from "@/hooks/use-package-files"
-import { usePackageFileById } from "@/hooks/use-package-files"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import md5 from "md5"
 
@@ -16,9 +15,8 @@ export const useGetFsMapHashForPackage = (packageId: string) => {
   }
   const fsMap = new Map<string, string>()
   for (const file of pkgFilesList) {
-    const { data: pkg_file } = usePackageFileById(file.package_file_id)
-    if (pkg_file?.content_text) {
-      fsMap.set(file.file_path, pkg_file.content_text)
+    if (file.content_text) {
+      fsMap.set(file.file_path, file.content_text)
     }
   }
   const fsMapHash = md5(JSON.stringify(fsMap))
