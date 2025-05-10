@@ -10,6 +10,7 @@ export default withRouteSpec({
     is_locked: z.boolean().optional(),
     is_latest: z.boolean().optional(),
     license: z.string().optional(),
+    fs_sha: z.string().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -21,6 +22,7 @@ export default withRouteSpec({
     is_locked,
     is_latest,
     license,
+    fs_sha,
   } = req.jsonBody
   let releaseId = package_release_id
 
@@ -45,7 +47,7 @@ export default withRouteSpec({
     })
   }
 
-  const delta = { is_locked, is_latest, license }
+  const delta = { is_locked, is_latest, license, fs_sha }
   if (
     Object.keys(delta).filter(
       (k) => delta[k as keyof typeof delta] !== undefined,
@@ -73,6 +75,7 @@ export default withRouteSpec({
     ...(is_locked !== undefined && { is_locked }),
     ...(is_latest !== undefined && { is_latest }),
     ...(license !== undefined && { license }),
+    ...(fs_sha !== undefined && { fs_sha }),
   }
 
   // Handle is_latest updates atomically
