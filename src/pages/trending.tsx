@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SnippetCard } from "@/components/SnippetCard"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { PackageCard } from "@/components/PackageCard"
@@ -48,7 +47,6 @@ const TrendingPage: React.FC = () => {
     data: packages,
     isLoading,
     error,
-    refetch,
   } = useQuery<Package[]>(
     ["trendingPackages", category, time_period],
     async () => {
@@ -61,36 +59,44 @@ const TrendingPage: React.FC = () => {
       )
       return response.data.packages
     },
-    {
-      keepPreviousData: true,
-    },
   )
 
-  const filteredPackages = packages
-    ?.filter((pkg) => {
-      if (!searchQuery) return true
+  const filteredPackages = React.useMemo(() => {
+    if (!packages) return []
 
-      const query = searchQuery.toLowerCase().trim()
+    if (!searchQuery) {
+      return packages.sort((a, b) => {
+        if (sortBy === "stars") {
+          return (b.star_count || 0) - (a.star_count || 0)
+        }
+        return (
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        )
+      })
+    }
 
+    const query = searchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
+
+    const filtered = packages.filter((pkg) => {
       const searchableFields = [
         pkg.unscoped_name.toLowerCase(),
         (pkg.owner_github_username || "").toLowerCase(),
         (pkg.description || "").toLowerCase(),
-        pkg.description?.toLowerCase(),
       ]
 
-      return searchableFields.some((field) => {
-        const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
-        if (!field) return false
-        return queryWords.every((word) => field.includes(word))
-      })
+      return searchableFields.some((field) =>
+        queryWords.every((word) => field.includes(word)),
+      )
     })
-    ?.sort((a, b) => {
+
+    return filtered.sort((a, b) => {
       if (sortBy === "stars") {
         return (b.star_count || 0) - (a.star_count || 0)
       }
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     })
+  }, [packages, searchQuery, sortBy])
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
