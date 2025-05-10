@@ -59,11 +59,13 @@ export const TrendingPackagesCarousel = () => {
                         {pkg.owner_github_username}/{pkg.unscoped_name}
                       </div>
                       <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
-                        <OptimizedImage
-                          src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${fsMapHash}`}
-                          alt="PCB preview"
-                          className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
-                        />
+                        {fsMapHash && (
+                          <OptimizedImage
+                            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${fsMapHash}`}
+                            alt="PCB preview"
+                            className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+                          />
+                        )}
                       </div>
                       <div className="flex items-center text-xs text-gray-500">
                         <StarFilledIcon className="w-3 h-3 mr-1" />
