@@ -175,6 +175,7 @@ export const packageReleaseSchema = z.object({
     .optional(),
   has_transpiled: z.boolean().default(false),
   transpilation_error: z.string().nullable().optional(),
+  fs_sha: z.string().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
