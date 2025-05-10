@@ -27,11 +27,15 @@ const LatestPage: React.FC = () => {
     data: packages,
     isLoading,
     error,
-  } = useQuery<Package[]>(["latestPackages", category], async () => {
-    const params = category !== "all" ? { tag: category } : {}
-    const response = await axios.get("/packages/list_latest", { params })
-    return response.data.packages
-  })
+  } = useQuery<Package[]>(
+    ["latestPackages", category],
+    async () => {
+      const params = category !== "all" ? { tag: category } : {}
+      const response = await axios.get("/packages/list_latest", { params })
+      return response.data.packages
+    },
+    { keepPreviousData: true },
+  )
 
   const filteredPackages = packages?.filter((pkg) => {
     if (!searchQuery) return true
