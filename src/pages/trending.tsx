@@ -48,6 +48,7 @@ const TrendingPage: React.FC = () => {
     data: packages,
     isLoading,
     error,
+    refetch,
   } = useQuery<Package[]>(
     ["trendingPackages", category, time_period],
     async () => {
@@ -59,6 +60,9 @@ const TrendingPage: React.FC = () => {
         `/packages/list_trending?${params.toString()}`,
       )
       return response.data.packages
+    },
+    {
+      keepPreviousData: true,
     },
   )
 
