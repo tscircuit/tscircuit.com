@@ -13,6 +13,7 @@ import {
 import { OptimizedImage } from "./OptimizedImage"
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
+import { getFsMapHashForPackage } from "@/lib/utils/getFsMapHashForPackage"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -56,6 +57,8 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
+  const fsMapHash = getFsMapHashForPackage(pkg.package_id)
+
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -65,7 +68,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
           <OptimizedImage
-            src={`${baseUrl}/snippets/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg`}
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${fsMapHash}`}
             alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />
