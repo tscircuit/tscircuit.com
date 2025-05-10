@@ -57,7 +57,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
-  const fsMapHash = useGetFsMapHashForPackage(pkg.package_id)
+  const fsMapHash = useGetFsMapHashForPackage(
+    pkg.latest_package_release_id ?? "",
+  )
 
   const cardContent = (
     <div
