@@ -20,6 +20,7 @@ import {
 } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
 import { PackageInfo } from "@/lib/types"
 
 interface PackageHeaderProps {
@@ -40,7 +41,8 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
+  const { OrderDialog, isOpen, open, close, stage, setStage, onSignIn } = useOrderDialog()
+  const signIn = useSignIn()
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
@@ -57,6 +59,14 @@ export default function PackageHeader({
       await removeStar.mutateAsync()
     } else {
       await addStar.mutateAsync()
+    }
+  }
+
+  const handleOrderClick = () => {
+    if (isLoggedIn) {
+      open()
+    } else {
+      signIn()
     }
   }
 
@@ -116,7 +126,7 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={open}>
+            <Button variant="outline" size="sm" onClick={handleOrderClick}>
               <Package className="w-4 h-4 mr-2" />
               Order
             </Button>
@@ -201,6 +211,7 @@ export default function PackageHeader({
               <Package className="w-4 h-4 mr-2" />
               Order
             </Button>
+
             <Button
               variant="outline"
               size="sm"
@@ -254,6 +265,7 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
+        onSignIn={!isLoggedIn ? signIn : undefined}
         packageReleaseId={packageInfo?.latest_package_release_id}
       />
     </header>
