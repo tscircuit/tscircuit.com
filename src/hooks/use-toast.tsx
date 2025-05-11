@@ -197,7 +197,7 @@ export function useNotImplementedToast() {
           The {feature} feature is not implemented yet. Help us out!{" "}
           <a
             className="text-blue-500 hover:underline font-semibold"
-            href="https://github.com/tscircuit/snippets"
+            href="https://github.com/tscircuit/tscircuit.com"
           >
             Check out our Github
           </a>
