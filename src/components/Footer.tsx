@@ -57,10 +57,10 @@ export default function Footer() {
             <h3 className="font-semibold uppercase">Explore</h3>
             <footer className="flex flex-col space-y-2">
               <PrefetchPageLink href="/latest" className="hover:underline">
-                Latest Snippets
+                Latest Packages
               </PrefetchPageLink>
               <PrefetchPageLink href="/trending" className="hover:underline">
-                Trending Snippets
+                Trending Packages
               </PrefetchPageLink>
               <a href="https://docs.tscircuit.com" className="hover:underline">
                 Docs
