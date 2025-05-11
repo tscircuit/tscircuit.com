@@ -30,8 +30,8 @@ TSCircuit Snippets is a web application for creating, sharing, and managing circ
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/tscircuit/snippets.git
-cd snippets
+git clone https://github.com/tscircuit/tscircuit.com.git
+cd tscircuit.com
 ```
 
 2. Install dependencies:

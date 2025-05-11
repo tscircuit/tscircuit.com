@@ -104,7 +104,7 @@ ${errorMessage}
               body = `\`\`\`tsx\n// Please paste the code here\`\`\`\n\n### Error\n\`\`\`\n${errorMessage.slice(0, 2000)}\n\`\`\``
             }
             window.open(
-              `https://github.com/tscircuit/snippets/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`,
+              `https://github.com/tscircuit/tscircuit.com/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`,
               "_blank",
             )
           }}
