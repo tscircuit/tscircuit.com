@@ -154,7 +154,7 @@ const ShippingInformationForm: React.FC = () => {
             <AlertDescription>
               Currently, only shipping to the US is supported.{" "}
               <a
-                href={`https://github.com/tscircuit/snippets/issues/new?title=${encodeURIComponent("Shipping to " + form.country)}&body=${encodeURIComponent("Please add support for shipping to " + form.country + ".")}`}
+                href={`https://github.com/tscircuit/tscircuit.com/issues/new?title=${encodeURIComponent("Shipping to " + form.country)}&body=${encodeURIComponent("Please add support for shipping to " + form.country + ".")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium underline"
