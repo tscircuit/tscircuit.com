@@ -5,9 +5,9 @@ import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { Search } from "lucide-react"
-import { SnippetCard } from "./SnippetCard"
 import { Button } from "./ui/button"
 import { PackageCardSkeleton } from "./PackageCardSkeleton"
+import { PackageCard } from "./PackageCard"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -28,16 +28,16 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
   )
 
   const { data: searchResults, isLoading: isLoadingSearchResults } = useQuery(
-    ["snippetSearch", searchQuery],
+    ["packageSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
-      const { data } = await axios.get("/snippets/search", {
+      const { data } = await axios.get("/packages/search", {
         params: { q: searchQuery },
       })
       if (onResultsFetched) {
-        onResultsFetched(data.snippets)
+        onResultsFetched(data.packages)
       }
-      return data.snippets
+      return data.packages
     },
     { enabled: Boolean(searchQuery) },
   )
@@ -94,10 +94,10 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
         </div>
       ) : searchResults && searchResults.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {searchResults.map((snippet: any) => (
-            <SnippetCard
-              key={snippet.snippet_id}
-              snippet={snippet}
+          {searchResults.map((pkg: any) => (
+            <PackageCard
+              key={pkg.package_id}
+              pkg={pkg}
               baseUrl={snippetsBaseApiUrl}
               showOwner={true}
               withLink={true}
