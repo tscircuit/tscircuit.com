@@ -69,8 +69,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
-          <OptimizedImage
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${fsMapHash ?? ""}`}
+          <img
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
+              {
+                fs_sha: fsMapHash ?? "",
+              },
+            ).toString()}`}
             alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />

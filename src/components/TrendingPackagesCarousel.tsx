@@ -60,10 +60,12 @@ export const TrendingPackagesCarousel = () => {
                       </div>
                       <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
                         {fsMapHash && (
-                          <OptimizedImage
-                            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams({
-                              fs_sha: fsMapHash
-                            }).toString()}`}
+                          <img
+                            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
+                              {
+                                fs_sha: fsMapHash,
+                              },
+                            ).toString()}`}
                             alt="PCB preview"
                             className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
                           />
