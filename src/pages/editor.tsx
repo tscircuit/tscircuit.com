@@ -17,9 +17,7 @@ export const EditorPage = () => {
     <div className="overflow-x-hidden">
       <Helmet>
         <title>
-          {pkg
-            ? `${pkg.unscoped_name} - tscircuit`
-            : "tscircuit editor"}
+          {pkg ? `${pkg.unscoped_name} - tscircuit` : "tscircuit editor"}
         </title>
         {pkg && (
           <>
