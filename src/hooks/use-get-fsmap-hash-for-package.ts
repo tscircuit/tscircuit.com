@@ -15,6 +15,5 @@ export const useGetFsMapHashForPackage = (packageReleaseId: string) => {
     fsMap.set(file.file_path, file.content_text ?? "")
   }
   const fsMapHash = md5(JSON.stringify(fsMap))
-  console.log("fsMapHash", fsMapHash)
   return `md5-${fsMapHash}`
 }

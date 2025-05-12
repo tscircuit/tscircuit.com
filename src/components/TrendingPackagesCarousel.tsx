@@ -2,11 +2,46 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
-import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
-import { useEffect, useRef, useState } from "react"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { useRef, useState } from "react"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
-import { OptimizedImage } from "./OptimizedImage"
 import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
+
+const CarouselItem = ({
+  pkg,
+  apiBaseUrl,
+}: { pkg: Package; apiBaseUrl: string }) => {
+  const fsMapHash = useGetFsMapHashForPackage(
+    pkg.latest_package_release_id ?? "",
+  )
+
+  return (
+    <Link href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}>
+      <div className="flex-shrink-0 w-[200px] bg-white p-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
+        <div className="font-medium text-blue-600 mb-1 truncate text-sm">
+          {pkg.owner_github_username}/{pkg.unscoped_name}
+        </div>
+        <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
+          {fsMapHash && (
+            <img
+              src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
+                {
+                  fs_sha: fsMapHash,
+                },
+              ).toString()}`}
+              alt="PCB preview"
+              className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+            />
+          )}
+        </div>
+        <div className="flex items-center text-xs text-gray-500">
+          <StarFilledIcon className="w-3 h-3 mr-1" />
+          {pkg.star_count || 0} stars
+        </div>
+      </div>
+    </Link>
+  )
+}
 
 export const TrendingPackagesCarousel = () => {
   const axios = useAxios()
@@ -28,10 +63,6 @@ export const TrendingPackagesCarousel = () => {
     },
   )
 
-  const fsMapHash = useGetFsMapHashForPackage(
-    trendingPackages?.[0]?.latest_package_release_id ?? "",
-  )
-
   return (
     <div className="w-full bg-gray-50 py-8 min-h-[280px]">
       {trendingPackages?.length ? (
@@ -50,33 +81,11 @@ export const TrendingPackagesCarousel = () => {
             >
               {[...(trendingPackages ?? []), ...(trendingPackages ?? [])].map(
                 (pkg, i) => (
-                  <Link
+                  <CarouselItem
                     key={`${pkg.package_id}-${i}`}
-                    href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}
-                  >
-                    <div className="flex-shrink-0 w-[200px] bg-white p-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
-                      <div className="font-medium text-blue-600 mb-1 truncate text-sm">
-                        {pkg.owner_github_username}/{pkg.unscoped_name}
-                      </div>
-                      <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
-                        {fsMapHash && (
-                          <img
-                            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
-                              {
-                                fs_sha: fsMapHash,
-                              },
-                            ).toString()}`}
-                            alt="PCB preview"
-                            className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
-                          />
-                        )}
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <StarFilledIcon className="w-3 h-3 mr-1" />
-                        {pkg.star_count || 0} stars
-                      </div>
-                    </div>
-                  </Link>
+                    pkg={pkg}
+                    apiBaseUrl={apiBaseUrl}
+                  />
                 ),
               )}
             </div>
