@@ -44,11 +44,13 @@ export default function MainContentHeader({
   const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
     "copy",
   )
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false) // State to manage dropdown open/close
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const handleEditOnline = () => {
-    setIsDropdownOpen(false) // Close the dropdown
-    setLocation(`/editor?package_id=${packageInfo?.package_id}`) // Navigate to the editor
+    setIsDropdownOpen(false)
+    setTimeout(() => {
+      setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+    }, 0)
   }
 
   const handleCopyInstall = () => {
