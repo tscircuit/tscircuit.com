@@ -20,10 +20,10 @@ import {
 } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { PackageInfo } from "@/lib/types"
+import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
 
 interface PackageHeaderProps {
-  packageInfo?: PackageInfo
+  packageInfo?: PackageType
   isPrivate?: boolean
   isCurrentUserAuthor?: boolean
 }
@@ -254,7 +254,7 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
-        packageReleaseId={packageInfo?.latest_package_release_id}
+        packageReleaseId={packageInfo?.latest_package_release_id ?? ""}
       />
     </header>
   )
