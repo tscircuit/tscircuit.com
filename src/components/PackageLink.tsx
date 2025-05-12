@@ -1,35 +1,27 @@
 import { Link } from "wouter"
 import { Star } from "lucide-react"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
-export const SnippetLink = ({
-  snippet,
-}: {
-  snippet: {
-    owner_name: string
-    name: string
-    unscoped_name: string
-    star_count?: number
-  }
-}) => {
+export const PackageLink = (pkg: Package) => {
   return (
     <>
       <Link
         className="text-blue-500 font-semibold hover:underline"
-        href={`/${snippet.owner_name}`}
+        href={`/${pkg.owner_github_username}`}
       >
-        {snippet.owner_name}
+        {pkg.owner_github_username}
       </Link>
       <span className="px-0.5 text-gray-500">/</span>
       <Link
         className="text-blue-500  font-semibold hover:underline"
-        href={`/${snippet.name}`}
+        href={`/${pkg.unscoped_name}`}
       >
-        {snippet.unscoped_name}
+        {pkg.unscoped_name}
       </Link>
-      {snippet.star_count !== undefined && (
+      {pkg.star_count !== undefined && (
         <span className="ml-2 text-gray-500 text-xs flex items-center">
           <Star className="w-3 h-3 mr-1" />
-          {snippet.star_count}
+          {pkg.star_count}
         </span>
       )}
     </>
