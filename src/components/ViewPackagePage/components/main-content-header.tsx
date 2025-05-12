@@ -89,9 +89,11 @@ export default function MainContentHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem
-              onClick={() => {
+              onSelect={() => {
                 setDropdownOpen(false)
-                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+                setTimeout(() => {
+                  setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+                }, 0)
               }}
               className="cursor-pointer p-2 py-4"
             >
