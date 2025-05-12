@@ -44,6 +44,12 @@ export default function MainContentHeader({
   const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
     "copy",
   )
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false) // State to manage dropdown open/close
+
+  const handleEditOnline = () => {
+    setIsDropdownOpen(false) // Close the dropdown
+    setLocation(`/editor?package_id=${packageInfo?.package_id}`) // Navigate to the editor
+  }
 
   const handleCopyInstall = () => {
     const command = `tsci add ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
@@ -75,7 +81,7 @@ export default function MainContentHeader({
         />
 
         {/* Code Dropdown */}
-        <DropdownMenu>
+        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
@@ -88,9 +94,7 @@ export default function MainContentHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem
-              onSelect={() => {
-                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
-              }}
+              onSelect={handleEditOnline}
               className="cursor-pointer p-2 py-4"
             >
               <Pencil className="h-4 w-4 mx-3" />
