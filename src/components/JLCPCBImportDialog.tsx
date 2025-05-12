@@ -27,7 +27,7 @@ export function JLCPCBImportDialog({
   const [partNumber, setPartNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [alreadyImportedSnippetId, setAlreadyImportedSnippetId] = useState<
+  const [alreadyImportedPackageId, setAlreadyImportedPackageId] = useState<
     string | null
   >(null)
   const axios = useAxios()
@@ -48,19 +48,19 @@ export function JLCPCBImportDialog({
 
     setIsLoading(true)
     setError(null)
-    setAlreadyImportedSnippetId(null)
+    setAlreadyImportedPackageId(null)
 
     try {
-      const existingSnippetRes = await axios.get(
+      const existingPackageRes = await axios.get(
         `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`,
         {
           validateStatus: (status) => true,
         },
       )
 
-      if (existingSnippetRes.status !== 404) {
-        const snippetId = existingSnippetRes.data.snippet.snippet_id
-        setAlreadyImportedSnippetId(snippetId)
+      if (existingPackageRes.status !== 404) {
+        const snippetId = existingPackageRes.data.snippet.snippet_id
+        setAlreadyImportedPackageId(snippetId)
         setIsLoading(false)
         return
       }
@@ -122,14 +122,14 @@ export function JLCPCBImportDialog({
             onChange={(e) => {
               setPartNumber(e.target.value)
               setError(null)
-              setAlreadyImportedSnippetId(null)
+              setAlreadyImportedPackageId(null)
             }}
           />
-          {error && !alreadyImportedSnippetId && (
+          {error && !alreadyImportedPackageId && (
             <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>
           )}
 
-          {error && !alreadyImportedSnippetId && (
+          {error && !alreadyImportedPackageId && (
             <div className="flex justify-end mt-2">
               <Button
                 variant="default"
@@ -150,12 +150,12 @@ export function JLCPCBImportDialog({
             </div>
           )}
 
-          {alreadyImportedSnippetId && (
+          {alreadyImportedPackageId && (
             <p className="mt-2 text-sm text-green-600">
               This part number has already been imported to your profile.{" "}
               <PrefetchPageLink
                 className="text-blue-500 hover:underline"
-                href={`/editor?package_id=${alreadyImportedSnippetId}`}
+                href={`/editor?package_id=${alreadyImportedPackageId}`}
               >
                 View it here
               </PrefetchPageLink>
