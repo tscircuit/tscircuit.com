@@ -88,7 +88,7 @@ export default function MainContentHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem
-              onClick={() => {
+              onSelect={() => {
                 setLocation(`/editor?package_id=${packageInfo?.package_id}`)
               }}
               className="cursor-pointer p-2 py-4"
