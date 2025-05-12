@@ -49,7 +49,6 @@ const lazyImport = (importFn: () => Promise<any>) =>
     }
   })
 
-const AiPage = lazyImport(() => import("@/pages/ai"))
 const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
 const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
 const EditorPage = lazyImport(async () => {
@@ -119,7 +118,6 @@ function App() {
             <Route path="/legacy-editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/ai" component={AiPage} />
             <Route path="/latest" component={LatestPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/search" component={SearchPage} />
