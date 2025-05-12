@@ -18,7 +18,7 @@ import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
-import { PackageInfo } from "@/lib/types"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 interface PackageFile {
   package_file_id: string
@@ -32,7 +32,7 @@ interface PackageFile {
 interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
-  packageInfo?: PackageInfo
+  packageInfo?: Package
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
 }
@@ -179,8 +179,8 @@ export default function RepoPageContent({
               importantFiles={importantFiles}
               isLoading={!packageFiles}
               onEditClicked={onEditClicked}
-              aiDescription={packageInfo?.ai_description}
-              aiUsageInstructions={packageInfo?.ai_usage_instructions}
+              aiDescription={packageInfo?.ai_description ?? ""}
+              aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
             />
           </div>
 

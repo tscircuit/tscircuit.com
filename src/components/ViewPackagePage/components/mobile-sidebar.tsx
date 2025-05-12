@@ -67,6 +67,7 @@ export default function MobileSidebar({
 
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
+    fsMapHash: packageInfo?.latest_package_release_id ?? "",
   })
 
   const handleViewClick = (viewId: string) => {
