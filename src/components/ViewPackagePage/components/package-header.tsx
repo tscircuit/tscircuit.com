@@ -42,10 +42,9 @@ export default function PackageHeader({
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
   const signIn = useSignIn()
-  const { OrderDialog, isOpen, open, close, stage, setStage } =
-    useOrderDialog({
-      onSignIn: signIn,
-    })
+  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
+    onSignIn: signIn,
+  })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
