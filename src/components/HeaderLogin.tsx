@@ -27,14 +27,11 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const signIn = useSignIn()
   const { data: accountBalance } = useAccountBalance()
 
-  const navigateTo = useCallback(
-    (path: string) => {
-      requestAnimationFrame(() => {
-        setLocation(path)
-      })
-    },
-    [setLocation],
-  )
+  const navigateTo = (path: string) => {
+    requestAnimationFrame(() => {
+      setLocation(path)
+    })
+  }
 
   if (!isLoggedIn) {
     const handleLogin = () => {
