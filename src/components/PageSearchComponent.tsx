@@ -39,7 +39,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
       }
       return data.packages
     },
-    { enabled: Boolean(searchQuery) },
+    { enabled: Boolean(searchQuery), keepPreviousData: false },
   )
 
   // Update URL while preserving other parameters
@@ -92,6 +92,18 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
             <PackageCardSkeleton key={i} />
           ))}
         </div>
+      ) : searchQuery && (!searchResults || searchResults.length === 0) ? (
+        <div className="text-center py-12 px-4">
+          <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
+            <Search className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-xl font-medium text-slate-900 mb-2">
+            No Results for "{searchQuery}"
+          </h3>
+          <p className="text-slate-500 max-w-md mx-auto mb-6">
+            Try searching for something else or browse trending packages.
+          </p>
+        </div>
       ) : searchResults && searchResults.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {searchResults.map((pkg: any) => (
@@ -104,18 +116,6 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
               className="hover:bg-gray-50"
             />
           ))}
-        </div>
-      ) : searchQuery ? (
-        <div className="text-center py-12 px-4">
-          <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
-            <Search className="w-8 h-8 text-slate-400" />
-          </div>
-          <h3 className="text-xl font-medium text-slate-900 mb-2">
-            No Results for "{searchQuery}"
-          </h3>
-          <p className="text-slate-500 max-w-md mx-auto mb-6">
-            Try searching for something else or browse trending packages.
-          </p>
         </div>
       ) : (
         <div className="text-center py-12 px-4">
