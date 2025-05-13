@@ -44,6 +44,7 @@ export default function MainContentHeader({
   const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
     "copy",
   )
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const handleCopyInstall = () => {
     const command = `tsci add ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
@@ -75,7 +76,7 @@ export default function MainContentHeader({
         />
 
         {/* Code Dropdown */}
-        <DropdownMenu>
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
@@ -89,9 +90,8 @@ export default function MainContentHeader({
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem
               onClick={() => {
-                requestAnimationFrame(() => {
-                  setLocation(`/editor?package_id=${packageInfo?.package_id}`)
-                })
+                setDropdownOpen(false)
+                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
               }}
               className="cursor-pointer p-2 py-4"
             >
