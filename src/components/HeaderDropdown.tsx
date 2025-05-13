@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils"
 import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import { useLocation } from "wouter"
+import { useState } from "react"
 
 export default function HeaderDropdown() {
   const [, setLocation] = useLocation()
+  const [open, setOpen] = useState(false)
 
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
@@ -41,7 +43,7 @@ export default function HeaderDropdown() {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
@@ -52,9 +54,19 @@ export default function HeaderDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-fit">
-        <DropdownMenuItem onClick={() => navigateTo("/quickstart")}>
-          <Zap className="mr-2 h-3 w-3" />
-          Quickstart Templates
+        <DropdownMenuItem asChild>
+          <PrefetchPageLink
+            href="/quickstart"
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              e.preventDefault()
+              setOpen(false)
+              navigateTo("/quickstart")
+            }}
+            className="flex items-center cursor-pointer"
+          >
+            <Zap className="mr-2 h-3 w-3" />
+            Quickstart Templates
+          </PrefetchPageLink>
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
@@ -72,9 +84,19 @@ export default function HeaderDropdown() {
             </a>
           </DropdownMenuItem>
         ))}
-        <DropdownMenuItem onClick={() => navigateTo("/quickstart")}>
-          <Upload className="mr-2 h-3 w-3" />
-          Import Part
+        <DropdownMenuItem asChild>
+          <PrefetchPageLink
+            href="/quickstart"
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              e.preventDefault()
+              setOpen(false)
+              navigateTo("/quickstart")
+            }}
+            className="flex items-center cursor-pointer"
+          >
+            <Upload className="mr-2 h-3 w-3" />
+            Import Part
+          </PrefetchPageLink>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
