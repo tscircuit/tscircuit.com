@@ -13,7 +13,7 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
-import { PcbImage } from "./PcbImage"
+import { ImageWithFallback } from "./ImageWithFallback"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -69,7 +69,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
-          <PcbImage
+          <ImageWithFallback
             src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
               {
                 fs_sha: fsMapHash ?? "",
