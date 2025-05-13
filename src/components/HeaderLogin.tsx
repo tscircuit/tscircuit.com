@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -26,6 +26,15 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   const isUsingFakeApi = useIsUsingFakeApi()
   const signIn = useSignIn()
   const { data: accountBalance } = useAccountBalance()
+
+  const navigateTo = useCallback(
+    (path: string) => {
+      requestAnimationFrame(() => {
+        setLocation(path)
+      })
+    },
+    [setLocation],
+  )
 
   if (!isLoggedIn) {
     const handleLogin = () => {
@@ -71,17 +80,17 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
             $5.00
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setLocation(`/${session?.github_username}`)}
+            onClick={() => navigateTo(`/${session?.github_username}`)}
           >
             My Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
+          <DropdownMenuItem onClick={() => navigateTo("/dashboard")}>
             Dashboard
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/my-orders")}>
+          <DropdownMenuItem onClick={() => navigateTo("/my-orders")}>
             My Orders
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/settings")}>
+          <DropdownMenuItem onClick={() => navigateTo("/settings")}>
             Settings
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setSession(null)}>
