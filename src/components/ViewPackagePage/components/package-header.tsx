@@ -21,6 +21,7 @@ import {
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType
@@ -40,7 +41,11 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
+  const signIn = useSignIn()
+  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
+    onSignIn: signIn,
+    isLoggedIn,
+  })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
