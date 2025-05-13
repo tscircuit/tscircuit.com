@@ -90,8 +90,8 @@ export default function MainContentHeader({
             <DropdownMenuItem
               onClick={() => {
                 requestAnimationFrame(() => {
-                  setLocation(`/editor?package_id=${packageInfo?.package_id}`);
-                });
+                  setLocation(`/editor?package_id=${packageInfo?.package_id}`)
+                })
               }}
               className="cursor-pointer p-2 py-4"
             >
