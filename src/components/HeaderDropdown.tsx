@@ -8,8 +8,11 @@ import {
 import { cn } from "@/lib/utils"
 import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { useLocation } from "wouter"
 
 export default function HeaderDropdown() {
+  const [, setLocation] = useLocation()
+
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
     {
@@ -31,6 +34,12 @@ export default function HeaderDropdown() {
     },
   ]
 
+  const navigateTo = (path: string) => {
+    requestAnimationFrame(() => {
+      setLocation(path)
+    })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,14 +52,9 @@ export default function HeaderDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-fit">
-        <DropdownMenuItem asChild>
-          <PrefetchPageLink
-            href="/quickstart"
-            className="flex items-center cursor-pointer"
-          >
-            <Zap className="mr-2 h-3 w-3" />
-            Quickstart Templates
-          </PrefetchPageLink>
+        <DropdownMenuItem onClick={() => navigateTo("/quickstart")}>
+          <Zap className="mr-2 h-3 w-3" />
+          Quickstart Templates
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
@@ -68,14 +72,9 @@ export default function HeaderDropdown() {
             </a>
           </DropdownMenuItem>
         ))}
-        <DropdownMenuItem asChild>
-          <PrefetchPageLink
-            href="/quickstart"
-            className="flex items-center cursor-pointer"
-          >
-            <Upload className="mr-2 h-3 w-3" />
-            Import Part
-          </PrefetchPageLink>
+        <DropdownMenuItem onClick={() => navigateTo("/quickstart")}>
+          <Upload className="mr-2 h-3 w-3" />
+          Import Part
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
