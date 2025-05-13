@@ -44,6 +44,7 @@ export default function PackageHeader({
   const signIn = useSignIn()
   const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
     onSignIn: signIn,
+    isLoggedIn,
   })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
