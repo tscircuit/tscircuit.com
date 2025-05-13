@@ -15,13 +15,16 @@ import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 import { useSignIn } from "@/hooks/use-sign-in"
 
-interface HeaderLoginProps {}
+interface HeaderLoginProps {
+  currentCode?: string
+}
 
-export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
+export const HeaderLogin: React.FC<HeaderLoginProps> = ({ currentCode }) => {
   const [, setLocation] = useLocation()
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
+  const setCodeState = useGlobalStore((s) => s.setCodeState)
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
   const isUsingFakeApi = useIsUsingFakeApi()
   const signIn = useSignIn()
@@ -29,6 +32,11 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
 
   if (!isLoggedIn) {
     const handleLogin = () => {
+      // Save current code state if available
+      if (currentCode) {
+        setCodeState(currentCode)
+      }
+
       if (isUsingFakeApi) {
         setSession({
           account_id: "account-1234",

@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async"
 import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
+import { useLocation } from "wouter"
 
 const staffGithubUsernames = [
   "imrishabh18",
@@ -19,6 +20,24 @@ const isInternalGithubUser = (githubUsername?: string | null) => {
     (internalGithubUsername: string) =>
       internalGithubUsername.toLowerCase() === githubUsername.toLowerCase(),
   )
+}
+
+function LocationTracker() {
+  const [location] = useLocation()
+  const setLastVisitedUrl = useGlobalStore((s) => s.setLastVisitedUrl)
+
+  useEffect(() => {
+    // Don't save auth-related pages as the last visited URL
+    if (
+      !location.startsWith("/authorize") &&
+      !location.startsWith("/login") &&
+      location !== "/"
+    ) {
+      setLastVisitedUrl(location)
+    }
+  }, [location, setLastVisitedUrl])
+
+  return null
 }
 
 function PostHogIdentifier() {
@@ -60,6 +79,7 @@ export const ContextProviders = ({ children }: any) => {
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <PostHogIdentifier />
+        <LocationTracker />
         {children}
       </HelmetProvider>
     </QueryClientProvider>
