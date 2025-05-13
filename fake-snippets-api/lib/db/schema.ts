@@ -260,6 +260,18 @@ export const jlcpcbOrderStepRunSchema = z.object({
 })
 export type JlcpcbOrderStepRun = z.infer<typeof jlcpcbOrderStepRunSchema>
 
+export const autoroutingBugReportSchema = z.object({
+  bug_report_id: z.string(),
+  account_id: z.string(),
+  failed_to_route: z.boolean().default(false),
+  circuit_json: z.any().nullable().optional(),
+  simple_route_json: z.any().nullable().optional(),
+  created_at: z.string().datetime(),
+  description: z.string().optional(),
+  status: z.enum(["open", "in_progress", "resolved", "closed"]).default("open"),
+})
+export type AutoroutingBugReport = z.infer<typeof autoroutingBugReportSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -276,5 +288,6 @@ export const databaseSchema = z.object({
   jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
   orderQuotes: z.array(orderQuoteSchema).default([]),
+  autoroutingBugReports: z.array(autoroutingBugReportSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

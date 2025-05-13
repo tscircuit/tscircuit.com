@@ -36,3 +36,5 @@ yalc.lock
 
 public/assets
 public/sitemap.xml
+
+**/.claude/settings.local.json

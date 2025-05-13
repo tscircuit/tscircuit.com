@@ -6,6 +6,7 @@ import { combine } from "zustand/middleware"
 import {
   type Account,
   type AccountPackage,
+  type AutoroutingBugReport,
   type JlcpcbOrderState,
   type JlcpcbOrderStepRun,
   type LoginPage,
@@ -1286,5 +1287,78 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.packageFiles.filter(
       (pf) => pf.package_release_id === packageReleaseId,
     )
+  },
+
+  // Autorouting bug report methods
+  addAutoroutingBugReport: (
+    bugReport: Omit<AutoroutingBugReport, "bug_report_id">
+  ): AutoroutingBugReport => {
+    const newBugReport = {
+      bug_report_id: `bug_report_${get().idCounter + 1}`,
+      ...bugReport,
+    }
+    set((state) => {
+      return {
+        autoroutingBugReports: [...state.autoroutingBugReports, newBugReport],
+        idCounter: state.idCounter + 1,
+      }
+    })
+    return newBugReport
+  },
+
+  getAutoroutingBugReportById: (
+    bugReportId: string
+  ): AutoroutingBugReport | undefined => {
+    const state = get()
+    return state.autoroutingBugReports.find(
+      (report) => report.bug_report_id === bugReportId
+    )
+  },
+
+  updateAutoroutingBugReport: (
+    bugReportId: string,
+    updates: Partial<AutoroutingBugReport>
+  ): AutoroutingBugReport | undefined => {
+    let updatedReport: AutoroutingBugReport | undefined
+
+    set((state) => {
+      const reportIndex = state.autoroutingBugReports.findIndex(
+        (report) => report.bug_report_id === bugReportId
+      )
+
+      if (reportIndex === -1) return state
+
+      const updatedReports = [...state.autoroutingBugReports]
+      updatedReports[reportIndex] = {
+        ...updatedReports[reportIndex],
+        ...updates,
+      }
+
+      updatedReport = updatedReports[reportIndex]
+      return { ...state, autoroutingBugReports: updatedReports }
+    })
+
+    return updatedReport
+  },
+
+  deleteAutoroutingBugReport: (bugReportId: string): boolean => {
+    let deleted = false
+
+    set((state) => {
+      const index = state.autoroutingBugReports.findIndex(
+        (report) => report.bug_report_id === bugReportId
+      )
+
+      if (index !== -1) {
+        const updatedReports = [...state.autoroutingBugReports]
+        updatedReports.splice(index, 1)
+        deleted = true
+        return { ...state, autoroutingBugReports: updatedReports }
+      }
+
+      return state
+    })
+
+    return deleted
   },
 }))
