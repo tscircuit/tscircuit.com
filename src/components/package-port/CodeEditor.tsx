@@ -23,7 +23,7 @@ import {
 } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ts from "typescript"
+import { useTypescript } from "@/hooks/use-typescript"
 import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
@@ -68,6 +68,7 @@ export const CodeEditor = ({
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
+  const { tsModule, isLoading: isTsLoading } = useTypescript()
 
   const { highlighter, isLoading } = useShikiHighlighter()
 
@@ -125,6 +126,7 @@ export const CodeEditor = ({
   }, [isStreaming])
 
   useEffect(() => {
+    if (!tsModule) return
     if (!editorRef.current) return
 
     const fsMap = new Map<string, string>()
@@ -134,10 +136,10 @@ export const CodeEditor = ({
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     createDefaultMapFromCDN(
-      { target: ts.ScriptTarget.ES2022 },
+      { target: tsModule.ScriptTarget.ES2022 },
       "5.6.3",
       true,
-      ts,
+      tsModule,
     ).then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
@@ -145,11 +147,12 @@ export const CodeEditor = ({
     })
 
     const system = createSystem(fsMap)
-    const env = createVirtualTypeScriptEnvironment(system, [], ts, {
-      jsx: ts.JsxEmit.ReactJSX,
+
+    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+      jsx: tsModule.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
-      target: ts.ScriptTarget.ES2022,
+      target: tsModule.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
 
@@ -160,7 +163,7 @@ export const CodeEditor = ({
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
-      typescript: ts,
+      typescript: tsModule,
       logger: console,
       fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
         const registryPrefixes = [
@@ -336,7 +339,9 @@ export const CodeEditor = ({
 
               const start = info.textSpan.start
               const end = start + info.textSpan.length
-              const content = ts.displayPartsToString(info.displayParts || [])
+              const content = tsModule?.displayPartsToString(
+                info.displayParts || [],
+              )
 
               const dom = document.createElement("div")
               if (highlighter) {
@@ -456,7 +461,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== ""])
+  }, [!isStreaming, currentFile, code !== "", Boolean(tsModule)])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {

@@ -24,7 +24,7 @@ import {
 } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ts from "typescript"
+import { useTypescript } from "@/hooks/use-typescript"
 import CodeEditorHeader from "./CodeEditorHeader"
 // import { copilotPlugin, Language } from "@valtown/codemirror-codeium"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
@@ -60,6 +60,7 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const apiUrl = useSnippetsBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
+  const { tsModule, isLoading: isTsLoading } = useTypescript()
 
   const { highlighter, isLoading } = useShikiHighlighter()
 
@@ -108,30 +109,34 @@ export const CodeEditor = ({
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    createDefaultMapFromCDN(
-      { target: ts.ScriptTarget.ES2022 },
-      "5.6.3",
-      true,
-      ts,
-    ).then((defaultFsMap) => {
-      defaultFsMap.forEach((content, filename) => {
-        fsMap.set(filename, content)
+    if (tsModule) {
+      createDefaultMapFromCDN(
+        { target: tsModule.ScriptTarget.ES2022 },
+        "5.6.3",
+        true,
+        tsModule,
+      ).then((defaultFsMap) => {
+        defaultFsMap.forEach((content, filename) => {
+          fsMap.set(filename, content)
+        })
       })
-    })
+    }
 
     const system = createSystem(fsMap)
-    const env = createVirtualTypeScriptEnvironment(system, [], ts, {
-      jsx: ts.JsxEmit.ReactJSX,
+    if (!tsModule) return
+
+    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+      jsx: tsModule.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
-      target: ts.ScriptTarget.ES2022,
+      target: tsModule.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
 
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
-      typescript: ts,
+      typescript: tsModule,
       logger: console,
       fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
         const registryPrefixes = [
@@ -307,7 +312,7 @@ export const CodeEditor = ({
 
               const start = info.textSpan.start
               const end = start + info.textSpan.length
-              const content = ts.displayPartsToString(info.displayParts || [])
+              const content = tsModule?.displayPartsToString(info.displayParts || [])
 
               const dom = document.createElement("div")
               if (highlighter) {
