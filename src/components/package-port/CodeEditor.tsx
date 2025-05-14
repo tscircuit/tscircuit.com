@@ -126,7 +126,6 @@ export const CodeEditor = ({
   }, [isStreaming])
 
   useEffect(() => {
-    if (!tsModule) return
     if (!editorRef.current) return
 
     const fsMap = new Map<string, string>()
@@ -135,18 +134,22 @@ export const CodeEditor = ({
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    createDefaultMapFromCDN(
-      { target: tsModule.ScriptTarget.ES2022 },
-      "5.6.3",
-      true,
-      tsModule,
-    ).then((defaultFsMap) => {
-      defaultFsMap.forEach((content, filename) => {
-        fsMap.set(filename, content)
+    if (tsModule) {
+      createDefaultMapFromCDN(
+        { target: tsModule.ScriptTarget.ES2022 },
+        "5.6.3",
+        true,
+        tsModule,
+      ).then((defaultFsMap) => {
+        defaultFsMap.forEach((content, filename) => {
+          fsMap.set(filename, content)
+        })
       })
-    })
+    }
 
     const system = createSystem(fsMap)
+
+    if (!tsModule) return
 
     const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
       jsx: tsModule.JsxEmit.ReactJSX,
