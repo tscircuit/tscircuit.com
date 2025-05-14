@@ -71,7 +71,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tscircuit/3d-viewer": "^0.0.142",
-    "@tscircuit/eval": "^0.0.170",
+    "@tscircuit/eval": "^0.0.198",
     "@tscircuit/footprinter": "^0.0.124",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.10",
