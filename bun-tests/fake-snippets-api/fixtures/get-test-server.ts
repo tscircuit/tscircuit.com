@@ -16,12 +16,10 @@ interface TestFixture {
 }
 
 export const getTestServer = async (): Promise<TestFixture> => {
-  const port = await getPort()
   const testInstanceId = Math.random().toString(36).substring(2, 15)
   const testDbName = `testdb${testInstanceId}`
 
-  const { server, db } = await startServer({
-    port,
+  const { server, db, port } = await startServer({
     testDbName,
   })
 
