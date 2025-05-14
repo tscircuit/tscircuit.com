@@ -1,45 +1,51 @@
-import { CodeAndPreview } from "@/components/CodeAndPreview"
+import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { useCurrentSnippetId } from "@/hooks/use-current-snippet-id"
-import { useSnippet } from "@/hooks/use-snippet"
 import { Helmet } from "react-helmet-async"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { usePackage } from "@/hooks/use-package"
+import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 
 export const EditorPage = () => {
-  const { snippetId } = useCurrentSnippetId()
-  const { data: snippet, isLoading, error } = useSnippet(snippetId)
+  const { packageId } = useCurrentPackageId()
+  const { data: pkg, isLoading, error } = usePackage(packageId)
+  const fsMapHash = useGetFsMapHashForPackage(
+    pkg?.latest_package_release_id ?? "",
+  )
 
   return (
     <div className="overflow-x-hidden">
       <Helmet>
         <title>
-          {snippet
-            ? `${snippet.unscoped_name} - tscircuit`
-            : "tscircuit editor"}
+          {pkg ? `${pkg.unscoped_name} - tscircuit` : "tscircuit editor"}
         </title>
-        {snippet && (
+        {pkg && (
           <>
             <meta
               property="og:title"
-              content={`${snippet.unscoped_name} - tscircuit`}
+              content={`${pkg.unscoped_name} - tscircuit`}
             />
             <meta
               property="og:image"
-              content={`https://registry-api.tscircuit.com/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?${new URLSearchParams(
+                {
+                  fs_sha: fsMapHash ?? "",
+                },
+              ).toString()}`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`https://registry-api.tscircuit.com/snippets/images/${snippet.owner_name}/${snippet.unscoped_name}/pcb.png`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png`}
             />
           </>
         )}
       </Helmet>
       <Header />
-      {!error && <CodeAndPreview snippet={snippet} />}
+      {!error && <CodeAndPreview pkg={pkg} />}
       {error && error.status === 404 && (
         <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
-          Snippet not found
+          Package not found
         </div>
       )}
       {error && error.status !== 404 && (

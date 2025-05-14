@@ -9,8 +9,7 @@ import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
-import { PackageList } from "@/components/PackagesList"
-import { SnippetList } from "@/components/SnippetList"
+import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
@@ -175,14 +174,14 @@ export const DashboardPage = () => {
             )}
           </div>
           <div className="md:w-1/4">
-            <PackageList
+            <PackagesList
               title="Trending Packages"
               packages={trendingPackages}
               showAll={showAllTrending}
               onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
             />
             <div className="mt-8">
-              <PackageList
+              <PackagesList
                 title="Latest Packages"
                 packages={latestPackages}
                 showAll={showAllLatest}
