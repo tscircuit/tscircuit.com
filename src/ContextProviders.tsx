@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
 import { useLocation } from "wouter"
+import { Toaster } from "react-hot-toast"
 
 const staffGithubUsernames = [
   "imrishabh18",
@@ -81,6 +82,7 @@ export const ContextProviders = ({ children }: any) => {
         <PostHogIdentifier />
         <LocationTracker />
         {children}
+        <Toaster />
       </HelmetProvider>
     </QueryClientProvider>
   )

@@ -30,17 +30,6 @@ test("get schematic svg of a snippet", async () => {
       <A555Timer name="U1" />
     </board>
   )`.trim(),
-      type: "board",
-      compiled_js: `
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.A555Timer = void 0;
-    const A555Timer = ({ name }) => /*#__PURE__*/React.createElement("chip", {
-      name: name,
-      footprint: "dip8"
-    });
-    exports.A555Timer = A555Timer;
-    `.trim(),
     }),
   }
 
@@ -87,17 +76,6 @@ test("get pcb svg of a snippet", async () => {
       <A555Timer name="U1" />
     </board>
   )`.trim(),
-      type: "board",
-      compiled_js: `
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.A555Timer = void 0;
-    const A555Timer = ({ name }) => /*#__PURE__*/React.createElement("chip", {
-      name: name,
-      footprint: "dip8"
-    });
-    exports.A555Timer = A555Timer;
-    `.trim(),
     }),
   }
 
