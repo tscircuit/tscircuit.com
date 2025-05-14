@@ -151,11 +151,11 @@ export function JLCPCBImportDialog({
           )}
 
           {alreadyImportedPackageId && (
-            <p className="mt-2 text-sm text-green-600">
+            <p className="p-2 mt-2 pre-wrap text-md text-green-600">
               This part number has already been imported to your profile.{" "}
               <PrefetchPageLink
                 className="text-blue-500 hover:underline"
-                href={`/editor?package_id=${alreadyImportedPackageId}`}
+                href={`/${session?.github_username}/${partNumber}`}
               >
                 View it here
               </PrefetchPageLink>
