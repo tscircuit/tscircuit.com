@@ -59,8 +59,8 @@ export function JLCPCBImportDialog({
       )
 
       if (existingPackageRes.status !== 404) {
-        const snippetId = existingPackageRes.data.snippet.snippet_id
-        setAlreadyImportedPackageId(snippetId)
+        const packageId = existingPackageRes.data.snippet.snippet_id
+        setAlreadyImportedPackageId(packageId)
         setIsLoading(false)
         return
       }
