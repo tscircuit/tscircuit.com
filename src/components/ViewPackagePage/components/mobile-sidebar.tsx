@@ -34,7 +34,10 @@ const OriginalMobileSidebar = function MobileSidebar({
     }
     return undefined
   }, [licenseFileMeta?.content_text, packageInfo?.latest_license])
-  const topics = useMemo(() => packageInfo?.is_package ? ["Package"] : ["Board"], [packageInfo?.is_package])
+  const topics = useMemo(
+    () => (packageInfo?.is_package ? ["Package"] : ["Board"]),
+    [packageInfo?.is_package],
+  )
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const isOwner =
     isLoggedIn &&
