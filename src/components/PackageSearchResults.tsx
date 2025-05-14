@@ -4,6 +4,15 @@ import { PackageCardSkeleton } from "./PackageCardSkeleton"
 import { Search } from "lucide-react"
 import { PackageCard } from "./PackageCard"
 
+interface PackageSearchResultsProps {
+  isLoading: boolean
+  error: unknown
+  filteredPackages: Package[] | undefined
+  searchQuery: string
+  category: string
+  apiBaseUrl: string
+}
+
 const PackageGrid = ({
   packages,
   baseUrl,
@@ -64,15 +73,6 @@ const EmptyState = ({
     </p>
   </div>
 )
-
-interface PackageSearchResultsProps {
-  isLoading: boolean
-  error: unknown
-  filteredPackages: Package[] | undefined
-  searchQuery: string
-  category: string
-  apiBaseUrl: string
-}
 
 const PackageSearchResults: React.FC<PackageSearchResultsProps> = ({
   isLoading,
