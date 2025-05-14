@@ -24,6 +24,7 @@
     "preview": "vite preview",
     "format": "biome format --write .",
     "lint": "biome format .",
+    "build:vite:analyze": "VITE_BUNDLE_ANALYZE=true vite build",
     "build:fake-api:tsup": "tsup-node ./fake-snippets-api/lib/index.ts --format esm --dts",
     "build:fake-api:bundle": "winterspec bundle -o dist/bundle.js",
     "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle && bun run build:fake-api:schema",

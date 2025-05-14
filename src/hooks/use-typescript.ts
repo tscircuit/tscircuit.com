@@ -22,7 +22,6 @@ const loadTypescript = (): Promise<TypescriptModule> => {
   }
 
   // Create a new promise to load the script
-  const toastId = toast.loading("Loading TypeScript...")
   tsPromiseGlobal = new Promise((resolve, reject) => {
     const script = document.createElement("script")
     script.src =
@@ -31,13 +30,12 @@ const loadTypescript = (): Promise<TypescriptModule> => {
 
     script.onload = () => {
       // Script has loaded, store the module and resolve
-      toast.success("TypeScript loaded", { id: toastId })
       tsModuleGlobal = (window as any).ts
       resolve(tsModuleGlobal)
     }
 
     script.onerror = () => {
-      toast.error("Failed to load TypeScript from CDN", { id: toastId })
+      toast.error("Failed to load TypeScript from CDN")
       reject(new Error("Failed to load TypeScript from CDN"))
     }
 
