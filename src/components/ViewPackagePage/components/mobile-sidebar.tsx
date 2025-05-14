@@ -16,10 +16,10 @@ interface MobileSidebarProps {
   onViewChange: (view: "schematic" | "pcb" | "3d") => void
 }
 
-const OriginalMobileSidebar = function MobileSidebar({
+const MobileSidebar = ({
   isLoading = false,
   onViewChange,
-}: MobileSidebarProps) {
+}: MobileSidebarProps) => {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
   const { data: licenseFileMeta } = usePackageFile({
     package_release_id: packageInfo?.latest_package_release_id ?? "",
@@ -217,7 +217,7 @@ const OriginalMobileSidebar = function MobileSidebar({
   )
 }
 
-export default React.memo(OriginalMobileSidebar)
+export default React.memo(MobileSidebar)
 
 function PreviewButton({
   view,
