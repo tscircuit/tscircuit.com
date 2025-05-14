@@ -126,11 +126,15 @@ export default defineConfig(async (): Promise<UserConfig> => {
       // },
       reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
+        external: ["typescript"],
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
       },
+    },
+    optimizeDeps: {
+      exclude: ["typescript"],
     },
     ssr: {
       noExternal: ["react-dom/client"],
