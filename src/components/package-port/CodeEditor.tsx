@@ -464,7 +464,13 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== "", Boolean(tsModule)])
+  }, [
+    !isStreaming,
+    currentFile,
+    code !== "",
+    Boolean(tsModule),
+    Boolean(highlighter),
+  ])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
