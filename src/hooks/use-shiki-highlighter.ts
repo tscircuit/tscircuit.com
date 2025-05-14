@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { createHighlighterCore, type HighlighterCore } from "shiki/core"
 import { createOnigurumaEngine } from "shiki/engine/oniguruma"
 
-let cachedHighlighter: Highlighter | null = null
+let cachedHighlighter: HighlighterCore | null = null
 
 export const useShikiHighlighter = () => {
   const [highlighter, setHighlighter] = useState<HighlighterCore | null>(null)
