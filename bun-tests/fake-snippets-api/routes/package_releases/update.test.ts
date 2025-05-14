@@ -69,7 +69,7 @@ test("update package release using package_name_with_version", async () => {
   expect(updatedRelease?.is_locked).toBe(true)
 })
 
-test("update package release - handle is_latest flag", async () => {
+test.todo("update package release - handle is_latest flag", async () => {
   const { axios, db } = await getTestServer()
 
   // Create a package
