@@ -312,7 +312,9 @@ export const CodeEditor = ({
 
               const start = info.textSpan.start
               const end = start + info.textSpan.length
-              const content = tsModule?.displayPartsToString(info.displayParts || [])
+              const content = tsModule?.displayPartsToString(
+                info.displayParts || [],
+              )
 
               const dom = document.createElement("div")
               if (highlighter) {
