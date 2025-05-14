@@ -49,7 +49,6 @@ const lazyImport = (importFn: () => Promise<any>) =>
     }
   })
 
-const AiPage = lazyImport(() => import("@/pages/ai"))
 const AuthenticatePage = lazyImport(() => import("@/pages/authorize"))
 const DashboardPage = lazyImport(() => import("@/pages/dashboard"))
 const EditorPage = lazyImport(async () => {
@@ -68,7 +67,6 @@ const SearchPage = lazyImport(() => import("@/pages/search"))
 const SettingsPage = lazyImport(() => import("@/pages/settings"))
 const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
 const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
-const ViewSnippetPage = lazyImport(() => import("@/pages/view-snippet"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const BetaPage = lazyImport(() => import("@/pages/beta"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
@@ -119,7 +117,6 @@ function App() {
             <Route path="/legacy-editor" component={EditorPage} />
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
-            <Route path="/ai" component={AiPage} />
             <Route path="/latest" component={LatestPage} />
             <Route path="/settings" component={SettingsPage} />
             <Route path="/search" component={SearchPage} />
@@ -131,10 +128,6 @@ function App() {
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
-            <Route
-              path="/snippets/:author/:snippetName"
-              component={ViewSnippetPage}
-            />
             <Route component={lazyImport(() => import("@/pages/404"))} />
           </Switch>
         </Suspense>

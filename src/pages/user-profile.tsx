@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
+import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -159,10 +160,10 @@ export const UserProfilePage = () => {
           </Select>
         </div>
         {isLoading ? (
-          <div>
-            {activeTab === "starred"
-              ? "Loading Starred Packages..."
-              : "Loading User Packages..."}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <PackageCardSkeleton key={i} />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -184,16 +185,20 @@ export const UserProfilePage = () => {
                 <div className="flex flex-col items-center py-12 text-gray-500">
                   {activeTab === "starred" ? (
                     <>
-                      <Star />
+                      <Star className="mb-2" size={24} />
                       <span className="text-lg font-medium">
-                        No starred packages
+                        {searchQuery.trim()
+                          ? `No starred packages matching '${searchQuery.trim()}'`
+                          : "No starred packages"}
                       </span>
                     </>
                   ) : (
                     <>
-                      <Box />
+                      <Box className="mb-2" size={24} />
                       <span className="text-lg font-medium">
-                        No packages available
+                        {searchQuery.trim()
+                          ? `No packages matching '${searchQuery.trim()}'`
+                          : "No packages available"}
                       </span>
                     </>
                   )}

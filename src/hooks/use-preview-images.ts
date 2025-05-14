@@ -2,9 +2,13 @@ import { useState } from "react"
 
 interface UsePreviewImagesProps {
   packageName?: string
+  fsMapHash?: string
 }
 
-export function usePreviewImages({ packageName }: UsePreviewImagesProps) {
+export function usePreviewImages({
+  packageName,
+  fsMapHash,
+}: UsePreviewImagesProps) {
   const [imageStatus, setImageStatus] = useState<
     Record<string, "loading" | "loaded" | "error">
   >({
@@ -18,21 +22,33 @@ export function usePreviewImages({ packageName }: UsePreviewImagesProps) {
       id: "3d",
       label: "3D View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/snippets/images/${packageName}/3d.png`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/3d.png?${new URLSearchParams(
+            {
+              fs_sha: fsMapHash ?? "",
+            },
+          ).toString()}`
         : undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/snippets/images/${packageName}/pcb.png`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/pcb.png?${new URLSearchParams(
+            {
+              fs_sha: fsMapHash ?? "",
+            },
+          ).toString()}`
         : undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/snippets/images/${packageName}/schematic.png`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/schematic.png?${new URLSearchParams(
+            {
+              fs_sha: fsMapHash ?? "",
+            },
+          ).toString()}`
         : undefined,
     },
   ]

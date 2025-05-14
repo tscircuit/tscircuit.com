@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import {
@@ -23,8 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { SnippetCard } from "@/components/SnippetCard"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
+import { PackageCard } from "@/components/PackageCard"
 
 const LatestPage: React.FC = () => {
   const axios = useAxios()
@@ -33,30 +33,30 @@ const LatestPage: React.FC = () => {
   const [category, setCategory] = useState("all")
 
   const {
-    data: snippets,
+    data: packages,
     isLoading,
     error,
-  } = useQuery<Snippet[]>(
-    ["latestSnippets", category],
+  } = useQuery<Package[]>(
+    ["latestPackages", category],
     async () => {
       const params = category !== "all" ? { tag: category } : {}
-      const response = await axios.get("/snippets/list_latest", { params })
-      return response.data.snippets
+      const response = await axios.get("/packages/list_latest", { params })
+      return response.data.packages
     },
     {
       keepPreviousData: true,
     },
   )
 
-  const filteredSnippets = snippets?.filter((snippet) => {
+  const filteredPackages = packages?.filter((pkg) => {
     if (!searchQuery) return true
 
     const query = searchQuery.toLowerCase().trim()
 
     const searchableFields = [
-      snippet.unscoped_name.toLowerCase(),
-      snippet.owner_name.toLowerCase(),
-      (snippet.description || "").toLowerCase(),
+      pkg.unscoped_name.toLowerCase(),
+      pkg.owner_github_username?.toLowerCase() ?? "",
+      (pkg.description || "").toLowerCase(),
     ]
 
     return searchableFields.some((field) => {
@@ -73,7 +73,7 @@ const LatestPage: React.FC = () => {
           <div className="flex items-center gap-2 mb-3">
             <Calendar className="w-6 h-6 text-blue-500" />
             <h1 className="text-4xl font-bold text-gray-900">
-              Latest Snippets
+              Latest Packages
             </h1>
           </div>
           <p className="text-lg text-gray-600 mb-4">
@@ -99,7 +99,7 @@ const LatestPage: React.FC = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 type="text"
-                placeholder="Search latest snippets..."
+                placeholder="Search latest packages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -154,40 +154,39 @@ const LatestPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-2">
-                  Error Loading Snippets
+                  Error Loading Packages
                 </h3>
                 <p className="text-red-600">
-                  We couldn't load the latest snippets. Please try again later.
+                  We couldn't load the latest packages. Please try again later.
                 </p>
               </div>
             </div>
           </div>
-        ) : filteredSnippets?.length === 0 ? (
+        ) : filteredPackages?.length === 0 ? (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
               <Search className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-xl font-medium text-slate-900 mb-2">
-              No Matching Snippets
+              No Matching Packages
             </h3>
             <p className="text-slate-500 max-w-md mx-auto mb-6">
               {searchQuery
-                ? `No snippets match your search for "${searchQuery}".`
+                ? `No packages match your search for "${searchQuery}".`
                 : category !== "all"
-                  ? `No ${category} snippets found in the latest list.`
-                  : "There are no new snippets at the moment."}
+                  ? `No ${category} packages found in the latest list.`
+                  : "There are no new packages at the moment."}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredSnippets
+            {filteredPackages
               ?.sort((a, b) => b.created_at.localeCompare(a.created_at))
-              ?.map((snippet) => (
-                <SnippetCard
-                  key={snippet.snippet_id}
-                  snippet={snippet}
+              ?.map((pkg) => (
+                <PackageCard
+                  key={pkg.package_id}
+                  pkg={pkg}
                   baseUrl={apiBaseUrl}
-                  showOwner={true}
                 />
               ))}
           </div>

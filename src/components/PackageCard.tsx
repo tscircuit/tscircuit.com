@@ -10,9 +10,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { OptimizedImage } from "./OptimizedImage"
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
+import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
+import { ImageWithFallback } from "./ImageWithFallback"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -56,6 +57,10 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
+  const fsMapHash = useGetFsMapHashForPackage(
+    pkg.latest_package_release_id ?? "",
+  )
+
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -64,8 +69,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
-          <OptimizedImage
-            src={`${baseUrl}/snippets/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg`}
+          <ImageWithFallback
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
+              {
+                fs_sha: fsMapHash ?? "",
+              },
+            ).toString()}`}
             alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />

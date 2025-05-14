@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, Star } from "lucide-react"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 
-interface PackageListProps {
+interface PackagesListProps {
   title: string
   packages?: Package[]
   showAll?: boolean
@@ -11,13 +11,13 @@ interface PackageListProps {
   maxItems?: number
 }
 
-export const PackageList = ({
+export const PackagesList = ({
   title,
   packages = [],
   showAll = false,
   onToggleShowAll,
   maxItems = 5,
-}: PackageListProps) => {
+}: PackagesListProps) => {
   const displayedPackages = showAll ? packages : packages.slice(0, maxItems)
 
   return (

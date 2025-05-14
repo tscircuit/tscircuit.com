@@ -20,10 +20,11 @@ import {
 } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { PackageInfo } from "@/lib/types"
+import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
-  packageInfo?: PackageInfo
+  packageInfo?: PackageType
   isPrivate?: boolean
   isCurrentUserAuthor?: boolean
 }
@@ -40,7 +41,11 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
+  const signIn = useSignIn()
+  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
+    onSignIn: signIn,
+    isLoggedIn,
+  })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
@@ -254,7 +259,7 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
-        packageReleaseId={packageInfo?.latest_package_release_id}
+        packageReleaseId={packageInfo?.latest_package_release_id ?? ""}
       />
     </header>
   )

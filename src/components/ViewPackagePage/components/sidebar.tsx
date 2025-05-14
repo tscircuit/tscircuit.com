@@ -1,24 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import SidebarAboutSection from "./sidebar-about-section"
 import SidebarReleasesSection from "./sidebar-releases-section"
 import PreviewImageSquares from "./preview-image-squares"
-import { PackageFile } from "fake-snippets-api/lib/db/schema"
-
-interface PackageInfo {
-  name: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  description: string
-  ai_description: string
-  creator_account_id?: string
-  owner_org_id?: string
-}
 
 interface SidebarProps {
-  packageInfo?: PackageInfo
+  packageInfo?: Package
   isLoading?: boolean
   onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }

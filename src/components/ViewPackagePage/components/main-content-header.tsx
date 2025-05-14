@@ -24,24 +24,12 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-
-interface PackageInfo {
-  package_id: string
-  name: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  description: string
-  ai_description: string
-  creator_account_id?: string
-  owner_org_id?: string
-}
-
+import { Package } from "fake-snippets-api/lib/db/schema"
 interface MainContentHeaderProps {
   activeView: string
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
-  packageInfo?: PackageInfo
+  packageInfo?: Package
 }
 
 export default function MainContentHeader({
@@ -56,6 +44,7 @@ export default function MainContentHeader({
   const [copyCloneState, setCopyCloneState] = useState<"copy" | "copied">(
     "copy",
   )
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const handleCopyInstall = () => {
     const command = `tsci add ${packageInfo?.name || "@tscircuit/keyboard-default60"}`
@@ -87,7 +76,7 @@ export default function MainContentHeader({
         />
 
         {/* Code Dropdown */}
-        <DropdownMenu>
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
@@ -101,6 +90,7 @@ export default function MainContentHeader({
           <DropdownMenuContent align="end" className="w-72">
             <DropdownMenuItem
               onClick={() => {
+                setDropdownOpen(false)
                 setLocation(`/editor?package_id=${packageInfo?.package_id}`)
               }}
               className="cursor-pointer p-2 py-4"
