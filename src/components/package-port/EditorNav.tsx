@@ -315,7 +315,7 @@ export default function EditorNav({
       <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
           {pkg && <TypeBadge type={`${packageType ?? pkg.snippet_type}`} />}
-          <Button
+          {/* <Button
             variant="ghost"
             size="sm"
             disabled={hasUnsavedChanges || isSaving || !pkg}
@@ -323,7 +323,7 @@ export default function EditorNav({
           >
             <Sparkles className="mr-1 h-3 w-3" />
             Edit with AI
-          </Button>
+          </Button> */}
           <DownloadButtonAndMenu
             snippetUnscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}

@@ -101,7 +101,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         markdown: "markdown",
       }
 
-      const parser = parserMap[fileExtension] || "typescript"
+      const parser = parserMap[fileExtension] || "tsx"
       const formattedCode = window.prettier.format(currentContent, {
         semi: false,
         parser: parser,

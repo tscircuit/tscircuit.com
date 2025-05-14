@@ -27,17 +27,6 @@ export default () => (
     <A555Timer name="U1" />
   </board>
 )`.trim(),
-    type: "board",
-    compiled_js: `
-  "use strict";
-  Object.defineProperty(exports, "__esModule", { value: true });
-  exports.A555Timer = void 0;
-  const A555Timer = ({ name }) => /*#__PURE__*/React.createElement("chip", {
-    name: name,
-    footprint: "dip8"
-  });
-  exports.A555Timer = A555Timer;
-  `.trim(),
   })
   // create a package file
   const pkg_file = await axios.post("/api/package_files/create", {
