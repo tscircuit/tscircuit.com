@@ -23,7 +23,7 @@ import {
 } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useTypescript } from "@/hooks/use-typescript"
+import tsModule from "typescript"
 import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
@@ -68,7 +68,6 @@ export const CodeEditor = ({
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
-  const { tsModule, isLoading: isTsLoading } = useTypescript()
 
   const { highlighter, isLoading } = useShikiHighlighter()
 
@@ -134,22 +133,18 @@ export const CodeEditor = ({
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    if (tsModule) {
-      createDefaultMapFromCDN(
-        { target: tsModule.ScriptTarget.ES2022 },
-        "5.6.3",
-        true,
-        tsModule,
-      ).then((defaultFsMap) => {
-        defaultFsMap.forEach((content, filename) => {
-          fsMap.set(filename, content)
-        })
+    createDefaultMapFromCDN(
+      { target: tsModule.ScriptTarget.ES2022 },
+      "5.6.3",
+      true,
+      tsModule,
+    ).then((defaultFsMap) => {
+      defaultFsMap.forEach((content, filename) => {
+        fsMap.set(filename, content)
       })
-    }
+    })
 
     const system = createSystem(fsMap)
-
-    if (!tsModule) return
 
     const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
       jsx: tsModule.JsxEmit.ReactJSX,
@@ -349,7 +344,7 @@ export const CodeEditor = ({
               const dom = document.createElement("div")
               if (highlighter) {
                 dom.innerHTML = highlighter.codeToHtml(content, {
-                  lang: "typescript",
+                  lang: "tsx",
                   themes: {
                     light: "github-light",
                     dark: "github-dark",
@@ -464,13 +459,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [
-    !isStreaming,
-    currentFile,
-    code !== "",
-    Boolean(tsModule),
-    Boolean(highlighter),
-  ])
+  }, [!isStreaming, currentFile, code !== "", Boolean(highlighter)])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
