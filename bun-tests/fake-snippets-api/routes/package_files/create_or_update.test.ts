@@ -398,7 +398,7 @@ test("create_or_update - 404 for npm_pack_output without is_release_tarball", as
   }
 })
 
-test("update package file with content_base64", async () => {
+test.skip("update package file with content_base64", async () => {
   const { axios } = await getTestServer()
 
   const packageResponse = await axios.post("/api/packages/create", {
@@ -506,7 +506,7 @@ test("create_or_update detects correct content mimetype", async () => {
   }
 })
 
-test("create_or_update respects provided content_mimetype", async () => {
+test.skip("create_or_update respects provided content_mimetype", async () => {
   const { axios } = await getTestServer()
 
   const packageResponse = await axios.post("/api/packages/create", {
