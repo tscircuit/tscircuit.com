@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -7,39 +7,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Link, useLocation, useRouter } from "wouter"
 import { User } from "lucide-react"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAccountBalance } from "@/hooks/use-account-balance"
-import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 import { useSignIn } from "@/hooks/use-sign-in"
 
-interface HeaderLoginProps {}
-
-export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
-  const [, setLocation] = useLocation()
+export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
-  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
-  const isUsingFakeApi = useIsUsingFakeApi()
   const signIn = useSignIn()
   const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
-    const handleLogin = () => {
-      if (isUsingFakeApi) {
-        setSession({
-          account_id: "account-1234",
-          github_username: "testuser",
-          token: "1234",
-          session_id: "session-1234",
-        })
-      } else {
-        signIn()
-      }
-    }
     return (
       <div className="flex items-center md:space-x-2 justify-end">
         <Button onClick={() => signIn()} variant="ghost">
@@ -51,44 +31,47 @@ export const HeaderLogin: React.FC<HeaderLoginProps> = () => {
   }
 
   return (
-    <div className="flex justify-end items-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Avatar className="w-8 h-8 login-avatar">
-            <AvatarImage
-              src={`https://github.com/${session?.github_username}.png`}
-              alt={`${session?.github_username}'s profile picture`}
-            />
-            <AvatarFallback aria-label="User avatar fallback">
-              <User size={16} aria-hidden="true" />
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem className="text-gray-500 text-xs" disabled>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="w-8 h-8 login-avatar">
+          <AvatarImage
+            src={`https://github.com/${session?.github_username}.png`}
+            alt={`${session?.github_username}'s profile picture`}
+          />
+          <AvatarFallback aria-label="User avatar fallback">
+            <User size={16} aria-hidden="true" />
+          </AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
+          <div>
             AI Usage $
             {accountBalance?.monthly_ai_budget_used_usd.toFixed(2) ?? "0.00"} /
             $5.00
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setLocation(`/${session?.github_username}`)}
-          >
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href={`/${session?.github_username}`} className="cursor-pointer">
             My Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/dashboard" className="cursor-pointer">
             Dashboard
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/my-orders")}>
-            My Orders
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setLocation("/settings")}>
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/settings" className="cursor-pointer">
             Settings
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSession(null)}>
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild onClick={() => setSession(null)}>
+          <a href="/sign-out" className="cursor-pointer">
             Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
