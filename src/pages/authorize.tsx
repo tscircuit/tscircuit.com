@@ -26,7 +26,11 @@ const AuthenticatePageInnerContent = () => {
           ...(decodedToken as any),
           token: session_token,
         })
-        setLocation("/")
+
+        // Get the last visited URL from global store
+        const lastVisitedUrl = useGlobalStore.getState().lastVisitedUrl
+        // Redirect to last visited URL if available, otherwise go to home
+        setLocation(lastVisitedUrl || "/")
         return
       }
     }
