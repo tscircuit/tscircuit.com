@@ -22,6 +22,7 @@ import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
+import { isValidFileName } from "@/lib/utils/isValidFileName"
 
 interface Props {
   pkg?: Package
@@ -148,7 +149,6 @@ export function CodeAndPreview({ pkg }: Props) {
 
     if (loadedFiles && !isLoadingFiles) {
       const processedResults = [...loadedFiles]
-
       setState((prev) => ({
         ...prev,
         pkgFilesWithContent: processedResults,
@@ -159,13 +159,7 @@ export function CodeAndPreview({ pkg }: Props) {
           defaultCode,
       }))
     }
-  }, [
-    isLoadingFiles,
-    pkg,
-    pkgFiles.data,
-    state.pkgFilesWithContent.length,
-    defaultCode,
-  ])
+  }, [isLoadingFiles, pkg, pkgFiles.data, defaultCode])
 
   const createPackageMutation = useCreatePackageMutation()
   const { mutate: createRelease } = useCreatePackageReleaseMutation({
@@ -327,6 +321,56 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
+  const handleCreateFile = async (
+    newFileName: string,
+    newFileContent: string,
+    setErrorMessage: (message: string) => void,
+    setIsModalOpen: (isOpen: boolean) => void,
+    onFileSelect: (fileName: string) => void,
+    setNewFileName: (fileName: string) => void,
+  ) => {
+    console.log("Creating new file:", { newFileName, newFileContent })
+    newFileName = newFileName.trim()
+
+    if (!isValidFileName(newFileName)) {
+      console.log("Invalid filename detected:", newFileName)
+      setErrorMessage(
+        'Invalid file name. Avoid using special characters like <>:"/\\|?*',
+      )
+      return
+    }
+    setErrorMessage("")
+
+    const fileExists = state.pkgFilesWithContent.some(
+      (file) => file.path === newFileName,
+    )
+    console.log("Checking if file exists:", { newFileName, fileExists })
+
+    if (fileExists) {
+      console.log("File already exists:", newFileName)
+      setErrorMessage("A file with this name already exists")
+      return
+    }
+
+    // Update local state with the new file
+    console.log("Updating state with new file")
+    setState((prev) => {
+      const updatedFiles = [
+        ...prev.pkgFilesWithContent,
+        { path: newFileName, content: newFileContent },
+      ]
+      console.log("Updated files array:", updatedFiles)
+      return {
+        ...prev,
+        pkgFilesWithContent: updatedFiles,
+      }
+    })
+    console.log("File creation complete, closing modal and selecting new file")
+    setIsModalOpen(false)
+    onFileSelect(newFileName)
+    setNewFileName("")
+  }
+
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -363,6 +407,7 @@ export function CodeAndPreview({ pkg }: Props) {
           )}
         >
           <CodeEditor
+            handleCreateFile={handleCreateFile}
             currentFile={state.currentFile}
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))

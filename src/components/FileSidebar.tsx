@@ -1,8 +1,19 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, PanelRightOpen } from "lucide-react"
+import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
+import {
+  Dialog,
+  DialogContent,
+  DialogOverlay,
+  DialogTrigger,
+  DialogClose,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 type FileName = string
 
@@ -12,6 +23,14 @@ interface FileSidebarProps {
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
+  handleCreateFile: (
+    newFileName: string,
+    newFileContent: string,
+    setErrorMessage: (message: string) => void,
+    setIsModalOpen: (isOpen: boolean) => void,
+    onFileSelect: (fileName: string) => void,
+    setNewFileName: (fileName: string) => void,
+  ) => void
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -20,8 +39,14 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   onFileSelect,
   className,
   fileSidebarState,
+  handleCreateFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [newFileName, setNewFileName] = useState("")
+  const [newFileContent, setNewFileContent] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
   ): TreeDataItem[] => {
@@ -82,6 +107,13 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
+
+  const isValidFileName = (name: string) => {
+    // Basic checks for file naming conventions
+    const invalidChars = /[<>:"/\\|?*]/
+    return name.length > 0 && !invalidChars.test(name)
+  }
+
   return (
     <div
       className={cn(
@@ -98,6 +130,64 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       >
         <PanelRightOpen />
       </button>
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+      >
+        <Plus className="w-5 h-5" />
+      </button>
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogOverlay />
+        <DialogContent>
+          <DialogClose />
+          <DialogTitle className="text-lg font-medium text-center">
+            Create New File
+          </DialogTitle>
+          <DialogDescription className="text-sm text-center text-gray-500">
+            Enter the name and content for the new file you wish to create.
+          </DialogDescription>
+          <Input
+            spellCheck={false}
+            autoComplete="off"
+            placeholder="File Name"
+            value={newFileName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setNewFileName(e.target.value.trim())
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreateFile(
+                  newFileName,
+                  newFileContent,
+                  setErrorMessage,
+                  setIsModalOpen,
+                  onFileSelect,
+                  setNewFileName,
+                )
+              }
+            }}
+          />
+          <Button
+            onClick={() =>
+              handleCreateFile(
+                newFileName,
+                newFileContent,
+                setErrorMessage,
+                setIsModalOpen,
+                onFileSelect,
+                setNewFileName,
+              )
+            }
+          >
+            Create
+          </Button>
+          {errorMessage && (
+            <p className="text-red-500 text-md font-bold text-center break-all">
+              {errorMessage}
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
