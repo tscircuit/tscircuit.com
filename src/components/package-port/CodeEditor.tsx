@@ -28,7 +28,7 @@ import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "./CodeAndPreview"
+import type { CreateFileProps, PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 const defaultImports = `
@@ -53,14 +53,7 @@ export const CodeEditor = ({
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
   files: PackageFile[]
-  handleCreateFile: (
-    newFileName: string,
-    newFileContent: string,
-    setErrorMessage: (message: string) => void,
-    setIsModalOpen: (isOpen: boolean) => void,
-    onFileSelect: (fileName: string) => void,
-    setNewFileName: (fileName: string) => void,
-  ) => void
+  handleCreateFile: (props: CreateFileProps) => void
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean

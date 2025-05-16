@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { CreateFileProps } from "./package-port/CodeAndPreview"
 
 type FileName = string
 
@@ -23,14 +24,7 @@ interface FileSidebarProps {
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
-  handleCreateFile: (
-    newFileName: string,
-    newFileContent: string,
-    setErrorMessage: (message: string) => void,
-    setIsModalOpen: (isOpen: boolean) => void,
-    onFileSelect: (fileName: string) => void,
-    setNewFileName: (fileName: string) => void,
-  ) => void
+  handleCreateFile: (props: CreateFileProps) => void
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -156,27 +150,27 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             }
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleCreateFile(
+                handleCreateFile({
                   newFileName,
                   newFileContent,
                   setErrorMessage,
                   setIsModalOpen,
                   onFileSelect,
                   setNewFileName,
-                )
+                })
               }
             }}
           />
           <Button
             onClick={() =>
-              handleCreateFile(
+              handleCreateFile({
                 newFileName,
                 newFileContent,
                 setErrorMessage,
                 setIsModalOpen,
                 onFileSelect,
                 setNewFileName,
-              )
+              })
             }
           >
             Create

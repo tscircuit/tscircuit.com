@@ -33,6 +33,15 @@ export interface PackageFile {
   content: string
 }
 
+export interface CreateFileProps {
+  newFileName: string
+  newFileContent: string
+  setErrorMessage: (message: string) => void
+  setIsModalOpen: (isOpen: boolean) => void
+  onFileSelect: (fileName: string) => void
+  setNewFileName: (fileName: string) => void
+}
+
 interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
   initialFilesLoad: PackageFile[]
@@ -320,14 +329,15 @@ export function CodeAndPreview({ pkg }: Props) {
       }
     })
   }
-  const handleCreateFile = async (
-    newFileName: string,
-    newFileContent: string,
-    setErrorMessage: (message: string) => void,
-    setIsModalOpen: (isOpen: boolean) => void,
-    onFileSelect: (fileName: string) => void,
-    setNewFileName: (fileName: string) => void,
-  ) => {
+
+  const handleCreateFile = async ({
+    newFileName,
+    newFileContent,
+    setErrorMessage,
+    setIsModalOpen,
+    onFileSelect,
+    setNewFileName,
+  }: CreateFileProps) => {
     newFileName = newFileName.trim()
 
     if (!isValidFileName(newFileName)) {
