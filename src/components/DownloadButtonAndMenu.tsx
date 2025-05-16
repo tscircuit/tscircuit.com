@@ -83,10 +83,7 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
-                await downloadGltf(
-                  circuitJson,
-                  snippetUnscopedName || "circuit",
-                )
+                await downloadGltf(snippetUnscopedName || "circuit")
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",
