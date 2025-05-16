@@ -18,14 +18,11 @@ test("create order_quote with only package_release_id (✅)", async () => {
     })
     .then((res) => res.data.package_release)
 
-  await jane_axios.post(
-    `/api/package_files/create`,
-    {
-      package_release_id: packageRelease.package_release_id,
-      file_path: "/dist/index.js",
-      content_text: "console.log('Hello, world!');",
-    },
-  )
+  await jane_axios.post(`/api/package_files/create`, {
+    package_release_id: packageRelease.package_release_id,
+    file_path: "/dist/index.js",
+    content_text: "console.log('Hello, world!');",
+  })
   const response = await axios.post("/api/order_quotes/create", {
     vendor_name: "jlcpcb",
     package_release_id: packageRelease.package_release_id,

@@ -34,10 +34,8 @@ export default withRouteSpec({
     )
   }
 
-  const packageReleaseFiles = ctx.db.getPackageFilesByReleaseId(
-    package_release_id,
-    
-  )
+  const packageReleaseFiles =
+    ctx.db.getPackageFilesByReleaseId(package_release_id)
   if (packageReleaseFiles.length === 0) {
     return ctx.json(
       {
