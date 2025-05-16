@@ -2,7 +2,6 @@ import { afterEach } from "bun:test"
 import defaultAxios from "redaxios"
 import { startServer } from "./start-server"
 import { DbClient } from "fake-snippets-api/lib/db/db-client"
-import getPort from "get-port"
 
 process.env.BUN_TEST = "true"
 interface TestFixture {
@@ -16,12 +15,10 @@ interface TestFixture {
 }
 
 export const getTestServer = async (): Promise<TestFixture> => {
-  const port = await getPort()
   const testInstanceId = Math.random().toString(36).substring(2, 15)
   const testDbName = `testdb${testInstanceId}`
 
-  const { server, db } = await startServer({
-    port,
+  const { server, db, port } = await startServer({
     testDbName,
   })
 
