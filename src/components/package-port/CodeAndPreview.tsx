@@ -320,7 +320,6 @@ export function CodeAndPreview({ pkg }: Props) {
       }
     })
   }
-
   const handleCreateFile = async (
     newFileName: string,
     newFileContent: string,
@@ -329,11 +328,9 @@ export function CodeAndPreview({ pkg }: Props) {
     onFileSelect: (fileName: string) => void,
     setNewFileName: (fileName: string) => void,
   ) => {
-    console.log("Creating new file:", { newFileName, newFileContent })
     newFileName = newFileName.trim()
 
     if (!isValidFileName(newFileName)) {
-      console.log("Invalid filename detected:", newFileName)
       setErrorMessage(
         'Invalid file name. Avoid using special characters like <>:"/\\|?*',
       )
@@ -344,28 +341,22 @@ export function CodeAndPreview({ pkg }: Props) {
     const fileExists = state.pkgFilesWithContent.some(
       (file) => file.path === newFileName,
     )
-    console.log("Checking if file exists:", { newFileName, fileExists })
 
     if (fileExists) {
-      console.log("File already exists:", newFileName)
       setErrorMessage("A file with this name already exists")
       return
     }
 
-    // Update local state with the new file
-    console.log("Updating state with new file")
     setState((prev) => {
       const updatedFiles = [
         ...prev.pkgFilesWithContent,
         { path: newFileName, content: newFileContent },
       ]
-      console.log("Updated files array:", updatedFiles)
       return {
         ...prev,
         pkgFilesWithContent: updatedFiles,
       }
     })
-    console.log("File creation complete, closing modal and selecting new file")
     setIsModalOpen(false)
     onFileSelect(newFileName)
     setNewFileName("")
