@@ -27,9 +27,8 @@ export function JLCPCBImportDialog({
   const [partNumber, setPartNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [alreadyImportedPackageId, setAlreadyImportedPackageId] = useState<
-    string | null
-  >(null)
+  const [alreadyImportedPackageId, setAlreadyImportedPackageId] =
+    useState<boolean>(false)
   const axios = useAxios()
   const { toast } = useToast()
   const [, navigate] = useLocation()
@@ -48,19 +47,17 @@ export function JLCPCBImportDialog({
 
     setIsLoading(true)
     setError(null)
-    setAlreadyImportedPackageId(null)
+    setAlreadyImportedPackageId(false)
 
     try {
-      const existingPackageRes = await axios.get(
-        `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`,
-        {
-          validateStatus: (status) => true,
-        },
-      )
+      const apiUrl = `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`
+
+      const existingPackageRes = await axios.get(apiUrl, {
+        validateStatus: (status) => true,
+      })
 
       if (existingPackageRes.status !== 404) {
-        const packageId = existingPackageRes.data.snippet.snippet_id
-        setAlreadyImportedPackageId(packageId)
+        setAlreadyImportedPackageId(true)
         setIsLoading(false)
         return
       }
@@ -122,7 +119,7 @@ export function JLCPCBImportDialog({
             onChange={(e) => {
               setPartNumber(e.target.value)
               setError(null)
-              setAlreadyImportedPackageId(null)
+              setAlreadyImportedPackageId(false)
             }}
           />
           {error && !alreadyImportedPackageId && (
