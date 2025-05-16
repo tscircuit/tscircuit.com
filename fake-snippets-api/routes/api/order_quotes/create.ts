@@ -4,29 +4,10 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  jsonBody: z
-    .object({
-      package_release_id: z.string().optional(),
-      circuit_json: z.any().optional(),
-      vendor_name: z.string(),
-    })
-    .superRefine((data, ctx) => {
-      if (data.circuit_json && data.package_release_id) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "You must provide either circuit_json or package_release_id, but not both.",
-        })
-      }
-      if (!data.circuit_json && !data.package_release_id) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            "You must provide either circuit_json or package_release_id.",
-        })
-      }
-    }),
-
+  jsonBody: z.object({
+    package_release_id: z.string(),
+    vendor_name: z.literal("jlcpcb"),
+  }),
   jsonResponse: z.object({
     order_quote_id: z.string().optional(),
     error: z
@@ -37,22 +18,36 @@ export default withRouteSpec({
       .optional(),
   }),
 })(async (req, ctx) => {
-  const { package_release_id, vendor_name, circuit_json } = req.jsonBody
+  const { package_release_id, vendor_name } = req.jsonBody
 
-  if (package_release_id) {
-    // check package release exists
-    const packageRelease = ctx.db.getPackageReleaseById(package_release_id)
-    if (!packageRelease) {
-      return ctx.json(
-        {
-          error: {
-            error_code: "package_release_not_found",
-            message: "Package release not found",
-          },
+  // check package release exists
+  const packageRelease = ctx.db.getPackageReleaseById(package_release_id)
+  if (!packageRelease) {
+    return ctx.json(
+      {
+        error: {
+          error_code: "package_release_not_found",
+          message: "Package release not found",
         },
-        { status: 404 },
-      )
-    }
+      },
+      { status: 404 },
+    )
+  }
+
+  const packageReleaseFiles = ctx.db.getPackageFilesByReleaseId(
+    package_release_id,
+    
+  )
+  if (packageReleaseFiles.length === 0) {
+    return ctx.json(
+      {
+        error: {
+          error_code: "package_release_files_not_found",
+          message: "Package release files not found",
+        },
+      },
+      { status: 404 },
+    )
   }
 
   const orderQuoteId = ctx.db.addOrderQuote({
