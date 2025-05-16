@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
+import { useCreateFileDialog } from "./dialogs/create-file-dialog"
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleCreateFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
+  const { Dialog: CreateFileDialog, openDialog: openCreateFileDialog } =
+    useCreateFileDialog()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newFileName, setNewFileName] = useState("")
   const [newFileContent, setNewFileContent] = useState("")
@@ -125,63 +128,12 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         <PanelRightOpen />
       </button>
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={openCreateFileDialog}
         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
       >
         <Plus className="w-5 h-5" />
       </button>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogOverlay />
-        <DialogContent>
-          <DialogClose />
-          <DialogTitle className="text-lg font-medium text-center">
-            Create New File
-          </DialogTitle>
-          <DialogDescription className="text-sm text-center text-gray-500">
-            Enter the name and content for the new file you wish to create.
-          </DialogDescription>
-          <Input
-            spellCheck={false}
-            autoComplete="off"
-            placeholder="File Name"
-            value={newFileName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setNewFileName(e.target.value.trim())
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleCreateFile({
-                  newFileName,
-                  newFileContent,
-                  setErrorMessage,
-                  setIsModalOpen,
-                  onFileSelect,
-                  setNewFileName,
-                })
-              }
-            }}
-          />
-          <Button
-            onClick={() =>
-              handleCreateFile({
-                newFileName,
-                newFileContent,
-                setErrorMessage,
-                setIsModalOpen,
-                onFileSelect,
-                setNewFileName,
-              })
-            }
-          >
-            Create
-          </Button>
-          {errorMessage && (
-            <p className="text-red-500 text-md font-bold text-center break-all">
-              {errorMessage}
-            </p>
-          )}
-        </DialogContent>
-      </Dialog>
+      <CreateFileDialog />
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
