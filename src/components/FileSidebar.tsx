@@ -3,17 +3,6 @@ import { cn } from "@/lib/utils"
 import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
-import { useCreateFileDialog } from "./dialogs/create-file-dialog"
-import {
-  Dialog,
-  DialogContent,
-  DialogOverlay,
-  DialogTrigger,
-  DialogClose,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreateFileProps } from "./package-port/CodeAndPreview"
 
@@ -131,6 +120,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       <button
         onClick={() => setIsCreatingFile(true)}
         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        aria-label="Create new file"
       >
         <Plus className="w-5 h-5" />
       </button>
