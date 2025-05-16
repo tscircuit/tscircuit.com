@@ -38,7 +38,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const { Dialog: CreateFileDialog, openDialog: openCreateFileDialog } =
-    useCreateFileDialog()
+    useCreateFileDialog(handleCreateFile)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newFileName, setNewFileName] = useState("")
   const [newFileContent, setNewFileContent] = useState("")

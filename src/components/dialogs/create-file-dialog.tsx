@@ -11,16 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreateFileProps } from "../package-port/CodeAndPreview"
 
-export const useCreateFileDialog = () => {
+export const useCreateFileDialog = (handleCreateFile: (props: CreateFileProps) => void) => {
   const [open, setOpen] = useState(false)
   const [newFileName, setNewFileName] = useState("")
   const [newFileContent, setNewFileContent] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
-
-  const handleCreateFile = (props: CreateFileProps) => {
-    // Implement the logic to handle file creation
-    // This function should be passed down to the dialog component
-  }
 
   return useMemo(
     () => ({
