@@ -1,8 +1,10 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, PanelRightOpen } from "lucide-react"
+import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
+import { Input } from "@/components/ui/input"
+import { CreateFileProps } from "./package-port/CodeAndPreview"
 
 type FileName = string
 
@@ -12,6 +14,7 @@ interface FileSidebarProps {
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
+  handleCreateFile: (props: CreateFileProps) => void
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -20,8 +23,13 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   onFileSelect,
   className,
   fileSidebarState,
+  handleCreateFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
+  const [newFileName, setNewFileName] = useState("")
+  const [isCreatingFile, setIsCreatingFile] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
   ): TreeDataItem[] => {
@@ -82,6 +90,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
+
+  const handleCreateFileInline = () => {
+    handleCreateFile({
+      newFileName,
+      setErrorMessage,
+      onFileSelect,
+      setNewFileName,
+      setIsCreatingFile,
+    })
+  }
+
   return (
     <div
       className={cn(
@@ -98,6 +117,36 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       >
         <PanelRightOpen />
       </button>
+      <button
+        onClick={() => setIsCreatingFile(true)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+        aria-label="Create new file"
+      >
+        <Plus className="w-5 h-5" />
+      </button>
+      {isCreatingFile && (
+        <div className="p-2">
+          <Input
+            autoFocus
+            value={newFileName}
+            onChange={(e) => setNewFileName(e.target.value)}
+            onBlur={handleCreateFileInline}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreateFileInline()
+              } else if (e.key === "Escape") {
+                setIsCreatingFile(false)
+                setNewFileName("")
+                setErrorMessage("")
+              }
+            }}
+            placeholder="Enter file name"
+          />
+          {errorMessage && (
+            <div className="text-red-500 mt-1">{errorMessage}</div>
+          )}
+        </div>
+      )}
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}

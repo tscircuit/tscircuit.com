@@ -28,7 +28,7 @@ import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "./CodeAndPreview"
+import type { CreateFileProps, PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 
 const defaultImports = `
@@ -48,10 +48,12 @@ export const CodeEditor = ({
   pkgFilesLoaded,
   currentFile,
   setCurrentFile,
+  handleCreateFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   onDtsChange?: (dts: string) => void
   files: PackageFile[]
+  handleCreateFile: (props: CreateFileProps) => void
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
@@ -251,16 +253,18 @@ export const CodeEditor = ({
 
           // Generate TypeScript declarations for TypeScript/TSX files
           if (currentFile.endsWith(".ts") || currentFile.endsWith(".tsx")) {
-            const { outputFiles } = env.languageService.getEmitOutput(
-              currentFile,
-              true,
-            )
-            const dtsFile = outputFiles.find((file) =>
-              file.name.endsWith(".d.ts"),
-            )
-            if (dtsFile?.text && onDtsChange) {
-              onDtsChange(dtsFile.text)
-            }
+            try {
+              const { outputFiles } = env.languageService.getEmitOutput(
+                currentFile,
+                true,
+              )
+              const dtsFile = outputFiles.find((file) =>
+                file.name.endsWith(".d.ts"),
+              )
+              if (dtsFile?.text && onDtsChange) {
+                onDtsChange(dtsFile.text)
+              }
+            } catch {}
           }
         }
         if (update.selectionSet) {
@@ -542,6 +546,7 @@ export const CodeEditor = ({
           [sidebarOpen, setSidebarOpen] as ReturnType<typeof useState<boolean>>
         }
         onFileSelect={handleFileChange}
+        handleCreateFile={handleCreateFile}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
