@@ -38,8 +38,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
-  const { Dialog: CreateFileDialog, openDialog: openCreateFileDialog } =
-    useCreateFileDialog()
+  const [isCreatingFile, setIsCreatingFile] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -102,10 +102,14 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
 
   const treeData = transformFilesToTreeData(files)
 
-  const isValidFileName = (name: string) => {
-    // Basic checks for file naming conventions
-    const invalidChars = /[<>:"/\\|?*]/
-    return name.length > 0 && !invalidChars.test(name)
+  const handleCreateFileInline = () => {
+    handleCreateFile({
+      newFileName,
+      setErrorMessage,
+      onFileSelect,
+      setNewFileName,
+      setIsCreatingFile,
+    })
   }
 
   return (
@@ -125,17 +129,34 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         <PanelRightOpen />
       </button>
       <button
-        onClick={openCreateFileDialog}
+        onClick={() => setIsCreatingFile(true)}
         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
       >
         <Plus className="w-5 h-5" />
       </button>
-      <CreateFileDialog
-        handleCreateFile={handleCreateFile}
-        newFileName={newFileName}
-        onFileSelect={onFileSelect}
-        setNewFileName={setNewFileName}
-      />
+      {isCreatingFile && (
+        <div className="p-2">
+          <Input
+            autoFocus
+            value={newFileName}
+            onChange={(e) => setNewFileName(e.target.value)}
+            onBlur={handleCreateFileInline}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCreateFileInline()
+              } else if (e.key === "Escape") {
+                setIsCreatingFile(false)
+                setNewFileName("")
+                setErrorMessage("")
+              }
+            }}
+            placeholder="Enter file name"
+          />
+          {errorMessage && (
+            <div className="text-red-500 mt-1">{errorMessage}</div>
+          )}
+        </div>
+      )}
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}
