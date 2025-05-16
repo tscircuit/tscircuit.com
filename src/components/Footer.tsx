@@ -62,6 +62,9 @@ export default function Footer() {
               <PrefetchPageLink href="/trending" className="hover:underline">
                 Trending Packages
               </PrefetchPageLink>
+              <PrefetchPageLink href="/search" className="hover:underline">
+                Search Packages
+              </PrefetchPageLink>
               <a href="https://docs.tscircuit.com" className="hover:underline">
                 Docs
               </a>

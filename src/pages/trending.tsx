@@ -174,9 +174,14 @@ const TrendingPage: React.FC = () => {
           isLoading={isLoading}
           error={error}
           filteredPackages={filteredPackages}
-          searchQuery={searchQuery}
-          category={category}
           apiBaseUrl={apiBaseUrl}
+          emptyStateMessage={
+            searchQuery
+              ? `No packages match your search for "${searchQuery}".`
+              : category !== "all"
+                ? `No ${category} packages found in the trending list.`
+                : "There are no trending packages at the moment."
+          }
         />
       </main>
       <Footer />
