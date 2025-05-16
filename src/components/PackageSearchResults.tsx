@@ -8,9 +8,8 @@ interface PackageSearchResultsProps {
   isLoading: boolean
   error: unknown
   filteredPackages: Package[] | undefined
-  searchQuery: string
-  category: string
   apiBaseUrl: string
+  emptyStateMessage: string
 }
 
 const PackageGrid = ({
@@ -54,9 +53,10 @@ const ErrorState = () => (
 )
 
 const EmptyState = ({
-  searchQuery,
-  category,
-}: { searchQuery: string; category: string }) => (
+  message,
+}: {
+  message?: string
+}) => (
   <div className="text-center py-12 px-4">
     <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
       <Search className="w-8 h-8 text-slate-400" />
@@ -64,13 +64,9 @@ const EmptyState = ({
     <h3 className="text-xl font-medium text-slate-900 mb-2">
       No Matching Packages
     </h3>
-    <p className="text-slate-500 max-w-md mx-auto mb-6">
-      {searchQuery
-        ? `No packages match your search for "${searchQuery}".`
-        : category !== "all"
-          ? `No ${category} packages found in the trending list.`
-          : "There are no trending packages at the moment."}
-    </p>
+    {message && (
+      <p className="text-slate-500 max-w-md mx-auto mb-6">{message}</p>
+    )}
   </div>
 )
 
@@ -78,14 +74,13 @@ const PackageSearchResults: React.FC<PackageSearchResultsProps> = ({
   isLoading,
   error,
   filteredPackages,
-  searchQuery,
-  category,
   apiBaseUrl,
+  emptyStateMessage,
 }) => {
   if (isLoading) return <LoadingState />
   if (error) return <ErrorState />
   if (!filteredPackages?.length)
-    return <EmptyState searchQuery={searchQuery} category={category} />
+    return <EmptyState message={emptyStateMessage} />
   return <PackageGrid packages={filteredPackages} baseUrl={apiBaseUrl} />
 }
 
