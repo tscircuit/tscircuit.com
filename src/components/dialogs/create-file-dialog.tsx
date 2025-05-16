@@ -10,65 +10,64 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreateFileProps } from "../package-port/CodeAndPreview"
+import { createUseDialog } from "./create-use-dialog"
 
-export const useCreateFileDialog = (handleCreateFile: (props: CreateFileProps) => void) => {
-  const [open, setOpen] = useState(false)
-  const [newFileName, setNewFileName] = useState("")
-  const [newFileContent, setNewFileContent] = useState("")
+const CreateFileDialog = ({
+  handleCreateFile,
+  open,
+  onOpenChange,
+  newFileName,
+  setNewFileName,
+  onFileSelect,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  handleCreateFile: (props: CreateFileProps) => void
+  newFileName: string
+  setNewFileName: (newFileName: string) => void
+  onFileSelect: (fileName: string) => void
+}) => {
   const [errorMessage, setErrorMessage] = useState("")
 
-  return useMemo(
-    () => ({
-      openDialog: () => {
-        setOpen(true)
-      },
-      closeDialog: () => {
-        setOpen(false)
-      },
-      Dialog: () => (
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogOverlay />
-          <DialogContent>
-            <DialogClose />
-            <DialogTitle className="text-lg font-medium text-center">
-              Create New File
-            </DialogTitle>
-            <DialogDescription className="text-sm text-center text-gray-500">
-              Enter the name and content for the new file you wish to create.
-            </DialogDescription>
-            <Input
-              spellCheck={false}
-              autoComplete="off"
-              placeholder="File Name"
-              value={newFileName}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewFileName(e.target.value.trim())
-              }
-            />
-            <Button
-              onClick={() =>
-                handleCreateFile({
-                  newFileName,
-                  newFileContent,
-                  setErrorMessage,
-                  setIsModalOpen: setOpen,
-                  onFileSelect: () => {},
-                  setNewFileName,
-                })
-              }
-            >
-              Create
-            </Button>
-            {errorMessage && (
-              <p className="text-red-500 text-md font-bold text-center break-all">
-                {errorMessage}
-              </p>
-            )}
-          </DialogContent>
-        </Dialog>
-      ),
-      open,
-    }),
-    [open, newFileName, newFileContent, errorMessage],
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogClose />
+        <DialogTitle className="text-lg font-medium text-center">
+          Create New File
+        </DialogTitle>
+        <DialogDescription className="text-sm text-center text-gray-500">
+          Enter the name and content for the new file you wish to create.
+        </DialogDescription>
+        <Input
+          spellCheck={false}
+          autoComplete="off"
+          placeholder="File Name"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setNewFileName(e.target.value.trim())
+          }}
+        />
+        <Button
+          onClick={() =>
+            handleCreateFile({
+              newFileName,
+              setErrorMessage,
+              setIsModalOpen: onOpenChange,
+              onFileSelect,
+              setNewFileName,
+            })
+          }
+        >
+          Create
+        </Button>
+        {errorMessage && (
+          <p className="text-red-500 text-md font-bold text-center break-all">
+            {errorMessage}
+          </p>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
+
+export const useCreateFileDialog = createUseDialog(CreateFileDialog)

@@ -37,12 +37,9 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleCreateFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const { Dialog: CreateFileDialog, openDialog: openCreateFileDialog } =
-    useCreateFileDialog(handleCreateFile)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [newFileName, setNewFileName] = useState("")
-  const [newFileContent, setNewFileContent] = useState("")
-  const [errorMessage, setErrorMessage] = useState("")
+  const { Dialog: CreateFileDialog, openDialog: openCreateFileDialog } =
+    useCreateFileDialog()
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -133,7 +130,12 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       >
         <Plus className="w-5 h-5" />
       </button>
-      <CreateFileDialog />
+      <CreateFileDialog
+        handleCreateFile={handleCreateFile}
+        newFileName={newFileName}
+        onFileSelect={onFileSelect}
+        setNewFileName={setNewFileName}
+      />
       <TreeView
         data={treeData}
         initialSelectedItemId={currentFile}

@@ -35,7 +35,6 @@ export interface PackageFile {
 
 export interface CreateFileProps {
   newFileName: string
-  newFileContent: string
   setErrorMessage: (message: string) => void
   setIsModalOpen: (isOpen: boolean) => void
   onFileSelect: (fileName: string) => void
@@ -332,14 +331,16 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const handleCreateFile = async ({
     newFileName,
-    newFileContent,
     setErrorMessage,
     setIsModalOpen,
     onFileSelect,
     setNewFileName,
   }: CreateFileProps) => {
     newFileName = newFileName.trim()
-
+    if (!newFileName) {
+      setErrorMessage("File name cannot be empty")
+      return
+    }
     if (!isValidFileName(newFileName)) {
       setErrorMessage(
         'Invalid file name. Avoid using special characters like <>:"/\\|?*',
@@ -360,7 +361,7 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => {
       const updatedFiles = [
         ...prev.pkgFilesWithContent,
-        { path: newFileName, content: newFileContent },
+        { path: newFileName, content: "" },
       ]
       return {
         ...prev,
