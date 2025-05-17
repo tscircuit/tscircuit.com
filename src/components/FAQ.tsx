@@ -176,7 +176,9 @@ export const FAQ = () => (
         <Accordion type="single" collapsible>
           {QUESTIONS.map((q, i) => (
             <AccordionItem key={i} value={`item-${i + 1}`}>
-              <AccordionTrigger>{q.question}</AccordionTrigger>
+              <AccordionTrigger className="text-left">
+                {q.question}
+              </AccordionTrigger>{" "}
               <AccordionContent>{q.answer}</AccordionContent>
             </AccordionItem>
           ))}
