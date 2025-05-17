@@ -106,7 +106,7 @@ export default function Header() {
         </div>
         <div className="flex-grow"></div>
         <a
-          href="https://github.com/tscircuit/tscircuit"
+          href="https://github.com/tscircuit/tscircuit.com"
           target="_blank"
           className="mr-4"
           aria-label="View TSCircuit on GitHub"
