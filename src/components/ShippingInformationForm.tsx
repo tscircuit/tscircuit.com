@@ -275,7 +275,7 @@ const ShippingInformationForm: React.FC = () => {
           disabled={updateShippingMutation.isLoading}
         />
       </div>
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <label
             htmlFor="city"
@@ -335,6 +335,7 @@ const ShippingInformationForm: React.FC = () => {
           )}
         </div>
       </div>
+
       <div>
         <label
           htmlFor="zipCode"
