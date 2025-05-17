@@ -84,7 +84,7 @@ export default function Footer() {
                 Discord
               </a>
               <a
-                href="https://github.com/tscircuit/tscircuit"
+                href="https://github.com/tscircuit/tscircuit.com"
                 className="hover:underline"
               >
                 GitHub
