@@ -9,8 +9,7 @@ export default withRouteSpec({
     order_quote_id: z.string(),
   }),
   jsonResponse: z.object({
-    order_quote: orderQuoteSchema.optional(),
-    error: z.string().optional(),
+    order_quote: orderQuoteSchema,
   }),
 })(async (req, ctx) => {
   const { order_quote_id } = req.commonParams
@@ -18,12 +17,10 @@ export default withRouteSpec({
   const orderQuote = ctx.db.getOrderQuoteById(order_quote_id)
 
   if (!orderQuote) {
-    return ctx.json(
-      {
-        error: "Order quote not found",
-      },
-      { status: 404 },
-    )
+    return ctx.error(404, {
+      error_code: "order_quote_not_found",
+      message: "Order quote not found",
+    })
   }
 
   return ctx.json({
