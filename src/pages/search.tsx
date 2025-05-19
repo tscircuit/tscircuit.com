@@ -97,7 +97,7 @@ export const SearchPage = () => {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Search tscircuit Packages
+                  Search Packages
                 </h1>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 mb-4">
