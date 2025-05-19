@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,6 +11,8 @@ import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 
 export default function HeaderDropdown() {
+  const [isOpen, setIsOpen] = useState(false)
+
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
     {
@@ -31,8 +34,12 @@ export default function HeaderDropdown() {
     },
   ]
 
+  const handleLinkClick = () => {
+    setIsOpen(false)
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
@@ -47,6 +54,7 @@ export default function HeaderDropdown() {
           <PrefetchPageLink
             href="/quickstart"
             className="flex items-center cursor-pointer"
+            onClick={handleLinkClick}
           >
             <Zap className="mr-2 h-3 w-3" />
             Quickstart Templates
@@ -72,6 +80,7 @@ export default function HeaderDropdown() {
           <PrefetchPageLink
             href="/quickstart"
             className="flex items-center cursor-pointer"
+            onClick={handleLinkClick}
           >
             <Upload className="mr-2 h-3 w-3" />
             Import Part
