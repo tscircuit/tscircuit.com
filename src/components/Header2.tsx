@@ -34,7 +34,7 @@ const SearchButtonComponent = () => {
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(true)}
-            className="h-8 w-8 hidden sm:block"
+            className="h-8 w-8 hidden sm:flex"
             aria-label="Open search"
           >
             <Search className="size-4" />
@@ -43,7 +43,7 @@ const SearchButtonComponent = () => {
             variant="ghost"
             size="icon"
             onClick={() => (window.location.href = "/search")}
-            className="h-8 w-8 block sm:hidden"
+            className="h-8 w-8 flex sm:hidden"
             aria-label="Go to search"
           >
             <Search className="size-4" />
