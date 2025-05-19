@@ -45,6 +45,7 @@ export default function PackageHeader({
   const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
     onSignIn: signIn,
     isLoggedIn,
+    packageReleaseId: packageInfo?.latest_package_release_id ?? "",
   })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
@@ -259,7 +260,6 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
-        packageReleaseId={packageInfo?.latest_package_release_id ?? ""}
       />
     </header>
   )
