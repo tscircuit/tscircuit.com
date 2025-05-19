@@ -220,7 +220,6 @@ export const EditPackageDetailsDialog = ({
       <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px] lg:h-[70vh] sm:h-[90vh] overflow-y-auto w-[95vw] h-[80vh] p-6 gap-6 rounded-2xl shadow-lg">
           <div className="flex flex-col gap-10">
-            {" "}
             <DialogHeader>
               <DialogTitle>Edit Package Details</DialogTitle>
               <DialogDescription>
