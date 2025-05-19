@@ -39,7 +39,6 @@ import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { useCreateOrderDialog } from "@/components/dialogs/create-order-dialog"
 import { useFilesDialog } from "@/components/dialogs/files-dialog"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
@@ -81,8 +80,6 @@ export default function EditorNav({
   } = useUpdatePackageDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
-  const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
-    useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
@@ -360,13 +357,6 @@ export default function EditorNav({
               <DropdownMenuContent>
                 <DropdownMenuItem
                   className="text-xs"
-                  onClick={() => openCreateOrderDialog()}
-                >
-                  <PackageIcon className="mr-2 h-3 w-3" />
-                  Submit Order
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
                   onClick={() => openFilesDialog()}
                 >
                   <File className="mr-2 h-3 w-3" />
@@ -520,7 +510,6 @@ export default function EditorNav({
         packageId={pkg?.package_id ?? ""}
         packageName={pkg?.unscoped_name ?? ""}
       />
-      <CreateOrderDialog />
       <FilesDialog snippetId={pkg?.package_id ?? ""} />
       <ViewTsFilesDialog />
     </nav>
