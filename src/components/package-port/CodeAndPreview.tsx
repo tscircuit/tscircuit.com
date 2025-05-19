@@ -252,10 +252,21 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
-      updatePackageFilesMutation.mutate({
-        package_name_with_version: `${pkg.name}@latest`,
-        ...pkg,
-      })
+      updatePackageFilesMutation.mutate(
+        {
+          package_name_with_version: `${pkg.name}@latest`,
+          ...pkg,
+        },
+        {
+          onSuccess: () => {
+            setState((prev) => ({
+              ...prev,
+              initialFilesLoad: [...prev.pkgFilesWithContent],
+            }))
+            pkgFiles.refetch()
+          },
+        },
+      )
     }
   }
 
@@ -286,10 +297,17 @@ export function CodeAndPreview({ pkg }: Props) {
     state.pkgFilesWithContent,
   ])
   const mainComponentPath = useMemo(() => {
-    return state.currentFile?.endsWith(".tsx") &&
+    const isReactComponentExported =
+      /export function\s+\w+/.test(currentFileCode) ||
+      /export const\s+\w+\s*=/.test(currentFileCode) ||
+      /export default\s+\w+/.test(currentFileCode) ||
+      /export default\s+function\s*(\w*)\s*\(/.test(currentFileCode) ||
+      /export default\s*\(\s*\)\s*=>/.test(currentFileCode)
+
+    return (state.currentFile?.endsWith(".tsx") ||
+      state.currentFile?.endsWith(".ts")) &&
       !!state.pkgFilesWithContent.some((x) => x.path == state.currentFile) &&
-      (currentFileCode.match(/export function (\w+)/) ||
-        currentFileCode.match(/export const (\w+) ?=/))
+      isReactComponentExported
       ? state.currentFile
       : state.defaultComponentFile
   }, [state.currentFile, state.pkgFilesWithContent, currentFileCode])
