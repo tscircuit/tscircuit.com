@@ -27,9 +27,8 @@ export function JLCPCBImportDialog({
   const [partNumber, setPartNumber] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [alreadyImportedPackageId, setAlreadyImportedPackageId] = useState<
-    string | null
-  >(null)
+  const [hasBeenImportedToAccountAlready, setHasBeenImportedToAccountAlready] =
+    useState<boolean>(false)
   const axios = useAxios()
   const { toast } = useToast()
   const [, navigate] = useLocation()
@@ -48,19 +47,17 @@ export function JLCPCBImportDialog({
 
     setIsLoading(true)
     setError(null)
-    setAlreadyImportedPackageId(null)
+    setHasBeenImportedToAccountAlready(false)
 
     try {
-      const existingPackageRes = await axios.get(
-        `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`,
-        {
-          validateStatus: (status) => true,
-        },
-      )
+      const apiUrl = `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`
+
+      const existingPackageRes = await axios.get(apiUrl, {
+        validateStatus: (status) => true,
+      })
 
       if (existingPackageRes.status !== 404) {
-        const packageId = existingPackageRes.data.snippet.snippet_id
-        setAlreadyImportedPackageId(packageId)
+        setHasBeenImportedToAccountAlready(true)
         setIsLoading(false)
         return
       }
@@ -122,14 +119,14 @@ export function JLCPCBImportDialog({
             onChange={(e) => {
               setPartNumber(e.target.value)
               setError(null)
-              setAlreadyImportedPackageId(null)
+              setHasBeenImportedToAccountAlready(false)
             }}
           />
-          {error && !alreadyImportedPackageId && (
+          {error && !hasBeenImportedToAccountAlready && (
             <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>
           )}
 
-          {error && !alreadyImportedPackageId && (
+          {error && !hasBeenImportedToAccountAlready && (
             <div className="flex justify-end mt-2">
               <Button
                 variant="default"
@@ -150,7 +147,7 @@ export function JLCPCBImportDialog({
             </div>
           )}
 
-          {alreadyImportedPackageId && (
+          {hasBeenImportedToAccountAlready && (
             <p className="p-2 mt-2 pre-wrap text-md text-green-600">
               This part number has already been imported to your profile.{" "}
               <PrefetchPageLink
