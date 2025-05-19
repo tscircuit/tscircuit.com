@@ -29,15 +29,26 @@ const SearchButtonComponent = () => {
           </Button> */}
         </div>
       ) : (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsExpanded(true)}
-          className="h-8 w-8"
-          aria-label="Open search"
-        >
-          <Search className="h-4 w-4" />
-        </Button>
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsExpanded(true)}
+            className="h-8 w-8 hidden sm:block"
+            aria-label="Open search"
+          >
+            <Search className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => (window.location.href = "/search")}
+            className="h-8 w-8 block sm:hidden"
+            aria-label="Go to search"
+          >
+            <Search className="size-4" />
+          </Button>
+        </>
       )}
     </div>
   )
