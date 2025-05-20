@@ -39,7 +39,6 @@ import type { CommonLayoutProps } from "@tscircuit/props"
 
 export const CodeEditor = ({
   onCodeChange,
-  onDtsChange,
   readOnly = false,
   files = [],
   isStreaming = false,
@@ -51,7 +50,6 @@ export const CodeEditor = ({
   handleCreateFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
-  onDtsChange?: (dts: string) => void
   files: PackageFile[]
   handleCreateFile: (props: CreateFileProps) => void
   readOnly?: boolean
@@ -250,22 +248,6 @@ export const CodeEditor = ({
           // setCode(newContent)
           onCodeChange(newContent, currentFile)
           onFileContentChanged?.(currentFile, newContent)
-
-          // Generate TypeScript declarations for TypeScript/TSX files
-          if (currentFile.endsWith(".ts") || currentFile.endsWith(".tsx")) {
-            try {
-              const { outputFiles } = env.languageService.getEmitOutput(
-                currentFile,
-                true,
-              )
-              const dtsFile = outputFiles.find((file) =>
-                file.name.endsWith(".d.ts"),
-              )
-              if (dtsFile?.text && onDtsChange) {
-                onDtsChange(dtsFile.text)
-              }
-            } catch {}
-          }
         }
         if (update.selectionSet) {
           const pos = update.state.selection.main.head

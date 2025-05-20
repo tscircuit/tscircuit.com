@@ -23,6 +23,7 @@ import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
+import { useFileManagement } from "@/hooks/useFileManagement"
 
 interface Props {
   pkg?: Package
@@ -46,7 +47,6 @@ interface CodeAndPreviewState {
   initialFilesLoad: PackageFile[]
   showPreview: boolean
   fullScreen: boolean
-  dts: string
   lastSavedAt: number
   circuitJson: null | any
   isPrivate: boolean
@@ -94,14 +94,15 @@ export function CodeAndPreview({ pkg }: Props) {
     )
   }, [indexFileFromHook.data, templateFromUrl, urlParams.package_id])
 
+  const { pkgFilesWithContent, handleCreateFile } = useFileManagement(
+    !pkg ? [{ path: "index.tsx", content: defaultCode }] : [],
+  )
+
   const [state, setState] = useState<CodeAndPreviewState>({
-    pkgFilesWithContent: !pkg
-      ? [{ path: "index.tsx", content: defaultCode }]
-      : [],
+    pkgFilesWithContent,
     initialFilesLoad: [],
     showPreview: true,
     fullScreen: false,
-    dts: "",
     lastSavedAt: Date.now(),
     circuitJson: null,
     isPrivate: false,
@@ -347,50 +348,6 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
-  const handleCreateFile = async ({
-    newFileName,
-    setErrorMessage,
-    onFileSelect,
-    setNewFileName,
-    setIsCreatingFile,
-  }: CreateFileProps) => {
-    newFileName = newFileName.trim()
-    if (!newFileName) {
-      setErrorMessage("File name cannot be empty")
-      return
-    }
-    if (!isValidFileName(newFileName)) {
-      setErrorMessage(
-        'Invalid file name. Avoid using special characters like <>:"/\\|?*',
-      )
-      return
-    }
-    setErrorMessage("")
-
-    const fileExists = state.pkgFilesWithContent.some(
-      (file) => file.path === newFileName,
-    )
-
-    if (fileExists) {
-      setErrorMessage("A file with this name already exists")
-      return
-    }
-
-    setState((prev) => {
-      const updatedFiles = [
-        ...prev.pkgFilesWithContent,
-        { path: newFileName, content: "" },
-      ]
-      return {
-        ...prev,
-        pkgFilesWithContent: updatedFiles,
-      }
-    })
-    onFileSelect(newFileName)
-    setIsCreatingFile(false)
-    setNewFileName("")
-  }
-
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -432,7 +389,7 @@ export function CodeAndPreview({ pkg }: Props) {
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))
             }
-            files={state.pkgFilesWithContent}
+            files={pkgFilesWithContent}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? state.currentFile
               setState((prev) => ({
@@ -444,7 +401,6 @@ export function CodeAndPreview({ pkg }: Props) {
                 ),
               }))
             }}
-            onDtsChange={(dts) => setState((prev) => ({ ...prev, dts }))}
             pkgFilesLoaded={state.pkgFilesLoaded}
           />
         </div>
