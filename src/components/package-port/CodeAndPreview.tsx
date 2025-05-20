@@ -22,6 +22,8 @@ import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
+import { isValidFileName } from "@/lib/utils/isValidFileName"
+import { useFileManagement } from "@/hooks/useFileManagement"
 
 interface Props {
   pkg?: Package
@@ -32,12 +34,19 @@ export interface PackageFile {
   content: string
 }
 
-interface CodeAndPreviewState {
+export interface CreateFileProps {
+  newFileName: string
+  setErrorMessage: (message: string) => void
+  onFileSelect: (fileName: string) => void
+  setNewFileName: (fileName: string) => void
+  setIsCreatingFile: (isCreatingFile: boolean) => void
+}
+
+export interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
   initialFilesLoad: PackageFile[]
   showPreview: boolean
   fullScreen: boolean
-  dts: string
   lastSavedAt: number
   circuitJson: null | any
   isPrivate: boolean
@@ -92,7 +101,6 @@ export function CodeAndPreview({ pkg }: Props) {
     initialFilesLoad: [],
     showPreview: true,
     fullScreen: false,
-    dts: "",
     lastSavedAt: Date.now(),
     circuitJson: null,
     isPrivate: false,
@@ -148,7 +156,6 @@ export function CodeAndPreview({ pkg }: Props) {
 
     if (loadedFiles && !isLoadingFiles) {
       const processedResults = [...loadedFiles]
-
       setState((prev) => ({
         ...prev,
         pkgFilesWithContent: processedResults,
@@ -159,13 +166,7 @@ export function CodeAndPreview({ pkg }: Props) {
           defaultCode,
       }))
     }
-  }, [
-    isLoadingFiles,
-    pkg,
-    pkgFiles.data,
-    state.pkgFilesWithContent.length,
-    defaultCode,
-  ])
+  }, [isLoadingFiles, pkg, pkgFiles.data, defaultCode])
 
   const createPackageMutation = useCreatePackageMutation()
   const { mutate: createRelease } = useCreatePackageReleaseMutation({
@@ -250,10 +251,21 @@ export function CodeAndPreview({ pkg }: Props) {
     setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
 
     if (pkg) {
-      updatePackageFilesMutation.mutate({
-        package_name_with_version: `${pkg.name}@latest`,
-        ...pkg,
-      })
+      updatePackageFilesMutation.mutate(
+        {
+          package_name_with_version: `${pkg.name}@latest`,
+          ...pkg,
+        },
+        {
+          onSuccess: () => {
+            setState((prev) => ({
+              ...prev,
+              initialFilesLoad: [...prev.pkgFilesWithContent],
+            }))
+            pkgFiles.refetch()
+          },
+        },
+      )
     }
   }
 
@@ -284,10 +296,17 @@ export function CodeAndPreview({ pkg }: Props) {
     state.pkgFilesWithContent,
   ])
   const mainComponentPath = useMemo(() => {
-    return state.currentFile?.endsWith(".tsx") &&
+    const isReactComponentExported =
+      /export function\s+\w+/.test(currentFileCode) ||
+      /export const\s+\w+\s*=/.test(currentFileCode) ||
+      /export default\s+\w+/.test(currentFileCode) ||
+      /export default\s+function\s*(\w*)\s*\(/.test(currentFileCode) ||
+      /export default\s*\(\s*\)\s*=>/.test(currentFileCode)
+
+    return (state.currentFile?.endsWith(".tsx") ||
+      state.currentFile?.endsWith(".ts")) &&
       !!state.pkgFilesWithContent.some((x) => x.path == state.currentFile) &&
-      (currentFileCode.match(/export function (\w+)/) ||
-        currentFileCode.match(/export const (\w+) ?=/))
+      isReactComponentExported
       ? state.currentFile
       : state.defaultComponentFile
   }, [state.currentFile, state.pkgFilesWithContent, currentFileCode])
@@ -327,6 +346,8 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
+  const { handleCreateFile } = useFileManagement(state, setState)
+
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -363,6 +384,7 @@ export function CodeAndPreview({ pkg }: Props) {
           )}
         >
           <CodeEditor
+            handleCreateFile={handleCreateFile}
             currentFile={state.currentFile}
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))
@@ -379,7 +401,6 @@ export function CodeAndPreview({ pkg }: Props) {
                 ),
               }))
             }}
-            onDtsChange={(dts) => setState((prev) => ({ ...prev, dts }))}
             pkgFilesLoaded={state.pkgFilesLoaded}
           />
         </div>
