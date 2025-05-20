@@ -42,7 +42,7 @@ export interface CreateFileProps {
   setIsCreatingFile: (isCreatingFile: boolean) => void
 }
 
-interface CodeAndPreviewState {
+export interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
   initialFilesLoad: PackageFile[]
   showPreview: boolean
@@ -94,12 +94,10 @@ export function CodeAndPreview({ pkg }: Props) {
     )
   }, [indexFileFromHook.data, templateFromUrl, urlParams.package_id])
 
-  const { pkgFilesWithContent, handleCreateFile } = useFileManagement(
-    !pkg ? [{ path: "index.tsx", content: defaultCode }] : [],
-  )
-
   const [state, setState] = useState<CodeAndPreviewState>({
-    pkgFilesWithContent,
+    pkgFilesWithContent: !pkg
+      ? [{ path: "index.tsx", content: defaultCode }]
+      : [],
     initialFilesLoad: [],
     showPreview: true,
     fullScreen: false,
@@ -348,6 +346,8 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
+  const { handleCreateFile } = useFileManagement(state, setState)
+
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -389,7 +389,7 @@ export function CodeAndPreview({ pkg }: Props) {
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))
             }
-            files={pkgFilesWithContent}
+            files={state.pkgFilesWithContent}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? state.currentFile
               setState((prev) => ({

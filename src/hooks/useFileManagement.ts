@@ -1,27 +1,15 @@
-import { useState } from "react"
+import { Dispatch, SetStateAction } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
-import { PackageFile } from "../components/package-port/CodeAndPreview"
-
-interface CreateFileProps {
-  newFileName: string
-  setErrorMessage: (message: string) => void
-  onFileSelect: (fileName: string) => void
-  setNewFileName: (fileName: string) => void
-  setIsCreatingFile: (isCreatingFile: boolean) => void
-}
-
-interface UseFileManagement {
-  pkgFilesWithContent: PackageFile[]
-  handleCreateFile: (props: CreateFileProps) => void
-}
+import {
+  CodeAndPreviewState,
+  CreateFileProps,
+} from "../components/package-port/CodeAndPreview"
 
 export function useFileManagement(
-  initialFiles: PackageFile[],
-): UseFileManagement {
-  const [pkgFilesWithContent, setPkgFilesWithContent] =
-    useState<PackageFile[]>(initialFiles)
-
-  const handleCreateFile = ({
+  state: CodeAndPreviewState,
+  setState: Dispatch<SetStateAction<CodeAndPreviewState>>,
+) {
+  const handleCreateFile = async ({
     newFileName,
     setErrorMessage,
     onFileSelect,
@@ -41,7 +29,7 @@ export function useFileManagement(
     }
     setErrorMessage("")
 
-    const fileExists = pkgFilesWithContent.some(
+    const fileExists = state.pkgFilesWithContent.some(
       (file) => file.path === newFileName,
     )
 
@@ -50,17 +38,22 @@ export function useFileManagement(
       return
     }
 
-    setPkgFilesWithContent((prev) => [
-      ...prev,
-      { path: newFileName, content: "" },
-    ])
+    setState((prev) => {
+      const updatedFiles = [
+        ...prev.pkgFilesWithContent,
+        { path: newFileName, content: "" },
+      ]
+      return {
+        ...prev,
+        pkgFilesWithContent: updatedFiles,
+      } as CodeAndPreviewState
+    })
     onFileSelect(newFileName)
     setIsCreatingFile(false)
     setNewFileName("")
   }
 
   return {
-    pkgFilesWithContent,
     handleCreateFile,
   }
 }
