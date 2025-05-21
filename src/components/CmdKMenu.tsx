@@ -136,7 +136,7 @@ const CmdKMenu = () => {
                   {searchResults.map((pkg: Package) => (
                     <Command.Item
                       key={pkg.package_id}
-                      value={pkg.unscoped_name}
+                      value={pkg.name}
                       onSelect={() => {
                         window.location.href = `/editor?package_id=${pkg.package_id}`
                         setOpen(false)
