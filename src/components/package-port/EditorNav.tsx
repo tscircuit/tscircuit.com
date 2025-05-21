@@ -509,6 +509,7 @@ export default function EditorNav({
       <DeleteDialog
         packageId={pkg?.package_id ?? ""}
         packageName={pkg?.unscoped_name ?? ""}
+        packageOwner={pkg?.owner_github_username ?? ""}
       />
       <FilesDialog snippetId={pkg?.package_id ?? ""} />
       <ViewTsFilesDialog />
