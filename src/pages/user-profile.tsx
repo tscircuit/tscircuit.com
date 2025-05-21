@@ -212,6 +212,7 @@ export const UserProfilePage = () => {
         <DeleteDialog
           packageId={packageToDelete.package_id}
           packageName={packageToDelete.unscoped_name}
+          packageOwner={packageToDelete.owner_github_username ?? ""}
           refetchUserPackages={refetchUserPackages}
         />
       )}
