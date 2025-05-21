@@ -61,7 +61,6 @@ const EditorPage = lazyImport(async () => {
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
-const PreviewPage = lazyImport(() => import("@/pages/preview"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
 const SettingsPage = lazyImport(() => import("@/pages/settings"))
@@ -124,7 +123,6 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/orders/:orderId" component={ViewOrderPage} />
-            <Route path="/preview" component={PreviewPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
