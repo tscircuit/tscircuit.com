@@ -7,7 +7,7 @@ import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
 import React from "react"
 import { useQuery } from "react-query"
 
-type SnippetType = "board" | "package" | "model" | "footprint" | "snippet"
+type SnippetType = "board" | "package" | "model" | "footprint"
 
 interface Template {
   name: string
@@ -31,13 +31,13 @@ const CmdKMenu = () => {
 
   // Search results query
   const { data: searchResults = [], isLoading: isSearching } = useQuery(
-    ["snippetSearch", searchQuery],
+    ["packageSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
-      const { data } = await axios.get("/snippets/search", {
-        params: { q: searchQuery },
+      const { data } = await axios.post("/packages/search", {
+        query: searchQuery,
       })
-      return data.snippets || []
+      return data.packages || []
     },
     {
       enabled: Boolean(searchQuery),
@@ -114,7 +114,7 @@ const CmdKMenu = () => {
             />
           </svg>
           <Command.Input
-            placeholder="Search snippets and commands..."
+            placeholder="Search packages and commands..."
             value={searchQuery}
             onValueChange={setSearchQuery}
             className="w-full h-12 bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500"
@@ -133,27 +133,27 @@ const CmdKMenu = () => {
                   heading="Search Results"
                   className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
                 >
-                  {searchResults.map((snippet: Snippet) => (
+                  {searchResults.map((pkg: Package) => (
                     <Command.Item
-                      key={snippet.snippet_id}
-                      value={snippet.name || snippet.unscoped_name}
+                      key={pkg.package_id}
+                      value={pkg.unscoped_name}
                       onSelect={() => {
-                        window.location.href = `/editor?snippet_id=${snippet.snippet_id}`
+                        window.location.href = `/editor?package_id=${pkg.package_id}`
                         setOpen(false)
                       }}
                       className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                     >
                       <div className="flex flex-col">
                         <span className="text-gray-900 dark:text-gray-100">
-                          {snippet.name || snippet.unscoped_name}
+                          {pkg.name}
                         </span>
-                        {snippet.description && (
+                        {pkg.description && (
                           <span className="text-sm text-gray-500">
-                            {snippet.description}
+                            {pkg.description}
                           </span>
                         )}
                       </div>
-                      <span className="text-sm text-gray-500">snippet</span>
+                      <span className="text-sm text-gray-500">package</span>
                     </Command.Item>
                   ))}
                 </Command.Group>
@@ -161,7 +161,7 @@ const CmdKMenu = () => {
 
               {!searchQuery && recentPackages.length > 0 && (
                 <Command.Group
-                  heading="Recent Snippets"
+                  heading="Recent Packages"
                   className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
                 >
                   {recentPackages.slice(0, 6).map((pkg) => (
@@ -169,28 +169,28 @@ const CmdKMenu = () => {
                       key={pkg.package_id}
                       value={pkg.unscoped_name}
                       onSelect={() => {
-                        window.location.href = `/editor?snippet_id=${pkg.package_id}`
+                        window.location.href = `/editor?package_id=${pkg.package_id}`
                         setOpen(false)
                       }}
                       className="flex items-center justify-between px-2 py-1.5 rounded-sm text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-default aria-selected:bg-gray-100 dark:aria-selected:bg-gray-700"
                     >
                       <div className="flex flex-col">
                         <span className="text-gray-900 dark:text-gray-100">
-                          {pkg.unscoped_name}
+                          {pkg.name}
                         </span>
                         <span className="text-sm text-gray-500">
                           Last edited:{" "}
                           {new Date(pkg.updated_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-500">snippet</span>
+                      <span className="text-sm text-gray-500">package</span>
                     </Command.Item>
                   ))}
                 </Command.Group>
               )}
 
               <Command.Group
-                heading="Start Blank Snippet"
+                heading="Start Blank Package"
                 className="px-2 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"
               >
                 {blankTemplates.map((template) => (
