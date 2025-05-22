@@ -74,9 +74,8 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
 
-  const { highlighter, isLoading } = useShikiHighlighter()
+  const { highlighter } = useShikiHighlighter()
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
@@ -197,9 +196,6 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
-        finished: () => {
-          setIsCodeEditorReady(true)
-        },
         started: () => {
           const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
@@ -444,8 +440,6 @@ export const CodeEditor = ({
 
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
-    } else if (!!currentFile) {
-      setIsCodeEditorReady(true)
     }
 
     return () => {
@@ -554,9 +548,9 @@ export const CodeEditor = ({
         )}
         <div
           ref={editorRef}
-          className={`flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full ${
-            !isCodeEditorReady ? "opacity-50" : ""
-          }`}
+          className={
+            "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
+          }
         />
       </div>
     </div>
