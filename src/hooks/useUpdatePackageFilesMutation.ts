@@ -58,6 +58,28 @@ export function useUpdatePackageFilesMutation({
           }
         }
       }
+      for (const initialFile of initialFilesLoad) {
+        const fileStillExists = pkgFilesWithContent.some(
+          (x) => x.path === initialFile.path,
+        )
+
+        if (!fileStillExists) {
+          const fileToDelete = pkgFiles.data?.find(
+            (x: any) => x.file_path === initialFile.path,
+          )
+
+          if (fileToDelete?.package_file_id) {
+            const response = await axios.post("/package_files/delete", {
+              package_name_with_version: `${newpackage.name}`,
+              file_path: initialFile.path,
+            })
+
+            if (response.status === 200) {
+              updatedFilesCount++
+            }
+          }
+        }
+      }
       return updatedFilesCount
     },
     onSuccess: (updatedFilesCount) => {

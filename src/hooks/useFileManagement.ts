@@ -58,11 +58,6 @@ export function useFileManagement(
   }
 
   const handleDeleteFile = async ({ filename }: DeleteFileProps) => {
-    if (!state.pkg?.name) {
-      toast.error("This is not a package file")
-      return
-    }
-
     const fileExists = state.pkgFilesWithContent.some(
       (file) => file.path === filename,
     )
@@ -72,35 +67,18 @@ export function useFileManagement(
       return
     }
 
-    let response
-    try {
-      response = await axios.post("/package_files/delete", {
-        file_path: filename,
-        package_name_with_version: `${state.pkg?.name}`,
-      })
-    } catch (error: any) {
-      console.log(error)
-      toast.error(
-        `Error deleting file: ${error.message || error.data?.error?.message || "Unknown error"}`,
+    setState((prev) => {
+      const updatedFiles = prev.pkgFilesWithContent.filter(
+        (file) => file.path !== filename,
       )
-      return
-    }
-
-    if (response.status === 200) {
-      setState((prev) => {
-        const updatedFiles = prev.pkgFilesWithContent.filter(
-          (file) => file.path !== filename,
-        )
-        return {
-          ...prev,
-          pkgFilesWithContent: updatedFiles,
-        } as CodeAndPreviewState
-      })
-
-      toast.success(`File ${filename} deleted successfully`)
-    } else {
-      toast.error(`Failed to delete file: ${response.data.message}`)
-    }
+      return {
+        ...prev,
+        pkgFilesWithContent: updatedFiles,
+        currentFile:
+          updatedFiles.find((file) => file.path === prev.currentFile)?.path ||
+          "",
+      }
+    })
   }
 
   return {

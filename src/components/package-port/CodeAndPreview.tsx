@@ -204,14 +204,15 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const hasUnsavedChanges = useMemo(
     () =>
-      !updatePackageFilesMutation.isLoading &&
-      Date.now() - state.lastSavedAt > 1000 &&
-      state.pkgFilesWithContent.some((file) => {
-        const initialFile = state.initialFilesLoad.find(
-          (x) => x.path === file.path,
-        )
-        return initialFile?.content !== file.content
-      }),
+      (!updatePackageFilesMutation.isLoading &&
+        Date.now() - state.lastSavedAt > 1000 &&
+        state.pkgFilesWithContent.some((file) => {
+          const initialFile = state.initialFilesLoad.find(
+            (x) => x.path === file.path,
+          )
+          return initialFile?.content !== file.content
+        })) ||
+      state.pkgFilesWithContent.length !== state.initialFilesLoad.length,
     [
       state.pkgFilesWithContent,
       state.initialFilesLoad,
@@ -270,7 +271,7 @@ export function CodeAndPreview({ pkg }: Props) {
           ...pkg,
         },
         {
-          onSuccess: () => {
+          onSuccess: (e) => {
             setState((prev) => ({
               ...prev,
               initialFilesLoad: [...prev.pkgFilesWithContent],
