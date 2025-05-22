@@ -22,7 +22,6 @@ import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
-import { isValidFileName } from "@/lib/utils/isValidFileName"
 import { useFileManagement } from "@/hooks/useFileManagement"
 
 interface Props {
@@ -42,6 +41,10 @@ export interface CreateFileProps {
   setIsCreatingFile: (isCreatingFile: boolean) => void
 }
 
+export interface DeleteFileProps {
+  filename: string
+}
+
 export interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
   initialFilesLoad: PackageFile[]
@@ -54,6 +57,7 @@ export interface CodeAndPreviewState {
   pkgFilesLoaded: boolean
   currentFile: string
   defaultComponentFile?: string
+  pkg?: Package
 }
 
 const DEFAULT_CODE = `
@@ -95,9 +99,7 @@ export function CodeAndPreview({ pkg }: Props) {
   }, [indexFileFromHook.data, templateFromUrl, urlParams.package_id])
 
   const [state, setState] = useState<CodeAndPreviewState>({
-    pkgFilesWithContent: !pkg
-      ? [{ path: "index.tsx", content: defaultCode }]
-      : [],
+    pkgFilesWithContent: [],
     initialFilesLoad: [],
     showPreview: true,
     fullScreen: false,
@@ -116,21 +118,6 @@ export function CodeAndPreview({ pkg }: Props) {
     )
   }, [state.pkgFilesWithContent])
 
-  const entryPointCode = useMemo(() => {
-    const defaultComponentFile = findTargetFile(state.pkgFilesWithContent, null)
-    if (defaultComponentFile?.content) {
-      setState((prev) => ({
-        ...prev,
-        defaultComponentFile: defaultComponentFile.path,
-      }))
-      return defaultComponentFile.content
-    }
-    return (
-      state.pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
-      defaultCode
-    )
-  }, [state.pkgFilesWithContent, defaultCode])
-
   const packageType =
     pkg?.snippet_type ?? templateFromUrl?.type ?? urlParams.snippet_type
 
@@ -141,13 +128,33 @@ export function CodeAndPreview({ pkg }: Props) {
     usePackageFilesLoader(pkg)
 
   useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      pkg: pkg,
+    }))
+
+    if (!pkg) {
+      setState((prev) => ({
+        ...prev,
+        pkgFilesWithContent: [{ path: "index.tsx", content: defaultCode }],
+        initialFilesLoad: [{ path: "index.tsx", content: defaultCode }],
+        currentFile: "index.tsx",
+      }))
+    } else {
+      setState((prev) => ({
+        ...prev,
+        currentFile: "",
+        pkgFilesWithContent: [],
+        initialFilesLoad: [],
+      }))
+    }
+
     if (!pkgFiles.data?.length) {
       if (pkg && state.pkgFilesWithContent.length === 0) {
-        const defaultFiles = [{ path: "index.tsx", content: defaultCode }]
         setState((prev) => ({
           ...prev,
-          pkgFilesWithContent: defaultFiles,
-          initialFilesLoad: defaultFiles,
+          pkgFilesWithContent: [],
+          initialFilesLoad: [],
           lastRunCode: defaultCode,
         }))
       }
@@ -164,6 +171,12 @@ export function CodeAndPreview({ pkg }: Props) {
         lastRunCode:
           processedResults.find((x) => x.path === "index.tsx")?.content ??
           defaultCode,
+        currentFile: processedResults.some(
+          (x) =>
+            x.path === findTargetFile(state.pkgFilesWithContent, null)?.path,
+        )
+          ? findTargetFile(state.pkgFilesWithContent, null)?.path || ""
+          : "",
       }))
     }
   }, [isLoadingFiles, pkg, pkgFiles.data, defaultCode])
@@ -289,12 +302,7 @@ export function CodeAndPreview({ pkg }: Props) {
         {} as Record<string, string>,
       ),
     }
-  }, [
-    manualEditsFileContent,
-    entryPointCode,
-    packageType,
-    state.pkgFilesWithContent,
-  ])
+  }, [manualEditsFileContent, state.pkgFilesWithContent])
   const mainComponentPath = useMemo(() => {
     const isReactComponentExported =
       /export function\s+\w+/.test(currentFileCode) ||
@@ -346,7 +354,10 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
-  const { handleCreateFile } = useFileManagement(state, setState)
+  const { handleCreateFile, handleDeleteFile } = useFileManagement(
+    state,
+    setState,
+  )
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
@@ -385,6 +396,7 @@ export function CodeAndPreview({ pkg }: Props) {
         >
           <CodeEditor
             handleCreateFile={handleCreateFile}
+            handleDeleteFile={handleDeleteFile}
             currentFile={state.currentFile}
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))

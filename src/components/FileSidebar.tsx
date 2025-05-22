@@ -1,11 +1,17 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
+import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 import { Input } from "@/components/ui/input"
-import { CreateFileProps } from "./package-port/CodeAndPreview"
-
+import { CreateFileProps, DeleteFileProps } from "./package-port/CodeAndPreview"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 type FileName = string
 
 interface FileSidebarProps {
@@ -15,6 +21,7 @@ interface FileSidebarProps {
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: CreateFileProps) => void
+  handleDeleteFile: (props: DeleteFileProps) => void
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -24,6 +31,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   className,
   fileSidebarState,
   handleCreateFile,
+  handleDeleteFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
@@ -41,7 +49,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     Object.keys(files).forEach((path) => {
       const startsWithSlash = path.startsWith("/")
       const parts = (startsWithSlash ? path.slice(1) : path).trim().split("/")
-      let current = root
+      let current: Record<string, TreeNode> = root
 
       parts.forEach((part, index) => {
         const isFile = index === parts.length - 1
@@ -62,9 +70,30 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             name: isFile ? part : part,
             icon: isFile ? File : Folder,
             onClick: isFile ? () => onFileSelect(evaluatedFilePath) : undefined,
-            draggable: isFile,
+            draggable: false,
             droppable: !isFile,
             children: isFile ? undefined : {},
+            actions: (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border border-gray-200">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleDeleteFile({ filename: currentPath })
+                        }
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ),
           }
         }
 
@@ -90,7 +119,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
-
+  // console.log("treeData", files)
   const handleCreateFileInline = () => {
     handleCreateFile({
       newFileName,

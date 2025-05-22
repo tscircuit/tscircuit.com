@@ -28,8 +28,13 @@ import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { CreateFileProps, PackageFile } from "./CodeAndPreview"
+import type {
+  CreateFileProps,
+  PackageFile,
+  DeleteFileProps,
+} from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import toast from "react-hot-toast"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -48,10 +53,12 @@ export const CodeEditor = ({
   currentFile,
   setCurrentFile,
   handleCreateFile,
+  handleDeleteFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
   handleCreateFile: (props: CreateFileProps) => void
+  handleDeleteFile: (props: DeleteFileProps) => void
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
@@ -86,7 +93,6 @@ export const CodeEditor = ({
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
 
     const targetFile = findTargetFile(files, filePathFromUrl)
-
     if (targetFile) {
       handleFileChange(targetFile.path)
       setCode(targetFile.content)
@@ -529,6 +535,7 @@ export const CodeEditor = ({
         }
         onFileSelect={handleFileChange}
         handleCreateFile={handleCreateFile}
+        handleDeleteFile={handleDeleteFile}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
