@@ -271,7 +271,7 @@ export function CodeAndPreview({ pkg }: Props) {
           ...pkg,
         },
         {
-          onSuccess: (e) => {
+          onSuccess: () => {
             setState((prev) => ({
               ...prev,
               initialFilesLoad: [...prev.pkgFilesWithContent],
