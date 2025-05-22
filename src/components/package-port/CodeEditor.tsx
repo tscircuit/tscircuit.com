@@ -541,7 +541,9 @@ export const CodeEditor = ({
         )}
         <div
           ref={editorRef}
-          className={"flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"}
+          className={
+            "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
+          }
         />
       </div>
     </div>
