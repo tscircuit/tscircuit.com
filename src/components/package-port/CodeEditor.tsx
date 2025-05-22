@@ -191,9 +191,6 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
-        finished: () => {
-          setIsCodeEditorReady(true)
-        },
         started: () => {
           const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
@@ -436,10 +433,14 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
+    viewRef.current = view
+
+    // Set the editor as ready as soon as the view is initialized
+    // Full type-checking and ATA will continue in the background
+    setIsCodeEditorReady(true)
+
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
-    } else if (!!currentFile) {
-      setIsCodeEditorReady(true)
     }
 
     return () => {
