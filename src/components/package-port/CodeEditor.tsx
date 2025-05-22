@@ -432,8 +432,6 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    viewRef.current = view
-
     if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
