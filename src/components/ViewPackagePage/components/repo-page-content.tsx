@@ -53,22 +53,24 @@ export default function RepoPageContent({
   useEffect(() => {
     const hash = window.location.hash.slice(1)
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+    const circuitDependentViews = ["3d", "pcb", "schematic"]
 
-    if (!circuitJson) {
-      return setActiveView("files")
-    }
+    // If no circuit data, restrict to files/bom only
+    const availableViews = circuitJson
+      ? validViews
+      : validViews.filter((view) => !circuitDependentViews.includes(view))
 
-    if (hash && validViews.includes(hash)) {
+    if (hash && availableViews.includes(hash)) {
       setActiveView(hash)
     } else if (
       packageInfo?.default_view &&
-      validViews.includes(packageInfo.default_view)
+      availableViews.includes(packageInfo.default_view)
     ) {
       setActiveView(packageInfo.default_view)
       window.location.hash = packageInfo.default_view
     } else {
       setActiveView("files")
-      if (!hash) {
+      if (!hash || !availableViews.includes(hash)) {
         window.location.hash = "files"
       }
     }
