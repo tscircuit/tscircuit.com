@@ -41,12 +41,14 @@ interface FilesViewProps {
   packageFiles?: PackageFile[]
   isLoading?: boolean
   onFileClicked?: (file: PackageFile) => void
+  isFileInteractionReady?: boolean
 }
 
 export default function FilesView({
   packageFiles = [],
   isLoading = false,
   onFileClicked,
+  isFileInteractionReady = true, // Default to true if not provided, or for standalone use
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
   const [showHiddenFiles, setShowHiddenFiles] = useState(false)
@@ -151,9 +153,11 @@ export default function FilesView({
       // When directory is clicked, navigate into it by setting it as the active directory
       setActiveDir(item.path)
     } else if (item.type === "file" && onFileClicked) {
-      const file = packageFiles.find((f) => f.file_path === item.path)
-      if (file) {
-        onFileClicked(file)
+      if (isFileInteractionReady) {
+        const file = packageFiles.find((f) => f.file_path === item.path)
+        if (file) {
+          onFileClicked(file)
+        }
       }
     }
   }
@@ -263,7 +267,11 @@ export default function FilesView({
               .map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
+                  className={`flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] group ${
+                    item.type === "file" && !isFileInteractionReady
+                      ? "cursor-wait"
+                      : "cursor-pointer"
+                  }`}
                   onClick={() => handleItemClick(item)}
                 >
                   {item.type === "directory" ? (

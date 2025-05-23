@@ -36,6 +36,8 @@ export const ViewPackagePage = () => {
     return <NotFoundPage heading="Package Not Found" />
   }
 
+  const isFileInteractionReady = Boolean(packageInfo?.package_id);
+
   return (
     <>
       <Helmet>
@@ -45,10 +47,14 @@ export const ViewPackagePage = () => {
         packageFiles={packageFiles as any}
         packageInfo={packageInfo as any}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
+        isFileInteractionReady={isFileInteractionReady}
         onFileClicked={(file) => {
-          setLocation(
-            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
-          )
+          if (isFileInteractionReady) {
+            setLocation(
+              // packageInfo is guaranteed to be defined here due to isFileInteractionReady check
+              `/editor?package_id=${packageInfo!.package_id}&file_path=${file.file_path}`,
+            );
+          }
         }}
         onEditClicked={(file_path?: string) => {
           setLocation(
