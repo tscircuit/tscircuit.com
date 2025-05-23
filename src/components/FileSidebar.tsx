@@ -46,33 +46,33 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
     const root: Record<string, TreeNode> = {}
 
-    Object.keys(files).forEach((path) => {
-      const startsWithSlash = path.startsWith("/")
-      const parts = (startsWithSlash ? path.slice(1) : path).trim().split("/")
-      let current: Record<string, TreeNode> = root
+    Object.keys(files).forEach((filePath) => {
+      const hasLeadingSlash = filePath.startsWith("/")
+      const pathSegments = (hasLeadingSlash ? filePath.slice(1) : filePath).trim().split("/")
+      let currentNode: Record<string, TreeNode> = root
 
-      parts.forEach((part, index) => {
-        const isFile = index === parts.length - 1
-        const parentPath = parts.slice(0, index).join("/")
-        const currentPath = parentPath ? `${parentPath}/${part}` : part
-        const evaluatedFilePath = startsWithSlash
-          ? `/${currentPath}`
-          : currentPath
+      pathSegments.forEach((segment, segmentIndex) => {
+        const isLeafNode = segmentIndex === pathSegments.length - 1
+        const ancestorPath = pathSegments.slice(0, segmentIndex).join("/")
+        const relativePath = ancestorPath ? `${ancestorPath}/${segment}` : segment
+        const absolutePath = hasLeadingSlash
+          ? `/${relativePath}`
+          : relativePath
         if (
-          !current[part] &&
-          (!isHiddenFile(currentPath) ||
+          !currentNode[segment] &&
+          (!isHiddenFile(relativePath) ||
             isHiddenFile(
               currentFile.startsWith("/") ? currentFile.slice(1) : currentFile,
             ))
         ) {
-          current[part] = {
-            id: currentPath,
-            name: isFile ? part : part,
-            icon: isFile ? File : Folder,
-            onClick: isFile ? () => onFileSelect(evaluatedFilePath) : undefined,
+          currentNode[segment] = {
+            id: relativePath,
+            name: isLeafNode ? segment : segment,
+            icon: isLeafNode ? File : Folder,
+            onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
             draggable: false,
-            droppable: !isFile,
-            children: isFile ? undefined : {},
+            droppable: !isLeafNode,
+            children: isLeafNode ? undefined : {},
             actions: (
               <>
                 <DropdownMenu>
@@ -83,7 +83,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         onClick={() =>
-                          handleDeleteFile({ filename: currentPath })
+                          handleDeleteFile({ filename: relativePath })
                         }
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
@@ -97,8 +97,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           }
         }
 
-        if (!isFile && current[part].children) {
-          current = current[part].children
+        if (!isLeafNode && currentNode[segment].children) {
+          currentNode = currentNode[segment].children
         }
       })
     })
