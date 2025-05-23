@@ -1,7 +1,5 @@
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 import { Link } from "wouter"
-
-import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -10,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { LockClosedIcon } from "@radix-ui/react-icons"
+import { Lock, Globe } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
@@ -106,13 +104,25 @@ export default function PackageHeader({
                     {packageName}
                   </Link>
                 </h1>
-                {packageInfo?.name && <TypeBadge type="package" />}
-                {isPrivate && (
-                  <div className="relative group pl-2">
-                    <LockClosedIcon className="h-4 w-4 text-gray-700" />
-                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2">
-                      private
-                    </span>
+                {packageInfo?.name && (
+                  <div
+                    className={`select-none inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                      isPrivate
+                        ? "bg-gray-100 text-gray-700 border border-gray-200"
+                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                    }`}
+                  >
+                    {isPrivate ? (
+                      <>
+                        <Lock className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="leading-none">Private</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="leading-none">Public</span>
+                      </>
+                    )}
                   </div>
                 )}
               </>
