@@ -46,10 +46,12 @@ export default function RepoPageContent({
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
-  const { circuitJson } = useCurrentPackageCircuitJson()
+  const { circuitJson, isLoading: isCircuitJsonLoading } =
+    useCurrentPackageCircuitJson()
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
+    if (isCircuitJsonLoading) return
     const hash = window.location.hash.slice(1)
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
     const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
@@ -72,7 +74,7 @@ export default function RepoPageContent({
         window.location.hash = "files"
       }
     }
-  }, [packageInfo?.default_view, circuitJson])
+  }, [packageInfo?.default_view, circuitJson, isCircuitJsonLoading])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
