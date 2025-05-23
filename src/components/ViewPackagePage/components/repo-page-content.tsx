@@ -44,7 +44,6 @@ export default function RepoPageContent({
   onFileClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [location, setLocation] = useLocation()
   const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
   const { circuitJson } = useCurrentPackageCircuitJson()
@@ -53,9 +52,8 @@ export default function RepoPageContent({
   useEffect(() => {
     const hash = window.location.hash.slice(1)
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
-    const circuitDependentViews = ["3d", "pcb", "schematic"]
+    const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
 
-    // If no circuit data, restrict to files/bom only
     const availableViews = circuitJson
       ? validViews
       : validViews.filter((view) => !circuitDependentViews.includes(view))
