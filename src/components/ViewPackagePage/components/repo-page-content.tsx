@@ -19,6 +19,7 @@ import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 
 interface PackageFile {
   package_file_id: string
@@ -43,22 +44,37 @@ export default function RepoPageContent({
   onFileClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [location, setLocation] = useLocation()
   const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
+  const { circuitJson, isLoading: isCircuitJsonLoading } =
+    useCurrentPackageCircuitJson()
 
-  // Handle hash-based view selection
+  // Handle initial view selection and hash-based view changes
   useEffect(() => {
-    // Get the hash without the # character
+    if (isCircuitJsonLoading) return
     const hash = window.location.hash.slice(1)
-    // Valid views
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+    const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
 
-    // If hash is a valid view, set it as active
-    if (validViews.includes(hash)) {
+    const availableViews = circuitJson
+      ? validViews
+      : validViews.filter((view) => !circuitDependentViews.includes(view))
+
+    if (hash && availableViews.includes(hash)) {
       setActiveView(hash)
+    } else if (
+      packageInfo?.default_view &&
+      availableViews.includes(packageInfo.default_view)
+    ) {
+      setActiveView(packageInfo.default_view)
+      window.location.hash = packageInfo.default_view
+    } else {
+      setActiveView("files")
+      if (!hash || !availableViews.includes(hash)) {
+        window.location.hash = "files"
+      }
     }
-  }, [])
+  }, [packageInfo?.default_view, circuitJson, isCircuitJsonLoading])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
