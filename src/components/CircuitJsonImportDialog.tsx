@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -119,6 +120,7 @@ export function CircuitJsonImportDialog({
           componentName: "circuit",
         },
       )
+      console.info(tscircuitComponentContent)
 
       await createPackageMutation.mutateAsync(
         {
@@ -179,15 +181,15 @@ export function CircuitJsonImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby="dialog-description">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Import Circuit JSON</DialogTitle>
-        </DialogHeader>
-        <div id="dialog-description" className="pb-4">
-          <p className="text-sm text-gray-600">
+          <DialogDescription>
             Use this dialog to import a Circuit JSON file or paste the JSON
             content directly.
-          </p>
+          </DialogDescription>
+        </DialogHeader>
+        <div className="pb-4">
           <Textarea
             className="mt-3"
             placeholder="Paste the Circuit JSON."
@@ -209,7 +211,7 @@ export function CircuitJsonImportDialog({
                 type="file"
                 accept="application/json"
                 onChange={handleFileChange}
-                className="hidden" // Hide the default file input
+                className="hidden"
               />
               <label
                 htmlFor="file-input"
