@@ -23,6 +23,7 @@ import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { FileName } from "./CodeEditorHeader"
 
 interface Props {
   pkg?: Package
@@ -55,7 +56,7 @@ export interface CodeAndPreviewState {
   isPrivate: boolean
   lastRunCode: string
   pkgFilesLoaded: boolean
-  currentFile: string
+  currentFile: FileName | null
   defaultComponentFile?: string
   pkg?: Package
 }
@@ -108,7 +109,7 @@ export function CodeAndPreview({ pkg }: Props) {
     isPrivate: false,
     lastRunCode: defaultCode,
     pkgFilesLoaded: !urlParams.package_id,
-    currentFile: "",
+    currentFile: null,
   })
 
   const manualEditsFileContent = useMemo(() => {
@@ -143,7 +144,7 @@ export function CodeAndPreview({ pkg }: Props) {
     } else {
       setState((prev) => ({
         ...prev,
-        currentFile: "",
+        currentFile: null,
         pkgFilesWithContent: [],
         initialFilesLoad: [],
       }))

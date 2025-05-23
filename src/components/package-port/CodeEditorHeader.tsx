@@ -23,9 +23,9 @@ import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
-  currentFile: FileName
+  currentFile: FileName | null
   files: Record<FileName, string>
-  updateFileContent: (filename: FileName, content: string) => void
+  updateFileContent: (filename: FileName | null, content: string) => void
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
@@ -47,8 +47,8 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
     try {
-      const currentContent = files[currentFile]
-      let fileExtension = currentFile.split(".").pop()?.toLowerCase()
+      const currentContent = files[currentFile || ""]
+      let fileExtension = currentFile?.split(".").pop()?.toLowerCase()
       if (currentContent.trim().length === 0) {
         toast({
           title: "Empty file",
@@ -64,11 +64,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         return
       }
 
-      if (["readme"].includes(currentFile.toLowerCase())) {
+      if (["readme"].includes(currentFile?.toLowerCase() || "")) {
         fileExtension = "md"
       }
 
-      if (fileExtension === currentFile.toLowerCase()) {
+      if (fileExtension === currentFile?.toLowerCase() || "") {
         toast({
           title: "Cannot determine file type",
           description: "Unable to format file without an extension.",
@@ -81,7 +81,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         try {
           const jsonObj = JSON.parse(currentContent)
           const formattedJson = JSON.stringify(jsonObj, null, 2)
-          updateFileContent(currentFile, formattedJson)
+          updateFileContent(currentFile || "", formattedJson)
         } catch (jsonError) {
           toast({
             title: "Invalid JSON",
@@ -108,7 +108,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         plugins: window.prettierPlugins,
       })
 
-      updateFileContent(currentFile, formattedCode)
+      updateFileContent(currentFile || "", formattedCode)
     } catch (error) {
       console.error("Formatting error:", error)
       if (
@@ -117,7 +117,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       ) {
         toast({
           title: "Unsupported File Type",
-          description: `Formatting not supported for .${currentFile.split(".").pop()?.toLowerCase()} files. Tried default parser.`,
+          description: `Formatting not supported for .${currentFile?.split(".").pop()?.toLowerCase() || ""} files. Tried default parser.`,
         })
       } else {
         toast({
@@ -144,7 +144,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           <PanelRightClose />
         </button>
         <div>
-          <Select value={currentFile} onValueChange={handleFileChange}>
+          <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger className="h-7 px-3 bg-white select-none">
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
@@ -189,7 +189,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
 
         <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
-          {checkIfManualEditsImported(files, currentFile) && (
+          {checkIfManualEditsImported(files, currentFile || "") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -227,7 +227,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
         <ImportSnippetDialog
           onSnippetSelected={(snippet: any) => {
-            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
+            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
         />

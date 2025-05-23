@@ -16,7 +16,7 @@ type FileName = string
 
 interface FileSidebarProps {
   files: Record<FileName, string>
-  currentFile: FileName
+  currentFile: FileName | null
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
@@ -48,21 +48,25 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
 
     Object.keys(files).forEach((filePath) => {
       const hasLeadingSlash = filePath.startsWith("/")
-      const pathSegments = (hasLeadingSlash ? filePath.slice(1) : filePath).trim().split("/")
+      const pathSegments = (hasLeadingSlash ? filePath.slice(1) : filePath)
+        .trim()
+        .split("/")
       let currentNode: Record<string, TreeNode> = root
 
       pathSegments.forEach((segment, segmentIndex) => {
         const isLeafNode = segmentIndex === pathSegments.length - 1
         const ancestorPath = pathSegments.slice(0, segmentIndex).join("/")
-        const relativePath = ancestorPath ? `${ancestorPath}/${segment}` : segment
-        const absolutePath = hasLeadingSlash
-          ? `/${relativePath}`
-          : relativePath
+        const relativePath = ancestorPath
+          ? `${ancestorPath}/${segment}`
+          : segment
+        const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
         if (
           !currentNode[segment] &&
           (!isHiddenFile(relativePath) ||
             isHiddenFile(
-              currentFile.startsWith("/") ? currentFile.slice(1) : currentFile,
+              currentFile?.startsWith("/")
+                ? currentFile.slice(1)
+                : currentFile || "",
             ))
         ) {
           currentNode[segment] = {
@@ -178,7 +182,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       )}
       <TreeView
         data={treeData}
-        initialSelectedItemId={currentFile}
+        initialSelectedItemId={currentFile || ""}
         onSelectChange={(item) => {
           if (item?.onClick) {
             item.onClick()
