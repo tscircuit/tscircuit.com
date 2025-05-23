@@ -13,6 +13,10 @@ import { useToast } from "@/hooks/use-toast"
 import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
+import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
+import { generateRandomPackageName } from "./package-port/CodeAndPreview"
+import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
+import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
 
 interface CircuitJsonImportDialogProps {
   open: boolean
@@ -36,11 +40,29 @@ export function CircuitJsonImportDialog({
   const [file, setFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const axios = useAxios()
+  const loggedInUser = useGlobalStore((s) => s.session)
   const { toast } = useToast()
+  const axios = useAxios()
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const session = useGlobalStore((s) => s.session)
+  const createPackageMutation = useCreatePackageMutation()
+  const { mutate: createRelease } = useCreatePackageReleaseMutation({
+    onSuccess: () => {
+      toast({
+        title: "Package released",
+        description: "Your package has been released successfully.",
+      })
+    },
+  })
+
+  const createPackageFilesMutation = useCreatePackageFilesMutation({
+    onSuccess: () => {
+      toast({
+        title: "Package files created",
+        description: "Your package files have been created successfully.",
+      })
+    },
+  })
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -54,87 +76,124 @@ export function CircuitJsonImportDialog({
   const handleImport = async () => {
     let importedCircuitJson
 
-    if (file) {
+    const parseJson = async (jsonString: string) => {
       try {
-        const fileText = await file.text()
-        importedCircuitJson = JSON.parse(fileText)
-      } catch (err) {
-        setError("Error reading JSON file. Please ensure it is valid.")
-        return
+        return JSON.parse(jsonString)
+      } catch {
+        throw new Error("Invalid JSON format.")
       }
-    } else if (isValidJSON(circuitJson)) {
-      setIsLoading(true)
-      setError(null)
-      importedCircuitJson = JSON.parse(circuitJson)
-    } else {
-      toast({
-        title: "Invalid Input",
-        description: "Please provide a valid JSON content or file.",
-        variant: "destructive",
-      })
-      return
     }
-    let tscircuit
-    try {
-      tscircuit = convertCircuitJsonToTscircuit(importedCircuitJson as any, {
-        componentName: "circuit",
-      })
-      console.info(tscircuit)
-    } catch {
+
+    const handleError = (message: string) => {
       toast({
         title: "Import Failed",
-        description: "Invalid Circuit JSON was provided.",
+        description: message,
         variant: "destructive",
       })
       setIsLoading(false)
-      return
+    }
+
+    const handleSuccess = (message: string) => {
+      toast({
+        title: "Success",
+        description: message,
+      })
     }
 
     try {
-      const newSnippetData = {
-        snippet_type: importedCircuitJson.type ?? "board",
-        circuit_json: importedCircuitJson,
-        code: tscircuit,
-      }
-      const response = await axios
-        .post("/snippets/create", newSnippetData)
-        .catch((e) => e)
-      const { snippet, message } = response.data
-      if (message) {
-        setError(message)
-        setIsLoading(false)
+      if (file) {
+        const fileText = await file.text()
+        importedCircuitJson = await parseJson(fileText)
+      } else if (isValidJSON(circuitJson)) {
+        setIsLoading(true)
+        setError(null)
+        importedCircuitJson = await parseJson(circuitJson)
+      } else {
+        handleError("Please provide a valid JSON content or file.")
         return
       }
-      toast({
-        title: "Import Successful",
-        description: "Circuit Json has been imported successfully.",
-      })
-      onOpenChange(false)
-      navigate(`/editor?snippet_id=${snippet.snippet_id}`)
+
+      const tscircuitComponentContent = convertCircuitJsonToTscircuit(
+        importedCircuitJson as any,
+        {
+          componentName: "circuit",
+        },
+      )
+
+      await createPackageMutation.mutateAsync(
+        {
+          name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
+          description: "Imported from Circuit JSON",
+        },
+        {
+          onSuccess: (newPackage) => {
+            handleSuccess("Package has been created successfully.")
+            createRelease(
+              {
+                package_name_with_version: `${newPackage.name}@latest`,
+              },
+              {
+                onSuccess: (release) => {
+                  createPackageFilesMutation
+                    .mutateAsync({
+                      file_path: "index.tsx",
+                      content_text: tscircuitComponentContent,
+                      package_release_id: release.package_release_id,
+                    })
+                    .then(() => {
+                      navigate(`/editor?package_id=${newPackage.package_id}`)
+                    })
+                },
+                onError: (error) => {
+                  setError(error)
+                  handleError("Failed to create package release.")
+                },
+              },
+            )
+          },
+          onError: (error) => {
+            setError(error)
+            handleError("Failed to create package.")
+          },
+          onSettled: () => {
+            setIsLoading(false)
+            onOpenChange(false)
+          },
+        },
+      )
     } catch (error) {
       console.error("Error importing Circuit Json:", error)
-      toast({
-        title: "Import Failed",
-        description: "Failed to import the Circuit Json. Please try again.",
-        variant: "destructive",
-      })
+      handleError(
+        "The Circuit JSON appears to be invalid or malformed. Please check the format and try again.",
+      )
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      handleImport()
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby="dialog-description">
         <DialogHeader>
           <DialogTitle>Import Circuit JSON</DialogTitle>
         </DialogHeader>
-        <div className="pb-4">
+        <div id="dialog-description" className="pb-4">
+          <p className="text-sm text-gray-600">
+            Use this dialog to import a Circuit JSON file or paste the JSON
+            content directly.
+          </p>
           <Textarea
             className="mt-3"
             placeholder="Paste the Circuit JSON."
             value={circuitJson}
             onChange={(e) => setcircuitJson(e.target.value)}
+            onKeyDown={handleKeyDown}
             disabled={!!file}
           />
           <div className="mt-4 flex flex-col gap-2">
