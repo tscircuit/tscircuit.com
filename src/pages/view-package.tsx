@@ -36,7 +36,7 @@ export const ViewPackagePage = () => {
     return <NotFoundPage heading="Package Not Found" />
   }
 
-  const isFileInteractionReady = Boolean(packageInfo?.package_id);
+  const isFileInteractionReady = Boolean(packageInfo?.package_id)
 
   return (
     <>
@@ -53,7 +53,7 @@ export const ViewPackagePage = () => {
             setLocation(
               // packageInfo is guaranteed to be defined here due to isFileInteractionReady check
               `/editor?package_id=${packageInfo!.package_id}&file_path=${file.file_path}`,
-            );
+            )
           }
         }}
         onEditClicked={(file_path?: string) => {
