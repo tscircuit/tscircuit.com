@@ -19,6 +19,7 @@ import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 
 interface PackageFile {
   package_file_id: string
@@ -46,19 +47,32 @@ export default function RepoPageContent({
   const [location, setLocation] = useLocation()
   const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
+  const { circuitJson } = useCurrentPackageCircuitJson()
 
-  // Handle hash-based view selection
+  // Handle initial view selection and hash-based view changes
   useEffect(() => {
-    // Get the hash without the # character
     const hash = window.location.hash.slice(1)
-    // Valid views
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
 
-    // If hash is a valid view, set it as active
-    if (validViews.includes(hash)) {
-      setActiveView(hash)
+    if (!circuitJson) {
+      return setActiveView("files")
     }
-  }, [])
+
+    if (hash && validViews.includes(hash)) {
+      setActiveView(hash)
+    } else if (
+      packageInfo?.default_view &&
+      validViews.includes(packageInfo.default_view)
+    ) {
+      setActiveView(packageInfo.default_view)
+      window.location.hash = packageInfo.default_view
+    } else {
+      setActiveView("files")
+      if (!hash) {
+        window.location.hash = "files"
+      }
+    }
+  }, [packageInfo?.default_view, circuitJson])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
