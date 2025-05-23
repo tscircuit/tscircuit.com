@@ -25,14 +25,14 @@ export function useUpdatePackageFilesMutation({
 }: UseUpdatePackageFilesMutationProps) {
   return useMutation({
     mutationFn: async (
-      newpackage: Pick<Package, "package_id" | "name"> & {
+      newPackage: Pick<Package, "package_id" | "name"> & {
         package_name_with_version: string
       },
     ) => {
       if (pkg) {
-        newpackage = { ...pkg, ...newpackage }
+        newPackage = { ...pkg, ...newPackage }
       }
-      if (!newpackage) throw new Error("No package to update")
+      if (!newPackage) throw new Error("No package to update")
 
       let updatedFilesCount = 0
 
@@ -47,7 +47,7 @@ export function useUpdatePackageFilesMutation({
                 ?.package_file_id ?? null,
             content_text: file.content,
             file_path: file.path,
-            package_name_with_version: `${newpackage.name}`,
+            package_name_with_version: `${newPackage.name}`,
           }
 
           const response = await axios.post(
@@ -72,7 +72,7 @@ export function useUpdatePackageFilesMutation({
 
           if (fileToDelete?.package_file_id) {
             const response = await axios.post("/package_files/delete", {
-              package_name_with_version: `${newpackage.name}`,
+              package_name_with_version: `${newPackage.name}`,
               file_path: initialFile.path,
             })
 
