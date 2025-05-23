@@ -48,7 +48,7 @@ export interface DeleteFileProps {
 
 export interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
-  initialFilesLoad: PackageFile[]
+  initiallyLoadedFiles: PackageFile[]
   showPreview: boolean
   fullScreen: boolean
   lastSavedAt: number
@@ -101,7 +101,7 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const [state, setState] = useState<CodeAndPreviewState>({
     pkgFilesWithContent: [],
-    initialFilesLoad: [],
+    initiallyLoadedFiles: [],
     showPreview: true,
     fullScreen: false,
     lastSavedAt: Date.now(),
@@ -138,7 +138,7 @@ export function CodeAndPreview({ pkg }: Props) {
       setState((prev) => ({
         ...prev,
         pkgFilesWithContent: [{ path: "index.tsx", content: defaultCode }],
-        initialFilesLoad: [{ path: "index.tsx", content: defaultCode }],
+        initiallyLoadedFiles: [{ path: "index.tsx", content: defaultCode }],
         currentFile: "index.tsx",
       }))
     } else {
@@ -146,7 +146,7 @@ export function CodeAndPreview({ pkg }: Props) {
         ...prev,
         currentFile: null,
         pkgFilesWithContent: [],
-        initialFilesLoad: [],
+        initiallyLoadedFiles: [],
       }))
     }
 
@@ -155,7 +155,7 @@ export function CodeAndPreview({ pkg }: Props) {
         setState((prev) => ({
           ...prev,
           pkgFilesWithContent: [],
-          initialFilesLoad: [],
+          initiallyLoadedFiles: [],
           lastRunCode: defaultCode,
         }))
       }
@@ -168,7 +168,7 @@ export function CodeAndPreview({ pkg }: Props) {
         ...prev,
         pkgFilesWithContent: processedResults,
         pkgFilesLoaded: true,
-        initialFilesLoad: processedResults,
+        initiallyLoadedFiles: processedResults,
         lastRunCode:
           processedResults.find((x) => x.path === "index.tsx")?.content ??
           defaultCode,
@@ -197,7 +197,7 @@ export function CodeAndPreview({ pkg }: Props) {
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
     pkgFilesWithContent: state.pkgFilesWithContent,
-    initialFilesLoad: state.initialFilesLoad,
+    initiallyLoadedFiles: state.initiallyLoadedFiles,
     pkgFiles,
     axios,
     toast,
@@ -208,15 +208,15 @@ export function CodeAndPreview({ pkg }: Props) {
       (!updatePackageFilesMutation.isLoading &&
         Date.now() - state.lastSavedAt > 1000 &&
         state.pkgFilesWithContent.some((file) => {
-          const initialFile = state.initialFilesLoad.find(
+          const initialFile = state.initiallyLoadedFiles.find(
             (x) => x.path === file.path,
           )
           return initialFile?.content !== file.content
         })) ||
-      state.pkgFilesWithContent.length !== state.initialFilesLoad.length,
+      state.pkgFilesWithContent.length !== state.initiallyLoadedFiles.length,
     [
       state.pkgFilesWithContent,
-      state.initialFilesLoad,
+      state.initiallyLoadedFiles,
       updatePackageFilesMutation.isLoading,
       state.lastSavedAt,
     ],
@@ -275,7 +275,7 @@ export function CodeAndPreview({ pkg }: Props) {
           onSuccess: () => {
             setState((prev) => ({
               ...prev,
-              initialFilesLoad: [...prev.pkgFilesWithContent],
+              initiallyLoadedFiles: [...prev.pkgFilesWithContent],
             }))
             pkgFiles.refetch()
           },

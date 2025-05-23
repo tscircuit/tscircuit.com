@@ -9,7 +9,7 @@ interface PackageFile {
 interface UseUpdatePackageFilesMutationProps {
   pkg: Package | undefined
   pkgFilesWithContent: PackageFile[]
-  initialFilesLoad: PackageFile[]
+  initiallyLoadedFiles: PackageFile[]
   pkgFiles: any
   axios: any
   toast: any
@@ -18,7 +18,7 @@ interface UseUpdatePackageFilesMutationProps {
 export function useUpdatePackageFilesMutation({
   pkg,
   pkgFilesWithContent,
-  initialFilesLoad,
+  initiallyLoadedFiles,
   pkgFiles,
   axios,
   toast,
@@ -37,7 +37,9 @@ export function useUpdatePackageFilesMutation({
       let updatedFilesCount = 0
 
       for (const file of pkgFilesWithContent) {
-        const initialFile = initialFilesLoad.find((x) => x.path === file.path)
+        const initialFile = initiallyLoadedFiles.find(
+          (x) => x.path === file.path,
+        )
         if (file.content && file.content !== initialFile?.content) {
           const updatePkgFilePayload = {
             package_file_id:
@@ -58,7 +60,7 @@ export function useUpdatePackageFilesMutation({
           }
         }
       }
-      for (const initialFile of initialFilesLoad) {
+      for (const initialFile of initiallyLoadedFiles) {
         const fileStillExists = pkgFilesWithContent.some(
           (x) => x.path === initialFile.path,
         )
