@@ -248,42 +248,6 @@ export function CodeAndPreview({ pkg }: Props) {
     }
   }
 
-  const handleSave = async () => {
-    if (!isLoggedIn) {
-      toast({
-        title: "Not Logged In",
-        description: "You must be logged in to save your package.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!pkg) {
-      openNewPackageSaveDialog()
-      return
-    }
-
-    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-
-    if (pkg) {
-      updatePackageFilesMutation.mutate(
-        {
-          package_name_with_version: `${pkg.name}@latest`,
-          ...pkg,
-        },
-        {
-          onSuccess: () => {
-            setState((prev) => ({
-              ...prev,
-              initiallyLoadedFiles: [...prev.pkgFilesWithContent],
-            }))
-            pkgFiles.refetch()
-          },
-        },
-      )
-    }
-  }
-
   const currentFileCode = useMemo(
     () =>
       state.pkgFilesWithContent.find((x) => x.path === state.currentFile)
@@ -293,18 +257,6 @@ export function CodeAndPreview({ pkg }: Props) {
     [state.pkgFilesWithContent, state.currentFile],
   )
 
-  const fsMap = useMemo(() => {
-    return {
-      "manual-edits.json": manualEditsFileContent || "{}",
-      ...state.pkgFilesWithContent.reduce(
-        (acc, file) => {
-          acc[file.path] = file.content
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-    }
-  }, [manualEditsFileContent, state.pkgFilesWithContent])
   const mainComponentPath = useMemo(() => {
     const isReactComponentExported =
       /export function\s+\w+/.test(currentFileCode) ||
@@ -356,10 +308,16 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
-  const { handleCreateFile, handleDeleteFile } = useFileManagement(
-    state,
-    setState,
-  )
+  const { handleCreateFile, handleDeleteFile, handleSave, fsMap } =
+    useFileManagement({
+      setCodeAndPreviewState: setState,
+      pkg,
+      updatePackageFilesMutation,
+      openNewPackageSaveDialog,
+      refetchPackageFiles: pkgFiles.refetch,
+      manualEditsFileContent,
+      packageFilesWithContent: state.pkgFilesWithContent,
+    })
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
