@@ -20,6 +20,7 @@ export default withRouteSpec({
       website: z.string().optional(),
       is_private: z.boolean().optional(),
       is_unlisted: z.boolean().optional(),
+      default_view: z.enum(["files", "3d", "pcb", "schematic"]).optional(),
     })
     .transform((data) => ({
       ...data,
@@ -30,8 +31,15 @@ export default withRouteSpec({
     package: packageSchema,
   }),
 })(async (req, ctx) => {
-  const { package_id, name, description, website, is_private, is_unlisted } =
-    req.jsonBody
+  const {
+    package_id,
+    name,
+    description,
+    website,
+    is_private,
+    is_unlisted,
+    default_view,
+  } = req.jsonBody
 
   const packageIndex = ctx.db.packages.findIndex(
     (p) => p.package_id === package_id,
@@ -77,6 +85,7 @@ export default withRouteSpec({
     is_public:
       is_private !== undefined ? !is_private : existingPackage.is_public,
     is_unlisted: is_unlisted ?? existingPackage.is_unlisted,
+    default_view: default_view ?? existingPackage.default_view,
     updated_at: new Date().toISOString(),
   })
 

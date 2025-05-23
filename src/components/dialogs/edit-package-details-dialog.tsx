@@ -35,6 +35,7 @@ interface EditPackageDetailsDialogProps {
   currentDescription: string
   currentWebsite: string
   currentLicense?: string | null
+  currentDefaultView?: string
   isPrivate?: boolean
   packageName: string
   packageReleaseId: string | null
@@ -43,6 +44,7 @@ interface EditPackageDetailsDialogProps {
     newDescription: string,
     newWebsite: string,
     newLicense: string | null,
+    newDefaultView: string,
   ) => void
 }
 
@@ -53,6 +55,7 @@ export const EditPackageDetailsDialog = ({
   currentDescription,
   currentWebsite,
   currentLicense,
+  currentDefaultView = "files",
   isPrivate = false,
   packageName,
   packageReleaseId,
@@ -68,12 +71,14 @@ export const EditPackageDetailsDialog = ({
     setFormData,
     websiteError,
     hasLicenseChanged,
+    hasDefaultViewChanged,
     hasChanges,
     isFormValid,
   } = usePackageDetailsForm({
     initialDescription: currentDescription,
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
+    initialDefaultView: currentDefaultView,
     isDialogOpen: open,
     initialVisibility: isPrivate ? "private" : "public",
   })
@@ -108,6 +113,7 @@ export const EditPackageDetailsDialog = ({
         description: formData.description,
         website: formData.website,
         is_private: formData.visibility == "private",
+        default_view: formData.defaultView,
       })
       const privacyUpdateResponse = await axios.post("/snippets/update", {
         snippet_id: packageId,
@@ -149,6 +155,7 @@ export const EditPackageDetailsDialog = ({
         website: formData.website,
         license: formData.license,
         visibility: formData.visibility,
+        defaultView: formData.defaultView,
       }
     },
     onMutate: async () => {
@@ -160,11 +167,12 @@ export const EditPackageDetailsDialog = ({
         website: formData.website,
         license: formData.license,
         is_private: formData.visibility == "private",
+        default_view: formData.defaultView,
       }))
       return { previous }
     },
     onSuccess: (data) => {
-      onUpdate?.(data.description, data.website, data.license)
+      onUpdate?.(data.description, data.website, data.license, data.defaultView)
       onOpenChange(false)
       qc.invalidateQueries([
         "packageFile",
@@ -218,7 +226,7 @@ export const EditPackageDetailsDialog = ({
         </DialogContent>
       </Dialog>
       <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[500px] lg:h-[70vh] sm:h-[90vh] overflow-y-auto w-[95vw] h-[80vh] p-6 gap-6 rounded-2xl shadow-lg">
+        <DialogContent className="sm:max-w-[500px] lg:h-[85vh] sm:h-[90vh] overflow-y-auto no-scrollbar w-[95vw] h-[80vh] p-6 gap-6 rounded-2xl shadow-lg">
           <div className="flex flex-col gap-10">
             <DialogHeader>
               <DialogTitle>Edit Package Details</DialogTitle>
@@ -307,6 +315,29 @@ export const EditPackageDetailsDialog = ({
                       <SelectItem value="BSD-3-Clause">BSD-3-Clause</SelectItem>
                       <SelectItem value="GPL-3.0">GPL-3.0</SelectItem>
                       <SelectItem value="unset">Unset</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="defaultView">Default View</Label>
+                  <Select
+                    value={formData.defaultView}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        defaultView: value,
+                      }))
+                    }
+                    disabled={updatePackageDetailsMutation.isLoading}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select default view" />
+                    </SelectTrigger>
+                    <SelectContent className="!z-[999]">
+                      <SelectItem value="files">Files</SelectItem>
+                      <SelectItem value="3d">3D</SelectItem>
+                      <SelectItem value="pcb">PCB</SelectItem>
+                      <SelectItem value="schematic">Schematic</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

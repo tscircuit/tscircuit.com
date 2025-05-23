@@ -59,6 +59,110 @@ test("update package privacy settings", async () => {
   expect(updatedPackage?.is_unlisted).toBe(true)
 })
 
+test("update package default view to valid values", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/view-package",
+    description: "View Package",
+  })
+  const packageId = packageResponse.data.package.package_id
+
+  const validViews = ["files", "3d", "pcb", "schematic"]
+
+  for (const view of validViews) {
+    const response = await axios.post("/api/packages/update", {
+      package_id: packageId,
+      default_view: view,
+    })
+
+    expect(response.status).toBe(200)
+    expect(response.data.ok).toBe(true)
+    expect(response.data.package.default_view).toBe(view)
+
+    const updatedPackage = db.packages.find((p) => p.package_id === packageId)
+    expect(updatedPackage?.default_view).toBe(view as any)
+  }
+})
+
+test("update package default view with invalid value should fail", async () => {
+  const { axios } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/invalid-view-package",
+    description: "Invalid View Package",
+  })
+  const packageId = packageResponse.data.package.package_id
+
+  const invalidViews = ["invalid", "code", "preview", "dashboard", "", null]
+
+  for (const invalidView of invalidViews) {
+    try {
+      await axios.post("/api/packages/update", {
+        package_id: packageId,
+        default_view: invalidView,
+      })
+      throw new Error(
+        `Expected request to fail for invalid view: ${invalidView}`,
+      )
+    } catch (error: any) {
+      expect(error.status).toBe(400)
+    }
+  }
+})
+
+test("package has default view of files when not specified", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/default-view-package",
+    description: "Default View Package",
+  })
+  const packageId = packageResponse.data.package.package_id
+
+  const createdPackage = db.packages.find((p) => p.package_id === packageId)
+  expect(createdPackage?.default_view).toBe("files")
+
+  const response = await axios.post("/api/packages/update", {
+    package_id: packageId,
+    description: "Updated without changing view",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.package.default_view).toBe("files")
+})
+
+test("update package with multiple fields including default view", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/multi-update-package",
+    description: "Multi Update Package",
+  })
+  const packageId = packageResponse.data.package.package_id
+
+  const response = await axios.post("/api/packages/update", {
+    package_id: packageId,
+    name: "multi-updated-package",
+    description: "Updated Description",
+    website: "https://example.com",
+    is_private: true,
+    default_view: "pcb",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.ok).toBe(true)
+  expect(response.data.package.name).toBe("testuser/multi-updated-package")
+  expect(response.data.package.description).toBe("Updated Description")
+  expect(response.data.package.website).toBe("https://example.com")
+  expect(response.data.package.is_private).toBe(true)
+  expect(response.data.package.default_view).toBe("pcb")
+
+  const updatedPackage = db.packages.find((p) => p.package_id === packageId)
+  expect(updatedPackage?.default_view).toBe("pcb")
+  expect(updatedPackage?.website).toBe("https://example.com")
+})
+
 test("update non-existent package", async () => {
   const { axios } = await getTestServer()
 

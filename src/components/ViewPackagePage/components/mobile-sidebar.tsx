@@ -211,6 +211,7 @@ const MobileSidebar = ({
           packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
+          currentDefaultView={packageInfo.default_view}
         />
       )}
     </div>

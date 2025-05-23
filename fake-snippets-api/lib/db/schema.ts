@@ -219,6 +219,10 @@ export const packageSchema = z.object({
   ai_description: z.string().nullable(),
   latest_license: z.string().nullable().optional(),
   ai_usage_instructions: z.string().nullable(),
+  default_view: z
+    .enum(["files", "3d", "pcb", "schematic"])
+    .default("files")
+    .optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 
