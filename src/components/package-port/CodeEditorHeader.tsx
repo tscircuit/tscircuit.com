@@ -68,7 +68,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         fileExtension = "md"
       }
 
-      if (fileExtension === currentFile?.toLowerCase() || "") {
+      if (fileExtension === (currentFile?.toLowerCase() || "")) {
         toast({
           title: "Cannot determine file type",
           description: "Unable to format file without an extension.",
