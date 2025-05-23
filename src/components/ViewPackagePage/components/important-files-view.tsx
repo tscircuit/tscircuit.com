@@ -65,7 +65,7 @@ export default function ImportantFilesView({
       setActiveFilePath(importantFiles[0].file_path)
       setActiveTab("file")
     }
-  }, [aiDescription, aiUsageInstructions, hasAiContent])
+  }, [aiDescription, aiUsageInstructions, hasAiContent, importantFiles])
 
   // Get file name from path
   const getFileName = (path: string) => {
