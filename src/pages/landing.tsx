@@ -60,16 +60,27 @@ export function LandingPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
-                    <a href="https://docs.tscircuit.com">
-                      <Button size="lg" aria-label="Get started with TSCircuit">
+                    <a
+                      href="https://docs.tscircuit.com"
+                      className="w-[80%] md:w-auto"
+                    >
+                      <Button
+                        size="lg"
+                        aria-label="Get started with TSCircuit"
+                        className="w-full"
+                      >
                         Get Started
                       </Button>
                     </a>
-                    <PrefetchPageLink href="/quickstart">
+                    <PrefetchPageLink
+                      href="/quickstart"
+                      className="w-[80%] md:w-auto"
+                    >
                       <Button
                         size="lg"
                         variant="outline"
                         aria-label="Open online example of TSCircuit"
+                        className="w-full"
                       >
                         Open Online Example
                       </Button>
