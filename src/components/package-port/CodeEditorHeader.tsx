@@ -136,16 +136,24 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
         <button
-          className={`text-gray-400 scale-90 transition-[width,opacity] duration-300 ease-in-out ${
-            sidebarOpen ? "w-0 pointer-events-none opacity-0" : "opacity-100"
+          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen
+              ? "w-0 pointer-events-none opacity-0"
+              : "w-6 opacity-100"
           }`}
           onClick={() => setSidebarOpen(true)}
         >
-          <PanelRightClose />
+          <div className="w-6 h-6 flex items-center justify-center">
+            <PanelRightClose />
+          </div>
         </button>
         <div>
           <Select value={currentFile} onValueChange={handleFileChange}>
-            <SelectTrigger className="h-7 px-3 bg-white select-none">
+            <SelectTrigger
+              className={`h-7 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+                sidebarOpen ? "-ml-2" : "-ml-1"
+              }`}
+            >
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
             <SelectContent>
