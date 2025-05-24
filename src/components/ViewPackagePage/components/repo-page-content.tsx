@@ -36,6 +36,7 @@ interface RepoPageContentProps {
   packageInfo?: Package
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
+  isFileInteractionReady?: boolean
 }
 
 export default function RepoPageContent({
@@ -43,6 +44,7 @@ export default function RepoPageContent({
   packageInfo,
   onFileClicked,
   onEditClicked,
+  isFileInteractionReady,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
   const session = useGlobalStore((s) => s.session)
@@ -128,6 +130,7 @@ export default function RepoPageContent({
             packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
+            isFileInteractionReady={isFileInteractionReady}
           />
         )
       case "3d":
@@ -144,6 +147,7 @@ export default function RepoPageContent({
             packageFiles={packageFiles}
             isLoading={!packageFiles}
             onFileClicked={onFileClicked}
+            isFileInteractionReady={isFileInteractionReady}
           />
         )
     }
