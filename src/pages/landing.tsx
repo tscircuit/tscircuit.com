@@ -62,7 +62,7 @@ export function LandingPage() {
                   <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
                     <a
                       href="https://docs.tscircuit.com"
-                      className="w-[80%] md:w-auto"
+                      className="w-[80%] min-[500px]:w-fit"
                     >
                       <Button
                         size="lg"
@@ -74,7 +74,7 @@ export function LandingPage() {
                     </a>
                     <PrefetchPageLink
                       href="/quickstart"
-                      className="w-[80%] md:w-auto"
+                      className="w-[80%] min-[500px]:w-fit"
                     >
                       <Button
                         size="lg"
