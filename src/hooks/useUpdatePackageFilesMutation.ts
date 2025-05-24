@@ -9,7 +9,7 @@ interface PackageFile {
 interface UseUpdatePackageFilesMutationProps {
   pkg: Package | undefined
   pkgFilesWithContent: PackageFile[]
-  initialFilesLoad: PackageFile[]
+  initiallyLoadedFiles: PackageFile[]
   pkgFiles: any
   axios: any
   toast: any
@@ -18,26 +18,28 @@ interface UseUpdatePackageFilesMutationProps {
 export function useUpdatePackageFilesMutation({
   pkg,
   pkgFilesWithContent,
-  initialFilesLoad,
+  initiallyLoadedFiles,
   pkgFiles,
   axios,
   toast,
 }: UseUpdatePackageFilesMutationProps) {
   return useMutation({
     mutationFn: async (
-      newpackage: Pick<Package, "package_id" | "name"> & {
+      newPackage: Pick<Package, "package_id" | "name"> & {
         package_name_with_version: string
       },
     ) => {
       if (pkg) {
-        newpackage = { ...pkg, ...newpackage }
+        newPackage = { ...pkg, ...newPackage }
       }
-      if (!newpackage) throw new Error("No package to update")
+      if (!newPackage) throw new Error("No package to update")
 
       let updatedFilesCount = 0
 
       for (const file of pkgFilesWithContent) {
-        const initialFile = initialFilesLoad.find((x) => x.path === file.path)
+        const initialFile = initiallyLoadedFiles.find(
+          (x) => x.path === file.path,
+        )
         if (file.content && file.content !== initialFile?.content) {
           const updatePkgFilePayload = {
             package_file_id:
@@ -45,7 +47,7 @@ export function useUpdatePackageFilesMutation({
                 ?.package_file_id ?? null,
             content_text: file.content,
             file_path: file.path,
-            package_name_with_version: `${newpackage.name}`,
+            package_name_with_version: `${newPackage.name}`,
           }
 
           const response = await axios.post(
@@ -55,6 +57,28 @@ export function useUpdatePackageFilesMutation({
 
           if (response.status === 200) {
             updatedFilesCount++
+          }
+        }
+      }
+      for (const initialFile of initiallyLoadedFiles) {
+        const fileStillExists = pkgFilesWithContent.some(
+          (x) => x.path === initialFile.path,
+        )
+
+        if (!fileStillExists) {
+          const fileToDelete = pkgFiles.data?.find(
+            (x: any) => x.file_path === initialFile.path,
+          )
+
+          if (fileToDelete?.package_file_id) {
+            const response = await axios.post("/package_files/delete", {
+              package_name_with_version: `${newPackage.name}`,
+              file_path: initialFile.path,
+            })
+
+            if (response.status === 200) {
+              updatedFilesCount++
+            }
           }
         }
       }

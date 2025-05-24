@@ -22,8 +22,8 @@ import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
-import { isValidFileName } from "@/lib/utils/isValidFileName"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { FileName } from "./CodeEditorHeader"
 
 interface Props {
   pkg?: Package
@@ -42,9 +42,13 @@ export interface CreateFileProps {
   setIsCreatingFile: (isCreatingFile: boolean) => void
 }
 
+export interface DeleteFileProps {
+  filename: string
+}
+
 export interface CodeAndPreviewState {
   pkgFilesWithContent: PackageFile[]
-  initialFilesLoad: PackageFile[]
+  initiallyLoadedFiles: PackageFile[]
   showPreview: boolean
   fullScreen: boolean
   lastSavedAt: number
@@ -52,8 +56,9 @@ export interface CodeAndPreviewState {
   isPrivate: boolean
   lastRunCode: string
   pkgFilesLoaded: boolean
-  currentFile: string
+  currentFile: FileName | null
   defaultComponentFile?: string
+  pkg?: Package
 }
 
 const DEFAULT_CODE = `
@@ -95,10 +100,8 @@ export function CodeAndPreview({ pkg }: Props) {
   }, [indexFileFromHook.data, templateFromUrl, urlParams.package_id])
 
   const [state, setState] = useState<CodeAndPreviewState>({
-    pkgFilesWithContent: !pkg
-      ? [{ path: "index.tsx", content: defaultCode }]
-      : [],
-    initialFilesLoad: [],
+    pkgFilesWithContent: [],
+    initiallyLoadedFiles: [],
     showPreview: true,
     fullScreen: false,
     lastSavedAt: Date.now(),
@@ -106,7 +109,7 @@ export function CodeAndPreview({ pkg }: Props) {
     isPrivate: false,
     lastRunCode: defaultCode,
     pkgFilesLoaded: !urlParams.package_id,
-    currentFile: "",
+    currentFile: null,
   })
 
   const manualEditsFileContent = useMemo(() => {
@@ -115,21 +118,6 @@ export function CodeAndPreview({ pkg }: Props) {
         ?.content ?? ""
     )
   }, [state.pkgFilesWithContent])
-
-  const entryPointCode = useMemo(() => {
-    const defaultComponentFile = findTargetFile(state.pkgFilesWithContent, null)
-    if (defaultComponentFile?.content) {
-      setState((prev) => ({
-        ...prev,
-        defaultComponentFile: defaultComponentFile.path,
-      }))
-      return defaultComponentFile.content
-    }
-    return (
-      state.pkgFilesWithContent.find((x) => x.path === "index.tsx")?.content ??
-      defaultCode
-    )
-  }, [state.pkgFilesWithContent, defaultCode])
 
   const packageType =
     pkg?.snippet_type ?? templateFromUrl?.type ?? urlParams.snippet_type
@@ -141,13 +129,33 @@ export function CodeAndPreview({ pkg }: Props) {
     usePackageFilesLoader(pkg)
 
   useEffect(() => {
+    setState((prev) => ({
+      ...prev,
+      pkg: pkg,
+    }))
+
+    if (!pkg) {
+      setState((prev) => ({
+        ...prev,
+        pkgFilesWithContent: [{ path: "index.tsx", content: defaultCode }],
+        initiallyLoadedFiles: [{ path: "index.tsx", content: defaultCode }],
+        currentFile: "index.tsx",
+      }))
+    } else {
+      setState((prev) => ({
+        ...prev,
+        currentFile: null,
+        pkgFilesWithContent: [],
+        initiallyLoadedFiles: [],
+      }))
+    }
+
     if (!pkgFiles.data?.length) {
       if (pkg && state.pkgFilesWithContent.length === 0) {
-        const defaultFiles = [{ path: "index.tsx", content: defaultCode }]
         setState((prev) => ({
           ...prev,
-          pkgFilesWithContent: defaultFiles,
-          initialFilesLoad: defaultFiles,
+          pkgFilesWithContent: [],
+          initiallyLoadedFiles: [],
           lastRunCode: defaultCode,
         }))
       }
@@ -160,10 +168,16 @@ export function CodeAndPreview({ pkg }: Props) {
         ...prev,
         pkgFilesWithContent: processedResults,
         pkgFilesLoaded: true,
-        initialFilesLoad: processedResults,
+        initiallyLoadedFiles: processedResults,
         lastRunCode:
           processedResults.find((x) => x.path === "index.tsx")?.content ??
           defaultCode,
+        currentFile: processedResults.some(
+          (x) =>
+            x.path === findTargetFile(state.pkgFilesWithContent, null)?.path,
+        )
+          ? findTargetFile(state.pkgFilesWithContent, null)?.path || ""
+          : "",
       }))
     }
   }, [isLoadingFiles, pkg, pkgFiles.data, defaultCode])
@@ -183,7 +197,7 @@ export function CodeAndPreview({ pkg }: Props) {
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
     pkg,
     pkgFilesWithContent: state.pkgFilesWithContent,
-    initialFilesLoad: state.initialFilesLoad,
+    initiallyLoadedFiles: state.initiallyLoadedFiles,
     pkgFiles,
     axios,
     toast,
@@ -191,17 +205,18 @@ export function CodeAndPreview({ pkg }: Props) {
 
   const hasUnsavedChanges = useMemo(
     () =>
-      !updatePackageFilesMutation.isLoading &&
-      Date.now() - state.lastSavedAt > 1000 &&
-      state.pkgFilesWithContent.some((file) => {
-        const initialFile = state.initialFilesLoad.find(
-          (x) => x.path === file.path,
-        )
-        return initialFile?.content !== file.content
-      }),
+      (!updatePackageFilesMutation.isLoading &&
+        Date.now() - state.lastSavedAt > 1000 &&
+        state.pkgFilesWithContent.some((file) => {
+          const initialFile = state.initiallyLoadedFiles.find(
+            (x) => x.path === file.path,
+          )
+          return initialFile?.content !== file.content
+        })) ||
+      state.pkgFilesWithContent.length !== state.initiallyLoadedFiles.length,
     [
       state.pkgFilesWithContent,
-      state.initialFilesLoad,
+      state.initiallyLoadedFiles,
       updatePackageFilesMutation.isLoading,
       state.lastSavedAt,
     ],
@@ -233,42 +248,6 @@ export function CodeAndPreview({ pkg }: Props) {
     }
   }
 
-  const handleSave = async () => {
-    if (!isLoggedIn) {
-      toast({
-        title: "Not Logged In",
-        description: "You must be logged in to save your package.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (!pkg) {
-      openNewPackageSaveDialog()
-      return
-    }
-
-    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-
-    if (pkg) {
-      updatePackageFilesMutation.mutate(
-        {
-          package_name_with_version: `${pkg.name}@latest`,
-          ...pkg,
-        },
-        {
-          onSuccess: () => {
-            setState((prev) => ({
-              ...prev,
-              initialFilesLoad: [...prev.pkgFilesWithContent],
-            }))
-            pkgFiles.refetch()
-          },
-        },
-      )
-    }
-  }
-
   const currentFileCode = useMemo(
     () =>
       state.pkgFilesWithContent.find((x) => x.path === state.currentFile)
@@ -278,23 +257,6 @@ export function CodeAndPreview({ pkg }: Props) {
     [state.pkgFilesWithContent, state.currentFile],
   )
 
-  const fsMap = useMemo(() => {
-    return {
-      "manual-edits.json": manualEditsFileContent || "{}",
-      ...state.pkgFilesWithContent.reduce(
-        (acc, file) => {
-          acc[file.path] = file.content
-          return acc
-        },
-        {} as Record<string, string>,
-      ),
-    }
-  }, [
-    manualEditsFileContent,
-    entryPointCode,
-    packageType,
-    state.pkgFilesWithContent,
-  ])
   const mainComponentPath = useMemo(() => {
     const isReactComponentExported =
       /export function\s+\w+/.test(currentFileCode) ||
@@ -346,7 +308,16 @@ export function CodeAndPreview({ pkg }: Props) {
     })
   }
 
-  const { handleCreateFile } = useFileManagement(state, setState)
+  const { handleCreateFile, handleDeleteFile, handleSave, fsMap } =
+    useFileManagement({
+      setCodeAndPreviewState: setState,
+      pkg,
+      updatePackageFilesMutation,
+      openNewPackageSaveDialog,
+      refetchPackageFiles: pkgFiles.refetch,
+      manualEditsFileContent,
+      packageFilesWithContent: state.pkgFilesWithContent,
+    })
 
   if ((!pkg && urlParams.package_id) || pkgFiles.isLoading || isLoadingFiles) {
     return (
@@ -385,6 +356,7 @@ export function CodeAndPreview({ pkg }: Props) {
         >
           <CodeEditor
             handleCreateFile={handleCreateFile}
+            handleDeleteFile={handleDeleteFile}
             currentFile={state.currentFile}
             setCurrentFile={(file) =>
               setState((prev) => ({ ...prev, currentFile: file }))

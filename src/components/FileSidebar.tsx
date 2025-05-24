@@ -1,20 +1,27 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
+import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 import { Input } from "@/components/ui/input"
-import { CreateFileProps } from "./package-port/CodeAndPreview"
-
+import { CreateFileProps, DeleteFileProps } from "./package-port/CodeAndPreview"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
 type FileName = string
 
 interface FileSidebarProps {
   files: Record<FileName, string>
-  currentFile: FileName
+  currentFile: FileName | null
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: CreateFileProps) => void
+  handleDeleteFile: (props: DeleteFileProps) => void
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -24,6 +31,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   className,
   fileSidebarState,
   handleCreateFile,
+  handleDeleteFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
@@ -38,38 +46,63 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
     const root: Record<string, TreeNode> = {}
 
-    Object.keys(files).forEach((path) => {
-      const startsWithSlash = path.startsWith("/")
-      const parts = (startsWithSlash ? path.slice(1) : path).trim().split("/")
-      let current = root
+    Object.keys(files).forEach((filePath) => {
+      const hasLeadingSlash = filePath.startsWith("/")
+      const pathSegments = (hasLeadingSlash ? filePath.slice(1) : filePath)
+        .trim()
+        .split("/")
+      let currentNode: Record<string, TreeNode> = root
 
-      parts.forEach((part, index) => {
-        const isFile = index === parts.length - 1
-        const parentPath = parts.slice(0, index).join("/")
-        const currentPath = parentPath ? `${parentPath}/${part}` : part
-        const evaluatedFilePath = startsWithSlash
-          ? `/${currentPath}`
-          : currentPath
+      pathSegments.forEach((segment, segmentIndex) => {
+        const isLeafNode = segmentIndex === pathSegments.length - 1
+        const ancestorPath = pathSegments.slice(0, segmentIndex).join("/")
+        const relativePath = ancestorPath
+          ? `${ancestorPath}/${segment}`
+          : segment
+        const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
         if (
-          !current[part] &&
-          (!isHiddenFile(currentPath) ||
+          !currentNode[segment] &&
+          (!isHiddenFile(relativePath) ||
             isHiddenFile(
-              currentFile.startsWith("/") ? currentFile.slice(1) : currentFile,
+              currentFile?.startsWith("/")
+                ? currentFile.slice(1)
+                : currentFile || "",
             ))
         ) {
-          current[part] = {
-            id: currentPath,
-            name: isFile ? part : part,
-            icon: isFile ? File : Folder,
-            onClick: isFile ? () => onFileSelect(evaluatedFilePath) : undefined,
-            draggable: isFile,
-            droppable: !isFile,
-            children: isFile ? undefined : {},
+          currentNode[segment] = {
+            id: relativePath,
+            name: isLeafNode ? segment : segment,
+            icon: isLeafNode ? File : Folder,
+            onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
+            draggable: false,
+            droppable: !isLeafNode,
+            children: isLeafNode ? undefined : {},
+            actions: (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border border-gray-200">
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleDeleteFile({ filename: relativePath })
+                        }
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ),
           }
         }
 
-        if (!isFile && current[part].children) {
-          current = current[part].children
+        if (!isLeafNode && currentNode[segment].children) {
+          currentNode = currentNode[segment].children
         }
       })
     })
@@ -90,7 +123,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
-
+  // console.log("treeData", files)
   const handleCreateFileInline = () => {
     handleCreateFile({
       newFileName,
@@ -149,7 +182,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       )}
       <TreeView
         data={treeData}
-        initialSelectedItemId={currentFile}
+        initialSelectedItemId={currentFile || ""}
         onSelectChange={(item) => {
           if (item?.onClick) {
             item.onClick()
