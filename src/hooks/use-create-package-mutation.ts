@@ -7,8 +7,6 @@ import { useUrlParams } from "./use-url-params"
 export const useCreatePackageMutation = ({
   onSuccess,
 }: { onSuccess?: (pkg: Package) => void } = {}) => {
-  const urlParams = useUrlParams()
-  const templateName = urlParams.template
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
 

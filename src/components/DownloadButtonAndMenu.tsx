@@ -34,7 +34,7 @@ export function DownloadButtonAndMenu({
 
   if (!circuitJson) {
     return (
-      <div>
+      <div className={className}>
         <Button
           disabled
           variant="ghost"

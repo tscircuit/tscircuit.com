@@ -69,7 +69,7 @@ export default () => (
 )
 `.trim()
 
-const generateRandomPackageName = () =>
+export const generateRandomPackageName = () =>
   `untitled-package-${Math.floor(Math.random() * 90) + 10}`
 
 export function CodeAndPreview({ pkg }: Props) {
