@@ -154,6 +154,7 @@ export default function RepoPageContent({
       <Header />
       <PackageHeader
         packageInfo={packageInfo}
+        isPrivate={packageInfo?.is_private ?? false}
         isCurrentUserAuthor={
           packageInfo?.creator_account_id === session?.github_username
         }
