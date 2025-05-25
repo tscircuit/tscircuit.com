@@ -9,7 +9,7 @@ import NotFoundPage from "./404"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const ViewPackagePage = () => {
-  const { packageInfo, loading: isLoadingPackageInfo } = useCurrentPackageInfo()
+  const { packageInfo, isLoading: isLoadingPackageInfo } = useCurrentPackageInfo()
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
