@@ -67,7 +67,7 @@ export const HeaderLogin = () => {
           </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild onClick={() => setSession(null)}>
-          <a href="/sign-out" className="cursor-pointer">
+          <a href="/" className="cursor-pointer">
             Sign out
           </a>
         </DropdownMenuItem>
