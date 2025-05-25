@@ -7,27 +7,16 @@ import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { NotFound } from "@/components/NotFound"
 import { ErrorOutline } from "@/components/ErrorOutline"
 import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
-import NotFoundPage from "./404"
-import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
-  const { data: pkg, isLoading, error } = usePackage(packageId)
+  const { data: pkg, error } = usePackage(packageId)
   const fsMapHash = useGetFsMapHashForPackage(
     pkg?.latest_package_release_id ?? "",
   )
   const uuid4RegExp = new RegExp(
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
   )
-  const session = useGlobalStore((s) => s.session)
-
-  if (
-    !isLoading &&
-    pkg?.is_private &&
-    pkg?.owner_github_username !== session?.github_username
-  ) {
-    return <NotFoundPage heading="Package Not Found" />
-  }
 
   return (
     <div className="overflow-x-hidden">
