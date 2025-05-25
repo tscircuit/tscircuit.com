@@ -168,7 +168,7 @@ export default function ImportantFilesView({
   return (
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar">
           {/* AI Description Tab */}
           {hasAiContent && (
             <button
