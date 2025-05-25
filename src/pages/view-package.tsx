@@ -1,19 +1,20 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
-import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
 import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { usePackage } from "@/hooks/use-package"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const ViewPackagePage = () => {
-  const { packageInfo, isLoading: isLoadingPackageInfo } = useCurrentPackageInfo()
+  const { packageId } = useCurrentPackageId()
+  const { data: packageInfo, isLoading: isLoadingPackageInfo, error: packageInfoError } = usePackage(packageId)
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
-  const session = useGlobalStore((s) => s.session)
   const {
     data: packageRelease,
     error: packageReleaseError,
@@ -22,6 +23,7 @@ export const ViewPackagePage = () => {
     is_latest: true,
     package_name: `${author}/${packageName}`,
   })
+  const session = useGlobalStore((s) => s.session)
 
   const { data: packageFiles } = usePackageFiles(
     packageRelease?.package_release_id,
@@ -33,7 +35,6 @@ export const ViewPackagePage = () => {
     }
   }, [isLoadingPackageRelease, packageReleaseError])
 
-  // Do  not allow to see private packages
   if (
     !isLoadingPackageInfo &&
     packageInfo?.is_private &&
@@ -41,6 +42,7 @@ export const ViewPackagePage = () => {
   ) {
     return <NotFoundPage heading="Package Not Found" />
   }
+
 
   if (isNotFound) {
     return <NotFoundPage heading="Package Not Found" />
@@ -51,6 +53,7 @@ export const ViewPackagePage = () => {
       <Helmet>
         <title>{`${author}/${packageName} - tscircuit`}</title>
       </Helmet>
+      <h1>hi {String(isLoadingPackageInfo)} {String(packageInfo)} {String(packageInfoError)}</h1>
       <RepoPageContent
         packageFiles={packageFiles as any}
         packageInfo={packageInfo as any}
