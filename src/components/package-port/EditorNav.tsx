@@ -324,7 +324,7 @@ export default function EditorNav({
           <DownloadButtonAndMenu
             snippetUnscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
-            className="hidden md:flex"
+            className="flex"
           />
           <Button
             variant="ghost"
@@ -464,17 +464,42 @@ export default function EditorNav({
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem className="text-xs">
-                <Download className="mr-1 h-3 w-3" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => {
+                  if (window) {
+                    navigator.clipboard.writeText(
+                      new URL(window.location.href).origin + "/" + pkg?.name,
+                    )
+                    toast({
+                      title: "URL copied!",
+                      description: "The URL has been copied to your clipboard.",
+                    })
+                  }
+                }}
+              >
                 <Share className="mr-1 h-3 w-3" />
                 Copy URL
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => {
+                  if (
+                    pkg &&
+                    session?.github_username === pkg.owner_github_username
+                  ) {
+                    updatePackageVisibilityToPrivate(!isPrivate)
+                  }
+                }}
+              >
                 <Eye className="mr-1 h-3 w-3" />
-                Public
+                {session?.github_username === pkg?.owner_github_username
+                  ? isPrivate
+                    ? "Make Public"
+                    : "Make Private"
+                  : isPrivate
+                    ? "Private Package"
+                    : "Public Package"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -166,7 +166,7 @@ export const QuickstartPage = () => {
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
                   Circuit Json
-                  <TypeBadge type="module" className="ml-2" />
+                  <TypeBadge type="package" className="ml-2" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 mt-auto">
