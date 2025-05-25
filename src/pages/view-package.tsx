@@ -9,7 +9,7 @@ import NotFoundPage from "./404"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const ViewPackagePage = () => {
-  const { packageInfo } = useCurrentPackageInfo()
+  const { packageInfo, loading: isLoadingPackageInfo } = useCurrentPackageInfo()
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
@@ -35,6 +35,7 @@ export const ViewPackagePage = () => {
 
   // Do  not allow to see private packages
   if (
+    !isLoadingPackageInfo &&
     packageInfo?.is_private &&
     packageInfo?.owner_github_username !== session?.github_username
   ) {
