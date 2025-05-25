@@ -41,7 +41,7 @@ export default withRouteSpec({
     return ctx.error(404, {
       error_code: "package_not_found",
       message: `Package not found (searched using ${JSON.stringify(
-        req.commonParams
+        req.commonParams,
       )})`,
     })
   }
