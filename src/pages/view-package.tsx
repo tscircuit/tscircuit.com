@@ -6,13 +6,14 @@ import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const ViewPackagePage = () => {
   const { packageInfo } = useCurrentPackageInfo()
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
-
+  const session = useGlobalStore((s) => s.session)
   const {
     data: packageRelease,
     error: packageReleaseError,
@@ -31,6 +32,14 @@ export const ViewPackagePage = () => {
       setIsNotFound(true)
     }
   }, [isLoadingPackageRelease, packageReleaseError])
+
+  // Do  not allow to see private packages
+  if (
+    packageInfo?.is_private &&
+    packageInfo?.owner_github_username !== session?.github_username
+  ) {
+    return <NotFoundPage heading="Package Not Found" />
+  }
 
   if (isNotFound) {
     return <NotFoundPage heading="Package Not Found" />
