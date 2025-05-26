@@ -4,6 +4,7 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
+import { SsrDataClearer } from "./components/SsrDataClearer"
 
 const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -101,6 +102,7 @@ class ErrorBoundary extends React.Component<
 function App() {
   return (
     <ContextProviders>
+      <SsrDataClearer />
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader />}>
           <Switch>

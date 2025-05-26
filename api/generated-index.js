@@ -18,6 +18,7 @@ function getHtmlWithModifiedSeoTags({
   description,
   canonicalUrl,
   imageUrl,
+  ssrPackageData,
 }) {
   const seoStartTag = "<!-- SEO_START -->"
   const seoEndTag = "<!-- SEO_END -->"
@@ -42,7 +43,13 @@ function getHtmlWithModifiedSeoTags({
   <link rel="canonical" href="${canonicalUrl}" />
   `
 
-  return `${htmlContent.substring(0, startIndex)}${seoTags}${htmlContent.substring(endIndex)}`
+  let ssrBlock = ""
+  if (ssrPackageData) {
+    const ssrScript = `<script>window.SSR_PACKAGE = ${JSON.stringify(ssrPackageData)};</script>`
+    ssrBlock = `\n<!-- SSR_START -->\n${ssrScript}\n<!-- SSR_END -->`
+  }
+
+  return `${htmlContent.substring(0, startIndex)}${seoTags}${ssrBlock}${htmlContent.substring(endIndex)}`
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -74,6 +81,7 @@ async function handleCustomPackageHtml(req, res) {
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
     imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
+    ssrPackageData: packageInfo,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

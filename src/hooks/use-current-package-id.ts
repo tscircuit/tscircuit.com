@@ -9,6 +9,15 @@ export const useCurrentPackageId = (): {
   isLoading: boolean
   error: (Error & { status: number }) | null
 } => {
+  if (typeof window !== "undefined" && (window as any).SSR_PACKAGE?.package_id) {
+    return {
+      packageId: (window as any).SSR_PACKAGE.package_id,
+      isLoading: false,
+      error: null,
+    };
+  }
+
+
   const urlParams = useUrlParams()
   const urlPackageId = urlParams.package_id
   const wouter = useParams()
