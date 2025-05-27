@@ -15,19 +15,6 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
     queryClient.setQueryData(["package", ssrPackage.package_id], ssrPackage)
     queryClient.setQueryData(["package", ssrPackage.name], ssrPackage)
     queryClient.setQueryData(["packages", ssrPackage.package_id], ssrPackage)
-
-    // Cache package stars data (assuming basic star info)
-    queryClient.setQueryData(
-      ["packageStars", { package_id: ssrPackage.package_id }],
-      {
-        is_starred: ssrPackage.is_starred ?? false,
-        star_count: ssrPackage.star_count ?? 0,
-      },
-    )
-    queryClient.setQueryData(["packageStars", { name: ssrPackage.name }], {
-      is_starred: ssrPackage.is_starred ?? false,
-      star_count: ssrPackage.star_count ?? 0,
-    })
   }
 
   if (ssrPackageRelease && ssrPackage) {
