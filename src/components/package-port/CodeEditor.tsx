@@ -31,11 +31,10 @@ import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type {
-  CreateFileProps,
   PackageFile,
-  DeleteFileProps,
 } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import { ICreateFileProps, ICreateFileResult, IDeleteFileProps, IDeleteFileResult } from "@/hooks/useFileManagement"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -58,8 +57,8 @@ export const CodeEditor = ({
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
-  handleCreateFile: (props: CreateFileProps) => void
-  handleDeleteFile: (props: DeleteFileProps) => void
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean

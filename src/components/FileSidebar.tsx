@@ -4,7 +4,6 @@ import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 import { Input } from "@/components/ui/input"
-import { CreateFileProps, DeleteFileProps } from "./package-port/CodeAndPreview"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
+import type{ ICreateFileProps, ICreateFileResult, IDeleteFileProps, IDeleteFileResult } from "@/hooks/useFileManagement"
+import { useToast } from "@/hooks/use-toast"
 type FileName = string
 
 interface FileSidebarProps {
@@ -20,8 +21,8 @@ interface FileSidebarProps {
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
-  handleCreateFile: (props: CreateFileProps) => void
-  handleDeleteFile: (props: DeleteFileProps) => void
+  handleCreateFile: (props: ICreateFileProps  ) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -37,6 +38,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [newFileName, setNewFileName] = useState("")
   const [isCreatingFile, setIsCreatingFile] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const { toast } = useToast()
+
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -86,9 +89,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                   <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border border-gray-200">
                     <DropdownMenuGroup>
                       <DropdownMenuItem
-                        onClick={() =>
-                          handleDeleteFile({ filename: relativePath })
-                        }
+                        onClick={() => {
+                          const { fileDeleted } = handleDeleteFile({ filename: relativePath, onError: (error) => {
+                            toast({
+                              title: `Error deleting file ${relativePath}`,
+                              description: error.message,
+                            })
+                          } })
+                          if (fileDeleted) {
+                            setErrorMessage("")
+                          }
+                        }}
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
                         Delete
@@ -125,13 +136,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const treeData = transformFilesToTreeData(files)
   // console.log("treeData", files)
   const handleCreateFileInline = () => {
-    handleCreateFile({
+    const { newFileCreated } = handleCreateFile({
       newFileName,
-      setErrorMessage,
-      onFileSelect,
-      setNewFileName,
-      setIsCreatingFile,
+      onError: (error) => {
+        setErrorMessage(error.message)
+      }
     })
+    if (newFileCreated) {
+      setIsCreatingFile(false)
+      setNewFileName("")
+      setErrorMessage("")
+    }
   }
 
   return (
@@ -162,6 +177,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           <Input
             autoFocus
             value={newFileName}
+            spellCheck={false}
             onChange={(e) => setNewFileName(e.target.value)}
             onBlur={handleCreateFileInline}
             onKeyDown={(e) => {
