@@ -81,6 +81,21 @@ async function handleCustomPackageHtml(req, res) {
     throw new Error("Package not found")
   }
 
+  let packageRelease = null
+  try {
+    const releaseResponse = await ky
+      .post(`https://registry-api.tscircuit.com/package_releases/get`, {
+        json: {
+          package_id: packageInfo.package_id,
+          is_latest: true,
+        },
+      })
+      .json()
+    packageRelease = releaseResponse.package_release
+  } catch (e) {
+    console.warn("Failed to fetch package release:", e)
+  }
+
   const description = he.encode(
     `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
   )
@@ -91,7 +106,7 @@ async function handleCustomPackageHtml(req, res) {
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
     imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
-    ssrPackageData: packageInfo,
+    ssrPackageData: { package: packageInfo, packageRelease },
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

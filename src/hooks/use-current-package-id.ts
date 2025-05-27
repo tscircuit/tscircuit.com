@@ -11,10 +11,10 @@ export const useCurrentPackageId = (): {
 } => {
   if (
     typeof window !== "undefined" &&
-    (window as any).SSR_PACKAGE?.package_id
+    (window as any).SSR_PACKAGE?.package?.package_id
   ) {
     return {
-      packageId: (window as any).SSR_PACKAGE.package_id,
+      packageId: (window as any).SSR_PACKAGE.package.package_id,
       isLoading: false,
       error: null,
     }
