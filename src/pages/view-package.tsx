@@ -1,16 +1,14 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
 import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
-import { usePackageById } from "@/hooks/use-package-by-package-id"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 
 export const ViewPackagePage = () => {
-  const { packageId } = useCurrentPackageId()
-  const { data: packageInfo } = usePackageById(packageId)
+  const { packageInfo } = useCurrentPackageInfo()
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
   const [isNotFound, setIsNotFound] = useState(false)
@@ -49,12 +47,12 @@ export const ViewPackagePage = () => {
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
         onFileClicked={(file) => {
           setLocation(
-            `/editor?package_id=${packageId}&file_path=${file.file_path}`,
+            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
           )
         }}
         onEditClicked={(file_path?: string) => {
           setLocation(
-            `/editor?package_id=${packageId}${
+            `/editor?package_id=${packageInfo?.package_id}${
               file_path ? `&file_path=${file_path}` : ""
             }`,
           )
