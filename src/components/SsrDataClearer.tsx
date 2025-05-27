@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useLocation } from "wouter"
 
 /**
@@ -8,16 +8,22 @@ import { useLocation } from "wouter"
  */
 export const SsrDataClearer = () => {
   const [location] = useLocation()
+  const isInitialMount = useRef(true)
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      for (const key in window) {
-        if (key.startsWith("SSR_")) {
-          try {
-            delete window[key]
-          } catch (e) {
-            console.error(`Failed to clear window.${key}`, e)
-          }
+    if (typeof window === "undefined") return
+    
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+
+    for (const key in window) {
+      if (key.startsWith("SSR_")) {
+        try {
+          delete window[key]
+        } catch (e) {
+          console.error(`Failed to clear window.${key}`, e)
         }
       }
     }
