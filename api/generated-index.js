@@ -50,13 +50,28 @@ function getHtmlWithModifiedSeoTags({
   if (ssrPackageData) {
     const ssrStartTag = "<!-- SSR_START -->"
     const ssrEndTag = "<!-- SSR_END -->"
-    const ssrScript = `<script>window.SSR_PACKAGE = ${JSON.stringify(ssrPackageData)};</script>`
-    const ssrContent = `\n  ${ssrScript}\n  `
+    const { package: packageData, packageRelease } = ssrPackageData
 
-    modifiedHtml = modifiedHtml.replace(
-      `${ssrStartTag}\n  ${ssrEndTag}`,
-      `${ssrStartTag}${ssrContent}${ssrEndTag}`,
-    )
+    const assignments = []
+    if (packageData) {
+      assignments.push(`window.SSR_PACKAGE = ${JSON.stringify(packageData)};`)
+    }
+    if (packageRelease) {
+      assignments.push(
+        `window.SSR_PACKAGE_RELEASE = ${JSON.stringify(packageRelease)};`,
+      )
+    }
+
+    const ssrScripts =
+      assignments.length > 0 ? `<script>${assignments.join(" ")}</script>` : ""
+
+    if (ssrScripts) {
+      const ssrContent = `\n  ${ssrScripts}\n  `
+      modifiedHtml = modifiedHtml.replace(
+        `${ssrStartTag}\n  ${ssrEndTag}`,
+        `${ssrStartTag}${ssrContent}${ssrEndTag}`,
+      )
+    }
   }
 
   return modifiedHtml
