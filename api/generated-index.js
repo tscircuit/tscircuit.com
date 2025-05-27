@@ -22,8 +22,8 @@ function getHtmlWithModifiedSeoTags({
 }) {
   const seoStartTag = "<!-- SEO_START -->"
   const seoEndTag = "<!-- SEO_END -->"
-  const startIndex = htmlContent.indexOf(seoStartTag)
-  const endIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length
+  const seoStartIndex = htmlContent.indexOf(seoStartTag)
+  const seoEndIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length
 
   const seoTags = `
   <title>${title}</title>
@@ -43,13 +43,23 @@ function getHtmlWithModifiedSeoTags({
   <link rel="canonical" href="${canonicalUrl}" />
   `
 
-  let ssrBlock = ""
+  // First replace SEO tags
+  let modifiedHtml = `${htmlContent.substring(0, seoStartIndex)}${seoTags}${htmlContent.substring(seoEndIndex)}`
+
+  // Then handle SSR data injection
   if (ssrPackageData) {
+    const ssrStartTag = "<!-- SSR_START -->"
+    const ssrEndTag = "<!-- SSR_END -->"
     const ssrScript = `<script>window.SSR_PACKAGE = ${JSON.stringify(ssrPackageData)};</script>`
-    ssrBlock = `\n<!-- SSR_START -->\n${ssrScript}\n<!-- SSR_END -->`
+    const ssrContent = `\n  ${ssrScript}\n  `
+
+    modifiedHtml = modifiedHtml.replace(
+      `${ssrStartTag}\n  ${ssrEndTag}`,
+      `${ssrStartTag}${ssrContent}${ssrEndTag}`,
+    )
   }
 
-  return `${htmlContent.substring(0, startIndex)}${seoTags}${ssrBlock}${htmlContent.substring(endIndex)}`
+  return modifiedHtml
 }
 
 async function handleCustomPackageHtml(req, res) {
