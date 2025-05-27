@@ -9,6 +9,7 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
 
   const ssrPackage = (window as any).SSR_PACKAGE
   const ssrPackageRelease = (window as any).SSR_PACKAGE_RELEASE
+  const ssrPackageFiles = (window as any).SSR_PACKAGE_FILES
 
   if (ssrPackage) {
     // Cache package data with all possible query keys
@@ -40,11 +41,11 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
       )
     }
 
-    // Cache empty package files list (will be populated by actual API call if needed)
-    if (ssrPackageRelease.package_release_id) {
+    // Cache package files if available
+    if (ssrPackageFiles && ssrPackageRelease.package_release_id) {
       queryClient.setQueryData(
         ["packageFiles", ssrPackageRelease.package_release_id],
-        [],
+        ssrPackageFiles,
       )
     }
   }

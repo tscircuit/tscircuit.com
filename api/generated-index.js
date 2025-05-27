@@ -50,7 +50,11 @@ function getHtmlWithModifiedSeoTags({
   if (ssrPackageData) {
     const ssrStartTag = "<!-- SSR_START -->"
     const ssrEndTag = "<!-- SSR_END -->"
-    const { package: packageData, packageRelease } = ssrPackageData
+    const {
+      package: packageData,
+      packageRelease,
+      packageFiles,
+    } = ssrPackageData
 
     const assignments = []
     if (packageData) {
@@ -59,6 +63,11 @@ function getHtmlWithModifiedSeoTags({
     if (packageRelease) {
       assignments.push(
         `window.SSR_PACKAGE_RELEASE = ${JSON.stringify(packageRelease)};`,
+      )
+    }
+    if (packageFiles) {
+      assignments.push(
+        `window.SSR_PACKAGE_FILES = ${JSON.stringify(packageFiles)};`,
       )
     }
 
@@ -97,6 +106,7 @@ async function handleCustomPackageHtml(req, res) {
   }
 
   let packageRelease = null
+  let packageFiles = null
   try {
     const releaseResponse = await ky
       .post(`https://registry-api.tscircuit.com/package_releases/get`, {
@@ -107,6 +117,22 @@ async function handleCustomPackageHtml(req, res) {
       })
       .json()
     packageRelease = releaseResponse.package_release
+
+    // Get package files for the latest release
+    if (packageRelease?.package_release_id) {
+      try {
+        const filesResponse = await ky
+          .post(`https://registry-api.tscircuit.com/package_files/list`, {
+            json: {
+              package_release_id: packageRelease.package_release_id,
+            },
+          })
+          .json()
+        packageFiles = filesResponse.package_files || []
+      } catch (e) {
+        console.warn("Failed to fetch package files:", e)
+      }
+    }
   } catch (e) {
     console.warn("Failed to fetch package release:", e)
   }
@@ -121,7 +147,7 @@ async function handleCustomPackageHtml(req, res) {
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
     imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
-    ssrPackageData: { package: packageInfo, packageRelease },
+    ssrPackageData: { package: packageInfo, packageRelease, packageFiles },
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
