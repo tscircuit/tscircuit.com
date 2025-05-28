@@ -48,7 +48,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     if (!window.prettier || !window.prettierPlugins) return
     if (!currentFile) return
     try {
-      const currentContent = files[currentFile || ""]
+      const currentContent = files[currentFile]
       let fileExtension = currentFile.split(".").pop()?.toLowerCase()
       if (currentContent.trim().length === 0) {
         toast({
