@@ -46,9 +46,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
+    if (!currentFile) return
     try {
       const currentContent = files[currentFile || ""]
-      let fileExtension = currentFile?.split(".").pop()?.toLowerCase()
+      let fileExtension = currentFile.split(".").pop()?.toLowerCase()
       if (currentContent.trim().length === 0) {
         toast({
           title: "Empty file",
@@ -64,11 +65,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         return
       }
 
-      if (["readme"].includes(currentFile?.toLowerCase() || "")) {
+      if (["readme"].includes(currentFile.toLowerCase() || "")) {
         fileExtension = "md"
       }
 
-      if (fileExtension === (currentFile?.toLowerCase() || "")) {
+      if (fileExtension === (currentFile.toLowerCase() || "")) {
         toast({
           title: "Cannot determine file type",
           description: "Unable to format file without an extension.",
@@ -81,7 +82,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         try {
           const jsonObj = JSON.parse(currentContent)
           const formattedJson = JSON.stringify(jsonObj, null, 2)
-          updateFileContent(currentFile || "", formattedJson)
+          updateFileContent(currentFile, formattedJson)
         } catch (jsonError) {
           toast({
             title: "Invalid JSON",
@@ -108,7 +109,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         plugins: window.prettierPlugins,
       })
 
-      updateFileContent(currentFile || "", formattedCode)
+      updateFileContent(currentFile, formattedCode)
     } catch (error) {
       console.error("Formatting error:", error)
       if (
