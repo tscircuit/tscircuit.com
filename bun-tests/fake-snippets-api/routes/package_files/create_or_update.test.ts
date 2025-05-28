@@ -278,7 +278,7 @@ test("create_or_update - 404 for non-existent package", async () => {
   }
 })
 
-test("create_or_update - allow empty content_text 69", async () => {
+test("create_or_update - allow empty content_text", async () => {
   const { axios } = await getTestServer()
 
   const packageResponse = await axios.post("/api/packages/create", {
