@@ -2,14 +2,23 @@ import { useEffect, useMemo, useState } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
 import {
   DEFAULT_CODE,
+  generateRandomPackageName,
   PackageFile,
 } from "../components/package-port/CodeAndPreview"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { usePackageFileById, usePackageFiles } from "./use-package-files"
+import {
+  usePackageFile,
+  usePackageFileById,
+  usePackageFiles,
+} from "./use-package-files"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
-
-
-export interface ICreateFileProps  {
+import { usePackageFilesLoader } from "./usePackageFilesLoader"
+import { useGlobalStore } from "./use-global-store"
+import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
+import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
+import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
+import { useCreatePackageMutation } from "./use-create-package-mutation"
+export interface ICreateFileProps {
   newFileName: string
   onError: (error: Error) => void
 }
@@ -27,80 +36,94 @@ export interface IDeleteFileProps {
 
 export function useFileManagement({
   onError,
-  templateCode,  
-  currentPackage
+  templateCode,
+  currentPackage,
+  openNewPackageSaveDialog,
+  updateLastUpdated,
 }: {
   onError: (error: Error) => void
   templateCode?: string
   currentPackage?: Package
+  openNewPackageSaveDialog: () => void
+  updateLastUpdated: () => void
 }) {
-  const {data: packageFiles, isLoading: isLoadingPackageFiles} = usePackageFiles(currentPackage?.latest_package_release_id)
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
-  const manualEditsFileContent = packageFiles?.find(
-    (file) => file.file_path === "manual-edits.json",
-  )?.content_text || "{}"
-
-  const indexFileFromHook = usePackageFileById(
-    packageFiles?.find((x) => x.file_path === "index.tsx")?.package_file_id ??
-      null,
-  )
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const loggedInUser = useGlobalStore((s) => s.session)
+  const { toast } = useToast()
+  const {
+    data: packageFilesWithContent,
+    isLoading: isLoadingPackageFilesWithContent,
+  } = usePackageFilesLoader(currentPackage)
+  const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
+    usePackageFiles(currentPackage?.latest_package_release_id)
 
   const initialCodeContent = useMemo(() => {
-    if (indexFileFromHook.data?.content_text)
-      return indexFileFromHook.data.content_text
     return (
       templateCode ??
       decodeUrlHashToText(window.location.toString()) ??
-      (currentPackage ? "" : DEFAULT_CODE)
+      DEFAULT_CODE
     )
-  }, [indexFileFromHook.data, templateCode, currentPackage])
+  }, [templateCode, currentPackage])
+  const manualEditsFileContent = useMemo(() => {
+    return (
+      localFiles?.find((file) => file.path === "manual-edits.json")?.content ||
+      "{}"
+    )
+  }, [localFiles])
 
+  const updatePackageFilesMutation = useUpdatePackageFilesMutation({
+    currentPackage,
+    localFiles,
+    initialFiles,
+    packageFilesMeta: packageFilesMeta || [],
+  })
+  const { mutate: createRelease, isLoading: isCreatingRelease } =
+    useCreatePackageReleaseMutation({
+      onSuccess: () => {
+        toast({
+          title: "Package released",
+          description: "Your package has been released successfully.",
+        })
+      },
+    })
+  const createPackageMutation = useCreatePackageMutation()
 
   useEffect(() => {
-    if(!currentPackage) {
+    if (!currentPackage || isLoadingPackageFilesWithContent) {
       setLocalFiles([
         {
           path: "index.tsx",
-          content: initialCodeContent,
-        }
+          content: initialCodeContent || "",
+        },
       ])
-      setInitialFiles([
-        {
-          path: "index.tsx",
-          content: initialCodeContent,
-        }
-      ])
+      setInitialFiles([])
       setCurrentFile("index.tsx")
       return
     } else {
-      setLocalFiles(packageFiles?.map((file) => ({
-        path: file.file_path,
-        content: file.content_text || "",
-      })) || [])
-    setInitialFiles(packageFiles?.map((file) => ({
-      path: file.file_path,
-        content: file.content_text || "",
-      })) || [])
-      setCurrentFile(packageFiles?.[0].file_path || null)
+      setLocalFiles(packageFilesWithContent || [])
+      setInitialFiles(packageFilesWithContent || [])
+      // setCurrentFile(packageFilesWithContent?.[0].path || null)
     }
-  }, [packageFiles, currentPackage])
+  }, [currentPackage, isLoadingPackageFilesWithContent])
 
   const isLoading = useMemo(() => {
-    return isLoadingPackageFiles || !localFiles
-  }, [isLoadingPackageFiles, localFiles])
+    return (
+      isLoadingPackageFilesWithContent || isLoadingPackageFiles || !localFiles
+    )
+  }, [isLoadingPackageFilesWithContent, localFiles, isLoadingPackageFiles])
 
-  const fsMap  = useMemo(() => {
-    if (!localFiles) return {}
-    const map = localFiles.reduce((acc, file) => {
-      if (file.content) {
-        acc[file.path] = file.content
-      }
-      return acc
-    }, {} as Record<string, string>)
-    map["manual-edits.json"] = manualEditsFileContent
-    
+  const fsMap = useMemo(() => {
+    const map = localFiles.reduce(
+      (acc, file) => {
+        acc[file.path] = file.content || ""
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+    // map["manual-edits.json"] = manualEditsFileContent
     return map
   }, [localFiles, manualEditsFileContent])
 
@@ -110,7 +133,7 @@ export function useFileManagement({
 
   const createFile = ({
     newFileName,
-    onError
+    onError,
   }: ICreateFileProps): ICreateFileResult => {
     newFileName = newFileName.trim()
     if (!newFileName) {
@@ -126,17 +149,17 @@ export function useFileManagement({
       }
     }
 
-    const fileExists = localFiles?.some(
-      (file) => file.path === newFileName,
-    )
+    const fileExists = localFiles?.some((file) => file.path === newFileName)
     if (fileExists) {
       onError(new Error("File already exists"))
       return {
         newFileCreated: false,
       }
     }
-    
-    const updatedFiles = [...(localFiles || []), { path: newFileName, content: "" }]
+    const updatedFiles = [
+      ...(localFiles || []),
+      { path: newFileName, content: "" },
+    ]
     setLocalFiles(updatedFiles)
     onFileSelect(newFileName)
     return {
@@ -144,20 +167,19 @@ export function useFileManagement({
     }
   }
 
-  const deleteFile = ({ filename, onError }: IDeleteFileProps): IDeleteFileResult => {
-    const fileExists = localFiles?.some(
-      (file) => file.path === filename,
-    )
+  const deleteFile = ({
+    filename,
+    onError,
+  }: IDeleteFileProps): IDeleteFileResult => {
+    const fileExists = localFiles?.some((file) => file.path === filename)
     if (!fileExists) {
-      onError(new Error("File does not exist"))   
+      onError(new Error("File does not exist"))
       return {
         fileDeleted: false,
       }
     }
 
-    const updatedFiles = localFiles.filter(
-      (file) => file.path !== filename,
-    )
+    const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
 
     return {
@@ -165,116 +187,70 @@ export function useFileManagement({
     }
   }
 
-  const saveFiles = () => {
-    console.log("saveFiles", localFiles)
+  const savePackage = async (isPrivate: boolean) => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Not Logged In",
+        description: "You must be logged in to save your package.",
+      })
+    }
+
+    const newPackage = await createPackageMutation.mutateAsync({
+      name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
+      is_private: isPrivate,
+    })
+
+    if (newPackage) {
+      createRelease(
+        {
+          package_name_with_version: `${newPackage.name}@latest`,
+        },
+        {
+          onSuccess: () => {
+            updatePackageFilesMutation.mutate({
+              package_name_with_version: `${newPackage.name}@latest`,
+              ...newPackage,
+            })
+            updateLastUpdated()
+            setInitialFiles([...localFiles])
+          },
+        },
+      )
+    }
+    updateLastUpdated()
   }
 
-  // const handleCreateFile = async ({
-  //   newFileName,
-  //   setErrorMessage,
-  //   onFileSelect,
-  //   setNewFileName,
-  //   setIsCreatingFile,
-  // }: CreateFileProps) => {
-  //   newFileName = newFileName.trim()
-  //   if (!newFileName) {
-  //     setErrorMessage("File name cannot be empty")
-  //     return
-  //   }
-  //   if (!isValidFileName(newFileName)) {
-  //     setErrorMessage(
-  //       'Invalid file name. Avoid using special characters like <>:"/\\|?*',
-  //     )
-  //     return
-  //   }
-  //   setErrorMessage("")
+  const saveFiles = () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Not Logged In",
+        description: "You must be logged in to save your package.",
+      })
+      return
+    }
+    if (!currentPackage) {
+      openNewPackageSaveDialog()
+      return
+    }
+    updatePackageFilesMutation.mutate({
+      package_name_with_version: `${currentPackage.name}@latest`,
+      ...currentPackage,
+    })
+    updateLastUpdated()
+    setInitialFiles([...localFiles])
+  }
 
-  //   const fileExists = packageFilesWithContent.some(
-  //     (file) => file.path === newFileName,
-  //   )
-
-  //   if (fileExists) {
-  //     setErrorMessage("A file with this name already exists")
-  //     return
-  //   }
-
-  //   setCodeAndPreviewState((prev) => {
-  //     const updatedFiles = [
-  //       ...prev.pkgFilesWithContent,
-  //       { path: newFileName, content: "" },
-  //     ]
-  //     return {
-  //       ...prev,
-  //       pkgFilesWithContent: updatedFiles,
-  //     } as CodeAndPreviewState
-  //   })
-  //   onFileSelect(newFileName)
-  //   setIsCreatingFile(false)
-  //   setNewFileName("")
-  // }
-
-  // const handleDeleteFile = async ({ filename }: DeleteFileProps) => {
-  //   const fileExists = packageFilesWithContent.some(
-  //     (file) => file.path === filename,
-  //   )
-
-  //   if (!fileExists) {
-  //     toast({
-  //       title: "A file with this name doesn't exist",
-  //       variant: "destructive",
-  //     })
-  //     return
-  //   }
-
-  //   setCodeAndPreviewState((prev) => {
-  //     const updatedFiles = prev.pkgFilesWithContent.filter(
-  //       (file) => file.path !== filename,
-  //     )
-  //     return {
-  //       ...prev,
-  //       pkgFilesWithContent: updatedFiles,
-  //       currentFile:
-  //         updatedFiles.find((file) => file.path === prev.currentFile)?.path ||
-  //         "",
-  //     }
-  //   })
-  // }
-
-  // const handleSave = async () => {
-  //   if (!isLoggedIn) {
-  //     toast({
-  //       title: "Not Logged In",
-  //       description: "You must be logged in to save your package.",
-  //       variant: "destructive",
-  //     })
-  //     return
-  //   }
-
-  //   if (!pkg) {
-  //     openNewPackageSaveDialog()
-  //     return
-  //   }
-
-  //   setCodeAndPreviewState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-
-  //   if (pkg) {
-  //     updatePackageFilesMutation.mutate(
-  //       {
-  //         package_name_with_version: `${pkg.name}@latest`,
-  //         ...pkg,
-  //       },
-  //       {
-  //         onSuccess: () => {
-  //           setCodeAndPreviewState((prev) => ({
-  //             ...prev,
-  //             initiallyLoadedFiles: [...prev.pkgFilesWithContent],
-  //           }))
-  //           refetchPackageFiles()
-  //         },
-  //       },
-  //     )
-  //   }
-  // }
+  const isSaving = useMemo(() => {
+    return (
+      updatePackageFilesMutation.isLoading ||
+      createPackageMutation.isLoading ||
+      isCreatingRelease
+    )
+  }, [
+    updatePackageFilesMutation.isLoading,
+    createPackageMutation.isLoading,
+    isCreatingRelease,
+  ])
 
   return {
     fsMap,
@@ -286,155 +262,8 @@ export function useFileManagement({
     currentFile,
     setLocalFiles,
     onFileSelect,
-    isLoading
+    isLoading,
+    isSaving,
+    savePackage,
   }
 }
-
-
-// export function useFileManagement2({
-//   setCodeAndPreviewState,
-//   pkg,
-//   updatePackageFilesMutation,
-//   openNewPackageSaveDialog,
-//   refetchPackageFiles,
-//   manualEditsFileContent,
-//   packageFilesWithContent,
-// }: {
-//   setCodeAndPreviewState: Dispatch<SetStateAction<CodeAndPreviewState>>
-//   pkg: Package | undefined
-//   updatePackageFilesMutation: UseMutationResult<any, Error, any, any>
-//   openNewPackageSaveDialog: () => void
-//   refetchPackageFiles: () => void
-//   manualEditsFileContent: string
-//   packageFilesWithContent: PackageFile[]
-// }) {
-//   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-//   const { toast } = useToast()
-
-//   const handleCreateFile = async ({
-//     newFileName,
-//     setErrorMessage,
-//     onFileSelect,
-//     setNewFileName,
-//     setIsCreatingFile,
-//   }: CreateFileProps) => {
-//     newFileName = newFileName.trim()
-//     if (!newFileName) {
-//       setErrorMessage("File name cannot be empty")
-//       return
-//     }
-//     if (!isValidFileName(newFileName)) {
-//       setErrorMessage(
-//         'Invalid file name. Avoid using special characters like <>:"/\\|?*',
-//       )
-//       return
-//     }
-//     setErrorMessage("")
-
-//     const fileExists = packageFilesWithContent.some(
-//       (file) => file.path === newFileName,
-//     )
-
-//     if (fileExists) {
-//       setErrorMessage("A file with this name already exists")
-//       return
-//     }
-
-//     setCodeAndPreviewState((prev) => {
-//       const updatedFiles = [
-//         ...prev.pkgFilesWithContent,
-//         { path: newFileName, content: "" },
-//       ]
-//       return {
-//         ...prev,
-//         pkgFilesWithContent: updatedFiles,
-//       } as CodeAndPreviewState
-//     })
-//     onFileSelect(newFileName)
-//     setIsCreatingFile(false)
-//     setNewFileName("")
-//   }
-
-//   const handleDeleteFile = async ({ filename }: DeleteFileProps) => {
-//     const fileExists = packageFilesWithContent.some(
-//       (file) => file.path === filename,
-//     )
-
-//     if (!fileExists) {
-//       toast({
-//         title: "A file with this name doesn't exist",
-//         variant: "destructive",
-//       })
-//       return
-//     }
-
-//     setCodeAndPreviewState((prev) => {
-//       const updatedFiles = prev.pkgFilesWithContent.filter(
-//         (file) => file.path !== filename,
-//       )
-//       return {
-//         ...prev,
-//         pkgFilesWithContent: updatedFiles,
-//         currentFile:
-//           updatedFiles.find((file) => file.path === prev.currentFile)?.path ||
-//           "",
-//       }
-//     })
-//   }
-
-//   const handleSave = async () => {
-//     if (!isLoggedIn) {
-//       toast({
-//         title: "Not Logged In",
-//         description: "You must be logged in to save your package.",
-//         variant: "destructive",
-//       })
-//       return
-//     }
-
-//     if (!pkg) {
-//       openNewPackageSaveDialog()
-//       return
-//     }
-
-//     setCodeAndPreviewState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-
-//     if (pkg) {
-//       updatePackageFilesMutation.mutate(
-//         {
-//           package_name_with_version: `${pkg.name}@latest`,
-//           ...pkg,
-//         },
-//         {
-//           onSuccess: () => {
-//             setCodeAndPreviewState((prev) => ({
-//               ...prev,
-//               initiallyLoadedFiles: [...prev.pkgFilesWithContent],
-//             }))
-//             refetchPackageFiles()
-//           },
-//         },
-//       )
-//     }
-//   }
-
-//   const fsMap = useMemo(() => {
-//     return {
-//       "manual-edits.json": manualEditsFileContent || "{}",
-//       ...packageFilesWithContent.reduce(
-//         (acc, file) => {
-//           acc[file.path] = file.content
-//           return acc
-//         },
-//         {} as Record<string, string>,
-//       ),
-//     }
-//   }, [manualEditsFileContent, packageFilesWithContent])
-
-//   return {
-//     handleCreateFile,
-//     handleDeleteFile,
-//     handleSave,
-//     fsMap,
-//   }
-// }

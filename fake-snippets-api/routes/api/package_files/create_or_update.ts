@@ -28,7 +28,6 @@ const routeSpec = {
     }, "Cannot specify both package_release_id and package_name_with_version")
     .refine((v) => {
       if (v.content_base64 && v.content_text) return false
-      if (!v.content_base64 && !v.content_text) return false
       return true
     }, "Either content_base64 or content_text is required"),
   jsonResponse: z.object({

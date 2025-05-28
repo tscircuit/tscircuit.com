@@ -148,12 +148,12 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           </div>
         </button>
         <div>
-            <Select value={currentFile || ""} onValueChange={handleFileChange}>
-              <SelectTrigger
-                className={`h-7 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
-                  sidebarOpen ? "-ml-2" : "-ml-1"
-                }`}
-              >
+          <Select value={currentFile || ""} onValueChange={handleFileChange}>
+            <SelectTrigger
+              className={`h-7 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+                sidebarOpen ? "-ml-2" : "-ml-1"
+              }`}
+            >
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
             <SelectContent>

@@ -11,7 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
-import type{ ICreateFileProps, ICreateFileResult, IDeleteFileProps, IDeleteFileResult } from "@/hooks/useFileManagement"
+import type {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
 import { useToast } from "@/hooks/use-toast"
 type FileName = string
 
@@ -21,7 +26,7 @@ interface FileSidebarProps {
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
-  handleCreateFile: (props: ICreateFileProps  ) => ICreateFileResult
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
 }
 
@@ -39,7 +44,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [isCreatingFile, setIsCreatingFile] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const { toast } = useToast()
-
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -90,12 +94,15 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         onClick={() => {
-                          const { fileDeleted } = handleDeleteFile({ filename: relativePath, onError: (error) => {
-                            toast({
-                              title: `Error deleting file ${relativePath}`,
-                              description: error.message,
-                            })
-                          } })
+                          const { fileDeleted } = handleDeleteFile({
+                            filename: relativePath,
+                            onError: (error) => {
+                              toast({
+                                title: `Error deleting file ${relativePath}`,
+                                description: error.message,
+                              })
+                            },
+                          })
                           if (fileDeleted) {
                             setErrorMessage("")
                           }
@@ -140,7 +147,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       newFileName,
       onError: (error) => {
         setErrorMessage(error.message)
-      }
+      },
     })
     if (newFileCreated) {
       setIsCreatingFile(false)

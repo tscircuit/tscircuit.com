@@ -30,11 +30,14 @@ import CodeEditorHeader, {
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type {
-  PackageFile,
-} from "./CodeAndPreview"
+import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import { ICreateFileProps, ICreateFileResult, IDeleteFileProps, IDeleteFileResult } from "@/hooks/useFileManagement"
+import {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
