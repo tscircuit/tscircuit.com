@@ -65,11 +65,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         return
       }
 
-      if (["readme"].includes(currentFile.toLowerCase() || "")) {
+      if (["readme"].includes(currentFile.toLowerCase())) {
         fileExtension = "md"
       }
 
-      if (fileExtension === (currentFile.toLowerCase() || "")) {
+      if (fileExtension === currentFile.toLowerCase()) {
         toast({
           title: "Cannot determine file type",
           description: "Unable to format file without an extension.",
@@ -118,7 +118,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       ) {
         toast({
           title: "Unsupported File Type",
-          description: `Formatting not supported for .${currentFile?.split(".").pop()?.toLowerCase() || ""} files. Tried default parser.`,
+          description: `Formatting not supported for .${currentFile.split(".").pop()?.toLowerCase()} files. Tried default parser.`,
         })
       } else {
         toast({
