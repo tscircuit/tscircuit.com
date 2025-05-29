@@ -193,6 +193,7 @@ export function useFileManagement({
         title: "Not Logged In",
         description: "You must be logged in to save your package.",
       })
+      return
     }
 
     const newPackage = await createPackageMutation.mutateAsync({

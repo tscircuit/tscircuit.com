@@ -156,6 +156,13 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
   }
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+    setErrorMessage("")
+    setIsCreatingFile(false)
+    setNewFileName("")
+  }
+
   return (
     <div
       className={cn(
@@ -165,7 +172,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       )}
     >
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={toggleSidebar}
         className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${
           !sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
