@@ -67,6 +67,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           ? `${ancestorPath}/${segment}`
           : segment
         const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
+        const itemId = relativePath + Math.random()
         if (
           !currentNode[segment] &&
           (!isHiddenFile(relativePath) ||
@@ -77,7 +78,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             ))
         ) {
           currentNode[segment] = {
-            id: relativePath,
+            id: itemId,
             name: isLeafNode ? segment : segment,
             icon: isLeafNode ? File : Folder,
             onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
@@ -86,7 +87,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             children: isLeafNode ? undefined : {},
             actions: (
               <>
-                <DropdownMenu>
+                <DropdownMenu key={itemId}>
                   <DropdownMenuTrigger asChild>
                     <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
                   </DropdownMenuTrigger>

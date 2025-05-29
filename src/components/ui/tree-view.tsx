@@ -404,7 +404,7 @@ const TreeLeaf = React.forwardRef<
           default={defaultLeafIcon}
         />
         <span className="flex-grow text-sm truncate">{item.name}</span>
-        <TreeActions isSelected={selectedItemId === item.id}>
+        <TreeActions isSelected={true}>
           {item.actions}
         </TreeActions>
       </div>
