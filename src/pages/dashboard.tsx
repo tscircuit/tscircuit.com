@@ -94,10 +94,10 @@ export const DashboardPage = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
-                  Log in to access your dashboard and manage your snippets.
+                  Log in to access your dashboard and manage your packages.
                 </p>
                 <Button onClick={() => signIn()} variant="outline">
-                  Log in
+                  Log In
                 </Button>
               </div>
             ) : (

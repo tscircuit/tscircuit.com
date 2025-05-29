@@ -23,7 +23,7 @@ export const HeaderLogin = () => {
     return (
       <div className="flex items-center md:space-x-2 justify-end">
         <Button onClick={() => signIn()} variant="ghost">
-          Log in
+          Log In
         </Button>
         <Button onClick={() => signIn()}>Get Started</Button>
       </div>
@@ -68,7 +68,7 @@ export const HeaderLogin = () => {
         </DropdownMenuItem>
         <DropdownMenuItem asChild onClick={() => setSession(null)}>
           <a href="/" className="cursor-pointer">
-            Sign out
+            Sign Out
           </a>
         </DropdownMenuItem>
       </DropdownMenuContent>

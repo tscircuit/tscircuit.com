@@ -34,6 +34,18 @@ export default withRouteSpec({
     })
   }
 
+  if (
+    foundPackage.is_private &&
+    auth?.github_username !== foundPackage.owner_github_username
+  ) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: `Package not found (searched using ${JSON.stringify(
+        req.commonParams,
+      )})`,
+    })
+  }
+
   return ctx.json({
     ok: true,
     package: {

@@ -18,11 +18,12 @@ function getHtmlWithModifiedSeoTags({
   description,
   canonicalUrl,
   imageUrl,
+  ssrPackageData,
 }) {
   const seoStartTag = "<!-- SEO_START -->"
   const seoEndTag = "<!-- SEO_END -->"
-  const startIndex = htmlContent.indexOf(seoStartTag)
-  const endIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length
+  const seoStartIndex = htmlContent.indexOf(seoStartTag)
+  const seoEndIndex = htmlContent.indexOf(seoEndTag) + seoEndTag.length
 
   const seoTags = `
   <title>${title}</title>
@@ -42,7 +43,47 @@ function getHtmlWithModifiedSeoTags({
   <link rel="canonical" href="${canonicalUrl}" />
   `
 
-  return `${htmlContent.substring(0, startIndex)}${seoTags}${htmlContent.substring(endIndex)}`
+  // First replace SEO tags
+  let modifiedHtml = `${htmlContent.substring(0, seoStartIndex)}${seoTags}${htmlContent.substring(seoEndIndex)}`
+
+  // Then handle SSR data injection
+  if (ssrPackageData) {
+    const ssrStartTag = "<!-- SSR_START -->"
+    const ssrEndTag = "<!-- SSR_END -->"
+    const {
+      package: packageData,
+      packageRelease,
+      packageFiles,
+    } = ssrPackageData
+
+    const assignments = []
+    if (packageData) {
+      assignments.push(`window.SSR_PACKAGE = ${JSON.stringify(packageData)};`)
+    }
+    if (packageRelease) {
+      assignments.push(
+        `window.SSR_PACKAGE_RELEASE = ${JSON.stringify(packageRelease)};`,
+      )
+    }
+    if (packageFiles) {
+      assignments.push(
+        `window.SSR_PACKAGE_FILES = ${JSON.stringify(packageFiles)};`,
+      )
+    }
+
+    const ssrScripts =
+      assignments.length > 0 ? `<script>${assignments.join(" ")}</script>` : ""
+
+    if (ssrScripts) {
+      const ssrContent = `\n  ${ssrScripts}\n  `
+      modifiedHtml = modifiedHtml.replace(
+        `${ssrStartTag}\n  ${ssrEndTag}`,
+        `${ssrStartTag}${ssrContent}${ssrEndTag}`,
+      )
+    }
+  }
+
+  return modifiedHtml
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -64,6 +105,38 @@ async function handleCustomPackageHtml(req, res) {
     throw new Error("Package not found")
   }
 
+  let packageRelease = null
+  let packageFiles = null
+  try {
+    const releaseResponse = await ky
+      .post(`https://registry-api.tscircuit.com/package_releases/get`, {
+        json: {
+          package_id: packageInfo.package_id,
+          is_latest: true,
+        },
+      })
+      .json()
+    packageRelease = releaseResponse.package_release
+
+    // Get package files for the latest release
+    if (packageRelease?.package_release_id) {
+      try {
+        const filesResponse = await ky
+          .post(`https://registry-api.tscircuit.com/package_files/list`, {
+            json: {
+              package_release_id: packageRelease.package_release_id,
+            },
+          })
+          .json()
+        packageFiles = filesResponse.package_files || []
+      } catch (e) {
+        console.warn("Failed to fetch package files:", e)
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to fetch package release:", e)
+  }
+
   const description = he.encode(
     `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
   )
@@ -74,6 +147,7 @@ async function handleCustomPackageHtml(req, res) {
     description,
     canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
     imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
+    ssrPackageData: { package: packageInfo, packageRelease, packageFiles },
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
