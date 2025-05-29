@@ -90,7 +90,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                   <DropdownMenuTrigger asChild>
                     <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 bg-white shadow-lg rounded-md border border-gray-200">
+                  <DropdownMenuContent
+                    className="w-48 bg-white shadow-lg rounded-md border-4 z-[100] border-white"
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "0",
+                      marginTop: "0.5rem",
+                      width: "8rem",
+                      padding: "0.01rem",
+                    }}
+                  >
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         onClick={() => {
@@ -107,7 +117,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                             setErrorMessage("")
                           }
                         }}
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center px-4 py-1 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
                         Delete
                       </DropdownMenuItem>
