@@ -67,7 +67,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           ? `${ancestorPath}/${segment}`
           : segment
         const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
-        const itemId = relativePath + Math.random()
+        const itemId = absolutePath
         if (
           !currentNode[segment] &&
           (!isHiddenFile(relativePath) ||

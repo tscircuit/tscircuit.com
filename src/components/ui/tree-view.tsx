@@ -404,9 +404,9 @@ const TreeLeaf = React.forwardRef<
           default={defaultLeafIcon}
         />
         <span className="flex-grow text-sm truncate">{item.name}</span>
-        <TreeActions isSelected={true}>
-          {item.actions}
-        </TreeActions>
+        <div onClick={(e) => e.stopPropagation()}>
+          <TreeActions isSelected={true}>{item.actions}</TreeActions>
+        </div>
       </div>
     )
   },

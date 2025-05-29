@@ -82,14 +82,9 @@ export function CodeAndPreview({ pkg }: Props) {
     localFiles,
     initialFiles,
   } = useFileManagement({
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-      })
-    },
     templateCode: templateFromUrl?.code,
     currentPackage: pkg,
+    fileChoosen: urlParams.file_path ?? null,
     openNewPackageSaveDialog,
     updateLastUpdated: () => {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
@@ -182,9 +177,6 @@ export function CodeAndPreview({ pkg }: Props) {
 
   return (
     <div className="flex flex-col min-h-[50vh]">
-      <h1>
-        {Object.keys(fsMap).join(", ")} {String(isSaving)} {mainComponentPath}
-      </h1>
       <EditorNav
         circuitJson={state.circuitJson}
         pkg={pkg}
@@ -211,7 +203,7 @@ export function CodeAndPreview({ pkg }: Props) {
             handleCreateFile={createFile}
             handleDeleteFile={deleteFile}
             currentFile={currentFile}
-            setCurrentFile={onFileSelect}
+            onFileSelect={onFileSelect}
             files={localFiles}
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? currentFile

@@ -54,7 +54,7 @@ export const CodeEditor = ({
   onFileContentChanged,
   pkgFilesLoaded,
   currentFile,
-  setCurrentFile,
+  onFileSelect,
   handleCreateFile,
   handleDeleteFile,
 }: {
@@ -68,7 +68,7 @@ export const CodeEditor = ({
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
   currentFile: string | null
-  setCurrentFile: (path: string) => void
+  onFileSelect: (path: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -484,7 +484,7 @@ export const CodeEditor = ({
   }, [codeImports])
 
   const handleFileChange = (path: string) => {
-    setCurrentFile(path)
+    onFileSelect(path)
     try {
       // Set url query to file path
       const urlParams = new URLSearchParams(window.location.search)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
 import {
   DEFAULT_CODE,
@@ -18,6 +18,8 @@ import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
 import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
 import { useCreatePackageMutation } from "./use-create-package-mutation"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
+
 export interface ICreateFileProps {
   newFileName: string
   onError: (error: Error) => void
@@ -35,15 +37,15 @@ export interface IDeleteFileProps {
 }
 
 export function useFileManagement({
-  onError,
   templateCode,
   currentPackage,
+  fileChoosen,
   openNewPackageSaveDialog,
   updateLastUpdated,
 }: {
-  onError: (error: Error) => void
   templateCode?: string
   currentPackage?: Package
+  fileChoosen: string | null
   openNewPackageSaveDialog: () => void
   updateLastUpdated: () => void
 }) {
@@ -103,9 +105,13 @@ export function useFileManagement({
       setCurrentFile("index.tsx")
       return
     } else {
+      const targetFile = findTargetFile(
+        packageFilesWithContent || [],
+        fileChoosen,
+      )
       setLocalFiles(packageFilesWithContent || [])
       setInitialFiles(packageFilesWithContent || [])
-      // setCurrentFile(packageFilesWithContent?.[0].path || null)
+      setCurrentFile(targetFile?.path || null)
     }
   }, [currentPackage, isLoadingPackageFilesWithContent])
 
@@ -123,12 +129,15 @@ export function useFileManagement({
       },
       {} as Record<string, string>,
     )
-    // map["manual-edits.json"] = manualEditsFileContent
     return map
   }, [localFiles, manualEditsFileContent])
 
   const onFileSelect = (fileName: string) => {
-    setCurrentFile(fileName)
+    if (localFiles.some((file) => file.path === fileName)) {
+      setCurrentFile(fileName)
+    } else {
+      setCurrentFile(null)
+    }
   }
 
   const createFile = ({
@@ -178,10 +187,9 @@ export function useFileManagement({
         fileDeleted: false,
       }
     }
-
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
-
+    onFileSelect(updatedFiles[0]?.path || "")
     return {
       fileDeleted: true,
     }
