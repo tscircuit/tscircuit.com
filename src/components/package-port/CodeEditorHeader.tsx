@@ -23,9 +23,9 @@ import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
-  currentFile: FileName
+  currentFile: FileName | null
   files: Record<FileName, string>
-  updateFileContent: (filename: FileName, content: string) => void
+  updateFileContent: (filename: FileName | null, content: string) => void
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
@@ -46,6 +46,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
+    if (!currentFile) return
     try {
       const currentContent = files[currentFile]
       let fileExtension = currentFile.split(".").pop()?.toLowerCase()
@@ -148,9 +149,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           </div>
         </button>
         <div>
-          <Select value={currentFile} onValueChange={handleFileChange}>
+          <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger
-              className={`h-7 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+              className={`h-7 w-24 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
                 sidebarOpen ? "-ml-2" : "-ml-1"
               }`}
             >
@@ -197,7 +198,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
 
         <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
-          {checkIfManualEditsImported(files, currentFile) && (
+          {checkIfManualEditsImported(files, currentFile || "") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -235,7 +236,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
         <ImportSnippetDialog
           onSnippetSelected={(snippet: any) => {
-            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
+            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
         />

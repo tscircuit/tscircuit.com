@@ -278,6 +278,32 @@ test("create_or_update - 404 for non-existent package", async () => {
   }
 })
 
+test("create_or_update - allow empty content_text", async () => {
+  const { axios } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "@test/package-files-create-or-update-error",
+    description: "A test package for error cases",
+  })
+  const createdPackage = packageResponse.data.package
+
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_id: createdPackage.package_id,
+    version: "1.0.0",
+  })
+  const createdRelease = releaseResponse.data.package_release
+  const response = await axios.post("/api/package_files/create_or_update", {
+    package_release_id: createdRelease.package_release_id,
+    file_path: "/test.js",
+    content_text: "",
+  })
+  console.log(response.data.package_file)
+  expect(response.status).toBe(200)
+  expect(response.data.ok).toBe(true)
+  expect(response.data.package_file).toBeDefined()
+  expect(response.data.package_file.content_text).toBe("")
+})
+
 test("create_or_update - 400 for missing content", async () => {
   const { axios } = await getTestServer()
 

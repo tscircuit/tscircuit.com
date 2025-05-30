@@ -1,5 +1,7 @@
 import { useMutation } from "react-query"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useAxios } from "./use-axios"
+import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
 
 interface PackageFile {
   path: string
@@ -7,47 +9,49 @@ interface PackageFile {
 }
 
 interface UseUpdatePackageFilesMutationProps {
-  pkg: Package | undefined
-  pkgFilesWithContent: PackageFile[]
-  initialFilesLoad: PackageFile[]
-  pkgFiles: any
-  axios: any
-  toast: any
+  currentPackage: Package | undefined
+  localFiles: PackageFile[]
+  initialFiles: PackageFile[]
+  packageFilesMeta: {
+    created_at: string
+    file_path: string
+    package_file_id: string
+    package_release_id: string
+  }[]
 }
 
 export function useUpdatePackageFilesMutation({
-  pkg,
-  pkgFilesWithContent,
-  initialFilesLoad,
-  pkgFiles,
-  axios,
-  toast,
+  currentPackage,
+  localFiles,
+  initialFiles,
+  packageFilesMeta,
 }: UseUpdatePackageFilesMutationProps) {
+  const axios = useAxios()
+  const { toast } = useToast()
   return useMutation({
     mutationFn: async (
-      newpackage: Pick<Package, "package_id" | "name"> & {
+      newPackage: Pick<Package, "package_id" | "name"> & {
         package_name_with_version: string
       },
     ) => {
-      if (pkg) {
-        newpackage = { ...pkg, ...newpackage }
+      if (currentPackage) {
+        newPackage = { ...currentPackage, ...newPackage }
       }
-      if (!newpackage) throw new Error("No package to update")
+      if (!newPackage) throw new Error("No package to update")
 
       let updatedFilesCount = 0
 
-      for (const file of pkgFilesWithContent) {
-        const initialFile = initialFilesLoad.find((x) => x.path === file.path)
-        if (file.content && file.content !== initialFile?.content) {
+      for (const file of localFiles) {
+        const initialFile = initialFiles.find((x) => x.path === file.path)
+        if (file.content !== initialFile?.content) {
           const updatePkgFilePayload = {
             package_file_id:
-              pkgFiles.data?.find((x: any) => x.file_path === file.path)
+              packageFilesMeta.find((x) => x.file_path === file.path)
                 ?.package_file_id ?? null,
             content_text: file.content,
             file_path: file.path,
-            package_name_with_version: `${newpackage.name}`,
+            package_name_with_version: `${newPackage.name}`,
           }
-
           const response = await axios.post(
             "/package_files/create_or_update",
             updatePkgFilePayload,
@@ -58,10 +62,33 @@ export function useUpdatePackageFilesMutation({
           }
         }
       }
+
+      for (const initialFile of initialFiles) {
+        const fileStillExists = localFiles.some(
+          (x) => x.path === initialFile.path,
+        )
+
+        if (!fileStillExists) {
+          const fileToDelete = packageFilesMeta.find(
+            (x) => x.file_path === initialFile.path,
+          )
+
+          if (fileToDelete?.package_file_id) {
+            const response = await axios.post("/package_files/delete", {
+              package_name_with_version: `${newPackage.name}`,
+              file_path: initialFile.path,
+            })
+
+            if (response.status === 200) {
+              updatedFilesCount++
+            }
+          }
+        }
+      }
       return updatedFilesCount
     },
     onSuccess: (updatedFilesCount) => {
-      if (updatedFilesCount) {
+      if (updatedFilesCount > 0) {
         toast({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
@@ -69,7 +96,6 @@ export function useUpdatePackageFilesMutation({
       }
     },
     onError: (error: any) => {
-      console.error("Error updating pkg files:", error)
       toast({
         title: "Error",
         description:

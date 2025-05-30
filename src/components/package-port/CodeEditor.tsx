@@ -24,12 +24,20 @@ import {
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import tsModule from "typescript"
-import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
+import CodeEditorHeader, {
+  FileName,
+} from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { CreateFileProps, PackageFile } from "./CodeAndPreview"
+import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -46,19 +54,21 @@ export const CodeEditor = ({
   onFileContentChanged,
   pkgFilesLoaded,
   currentFile,
-  setCurrentFile,
+  onFileSelect,
   handleCreateFile,
+  handleDeleteFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
-  handleCreateFile: (props: CreateFileProps) => void
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
-  currentFile: string
-  setCurrentFile: (path: string) => void
+  currentFile: string | null
+  onFileSelect: (path: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -85,7 +95,6 @@ export const CodeEditor = ({
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
 
     const targetFile = findTargetFile(files, filePathFromUrl)
-
     if (targetFile) {
       handleFileChange(targetFile.path)
       setCode(targetFile.content)
@@ -229,7 +238,7 @@ export const CodeEditor = ({
     // Set up base extensions
     const baseExtensions = [
       basicSetup,
-      currentFile.endsWith(".json")
+      currentFile?.endsWith(".json")
         ? json()
         : javascript({ typescript: true, jsx: true }),
       keymap.of([indentWithTab]),
@@ -237,7 +246,7 @@ export const CodeEditor = ({
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
-
+          if (!currentFile) return
           if (newContent === lastFilesEventContent[currentFile]) return
           lastFilesEventContent[currentFile] = newContent
 
@@ -272,12 +281,12 @@ export const CodeEditor = ({
 
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
-      currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
+      currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
         ? [
             tsFacet.of({
               env,
-              path: currentFile.endsWith(".ts")
-                ? currentFile.replace(/\.ts$/, ".tsx")
+              path: currentFile?.endsWith(".ts")
+                ? currentFile?.replace(/\.ts$/, ".tsx")
                 : currentFile,
             }),
             tsSync(),
@@ -421,7 +430,7 @@ export const CodeEditor = ({
         : []
 
     const state = EditorState.create({
-      doc: fileMap[currentFile] || "",
+      doc: fileMap[currentFile || ""] || "",
       extensions: [...baseExtensions, ...tsExtensions],
     })
 
@@ -432,7 +441,7 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
+    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
 
@@ -459,7 +468,7 @@ export const CodeEditor = ({
   }
 
   const updateEditorToMatchCurrentFile = () => {
-    const currentContent = fileMap[currentFile] || ""
+    const currentContent = fileMap[currentFile || ""] || ""
     updateCurrentEditorContent(currentContent)
   }
 
@@ -468,14 +477,14 @@ export const CodeEditor = ({
   useEffect(() => {
     if (
       ataRef.current &&
-      (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts"))
+      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
       ataRef.current(`${defaultImports}${code}`)
     }
   }, [codeImports])
 
   const handleFileChange = (path: string) => {
-    setCurrentFile(path)
+    onFileSelect(path)
     try {
       // Set url query to file path
       const urlParams = new URLSearchParams(window.location.search)
@@ -484,7 +493,8 @@ export const CodeEditor = ({
     } catch {}
   }
 
-  const updateFileContent = (path: string, newContent: string) => {
+  const updateFileContent = (path: FileName | null, newContent: string) => {
+    if (!path) return
     if (currentFile === path) {
       setCode(newContent)
       onCodeChange(newContent, path)
@@ -523,6 +533,7 @@ export const CodeEditor = ({
         }
         onFileSelect={handleFileChange}
         handleCreateFile={handleCreateFile}
+        handleDeleteFile={handleDeleteFile}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (

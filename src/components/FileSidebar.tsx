@@ -1,20 +1,33 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, PanelRightOpen, Plus } from "lucide-react"
+import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 import { Input } from "@/components/ui/input"
-import { CreateFileProps } from "./package-port/CodeAndPreview"
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
+import type {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
+import { useToast } from "@/hooks/use-toast"
 type FileName = string
 
 interface FileSidebarProps {
   files: Record<FileName, string>
-  currentFile: FileName
+  currentFile: FileName | null
   onFileSelect: (filename: FileName) => void
   className?: string
   fileSidebarState: ReturnType<typeof useState<boolean>>
-  handleCreateFile: (props: CreateFileProps) => void
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -24,11 +37,13 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   className,
   fileSidebarState,
   handleCreateFile,
+  handleDeleteFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
   const [isCreatingFile, setIsCreatingFile] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const { toast } = useToast()
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -38,38 +53,85 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
     const root: Record<string, TreeNode> = {}
 
-    Object.keys(files).forEach((path) => {
-      const startsWithSlash = path.startsWith("/")
-      const parts = (startsWithSlash ? path.slice(1) : path).trim().split("/")
-      let current = root
+    Object.keys(files).forEach((filePath) => {
+      const hasLeadingSlash = filePath.startsWith("/")
+      const pathSegments = (hasLeadingSlash ? filePath.slice(1) : filePath)
+        .trim()
+        .split("/")
+      let currentNode: Record<string, TreeNode> = root
 
-      parts.forEach((part, index) => {
-        const isFile = index === parts.length - 1
-        const parentPath = parts.slice(0, index).join("/")
-        const currentPath = parentPath ? `${parentPath}/${part}` : part
-        const evaluatedFilePath = startsWithSlash
-          ? `/${currentPath}`
-          : currentPath
+      pathSegments.forEach((segment, segmentIndex) => {
+        const isLeafNode = segmentIndex === pathSegments.length - 1
+        const ancestorPath = pathSegments.slice(0, segmentIndex).join("/")
+        const relativePath = ancestorPath
+          ? `${ancestorPath}/${segment}`
+          : segment
+        const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
+        const itemId = absolutePath
         if (
-          !current[part] &&
-          (!isHiddenFile(currentPath) ||
+          !currentNode[segment] &&
+          (!isHiddenFile(relativePath) ||
             isHiddenFile(
-              currentFile.startsWith("/") ? currentFile.slice(1) : currentFile,
+              currentFile?.startsWith("/")
+                ? currentFile.slice(1)
+                : currentFile || "",
             ))
         ) {
-          current[part] = {
-            id: currentPath,
-            name: isFile ? part : part,
-            icon: isFile ? File : Folder,
-            onClick: isFile ? () => onFileSelect(evaluatedFilePath) : undefined,
-            draggable: isFile,
-            droppable: !isFile,
-            children: isFile ? undefined : {},
+          currentNode[segment] = {
+            id: itemId,
+            name: isLeafNode ? segment : segment,
+            icon: isLeafNode ? File : Folder,
+            onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
+            draggable: false,
+            droppable: !isLeafNode,
+            children: isLeafNode ? undefined : {},
+            actions: (
+              <>
+                <DropdownMenu key={itemId}>
+                  <DropdownMenuTrigger asChild>
+                    <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="w-48 bg-white shadow-lg rounded-md border-4 z-[100] border-white"
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "0",
+                      marginTop: "0.5rem",
+                      width: "8rem",
+                      padding: "0.01rem",
+                    }}
+                  >
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          const { fileDeleted } = handleDeleteFile({
+                            filename: relativePath,
+                            onError: (error) => {
+                              toast({
+                                title: `Error deleting file ${relativePath}`,
+                                description: error.message,
+                              })
+                            },
+                          })
+                          if (fileDeleted) {
+                            setErrorMessage("")
+                          }
+                        }}
+                        className="flex items-center px-4 py-1 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ),
           }
         }
 
-        if (!isFile && current[part].children) {
-          current = current[part].children
+        if (!isLeafNode && currentNode[segment].children) {
+          currentNode = currentNode[segment].children
         }
       })
     })
@@ -90,15 +152,26 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
-
+  // console.log("treeData", files)
   const handleCreateFileInline = () => {
-    handleCreateFile({
+    const { newFileCreated } = handleCreateFile({
       newFileName,
-      setErrorMessage,
-      onFileSelect,
-      setNewFileName,
-      setIsCreatingFile,
+      onError: (error) => {
+        setErrorMessage(error.message)
+      },
     })
+    if (newFileCreated) {
+      setIsCreatingFile(false)
+      setNewFileName("")
+      setErrorMessage("")
+    }
+  }
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+    setErrorMessage("")
+    setIsCreatingFile(false)
+    setNewFileName("")
   }
 
   return (
@@ -110,7 +183,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       )}
     >
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={toggleSidebar}
         className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${
           !sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
@@ -129,6 +202,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           <Input
             autoFocus
             value={newFileName}
+            spellCheck={false}
             onChange={(e) => setNewFileName(e.target.value)}
             onBlur={handleCreateFileInline}
             onKeyDown={(e) => {
@@ -149,7 +223,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       )}
       <TreeView
         data={treeData}
-        initialSelectedItemId={currentFile}
+        initialSelectedItemId={currentFile || ""}
         onSelectChange={(item) => {
           if (item?.onClick) {
             item.onClick()
