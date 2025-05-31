@@ -416,7 +416,7 @@ export const CodeEditor = ({
                       const end = start + match[0].length
                       decorations.push(
                         Decoration.mark({
-                          class: "cm-underline",
+                          class: "cm-underline cursor-pointer",
                         }).range(start, end),
                       )
                     }
