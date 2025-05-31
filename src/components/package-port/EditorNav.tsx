@@ -207,19 +207,23 @@ export default function EditorNav({
         <div className="flex items-center space-x-1">
           {pkg && (
             <>
-              <Link
-                className="text-blue-500 font-semibold hover:underline"
-                href={`/${pkg.owner_github_username}`}
-              >
-                {pkg.owner_github_username}
-              </Link>
-              <span className="px-0.5 text-gray-500">/</span>
-              <Link
-                className="text-blue-500  font-semibold hover:underline"
-                href={`/${pkg.name}`}
-              >
-                {pkg.unscoped_name}
-              </Link>
+              <div className="flex items-center space-x-1 overflow-hidden">
+                <Link
+                  className="text-blue-500 font-semibold hover:underline truncate"
+                  href={`/${pkg.owner_github_username}`}
+                  title={pkg.owner_github_username || ""}
+                >
+                  {pkg.owner_github_username}
+                </Link>
+                <span className="px-0.5 text-gray-500">/</span>
+                <Link
+                  className="text-blue-500 font-semibold hover:underline truncate"
+                  href={`/${pkg.name}`}
+                  title={pkg.unscoped_name}
+                >
+                  {pkg.unscoped_name}
+                </Link>
+              </div>
               {pkg.star_count !== undefined && (
                 <span className="ml-2 text-gray-500 text-xs flex items-center">
                   <Star className="w-3 h-3 mr-1" />
