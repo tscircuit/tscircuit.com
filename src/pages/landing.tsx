@@ -119,7 +119,7 @@ export function LandingPage() {
                   <OptimizedImage
                     alt="Product preview"
                     className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
-                    src="/assets/editor_example_1_more_square.webp"
+                    src="/assets/keyboardexample1.png"
                     priority={true}
                   />
                 </div>
