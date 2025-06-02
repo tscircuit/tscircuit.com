@@ -50,7 +50,7 @@ export function JLCPCBImportDialog({
     setHasBeenImportedToAccountAlready(false)
 
     try {
-      const apiUrl = `/snippets/get?owner_name=${session?.github_username}&unscoped_name=${partNumber}`
+      const apiUrl = `/packages/get?name=${session?.github_username}/${partNumber}`
 
       const existingPackageRes = await axios.get(apiUrl, {
         validateStatus: (status) => true,
