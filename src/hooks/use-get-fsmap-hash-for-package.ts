@@ -1,4 +1,5 @@
 import { usePackageFiles } from "@/hooks/use-package-files"
+import { normalizeFilePath } from "@/lib/utils/normalizeFilePaths"
 import md5 from "md5"
 
 export const useGetFsMapHashForPackage = (packageReleaseId: string) => {
@@ -10,10 +11,15 @@ export const useGetFsMapHashForPackage = (packageReleaseId: string) => {
     )
     return null
   }
-  const fsMap = new Map<string, string>()
+
+  const fsMap: Record<string, string> = {}
   for (const file of pkgFilesList) {
-    fsMap.set(file.file_path, file.content_text ?? "")
+    if (file.file_path.startsWith("dist/")) continue
+
+    const normalizedPath = normalizeFilePath(file.file_path)
+    fsMap[normalizedPath] = file.content_text ?? ""
   }
+
   const fsMapHash = md5(JSON.stringify(fsMap))
   return `md5-${fsMapHash}`
 }
