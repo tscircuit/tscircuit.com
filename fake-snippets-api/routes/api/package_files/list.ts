@@ -37,10 +37,13 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     })
   }
 
-  const packageFiles = ctx.db.packageFiles.filter(
-    (file) => file.package_release_id === packageReleaseId,
-  )
-
+  // Omit the content_text field
+  const packageFiles = ctx.db.packageFiles
+    .filter((file) => file.package_release_id === packageReleaseId)
+    .map(({ content_text, ...file }) => ({
+      ...file,
+    }))
+    
   return ctx.json({
     ok: true,
     package_files: packageFiles,
