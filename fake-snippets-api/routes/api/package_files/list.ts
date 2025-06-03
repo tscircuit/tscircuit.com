@@ -43,7 +43,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     .map(({ content_text, ...file }) => ({
       ...file,
     }))
-    
+
   return ctx.json({
     ok: true,
     package_files: packageFiles,
