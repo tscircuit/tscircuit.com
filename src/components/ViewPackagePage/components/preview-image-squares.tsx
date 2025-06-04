@@ -1,6 +1,5 @@
 "use client"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 import { usePreviewImages } from "@/hooks/use-preview-images"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
