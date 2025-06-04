@@ -17,15 +17,15 @@ export const DeploymentDetailsPage = () => {
   }
 
   return (
-    <div className="min-h-screen container mx-auto bg-black text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       <DeploymentHeader />
 
-      <div className="px-6 py-6">
+      <div className="px-6 py-6 container mx-auto">
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
           {/* Preview Section */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex items-center justify-center max-h-[420px]">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center max-h-[420px]">
               <BuildPreviewContent />
             </div>
           </div>

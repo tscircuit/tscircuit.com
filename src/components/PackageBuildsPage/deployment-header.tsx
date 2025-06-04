@@ -6,22 +6,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useParams } from "wouter"
 
 export function DeploymentHeader() {
+  const { author, packageName } = useParams()
+
   return (
-    <div className="border-b border-gray-800 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <div className="border-b border-gray-200 bg-white px-6 py-4">
+      <div className="flex items-center justify-between container mx-auto">
         <h1 className="text-2xl font-semibold">
           Package Build
-          <code className="ml-2 bg-gray-800 px-2 py-1 rounded font-mono text-blue-500">
-            seveibar/led-matrix
-          </code>
+          <a
+            className="ml-2 bg-gray-100 px-2 py-1 rounded font-mono text-blue-600"
+            href={`/${author}/${packageName}`}
+          >
+            {author}/{packageName}
+          </a>
         </h1>
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="sm"
-            className="border-gray-700 bg-gray-800 hover:text-white text-xs sm:text-sm"
+            className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
             asChild
           >
             <a
@@ -37,7 +43,7 @@ export function DeploymentHeader() {
             <DropdownMenuTrigger asChild>
               <Button
                 size="sm"
-                className="bg-white text-black hover:bg-gray-100"
+                className="bg-gray-900 text-white hover:bg-gray-800"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download
@@ -46,18 +52,18 @@ export function DeploymentHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="bg-gray-900 border-gray-700"
+              className="bg-white border-gray-200"
             >
-              <DropdownMenuItem className="text-white hover:bg-gray-700">
+              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
                 Circuit JSON
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-gray-700">
+              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
                 PCB SVG
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-gray-700">
+              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
                 Schematic SVG
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-gray-700">
+              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
                 3D Model (stl)
               </DropdownMenuItem>
             </DropdownMenuContent>
