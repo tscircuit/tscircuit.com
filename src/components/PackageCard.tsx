@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 import { ImageWithFallback } from "./ImageWithFallback"
 
 export interface PackageCardProps {
@@ -57,10 +56,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
-  const fsMapHash = useGetFsMapHashForPackage(
-    pkg.latest_package_release_id ?? "",
-  )
-
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -70,11 +65,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
           <ImageWithFallback
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?${new URLSearchParams(
-              {
-                fs_sha: fsMapHash ?? "",
-              },
-            ).toString()}`}
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${pkg.latest_package_release_fs_sha}`}
             alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />

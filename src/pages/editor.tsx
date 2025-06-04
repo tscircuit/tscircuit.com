@@ -4,14 +4,10 @@ import Header from "@/components/Header"
 import { Helmet } from "react-helmet-async"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { usePackage } from "@/hooks/use-package"
-import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
   const { data: pkg, isLoading, error } = usePackage(packageId)
-  const fsMapHash = useGetFsMapHashForPackage(
-    pkg?.latest_package_release_id ?? "",
-  )
 
   return (
     <div className="overflow-x-hidden">
@@ -27,16 +23,12 @@ export const EditorPage = () => {
             />
             <meta
               property="og:image"
-              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?${new URLSearchParams(
-                {
-                  fs_sha: fsMapHash ?? "",
-                },
-              ).toString()}`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
           </>
         )}

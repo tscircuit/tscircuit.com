@@ -1,11 +1,10 @@
 "use client"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 import { usePreviewImages } from "@/hooks/use-preview-images"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
 interface ViewPlaceholdersProps {
-  packageInfo?: Pick<Package, "name" | "latest_package_release_id">
+  packageInfo?: Pick<Package, "name" | "latest_package_release_fs_sha">
   onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }
 
@@ -13,12 +12,9 @@ export default function PreviewImageSquares({
   packageInfo,
   onViewChange,
 }: ViewPlaceholdersProps) {
-  const fsMapHash = useGetFsMapHashForPackage(
-    packageInfo?.latest_package_release_id ?? "",
-  )
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
-    fsMapHash: fsMapHash ?? "",
+    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
   })
 
   const handleViewClick = (viewId: string) => {

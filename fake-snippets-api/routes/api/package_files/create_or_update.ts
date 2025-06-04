@@ -146,6 +146,9 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
       },
     )
 
+    // Update fs_sha for the package release
+    ctx.db.updatePackageReleaseFsSha(packageReleaseId)
+
     return ctx.json({
       ok: true,
       package_file,
@@ -180,6 +183,9 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
 
   // Add to the test database
   ctx.db.addPackageFile(newPackageFile)
+
+  // Update fs_sha for the package release
+  ctx.db.updatePackageReleaseFsSha(packageReleaseId)
 
   return ctx.json({
     ok: true,

@@ -22,33 +22,21 @@ export function usePreviewImages({
       id: "3d",
       label: "3D View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/3d.png?${new URLSearchParams(
-            {
-              fs_sha: fsMapHash ?? "",
-            },
-          ).toString()}`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/3d.png?fs_sha=${fsMapHash}`
         : undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/pcb.png?${new URLSearchParams(
-            {
-              fs_sha: fsMapHash ?? "",
-            },
-          ).toString()}`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/pcb.png?fs_sha=${fsMapHash}`
         : undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
       imageUrl: packageName
-        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/schematic.png?${new URLSearchParams(
-            {
-              fs_sha: fsMapHash ?? "",
-            },
-          ).toString()}`
+        ? `https://registry-api.tscircuit.com/packages/images/${packageName}/schematic.png?fs_sha=${fsMapHash}`
         : undefined,
     },
   ]

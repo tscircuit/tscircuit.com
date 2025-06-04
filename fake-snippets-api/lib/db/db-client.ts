@@ -22,6 +22,7 @@ import {
   type snippetSchema,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
+import { generateFsSha } from "../package_file/generate-fs-sha"
 
 export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
   const db = hoist(createStore(initializer))
@@ -271,6 +272,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_public: true,
       is_unlisted: false,
       latest_package_release_id: `package_release_${nextId}`,
+      latest_package_release_fs_sha: null,
     }
 
     // Create package release
@@ -339,6 +341,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageReleases: [...state.packageReleases, newPackageRelease],
       packageFiles: [...state.packageFiles, ...packageFiles],
       idCounter: fileIdCounter,
+    }))
+
+    // Update fs_sha for the new package release
+    const dbState = get()
+    const releaseFiles = dbState.packageFiles.filter(
+      (pf) => pf.package_release_id === newPackageRelease.package_release_id,
+    )
+    const fsSha = generateFsSha(releaseFiles)
+
+    set((state) => ({
+      ...state,
+      packageReleases: state.packageReleases.map((pr) =>
+        pr.package_release_id === newPackageRelease.package_release_id
+          ? { ...pr, fs_sha: fsSha }
+          : pr,
+      ),
+      packages: state.packages.map((pkg) =>
+        pkg.latest_package_release_id === newPackageRelease.package_release_id
+          ? { ...pkg, latest_package_release_fs_sha: fsSha }
+          : pkg,
+      ),
     }))
 
     // Return in the same format as create endpoint
@@ -1286,5 +1309,29 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.packageFiles.filter(
       (pf) => pf.package_release_id === packageReleaseId,
     )
+  },
+  /**
+   * Update fs_sha for a package release based on its files
+   */
+  updatePackageReleaseFsSha: (packageReleaseId: string): void => {
+    const state = get()
+    const packageFiles = state.packageFiles.filter(
+      (pf) => pf.package_release_id === packageReleaseId,
+    )
+    const fsSha = generateFsSha(packageFiles)
+
+    set((currentState) => ({
+      ...currentState,
+      packageReleases: currentState.packageReleases.map((pr) =>
+        pr.package_release_id === packageReleaseId
+          ? { ...pr, fs_sha: fsSha }
+          : pr,
+      ),
+      packages: currentState.packages.map((pkg) =>
+        pkg.latest_package_release_id === packageReleaseId
+          ? { ...pkg, latest_package_release_fs_sha: fsSha }
+          : pkg,
+      ),
+    }))
   },
 }))
