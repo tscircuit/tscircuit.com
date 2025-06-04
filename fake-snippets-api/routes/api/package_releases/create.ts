@@ -79,6 +79,7 @@ export default withRouteSpec({
     // Setting the transpiled as true on creation
     has_transpiled: true,
     transpilation_error: null,
+    ready_to_build: false,
   })
 
   // Update the package's latest_package_release_id if this is the latest release

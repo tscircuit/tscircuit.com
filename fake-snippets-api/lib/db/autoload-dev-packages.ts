@@ -120,7 +120,7 @@ const loadPackageWithDependencies = async (
     latest_package_release_id: release.package_release_id,
   })
 
-  db.addPackageRelease({
+  const addedRelease = db.addPackageRelease({
     ...release,
     created_at: new Date().toISOString(),
   })
@@ -131,6 +131,11 @@ const loadPackageWithDependencies = async (
       created_at: new Date().toISOString(),
     })
   }
+
+  db.updatePackageRelease({
+    ...addedRelease,
+    ready_to_build: true,
+  })
 
   loadedPackages.add(packageKey)
   console.log(`✓ Loaded ${packageKey}`)

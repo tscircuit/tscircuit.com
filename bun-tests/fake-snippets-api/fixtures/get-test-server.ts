@@ -106,6 +106,7 @@ const seedDatabase = (db: DbClient) => {
     is_locked: false,
     has_transpiled: true,
     transpilation_error: null,
+    ready_to_build: true,
   })
 
   return { account, account2, order, packageRelease }

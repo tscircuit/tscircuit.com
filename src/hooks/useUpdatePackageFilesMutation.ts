@@ -85,6 +85,12 @@ export function useUpdatePackageFilesMutation({
           }
         }
       }
+
+      // Mark the release as ready to build after all file updates
+      await axios.post("/package_releases/update", {
+        package_name_with_version: newPackage.package_name_with_version,
+        ready_to_build: true,
+      })
       return updatedFilesCount
     },
     onSuccess: (updatedFilesCount) => {

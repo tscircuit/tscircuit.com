@@ -159,6 +159,12 @@ export default withRouteSpec({
     })
   }
 
+  // Mark the new release as ready to build
+  ctx.db.updatePackageRelease({
+    ...forkedPackageRelease,
+    ready_to_build: true,
+  })
+
   return ctx.json({
     package: publicMapPackage(forkedPackage),
   })
