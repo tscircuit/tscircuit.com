@@ -1,7 +1,7 @@
 import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
-export function DeploymentDetailsPanel() {
+export function PackageBuildDetailsPanel() {
   return (
     <div className="space-y-6 bg-white p-4 border border-gray-200 rounded-lg">
       {/* Created */}

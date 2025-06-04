@@ -15,6 +15,7 @@ import {
   type Package,
   type PackageFile,
   type PackageRelease,
+  packageReleaseSchema,
   type Session,
   type Snippet,
   databaseSchema,
@@ -276,7 +277,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
 
     // Create package release
-    const newPackageRelease = {
+    const newPackageRelease = packageReleaseSchema.parse({
       package_release_id: `package_release_${nextId}`,
       package_id: newPackage.package_id,
       version: "0.0.1",
@@ -286,7 +287,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       updated_at: currentTime,
       has_transpiled: true,
       transpilation_error: null,
-    }
+    })
 
     // Add all the files
     const packageFiles: PackageFile[] = []
@@ -1238,16 +1239,19 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addPackageRelease: (
-    packageRelease: Omit<PackageRelease, "package_release_id">,
+    packageRelease: Omit<
+      z.input<typeof packageReleaseSchema>,
+      "package_release_id"
+    >,
   ): PackageRelease => {
-    const newPackageRelease = {
+    const parsed = packageReleaseSchema.parse({
       package_release_id: `package_release_${Date.now()}`,
       ...packageRelease,
-    }
+    })
     set((state) => ({
-      packageReleases: [...state.packageReleases, newPackageRelease],
+      packageReleases: [...state.packageReleases, parsed],
     }))
-    return newPackageRelease
+    return parsed
   },
   updatePackageRelease: (packageRelease: PackageRelease): void => {
     set((state) => ({
