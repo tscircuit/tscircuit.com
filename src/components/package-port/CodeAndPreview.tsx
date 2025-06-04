@@ -164,9 +164,9 @@ export function CodeAndPreview({ pkg }: Props) {
     )
   }
 
-  if (urlParams.package_id && (!pkg || isLoading)) {
+  if ((!pkg && urlParams.package_id) || isLoading) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
+      <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center justify-center">
           <div className="text-lg text-gray-500 mb-4">Loading</div>
           <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
@@ -200,7 +200,6 @@ export function CodeAndPreview({ pkg }: Props) {
           )}
         >
           <CodeEditor
-            isSaving={isSaving}
             handleCreateFile={createFile}
             handleDeleteFile={deleteFile}
             currentFile={currentFile}

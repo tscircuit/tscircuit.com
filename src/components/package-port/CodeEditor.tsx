@@ -49,7 +49,6 @@ export const CodeEditor = ({
   onCodeChange,
   readOnly = false,
   files = [],
-  isSaving = false,
   isStreaming = false,
   showImportAndFormatButtons = true,
   onFileContentChanged,
@@ -61,7 +60,6 @@ export const CodeEditor = ({
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
-  isSaving?: boolean
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
   readOnly?: boolean
@@ -244,7 +242,7 @@ export const CodeEditor = ({
         ? json()
         : javascript({ typescript: true, jsx: true }),
       keymap.of([indentWithTab]),
-      EditorState.readOnly.of(readOnly || isSaving),
+      EditorState.readOnly.of(readOnly),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
@@ -450,7 +448,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== "", Boolean(highlighter), isSaving])
+  }, [!isStreaming, currentFile, code !== "", Boolean(highlighter)])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
