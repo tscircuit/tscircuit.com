@@ -81,21 +81,23 @@ export function DeploymentDetailsPanel({ packageId }: { packageId: string }) {
       </div>
 
       {/* Source */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-600 mb-2">Source</h3>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <GitBranch className="w-4 h-4 text-gray-500" />
-            <span className="text-sm">main</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <GitCommit className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-500">
-              edfdc67 support empty file creation (#356)
-            </span>
+      {packageRelease?.commit_sha && (
+        <div>
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Source</h3>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <GitBranch className="w-4 h-4 text-gray-500" />
+              <span className="text-sm">main</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <GitCommit className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-500">
+                {packageRelease?.commit_sha.slice(0, 7)}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
