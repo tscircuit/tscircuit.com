@@ -167,15 +167,25 @@ export const packageReleaseSchema = z.object({
   created_at: z.string().datetime(),
   commit_sha: z.string().nullable().optional(),
   license: z.string().nullable().optional(),
-  circuit_json_build_error: z.string().nullable().optional(),
-  circuit_json_build_error_last_updated_at: z
-    .string()
-    .datetime()
-    .nullable()
-    .optional(),
-  has_transpiled: z.boolean().default(false),
-  transpilation_error: z.string().nullable().optional(),
   fs_sha: z.string().nullable().optional(),
+  display_status: z.enum(["pending", "building", "successful", "failed"]).default("pending"),
+  total_build_duration_ms: z.number().nullable().optional(),
+  transpilation_display_status: z.enum(["pending", "building", "successful", "failed"]).default("pending"),
+  transpilation_in_progress: z.boolean().default(false),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_is_stale: z.boolean().default(false),
+  transpilation_error: z.string().nullable().optional(),
+  has_transpiled: z.boolean().default(false),
+  circuit_json_build_display_status: z.enum(["pending", "building", "successful", "failed"]).default("pending"),
+  circuit_json_build_in_progress: z.boolean().default(false),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_is_stale: z.boolean().default(false),
+  circuit_json_build_error: z.string().nullable().optional(),
+  circuit_json_build_error_last_updated_at: z.string().datetime().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 

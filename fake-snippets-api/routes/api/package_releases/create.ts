@@ -76,9 +76,20 @@ export default withRouteSpec({
     commit_sha: commit_sha ?? null,
     circuit_json_build_error: null,
     circuit_json_build_error_last_updated_at: null,
-    // Setting the transpiled as true on creation
     has_transpiled: true,
     transpilation_error: null,
+    display_status: "pending" as const,
+    transpilation_display_status: "pending" as const,
+    transpilation_in_progress: false,
+    transpilation_logs: [],
+    transpilation_started_at: null,
+    transpilation_is_stale: false,
+    circuit_json_build_display_status: "pending" as const,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: null,
+    circuit_json_build_logs: [],
+    circuit_json_build_is_stale: false,
+    fs_sha: null
   })
 
   // Update the package's latest_package_release_id if this is the latest release

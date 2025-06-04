@@ -286,6 +286,18 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       updated_at: currentTime,
       has_transpiled: true,
       transpilation_error: null,
+      display_status: "pending" as const,
+      transpilation_display_status: "pending" as const,
+      transpilation_in_progress: false,
+      transpilation_logs: [],
+      transpilation_started_at: null,
+      transpilation_is_stale: false,
+      circuit_json_build_display_status: "pending" as const,
+      circuit_json_build_in_progress: false,
+      circuit_json_build_started_at: null,
+      circuit_json_build_logs: [],
+      circuit_json_build_is_stale: false,
+      fs_sha: null
     }
 
     // Add all the files
@@ -1257,6 +1269,34 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           : pr,
       ),
     }))
+  },
+  triggerPackageReleaseRebuild(packageReleaseId: string): PackageRelease | undefined {
+    const state = get()
+    const packageRelease = state.packageReleases.find(
+      (pr) => pr.package_release_id === packageReleaseId,
+    )
+    if (!packageRelease) return undefined
+
+    // Update the package release to pending, for the job to pick up
+    const updatedPackageRelease = {
+      ...packageRelease,
+      display_status: "building" as const,
+      total_build_duration_ms: 0,
+      transpilation_display_status: "pending" as const,
+      transpilation_in_progress: true,
+      transpilation_started_at: new Date().toISOString(),
+      circuit_json_build_display_status: "pending" as const,
+      circuit_json_build_in_progress: true,
+      circuit_json_build_started_at: new Date().toISOString(),
+    }
+
+    set((state) => ({
+      packageReleases: state.packageReleases.map((pr) =>
+        pr.package_release_id === packageReleaseId ? updatedPackageRelease : pr,
+      ),
+    }))
+
+    return updatedPackageRelease
   },
   deletePackageFile: (packageFileId: string): boolean => {
     let deleted = false

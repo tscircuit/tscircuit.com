@@ -1,7 +1,13 @@
 import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useLatestPackageRelease } from "@/hooks/use-package-release"
+import { usePackage } from "@/hooks/use-package"
+import { formatDistanceToNow } from "date-fns"
 
-export function DeploymentDetailsPanel() {
+export function DeploymentDetailsPanel({ packageId }: { packageId: string }) {
+  const { data: pkg } = usePackage(packageId)
+  const { data: packageRelease } = useLatestPackageRelease(pkg?.package_id)
+
   return (
     <div className="space-y-6 bg-white p-4 border border-gray-200 rounded-lg">
       {/* Created */}
@@ -11,8 +17,18 @@ export function DeploymentDetailsPanel() {
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
             I
           </div>
-          <span className="text-sm">imrishabh18</span>
-          <span className="text-sm text-gray-500">48m ago</span>
+          <span className="text-sm">{pkg?.owner_github_username}</span>
+          <span className="text-sm text-gray-500">
+            {formatDistanceToNow(packageRelease?.created_at ?? new Date(), {
+              addSuffix: true,
+            })
+              .replace("minutes", "m")
+              .replace("minute", "m")
+              .replace("hours", "h")
+              .replace("hour", "h")
+              .replace("seconds", "s")
+              .replace("second", "s")}
+          </span>
         </div>
       </div>
 
@@ -38,6 +54,7 @@ export function DeploymentDetailsPanel() {
         </h3>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-500" />
+          {/* TODO: replace when the package-relase table has build timestamp */}
           <span className="text-sm">1m 3s</span>
           <span className="text-sm text-gray-500">47m ago</span>
         </div>
@@ -48,7 +65,7 @@ export function DeploymentDetailsPanel() {
         <h3 className="text-sm font-medium text-gray-600 mb-2">Version</h3>
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-gray-500" />
-          <span className="text-sm">v1.0.3</span>
+          <span className="text-sm">{packageRelease?.version}</span>
           <Badge variant="default" className="bg-blue-600 text-white text-xs">
             Current
           </Badge>

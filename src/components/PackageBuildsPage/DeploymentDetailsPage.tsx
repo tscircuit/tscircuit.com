@@ -6,7 +6,7 @@ import { DeploymentDetailsPanel } from "./deployment-details-panel"
 import { DeploymentHeader } from "./deployment-header"
 import { CollapsibleSection } from "./collapsible-section"
 
-export const DeploymentDetailsPage = () => {
+export const DeploymentDetailsPage = ({ packageId }: { packageId: string }) => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
 
   const toggleSection = (section: string) => {
@@ -31,7 +31,7 @@ export const DeploymentDetailsPage = () => {
           </div>
 
           {/* Details Panel */}
-          <DeploymentDetailsPanel />
+          <DeploymentDetailsPanel packageId={packageId} />
         </div>
 
         {/* Collapsible Sections */}

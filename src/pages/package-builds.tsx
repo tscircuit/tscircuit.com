@@ -26,7 +26,7 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      <DeploymentDetailsPage />
+      <DeploymentDetailsPage packageId={packageId ?? ""} />
       <Footer />
     </div>
   )
