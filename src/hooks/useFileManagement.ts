@@ -91,7 +91,31 @@ export function useFileManagement({
         })
       },
     })
-  const createPackageMutation = useCreatePackageMutation()
+  const createPackageMutation = useCreatePackageMutation({
+    onSuccess: (newPackage) => {
+      createRelease(
+        {
+          package_name_with_version: `${newPackage.name}@latest`,
+        },
+        {
+          onSuccess: () => {
+            updatePackageFilesMutation.mutate({
+              package_name_with_version: `${newPackage.name}@latest`,
+              ...newPackage,
+            })
+            const url = new URL(window.location.href)
+            url.searchParams.set("package_id", newPackage.package_id)
+            url.searchParams.delete("template")
+            url.searchParams.delete("should_create_package")
+            window.history.pushState({}, "", url.toString())
+            window.dispatchEvent(new Event("popstate"))
+            updateLastUpdated()
+            setInitialFiles([...localFiles])
+          },
+        },
+      )
+    },
+  })
 
   useEffect(() => {
     if (!currentPackage || isLoadingPackageFilesWithContent) {
@@ -204,29 +228,10 @@ export function useFileManagement({
       return
     }
 
-    const newPackage = await createPackageMutation.mutateAsync({
+    await createPackageMutation.mutateAsync({
       name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
       is_private: isPrivate,
     })
-
-    if (newPackage) {
-      createRelease(
-        {
-          package_name_with_version: `${newPackage.name}@latest`,
-        },
-        {
-          onSuccess: () => {
-            updatePackageFilesMutation.mutate({
-              package_name_with_version: `${newPackage.name}@latest`,
-              ...newPackage,
-            })
-            updateLastUpdated()
-            setInitialFiles([...localFiles])
-          },
-        },
-      )
-    }
-    updateLastUpdated()
   }
 
   const saveFiles = () => {
