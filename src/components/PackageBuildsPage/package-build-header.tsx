@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useParams } from "wouter"
 
-export function DeploymentHeader() {
+export function PackageBuildHeader() {
   const { author, packageName } = useParams()
 
   return (

@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet-async"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { NotFound } from "@/components/NotFound"
 import { ErrorOutline } from "@/components/ErrorOutline"
-import { DeploymentDetailsPage } from "@/components/PackageBuildsPage/DeploymentDetailsPage"
+import { PackageBuildDetailsPage } from "@/components/PackageBuildsPage/PackageBuildDetailsPage"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
@@ -26,7 +26,7 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      <DeploymentDetailsPage />
+      <PackageBuildDetailsPage />
       <Footer />
     </div>
   )

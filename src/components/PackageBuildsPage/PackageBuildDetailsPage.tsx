@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import { BuildPreviewContent } from "./build-preview-content"
-import { DeploymentDetailsPanel } from "./deployment-details-panel"
-import { DeploymentHeader } from "./deployment-header"
+import { PackageBuildDetailsPanel } from "./package-build-details-panel"
+import { PackageBuildHeader } from "./package-build-header"
 import { CollapsibleSection } from "./collapsible-section"
 
-export const DeploymentDetailsPage = () => {
+export const PackageBuildDetailsPage = () => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
 
   const toggleSection = (section: string) => {
@@ -18,7 +18,7 @@ export const DeploymentDetailsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <DeploymentHeader />
+      <PackageBuildHeader />
 
       <div className="px-6 py-6 container mx-auto">
         {/* Main Content */}
@@ -31,7 +31,7 @@ export const DeploymentDetailsPage = () => {
           </div>
 
           {/* Details Panel */}
-          <DeploymentDetailsPanel />
+          <PackageBuildDetailsPanel />
         </div>
 
         {/* Collapsible Sections */}
