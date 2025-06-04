@@ -148,6 +148,12 @@ export default withRouteSpec({
       })
     }
 
+    // Mark the package release as ready to build now that files are saved
+    ctx.db.updatePackageRelease({
+      ...newPackageRelease,
+      ready_to_build: true,
+    })
+
     // Create the snippet response object
     const snippetResponse = {
       snippet_id: newPackage.package_id,

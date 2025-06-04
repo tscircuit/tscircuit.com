@@ -354,7 +354,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ...state,
       packageReleases: state.packageReleases.map((pr) =>
         pr.package_release_id === newPackageRelease.package_release_id
-          ? { ...pr, fs_sha: fsSha }
+          ? { ...pr, fs_sha: fsSha, ready_to_build: true }
           : pr,
       ),
       packages: state.packages.map((pkg) =>
@@ -1242,6 +1242,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   ): PackageRelease => {
     const newPackageRelease = {
       package_release_id: `package_release_${Date.now()}`,
+      ready_to_build: false,
       ...packageRelease,
     }
     set((state) => ({
