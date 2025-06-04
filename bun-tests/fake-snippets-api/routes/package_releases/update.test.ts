@@ -24,6 +24,7 @@ test("update package release", async () => {
     package_release_id: release.package_release_id,
     is_locked: true,
     license: "MIT",
+    ready_to_build: true,
   })
 
   expect(response.status).toBe(200)
@@ -35,6 +36,7 @@ test("update package release", async () => {
   )
   expect(updatedRelease?.is_locked).toBe(true)
   expect(updatedRelease?.license).toBe("MIT")
+  expect(updatedRelease?.ready_to_build).toBe(true)
 })
 
 test("update package release using package_name_with_version", async () => {
@@ -59,6 +61,7 @@ test("update package release using package_name_with_version", async () => {
   const response = await axios.post("/api/package_releases/update", {
     package_name_with_version: `${packageName}@${version}`,
     is_locked: true,
+    ready_to_build: true,
   })
 
   expect(response.status).toBe(200)
@@ -67,6 +70,7 @@ test("update package release using package_name_with_version", async () => {
   // Verify the release was updated
   const updatedRelease = db.packageReleases.find((pr) => pr.version === version)
   expect(updatedRelease?.is_locked).toBe(true)
+  expect(updatedRelease?.ready_to_build).toBe(true)
 })
 
 test.skip("update package release - handle is_latest flag", async () => {
