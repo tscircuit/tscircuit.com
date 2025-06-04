@@ -89,7 +89,7 @@ export default withRouteSpec({
     circuit_json_build_started_at: null,
     circuit_json_build_logs: [],
     circuit_json_build_is_stale: false,
-    fs_sha: null
+    fs_sha: null,
   })
 
   // Update the package's latest_package_release_id if this is the latest release

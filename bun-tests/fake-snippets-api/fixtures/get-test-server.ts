@@ -106,6 +106,19 @@ const seedDatabase = (db: DbClient) => {
     is_locked: false,
     has_transpiled: true,
     transpilation_error: null,
+    display_status: "pending" as const,
+    transpilation_display_status: "pending" as const,
+    transpilation_in_progress: false,
+    transpilation_logs: [],
+    transpilation_started_at: null,
+    transpilation_is_stale: false,
+    circuit_json_build_display_status: "pending" as const,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: null,
+    circuit_json_build_logs: [],
+    circuit_json_build_is_stale: false,
+    fs_sha: null,
+    commit_sha: null,
   })
 
   return { account, account2, order, packageRelease }

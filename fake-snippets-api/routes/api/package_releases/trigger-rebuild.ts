@@ -16,7 +16,8 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { package_release_id } = req.jsonBody
 
-  const updatedPackageRelease = ctx.db.triggerPackageReleaseRebuild(package_release_id)
+  const updatedPackageRelease =
+    ctx.db.triggerPackageReleaseRebuild(package_release_id)
 
   if (!updatedPackageRelease) {
     return ctx.error(404, {
@@ -29,4 +30,4 @@ export default withRouteSpec({
     ok: true,
     package_release: publicMapPackageRelease(updatedPackageRelease),
   })
-}) 
+})
