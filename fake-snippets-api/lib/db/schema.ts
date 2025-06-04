@@ -219,6 +219,7 @@ export const packageSchema = z.object({
   ai_description: z.string().nullable(),
   latest_license: z.string().nullable().optional(),
   ai_usage_instructions: z.string().nullable(),
+  latest_package_release_fs_sha: z.string().nullable(),
   default_view: z
     .enum(["files", "3d", "pcb", "schematic"])
     .default("files")

@@ -72,7 +72,7 @@ const MobileSidebar = ({
 
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
-    fsMapHash: packageInfo?.latest_package_release_id ?? "",
+    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
   })
 
   const handleViewClick = useCallback(
