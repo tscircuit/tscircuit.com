@@ -42,6 +42,7 @@ export default withRouteSpec({
     owner_org_id: ctx.auth.personal_org_id,
     owner_github_username: ctx.auth.github_username,
     latest_package_release_id: null,
+    latest_package_release_fs_sha: null,
     latest_version: null,
     license: null,
     website: null,

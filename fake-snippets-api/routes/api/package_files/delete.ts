@@ -100,6 +100,9 @@ export default withRouteSpec({
     })
   }
 
+  // Update fs_sha for the package release
+  ctx.db.updatePackageReleaseFsSha(packageReleaseId)
+
   return ctx.json({
     ok: true,
   })
