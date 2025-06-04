@@ -6,14 +6,10 @@ import { Helmet } from "react-helmet-async"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { NotFound } from "@/components/NotFound"
 import { ErrorOutline } from "@/components/ErrorOutline"
-import { useGetFsMapHashForPackage } from "@/hooks/use-get-fsmap-hash-for-package"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
   const { data: pkg, error } = usePackage(packageId)
-  const fsMapHash = useGetFsMapHashForPackage(
-    pkg?.latest_package_release_id ?? "",
-  )
   const uuid4RegExp = new RegExp(
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
   )
@@ -30,20 +26,12 @@ export const EditorPage = () => {
             />
             <meta
               property="og:image"
-              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?${new URLSearchParams(
-                {
-                  fs_sha: fsMapHash ?? "",
-                },
-              ).toString()}`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?${new URLSearchParams(
-                {
-                  fs_sha: fsMapHash ?? "",
-                },
-              ).toString()}`}
+              content={`https://registry-api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
           </>
         )}
