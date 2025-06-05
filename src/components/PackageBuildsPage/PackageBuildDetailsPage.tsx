@@ -5,9 +5,39 @@ import { BuildPreviewContent } from "./build-preview-content"
 import { PackageBuildDetailsPanel } from "./package-build-details-panel"
 import { PackageBuildHeader } from "./package-build-header"
 import { CollapsibleSection } from "./collapsible-section"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { LogContent } from "./LogContent"
+import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+
+function computeDuration(
+  startedAt: string | null | undefined,
+  completedAt: string | null | undefined,
+) {
+  if (!startedAt || !completedAt) return ""
+  return `${Math.floor((new Date(completedAt).getTime() - new Date(startedAt).getTime()) / 1000)}s`
+}
 
 export const PackageBuildDetailsPage = () => {
+  const { packageRelease } = useCurrentPackageRelease()
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
+
+  const {
+    circuit_json_build_logs,
+    circuit_json_build_completed_at,
+    circuit_json_build_in_progress,
+    circuit_json_build_is_stale,
+    circuit_json_build_started_at,
+    circuit_json_build_error,
+    circuit_json_build_error_last_updated_at,
+    transpilation_completed_at,
+    transpilation_in_progress,
+    transpilation_is_stale,
+    transpilation_logs,
+    transpilation_started_at,
+    circuit_json_build_display_status,
+    transpilation_display_status,
+    transpilation_error,
+  } = packageRelease ?? ({} as Partial<PackageRelease>)
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -38,17 +68,45 @@ export const PackageBuildDetailsPage = () => {
         <div className="space-y-4 mb-8">
           <CollapsibleSection
             title="Transpilation Logs"
-            duration="1m 15s"
+            duration={computeDuration(
+              transpilation_started_at,
+              transpilation_completed_at,
+            )}
+            displayStatus={transpilation_display_status}
+            error={transpilation_error}
             isOpen={openSections.summary}
             onToggle={() => toggleSection("summary")}
-          />
+          >
+            <LogContent
+              logs={
+                packageRelease?.transpilation_logs ?? [
+                  { msg: "No transpilation logs available" },
+                ]
+              }
+              error={transpilation_error}
+            />
+          </CollapsibleSection>
 
           <CollapsibleSection
             title="Circuit JSON Build Logs"
-            duration="2m 29s"
+            duration={computeDuration(
+              circuit_json_build_started_at,
+              circuit_json_build_completed_at,
+            )}
+            displayStatus={circuit_json_build_display_status}
+            error={circuit_json_build_error}
             isOpen={openSections.logs}
             onToggle={() => toggleSection("logs")}
-          />
+          >
+            <LogContent
+              logs={
+                packageRelease?.circuit_json_build_logs ?? [
+                  { msg: "No Circuit JSON logs available" },
+                ]
+              }
+              error={circuit_json_build_error!}
+            />
+          </CollapsibleSection>
         </div>
       </div>
     </div>

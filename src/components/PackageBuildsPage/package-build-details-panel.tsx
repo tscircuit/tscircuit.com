@@ -1,7 +1,61 @@
 import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useParams } from "wouter"
+import { timeAgo } from "@/lib/utils/timeAgo"
+import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+
+const capitalCase = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+function getColorFromDisplayStatus(
+  display_status: PackageRelease["display_status"],
+) {
+  switch (display_status) {
+    case "pending":
+      return "bg-yellow-500"
+    case "building":
+      return "bg-blue-500"
+    case "successful":
+      return "bg-green-500"
+    case "failed":
+      return "bg-red-500"
+  }
+}
 
 export function PackageBuildDetailsPanel() {
+  const { packageRelease } = useCurrentPackageRelease()
+  const { author } = useParams() // TODO use packageRelease.author_account_id when it's added by backed
+
+  if (!packageRelease) {
+    // TODO show skeleton instead
+    return null
+  }
+
+  const {
+    circuit_json_build_display_status,
+    circuit_json_build_in_progress,
+    circuit_json_build_is_stale,
+    circuit_json_build_logs,
+    transpilation_display_status,
+    transpilation_in_progress,
+    transpilation_logs,
+    circuit_json_build_completed_at,
+    transpilation_is_stale,
+    display_status,
+    created_at,
+    has_transpiled,
+    circuit_json_build_started_at,
+    circuit_json_build_error,
+    circuit_json_build_error_last_updated_at,
+    total_build_duration_ms,
+    transpilation_completed_at,
+    transpilation_error,
+    transpilation_started_at,
+    commit_sha,
+  } = packageRelease
+
   return (
     <div className="space-y-6 bg-white p-4 border border-gray-200 rounded-lg">
       {/* Created */}
@@ -11,8 +65,10 @@ export function PackageBuildDetailsPanel() {
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
             I
           </div>
-          <span className="text-sm">imrishabh18</span>
-          <span className="text-sm text-gray-500">48m ago</span>
+          <span className="text-sm">{author}</span>
+          <span className="text-sm text-gray-500">
+            {timeAgo(new Date(packageRelease?.created_at), "")}
+          </span>
         </div>
       </div>
 
@@ -20,26 +76,33 @@ export function PackageBuildDetailsPanel() {
       <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Status</h3>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          <span className="text-sm">Ready</span>
-          <Badge
+          <div
+            className={`w-2 h-2 ${getColorFromDisplayStatus(display_status)} rounded-full`}
+          ></div>
+          <span className="text-sm">{capitalCase(display_status)}</span>
+          {/* <Badge
             variant="secondary"
             className="bg-gray-200 text-gray-700 text-xs"
           >
             Latest
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 
-      {/* Time to Ready */}
       <div>
-        <h3 className="text-sm font-medium text-gray-600 mb-2">
-          Time to Ready
-        </h3>
+        <h3 className="text-sm font-medium text-gray-600 mb-2">Build Time</h3>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-500" />
-          <span className="text-sm">1m 3s</span>
-          <span className="text-sm text-gray-500">47m ago</span>
+          {circuit_json_build_completed_at && (
+            <span className="text-sm">
+              {total_build_duration_ms
+                ? `${Math.floor(total_build_duration_ms / 1000)}s`
+                : ""}
+            </span>
+          )}
+          <span className="text-sm text-gray-500">
+            {timeAgo(new Date(circuit_json_build_completed_at), "waiting...")}
+          </span>
         </div>
       </div>
 
@@ -48,10 +111,10 @@ export function PackageBuildDetailsPanel() {
         <h3 className="text-sm font-medium text-gray-600 mb-2">Version</h3>
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-gray-500" />
-          <span className="text-sm">v1.0.3</span>
-          <Badge variant="default" className="bg-blue-600 text-white text-xs">
+          <span className="text-sm">{packageRelease.version}</span>
+          {/* <Badge variant="default" className="bg-blue-600 text-white text-xs">
             Current
-          </Badge>
+          </Badge> */}
         </div>
       </div>
 
@@ -64,7 +127,7 @@ export function PackageBuildDetailsPanel() {
       </div>
 
       {/* Source */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Source</h3>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -78,7 +141,7 @@ export function PackageBuildDetailsPanel() {
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
