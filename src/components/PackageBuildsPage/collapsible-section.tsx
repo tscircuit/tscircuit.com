@@ -6,24 +6,34 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { getColorForDisplayStatus } from "./getColorForDisplayStatus"
+import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { ErrorObjectOrString, getErrorText } from "./ErrorObject"
+import { capitalCase } from "./capitalCase"
+
+type BadgeInfo = {
+  text: string
+  variant?: "default" | "secondary" | "destructive"
+  className?: string
+  icon?: React.ReactNode
+}
 
 interface CollapsibleSectionProps {
   title: string
   duration?: string
+  error?: ErrorObjectOrString | null
+  displayStatus?: PackageRelease["display_status"]
   isOpen: boolean
   onToggle: () => void
-  badges?: Array<{
-    text: string
-    icon?: React.ReactNode
-    variant?: "default" | "secondary"
-    className?: string
-  }>
+  badges?: Array<BadgeInfo>
   children?: React.ReactNode
 }
 
 export function CollapsibleSection({
   title,
   duration,
+  error,
+  displayStatus,
   isOpen,
   onToggle,
   badges = [],
@@ -40,7 +50,17 @@ export function CollapsibleSection({
             <span className="font-medium">{title}</span>
           </div>
           <div className="flex items-center gap-2">
-            {badges.map((badge, index) => (
+            {[
+              ...badges,
+              ...(error
+                ? [
+                    {
+                      text: getErrorText(error),
+                      variant: "destructive",
+                    } as BadgeInfo,
+                  ]
+                : []),
+            ].map((badge, index) => (
               <Badge
                 key={index}
                 variant={badge.variant || "secondary"}
@@ -56,13 +76,18 @@ export function CollapsibleSection({
             {duration && (
               <span className="text-sm text-gray-600">{duration}</span>
             )}
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
+            <div
+              className={`w-2 h-2 rounded-lg ${getColorForDisplayStatus(displayStatus)}`}
+            />
+            <div className="text-gray-600 text-xs font-medium">
+              {capitalCase(displayStatus) || "???"}
+            </div>
           </div>
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="p-4 bg-white border-x border-b border-gray-200 rounded-b-lg">
-          {children || `${title} details would go here...`}
+          {children}
         </div>
       </CollapsibleContent>
     </Collapsible>

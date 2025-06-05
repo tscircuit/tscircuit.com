@@ -79,7 +79,7 @@ export default function MainContentHeader({
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
-              className="h-9 bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
+              className="bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
             >
               <CodeIcon className="h-4 w-4 mr-1.5" />
               Code

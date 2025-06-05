@@ -37,12 +37,11 @@ export function DownloadButtonAndMenu({
       <div className={className}>
         <Button
           disabled
-          variant="ghost"
           size="sm"
-          className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+          className="h-9 bg-muted text-muted-foreground border border-input cursor-not-allowed"
         >
           <Download className="h-4 w-4 mr-1.5" />
-          Export
+          Download
           <ChevronDown className="h-4 w-4 ml-0.5" />
         </Button>
       </div>
@@ -54,13 +53,12 @@ export function DownloadButtonAndMenu({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="outline"
             size="sm"
-            className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+            className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2"
           >
-            <Download className="h-4 w-4 mr-1.5" />
-            Export
-            <ChevronDown className="h-4 w-4 ml-0.5" />
+            <Download className="w-4 h-4 mr-2" />
+            Download
+            <ChevronDown className="w-4 h-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

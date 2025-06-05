@@ -1,4 +1,4 @@
-import { ChevronDown, Download, Github, Link } from "lucide-react"
+import { ChevronDown, Download, Github, Link, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -7,9 +7,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useParams } from "wouter"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
+  const { packageRelease } = useCurrentPackageRelease()
 
   return (
     <div className="border-b border-gray-200 bg-white px-6 py-4">
@@ -39,35 +42,17 @@ export function PackageBuildHeader() {
               Report Issue
             </a>
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                size="sm"
-                className="bg-gray-900 text-white hover:bg-gray-800"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-                <ChevronDown className="w-4 h-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="bg-white border-gray-200"
-            >
-              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
-                Circuit JSON
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
-                PCB SVG
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
-                Schematic SVG
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-gray-900 hover:bg-gray-100">
-                3D Model (stl)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
+          >
+            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            Rebuild
+          </Button>
+          <DownloadButtonAndMenu
+            snippetUnscopedName={`${author}/${packageName}`}
+          />
         </div>
       </div>
     </div>
