@@ -2,10 +2,7 @@ import { HeaderLogin } from "@/components/HeaderLogin"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import {
-  GitHubLogoIcon,
-  DiscordLogoIcon,
-} from "@radix-ui/react-icons"
+import { GitHubLogoIcon, DiscordLogoIcon } from "@radix-ui/react-icons"
 import { Menu, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import { useLocation } from "wouter"
@@ -57,7 +54,7 @@ export default function Header() {
 
   useEffect(() => {
     window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
-  },[])
+  }, [])
 
   return (
     <header className="px-4 py-3">
