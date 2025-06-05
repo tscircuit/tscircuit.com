@@ -13,6 +13,7 @@ import { downloadFabricationFiles } from "@/lib/download-fns/download-fabricatio
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadPcbSvg } from "@/lib/download-fns/download-pcb-svg"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
@@ -169,6 +170,18 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Assembly SVG</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              svg
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() => {
+              downloadPcbSvg(circuitJson, snippetUnscopedName || "circuit")
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">PCB SVG</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               svg
             </span>
