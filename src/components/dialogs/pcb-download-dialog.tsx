@@ -67,7 +67,7 @@ export const PcbDownloadDialog = ({
               <SelectTrigger id="layer" className="col-span-3">
                 <SelectValue placeholder="Layer" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="!z-[999]">
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="top">Top</SelectItem>
                 <SelectItem value="bottom">Bottom</SelectItem>
