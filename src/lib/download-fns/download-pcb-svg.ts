@@ -21,20 +21,14 @@ export const downloadPcbSvg = (
   if (options.matchAspectRatio) {
     convertOptions.matchBoardAspectRatio = true
   }
-
-  let svg = convertCircuitJsonToPcbSvg(circuitJson, convertOptions)
-
+  if (typeof options.drawPaddingOutsideBoard === "boolean") {
+    convertOptions.drawPaddingOutsideBoard = options.drawPaddingOutsideBoard
+  }
   if (options.backgroundColor) {
-    svg = svg.replace(
-      /(class="boundary"[^>]*fill=")#[^"]*(")/,
-      `$1${options.backgroundColor}$2`,
-    )
+    convertOptions.backgroundColor = options.backgroundColor
   }
 
-  if (options.drawPaddingOutsideBoard === false) {
-    svg = svg.replace(/<rect[^>]*class="boundary"[^>]*\/?>/, "")
-    svg = svg.replace(/<rect[^>]*class="pcb-boundary"[^>]*\/?>/, "")
-  }
+  const svg = convertCircuitJsonToPcbSvg(circuitJson, convertOptions)
 
   const blob = new Blob([svg], { type: "image/svg+xml" })
   saveAs(blob, fileName + ".svg")
