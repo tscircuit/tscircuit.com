@@ -67,7 +67,7 @@ export function PackageBuildDetailsPanel() {
           </div>
           <span className="text-sm">{author}</span>
           <span className="text-sm text-gray-500">
-            {timeAgo(new Date(packageRelease?.created_at), "")}
+            {timeAgo(packageRelease?.created_at, "")}
           </span>
         </div>
       </div>
@@ -101,7 +101,7 @@ export function PackageBuildDetailsPanel() {
             </span>
           )}
           <span className="text-sm text-gray-500">
-            {timeAgo(new Date(circuit_json_build_completed_at), "waiting...")}
+            {timeAgo(circuit_json_build_completed_at, "waiting...")}
           </span>
         </div>
       </div>
