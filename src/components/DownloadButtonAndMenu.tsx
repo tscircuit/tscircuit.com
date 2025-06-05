@@ -14,6 +14,7 @@ import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { downloadPcbSvg } from "@/lib/download-fns/download-pcb-svg"
+import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
@@ -32,6 +33,8 @@ export function DownloadButtonAndMenu({
   circuitJson,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
+  const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
+    usePcbDownloadDialog()
 
   if (!circuitJson) {
     return (
@@ -177,7 +180,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadPcbSvg(circuitJson, snippetUnscopedName || "circuit")
+              openPcbDownloadDialog()
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -230,6 +233,10 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <PcbDownloadDialog
+        circuitJson={circuitJson}
+        fileName={snippetUnscopedName || "circuit"}
+      />
     </div>
   )
 }
