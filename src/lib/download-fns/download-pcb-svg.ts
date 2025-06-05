@@ -7,6 +7,6 @@ export const downloadPcbSvg = (
   fileName: string,
 ) => {
   const svg = convertCircuitJsonToPcbSvg(circuitJson)
-  const blob = new Blob([svg], { type: "image/svg" })
+const blob = new Blob([svg], { type: "image/svg+xml" })
   saveAs(blob, fileName + ".svg")
 }
