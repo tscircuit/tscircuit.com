@@ -4,12 +4,10 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
 import {
   GitHubLogoIcon,
-  OpenInNewWindowIcon,
-  ChatBubbleIcon,
   DiscordLogoIcon,
 } from "@radix-ui/react-icons"
 import { Menu, X } from "lucide-react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useLocation } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import CmdKMenu from "./CmdKMenu"
@@ -55,6 +53,11 @@ const HeaderButton = ({
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const sessionToken = useGlobalStore((s) => s.session?.token)
+
+  useEffect(() => {
+    window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
+  },[])
 
   return (
     <header className="px-4 py-3">
