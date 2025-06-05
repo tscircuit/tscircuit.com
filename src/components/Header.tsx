@@ -54,7 +54,7 @@ export default function Header() {
 
   useEffect(() => {
     window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
-  }, [])
+  }, [sessionToken])
 
   return (
     <header className="px-4 py-3">
