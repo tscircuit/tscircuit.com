@@ -1,5 +1,4 @@
-import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Globe, Clock } from "lucide-react"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useParams } from "wouter"
 import { timeAgo } from "@/lib/utils/timeAgo"
@@ -17,9 +16,9 @@ function getColorFromDisplayStatus(
       return "bg-yellow-500"
     case "building":
       return "bg-blue-500"
-    case "successful":
+    case "complete":
       return "bg-green-500"
-    case "failed":
+    case "error":
       return "bg-red-500"
   }
 }
