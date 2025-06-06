@@ -29,16 +29,15 @@ export function LandingPage() {
       <Helmet>
         {/* Primary Meta Tags */}
         <title>
-          TSCircuit - AI-Powered Electronics Design with Code | Build PCBs,
-          Schematics & More
+          TSCircuit - Electronics Design with Code | Build PCBs, Schematics & More
         </title>
         <meta
           name="title"
-          content="TSCircuit - AI-Powered Electronics Design with Code | Build PCBs, Schematics & More"
+          content="TSCircuit - Electronics Design with Code | Build PCBs, Schematics & More"
         />
         <meta
           name="description"
-          content="Build electronics with TypeScript, AI, and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files. Open-source, MIT licensed!"
+          content="Join thousands of engineers using TSCircuit to design complex electronics with TypeScript and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files. Open-source, MIT licensed!"
         />
         <meta
           name="keywords"
@@ -56,11 +55,11 @@ export function LandingPage() {
         <meta property="og:url" content="https://tscircuit.com" />
         <meta
           property="og:title"
-          content="TSCircuit - AI-Powered Electronics Design with Code"
+          content="TSCircuit - Electronics Design with Code"
         />
         <meta
           property="og:description"
-          content="Build electronics with TypeScript, AI, and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files. Open-source!"
+          content="Build electronics with TypeScript and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files. Open-source!"
         />
         <meta
           property="og:image"
@@ -73,11 +72,11 @@ export function LandingPage() {
         <meta property="twitter:url" content="https://tscircuit.com" />
         <meta
           property="twitter:title"
-          content="TSCircuit - AI-Powered Electronics Design with Code"
+          content="TSCircuit - Electronics Design with Code"
         />
         <meta
           property="twitter:description"
-          content="Build electronics with TypeScript, AI, and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files."
+          content="Build electronics with TypeScript and drag'n'drop tools. Create schematics, PCBs, 3D models, and fabrication files."
         />
         <meta
           property="twitter:image"
@@ -103,7 +102,7 @@ export function LandingPage() {
             "@type": "SoftwareApplication",
             name: "TSCircuit",
             description:
-              "AI-powered electronics design platform for building PCBs, schematics, and circuit boards with TypeScript and code.",
+              "Electronics design platform for building PCBs, schematics, and circuit boards with TypeScript and code.",
             url: "https://tscircuit.com",
             applicationCategory: "DeveloperApplication",
             operatingSystem: "Web",
@@ -118,7 +117,7 @@ export function LandingPage() {
               url: "https://tscircuit.com",
             },
             featureList: [
-              "AI-powered electronics design",
+              "Electronics design",
               "TypeScript-based circuit creation",
               "Automatic PCB routing",
               "Schematic generation",
@@ -155,13 +154,11 @@ export function LandingPage() {
                       id="hero-heading"
                       className="text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-tight text-foreground"
                     >
-                      AI codes electronics
-                      <br />
-                      with tscircuit
+                      Codes electronics with tscircuit
                     </h1>
 
                     <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-[600px] leading-relaxed">
-                      Build electronics with code, AI, and drag'n'drop tools.
+                      Build electronics with code and drag'n'drop tools.
                       <span className="text-foreground font-semibold">
                         {" "}
                         Render code into schematics, PCBs, 3D, fabrication
@@ -180,7 +177,7 @@ export function LandingPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <span className="font-medium">AI-Powered Design</span>
+                      <span className="font-medium">Innovative Design</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -241,7 +238,7 @@ export function LandingPage() {
                 {/* Hero Image */}
                 <div className="w-full aspect-video">
                   <OptimizedImage
-                    alt="TSCircuit AI-powered electronics design platform interface featuring TypeScript code editor, real-time PCB visualization, schematic generation, and 3D circuit board preview"
+                    alt="TSCircuit electronics design platform interface featuring TypeScript code editor, real-time PCB visualization, schematic generation, and 3D circuit board preview"
                     className="w-full h-full rounded-xl object-cover shadow-lg"
                     src="/assets/editor_example_1_more_square.webp"
                     priority={true}
