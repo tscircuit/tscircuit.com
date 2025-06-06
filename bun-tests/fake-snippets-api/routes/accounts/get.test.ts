@@ -51,3 +51,14 @@ test("POST /api/accounts/get - should return 404 if account not found", async ()
     expect(error.data.error.message).toBe("Account not found")
   }
 })
+
+test("POST /api/accounts/get - should be case insensitive", async () => {
+  const { axios } = await getTestServer()
+
+  const response = await axios.post("/api/accounts/get", {
+    github_username: "TestUser",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.account.github_username).toBe("testuser")
+})
