@@ -80,7 +80,7 @@ export const PackageBuildDetailsPage = () => {
             <LogContent
               logs={
                 transpilation_logs ?? [
-                  { msg: "No transpilation logs available" },
+                  { message: "No transpilation logs available" },
                 ]
               }
               error={transpilation_error}
@@ -101,7 +101,7 @@ export const PackageBuildDetailsPage = () => {
             <LogContent
               logs={
                 circuit_json_build_logs ?? [
-                  { msg: "No Circuit JSON logs available" },
+                  { message: "No Circuit JSON logs available" },
                 ]
               }
               error={circuit_json_build_error!}
