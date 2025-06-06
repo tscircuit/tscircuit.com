@@ -3,7 +3,9 @@ import { useCurrentPackageId } from "./use-current-package-id"
 import { useUrlParams } from "./use-url-params"
 import { usePackageRelease } from "./use-package-release"
 
-export const useCurrentPackageRelease = () => {
+export const useCurrentPackageRelease = (options?: {
+  include_logs: boolean
+}) => {
   const { packageId } = useCurrentPackageId()
   const urlParams = useUrlParams()
   const { author, packageName } = useParams()
@@ -23,6 +25,8 @@ export const useCurrentPackageRelease = () => {
     query = { package_id: packageId, is_latest: true }
   }
 
-  const { data: packageRelease, ...rest } = usePackageRelease(query)
+  const { data: packageRelease, ...rest } = usePackageRelease(query, {
+    include_logs: options?.include_logs ?? false,
+  })
   return { packageRelease, ...rest }
 }

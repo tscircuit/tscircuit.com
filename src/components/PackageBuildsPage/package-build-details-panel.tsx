@@ -66,7 +66,7 @@ export function PackageBuildDetailsPanel() {
           </div>
           <span className="text-sm">{author}</span>
           <span className="text-sm text-gray-500">
-            {timeAgo(packageRelease?.created_at, "")}
+            {timeAgo(created_at, "")}
           </span>
         </div>
       </div>

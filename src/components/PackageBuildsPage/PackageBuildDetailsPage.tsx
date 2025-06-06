@@ -18,7 +18,7 @@ function computeDuration(
 }
 
 export const PackageBuildDetailsPage = () => {
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ include_logs: true })
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
 
   const {
@@ -79,7 +79,7 @@ export const PackageBuildDetailsPage = () => {
           >
             <LogContent
               logs={
-                packageRelease?.transpilation_logs ?? [
+                transpilation_logs ?? [
                   { msg: "No transpilation logs available" },
                 ]
               }
@@ -100,7 +100,7 @@ export const PackageBuildDetailsPage = () => {
           >
             <LogContent
               logs={
-                packageRelease?.circuit_json_build_logs ?? [
+                circuit_json_build_logs ?? [
                   { msg: "No Circuit JSON logs available" },
                 ]
               }
