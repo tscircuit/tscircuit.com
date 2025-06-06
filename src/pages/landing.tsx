@@ -29,7 +29,8 @@ export function LandingPage() {
       <Helmet>
         {/* Primary Meta Tags */}
         <title>
-          TSCircuit - Electronics Design with Code | Build PCBs, Schematics & More
+          TSCircuit - Electronics Design with Code | Build PCBs, Schematics &
+          More
         </title>
         <meta
           name="title"
