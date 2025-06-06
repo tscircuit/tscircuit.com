@@ -161,6 +161,7 @@ export default function SidebarAboutSection() {
 
       {packageInfo && (
         <EditPackageDetailsDialog
+          unscopedPackageName={packageInfo.unscoped_name}
           packageReleaseId={packageInfo.latest_package_release_id}
           packageId={packageInfo.package_id}
           currentDescription={
