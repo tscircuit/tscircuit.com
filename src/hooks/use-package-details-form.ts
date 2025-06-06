@@ -16,6 +16,7 @@ interface PackageDetailsForm {
   license: string | null
   visibility: string
   defaultView: string
+  unscopedPackageName: string
 }
 
 interface UsePackageDetailsFormProps {
@@ -24,6 +25,7 @@ interface UsePackageDetailsFormProps {
   initialLicense: string | null
   initialVisibility: string
   initialDefaultView: string
+  initialUnscopedPackageName: string
   isDialogOpen: boolean
 }
 
@@ -33,6 +35,7 @@ export const usePackageDetailsForm = ({
   initialLicense,
   initialVisibility,
   initialDefaultView,
+  initialUnscopedPackageName,
   isDialogOpen,
 }: UsePackageDetailsFormProps) => {
   const [formData, setFormData] = useState<PackageDetailsForm>({
@@ -41,6 +44,7 @@ export const usePackageDetailsForm = ({
     license: initialLicense || null,
     visibility: initialVisibility,
     defaultView: initialDefaultView,
+    unscopedPackageName: initialUnscopedPackageName,
   })
   const [websiteError, setWebsiteError] = useState<string | null>(null)
 
@@ -52,6 +56,7 @@ export const usePackageDetailsForm = ({
         license: initialLicense || null,
         visibility: initialVisibility,
         defaultView: initialDefaultView,
+        unscopedPackageName: initialUnscopedPackageName,
       })
       setWebsiteError(null)
     }
@@ -62,6 +67,7 @@ export const usePackageDetailsForm = ({
     initialLicense,
     initialVisibility,
     initialDefaultView,
+    initialUnscopedPackageName,
   ])
 
   useEffect(() => {
@@ -93,7 +99,8 @@ export const usePackageDetailsForm = ({
       formData.website !== initialWebsite ||
       formData.license !== initialLicense ||
       formData.visibility !== initialVisibility ||
-      formData.defaultView !== initialDefaultView,
+      formData.defaultView !== initialDefaultView ||
+      formData.unscopedPackageName !== initialUnscopedPackageName,
     [
       formData,
       initialDescription,
@@ -101,6 +108,7 @@ export const usePackageDetailsForm = ({
       initialLicense,
       initialVisibility,
       initialDefaultView,
+      initialUnscopedPackageName,
     ],
   )
 

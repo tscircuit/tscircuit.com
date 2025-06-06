@@ -38,6 +38,7 @@ interface EditPackageDetailsDialogProps {
   currentDefaultView?: string
   isPrivate?: boolean
   packageName: string
+  unscopedPackageName: string
   packageReleaseId: string | null
   packageAuthor?: string | null
   onUpdate?: (
@@ -57,7 +58,7 @@ export const EditPackageDetailsDialog = ({
   currentLicense,
   currentDefaultView = "files",
   isPrivate = false,
-  packageName,
+  unscopedPackageName,
   packageReleaseId,
   packageAuthor,
   onUpdate,
@@ -65,13 +66,11 @@ export const EditPackageDetailsDialog = ({
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
-
   const {
     formData,
     setFormData,
     websiteError,
     hasLicenseChanged,
-    hasDefaultViewChanged,
     hasChanges,
     isFormValid,
   } = usePackageDetailsForm({
@@ -79,6 +78,7 @@ export const EditPackageDetailsDialog = ({
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
     initialDefaultView: currentDefaultView,
+    initialUnscopedPackageName: unscopedPackageName,
     isDialogOpen: open,
     initialVisibility: isPrivate ? "private" : "public",
   })
@@ -114,16 +114,15 @@ export const EditPackageDetailsDialog = ({
         website: formData.website,
         is_private: formData.visibility == "private",
         default_view: formData.defaultView,
-      })
-      const privacyUpdateResponse = await axios.post("/snippets/update", {
-        snippet_id: packageId,
-        is_private: formData.visibility === "private",
+        ...(formData.unscopedPackageName !== unscopedPackageName && {
+          name: formData.unscopedPackageName,
+        }),
       })
       if (response.status !== 200)
         throw new Error("Failed to update package details")
 
       const filesRes = await axios.post("/package_files/list", {
-        package_name_with_version: packageName,
+        package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
       })
       const packageFiles: string[] =
         filesRes.status === 200
@@ -137,17 +136,31 @@ export const EditPackageDetailsDialog = ({
       if (hasLicenseChanged) {
         if (packageFiles.includes("LICENSE") && !licenseContent) {
           await axios.post("/package_files/delete", {
-            package_name_with_version: packageName,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
             file_path: "LICENSE",
           })
         }
         if (licenseContent) {
           await axios.post("/package_files/create_or_update", {
-            package_name_with_version: packageName,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
             file_path: "LICENSE",
             content_text: licenseContent,
           })
         }
+      }
+      console.log(
+        "formData.unscopedPackageName",
+        formData.unscopedPackageName,
+        "unscopedPackageName",
+        unscopedPackageName,
+      )
+      if (formData.unscopedPackageName !== unscopedPackageName) {
+        // Use router for client-side navigation
+        window.history.replaceState(
+          {},
+          "",
+          `/${packageAuthor}/${formData.unscopedPackageName}`,
+        )
       }
 
       return {
@@ -187,7 +200,9 @@ export const EditPackageDetailsDialog = ({
       qc.setQueryData(["packages", packageId], context?.previous)
       toast({
         title: "Error",
-        description: "Failed to update package details. Please try again.",
+        description:
+          (error as any)?.data?.error?.message ||
+          "Failed to update package details. Please try again.",
         variant: "destructive",
       })
     },
@@ -238,10 +253,28 @@ export const EditPackageDetailsDialog = ({
             <div className="">
               <div className="grid gap-2">
                 <div className="space-y-1">
+                  <Label htmlFor="packageName">Package Name</Label>
+                  <Input
+                    id="packageName"
+                    value={formData.unscopedPackageName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        unscopedPackageName: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter package name"
+                    disabled={updatePackageDetailsMutation.isLoading}
+                    className="w-full"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-1">
                   <Label htmlFor="website">Website</Label>
                   <Input
                     id="website"
                     value={formData.website}
+                    autoComplete="off"
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
@@ -282,6 +315,7 @@ export const EditPackageDetailsDialog = ({
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
+                    spellCheck={false}
                     value={formData.description}
                     onChange={(e) =>
                       setFormData((prev) => ({
