@@ -29,11 +29,17 @@ export const usePackageRelease = (
     async () => {
       if (!query) return
 
-      const { data } = await axios.post("/package_releases/get", query, {
-        params: {
-          include_logs: options?.include_logs,
-        },
-      })
+      const { data } = await axios.post(
+        "/package_releases/get",
+        query,
+        options?.include_logs
+          ? {
+              params: {
+                include_logs: true,
+              },
+            }
+          : undefined,
+      )
 
       if (!data.package_release) {
         throw new Error("Package release not found")

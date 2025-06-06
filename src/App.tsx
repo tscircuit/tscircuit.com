@@ -66,7 +66,6 @@ const SearchPage = lazyImport(() => import("@/pages/search"))
 const SettingsPage = lazyImport(() => import("@/pages/settings"))
 const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
-const BetaPage = lazyImport(() => import("@/pages/beta"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const PackageBuildsPage = lazyImport(() => import("@/pages/package-builds"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
@@ -106,8 +105,6 @@ function App() {
         <Suspense fallback={<FullPageLoader />}>
           <Switch>
             <Route path="/" component={LandingPage} />
-            <Route path="/beta" component={BetaPage} />
-            <Route path="/beta/:author/:packageName" component={BetaPage} />
             <Route
               path="/view-package/:author/:packageName"
               component={ViewPackagePage}

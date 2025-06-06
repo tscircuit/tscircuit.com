@@ -1,4 +1,4 @@
-import { Globe, Clock } from "lucide-react"
+import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useParams } from "wouter"
 import { timeAgo } from "@/lib/utils/timeAgo"
