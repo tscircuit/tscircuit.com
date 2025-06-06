@@ -123,9 +123,14 @@ const loadPackageWithDependencies = async (
   db.addPackageRelease({
     ...release,
     created_at: new Date().toISOString(),
-    transpilation_logs: Array.isArray(release.transpilation_logs) ? release.transpilation_logs : [],
-    circuit_json_build_logs: Array.isArray(release.circuit_json_build_logs) ? release.circuit_json_build_logs : [],
-    transpilation_display_status: release.transpilation_display_status ?? "pending",
+    transpilation_logs: Array.isArray(release.transpilation_logs)
+      ? release.transpilation_logs
+      : [],
+    circuit_json_build_logs: Array.isArray(release.circuit_json_build_logs)
+      ? release.circuit_json_build_logs
+      : [],
+    transpilation_display_status:
+      release.transpilation_display_status ?? "pending",
   })
 
   for (const file of files) {

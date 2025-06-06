@@ -8,9 +8,9 @@ export const getColorForDisplayStatus = (
       return "bg-yellow-500"
     case "building":
       return "bg-blue-500"
-    case "successful":
+    case "complete":
       return "bg-green-500"
-    case "failed":
+    case "error":
       return "bg-red-500"
   }
   return "bg-gray-500"
