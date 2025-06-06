@@ -6,6 +6,9 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "none",
+  commonParams: z.object({
+    include_logs: z.boolean().optional().default(false),
+  }),
   jsonBody: z.object({
     package_release_id: z.string().optional(),
     package_name_with_version: z.string().optional(),
@@ -115,6 +118,8 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package_release: publicMapPackageRelease(foundRelease),
+    package_release: publicMapPackageRelease(foundRelease, {
+      include_logs: req.commonParams?.include_logs,
+    }),
   })
 })

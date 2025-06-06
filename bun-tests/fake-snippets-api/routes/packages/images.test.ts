@@ -1,6 +1,5 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
-import { generateCircuitJson } from "bun-tests/fake-snippets-api/fixtures/get-circuit-json"
 import md5 from "md5"
 test("get schematic svg of a package", async () => {
   const { axios, db } = await getTestServer()
@@ -18,16 +17,20 @@ test("get schematic svg of a package", async () => {
     is_latest: true,
   })
 
-  const circuit_json = await generateCircuitJson({
-    code: `
-import { A555Timer } from "@tsci/seveibar.a555timer"
-
-export default () => (
-  <board width="10mm" height="10mm">
-    <A555Timer name="U1" />
-  </board>
-)`.trim(),
-  })
+  const circuit_json = [
+    {
+      type: "pcb_board",
+      pcb_board_id: "pcb_board_0",
+      center: {
+        x: 0,
+        y: 0,
+      },
+      thickness: 1.4,
+      num_layers: 4,
+      width: 30,
+      height: 30,
+    },
+  ]
   // create a package file
   const pkg_file = await axios.post("/api/package_files/create", {
     package_release_id: pkg_release.data.package_release.package_release_id,
