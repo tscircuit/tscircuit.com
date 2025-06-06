@@ -174,14 +174,31 @@ export function CircuitJsonImportDialog({
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.ctrlKey && event.key === "Enter") {
-      handleImport()
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      event.preventDefault()
+      if (!isLoading && isLoggedIn && (circuitJson.trim() || file)) {
+        handleImport()
+      }
+    }
+  }
+
+  const handleDialogKeyDown = (event: React.KeyboardEvent) => {
+    if (
+      event.key === "Enter" &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      event.target !== document.querySelector("textarea")
+    ) {
+      event.preventDefault()
+      if (!isLoading && isLoggedIn && (circuitJson.trim() || file)) {
+        handleImport()
+      }
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onKeyDown={handleDialogKeyDown}>
         <DialogHeader>
           <DialogTitle>Import Circuit JSON</DialogTitle>
           <DialogDescription>
