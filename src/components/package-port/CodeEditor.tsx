@@ -9,18 +9,15 @@ import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
+import { linter } from "@codemirror/lint"
 import { TSCI_PACKAGE_PATTERN } from "@/lib/constants"
 import {
   createDefaultMapFromCDN,
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
-import {
-  tsAutocomplete,
-  tsFacet,
-  tsLinter,
-  tsSync,
-} from "@valtown/codemirror-ts"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
 import tsModule from "typescript"
@@ -75,6 +72,7 @@ export const CodeEditor = ({
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
+  const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useSnippetsBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
@@ -218,6 +216,9 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
+          if (/\.tsx?$|\.d\.ts$/.test(path)) {
+            lastReceivedTsFileTimeRef.current = Date.now()
+          }
           // Avoid dispatching a view update when ATA downloads files. Dispatching
           // here caused the editor to reset the user's selection, which made text
           // selection impossible while dependencies were loading.
@@ -285,7 +286,18 @@ export const CodeEditor = ({
                 : currentFile,
             }),
             tsSync(),
-            tsLinter(),
+            linter(async (view) => {
+              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+                return []
+              }
+              const config = view.state.facet(tsFacet)
+              return config
+                ? getLints({
+                    ...config,
+                    diagnosticCodesToIgnore: [],
+                  })
+                : []
+            }),
             autocompletion({ override: [tsAutocomplete()] }),
             hoverTooltip((view, pos) => {
               const line = view.state.doc.lineAt(pos)
