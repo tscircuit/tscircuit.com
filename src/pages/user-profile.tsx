@@ -90,7 +90,7 @@ export const UserProfilePage = () => {
 
   const baseUrl = useSnippetsBaseApiUrl()
 
-  if (accountError && accountError.status === 404) {
+  if (accountError) {
     return <NotFoundPage heading="User Not Found" />
   }
 
