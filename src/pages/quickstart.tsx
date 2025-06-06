@@ -119,7 +119,7 @@ export const QuickstartPage = () => {
         <div className="mt-12">
           <h2 className="text-xl font-semibold mb-4">Import as Package</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
+            {/* {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
               { name: "KiCad Module", type: "package" },
@@ -145,7 +145,7 @@ export const QuickstartPage = () => {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+            ))} */}
             <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
