@@ -218,16 +218,9 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
-          if (viewRef.current) {
-            viewRef.current.dispatch({
-              changes: {
-                from: 0,
-                to: viewRef.current.state.doc.length,
-                insert: viewRef.current.state.doc.toString(),
-              },
-              selection: viewRef.current.state.selection,
-            })
-          }
+          // Avoid dispatching a view update when ATA downloads files. Dispatching
+          // here caused the editor to reset the user's selection, which made text
+          // selection impossible while dependencies were loading.
         },
       },
     }
