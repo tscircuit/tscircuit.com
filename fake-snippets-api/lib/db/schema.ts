@@ -178,13 +178,13 @@ export const packageReleaseSchema = z.object({
   fs_sha: z.string().nullable().optional(),
   // Build Status and Display
   display_status: z
-    .enum(["pending", "building", "successful", "failed"])
+    .enum(["pending", "building", "complete", "error"])
     .default("pending"),
   total_build_duration_ms: z.number().nullable().optional(),
 
   // Transpilation Process
   transpilation_display_status: z
-    .enum(["pending", "building", "successful", "failed"])
+    .enum(["pending", "building", "complete", "error"])
     .default("pending"),
   transpilation_in_progress: z.boolean().default(false),
   transpilation_started_at: z.string().datetime().nullable().optional(),
@@ -194,7 +194,7 @@ export const packageReleaseSchema = z.object({
 
   // Circuit JSON Build Process
   circuit_json_build_display_status: z
-    .enum(["pending", "building", "successful", "failed"])
+    .enum(["pending", "building", "complete", "error"])
     .default("pending"),
   circuit_json_build_in_progress: z.boolean().default(false),
   circuit_json_build_started_at: z.string().datetime().nullable().optional(),
