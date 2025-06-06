@@ -121,6 +121,16 @@ export function JLCPCBImportDialog({
               setError(null)
               setHasBeenImportedToAccountAlready(false)
             }}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !isLoading &&
+                isLoggedIn &&
+                partNumber.trim()
+              ) {
+                handleImport()
+              }
+            }}
           />
           {error && !hasBeenImportedToAccountAlready && (
             <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>
