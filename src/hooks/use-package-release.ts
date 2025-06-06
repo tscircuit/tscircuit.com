@@ -18,15 +18,22 @@ type PackageReleaseQuery =
       is_latest: boolean
     }
 
-export const usePackageRelease = (query: PackageReleaseQuery | null) => {
+export const usePackageRelease = (
+  query: PackageReleaseQuery | null,
+  options?: { include_logs: boolean },
+) => {
   const axios = useAxios()
 
   return useQuery<PackageRelease, Error & { status: number }>(
-    ["packageRelease", query],
+    ["packageRelease", query, options?.include_logs],
     async () => {
       if (!query) return
 
-      const { data } = await axios.post("/package_releases/get", query)
+      const { data } = await axios.post("/package_releases/get", query, {
+        params: {
+          include_logs: options?.include_logs,
+        },
+      })
 
       if (!data.package_release) {
         throw new Error("Package release not found")
