@@ -55,9 +55,6 @@ export const UserProfilePage = () => {
   const githubUsername = account?.account.github_username || username
   const isCurrentUserProfile = githubUsername === session?.github_username
 
-  if (!isLoadingAccount && (accountError as any)?.status === 404) {
-    return <NotFoundPage heading="User Not Found" />
-  }
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
   const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
@@ -92,6 +89,10 @@ export const UserProfilePage = () => {
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
+
+  if (accountError && accountError.status === 404) {
+    return <NotFoundPage heading="User Not Found" />
+  }
 
   const packagesToShow =
     activeTab === "starred" ? starredPackages : userPackages
