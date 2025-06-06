@@ -37,7 +37,10 @@ export const UserProfilePage = () => {
     data: account,
     error: accountError,
     isLoading: isLoadingAccount,
-  } = useQuery<{ account: { github_username: string } }, Error & { status: number }>(
+  } = useQuery<
+    { account: { github_username: string } },
+    Error & { status: number }
+  >(
     ["account", username],
     async () => {
       const response = await axios.post("/accounts/get", {
@@ -63,12 +66,16 @@ export const UserProfilePage = () => {
     data: userPackages,
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
-  } = useQuery<Package[]>(["userPackages", githubUsername], async () => {
-    const response = await axios.post(`/packages/list`, {
-      owner_github_username: githubUsername,
-    })
-    return response.data.packages
-  }, { enabled: Boolean(githubUsername) })
+  } = useQuery<Package[]>(
+    ["userPackages", githubUsername],
+    async () => {
+      const response = await axios.post(`/packages/list`, {
+        owner_github_username: githubUsername,
+      })
+      return response.data.packages
+    },
+    { enabled: Boolean(githubUsername) },
+  )
 
   const { data: starredPackages, isLoading: isLoadingStarredPackages } =
     useQuery<Package[]>(
@@ -131,7 +138,9 @@ export const UserProfilePage = () => {
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
             <AvatarImage src={`https://github.com/${githubUsername}.png`} />
-            <AvatarFallback>{githubUsername?.[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {githubUsername?.[0]?.toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold">

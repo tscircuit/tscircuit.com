@@ -1,18 +1,10 @@
-import { ChevronDown, Download, Github, Link, RefreshCw } from "lucide-react"
+import { Github, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { useParams } from "wouter"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
-  const { packageRelease } = useCurrentPackageRelease()
 
   return (
     <div className="border-b border-gray-200 bg-white px-6 py-4">
