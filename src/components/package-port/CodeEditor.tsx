@@ -386,6 +386,13 @@ export const CodeEditor = ({
                 }
                 return false
               },
+              keydown: (event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault()
+                  return true
+                }
+                return false
+              },
             }),
             EditorView.theme({
               ".cm-tooltip-hover": {
