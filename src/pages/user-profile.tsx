@@ -14,6 +14,7 @@ import type { Package } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
+import NotFoundPage from "./404"
 import { useParams } from "wouter"
 import {
   Select,
@@ -32,7 +33,28 @@ export const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState("all")
   const [filter, setFilter] = useState("most-recent") // Changed default from "newest" to "most-recent"
   const session = useGlobalStore((s) => s.session)
-  const isCurrentUserProfile = username === session?.github_username
+  const {
+    data: account,
+    error: accountError,
+    isLoading: isLoadingAccount,
+  } = useQuery<{ account: { github_username: string } }, Error & { status: number }>(
+    ["account", username],
+    async () => {
+      const response = await axios.post("/accounts/get", {
+        github_username: username,
+      })
+      return response.data
+    },
+    { retry: false },
+  )
+
+  // use the username stored in the database so the correct case is displayed
+  const githubUsername = account?.account.github_username || username
+  const isCurrentUserProfile = githubUsername === session?.github_username
+
+  if (!isLoadingAccount && (accountError as any)?.status === 404) {
+    return <NotFoundPage heading="User Not Found" />
+  }
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
   const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
@@ -41,24 +63,24 @@ export const UserProfilePage = () => {
     data: userPackages,
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
-  } = useQuery<Package[]>(["userPackages", username], async () => {
+  } = useQuery<Package[]>(["userPackages", githubUsername], async () => {
     const response = await axios.post(`/packages/list`, {
-      owner_github_username: username,
+      owner_github_username: githubUsername,
     })
     return response.data.packages
-  })
+  }, { enabled: Boolean(githubUsername) })
 
   const { data: starredPackages, isLoading: isLoadingStarredPackages } =
     useQuery<Package[]>(
-      ["starredPackages", username],
+      ["starredPackages", githubUsername],
       async () => {
         const response = await axios.post(`/packages/list`, {
-          starred_by: username,
+          starred_by: githubUsername,
         })
         return response.data.packages
       },
       {
-        enabled: activeTab === "starred",
+        enabled: activeTab === "starred" && Boolean(githubUsername),
       },
     )
 
@@ -67,7 +89,8 @@ export const UserProfilePage = () => {
   const packagesToShow =
     activeTab === "starred" ? starredPackages : userPackages
   const isLoading =
-    activeTab === "starred" ? isLoadingStarredPackages : isLoadingUserPackages
+    isLoadingAccount ||
+    (activeTab === "starred" ? isLoadingStarredPackages : isLoadingUserPackages)
 
   const filteredPackages = packagesToShow
     ?.filter((pkg) => {
@@ -107,12 +130,14 @@ export const UserProfilePage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={`https://github.com/${username}.png`} />
-            <AvatarFallback>{username?.[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarImage src={`https://github.com/${githubUsername}.png`} />
+            <AvatarFallback>{githubUsername?.[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold">
-              {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
+              {isCurrentUserProfile
+                ? "My Profile"
+                : `${githubUsername}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
               {userPackages?.length || 0} packages
@@ -121,7 +146,7 @@ export const UserProfilePage = () => {
         </div>
         <div className="mb-6">
           <a
-            href={`https://github.com/${username}`}
+            href={`https://github.com/${githubUsername}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center"

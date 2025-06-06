@@ -17,7 +17,8 @@ export default withRouteSpec({
   if (req.method === "POST") {
     const { github_username } = req.jsonBody
     account = ctx.db.accounts.find(
-      (acc: Account) => acc.github_username === github_username,
+      (acc: Account) =>
+        acc.github_username.toLowerCase() === github_username.toLowerCase(),
     )
   } else {
     account = ctx.db.getAccount(ctx.auth.account_id)
