@@ -18,7 +18,13 @@ import {
   foldGutter,
   foldKeymap,
 } from "@codemirror/language"
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands"
+import {
+  defaultKeymap,
+  history,
+  historyKeymap,
+  toggleLineComment,
+  toggleBlockComment,
+} from "@codemirror/commands"
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
 import { lintKeymap } from "@codemirror/lint"
@@ -47,5 +53,15 @@ export const basicSetup: Extension = (() => [
     ...foldKeymap,
     ...completionKeymap,
     ...lintKeymap,
+    {
+      key: "Mod-/",
+      run: toggleLineComment,
+      preventDefault: true,
+    },
+    {
+      key: "Mod-Shift-/",
+      run: toggleBlockComment,
+      preventDefault: true,
+    },
   ]),
 ])()
