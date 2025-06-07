@@ -36,7 +36,10 @@ export function usePackageFilesLoader(pkg?: Package) {
         const content = response.data.package_file?.content_text
         return { path: file.file_path, content: content ?? "" }
       },
-      staleTime: 2,
+      staleTime: 0,
+      cacheTime: 0,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     })) ?? [],
   )
 
