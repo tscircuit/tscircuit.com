@@ -53,15 +53,15 @@ export const basicSetup: Extension = (() => [
     ...foldKeymap,
     ...completionKeymap,
     ...lintKeymap,
-    {  
-      key: "Mod-/",  
-      run: toggleLineComment,  
-      preventDefault: true,  
-    },  
-    {  
-      key: "Mod-Shift-/",  
-      run: toggleBlockComment,  
-      preventDefault: true,  
-    }, 
+    {
+      key: "Mod-/",
+      run: toggleLineComment,
+      preventDefault: true,
+    },
+    {
+      key: "Mod-Shift-/",
+      run: toggleBlockComment,
+      preventDefault: true,
+    },
   ]),
 ])()
