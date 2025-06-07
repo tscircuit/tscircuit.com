@@ -8,6 +8,7 @@ export default withRouteSpec({
   auth: "none",
   jsonBody: z.object({
     package_id: z.string().optional(),
+    package_name: z.string().optional(),
     version: z.string().optional(),
     is_latest: z.boolean().optional(),
     commit_sha: z.string().optional(),
@@ -20,6 +21,7 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   let {
     package_id,
+    package_name,
     is_latest = true,
     version,
     commit_sha,
@@ -41,10 +43,21 @@ export default withRouteSpec({
     version = parsedVersion
   }
 
+  if (!package_id && package_name) {
+    const pkg = ctx.db.packages.find((p) => p.name === package_name)
+    if (!pkg) {
+      return ctx.error(404, {
+        error_code: "package_not_found",
+        message: `Package not found: ${package_name}`,
+      })
+    }
+    package_id = pkg.package_id
+  }
+
   if (!package_id || !version) {
     return ctx.error(400, {
       error_code: "missing_options",
-      message: "package_id and version are required",
+      message: "package_id or package_name and version are required",
     })
   }
 
