@@ -2,9 +2,14 @@ import { Github, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useParams } from "wouter"
 import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
+  const { packageRelease } = useCurrentPackageRelease()
+  const { mutate: rebuildPackage, isLoading } =
+    useRebuildPackageReleaseMutation()
 
   return (
     <div className="border-b border-gray-200 bg-white px-6 py-4">
@@ -38,9 +43,16 @@ export function PackageBuildHeader() {
             variant="outline"
             size="sm"
             className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
+            disabled={isLoading || !packageRelease}
+            onClick={() =>
+              packageRelease &&
+              rebuildPackage({
+                package_release_id: packageRelease.package_release_id,
+              })
+            }
           >
             <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            Rebuild
+            {isLoading ? "Rebuilding..." : "Rebuild"}
           </Button>
           <DownloadButtonAndMenu
             snippetUnscopedName={`${author}/${packageName}`}
