@@ -15,9 +15,6 @@ export const useRebuildPackageReleaseMutation = ({
       const { data } = await axios.post("/package_releases/rebuild", {
         package_release_id,
       })
-      if (!data?.ok) {
-        throw new Error("Failed to trigger rebuild")
-      }
       return data.package_release as PackageRelease
     },
     {
