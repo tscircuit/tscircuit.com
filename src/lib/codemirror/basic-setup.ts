@@ -22,8 +22,8 @@ import {
   defaultKeymap,
   history,
   historyKeymap,
-  toggleComment,
   toggleLineComment,
+  toggleBlockComment,
 } from "@codemirror/commands"
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
@@ -53,15 +53,15 @@ export const basicSetup: Extension = (() => [
     ...foldKeymap,
     ...completionKeymap,
     ...lintKeymap,
-    {
-      key: "Mod-/",
-      run: toggleComment,
-      preventDefault: true,
-    },
-    {
-      key: "Mod-Shift-/",
-      run: toggleLineComment,
-      preventDefault: true,
-    },
+    {  
+      key: "Mod-/",  
+      run: toggleLineComment,  
+      preventDefault: true,  
+    },  
+    {  
+      key: "Mod-Shift-/",  
+      run: toggleBlockComment,  
+      preventDefault: true,  
+    }, 
   ]),
 ])()
