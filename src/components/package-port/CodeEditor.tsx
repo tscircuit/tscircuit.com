@@ -6,6 +6,7 @@ import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import { toggleSlashComment } from "@/lib/codemirror/toggle-slash-comment"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
@@ -238,6 +239,7 @@ export const CodeEditor = ({
         ? json()
         : javascript({ typescript: true, jsx: true }),
       keymap.of([indentWithTab]),
+      keymap.of([{ key: "Mod-/", run: toggleSlashComment }]),
       EditorState.readOnly.of(readOnly || isSaving),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
