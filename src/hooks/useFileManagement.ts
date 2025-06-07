@@ -65,8 +65,7 @@ export function useFileManagement({
   const initialCodeContent = useMemo(() => {
     return (
       templateCode ??
-      decodeUrlHashToText(window.location.toString()) ??
-      DEFAULT_CODE
+      (decodeUrlHashToText(window.location.toString()) || DEFAULT_CODE)
     )
   }, [templateCode, currentPackage])
   const manualEditsFileContent = useMemo(() => {
