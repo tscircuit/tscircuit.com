@@ -33,7 +33,9 @@ export const useRebuildPackageReleaseMutation = ({
         toast({
           title: "Error",
           description:
-            error?.data?.error?.message || "Failed to rebuild package.",
+            error?.response?.data?.message ||
+            error?.data?.message ||
+            "Failed to rebuild package.",
           variant: "destructive",
         })
       },
