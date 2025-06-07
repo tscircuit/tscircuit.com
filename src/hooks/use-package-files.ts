@@ -112,6 +112,10 @@ export const usePackageFiles = (packageReleaseId?: string | null) => {
     },
     {
       enabled: Boolean(packageReleaseId),
+      staleTime: 0,
+      cacheTime: 0,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   )
 }
