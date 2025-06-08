@@ -69,6 +69,7 @@ export default withRouteSpec({
       license: null,
       ai_description: "placeholder ai description",
       ai_usage_instructions: "placeholder ai usage instructions",
+      ai_review_text: "placeholder ai review text",
     }
 
     const createdPackage = ctx.db.addPackage(newPackage)

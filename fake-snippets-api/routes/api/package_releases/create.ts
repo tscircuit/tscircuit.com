@@ -99,6 +99,7 @@ export default withRouteSpec({
     ctx.db.updatePackage(package_id, {
       latest_package_release_id: newPackageRelease.package_release_id,
       latest_version: version,
+      ai_review_text: newPackageRelease.ai_review_text ?? null,
     })
   }
 

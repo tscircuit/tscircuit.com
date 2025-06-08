@@ -1195,6 +1195,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const newPackage = {
       package_id: `package_${timestamp}`,
       ..._package,
+      ai_review_text: _package.ai_review_text ?? null,
     }
     set((state) => ({
       packages: [...state.packages, newPackage as Package],
@@ -1247,6 +1248,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const parsed = packageReleaseSchema.parse({
       package_release_id: `package_release_${Date.now()}`,
       ...packageRelease,
+      ai_review_text: packageRelease.ai_review_text ?? null,
     })
     set((state) => ({
       packageReleases: [...state.packageReleases, parsed],

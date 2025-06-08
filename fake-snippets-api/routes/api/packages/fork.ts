@@ -116,6 +116,7 @@ export default withRouteSpec({
     is_public: !is_private,
     is_unlisted,
     ai_usage_instructions: "forked package usage",
+    ai_review_text: sourcePackage.ai_review_text || null,
     is_board: Boolean(sourcePackage.is_board),
     is_package: true,
     is_model: Boolean(sourcePackage.is_model),

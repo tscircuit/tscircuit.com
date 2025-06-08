@@ -23,12 +23,14 @@ interface ImportantFilesViewProps {
 
   aiDescription?: string
   aiUsageInstructions?: string
+  aiReviewText?: string
 }
 
 export default function ImportantFilesView({
   importantFiles = [],
   aiDescription,
   aiUsageInstructions,
+  aiReviewText,
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
@@ -42,7 +44,7 @@ export default function ImportantFilesView({
     setTimeout(() => setCopyState("copy"), 500)
   }
   // Determine if we have AI content
-  const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
+  const hasAiContent = Boolean(aiDescription || aiUsageInstructions || aiReviewText)
 
   // Select the appropriate tab/file when content changes
   useEffect(() => {
@@ -100,6 +102,11 @@ export default function ImportantFilesView({
           <div>
             <h3 className="font-semibold text-lg mb-2">Instructions</h3>
             <MarkdownViewer markdownContent={aiUsageInstructions} />
+          </div>
+        )}
+        {aiReviewText && (
+          <div className="mt-6">
+            <MarkdownViewer markdownContent={aiReviewText} />
           </div>
         )}
       </div>

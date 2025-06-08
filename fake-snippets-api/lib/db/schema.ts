@@ -201,6 +201,7 @@ export const packageReleaseSchema = z.object({
   circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
   circuit_json_build_logs: z.array(z.any()).default([]),
   circuit_json_build_is_stale: z.boolean().default(false),
+  ai_review_text: z.string().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -244,6 +245,7 @@ export const packageSchema = z.object({
   ai_description: z.string().nullable(),
   latest_license: z.string().nullable().optional(),
   ai_usage_instructions: z.string().nullable(),
+  ai_review_text: z.string().nullable(),
   latest_package_release_fs_sha: z.string().nullable().default(null),
   default_view: z
     .enum(["files", "3d", "pcb", "schematic"])

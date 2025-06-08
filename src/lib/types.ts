@@ -22,6 +22,7 @@ export interface PackageInfo {
   description: string
   ai_description: string
   ai_usage_instructions: string
+  ai_review_text: string
   creator_account_id?: string
   owner_org_id?: string
   package_id: string

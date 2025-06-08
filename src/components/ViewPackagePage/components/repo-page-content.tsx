@@ -198,6 +198,7 @@ export default function RepoPageContent({
               onEditClicked={onEditClicked}
               aiDescription={packageInfo?.ai_description ?? ""}
               aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
+              aiReviewText={packageInfo?.ai_review_text ?? ""}
             />
           </div>
 

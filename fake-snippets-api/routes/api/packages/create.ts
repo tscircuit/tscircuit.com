@@ -56,6 +56,7 @@ export default withRouteSpec({
     is_public: is_private === true ? false : true,
     is_unlisted: is_private === true ? true : (is_unlisted ?? false),
     ai_usage_instructions: "placeholder ai usage instructions",
+    ai_review_text: "placeholder ai review text",
     default_view: "files",
   })
 
