@@ -1,19 +1,18 @@
 # Created using @tscircuit/plop (npm install -g @tscircuit/plop)
 name: Publish to npm
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'fake-snippets-api/**'
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
       - name: Setup bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - uses: actions/setup-node@v3
@@ -22,7 +21,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install -g pver
       - run: bun install --frozen-lockfile
-      - run: bun run build:fake-api
+      - run: bun run build
       - run: pver release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
