@@ -23,6 +23,7 @@
     "build": "bun run generate-images && bun run generate-sitemap && bun run build:fake-api && tsc -b && vite build",
     "preview": "vite preview",
     "format": "biome format --write .",
+    "format:check": "biome format .",
     "lint": "biome format .",
     "build:vite:analyze": "VITE_BUNDLE_ANALYZE=true vite build",
     "build:fake-api:tsup": "tsup-node ./fake-snippets-api/lib/index.ts --format esm --dts",
