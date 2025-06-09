@@ -9,6 +9,10 @@ export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()
   const { data: pkg, isLoading, error } = usePackage(packageId)
 
+  const projectUrl = pkg
+    ? `https://tscircuit.com/${pkg.owner_github_username}/${pkg.unscoped_name}`
+    : undefined
+
   return (
     <div className="overflow-x-hidden">
       <Helmet>
@@ -34,7 +38,7 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      {!error && <CodeAndPreview pkg={pkg} />}
+      {!error && <CodeAndPreview pkg={pkg} projectUrl={projectUrl} />}
       {error && error.status === 404 && (
         <div className="w-full h-[calc(100vh-20rem)] text-xl text-center flex justify-center items-center">
           Package not found

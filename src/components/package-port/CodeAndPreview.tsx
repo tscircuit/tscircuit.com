@@ -17,6 +17,11 @@ import { useFileManagement } from "@/hooks/useFileManagement"
 
 interface Props {
   pkg?: Package
+  /**
+   * Optional project URL whose pathname will be used when
+   * reporting autorouting bugs
+   */
+  projectUrl?: string
 }
 
 export interface PackageFile {
@@ -45,7 +50,7 @@ export default () => (
 export const generateRandomPackageName = () =>
   `untitled-package-${Math.floor(Math.random() * 900) + 100}`
 
-export function CodeAndPreview({ pkg }: Props) {
+export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
 
@@ -243,6 +248,7 @@ export function CodeAndPreview({ pkg }: Props) {
                 handleEditEvent(event)
               }}
               fsMap={fsMap ?? {}}
+              projectUrl={projectUrl}
             />
           </div>
         )}
