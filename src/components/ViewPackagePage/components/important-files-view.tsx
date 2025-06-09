@@ -51,8 +51,12 @@ export default function ImportantFilesView({
   const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
   const hasAiReview = Boolean(aiReviewText)
 
-  // Select the appropriate tab/file when content changes
+  // Select the appropriate tab/file when content changes. Once the user has
+  // interacted with the tabs we keep their selection and only run this logic
+  // if no tab has been chosen yet.
   useEffect(() => {
+    if (activeTab !== null) return
+
     // First priority: README file if it exists
     const readmeFile = importantFiles.find(
       (file) =>
@@ -82,6 +86,7 @@ export default function ImportantFilesView({
     hasAiContent,
     hasAiReview,
     importantFiles,
+    activeTab,
   ])
 
   // Get file name from path
