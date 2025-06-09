@@ -237,7 +237,13 @@ export const CodeEditor = ({
       currentFile?.endsWith(".json")
         ? json()
         : javascript({ typescript: true, jsx: true }),
-      keymap.of([indentWithTab]),
+      keymap.of([
+        indentWithTab,
+        {
+          key: "Mod-Enter",
+          run: () => true,
+        },
+      ]),
       EditorState.readOnly.of(readOnly || isSaving),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
