@@ -22,17 +22,14 @@ function ToastContent({ title, description, variant }: ToasterToast) {
   )
 }
 
-function useToast() {
-  const toast = React.useCallback(
-    ({ duration, ...props }: ToasterToast) =>
-      toastLibrary.custom(() => <ToastContent {...props} />, { duration }),
-    [],
-  )
+const toast = ({ duration, ...props }: ToasterToast) =>
+  toastLibrary.custom(() => <ToastContent {...props} />, { duration })
 
+function useToast() {
   return {
     toast,
     dismiss: toastLibrary.dismiss,
   }
 }
 
-export { useToast, toastLibrary as toast, Toaster }
+export { useToast, toast, Toaster }
