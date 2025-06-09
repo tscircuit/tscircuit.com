@@ -21,8 +21,20 @@ function ToastContent({ title, description, variant }: ToasterToast) {
   )
 }
 
-const toast = ({ duration, ...props }: ToasterToast) =>
-  toastLibrary.custom(() => <ToastContent {...props} />, { duration })
+const toast = ({ duration, description, variant = "default", title }: ToasterToast) => {
+  if (description) {
+    return toastLibrary.custom(
+      () => <ToastContent title={title} description={description} variant={variant} />,
+      { duration },
+    )
+  }
+
+  if (variant === "destructive") {
+    return toastLibrary.error(<>{title}</>, { duration })
+  }
+
+  return toastLibrary(<>{title}</>, { duration })
+}
 
 function useToast() {
   return {
