@@ -1,3 +1,4 @@
+"use client"
 import toastLibrary, { Toaster } from "react-hot-toast"
 import React from "react"
 
@@ -35,23 +36,3 @@ function useToast() {
 }
 
 export { useToast, toastLibrary as toast, Toaster }
-
-export function useNotImplementedToast() {
-  const { toast } = useToast()
-  return (feature: string) => {
-    toast({
-      title: "Not Implemented",
-      description: (
-        <div>
-          The {feature} feature is not implemented yet. Help us out!{" "}
-          <a
-            className="text-blue-500 hover:underline font-semibold"
-            href="https://github.com/tscircuit/tscircuit.com"
-          >
-            Check out our Github
-          </a>
-        </div>
-      ),
-    })
-  }
-}
