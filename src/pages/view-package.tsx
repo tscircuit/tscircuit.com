@@ -46,6 +46,7 @@ export const ViewPackagePage = () => {
       <RepoPageContent
         packageFiles={packageFiles as any}
         packageInfo={packageInfo as any}
+        packageRelease={packageRelease as any}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
         onFileClicked={(file) => {
           setLocation(

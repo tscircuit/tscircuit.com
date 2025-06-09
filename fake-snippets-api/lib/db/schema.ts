@@ -201,6 +201,10 @@ export const packageReleaseSchema = z.object({
   circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
   circuit_json_build_logs: z.array(z.any()).default([]),
   circuit_json_build_is_stale: z.boolean().default(false),
+
+  // AI Review
+  ai_review_text: z.string().nullable().default(null),
+  ai_review_requested: z.boolean().default(false),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 

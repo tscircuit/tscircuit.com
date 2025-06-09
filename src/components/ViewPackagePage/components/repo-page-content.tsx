@@ -20,6 +20,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 
 interface PackageFile {
   package_file_id: string
@@ -34,6 +35,7 @@ interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: Package
+  packageRelease?: import("fake-snippets-api/lib/db/schema").PackageRelease
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
 }
@@ -41,6 +43,7 @@ interface RepoPageContentProps {
 export default function RepoPageContent({
   packageFiles,
   packageInfo,
+  packageRelease,
   onFileClicked,
   onEditClicked,
 }: RepoPageContentProps) {
@@ -48,6 +51,7 @@ export default function RepoPageContent({
   const session = useGlobalStore((s) => s.session)
   const { circuitJson, isLoading: isCircuitJsonLoading } =
     useCurrentPackageCircuitJson()
+  const { mutate: requestAiReview } = useRequestAiReviewMutation()
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
@@ -198,6 +202,15 @@ export default function RepoPageContent({
               onEditClicked={onEditClicked}
               aiDescription={packageInfo?.ai_description ?? ""}
               aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
+              aiReviewText={packageRelease?.ai_review_text ?? null}
+              aiReviewRequested={packageRelease?.ai_review_requested ?? false}
+              onRequestAiReview={() => {
+                if (packageRelease) {
+                  requestAiReview({
+                    package_release_id: packageRelease.package_release_id,
+                  })
+                }
+              }}
             />
           </div>
 
