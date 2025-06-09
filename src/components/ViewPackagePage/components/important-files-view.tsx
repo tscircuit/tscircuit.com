@@ -23,12 +23,18 @@ interface ImportantFilesViewProps {
 
   aiDescription?: string
   aiUsageInstructions?: string
+  aiReviewText?: string | null
+  aiReviewRequested?: boolean
+  onRequestAiReview?: () => void
 }
 
 export default function ImportantFilesView({
   importantFiles = [],
   aiDescription,
   aiUsageInstructions,
+  aiReviewText,
+  aiReviewRequested,
+  onRequestAiReview,
   isLoading = false,
   onEditClicked,
 }: ImportantFilesViewProps) {
@@ -43,6 +49,7 @@ export default function ImportantFilesView({
   }
   // Determine if we have AI content
   const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
+  const hasAiReview = Boolean(aiReviewText)
 
   // Select the appropriate tab/file when content changes
   useEffect(() => {
@@ -60,12 +67,22 @@ export default function ImportantFilesView({
       // Second priority: AI content if available
       setActiveTab("ai")
       setActiveFilePath(null)
+    } else if (hasAiReview) {
+      setActiveTab("ai-review")
+      setActiveFilePath(null)
     } else if (importantFiles.length > 0) {
       // Third priority: First important file
       setActiveFilePath(importantFiles[0].file_path)
       setActiveTab("file")
     }
-  }, [aiDescription, aiUsageInstructions, hasAiContent, importantFiles])
+  }, [
+    aiDescription,
+    aiUsageInstructions,
+    aiReviewText,
+    hasAiContent,
+    hasAiReview,
+    importantFiles,
+  ])
 
   // Get file name from path
   const getFileName = (path: string) => {
@@ -104,6 +121,27 @@ export default function ImportantFilesView({
         )}
       </div>
     )
+  }
+
+  const renderAiReviewContent = () => {
+    if (!aiReviewText && !aiReviewRequested) {
+      return (
+        <button
+          className="text-sm text-blue-600 dark:text-[#58a6ff] underline"
+          onClick={onRequestAiReview}
+        >
+          Request AI Review
+        </button>
+      )
+    }
+
+    if (!aiReviewText && aiReviewRequested) {
+      return (
+        <p className="text-sm">AI review requested. Please check back later.</p>
+      )
+    }
+
+    return <MarkdownViewer markdownContent={aiReviewText || ""} />
   }
 
   // Get active file content
@@ -187,6 +225,22 @@ export default function ImportantFilesView({
             </button>
           )}
 
+          {/* AI Review Tab */}
+          <button
+            className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
+              activeTab === "ai-review"
+                ? "bg-gray-200 dark:bg-[#30363d] font-medium"
+                : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
+            }`}
+            onClick={() => {
+              setActiveTab("ai-review")
+              setActiveFilePath(null)
+            }}
+          >
+            <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />
+            <span>AI Review</span>
+          </button>
+
           {/* File Tabs */}
           {importantFiles.map((file) => (
             <button
@@ -232,6 +286,8 @@ export default function ImportantFilesView({
       <div className="p-4 bg-white dark:bg-[#0d1117]">
         {activeTab === "ai" ? (
           renderAiContent()
+        ) : activeTab === "ai-review" ? (
+          renderAiReviewContent()
         ) : activeFilePath && activeFilePath.endsWith(".md") ? (
           <MarkdownViewer markdownContent={activeFileContent} />
         ) : activeFilePath &&
