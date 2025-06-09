@@ -4,7 +4,7 @@ import { autocompletion } from "@codemirror/autocomplete"
 import { indentWithTab } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
-import { EditorState } from "@codemirror/state"
+import { EditorState, Prec } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
@@ -237,6 +237,14 @@ export const CodeEditor = ({
       currentFile?.endsWith(".json")
         ? json()
         : javascript({ typescript: true, jsx: true }),
+      Prec.high(
+        keymap.of([
+          {
+            key: "Mod-Enter",
+            run: () => true,
+          },
+        ]),
+      ),
       keymap.of([indentWithTab]),
       EditorState.readOnly.of(readOnly || isSaving),
       EditorView.updateListener.of((update) => {
