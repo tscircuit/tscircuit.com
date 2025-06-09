@@ -56,7 +56,11 @@ export default function SidebarReleasesSection() {
           </span>
         </div>
         {buildSteps.map((step) => (
-          <BuildStatus key={step.id} step={step} />
+          <BuildStatus
+            key={step.id}
+            step={step}
+            packageReleaseId={packageRelease.package_release_id}
+          />
         ))}
       </div>
       {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
