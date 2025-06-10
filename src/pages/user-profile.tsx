@@ -48,7 +48,10 @@ export const UserProfilePage = () => {
       })
       return response.data
     },
-    { retry: false },
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
   )
 
   // use the username stored in the database so the correct case is displayed
@@ -71,7 +74,10 @@ export const UserProfilePage = () => {
       })
       return response.data.packages
     },
-    { enabled: Boolean(githubUsername) },
+    {
+      enabled: Boolean(githubUsername),
+      refetchOnWindowFocus: false,
+    },
   )
 
   const { data: starredPackages, isLoading: isLoadingStarredPackages } =
@@ -85,6 +91,7 @@ export const UserProfilePage = () => {
       },
       {
         enabled: activeTab === "starred" && Boolean(githubUsername),
+        refetchOnWindowFocus: false,
       },
     )
 
