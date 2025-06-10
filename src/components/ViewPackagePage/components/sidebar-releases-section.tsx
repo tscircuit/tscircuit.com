@@ -4,6 +4,27 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { BuildStatus, BuildStep } from "./build-status"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+
+function getTranspilationStatus(
+  pr?: PackageRelease | null,
+): BuildStep["status"] {
+  if (!pr) return "pending"
+  if (pr.transpilation_error) return "error"
+  if (pr.transpilation_in_progress) return "running"
+  if (pr.transpilation_completed_at) return "success"
+  if (pr.transpilation_started_at) return "running"
+  return "pending"
+}
+
+function getCircuitJsonStatus(pr?: PackageRelease | null): BuildStep["status"] {
+  if (!pr) return "pending"
+  if (pr.circuit_json_build_error) return "error"
+  if (pr.circuit_json_build_in_progress) return "running"
+  if (pr.circuit_json_build_completed_at) return "success"
+  if (pr.circuit_json_build_started_at) return "running"
+  return "pending"
+}
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -15,14 +36,12 @@ export default function SidebarReleasesSection() {
     {
       id: "package_transpilation",
       name: "Package Transpilation",
-      status: packageRelease?.has_transpiled ? "success" : "failed",
-      message: packageRelease?.transpilation_error || undefined,
+      status: getTranspilationStatus(packageRelease),
     },
     {
       id: "circuit_json_build",
       name: "Circuit JSON Build",
-      status: packageRelease?.circuit_json_build_error ? "failed" : "success",
-      message: packageRelease?.circuit_json_build_error || undefined,
+      status: getCircuitJsonStatus(packageRelease),
     },
   ]
 
