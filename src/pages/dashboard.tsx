@@ -34,8 +34,9 @@ export const DashboardPage = () => {
     data: myPackages,
     isLoading,
     error,
+    refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    "userPackages",
+    ["userPackages", currentUser],
     async () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
@@ -195,6 +196,7 @@ export const DashboardPage = () => {
             packageId={packageToDelete.package_id}
             packageName={packageToDelete.unscoped_name}
             packageOwner={packageToDelete.owner_github_username ?? ""}
+            refetchUserPackages={refetchUserPackages}
           />
         )}
       </div>
