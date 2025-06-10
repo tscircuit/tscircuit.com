@@ -23,26 +23,33 @@ export const LogContent = ({
   error?: ErrorObject | string | null
 }) => {
   return (
-    <div className="whitespace-pre-wrap font-mono text-xs">
+    <div className="font-mono text-xs space-y-1 min-w-0">
       {logs.map(
         (log, i) =>
           log.timestamp &&
           log.message && (
             <div
               key={i}
-              className={
+              className={`break-words whitespace-pre-wrap ${
                 log.type === "error"
                   ? "text-red-600"
                   : log.type === "success"
                     ? "text-green-600"
                     : "text-gray-600"
-              }
+              }`}
             >
-              {new Date(log.timestamp).toLocaleTimeString()} {log.message}
+              <span className="text-gray-500 whitespace-nowrap">
+                {new Date(log.timestamp).toLocaleTimeString()}
+              </span>{" "}
+              <span className="break-all">{log.message}</span>
             </div>
           ),
       )}
-      {error && <div className="text-red-600">{getErrorText(error)}</div>}
+      {error && (
+        <div className="text-red-600 break-words whitespace-pre-wrap">
+          {getErrorText(error)}
+        </div>
+      )}
     </div>
   )
 }

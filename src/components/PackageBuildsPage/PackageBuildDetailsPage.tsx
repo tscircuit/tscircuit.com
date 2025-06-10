@@ -73,7 +73,6 @@ export const PackageBuildDetailsPage = () => {
               transpilation_completed_at,
             )}
             displayStatus={transpilation_display_status}
-            error={transpilation_error}
             isOpen={openSections.summary}
             onToggle={() => toggleSection("summary")}
           >
@@ -94,7 +93,6 @@ export const PackageBuildDetailsPage = () => {
               circuit_json_build_completed_at,
             )}
             displayStatus={circuit_json_build_display_status}
-            error={circuit_json_build_error}
             isOpen={openSections.logs}
             onToggle={() => toggleSection("logs")}
           >
