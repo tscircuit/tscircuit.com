@@ -46,9 +46,9 @@ export default withRouteSpec({
     const existingPackage = ctx.db.packages.find((p) => p.name === packageName)
 
     if (existingPackage) {
-      return ctx.json({
-        ok: true,
-        package: existingPackage,
+      return ctx.error(409, {
+        error_code: "package_already_exists",
+        message: componentName,
       })
     }
 
