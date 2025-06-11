@@ -33,7 +33,7 @@ const AuthenticatePageInnerContent = () => {
           try {
             const redirectUrl = new URL(decodeURIComponent(redirect))
             if (redirectUrl.origin === window.location.origin) {
-              window.location.href = redirect
+              window.location.href = redirectUrl.href
               return
             }
           } catch (e) {
