@@ -1,10 +1,11 @@
 import { useParams } from "wouter"
 import { useCurrentPackageId } from "./use-current-package-id"
-import { useUrlParams } from "./use-url-params"
 import { usePackageRelease } from "./use-package-release"
+import { useUrlParams } from "./use-url-params"
 
 export const useCurrentPackageRelease = (options?: {
-  include_logs: boolean
+  include_logs?: boolean
+  refetchInterval?: number
 }) => {
   const { packageId } = useCurrentPackageId()
   const urlParams = useUrlParams()
@@ -27,6 +28,7 @@ export const useCurrentPackageRelease = (options?: {
 
   const { data: packageRelease, ...rest } = usePackageRelease(query, {
     include_logs: options?.include_logs ?? false,
+    refetchInterval: options?.refetchInterval,
   })
   return { packageRelease, ...rest }
 }

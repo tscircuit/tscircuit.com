@@ -1,5 +1,5 @@
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { useQuery } from "react-query"
+import { type UseQueryOptions, useQuery } from "react-query"
 import { useAxios } from "./use-axios"
 
 type PackageReleaseQuery =
@@ -20,7 +20,7 @@ type PackageReleaseQuery =
 
 export const usePackageRelease = (
   query: PackageReleaseQuery | null,
-  options?: { include_logs: boolean },
+  options?: { include_logs?: boolean; refetchInterval?: number },
 ) => {
   const axios = useAxios()
 
@@ -50,6 +50,7 @@ export const usePackageRelease = (
     {
       retry: false,
       enabled: Boolean(query),
+      refetchInterval: options?.refetchInterval,
     },
   )
 }

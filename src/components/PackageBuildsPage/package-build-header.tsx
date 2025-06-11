@@ -1,13 +1,13 @@
-import { Github, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useParams } from "wouter"
-import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
+import { Github, RefreshCw } from "lucide-react"
+import { useParams } from "wouter"
+import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchInterval: 2000 })
   const { mutate: rebuildPackage, isLoading } =
     useRebuildPackageReleaseMutation()
 
