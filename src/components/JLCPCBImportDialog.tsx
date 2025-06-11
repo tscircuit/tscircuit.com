@@ -38,16 +38,6 @@ interface JLCPCBResponse {
 
 interface APIError {
   status: number
-  response?: {
-    data?: {
-      message?: string
-      existing_part_number?: string
-      part_number?: string
-      error?: {
-        message?: string
-      }
-    }
-  }
   data?: {
     message?: string
     existing_part_number?: string
