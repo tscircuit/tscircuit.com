@@ -1,9 +1,9 @@
-import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useParams } from "wouter"
-import { timeAgo } from "@/lib/utils/timeAgo"
 import { useNow } from "@/hooks/use-now"
+import { timeAgo } from "@/lib/utils/timeAgo"
 import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { Clock, GitBranch, GitCommit, Globe } from "lucide-react"
+import { useParams } from "wouter"
 
 const capitalCase = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -25,7 +25,7 @@ function getColorFromDisplayStatus(
 }
 
 export function PackageBuildDetailsPanel() {
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchInterval: 2000 })
   const { author } = useParams() // TODO use packageRelease.author_account_id when it's added by backed
   const now = useNow(1000)
 
