@@ -58,13 +58,13 @@ export function PackageBuildHeader() {
           </Button>
           <Button
             variant="outline"
-            size="sm"
-            className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
+            size="icon"
+            aria-label="Reload logs"
+            className="border-gray-300 bg-white hover:bg-gray-50"
             onClick={() => refetch()}
             disabled={isFetching}
           >
-            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            {isFetching ? "Reloading..." : "Reload"}
+            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
           <DownloadButtonAndMenu
             snippetUnscopedName={`${author}/${packageName}`}
