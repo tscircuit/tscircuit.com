@@ -1,13 +1,13 @@
 "use client"
 
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
+import { LogContent } from "./LogContent"
 import { BuildPreviewContent } from "./build-preview-content"
+import { CollapsibleSection } from "./collapsible-section"
 import { PackageBuildDetailsPanel } from "./package-build-details-panel"
 import { PackageBuildHeader } from "./package-build-header"
-import { CollapsibleSection } from "./collapsible-section"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { LogContent } from "./LogContent"
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
 
 function computeDuration(
   startedAt: string | null | undefined,
@@ -18,7 +18,10 @@ function computeDuration(
 }
 
 export const PackageBuildDetailsPage = () => {
-  const { packageRelease } = useCurrentPackageRelease({ include_logs: true })
+  const { packageRelease } = useCurrentPackageRelease({
+    include_logs: true,
+    refetchInterval: 2000,
+  })
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
 
   const {

@@ -56,6 +56,7 @@ export default function ImportantFilesView({
   // if no tab has been chosen yet.
   useEffect(() => {
     if (activeTab !== null) return
+    if (isLoading) return
 
     // First priority: README file if it exists
     const readmeFile = importantFiles.find(
@@ -87,6 +88,7 @@ export default function ImportantFilesView({
     hasAiReview,
     importantFiles,
     activeTab,
+    isLoading,
   ])
 
   // Get file name from path

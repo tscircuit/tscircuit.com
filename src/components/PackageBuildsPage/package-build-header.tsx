@@ -1,9 +1,10 @@
 import { Github, RefreshCw, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useParams } from "wouter"
-import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
+import { Github, RefreshCw, RotateCcw } from "lucide-react"
+import { useParams } from "wouter"
+import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()

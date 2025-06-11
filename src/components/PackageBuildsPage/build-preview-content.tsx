@@ -2,7 +2,7 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 
 export function BuildPreviewContent() {
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchInterval: 2000 })
   const { packageInfo } = useCurrentPackageInfo()
 
   if (!packageRelease) {

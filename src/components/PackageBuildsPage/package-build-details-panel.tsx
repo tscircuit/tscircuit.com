@@ -1,8 +1,9 @@
-import { Globe, GitBranch, GitCommit, Clock } from "lucide-react"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useParams } from "wouter"
+import { useNow } from "@/hooks/use-now"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { Clock, GitBranch, GitCommit, Globe } from "lucide-react"
+import { useParams } from "wouter"
 
 const capitalCase = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -24,8 +25,9 @@ function getColorFromDisplayStatus(
 }
 
 export function PackageBuildDetailsPanel() {
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease } = useCurrentPackageRelease({ refetchInterval: 2000 })
   const { author } = useParams() // TODO use packageRelease.author_account_id when it's added by backed
+  const now = useNow(1000)
 
   if (!packageRelease) {
     // TODO show skeleton instead
@@ -54,6 +56,24 @@ export function PackageBuildDetailsPanel() {
     transpilation_started_at,
     commit_sha,
   } = packageRelease
+
+  const buildStartedAt = (() => {
+    if (transpilation_started_at && circuit_json_build_started_at) {
+      return new Date(transpilation_started_at) <
+        new Date(circuit_json_build_started_at)
+        ? transpilation_started_at
+        : circuit_json_build_started_at
+    }
+    return transpilation_started_at || circuit_json_build_started_at || null
+  })()
+
+  const buildCompletedAt =
+    circuit_json_build_completed_at || transpilation_completed_at || null
+
+  const elapsedMs = buildStartedAt
+    ? (buildCompletedAt ? new Date(buildCompletedAt).getTime() : now) -
+      new Date(buildStartedAt).getTime()
+    : null
 
   return (
     <div className="space-y-6 bg-white p-4 border border-gray-200 rounded-lg">
@@ -92,15 +112,13 @@ export function PackageBuildDetailsPanel() {
         <h3 className="text-sm font-medium text-gray-600 mb-2">Build Time</h3>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-gray-500" />
-          {circuit_json_build_completed_at && (
-            <span className="text-sm">
-              {total_build_duration_ms
-                ? `${Math.floor(total_build_duration_ms / 1000)}s`
-                : ""}
-            </span>
+          {elapsedMs !== null && (
+            <span className="text-sm">{Math.floor(elapsedMs / 1000)}s</span>
           )}
           <span className="text-sm text-gray-500">
-            {timeAgo(circuit_json_build_completed_at, "waiting...")}
+            {buildStartedAt
+              ? `Started ${timeAgo(buildStartedAt)}`
+              : "waiting..."}
           </span>
         </div>
       </div>
