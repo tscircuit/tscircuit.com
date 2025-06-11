@@ -2,7 +2,7 @@ import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { type UseQueryOptions, useQuery } from "react-query"
 import { useAxios } from "./use-axios"
 
-type PackageReleaseQuery =
+type PackageReleaseQuery = (
   | {
       package_release_id: string
     }
@@ -17,29 +17,30 @@ type PackageReleaseQuery =
       package_id: string
       is_latest: boolean
     }
+) & {
+  include_logs?: boolean | null | undefined
+  include_ai_review?: boolean | null | undefined
+}
 
 export const usePackageRelease = (
   query: PackageReleaseQuery | null,
-  options?: { include_logs?: boolean; refetchInterval?: number },
+  options?: {
+    refetchInterval?: number
+  },
 ) => {
   const axios = useAxios()
 
   return useQuery<PackageRelease, Error & { status: number }>(
-    ["packageRelease", query, options?.include_logs],
+    ["packageRelease", query],
     async () => {
       if (!query) return
 
-      const { data } = await axios.post(
-        "/package_releases/get",
-        query,
-        options?.include_logs
-          ? {
-              params: {
-                include_logs: true,
-              },
-            }
-          : undefined,
-      )
+      const { data } = await axios.post("/package_releases/get", query, {
+        params: {
+          include_logs: query.include_logs,
+          include_ai_review: query.include_ai_review,
+        },
+      })
 
       if (!data.package_release) {
         throw new Error("Package release not found")

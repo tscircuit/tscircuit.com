@@ -4,6 +4,7 @@ import { usePackageRelease } from "./use-package-release"
 import { useUrlParams } from "./use-url-params"
 
 export const useCurrentPackageRelease = (options?: {
+  include_ai_review?: boolean
   include_logs?: boolean
   refetchInterval?: number
 }) => {
@@ -26,9 +27,17 @@ export const useCurrentPackageRelease = (options?: {
     query = { package_id: packageId, is_latest: true }
   }
 
+  if (query && options?.include_logs !== undefined) {
+    query.include_logs = options.include_logs
+  }
+
+  if (query && options?.include_ai_review !== undefined) {
+    query.include_ai_review = options.include_ai_review
+  }
+
   const { data: packageRelease, ...rest } = usePackageRelease(query, {
-    include_logs: options?.include_logs ?? false,
     refetchInterval: options?.refetchInterval,
   })
+
   return { packageRelease, ...rest }
 }
