@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
-import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
+import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
 import { useToast } from "@/hooks/use-toast"
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 export type FileName = string
 
@@ -39,8 +40,8 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   handleFileChange,
   entrypointFileName = "index.tsx",
 }) => {
-  const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
-    useImportSnippetDialog()
+  const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
+    useImportPackageDialog()
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
 
@@ -234,9 +235,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             Format
           </Button>
         </div>
-        <ImportSnippetDialog
-          onSnippetSelected={(snippet: any) => {
-            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile || ""]}`
+        <ImportPackageDialog
+          onPackageSelected={(pkg: Package) => {
+            const newContent = `import {} from "@tsci/${pkg.owner_github_username}.${pkg.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
         />
