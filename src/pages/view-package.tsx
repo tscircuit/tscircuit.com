@@ -24,6 +24,7 @@ export const ViewPackagePage = () => {
   } = usePackageRelease({
     is_latest: true,
     package_name: `${author}/${packageName}`,
+    include_ai_review: true,
   })
 
   const { data: packageFiles } = usePackageFiles(

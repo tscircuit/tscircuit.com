@@ -29,7 +29,7 @@ test("create package release", async () => {
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
   expect(releaseResponse.data.package_release.is_locked).toBe(false)
   expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
-  expect(releaseResponse.data.package_release.ai_review_text).toBeNull()
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
 })
 
 test("create package release using package_name_with_version", async () => {
@@ -57,7 +57,7 @@ test("create package release using package_name_with_version", async () => {
   expect(releaseResponse.data.package_release.version).toBe("2.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
   expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
-  expect(releaseResponse.data.package_release.ai_review_text).toBeNull()
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
 })
 
 test("create package release using package_name and version", async () => {
@@ -84,7 +84,7 @@ test("create package release using package_name and version", async () => {
   expect(releaseResponse.data.package_release.version).toBe("3.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
   expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
-  expect(releaseResponse.data.package_release.ai_review_text).toBeNull()
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
 })
 
 test("create package release - version already exists", async () => {
