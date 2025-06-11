@@ -1,5 +1,4 @@
 import { ComponentType, Suspense, lazy } from "react"
-import { Toaster } from "@/components/ui/toaster"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
@@ -129,7 +128,6 @@ function App() {
             <Route component={lazyImport(() => import("@/pages/404"))} />
           </Switch>
         </Suspense>
-        <Toaster />
       </ErrorBoundary>
     </ContextProviders>
   )
