@@ -50,9 +50,7 @@ interface APIError {
 
 const extractErrorMessage = (error: APIError): string => {
   return (
-    error?.response?.data?.message ||
     error?.data?.message ||
-    error?.response?.data?.error?.message ||
     error?.data?.error?.message ||
     "An unexpected error occurred"
   )
