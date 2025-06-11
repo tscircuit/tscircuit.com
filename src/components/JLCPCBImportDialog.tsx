@@ -20,43 +20,114 @@ interface JLCPCBImportDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function JLCPCBImportDialog({
-  open,
-  onOpenChange,
-}: JLCPCBImportDialogProps) {
-  const [partNumber, setPartNumber] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [hasBeenImportedToAccountAlready, setHasBeenImportedToAccountAlready] =
-    useState<boolean>(false)
+interface ImportState {
+  isLoading: boolean
+  error: string | null
+  existingComponent: {
+    partNumber: string
+    username: string
+  } | null
+}
+
+interface JLCPCBResponse {
+  ok: boolean
+  package: {
+    package_id: string
+  }
+}
+
+interface APIError {
+  status: number
+  response?: {
+    data?: {
+      message?: string
+      existing_part_number?: string
+      part_number?: string
+      error?: {
+        message?: string
+      }
+    }
+  }
+  data?: {
+    message?: string
+    existing_part_number?: string
+    part_number?: string
+    error?: {
+      message?: string
+    }
+  }
+}
+
+const extractErrorMessage = (error: APIError): string => {
+  return (
+    error?.response?.data?.message ||
+    error?.data?.message ||
+    error?.response?.data?.error?.message ||
+    error?.data?.error?.message ||
+    "An unexpected error occurred"
+  )
+}
+
+const extractExistingPartNumber = (
+  error: APIError,
+  fallback: string,
+): string => {
+  return error?.data?.message || error?.data?.error?.message || fallback
+}
+
+const useJLCPCBImport = () => {
+  const [state, setState] = useState<ImportState>({
+    isLoading: false,
+    error: null,
+    existingComponent: null,
+  })
+
   const axios = useAxios()
   const { toast } = useToast()
   const [, navigate] = useLocation()
-  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
 
-  const handleImport = async () => {
-    if (!partNumber.startsWith("C")) {
+  const resetState = () => {
+    setState({
+      isLoading: false,
+      error: null,
+      existingComponent: null,
+    })
+  }
+
+  const importComponent = async (partNumber: string) => {
+    if (!partNumber.startsWith("C") || partNumber.length < 2) {
       toast({
         title: "Invalid Part Number",
-        description: "JLCPCB part numbers should start with 'C'.",
+        description:
+          "JLCPCB part numbers should start with 'C' and be at least 2 characters long.",
         variant: "destructive",
       })
-      return
+      return { success: false }
     }
 
-    setIsLoading(true)
-    setError(null)
-    setHasBeenImportedToAccountAlready(false)
+    setState((prev) => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+      existingComponent: null,
+    }))
 
     try {
-      const response = await axios.post("/packages/generate_from_jlcpcb", {
-        jlcpcb_part_number: partNumber,
-      })
+      const response = await axios.post<JLCPCBResponse>(
+        "/packages/generate_from_jlcpcb",
+        {
+          jlcpcb_part_number: partNumber,
+        },
+      )
+
       if (!response.data.ok) {
-        setError("Failed to generate package from JLCPCB part")
-        setIsLoading(false)
-        return
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: "Failed to generate package from JLCPCB part",
+        }))
+        return { success: false }
       }
 
       const { package: generatedPackage } = response.data
@@ -66,25 +137,82 @@ export function JLCPCBImportDialog({
         description: "JLCPCB component has been imported successfully.",
       })
 
-      onOpenChange(false)
       navigate(`/editor?package_id=${generatedPackage.package_id}`)
+      return { success: true }
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        setError(`Component with JLCPCB part number ${partNumber} not found`)
-      } else if (error.response?.data?.message) {
-        setError(error.response.data.message)
+      const apiError = error as APIError
+
+      if (apiError.status === 404) {
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: `Component with JLCPCB part number ${partNumber} not found`,
+        }))
+      } else if (apiError.status === 409) {
+        const existingPartNumber = extractExistingPartNumber(
+          apiError,
+          partNumber,
+        )
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          existingComponent: {
+            partNumber: existingPartNumber,
+            username: session?.github_username || "",
+          },
+        }))
       } else {
-        setError("Failed to import the JLCPCB component. Please try again.")
+        const errorMessage = extractErrorMessage(apiError)
+        setState((prev) => ({ ...prev, isLoading: false, error: errorMessage }))
+
         toast({
           title: "Import Failed",
-          description:
-            "Failed to import the JLCPCB component. Please try again.",
+          description: errorMessage,
           variant: "destructive",
         })
       }
-    } finally {
-      setIsLoading(false)
+
+      return { success: false }
     }
+  }
+
+  return {
+    ...state,
+    importComponent,
+    resetState,
+  }
+}
+
+export function JLCPCBImportDialog({
+  open,
+  onOpenChange,
+}: JLCPCBImportDialogProps) {
+  const [partNumber, setPartNumber] = useState("")
+  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+
+  const { isLoading, error, existingComponent, importComponent, resetState } =
+    useJLCPCBImport()
+
+  const handleImport = async () => {
+    const result = await importComponent(partNumber)
+    if (result.success) {
+      onOpenChange(false)
+    }
+  }
+
+  const handleInputChange = (value: string) => {
+    setPartNumber(value)
+    resetState()
+  }
+
+  const createGitHubIssue = () => {
+    const issueTitle = `[${partNumber}] Failed to import from JLCPCB`
+    const issueBody = `I tried to import the part number ${partNumber} from JLCPCB, but it failed. Here's the error I got:\n\`\`\`\n${error}\n\`\`\`\n\nCould be an issue in \`fetchEasyEDAComponent\` or \`convertRawEasyEdaToTs\``
+    const issueLabels = "snippets,good first issue"
+    const url = `https://github.com/tscircuit/easyeda-converter/issues/new?title=${encodeURIComponent(
+      issueTitle,
+    )}&body=${encodeURIComponent(issueBody)}&labels=${encodeURIComponent(issueLabels)}`
+    window.open(url, "_blank")
   }
 
   return (
@@ -96,6 +224,7 @@ export function JLCPCBImportDialog({
             Enter the JLCPCB part number to import the component.
           </DialogDescription>
         </DialogHeader>
+
         <div className="py-4 text-center">
           <a
             href="https://yaqwsx.github.io/jlcparts/#/"
@@ -105,16 +234,13 @@ export function JLCPCBImportDialog({
           >
             JLCPCB Part Search
           </a>
+
           <Input
             className="mt-3"
             placeholder="Enter JLCPCB part number (e.g., C46749)"
             value={partNumber}
             disabled={isLoading}
-            onChange={(e) => {
-              setPartNumber(e.target.value)
-              setError(null)
-              setHasBeenImportedToAccountAlready(false)
-            }}
+            onChange={(e) => handleInputChange(e.target.value)}
             onKeyDown={(e) => {
               if (
                 e.key === "Enter" &&
@@ -126,43 +252,31 @@ export function JLCPCBImportDialog({
               }
             }}
           />
-          {error && !hasBeenImportedToAccountAlready && (
-            <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>
+
+          {error && !existingComponent && (
+            <>
+              <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>
+              <div className="flex justify-end mt-2">
+                <Button variant="default" onClick={createGitHubIssue}>
+                  File Issue on GitHub (prefilled)
+                </Button>
+              </div>
+            </>
           )}
 
-          {error && !hasBeenImportedToAccountAlready && (
-            <div className="flex justify-end mt-2">
-              <Button
-                variant="default"
-                onClick={() => {
-                  const issueTitle = `[${partNumber}] Failed to import from JLCPCB`
-                  const issueBody = `I tried to import the part number ${partNumber} from JLCPCB, but it failed. Here's the error I got:\n\`\`\`\n${error}\n\`\`\`\n\nCould be an issue in \`fetchEasyEDAComponent\` or \`convertRawEasyEdaToTs\``
-                  const issueLabels = "snippets,good first issue"
-                  const url = `https://github.com/tscircuit/easyeda-converter/issues/new?title=${encodeURIComponent(
-                    issueTitle,
-                  )}&body=${encodeURIComponent(
-                    issueBody,
-                  )}&labels=${encodeURIComponent(issueLabels)}`
-                  window.open(url, "_blank")
-                }}
-              >
-                File Issue on GitHub (prefilled)
-              </Button>
-            </div>
-          )}
-
-          {hasBeenImportedToAccountAlready && (
+          {existingComponent && (
             <p className="p-2 mt-2 pre-wrap text-md text-green-600">
               This part number has already been imported to your profile.{" "}
               <PrefetchPageLink
                 className="text-blue-500 hover:underline"
-                href={`/${session?.github_username}/${partNumber}`}
+                href={`/${existingComponent.username}/${existingComponent.partNumber}`}
               >
                 View it here
               </PrefetchPageLink>
             </p>
           )}
         </div>
+
         <DialogFooter>
           <Button onClick={handleImport} disabled={isLoading || !isLoggedIn}>
             {!isLoggedIn
