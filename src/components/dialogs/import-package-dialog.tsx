@@ -1,6 +1,6 @@
 import { useAxios } from "@/hooks/use-axios"
 import { useDebounce } from "@/hooks/use-debounce"
-import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
 import { useQuery } from "react-query"
 import { Button } from "../ui/button"
@@ -8,25 +8,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { createUseDialog } from "./create-use-dialog"
 
-export const ImportSnippetDialog = ({
+export const ImportPackageDialog = ({
   open,
   onOpenChange,
-  onSnippetSelected,
+  onPackageSelected,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => any
-  onSnippetSelected: (snippet: Snippet) => any
+  onPackageSelected: (pkg: Package) => any
 }) => {
   const [searchText, setSearchText] = useState("")
   const debouncedSearch = useDebounce(searchText, 300)
   const axios = useAxios()
   const { data: snippets, isLoading } = useQuery(
-    ["snippetSearch", debouncedSearch],
+    ["packageSearch", debouncedSearch],
     async () => {
-      const response = await axios.get(
-        `/snippets/search?q=${encodeURIComponent(debouncedSearch)}`,
-      )
-      return response.data.snippets.slice(0, 12)
+      const response = await axios.post("/packages/search", {
+        query: debouncedSearch,
+      })
+      return response.data.packages
     },
     {
       enabled: debouncedSearch.length > 0,
@@ -35,41 +35,42 @@ export const ImportSnippetDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="z-[100]">
+      <DialogContent className="z-[100] p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>Import Snippet</DialogTitle>
+          <DialogTitle>Import Package</DialogTitle>
         </DialogHeader>
         <Input
-          placeholder="Search snippets..."
+          placeholder="Search packages..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          className="w-full mb-4"
         />
         <div className="h-64 overflow-y-auto">
           {isLoading ? (
-            <div>Loading...</div>
+            <div className="text-center">Loading...</div>
           ) : (
             <ul className="w-full">
-              {snippets?.map((snippet: Snippet) => (
+              {snippets?.map((pkg: Package) => (
                 <li
-                  className="flex items-center my-1 text-xs w-full"
-                  key={snippet.snippet_id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center my-2 text-sm w-full"
+                  key={pkg.package_id}
                 >
                   <a
-                    href={`/${snippet.name}`}
+                    href={`/${pkg.name}`}
                     target="_blank"
-                    className="whitespace-nowrap mr-2 text-blue-500 hover:underline cursor-pointer flex-shrink-0"
+                    className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2"
                   >
-                    {snippet.name}
+                    {pkg.name}
                   </a>
-                  <div className="text-xs text-gray-500 flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
-                    {snippet.description}
+                  <div className="text-gray-500 flex-grow overflow-hidden text-ellipsis whitespace-nowrap mb-1 sm:mb-0">
+                    {pkg.description}
                   </div>
                   <Button
                     size="sm"
-                    className="ml-2 flex-shrink-0"
+                    className="flex-shrink-0"
                     variant="outline"
                     onClick={() => {
-                      onSnippetSelected(snippet)
+                      onPackageSelected(pkg)
                       onOpenChange(false)
                     }}
                   >
@@ -85,4 +86,4 @@ export const ImportSnippetDialog = ({
   )
 }
 
-export const useImportSnippetDialog = createUseDialog(ImportSnippetDialog)
+export const useImportPackageDialog = createUseDialog(ImportPackageDialog)
