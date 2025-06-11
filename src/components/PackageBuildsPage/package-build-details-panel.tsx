@@ -27,6 +27,7 @@ function getColorFromDisplayStatus(
 export function PackageBuildDetailsPanel() {
   const { packageRelease } = useCurrentPackageRelease()
   const { author } = useParams() // TODO use packageRelease.author_account_id when it's added by backed
+  const now = useNow(1000)
 
   if (!packageRelease) {
     // TODO show skeleton instead
@@ -56,7 +57,6 @@ export function PackageBuildDetailsPanel() {
     commit_sha,
   } = packageRelease
 
-  const now = useNow(1000)
   const buildStartedAt = (() => {
     if (transpilation_started_at && circuit_json_build_started_at) {
       return new Date(transpilation_started_at) <
