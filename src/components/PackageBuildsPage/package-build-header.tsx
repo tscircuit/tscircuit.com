@@ -1,4 +1,4 @@
-import { Github, RefreshCw } from "lucide-react"
+import { Github, RefreshCw, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useParams } from "wouter"
 import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
@@ -7,7 +7,9 @@ import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-re
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
-  const { packageRelease } = useCurrentPackageRelease()
+  const { packageRelease, refetch, isFetching } = useCurrentPackageRelease({
+    include_logs: true,
+  })
   const { mutate: rebuildPackage, isLoading } =
     useRebuildPackageReleaseMutation()
 
@@ -53,6 +55,16 @@ export function PackageBuildHeader() {
           >
             <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             {isLoading ? "Rebuilding..." : "Rebuild"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            {isFetching ? "Reloading..." : "Reload"}
           </Button>
           <DownloadButtonAndMenu
             snippetUnscopedName={`${author}/${packageName}`}
