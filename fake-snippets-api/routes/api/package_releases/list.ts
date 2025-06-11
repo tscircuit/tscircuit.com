@@ -75,8 +75,10 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package_releases: releases.map((pr) => publicMapPackageRelease(pr, {
-      include_ai_review: req.commonParams?.include_ai_review,
-    })),
+    package_releases: releases.map((pr) =>
+      publicMapPackageRelease(pr, {
+        include_ai_review: req.commonParams?.include_ai_review,
+      }),
+    ),
   })
 })
