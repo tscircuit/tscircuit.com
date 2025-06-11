@@ -13,6 +13,8 @@ const AuthenticatePageInnerContent = () => {
   const [message, setMessage] = useState("logging you in...")
   const searchParams = new URLSearchParams(window.location.search.split("?")[1])
   const session_token = searchParams.get("session_token")
+  const redirect = searchParams.get("redirect")
+
   useEffect(() => {
     async function login() {
       if (!session_token) {
@@ -26,6 +28,19 @@ const AuthenticatePageInnerContent = () => {
           ...(decodedToken as any),
           token: session_token,
         })
+
+        if (redirect) {
+          try {
+            const redirectUrl = new URL(decodeURIComponent(redirect))
+            if (redirectUrl.origin === window.location.origin) {
+              window.location.href = redirect
+              return
+            }
+          } catch (e) {
+            console.warn("Invalid redirect URL:", redirect)
+          }
+        }
+
         setLocation("/")
         return
       }
@@ -33,7 +48,7 @@ const AuthenticatePageInnerContent = () => {
     login().catch((e) => {
       setMessage(`error logging you in\n\n${e.toString()}`)
     })
-  }, [session_token])
+  }, [session_token, redirect])
 
   return (
     <div className="bg-white p-8 min-h-screen">
