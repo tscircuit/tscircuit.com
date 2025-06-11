@@ -27,6 +27,10 @@ export const publicMapPackageRelease = (
   // Only include AI review fields when include_ai_review is true
   if (!options.include_ai_review) {
     delete result.ai_review_text
+    delete result.ai_review_started_at
+    delete result.ai_review_completed_at
+    delete result.ai_review_error
+    delete result.ai_review_logs
   }
 
   return result
