@@ -18,6 +18,24 @@ export const useRebuildPackageReleaseMutation = ({
       return data.package_release as PackageRelease
     },
     {
+      onMutate: async ({ package_release_id }) => {
+        // Optimistically clear logs for the package release so the UI doesn't
+        // show stale logs while the rebuild request is in flight
+        await queryClient.setQueriesData<PackageRelease | undefined>(
+          { queryKey: ["packageRelease"] },
+          (old) => {
+            if (!old) return old
+            if (old.package_release_id !== package_release_id) return old
+            return {
+              ...old,
+              circuit_json_build_logs: [],
+              transpilation_logs: [],
+              circuit_json_build_error: null,
+              transpilation_error: null,
+            }
+          },
+        )
+      },
       onSuccess: (pkgRelease) => {
         toast({
           title: "Rebuild triggered",
