@@ -9,11 +9,18 @@ export interface ToasterToast {
   duration?: number
 }
 
-function ToastContent({ title, description, variant, t }: ToasterToast & { t: Toast }) {
+function ToastContent({
+  title,
+  description,
+  variant,
+  t,
+}: ToasterToast & { t: Toast }) {
   return (
     <div
       className={`rounded-md border p-4 shadow-lg transition-all ${
-        t.visible ? "animate-in fade-in slide-in-from-top-full" : "animate-out fade-out slide-out-to-right-full"
+        t.visible
+          ? "animate-in fade-in slide-in-from-top-full"
+          : "animate-out fade-out slide-out-to-right-full"
       } ${
         variant === "destructive"
           ? "border-red-500 bg-red-500 text-slate-50"
@@ -26,11 +33,21 @@ function ToastContent({ title, description, variant, t }: ToasterToast & { t: To
   )
 }
 
-const toast = ({ duration, description, variant = "default", title }: ToasterToast) => {
+const toast = ({
+  duration,
+  description,
+  variant = "default",
+  title,
+}: ToasterToast) => {
   if (description) {
     return toastLibrary.custom(
       (t) => (
-        <ToastContent title={title} description={description} variant={variant} t={t} />
+        <ToastContent
+          title={title}
+          description={description}
+          variant={variant}
+          t={t}
+        />
       ),
       { duration },
     )
