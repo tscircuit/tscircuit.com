@@ -193,7 +193,8 @@ export function useFileManagement({
       { path: newFileName, content: "" },
     ]
     setLocalFiles(updatedFiles)
-    onFileSelect(newFileName)
+    // immediately select the newly created file
+    setCurrentFile(newFileName)
     return {
       newFileCreated: true,
     }
