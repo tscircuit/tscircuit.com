@@ -15,18 +15,15 @@ const SearchButtonComponent = () => {
   return (
     <div className="relative">
       {isExpanded ? (
-        <div className="flex items-center gap-2">
-          <div className="w-32 bg-white">
-            <SearchComponent autofocus />
+        <div className="flex items-center gap-2 ml-8">
+          <div className="absolute -top-4 right-3 bg-white">
+            <SearchComponent
+              autofocus
+              closeOnClick={() => {
+                setIsExpanded(false)
+              }}
+            />
           </div>
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsExpanded(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button> */}
         </div>
       ) : (
         <>
@@ -58,13 +55,6 @@ export const Header2 = () => {
   const isLoggedIn = useGlobalStore((state) => Boolean(state.session))
   return (
     <>
-      {/* <div className="absolute left-0 top-0 z-[9999999]">
-        <div className="hidden xl:block">xl</div>
-        <div className="hidden lg:block xl:hidden">lg</div>
-        <div className="hidden md:block lg:hidden">md</div>
-        <div className="hidden sm:block md:hidden">sm</div>
-        <div className="hidden xs:block sm:hidden">xs</div>
-      </div> */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
           <div className="flex items-center gap-2">
