@@ -213,6 +213,14 @@ export function useFileManagement({
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
     onFileSelect(updatedFiles[0]?.path || "")
+    if (currentPackage) {
+      updatePackageFilesMutation.mutate({
+        package_name_with_version: `${currentPackage.name}@latest`,
+        ...currentPackage,
+      })
+      updateLastUpdated()
+      setInitialFiles([...updatedFiles])
+    }
     return {
       fileDeleted: true,
     }
