@@ -41,9 +41,10 @@ export const useForkSnippetMutation = ({
       },
       onError: (error: any) => {
         console.error("Error forking snippet:", error)
+        const message = error?.data?.error?.message
         toast({
           title: "Error",
-          description: "Failed to fork snippet. Please try again.",
+          description: message || "Failed to fork snippet. Please try again.",
           variant: "destructive",
         })
       },
