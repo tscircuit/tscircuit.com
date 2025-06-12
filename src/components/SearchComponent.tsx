@@ -6,6 +6,7 @@ import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
+import { CircuitBoard } from "lucide-react"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -116,7 +117,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const shouldOpenInEditor = location === "/editor" || location === "/ai"
 
   return (
-    <form onSubmit={handleSearch} className="relative w-44">
+    <form onSubmit={handleSearch} autoComplete="off" className="relative w-44">
       <Input
         autoComplete="off"
         spellCheck={false}
@@ -167,20 +168,21 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
                         src={`${snippetsBaseApiUrl}/snippets/images/${pkg.name}/pcb.svg`}
-                        alt={`PCB preview for ${pkg.name}`}
+                        alt={`PCB previeimage.pngw for ${pkg.name}`}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
                         onError={(e) => {
                           e.currentTarget.style.display = "none"
                           e.currentTarget.nextElementSibling?.classList.remove(
                             "hidden",
                           )
+                          e.currentTarget.nextElementSibling?.classList.add(
+                            "flex",
+                          )
                         }}
                       />
-                      <img
-                        className="hidden w-12 h-12 object-contain"
-                        src="https://github.com/tscircuit.png"
-                        alt="TSCircuit fallback logo"
-                      />
+                      <div className="w-12 h-12 hidden items-center justify-center">
+                        <CircuitBoard className="w-6 h-6 text-gray-300" />
+                      </div>
                     </div>
                     <div className="flex-grow">
                       <div className="font-medium text-blue-600 break-words text-xs">
