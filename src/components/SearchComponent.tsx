@@ -168,7 +168,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
                         src={`${snippetsBaseApiUrl}/snippets/images/${pkg.name}/pcb.svg`}
-                        alt={`PCB previeimage.pngw for ${pkg.name}`}
+                        alt={`PCB preview for ${pkg.name}`}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
                         onError={(e) => {
                           e.currentTarget.style.display = "none"
