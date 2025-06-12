@@ -64,7 +64,7 @@ export const ContextProviders = ({ children }: any) => {
       <HelmetProvider>
         <PostHogIdentifier />
         {children}
-        <Toaster />
+        <Toaster position="bottom-right" />
       </HelmetProvider>
     </QueryClientProvider>
   )
