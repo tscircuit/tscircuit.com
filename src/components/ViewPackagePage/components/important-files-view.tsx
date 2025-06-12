@@ -172,7 +172,7 @@ export default function ImportantFilesView({
           <div className="flex items-center space-x-4">
             <Skeleton className="h-6 w-24" />
             <Skeleton className="h-6 w-20" />
-            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-6 w-28" />ShiboSoftwareDev/cli#files
           </div>
           <div className="ml-auto flex items-center">
             <Skeleton className="h-4 w-4 mr-1" />
@@ -213,11 +213,11 @@ export default function ImportantFilesView({
   return (
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
-        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar">
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
           {/* AI Description Tab */}
           {hasAiContent && (
             <button
-              className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
+              className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
                 activeTab === "ai"
                   ? "bg-gray-200 dark:bg-[#30363d] font-medium"
                   : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
@@ -234,7 +234,7 @@ export default function ImportantFilesView({
 
           {/* AI Review Tab */}
           <button
-            className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
+            className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
               activeTab === "ai-review"
                 ? "bg-gray-200 dark:bg-[#30363d] font-medium"
                 : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
@@ -252,7 +252,7 @@ export default function ImportantFilesView({
           {importantFiles.map((file) => (
             <button
               key={file.package_file_id}
-              className={`flex items-center px-3 py-1.5 rounded-md text-xs ${
+              className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
                 activeTab === "file" && activeFilePath === file.file_path
                   ? "bg-gray-200 dark:bg-[#30363d] font-medium"
                   : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
