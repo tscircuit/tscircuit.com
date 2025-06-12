@@ -64,7 +64,9 @@ export default function ViewSnippetHeader() {
         },
         onError: (error: any) => {
           const message =
-            error?.data?.error?.message || error.message || "Failed to fork snippet. Please try again."
+            error?.data?.error?.message ||
+            error.message ||
+            "Failed to fork snippet. Please try again."
           if (message.includes("already forked")) {
             toast({
               title: "Snippet already exists",
