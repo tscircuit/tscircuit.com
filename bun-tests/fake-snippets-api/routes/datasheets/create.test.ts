@@ -4,7 +4,9 @@ import { test, expect } from "bun:test"
 test("create datasheet", async () => {
   const { axios } = await getTestServer()
 
-  const res = await axios.post("/api/datasheets/create", { chip_name: "TestChip" })
+  const res = await axios.post("/api/datasheets/create", {
+    chip_name: "TestChip",
+  })
 
   expect(res.status).toBe(200)
   expect(res.data.datasheet.chip_name).toBe("TestChip")
