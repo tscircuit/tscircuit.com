@@ -173,7 +173,6 @@ export default function ImportantFilesView({
             <Skeleton className="h-6 w-24" />
             <Skeleton className="h-6 w-20" />
             <Skeleton className="h-6 w-28" />
-            ShiboSoftwareDev/cli#files
           </div>
           <div className="ml-auto flex items-center">
             <Skeleton className="h-4 w-4 mr-1" />
