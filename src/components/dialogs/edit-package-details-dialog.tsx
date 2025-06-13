@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   Select,
   SelectContent,
@@ -110,12 +110,12 @@ export const EditPackageDetailsDialog = ({
 
       const response = await axios.post("/packages/update", {
         package_id: packageId,
-        description: formData.description,
-        website: formData.website,
+        description: formData.description.trim(),
+        website: formData.website.trim(),
         is_private: formData.visibility == "private",
         default_view: formData.defaultView,
         ...(formData.unscopedPackageName !== unscopedPackageName && {
-          name: formData.unscopedPackageName,
+          name: formData.unscopedPackageName.trim(),
         }),
       })
       if (response.status !== 200)
@@ -148,12 +148,7 @@ export const EditPackageDetailsDialog = ({
           })
         }
       }
-      console.log(
-        "formData.unscopedPackageName",
-        formData.unscopedPackageName,
-        "unscopedPackageName",
-        unscopedPackageName,
-      )
+
       if (formData.unscopedPackageName !== unscopedPackageName) {
         // Use router for client-side navigation
         window.history.replaceState(
