@@ -59,10 +59,10 @@ export function useFileManagement({
   } = usePackageFilesLoader(currentPackage)
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(currentPackage?.latest_package_release_id)
-
   const initialCodeContent = useMemo(() => {
     return (
-      (decodeUrlHashToText(window.location.toString()) !== ""
+      (!!decodeUrlHashToText(window.location.toString()) &&
+      decodeUrlHashToText(window.location.toString()) !== ""
         ? decodeUrlHashToText(window.location.toString())
         : templateCode) || DEFAULT_CODE
     )
