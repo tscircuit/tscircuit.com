@@ -112,20 +112,15 @@ export default defineConfig(async (): Promise<UserConfig> => {
       proxy: proxyConfig,
     },
     base: "/",
+    optimizeDeps: {
+      exclude: ["three"],
+    },
     build: {
       copyPublicDir: true,
       minify: "esbuild",
-      // terserOptions: {
-      //   compress: {
-      //     drop_console: true,
-      //     drop_debugger: true,
-      //   },
-      //   format: {
-      //     comments: false,
-      //   },
-      // },
-      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
+      reportCompressedSize: true,
       rollupOptions: {
+        external: ["three"],
         input: {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
