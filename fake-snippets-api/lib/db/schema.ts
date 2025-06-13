@@ -149,6 +149,22 @@ export const aiReviewSchema = z.object({
 })
 export type AiReview = z.infer<typeof aiReviewSchema>
 
+export const datasheetPinInformationSchema = z.object({
+  pin_number: z.string(),
+  name: z.string(),
+  description: z.string(),
+  capabilities: z.array(z.string()),
+})
+
+export const datasheetSchema = z.object({
+  datasheet_id: z.string(),
+  chip_name: z.string(),
+  created_at: z.string(),
+  pin_information: datasheetPinInformationSchema.array().nullable(),
+  datasheet_pdf_urls: z.array(z.string()).nullable(),
+})
+export type Datasheet = z.infer<typeof datasheetSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -326,5 +342,6 @@ export const databaseSchema = z.object({
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
   orderQuotes: z.array(orderQuoteSchema).default([]),
   aiReviews: z.array(aiReviewSchema).default([]),
+  datasheets: z.array(datasheetSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
