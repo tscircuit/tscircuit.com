@@ -16,6 +16,8 @@ import {
   type PackageFile,
   type PackageRelease,
   packageReleaseSchema,
+  type AiReview,
+  aiReviewSchema,
   type Session,
   type Snippet,
   databaseSchema,
@@ -1337,5 +1339,43 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           : pkg,
       ),
     }))
+  },
+
+  addAiReview: (review: Omit<AiReview, "ai_review_id">): AiReview => {
+    const base = aiReviewSchema.omit({ ai_review_id: true }).parse(review)
+    const newReview = {
+      ai_review_id: crypto.randomUUID(),
+      ...base,
+    }
+    set((state) => ({
+      aiReviews: [...state.aiReviews, newReview],
+      idCounter: state.idCounter + 1,
+    }))
+    return newReview
+  },
+  updateAiReview: (
+    aiReviewId: string,
+    updates: Partial<AiReview>,
+  ): AiReview | undefined => {
+    let updated: AiReview | undefined
+    set((state) => {
+      const index = state.aiReviews.findIndex(
+        (ar) => ar.ai_review_id === aiReviewId,
+      )
+      if (index === -1) return state
+      const aiReviews = [...state.aiReviews]
+      aiReviews[index] = { ...aiReviews[index], ...updates }
+      updated = aiReviews[index]
+      return { ...state, aiReviews }
+    })
+    return updated
+  },
+  getAiReviewById: (aiReviewId: string): AiReview | undefined => {
+    const state = get()
+    return state.aiReviews.find((ar) => ar.ai_review_id === aiReviewId)
+  },
+  listAiReviews: (): AiReview[] => {
+    const state = get()
+    return state.aiReviews
   },
 }))

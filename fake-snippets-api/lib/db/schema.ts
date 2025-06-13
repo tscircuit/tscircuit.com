@@ -138,6 +138,17 @@ export const orderQuoteSchema = z.object({
 })
 export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
+export const aiReviewSchema = z.object({
+  ai_review_id: z.string().uuid(),
+  ai_review_text: z.string().nullable(),
+  start_processing_at: z.string().datetime().nullable(),
+  finished_processing_at: z.string().datetime().nullable(),
+  processing_error: z.any().nullable(),
+  created_at: z.string().datetime(),
+  display_status: z.enum(["pending", "completed", "failed"]),
+})
+export type AiReview = z.infer<typeof aiReviewSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -314,5 +325,6 @@ export const databaseSchema = z.object({
   jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
   orderQuotes: z.array(orderQuoteSchema).default([]),
+  aiReviews: z.array(aiReviewSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
