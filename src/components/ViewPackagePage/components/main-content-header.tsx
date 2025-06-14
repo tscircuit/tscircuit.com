@@ -87,7 +87,7 @@ export default function MainContentHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
               <a
                 href={`/editor?package_id=${packageInfo?.package_id}`}
                 className="cursor-pointer p-2 py-4"

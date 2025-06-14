@@ -1,10 +1,12 @@
 import * as ZT from "fake-snippets-api/lib/db/schema"
+import type { DbClient } from "fake-snippets-api/lib/db/db-client"
 
 export const publicMapPackageRelease = (
   internal_package_release: ZT.PackageRelease,
   options: {
     include_logs?: boolean
     include_ai_review?: boolean
+    db?: DbClient
   } = {
     include_logs: false,
     include_ai_review: false,
@@ -22,6 +24,27 @@ export const publicMapPackageRelease = (
     circuit_json_build_logs: options.include_logs
       ? internal_package_release.circuit_json_build_logs
       : [],
+  }
+
+  if (options.include_ai_review && options.db) {
+    const reviews = options.db
+      .listAiReviews()
+      .filter(
+        (r) =>
+          r.package_release_id === internal_package_release.package_release_id,
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+
+    if (reviews.length > 0) {
+      const latest = reviews[0]
+      result.ai_review_text = latest.ai_review_text ?? null
+      result.ai_review_started_at = latest.start_processing_at ?? null
+      result.ai_review_completed_at = latest.finished_processing_at ?? null
+      result.ai_review_error = latest.processing_error ?? null
+    }
   }
 
   // Only include AI review fields when include_ai_review is true

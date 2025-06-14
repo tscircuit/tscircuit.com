@@ -61,6 +61,7 @@ export default withRouteSpec({
       ok: true,
       package_release: publicMapPackageRelease(packageReleases[0], {
         include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
       }),
     })
   }
@@ -87,6 +88,7 @@ export default withRouteSpec({
       ok: true,
       package_release: publicMapPackageRelease(packageReleases[0], {
         include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
       }),
     })
   }
@@ -109,6 +111,7 @@ export default withRouteSpec({
       ok: true,
       package_release: publicMapPackageRelease(pkgRelease, {
         include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
       }),
     })
   }
@@ -128,6 +131,7 @@ export default withRouteSpec({
     package_release: publicMapPackageRelease(foundRelease, {
       include_logs: req.commonParams?.include_logs,
       include_ai_review: req.commonParams?.include_ai_review,
+      db: ctx.db,
     }),
   })
 })

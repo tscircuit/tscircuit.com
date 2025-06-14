@@ -12,13 +12,14 @@ export const useRequestAiReviewMutation = ({
 
   return useMutation(
     async ({ package_release_id }: { package_release_id: string }) => {
-      await axios.post("/package_releases/update", {
-        package_release_id,
-        ai_review_requested: true,
-      })
-      const { data } = await axios.post("/package_releases/get", {
+      await axios.post("/ai_reviews/create", {
         package_release_id,
       })
+      const { data } = await axios.post(
+        "/package_releases/get",
+        { package_release_id },
+        { params: { include_ai_review: true } },
+      )
       return data.package_release as PackageRelease
     },
     {
