@@ -4,7 +4,7 @@ import { test, expect } from "bun:test"
 test("get ai review", async () => {
   const { axios } = await getTestServer()
 
-  const createRes = await axios.post("/api/ai_reviews/create")
+  const createRes = await axios.post("/api/ai_reviews/create", {})
   const id = createRes.data.ai_review.ai_review_id
 
   const getRes = await axios.get("/api/ai_reviews/get", {

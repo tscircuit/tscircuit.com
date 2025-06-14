@@ -5,14 +5,16 @@ import { aiReviewSchema } from "fake-snippets-api/lib/db/schema"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
-  queryParams: z.object({
-    package_release_id: z.string().optional(),
-  }),
+  jsonBody: z
+    .object({
+      package_release_id: z.string().optional(),
+    })
+    .optional(),
   jsonResponse: z.object({
     ai_review: aiReviewSchema,
   }),
 })(async (req, ctx) => {
-  const { package_release_id } = req.query
+  const { package_release_id } = req.jsonBody ?? {}
 
   if (package_release_id) {
     const release = ctx.db.getPackageReleaseById(package_release_id)
