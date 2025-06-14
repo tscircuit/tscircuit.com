@@ -157,14 +157,49 @@ async function handleCustomPackageHtml(req, res) {
   res.status(200).send(html)
 }
 
+async function handleUserProfile(req, res) {
+  const [_, username] = req.url.split("?")[0].split("/")
+
+  if (!username) {
+    throw new Error("Username not provided")
+  }
+
+  try {
+    const githubUser = await ky
+      .get(`https://api.github.com/users/${username}`)
+      .json()
+
+    const description = he.encode(
+      `${githubUser.bio || `${githubUser.name || username}'s profile on tscircuit`}`,
+    )
+
+    const title = he.encode(`${githubUser.name || username} - tscircuit`)
+
+    const html = getHtmlWithModifiedSeoTags({
+      title,
+      description,
+      canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
+      imageUrl: githubUser.avatar_url,
+    })
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(200).send(html)
+  } catch (error) {
+    if (error.response?.status === 404) {
+      throw new Error("GitHub user not found")
+    }
+    throw error
+  }
+}
+
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
 
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
   }
-
-  // TODO handle usernames
 
   const html = getHtmlWithModifiedSeoTags({
     title: `${page} - tscircuit`,
@@ -174,7 +209,6 @@ async function handleCustomPage(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
-  // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
@@ -185,6 +219,13 @@ export default async function handler(req, res) {
     return
   } catch (e) {
     console.warn(e)
+  }
+
+  try {
+    await handleUserProfile(req, res)
+    return
+  } catch (e) {
+    console.warn("Not a user profile:", e.message)
   }
 
   try {
