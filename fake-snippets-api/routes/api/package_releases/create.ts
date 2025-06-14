@@ -104,6 +104,6 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package_release: publicMapPackageRelease(newPackageRelease),
+    package_release: publicMapPackageRelease(newPackageRelease, { db: ctx.db }),
   })
 })

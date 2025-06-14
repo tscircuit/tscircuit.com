@@ -154,3 +154,28 @@ test("POST /api/package_releases/get?include_logs=true - should return include_l
   expect(responseBody.package_release.transpilation_logs).toEqual([])
   expect(responseBody.package_release.circuit_json_build_logs).toEqual([])
 })
+
+test("POST /api/package_releases/get?include_ai_review=true returns latest review", async () => {
+  const { axios, seed } = await getTestServer()
+
+  const createRes = await axios.post("/api/ai_reviews/create", null, {
+    params: { package_release_id: seed.packageRelease.package_release_id },
+  })
+  const aiReviewId = createRes.data.ai_review.ai_review_id
+
+  await axios.post("/api/_fake/ai_reviews/process_review", {
+    ai_review_id: aiReviewId,
+  })
+
+  const getRes = await axios.post(
+    "/api/package_releases/get",
+    { package_release_id: seed.packageRelease.package_release_id },
+    { params: { include_ai_review: true } },
+  )
+
+  expect(getRes.status).toBe(200)
+  expect(getRes.data.package_release.ai_review_text).toBe(
+    "Placeholder AI Review",
+  )
+  expect(getRes.data.package_release.ai_review_completed_at).not.toBeNull()
+})

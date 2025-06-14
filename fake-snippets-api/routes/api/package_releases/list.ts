@@ -78,6 +78,7 @@ export default withRouteSpec({
     package_releases: releases.map((pr) =>
       publicMapPackageRelease(pr, {
         include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
       }),
     ),
   })
