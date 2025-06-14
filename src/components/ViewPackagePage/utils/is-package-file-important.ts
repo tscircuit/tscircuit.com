@@ -8,21 +8,18 @@ const importanceMap = {
 }
 
 /**
- * Determine if a file is considered "important" for display in the
+ * Determines if a file is considered "important" for display in the
  * `ImportantFilesView` component.
  *
- * Only "index" files that live in the root of the package should be flagged as
- * important. Nested paths are ignored.
+ * A file is deemed important if it resides in the root directory of the package
+ * and has a positive importance score. Nested paths are not considered important.
  */
 export const isPackageFileImportant = (filePath: string): boolean => {
   const normalized = filePath.replace(/^\.\/?/, "").toLowerCase()
-
-  // Ignore files that are not in the package root
-  if (normalized.includes("/")) return false
-
-  return Object.keys(importanceMap).some(
-    (name) => name.startsWith("index.") && normalized === name,
-  )
+  if (normalized.split("/").length > 1) {
+    return false
+  }
+  return scorePackageFileImportance(filePath) > 0
 }
 
 // Kept for backward compatibility with older imports
