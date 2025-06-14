@@ -11,6 +11,8 @@ const PREFETCHABLE_PAGES = new Set([
   "search",
   "trending",
   "dashboard",
+  "latest",
+  "settings",
   "quickstart",
 ])
 
@@ -20,17 +22,13 @@ const isPackagePath = (path: string) => {
   return parts.length === 2
 }
 
-export /**
- * PrefetchPageLink component that loads page components when links become visible.
- * Routes are automatically mapped to their corresponding page components under @/pages.
- * The href path is used to determine which page to load:
- *
- * Example:
- * - href="/editor" -> loads "@/pages/editor.tsx"
- * - href="/" -> loads "@/pages/landing.tsx"
- * - href="/my-orders" -> loads "@/pages/my-orders.tsx"
- */
-const PrefetchPageLink = ({
+// Helper to check if a path is a user profile path
+const isUserProfilePath = (path: string) => {
+  const parts = path.split("/").filter(Boolean)
+  return parts.length === 1 && !PREFETCHABLE_PAGES.has(parts[0])
+}
+
+export const PrefetchPageLink = ({
   href,
   children,
   className,
@@ -53,6 +51,19 @@ const PrefetchPageLink = ({
 
     const path = href === "/" ? "landing" : href.slice(1)
     if (!path) return
+
+    // Handle user profile paths
+    if (isUserProfilePath(path)) {
+      const username = path.split("/")[0]
+      // Prefetch user profile data
+      queryClient.prefetchQuery(["account", username], async () => {
+        const { data } = await axios.post("/accounts/get", {
+          github_username: username,
+        })
+        return data.account
+      })
+      return
+    }
 
     // Handle package paths
     if (isPackagePath(path)) {
