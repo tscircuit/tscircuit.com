@@ -17,7 +17,9 @@ const PREFETCHABLE_PAGES = new Set([
 // Helper to check if a path is a package path (e.g. /username/package-name)
 const isPackagePath = (path: string) => {
   const parts = path.split("/").filter(Boolean)
-  return parts.length === 2 && !parts[0].includes(".") && !parts[1].includes(".")
+  return (
+    parts.length === 2 && !parts[0].includes(".") && !parts[1].includes(".")
+  )
 }
 
 export /**
@@ -59,12 +61,15 @@ const PrefetchPageLink = ({
       const [owner, name] = path.split("/")
       const packageName = name.split("#")[0]
       // Prefetch package data
-      queryClient.prefetchQuery(["package", `${owner}/${packageName}`], async () => {
-        const { data } = await axios.get("/packages/get", {
-          params: { name: `${owner}/${packageName}` },
-        })
-        return data.package
-      })
+      queryClient.prefetchQuery(
+        ["package", `${owner}/${packageName}`],
+        async () => {
+          const { data } = await axios.get("/packages/get", {
+            params: { name: `${owner}/${packageName}` },
+          })
+          return data.package
+        },
+      )
       return
     }
 
