@@ -19,11 +19,13 @@ const LinkWithNewTabHandling = ({
   shouldOpenInNewTab,
   href,
   className,
+  onClick,
   children,
 }: {
   shouldOpenInNewTab: boolean
   href: string
   className?: string
+  onClick?: () => void
   children: React.ReactNode
 }) => {
   if (shouldOpenInNewTab) {
@@ -33,13 +35,14 @@ const LinkWithNewTabHandling = ({
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        onClick={onClick}
       >
         {children}
       </a>
     )
   }
   return (
-    <PrefetchPageLink className={className} href={href}>
+    <PrefetchPageLink onClick={onClick} className={className} href={href}>
       {children}
     </PrefetchPageLink>
   )
@@ -171,6 +174,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                 setLocation(href)
               }
               setShowResults(false)
+              if (closeOnClick) {
+                closeOnClick()
+              }
             }
           }
         }}
@@ -209,6 +215,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     }
                     shouldOpenInNewTab={shouldOpenInNewTab}
                     className="flex"
+                    onClick={() => {
+                      setShowResults(false)
+                      if (closeOnClick) closeOnClick()
+                    }}
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
