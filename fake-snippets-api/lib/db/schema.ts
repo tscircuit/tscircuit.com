@@ -140,6 +140,7 @@ export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
 export const aiReviewSchema = z.object({
   ai_review_id: z.string().uuid(),
+  package_release_id: z.string().optional(),
   ai_review_text: z.string().nullable(),
   start_processing_at: z.string().datetime().nullable(),
   finished_processing_at: z.string().datetime().nullable(),
