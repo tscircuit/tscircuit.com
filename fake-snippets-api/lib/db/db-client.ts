@@ -18,6 +18,8 @@ import {
   packageReleaseSchema,
   type AiReview,
   aiReviewSchema,
+  type Datasheet,
+  datasheetSchema,
   type Session,
   type Snippet,
   databaseSchema,
@@ -1377,5 +1379,39 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   listAiReviews: (): AiReview[] => {
     const state = get()
     return state.aiReviews
+  },
+  addDatasheet: ({ chip_name }: { chip_name: string }): Datasheet => {
+    const newDatasheet = datasheetSchema.parse({
+      datasheet_id: `datasheet_${Date.now()}`,
+      chip_name,
+      created_at: new Date().toISOString(),
+      pin_information: null,
+      datasheet_pdf_urls: null,
+    })
+    set((state) => ({
+      datasheets: [...state.datasheets, newDatasheet],
+    }))
+    return newDatasheet
+  },
+  getDatasheetById: (datasheetId: string): Datasheet | undefined => {
+    const state = get()
+    return state.datasheets.find((d) => d.datasheet_id === datasheetId)
+  },
+  updateDatasheet: (
+    datasheetId: string,
+    updates: Partial<Datasheet>,
+  ): Datasheet | undefined => {
+    let updated: Datasheet | undefined
+    set((state) => {
+      const index = state.datasheets.findIndex(
+        (d) => d.datasheet_id === datasheetId,
+      )
+      if (index === -1) return state
+      const datasheets = [...state.datasheets]
+      datasheets[index] = { ...datasheets[index], ...updates }
+      updated = datasheets[index]
+      return { ...state, datasheets }
+    })
+    return updated
   },
 }))
