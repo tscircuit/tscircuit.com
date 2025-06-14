@@ -35,4 +35,3 @@ export const scorePackageFileImportance = (filePath: string): number => {
   }
   return 0
 }
-
