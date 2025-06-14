@@ -4,8 +4,8 @@ import { test, expect } from "bun:test"
 test("create ai review", async () => {
   const { axios, seed, db } = await getTestServer()
 
-  const response = await axios.post("/api/ai_reviews/create", null, {
-    params: { package_release_id: seed.packageRelease.package_release_id },
+  const response = await axios.post("/api/ai_reviews/create", {
+    package_release_id: seed.packageRelease.package_release_id,
   })
 
   expect(response.status).toBe(200)

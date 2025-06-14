@@ -158,8 +158,8 @@ test("POST /api/package_releases/get?include_logs=true - should return include_l
 test("POST /api/package_releases/get?include_ai_review=true returns latest review", async () => {
   const { axios, seed } = await getTestServer()
 
-  const createRes = await axios.post("/api/ai_reviews/create", null, {
-    params: { package_release_id: seed.packageRelease.package_release_id },
+  const createRes = await axios.post("/api/ai_reviews/create", {
+    package_release_id: seed.packageRelease.package_release_id,
   })
   const aiReviewId = createRes.data.ai_review.ai_review_id
 
