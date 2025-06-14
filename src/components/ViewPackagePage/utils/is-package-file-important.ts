@@ -18,5 +18,9 @@ export const scorePackageFileImportance = (filePath: string) => {
 }
 
 export const isPackageFileImportant = (filePath: string) => {
+  // Only allow root directory files
+  if (filePath.split("/").length > 1) {
+    return false
+  }
   return scorePackageFileImportance(filePath) > 0
 }
