@@ -12,7 +12,7 @@ const __dirname = dirname(__filename)
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
-const cacheControlHeader = "public, max-age=0, must-revalidate"
+export const cacheControlHeader = "public, max-age=0, must-revalidate"
 
 function getHtmlWithModifiedSeoTags({
   title,
