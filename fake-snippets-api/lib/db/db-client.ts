@@ -16,6 +16,10 @@ import {
   type PackageFile,
   type PackageRelease,
   packageReleaseSchema,
+  type AiReview,
+  aiReviewSchema,
+  type Datasheet,
+  datasheetSchema,
   type Session,
   type Snippet,
   databaseSchema,
@@ -1337,5 +1341,77 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           : pkg,
       ),
     }))
+  },
+
+  addAiReview: (review: Omit<AiReview, "ai_review_id">): AiReview => {
+    const base = aiReviewSchema.omit({ ai_review_id: true }).parse(review)
+    const newReview = {
+      ai_review_id: crypto.randomUUID(),
+      ...base,
+    }
+    set((state) => ({
+      aiReviews: [...state.aiReviews, newReview],
+      idCounter: state.idCounter + 1,
+    }))
+    return newReview
+  },
+  updateAiReview: (
+    aiReviewId: string,
+    updates: Partial<AiReview>,
+  ): AiReview | undefined => {
+    let updated: AiReview | undefined
+    set((state) => {
+      const index = state.aiReviews.findIndex(
+        (ar) => ar.ai_review_id === aiReviewId,
+      )
+      if (index === -1) return state
+      const aiReviews = [...state.aiReviews]
+      aiReviews[index] = { ...aiReviews[index], ...updates }
+      updated = aiReviews[index]
+      return { ...state, aiReviews }
+    })
+    return updated
+  },
+  getAiReviewById: (aiReviewId: string): AiReview | undefined => {
+    const state = get()
+    return state.aiReviews.find((ar) => ar.ai_review_id === aiReviewId)
+  },
+  listAiReviews: (): AiReview[] => {
+    const state = get()
+    return state.aiReviews
+  },
+  addDatasheet: ({ chip_name }: { chip_name: string }): Datasheet => {
+    const newDatasheet = datasheetSchema.parse({
+      datasheet_id: `datasheet_${Date.now()}`,
+      chip_name,
+      created_at: new Date().toISOString(),
+      pin_information: null,
+      datasheet_pdf_urls: null,
+    })
+    set((state) => ({
+      datasheets: [...state.datasheets, newDatasheet],
+    }))
+    return newDatasheet
+  },
+  getDatasheetById: (datasheetId: string): Datasheet | undefined => {
+    const state = get()
+    return state.datasheets.find((d) => d.datasheet_id === datasheetId)
+  },
+  updateDatasheet: (
+    datasheetId: string,
+    updates: Partial<Datasheet>,
+  ): Datasheet | undefined => {
+    let updated: Datasheet | undefined
+    set((state) => {
+      const index = state.datasheets.findIndex(
+        (d) => d.datasheet_id === datasheetId,
+      )
+      if (index === -1) return state
+      const datasheets = [...state.datasheets]
+      datasheets[index] = { ...datasheets[index], ...updates }
+      updated = datasheets[index]
+      return { ...state, datasheets }
+    })
+    return updated
   },
 }))

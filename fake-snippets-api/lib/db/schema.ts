@@ -138,6 +138,34 @@ export const orderQuoteSchema = z.object({
 })
 export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
+export const aiReviewSchema = z.object({
+  ai_review_id: z.string().uuid(),
+  package_release_id: z.string().optional(),
+  ai_review_text: z.string().nullable(),
+  start_processing_at: z.string().datetime().nullable(),
+  finished_processing_at: z.string().datetime().nullable(),
+  processing_error: z.any().nullable(),
+  created_at: z.string().datetime(),
+  display_status: z.enum(["pending", "completed", "failed"]),
+})
+export type AiReview = z.infer<typeof aiReviewSchema>
+
+export const datasheetPinInformationSchema = z.object({
+  pin_number: z.string(),
+  name: z.string(),
+  description: z.string(),
+  capabilities: z.array(z.string()),
+})
+
+export const datasheetSchema = z.object({
+  datasheet_id: z.string(),
+  chip_name: z.string(),
+  created_at: z.string(),
+  pin_information: datasheetPinInformationSchema.array().nullable(),
+  datasheet_pdf_urls: z.array(z.string()).nullable(),
+})
+export type Datasheet = z.infer<typeof datasheetSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -314,5 +342,7 @@ export const databaseSchema = z.object({
   jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
   orderQuotes: z.array(orderQuoteSchema).default([]),
+  aiReviews: z.array(aiReviewSchema).default([]),
+  datasheets: z.array(datasheetSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

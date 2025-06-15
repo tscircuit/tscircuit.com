@@ -7,6 +7,7 @@ import { Alert } from "./ui/alert"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import { CircuitBoard } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -18,11 +19,13 @@ const LinkWithNewTabHandling = ({
   shouldOpenInNewTab,
   href,
   className,
+  onClick,
   children,
 }: {
   shouldOpenInNewTab: boolean
   href: string
   className?: string
+  onClick?: () => void
   children: React.ReactNode
 }) => {
   if (shouldOpenInNewTab) {
@@ -32,13 +35,14 @@ const LinkWithNewTabHandling = ({
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        onClick={onClick}
       >
         {children}
       </a>
     )
   }
   return (
-    <PrefetchPageLink className={className} href={href}>
+    <PrefetchPageLink onClick={onClick} className={className} href={href}>
       {children}
     </PrefetchPageLink>
   )
@@ -51,6 +55,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [showResults, setShowResults] = useState(false)
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const axios = useAxios()
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -72,6 +77,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     { enabled: Boolean(searchQuery) },
   )
 
+  useEffect(() => {
+    setHighlightedIndex(-1)
+  }, [searchResults])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
@@ -85,6 +94,13 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       inputRef.current?.focus()
     }
   }, [])
+
+  useEffect(() => {
+    if (highlightedIndex < 0) return
+    const items = resultsRef.current?.querySelectorAll("li")
+    const item = items?.[highlightedIndex] as HTMLElement | undefined
+    item?.scrollIntoView({ block: "nearest" })
+  }, [highlightedIndex])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -133,6 +149,35 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         onKeyDown={(e) => {
           if (e.key === "Backspace" && !searchQuery && closeOnClick) {
             closeOnClick()
+            return
+          }
+          if (!searchResults) return
+          if (e.key === "ArrowDown") {
+            e.preventDefault()
+            setShowResults(true)
+            setHighlightedIndex((prev) =>
+              Math.min(prev + 1, searchResults.length - 1),
+            )
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault()
+            setHighlightedIndex((prev) => Math.max(prev - 1, 0))
+          } else if (e.key === "Enter" && highlightedIndex >= 0) {
+            e.preventDefault()
+            const pkg = searchResults[highlightedIndex]
+            if (pkg) {
+              const href = shouldOpenInEditor
+                ? `/editor?package_id=${pkg.package_id}`
+                : `/${pkg.name}`
+              if (shouldOpenInNewTab) {
+                window.open(href, "_blank")
+              } else {
+                setLocation(href)
+              }
+              setShowResults(false)
+              if (closeOnClick) {
+                closeOnClick()
+              }
+            }
           }
         }}
         aria-label="Search packages"
@@ -154,8 +199,14 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200">
-              {searchResults.map((pkg: any) => (
-                <li key={pkg.package_id} className="p-2 hover:bg-gray-50">
+              {searchResults.map((pkg: any, index: number) => (
+                <li
+                  key={pkg.package_id}
+                  className={cn(
+                    "p-2 hover:bg-gray-50",
+                    index === highlightedIndex && "bg-gray-100",
+                  )}
+                >
                   <LinkWithNewTabHandling
                     href={
                       shouldOpenInEditor
@@ -164,6 +215,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                     }
                     shouldOpenInNewTab={shouldOpenInNewTab}
                     className="flex"
+                    onClick={() => {
+                      setShowResults(false)
+                      if (closeOnClick) closeOnClick()
+                    }}
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
