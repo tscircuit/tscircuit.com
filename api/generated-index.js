@@ -102,19 +102,8 @@ export async function handleUserProfile(req, res) {
     throw new Error("Username not provided")
   }
 
-  const accountResponse = await ky
-    .post(`https://registry-api.tscircuit.com/accounts/get`, {
-      json: {
-        github_username: username,
-      },
-    })
-    .json()
-
-  if (!accountResponse?.account?.github_username) {
-    throw new Error("Account not found")
-  }
   const description = he.encode(
-    `Circuits created by ${accountResponse?.account?.github_username} on tscircuit`,
+    `Circuits created by ${username} on tscircuit`,
   )
 
   const title = he.encode(
@@ -124,8 +113,8 @@ export async function handleUserProfile(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
-    canonicalUrl: `https://tscircuit.com/${he.encode(accountResponse?.account?.github_username)}`,
-    imageUrl: `https://github.com/${accountResponse?.account?.github_username}.png`,
+    canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
+    imageUrl: `https://github.com/${username}.png`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
@@ -237,14 +226,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    await handleUserProfile(req, res)
+    await handleCustomPage(req, res)
     return
   } catch (e) {
-    console.warn("Not a user profile:", e.message)
+    console.warn(e)
   }
 
   try {
-    await handleCustomPage(req, res)
+    await handleUserProfile(req, res)
     return
   } catch (e) {
     console.warn(e)
