@@ -12,7 +12,10 @@ import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
-import { isPackageFileImportant } from "../utils/is-package-file-important"
+import {
+  isPackageFileImportant,
+  scorePackageFileImportance,
+} from "../utils/is-package-file-important"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
@@ -90,9 +93,16 @@ export default function RepoPageContent({
   const importantFiles = useMemo(() => {
     if (!packageFiles || !importantFilePaths) return []
 
-    return packageFiles.filter((file) =>
-      importantFilePaths.some((path) => file.file_path.endsWith(path)),
-    )
+    return packageFiles
+      .filter((file) =>
+        importantFilePaths.some((path) => file.file_path.endsWith(path)),
+      )
+      .sort((a, b) => {
+        const aImportance = scorePackageFileImportance(a.file_path)
+        const bImportance = scorePackageFileImportance(b.file_path)
+        return aImportance - bImportance
+      })
+      .reverse()
   }, [packageFiles, importantFilePaths])
 
   // Generate package name with version for file lookups
