@@ -114,7 +114,7 @@ export async function handleUserProfile(req, res) {
     throw new Error("Account not found")
   }
   const description = he.encode(
-    `Discover the circuits created by ${accountResponse?.account?.github_username} on tscircuit`,
+    `Circuits created by ${accountResponse?.account?.github_username} on tscircuit`,
   )
 
   const title = he.encode(
