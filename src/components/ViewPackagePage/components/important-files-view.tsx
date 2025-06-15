@@ -295,7 +295,9 @@ export default function ImportantFilesView({
           renderAiContent()
         ) : activeTab === "ai-review" ? (
           renderAiReviewContent()
-        ) : activeFilePath && activeFilePath.endsWith(".md") ? (
+        ) : activeFilePath &&
+          (activeFilePath.endsWith(".md") ||
+            activeFilePath?.toLowerCase().endsWith("readme")) ? (
           <MarkdownViewer markdownContent={activeFileContent} />
         ) : activeFilePath &&
           (activeFilePath.endsWith(".js") ||
