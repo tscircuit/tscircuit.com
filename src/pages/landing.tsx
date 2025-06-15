@@ -23,26 +23,26 @@ import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 export function LandingPage() {
   const signIn = useSignIn()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
         <link rel="preconnect" href="https://img.shields.io" />
         <link rel="dns-prefetch" href="https://img.shields.io" />
-
         <link rel="preconnect" href="https://shields.io" />
         <link rel="dns-prefetch" href="https://shields.io" />
-
         <link rel="preconnect" href="https://tscircuit.com" />
         <link rel="dns-prefetch" href="https://tscircuit.com" />
-
         <link rel="preconnect" href="https://registry-api.tscircuit.com" />
         <link rel="dns-prefetch" href="https://registry-api.tscircuit.com" />
       </Helmet>
+
       <Header2 />
+
       <main className="flex-1">
         <section className="w-full py-8 md:py-12 lg:py-20 xl:py-36">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="container mx-auto max-w-7xl">
+          <div className="w-full px-4 md:px-6">
+            <div className="w-full">
               <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
                 <div className="flex flex-col justify-center space-y-4">
                   <div className="space-y-2">
@@ -55,8 +55,7 @@ export function LandingPage() {
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
                       Build electronics with code, AI, and drag'n'drop tools.
                       <br />
-                      Render code into schematics, PCBs, 3D, fabrication files,
-                      and more.
+                      Render code into schematics, PCBs, 3D, fabrication files, and more.
                     </p>
                   </div>
                   <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
@@ -127,12 +126,14 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
         <TrendingPackagesCarousel />
+
         <section
           className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
           id="features"
         >
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="w-full px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
@@ -180,6 +181,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
         <div className="md:mt-8">
           <OptimizedImage
             alt="Product preview"
@@ -189,7 +191,9 @@ export function LandingPage() {
             width={800}
           />
         </div>
+
         <FAQ />
+
         <div className="md:mt-8">
           <OptimizedImage
             alt="Product preview"
@@ -199,8 +203,9 @@ export function LandingPage() {
             width={800}
           />
         </div>
+
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="w-full px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center text-primary-foreground">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
@@ -231,8 +236,8 @@ export function LandingPage() {
           </div>
         </section>
       </main>
+
       <Footer />
-      {/* <Footer2 /> */}
     </div>
   )
 }
