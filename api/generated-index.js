@@ -175,7 +175,7 @@ async function handleUserProfile(req, res) {
       title,
       description,
       canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
-      imageUrl: githubUser.avatar_url,
+      imageUrl: `https://github.com/${username}.png`,
     })
 
     res.setHeader("Content-Type", "text/html; charset=utf-8")
