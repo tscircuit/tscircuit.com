@@ -165,15 +165,11 @@ async function handleUserProfile(req, res) {
   }
 
   try {
-    const githubUser = await ky
-      .get(`https://api.github.com/users/${username}`)
-      .json()
-
     const description = he.encode(
-      `${githubUser.bio || `${githubUser.name || username}'s profile on tscircuit`}`,
+      `Discover the circuits created by ${username} on tscircuit`,
     )
 
-    const title = he.encode(`${githubUser.name || username} - tscircuit`)
+    const title = he.encode(`${username} - tscircuit`)
 
     const html = getHtmlWithModifiedSeoTags({
       title,
