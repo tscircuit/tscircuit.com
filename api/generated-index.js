@@ -4,8 +4,6 @@ import { readFileSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 import he from "he"
-import { handleUserProfile } from "../src/lib/seo/handleUserProfile.js"
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -13,6 +11,16 @@ const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
 export const cacheControlHeader = "public, max-age=0, must-revalidate"
+const PREFETCHABLE_PAGES = new Set([
+  "landing",
+  "editor",
+  "search",
+  "trending",
+  "dashboard",
+  "latest",
+  "settings",
+  "quickstart",
+])
 
 function getHtmlWithModifiedSeoTags({
   title,
@@ -85,6 +93,43 @@ function getHtmlWithModifiedSeoTags({
   }
 
   return modifiedHtml
+}
+
+export async function handleUserProfile(req, res) {
+  const [_, username] = req.url.split("?")[0].split("/")
+
+  if (!username) {
+    throw new Error("Username not provided")
+  }
+
+  const accountResponse = await ky
+    .post(`https://registry-api.tscircuit.com/accounts/get`, {
+      json: {
+        github_username: username,
+      },
+    })
+    .json()
+
+  if (!accountResponse.ok) {
+    throw new Error("Account not found")
+  }
+  const description = he.encode(
+    `Discover the circuits created by ${username} on tscircuit`,
+  )
+
+  const title = he.encode(`${username} - tscircuit`)
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
+    imageUrl: `https://github.com/${username}.png`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -165,6 +210,10 @@ async function handleCustomPage(req, res) {
     throw new Error("Use landing.html content")
   }
 
+  if (!PREFETCHABLE_PAGES.has(page)) {
+    throw new Error("Not a route that can be prefetched")
+  }
+
   const html = getHtmlWithModifiedSeoTags({
     title: `${page} - tscircuit`,
     description: ``,
@@ -186,7 +235,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    await handleUserProfile(req, res, getHtmlWithModifiedSeoTags)
+    await handleUserProfile(req, res)
     return
   } catch (e) {
     console.warn("Not a user profile:", e.message)
