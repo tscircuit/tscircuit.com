@@ -110,20 +110,22 @@ export async function handleUserProfile(req, res) {
     })
     .json()
 
-  if (!accountResponse.account) {
+  if (!accountResponse?.account?.github_username) {
     throw new Error("Account not found")
   }
   const description = he.encode(
-    `Discover the circuits created by ${username} on tscircuit`,
+    `Discover the circuits created by ${accountResponse?.account?.github_username} on tscircuit`,
   )
 
-  const title = he.encode(`${username} - tscircuit`)
+  const title = he.encode(
+    `${accountResponse?.account?.github_username} - tscircuit`,
+  )
 
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
-    canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
-    imageUrl: `https://github.com/${username}.png`,
+    canonicalUrl: `https://tscircuit.com/${he.encode(accountResponse?.account?.github_username)}`,
+    imageUrl: `https://github.com/${accountResponse?.account?.github_username}.png`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
