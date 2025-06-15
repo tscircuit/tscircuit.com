@@ -96,7 +96,7 @@ function getHtmlWithModifiedSeoTags({
 }
 
 export async function handleUserProfile(req, res) {
-  const [_, username] = req.url.split("?")[0].split("/")
+  const username = req.url.split("/")[req.url.split("/").length - 1]
 
   if (!username) {
     throw new Error("Username not provided")
@@ -110,7 +110,7 @@ export async function handleUserProfile(req, res) {
     })
     .json()
 
-  if (!accountResponse.ok) {
+  if (!accountResponse.account) {
     throw new Error("Account not found")
   }
   const description = he.encode(
