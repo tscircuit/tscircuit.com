@@ -220,5 +220,3 @@ export const QuickstartPage = () => {
     </div>
   )
 }
-
-export default QuickstartPage
