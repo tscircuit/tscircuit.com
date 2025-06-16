@@ -55,7 +55,7 @@ export const UserProfilePage = () => {
   )
 
   // use the username stored in the database so the correct case is displayed
-  const githubUsername = account?.account.github_username || username
+  const githubUsername = account?.account?.github_username || username
   const isCurrentUserProfile = githubUsername === session?.github_username
 
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
