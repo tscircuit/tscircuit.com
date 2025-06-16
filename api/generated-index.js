@@ -102,9 +102,7 @@ export async function handleUserProfile(req, res) {
     throw new Error("Username not provided")
   }
 
-  const description = he.encode(
-    `Circuits created by ${username} on tscircuit`,
-  )
+  const description = he.encode(`Circuits created by ${username} on tscircuit`)
 
   const title = he.encode(
     `${accountResponse?.account?.github_username} - tscircuit`,
