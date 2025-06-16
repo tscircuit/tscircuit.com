@@ -262,5 +262,3 @@ export const UserProfilePage = () => {
     </div>
   )
 }
-
-export default UserProfilePage
