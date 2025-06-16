@@ -263,9 +263,4 @@ export const UserProfilePage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "View user profiles and their electronic circuit packages on tscircuit. Discover circuits, packages, and designs created by community members.",
-}
-
 export default UserProfilePage

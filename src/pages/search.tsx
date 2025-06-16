@@ -145,9 +145,4 @@ export const SearchPage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Search and discover electronic circuit packages on tscircuit. Find components, circuits, and designs created by the community.",
-}
-
 export default SearchPage

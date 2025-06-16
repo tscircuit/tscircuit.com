@@ -205,9 +205,4 @@ export const DashboardPage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Your tscircuit dashboard - manage your electronic circuit packages, view trending and latest packages, and access your recent designs.",
-}
-
 export default DashboardPage

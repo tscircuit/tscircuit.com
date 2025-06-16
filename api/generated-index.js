@@ -22,31 +22,27 @@ const PREFETCHABLE_PAGES = new Set([
   "quickstart",
 ])
 
-const pageMetaCache = new Map()
+const pageDescriptions = {
+  landing:
+    "Build electronics with code, AI, and drag'n'drop tools. Render code into schematics, PCBs, 3D, fabrication files, and more. Open-source MIT licensed electronic design automation tool.",
+  dashboard:
+    "Your tscircuit dashboard - manage your electronic circuit packages, view trending and latest packages, and access your recent designs.",
+  search:
+    "Search and discover electronic circuit packages on tscircuit. Find components, circuits, and designs created by the community.",
+  editor:
+    "Design and edit electronic circuits online with tscircuit's powerful web-based editor. Create schematics, PCB layouts, and 3D models with code.",
+  trending:
+    "Discover the most popular and trending electronic circuit packages on tscircuit. Find top-rated components, keyboards, microcontrollers, connectors, and sensors.",
+  latest:
+    "Explore the newest electronic circuit packages on tscircuit. Discover fresh circuit designs, components, and innovative approaches to electronic design.",
+  quickstart:
+    "Get started quickly with tscircuit. Create new circuit packages, import components from JLCPCB, or start from templates to begin your electronic design journey.",
+  settings:
+    "Manage your tscircuit account settings, shipping information, and preferences for electronic design and PCB ordering.",
+}
 
-async function getPageMeta(pageName) {
-  if (pageMetaCache.has(pageName)) {
-    return pageMetaCache.get(pageName)
-  }
-
-  try {
-    // Attempt to dynamically import the page meta data
-    const pageModule = await import(`../src/pages/${pageName}.tsx`)
-    const meta = pageModule.meta || null
-
-    if (meta && meta.description) {
-      const description = he.encode(meta.description)
-      pageMetaCache.set(pageName, { description })
-      return { description }
-    }
-  } catch (error) {
-    console.warn(`Failed to load meta for page ${pageName}:`, error.message)
-  }
-
-  // Fallback description
-  const fallbackDescription = ""
-  pageMetaCache.set(pageName, { description: fallbackDescription })
-  return { description: fallbackDescription }
+function getPageDescription(pageName) {
+  return pageDescriptions[pageName] || ""
 }
 
 function getHtmlWithModifiedSeoTags({
@@ -219,7 +215,7 @@ async function handleCustomPackageHtml(req, res) {
 
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
-  console.log(1, page)
+
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
   }
@@ -228,33 +224,18 @@ async function handleCustomPage(req, res) {
     throw new Error("Not a route that can be prefetched")
   }
 
-  try {
-    const { description: pageDescription } = await getPageMeta(page)
+  const pageDescription = getPageDescription(page)
 
-    const html = getHtmlWithModifiedSeoTags({
-      title: `${page} - tscircuit`,
-      description: pageDescription,
-      canonicalUrl: `https://tscircuit.com/${page}`,
-    })
+  const html = getHtmlWithModifiedSeoTags({
+    title: `${page} - tscircuit`,
+    description: pageDescription,
+    canonicalUrl: `https://tscircuit.com/${page}`,
+  })
 
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    res.setHeader("Cache-Control", cacheControlHeader)
-    res.setHeader("Vary", "Accept-Encoding")
-    res.status(200).send(html)
-  } catch (error) {
-    console.error(`Error handling custom page ${page}:`, error.message)
-    // Fallback to basic page
-    const html = getHtmlWithModifiedSeoTags({
-      title: `${page} - tscircuit`,
-      description: "",
-      canonicalUrl: `https://tscircuit.com/${page}`,
-    })
-
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    res.setHeader("Cache-Control", cacheControlHeader)
-    res.setHeader("Vary", "Accept-Encoding")
-    res.status(200).send(html)
-  }
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
 }
 
 export default async function handler(req, res) {

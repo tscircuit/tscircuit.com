@@ -189,9 +189,4 @@ const TrendingPage: React.FC = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Discover the most popular and trending electronic circuit packages on tscircuit. Find top-rated components, keyboards, microcontrollers, connectors, and sensors.",
-}
-
 export default TrendingPage

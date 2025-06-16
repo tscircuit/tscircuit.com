@@ -221,9 +221,4 @@ export const QuickstartPage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Get started quickly with tscircuit. Create new circuit packages, import components from JLCPCB, or start from templates to begin your electronic design journey.",
-}
-
 export default QuickstartPage

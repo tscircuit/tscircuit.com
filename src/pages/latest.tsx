@@ -139,9 +139,4 @@ const LatestPage: React.FC = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Explore the newest electronic circuit packages on tscircuit. Discover fresh circuit designs, components, and innovative approaches to electronic design.",
-}
-
 export default LatestPage

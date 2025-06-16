@@ -237,9 +237,4 @@ export function LandingPage() {
   )
 }
 
-export const meta = {
-  description:
-    "Build electronics with code, AI, and drag'n'drop tools. Render code into schematics, PCBs, 3D, fabrication files, and more. Open-source MIT licensed electronic design automation tool.",
-}
-
 export default LandingPage

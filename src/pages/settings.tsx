@@ -24,9 +24,4 @@ export const SettingsPage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Manage your tscircuit account settings, shipping information, and preferences for electronic design and PCB ordering.",
-}
-
 export default SettingsPage

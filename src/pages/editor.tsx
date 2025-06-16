@@ -54,9 +54,4 @@ export const EditorPage = () => {
   )
 }
 
-export const meta = {
-  description:
-    "Design and edit electronic circuits online with tscircuit's powerful web-based editor. Create schematics, PCB layouts, and 3D models with code.",
-}
-
 export default EditorPage
