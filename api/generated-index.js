@@ -22,6 +22,29 @@ const PREFETCHABLE_PAGES = new Set([
   "quickstart",
 ])
 
+const pageDescriptions = {
+  landing:
+    "Build electronics with code, AI, and drag'n'drop tools. Render code into schematics, PCBs, 3D, fabrication files, and more. Open-source MIT licensed electronic design automation tool.",
+  dashboard:
+    "Your tscircuit dashboard - manage your electronic circuit packages, view trending and latest packages, and access your recent designs.",
+  search:
+    "Search and discover electronic circuit packages on tscircuit. Find components, circuits, and designs created by the community.",
+  editor:
+    "Design and edit electronic circuits online with tscircuit's powerful web-based editor. Create schematics, PCB layouts, and 3D models with code.",
+  trending:
+    "Discover the most popular and trending electronic circuit packages on tscircuit. Find top-rated components, keyboards, microcontrollers, connectors, and sensors.",
+  latest:
+    "Explore the newest electronic circuit packages on tscircuit. Discover fresh circuit designs, components, and innovative approaches to electronic design.",
+  quickstart:
+    "Get started quickly with tscircuit. Create new circuit packages, import components from JLCPCB, or start from templates to begin your electronic design journey.",
+  settings:
+    "Manage your tscircuit account settings, shipping information, and preferences for electronic design and PCB ordering.",
+}
+
+function getPageDescription(pageName) {
+  return pageDescriptions[pageName] || ""
+}
+
 function getHtmlWithModifiedSeoTags({
   title,
   description,
@@ -192,7 +215,7 @@ async function handleCustomPackageHtml(req, res) {
 
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
-  console.log(1, page)
+
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
   }
@@ -201,9 +224,11 @@ async function handleCustomPage(req, res) {
     throw new Error("Not a route that can be prefetched")
   }
 
+  const pageDescription = getPageDescription(page)
+
   const html = getHtmlWithModifiedSeoTags({
-    title: `${page} - tscircuit`,
-    description: ``,
+    title: `${page.charAt(0).toUpperCase() + page.slice(1)} - tscircuit`,
+    description: pageDescription,
     canonicalUrl: `https://tscircuit.com/${page}`,
   })
 
