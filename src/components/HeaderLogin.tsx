@@ -43,7 +43,7 @@ export const HeaderLogin = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="ml-1 md:ml-0 md:mr-1">
         <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
           <div>
             AI Usage $
