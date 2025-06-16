@@ -104,9 +104,7 @@ export async function handleUserProfile(req, res) {
 
   const description = he.encode(`Circuits created by ${username} on tscircuit`)
 
-  const title = he.encode(
-    `${accountResponse?.account?.github_username} - tscircuit`,
-  )
+  const title = he.encode(`${username} - tscircuit`)
 
   const html = getHtmlWithModifiedSeoTags({
     title,
@@ -194,7 +192,7 @@ async function handleCustomPackageHtml(req, res) {
 
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
-
+  console.log(1, page)
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
   }
