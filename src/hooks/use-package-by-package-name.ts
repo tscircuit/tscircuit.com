@@ -18,6 +18,7 @@ export const usePackageByName = (packageName: string | null) => {
     {
       retry: false,
       enabled: Boolean(packageName),
+      refetchOnWindowFocus: false,
     },
   )
 }
