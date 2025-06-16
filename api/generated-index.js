@@ -227,7 +227,7 @@ async function handleCustomPage(req, res) {
   const pageDescription = getPageDescription(page)
 
   const html = getHtmlWithModifiedSeoTags({
-    title: `${page} - tscircuit`,
+    title: `${page.charAt(0).toUpperCase() + page.slice(1)} - tscircuit`,
     description: pageDescription,
     canonicalUrl: `https://tscircuit.com/${page}`,
   })
