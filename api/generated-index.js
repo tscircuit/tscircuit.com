@@ -4,14 +4,23 @@ import { readFileSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 import he from "he"
-
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const normalIndexFile = join(__dirname, "../dist/index.html")
 const htmlContent = readFileSync(normalIndexFile, "utf-8")
 
-const cacheControlHeader = "public, max-age=0, must-revalidate"
+export const cacheControlHeader = "public, max-age=0, must-revalidate"
+const PREFETCHABLE_PAGES = new Set([
+  "landing",
+  "editor",
+  "search",
+  "trending",
+  "dashboard",
+  "latest",
+  "settings",
+  "quickstart",
+])
 
 function getHtmlWithModifiedSeoTags({
   title,
@@ -84,6 +93,30 @@ function getHtmlWithModifiedSeoTags({
   }
 
   return modifiedHtml
+}
+
+export async function handleUserProfile(req, res) {
+  const username = req.url.split("/")[req.url.split("/").length - 1]
+
+  if (!username) {
+    throw new Error("Username not provided")
+  }
+
+  const description = he.encode(`Circuits created by ${username} on tscircuit`)
+
+  const title = he.encode(`${username} - tscircuit`)
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
+    imageUrl: `https://github.com/${username}.png`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -159,12 +192,14 @@ async function handleCustomPackageHtml(req, res) {
 
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
-
+  console.log(1, page)
   if (page === "landing" || !page) {
     throw new Error("Use landing.html content")
   }
 
-  // TODO handle usernames
+  if (!PREFETCHABLE_PAGES.has(page)) {
+    throw new Error("Not a route that can be prefetched")
+  }
 
   const html = getHtmlWithModifiedSeoTags({
     title: `${page} - tscircuit`,
@@ -174,7 +209,6 @@ async function handleCustomPage(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
-  // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
@@ -189,6 +223,13 @@ export default async function handler(req, res) {
 
   try {
     await handleCustomPage(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
+
+  try {
+    await handleUserProfile(req, res)
     return
   } catch (e) {
     console.warn(e)
