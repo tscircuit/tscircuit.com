@@ -28,7 +28,7 @@ export default withRouteSpec({
     package_name_with_version,
   } = req.jsonBody
 
-  if (package_name_with_version && !version && !package_id) {
+  if (package_name_with_version && !package_id) {
     const [packageName, parsedVersion] = package_name_with_version.split("@")
     const pkg = ctx.db.packages.find((p) => p.name === packageName)
 
