@@ -168,10 +168,14 @@ export default function Header() {
                   Docs
                 </HeaderButton>
               </li>
+              <li>
+                <HeaderButton className="w-full justify-start" href="/search">
+                  Search
+                </HeaderButton>
+              </li>
             </ul>
           </nav>
           <div className="flex flex-col gap-4">
-            <SearchComponent />
             <HeaderDropdown />
             <HeaderLogin />
           </div>
