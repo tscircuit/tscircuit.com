@@ -22,6 +22,33 @@ const PREFETCHABLE_PAGES = new Set([
   "quickstart",
 ])
 
+const pageMetaCache = new Map()
+
+async function getPageMeta(pageName) {
+  if (pageMetaCache.has(pageName)) {
+    return pageMetaCache.get(pageName)
+  }
+
+  try {
+    // Attempt to dynamically import the page meta data
+    const pageModule = await import(`../src/pages/${pageName}.tsx`)
+    const meta = pageModule.meta || null
+
+    if (meta && meta.description) {
+      const description = he.encode(meta.description)
+      pageMetaCache.set(pageName, { description })
+      return { description }
+    }
+  } catch (error) {
+    console.warn(`Failed to load meta for page ${pageName}:`, error.message)
+  }
+
+  // Fallback description
+  const fallbackDescription = ""
+  pageMetaCache.set(pageName, { description: fallbackDescription })
+  return { description: fallbackDescription }
+}
+
 function getHtmlWithModifiedSeoTags({
   title,
   description,
@@ -201,16 +228,33 @@ async function handleCustomPage(req, res) {
     throw new Error("Not a route that can be prefetched")
   }
 
-  const html = getHtmlWithModifiedSeoTags({
-    title: `${page} - tscircuit`,
-    description: ``,
-    canonicalUrl: `https://tscircuit.com/${page}`,
-  })
+  try {
+    const { description: pageDescription } = await getPageMeta(page)
 
-  res.setHeader("Content-Type", "text/html; charset=utf-8")
-  res.setHeader("Cache-Control", cacheControlHeader)
-  res.setHeader("Vary", "Accept-Encoding")
-  res.status(200).send(html)
+    const html = getHtmlWithModifiedSeoTags({
+      title: `${page} - tscircuit`,
+      description: pageDescription,
+      canonicalUrl: `https://tscircuit.com/${page}`,
+    })
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(200).send(html)
+  } catch (error) {
+    console.error(`Error handling custom page ${page}:`, error.message)
+    // Fallback to basic page
+    const html = getHtmlWithModifiedSeoTags({
+      title: `${page} - tscircuit`,
+      description: "",
+      canonicalUrl: `https://tscircuit.com/${page}`,
+    })
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(200).send(html)
+  }
 }
 
 export default async function handler(req, res) {
