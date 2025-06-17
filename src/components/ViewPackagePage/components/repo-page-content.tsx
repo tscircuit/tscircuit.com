@@ -59,6 +59,7 @@ export default function RepoPageContent({
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
     if (isCircuitJsonLoading) return
+    if (!packageInfo) return
     const hash = window.location.hash.slice(1)
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
     const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
