@@ -18,6 +18,7 @@ export const usePackage = (packageId: string | null) => {
     {
       enabled: Boolean(packageId),
       retry: false,
+      refetchOnWindowFocus: false,
     },
   )
 }
