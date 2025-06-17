@@ -326,9 +326,11 @@ export default function EditorNav({
             Edit with AI
           </Button> */}
           <DownloadButtonAndMenu
-            snippetUnscopedName={pkg?.unscoped_name}
+            unscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
             className="flex"
+            desiredImageType={pkg?.default_view ?? "pcb"}
+            author={pkg?.owner_github_username ?? undefined}
           />
           <Button
             variant="ghost"
