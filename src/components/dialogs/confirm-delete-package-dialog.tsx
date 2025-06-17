@@ -33,7 +33,7 @@ export const ConfirmDeletePackageDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[90vw]">
         <DialogHeader>
           <DialogTitle>Confirm Delete Package</DialogTitle>
         </DialogHeader>
