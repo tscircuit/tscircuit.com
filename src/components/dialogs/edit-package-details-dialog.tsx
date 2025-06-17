@@ -207,7 +207,7 @@ export const EditPackageDetailsDialog = ({
   return (
     <div>
       <Dialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
-        <DialogContent className="max-w-md p-6 rounded-2xl shadow-lg">
+        <DialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-left">Confirm Deletion</DialogTitle>
             <DialogDescription className="text-left">
