@@ -255,7 +255,7 @@ export const EditPackageDetailsDialog = ({
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        unscopedPackageName: e.target.value,
+                        unscopedPackageName: e.target.value.replace(/\s+/g, ""),
                       }))
                     }
                     placeholder="Enter package name"
