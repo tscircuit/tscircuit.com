@@ -198,7 +198,8 @@ async function handleCustomPackageHtml(req, res) {
   )
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
-  const imageUrl = `https://registry-api.tscircuit.com/packages/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/${["schematic", "pcb", "assembly", "3d"].includes(packageInfo.default_view || "pcb") ? packageInfo.default_view : "pcb"}.svg`
+  const imageUrl = `https://registry-api.tscircuit.com/packages/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/${["schematic", "pcb", "assembly", "3d"].includes(packageInfo.default_view || "pcb") ? packageInfo.default_view : "pcb"}.png?fs_sha=${packageInfo.latest_package_release_fs_sha}`
+
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
