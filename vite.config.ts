@@ -98,9 +98,13 @@ function vercelSsrDevPlugin(): Plugin {
         }
 
         try {
-          const rawHtml = readFileSync(
+          let rawHtml = readFileSync(
             path.resolve(__dirname, "index.html"),
             "utf-8",
+          )
+          rawHtml = rawHtml.replace(
+            /src="\.\/src\/main\.tsx"/,
+            'src="/src/main.tsx"',
           )
           const transformed = await server.transformIndexHtml(url, rawHtml)
           setHtmlContent(transformed)
