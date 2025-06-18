@@ -1,11 +1,14 @@
 import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
-import path from "path"
+import path, { extname } from "path"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
+import type { IncomingMessage, ServerResponse } from "http"
+
+import ssrHandler from "./api/generated-index.js"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -32,6 +35,64 @@ function apiFakePlugin(): Plugin {
           await new Promise((resolve) => setTimeout(resolve, 500))
           fakeHandler(req, res)
         } else {
+          next()
+        }
+      })
+    },
+  }
+}
+
+function vercelSsrDevPlugin(): Plugin {
+  return {
+    name: "vercel-ssr-dev",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const url = req.url?.split("?")[0] || ""
+        const accept = req.headers.accept || ""
+
+        if (url === "/" || url === "/landing.html") {
+          return next()
+        }
+
+        if (url.startsWith("/api/")) {
+          return next()
+        }
+
+        if (!accept.includes("text/html")) {
+          return next()
+        }
+
+        if (extname(url)) {
+          return next()
+        }
+
+        const patchedRes = res as ServerResponse & {
+          status?: (code: number) => ServerResponse
+          send?: (body: any) => void
+        }
+
+        if (!patchedRes.status) {
+          patchedRes.status = function (code: number) {
+            patchedRes.statusCode = code
+            return patchedRes
+          }
+        }
+
+        if (!patchedRes.send) {
+          patchedRes.send = function (body: any) {
+            if (Buffer.isBuffer(body) || typeof body === "string") {
+              patchedRes.end(body)
+            } else {
+              patchedRes.end(JSON.stringify(body))
+            }
+          }
+        }
+
+        try {
+          await ssrHandler(req as IncomingMessage, patchedRes)
+        } catch (err) {
+          console.error("SSR handler error", err)
           next()
         }
       })
@@ -71,6 +132,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
         effort: 6,
       },
     }),
+    vercelSsrDevPlugin(),
   ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
