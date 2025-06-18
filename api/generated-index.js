@@ -7,8 +7,20 @@ import he from "he"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const normalIndexFile = join(__dirname, "../dist/index.html")
-const htmlContent = readFileSync(normalIndexFile, "utf-8")
+const isDev =
+  process.env.TSC_DEV_SSR === "true" || process.env.NODE_ENV === "development"
+const normalIndexFile = isDev
+  ? join(__dirname, "../index.html")
+  : join(__dirname, "../dist/index.html")
+let htmlContent = readFileSync(normalIndexFile, "utf-8")
+
+export function setHtmlContent(html) {
+  htmlContent = html
+}
+
+const BASE_URL = process.env.TSC_BASE_URL || "https://tscircuit.com"
+const REGISTRY_URL =
+  process.env.TSC_REGISTRY_API || "https://registry-api.tscircuit.com"
 
 export const cacheControlHeader = "public, max-age=0, must-revalidate"
 const PREFETCHABLE_PAGES = new Set([
@@ -132,7 +144,7 @@ export async function handleUserProfile(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
-    canonicalUrl: `https://tscircuit.com/${he.encode(username)}`,
+    canonicalUrl: `${BASE_URL}/${he.encode(username)}`,
     imageUrl: `https://github.com/${username}.png`,
   })
 
@@ -150,7 +162,7 @@ async function handleCustomPackageHtml(req, res) {
   }
 
   const { package: packageInfo } = await ky
-    .get(`https://registry-api.tscircuit.com/packages/get`, {
+    .get(`${REGISTRY_URL}/packages/get`, {
       searchParams: {
         name: `${author}/${unscopedPackageName}`,
       },
@@ -165,7 +177,7 @@ async function handleCustomPackageHtml(req, res) {
   let packageFiles = null
   try {
     const releaseResponse = await ky
-      .post(`https://registry-api.tscircuit.com/package_releases/get`, {
+      .post(`${REGISTRY_URL}/package_releases/get`, {
         json: {
           package_id: packageInfo.package_id,
           is_latest: true,
@@ -178,7 +190,7 @@ async function handleCustomPackageHtml(req, res) {
     if (packageRelease?.package_release_id) {
       try {
         const filesResponse = await ky
-          .post(`https://registry-api.tscircuit.com/package_files/list`, {
+          .post(`${REGISTRY_URL}/package_files/list`, {
             json: {
               package_release_id: packageRelease.package_release_id,
             },
@@ -201,8 +213,8 @@ async function handleCustomPackageHtml(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
-    canonicalUrl: `https://tscircuit.com/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
-    imageUrl: `https://registry-api.tscircuit.com/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
+    imageUrl: `${REGISTRY_URL}/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
     ssrPackageData: { package: packageInfo, packageRelease, packageFiles },
   })
 
@@ -229,7 +241,7 @@ async function handleCustomPage(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title: `${page.charAt(0).toUpperCase() + page.slice(1)} - tscircuit`,
     description: pageDescription,
-    canonicalUrl: `https://tscircuit.com/${page}`,
+    canonicalUrl: `${BASE_URL}/${page}`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

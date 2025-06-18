@@ -2,13 +2,12 @@ import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
 import path, { extname } from "path"
+import { readFileSync } from "fs"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
-
-import ssrHandler from "./api/generated-index.js"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -46,7 +45,16 @@ function vercelSsrDevPlugin(): Plugin {
   return {
     name: "vercel-ssr-dev",
     apply: "serve",
-    configureServer(server) {
+    async configureServer(server) {
+      const port = server.config.server.port || 5173
+      process.env.TSC_DEV_SSR = "true"
+      process.env.TSC_BASE_URL = `http://127.0.0.1:${port}`
+      process.env.TSC_REGISTRY_API = `http://127.0.0.1:${port}/api`
+
+      const { default: ssrHandler, setHtmlContent } = await import(
+        "./api/generated-index.js"
+      )
+
       server.middlewares.use(async (req, res, next) => {
         const url = req.url?.split("?")[0] || ""
         const accept = req.headers.accept || ""
@@ -90,6 +98,12 @@ function vercelSsrDevPlugin(): Plugin {
         }
 
         try {
+          const rawHtml = readFileSync(
+            path.resolve(__dirname, "index.html"),
+            "utf-8",
+          )
+          const transformed = await server.transformIndexHtml(url, rawHtml)
+          setHtmlContent(transformed)
           await ssrHandler(req as IncomingMessage, patchedRes)
         } catch (err) {
           console.error("SSR handler error", err)
