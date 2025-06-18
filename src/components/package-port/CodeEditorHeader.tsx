@@ -152,7 +152,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         <div>
           <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger
-              className={`h-7 w-24 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
                 sidebarOpen ? "-ml-2" : "-ml-1"
               }`}
             >
@@ -170,7 +170,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
                       className={`text-xs pr-1 block truncate ${
-                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
                       }`}
                     >
                       {filename}
@@ -187,7 +189,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   <SelectItem className="select-none py-1" value={currentFile}>
                     <span
                       className={`text-xs pr-1 block truncate ${
-                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
                       }`}
                     >
                       {currentFile}
