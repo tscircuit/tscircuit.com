@@ -1,3 +1,5 @@
+import { toast } from "sonner"
+
 export function setupBuildWatcher() {
   const meta = document.querySelector<HTMLMetaElement>(
     'meta[name="tscircuit-build"]',
@@ -19,12 +21,24 @@ export function setupBuildWatcher() {
     }
   }
 
+  let updateToastShown = false
+
   async function checkForUpdate() {
     const serverId = await fetchBuildId()
-    if (serverId && serverId !== (window as any).TSC_BUILD_ID) {
-      if (confirm("A new version of tscircuit.com is available. Reload?")) {
-        window.location.reload()
-      }
+    if (
+      serverId &&
+      serverId !== (window as any).TSC_BUILD_ID &&
+      !updateToastShown
+    ) {
+      updateToastShown = true
+      toast("A new version of tscircuit.com is available.", {
+        action: {
+          label: "Reload",
+          onClick: () => window.location.reload(),
+        },
+        duration: Infinity,
+        position: "bottom-left",
+      })
     }
   }
 
