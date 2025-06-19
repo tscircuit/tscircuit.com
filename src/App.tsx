@@ -97,8 +97,13 @@ class ErrorBoundary extends React.Component<
         message,
       )
     ) {
-      this.setState({ reloading: true })
-      window.location.reload()
+      const loadedAt = window.__APP_LOADED_AT || Date.now()
+      if (Date.now() - loadedAt >= 10_000) {
+        this.setState({ reloading: true })
+        window.location.reload()
+      } else {
+        console.warn("Skipping reload to avoid infinite loop")
+      }
     }
   }
 
