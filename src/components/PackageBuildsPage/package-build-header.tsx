@@ -66,9 +66,7 @@ export function PackageBuildHeader() {
           >
             <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
-          <DownloadButtonAndMenu
-            snippetUnscopedName={`${author}/${packageName}`}
-          />
+          <DownloadButtonAndMenu unscopedName={packageName} author={author} />
         </div>
       </div>
     </div>

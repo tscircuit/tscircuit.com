@@ -210,11 +210,16 @@ async function handleCustomPackageHtml(req, res) {
   )
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
+  const allowedViews = ["schematic", "pcb", "assembly", "3d"]
+  const defaultView = packageInfo.default_view || "pcb"
+  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "pcb"
+  const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${packageInfo.latest_package_release_fs_sha}`
+
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
     canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
-    imageUrl: `${REGISTRY_URL}/snippets/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/pcb.png`,
+    imageUrl,
     ssrPackageData: { package: packageInfo, packageRelease, packageFiles },
   })
 

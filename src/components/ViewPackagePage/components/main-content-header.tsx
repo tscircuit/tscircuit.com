@@ -70,7 +70,9 @@ export default function MainContentHeader({
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu
-          snippetUnscopedName={packageInfo?.unscoped_name}
+          unscopedName={packageInfo?.unscoped_name}
+          desiredImageType={activeView}
+          author={packageInfo?.owner_github_username ?? undefined}
           circuitJson={circuitJson}
         />
 
