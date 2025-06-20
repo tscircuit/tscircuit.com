@@ -3,9 +3,6 @@
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
-      "dependencies": {
-        "idb-keyval": "^6.2.2",
-      },
       "devDependencies": {
         "@anthropic-ai/sdk": "^0.27.3",
         "@babel/preset-react": "^7.25.9",
@@ -105,6 +102,7 @@
         "get-port": "^7.1.0",
         "globals": "^15.9.0",
         "he": "^1.2.0",
+        "idb-keyval": "^6.2.2",
         "immer": "^10.1.1",
         "input-otp": "^1.2.4",
         "javascript-time-ago": "^2.5.11",
@@ -114,6 +112,7 @@
         "kicad-converter": "^0.0.16",
         "ky": "^1.7.5",
         "lucide-react": "^0.488.0",
+        "lz-string": "^1.5.0",
         "md5": "^2.3.0",
         "ms": "^2.1.3",
         "next-themes": "^0.3.0",
@@ -1637,6 +1636,8 @@
     "lru-cache": ["lru-cache@5.1.1", "", { "dependencies": { "yallist": "^3.0.2" } }, "sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w=="],
 
     "lucide-react": ["lucide-react@0.488.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-ronlL0MyKut4CEzBY/ai2ZpKPxyWO4jUqdAkm2GNK5Zn3Rj+swDz+3lvyAUXN0PNqPKIX6XM9Xadwz/skLs/pQ=="],
+
+    "lz-string": ["lz-string@1.5.0", "", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 
     "maath": ["maath@0.10.8", "", { "peerDependencies": { "@types/three": ">=0.134.0", "three": ">=0.134.0" } }, "sha512-tRvbDF0Pgqz+9XUa4jjfgAQ8/aPKmQdWXilFu2tMy4GWj4NOsx99HlULO4IeREfbO3a0sA145DZYyvXPkybm0g=="],
 
