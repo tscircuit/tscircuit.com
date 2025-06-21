@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Edit, FileText, Code, Copy, CopyCheck } from "lucide-react"
+import { Edit, FileText, Code, Copy, CopyCheck, Sparkles } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
@@ -279,6 +279,16 @@ export default function ImportantFilesView({
                 <CopyCheck className="h-4 w-4" />
               )}
               <span className="sr-only">Copy</span>
+            </button>
+          )}
+          {activeTab === "ai-review" && aiReviewText && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
+              onClick={onRequestAiReview}
+              title="Re-request AI Review"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="sr-only">Re-request AI Review</span>
             </button>
           )}
           <button
