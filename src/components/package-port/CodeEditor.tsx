@@ -12,10 +12,10 @@ import { setupTypeAcquisition } from "@typescript/ata"
 import { linter } from "@codemirror/lint"
 import { TSCI_PACKAGE_PATTERN } from "@/lib/constants"
 import {
-  createDefaultMapFromCDN,
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
+import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
@@ -141,12 +141,7 @@ export const CodeEditor = ({
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    createDefaultMapFromCDN(
-      { target: tsModule.ScriptTarget.ES2022 },
-      "5.6.3",
-      true,
-      tsModule,
-    ).then((defaultFsMap) => {
+    loadDefaultLibMap().then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
       })
