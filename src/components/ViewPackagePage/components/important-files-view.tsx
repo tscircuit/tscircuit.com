@@ -165,12 +165,12 @@ export default function ImportantFilesView({
         <div className="flex flex-col items-center justify-center py-8 px-4">
           <div className="text-center space-y-4 max-w-md">
             <div className="flex justify-center">
-              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                 <Loader2 className="h-6 w-6 text-gray-600 animate-spin" />
               </div>
             </div>
             <div className="space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 Our AI is analyzing your package. This usually takes a few
                 minutes. Please check back shortly.
               </p>
