@@ -281,13 +281,15 @@ export default function ImportantFilesView({
               <span className="sr-only">Copy</span>
             </button>
           )}
-          <button
-            className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
-            onClick={() => onEditClicked?.(activeFilePath)}
-          >
-            <Edit className="h-4 w-4" />
-            <span className="sr-only">Edit</span>
-          </button>
+          {activeTab === "file" && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
+              onClick={() => onEditClicked?.(activeFilePath)}
+            >
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
+            </button>
+          )}
         </div>
       </div>
       <div className="p-4 bg-white dark:bg-[#0d1117]">
