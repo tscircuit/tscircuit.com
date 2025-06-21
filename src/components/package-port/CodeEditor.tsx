@@ -77,6 +77,7 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
+  const [fontSize, setFontSize] = useState(14)
 
   const { highlighter } = useShikiHighlighter()
 
@@ -262,6 +263,29 @@ export const CodeEditor = ({
           const pos = update.state.selection.main.head
           setCursorPosition(pos)
         }
+      }),
+      EditorView.theme({
+        ".cm-editor": {
+          fontSize: `${fontSize}px`,
+        },
+        ".cm-content": {
+          fontSize: `${fontSize}px`,
+        },
+      }),
+      EditorView.domEventHandlers({
+        wheel: (event) => {
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault()
+            const delta = event.deltaY
+            setFontSize((prev) => {
+              const newSize =
+                delta > 0 ? Math.max(8, prev - 1) : Math.min(32, prev + 1)
+              return newSize
+            })
+            return true
+          }
+          return false
+        },
       }),
     ]
     if (codeCompletionApi?.apiKey) {
@@ -470,7 +494,14 @@ export const CodeEditor = ({
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== "", Boolean(highlighter), isSaving])
+  }, [
+    !isStreaming,
+    currentFile,
+    code !== "",
+    Boolean(highlighter),
+    isSaving,
+    fontSize,
+  ])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
