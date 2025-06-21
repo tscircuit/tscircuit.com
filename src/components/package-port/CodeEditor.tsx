@@ -1,6 +1,10 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
-import { autocompletion, acceptCompletion, completionStatus } from "@codemirror/autocomplete"
+import {
+  autocompletion,
+  acceptCompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
 import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
@@ -280,14 +284,13 @@ export const CodeEditor = ({
         //   language: Language.TYPESCRIPT,
         // }),
         EditorView.theme({
-          ".cm-ghostText, .cm-ghostText *":  {
+          ".cm-ghostText, .cm-ghostText *": {
             opacity: "0.6",
             filter: "grayscale(20%)",
             cursor: "pointer",
           },
           ".cm-ghostText:hover": {
             background: "#eee",
-            width: "100%",
           },
         }),
       )
