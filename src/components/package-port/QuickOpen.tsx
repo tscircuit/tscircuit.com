@@ -129,11 +129,7 @@ const QuickOpen = ({
       return chars.map((char, i) => (
         <span
           key={i}
-          className={
-            file.matches.includes(i)
-              ? "bg-slate-200 rounded-sm"
-              : ""
-          }
+          className={file.matches.includes(i) ? "bg-slate-200 rounded-sm" : ""}
         >
           {char}
         </span>
