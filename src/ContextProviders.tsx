@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
 import { Toaster } from "react-hot-toast"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import { populateQueryCacheWithSSRData } from "./lib/populate-query-cache-with-ssr-data"
 
 const staffGithubUsernames = [
@@ -65,6 +66,7 @@ export const ContextProviders = ({ children }: any) => {
         <PostHogIdentifier />
         {children}
         <Toaster position="bottom-right" />
+        <SonnerToaster position="bottom-left" />
       </HelmetProvider>
     </QueryClientProvider>
   )
