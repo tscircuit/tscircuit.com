@@ -202,6 +202,7 @@ export default function ImportantFilesView({
           package_release_id: partialActiveFile.package_release_id,
         }
       : null,
+    { keepPreviousData: true },
   )
   const activeFileContent = activeFileFull?.content_text || ""
 
