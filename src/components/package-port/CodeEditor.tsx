@@ -135,6 +135,17 @@ export const CodeEditor = ({
   }, [isStreaming])
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+        e.preventDefault()
+        setSidebarOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
+  useEffect(() => {
     if (!editorRef.current) return
 
     const fsMap = new Map<string, string>()
