@@ -1,6 +1,7 @@
 import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { Command } from "cmdk"
 import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
@@ -59,17 +60,9 @@ const CmdKMenu = () => {
     },
   )
 
-  React.useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault()
-        setOpen((prev) => !prev)
-      }
-    }
-
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [])
+  useHotkeyCombo("cmd+k", () => {
+    setOpen((prev) => !prev)
+  })
 
   const blankTemplates: Template[] = [
     { name: "New Circuit Board", type: "board" },
