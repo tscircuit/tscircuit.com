@@ -1,4 +1,5 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
 import { autocompletion } from "@codemirror/autocomplete"
 import { indentWithTab } from "@codemirror/commands"
@@ -134,16 +135,13 @@ export const CodeEditor = ({
     }
   }, [isStreaming])
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
-        e.preventDefault()
-        setSidebarOpen((prev) => !prev)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  useHotkeyCombo(
+    "cmd+b",
+    () => {
+      setSidebarOpen((prev) => !prev)
+    },
+    { target: window },
+  )
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -561,21 +559,16 @@ export const CodeEditor = ({
     updateEditorToMatchCurrentFile()
   }, [currentFile])
 
-  // Global keyboard listener for Ctrl+P
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "p" && !e.shiftKey) {
-        e.preventDefault()
-        setShowQuickOpen(true)
-      }
-      if (e.key === "Escape" && showQuickOpen) {
-        setShowQuickOpen(false)
-      }
-    }
+  // Global keyboard listeners
+  useHotkeyCombo("cmd+p", () => {
+    setShowQuickOpen(true)
+  })
 
-    document.addEventListener("keydown", handleGlobalKeyDown)
-    return () => document.removeEventListener("keydown", handleGlobalKeyDown)
-  }, [showQuickOpen])
+  useHotkeyCombo("Escape", () => {
+    if (showQuickOpen) {
+      setShowQuickOpen(false)
+    }
+  })
 
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
