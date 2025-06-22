@@ -57,7 +57,10 @@ export const Header2 = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
-          <PrefetchPageLink href="/" className="flex select-none items-center gap-2">
+          <PrefetchPageLink
+            href="/"
+            className="flex select-none items-center gap-2"
+          >
             <CircuitBoard className="h-6 w-6" />
             <span className="text-lg font-bold">tscircuit</span>
           </PrefetchPageLink>
