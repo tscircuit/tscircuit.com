@@ -1,7 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Edit, FileText, Code, Copy, CopyCheck, Loader2 } from "lucide-react"
+import {
+  Edit,
+  FileText,
+  Code,
+  Copy,
+  CopyCheck,
+  Loader2,
+  RefreshCcwIcon,
+} from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
@@ -311,6 +319,16 @@ export default function ImportantFilesView({
                 <CopyCheck className="h-4 w-4" />
               )}
               <span className="sr-only">Copy</span>
+            </button>
+          )}
+          {activeTab === "ai-review" && aiReviewText && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
+              onClick={onRequestAiReview}
+              title="Re-request AI Review"
+            >
+              <RefreshCcwIcon className="h-4 w-4" />
+              <span className="sr-only">Re-request AI Review</span>
             </button>
           )}
           <button
