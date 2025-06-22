@@ -40,6 +40,7 @@ import {
   IDeleteFileProps,
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -630,7 +631,7 @@ export const CodeEditor = ({
       </div>
       {showQuickOpen && (
         <QuickOpen
-          files={files}
+          files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
           onFileSelect={handleFileChange}
           onClose={() => setShowQuickOpen(false)}
