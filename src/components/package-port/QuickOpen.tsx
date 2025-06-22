@@ -32,6 +32,7 @@ const QuickOpen = ({
   const [query, setQuery] = useState("")
   const [selected, setSelected] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const selectedItemRef = useRef<HTMLDivElement>(null)
 
   const scoredFiles = useMemo((): ScoredFile[] => {
     if (!query) return files.map((f) => ({ ...f, score: 0, matches: [] }))
@@ -85,6 +86,15 @@ const QuickOpen = ({
   useEffect(() => {
     setSelected(0)
   }, [query])
+
+  useEffect(() => {
+    if (selectedItemRef.current) {
+      selectedItemRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      })
+    }
+  }, [selected])
 
   const getFileIcon = useCallback((path: string) => {
     const ext = path.split(".").pop()?.toLowerCase()
@@ -177,6 +187,7 @@ const QuickOpen = ({
             scoredFiles.map((file, index) => (
               <div
                 key={file.path}
+                ref={index === selected ? selectedItemRef : null}
                 onClick={() => {
                   onFileSelect(file.path)
                   onClose()
