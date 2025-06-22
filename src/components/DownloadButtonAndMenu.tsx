@@ -68,7 +68,7 @@ export function DownloadButtonAndMenu({
             <ChevronDown className="w-4 h-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="!z-[101]">
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {

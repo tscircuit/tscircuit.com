@@ -24,6 +24,7 @@ import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
+import SidebarReleasesSection from "./sidebar-releases-section"
 
 interface PackageFile {
   package_file_id: string
@@ -236,6 +237,10 @@ export default function RepoPageContent({
                 window.location.hash = view
               }}
             />
+          </div>
+          {/* Releases section - Only visible on small screens */}
+          <div className="block md:hidden w-full px-5">
+            <SidebarReleasesSection />
           </div>
         </div>
       </div>
