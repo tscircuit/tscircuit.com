@@ -29,6 +29,7 @@ import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import QuickOpen from "./QuickOpen"
 import {
   ICreateFileProps,
   ICreateFileResult,
@@ -78,6 +79,7 @@ export const CodeEditor = ({
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
+  const [showQuickOpen, setShowQuickOpen] = useState(false)
 
   const { highlighter } = useShikiHighlighter()
 
@@ -243,6 +245,13 @@ export const CodeEditor = ({
           {
             key: "Mod-Enter",
             run: () => true,
+          },
+          {
+            key: "Mod-p",
+            run: () => {
+              setShowQuickOpen(true)
+              return true
+            },
           },
         ]),
       ),
@@ -572,6 +581,22 @@ export const CodeEditor = ({
     updateEditorToMatchCurrentFile()
   }, [currentFile])
 
+  // Global keyboard listener for Ctrl+P
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "p" && !e.shiftKey) {
+        e.preventDefault()
+        setShowQuickOpen(true)
+      }
+      if (e.key === "Escape" && showQuickOpen) {
+        setShowQuickOpen(false)
+      }
+    }
+
+    document.addEventListener("keydown", handleGlobalKeyDown)
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown)
+  }, [showQuickOpen])
+
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
@@ -610,6 +635,14 @@ export const CodeEditor = ({
           }
         />
       </div>
+      {showQuickOpen && (
+        <QuickOpen
+          files={files}
+          currentFile={currentFile}
+          onFileSelect={handleFileChange}
+          onClose={() => setShowQuickOpen(false)}
+        />
+      )}
     </div>
   )
 }
