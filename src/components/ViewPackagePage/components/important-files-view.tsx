@@ -50,9 +50,6 @@ export default function ImportantFilesView({
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
-  const [fileContentCache, setFileContentCache] = useState<
-    Record<string, string>
-  >({})
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeFileContent)
@@ -206,21 +203,7 @@ export default function ImportantFilesView({
         }
       : null,
   )
-
-  useEffect(() => {
-    if (activeFileFull?.content_text && activeFilePath) {
-      setFileContentCache((prev) => ({
-        ...prev,
-        [activeFilePath]: activeFileFull.content_text!,
-      }))
-    }
-  }, [activeFileFull, activeFilePath])
-
-  // Use cached content if available, otherwise fall back to fetched content
-  const activeFileContent =
-    activeFilePath && fileContentCache[activeFilePath]
-      ? fileContentCache[activeFilePath]
-      : activeFileFull?.content_text || ""
+  const activeFileContent = activeFileFull?.content_text || ""
 
   if (isLoading) {
     return (
