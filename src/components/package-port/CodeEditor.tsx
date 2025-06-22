@@ -1,7 +1,11 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
-import { autocompletion } from "@codemirror/autocomplete"
-import { indentWithTab } from "@codemirror/commands"
+import {
+  autocompletion,
+  acceptCompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState, Prec } from "@codemirror/state"
@@ -36,6 +40,7 @@ import {
   IDeleteFileProps,
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -134,6 +139,17 @@ export const CodeEditor = ({
       }
     }
   }, [isStreaming])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+        e.preventDefault()
+        setSidebarOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -245,6 +261,15 @@ export const CodeEditor = ({
           {
             key: "Mod-Enter",
             run: () => true,
+          },
+          {
+            key: "Tab",
+            run: (view) => {
+              if (completionStatus(view.state) === "active") {
+                return acceptCompletion(view)
+              }
+              return indentMore(view)
+            },
           },
           {
             key: "Mod-p",
@@ -637,7 +662,7 @@ export const CodeEditor = ({
       </div>
       {showQuickOpen && (
         <QuickOpen
-          files={files}
+          files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
           onFileSelect={handleFileChange}
           onClose={() => setShowQuickOpen(false)}
