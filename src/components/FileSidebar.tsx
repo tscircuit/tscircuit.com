@@ -167,6 +167,16 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
   }
 
+  const handleCreateFileBlur = () => {
+    if (newFileName.trim() === "") {
+      setIsCreatingFile(false)
+      setNewFileName("")
+      setErrorMessage("")
+      return
+    }
+    handleCreateFileInline()
+  }
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
     setErrorMessage("")
@@ -204,7 +214,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             value={newFileName}
             spellCheck={false}
             onChange={(e) => setNewFileName(e.target.value)}
-            onBlur={handleCreateFileInline}
+            onBlur={handleCreateFileBlur}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleCreateFileInline()
