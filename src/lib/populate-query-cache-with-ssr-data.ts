@@ -14,7 +14,9 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
 
   if (!ssrPackage || !ssrPackageRelease) return
 
+  // Cache lookups by package name and id
   queryClient.setQueryData(["package", ssrPackage.name], ssrPackage)
+  queryClient.setQueryData(["package", ssrPackage.package_id], ssrPackage)
   queryClient.setQueryData(["packages", ssrPackage.package_id], ssrPackage)
 
   queryClient.setQueryData(
@@ -26,6 +28,11 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
         include_ai_review: true,
       },
     ],
+    ssrPackageRelease,
+  )
+
+  queryClient.setQueryData(
+    ["packageRelease", { is_latest: true, package_id: ssrPackage.package_id }],
     ssrPackageRelease,
   )
 
