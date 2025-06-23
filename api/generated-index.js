@@ -20,7 +20,7 @@ export function setHtmlContent(html) {
 
 const BASE_URL = process.env.TSC_BASE_URL || "https://tscircuit.com"
 const REGISTRY_URL =
-  process.env.TSC_REGISTRY_API || "https://registry-api.tscircuit.com"
+  process.env.TSC_REGISTRY_API || "https://api.tscircuit.com"
 
 export const cacheControlHeader = "public, max-age=0, must-revalidate"
 const PREFETCHABLE_PAGES = new Set([
