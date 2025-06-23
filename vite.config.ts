@@ -115,7 +115,7 @@ function vercelSsrDevPlugin(): Plugin {
           next()
         }
       })
-    }
+    },
   }
 }
 
