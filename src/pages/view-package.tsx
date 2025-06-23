@@ -21,11 +21,17 @@ export const ViewPackagePage = () => {
     data: packageRelease,
     error: packageReleaseError,
     isLoading: isLoadingPackageRelease,
-  } = usePackageRelease({
-    is_latest: true,
-    package_name: `${author}/${packageName}`,
-    include_ai_review: true,
-  })
+  } = usePackageRelease(
+    {
+      is_latest: true,
+      package_name: `${author}/${packageName}`,
+      include_ai_review: true,
+    },
+    {
+      refetchInterval: (data) =>
+        data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
+    },
+  )
 
   const { data: packageFiles } = usePackageFiles(
     packageRelease?.package_release_id,
