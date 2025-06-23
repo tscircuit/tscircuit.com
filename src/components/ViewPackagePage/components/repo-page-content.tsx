@@ -24,6 +24,8 @@ import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
+import { useAiReview } from "@/hooks/use-ai-review"
+import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
 
 interface PackageFile {
@@ -52,10 +54,27 @@ export default function RepoPageContent({
   onEditClicked,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
+  const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
+    null,
+  )
+  const queryClient = useQueryClient()
+  const { data: aiReview } = useAiReview(pendingAiReviewId, {
+    refetchInterval: (data) => (data && !data.ai_review_text ? 2000 : false),
+  })
+  useEffect(() => {
+    if (aiReview?.ai_review_text) {
+      queryClient.invalidateQueries(["packageRelease"])
+      setPendingAiReviewId(null)
+    }
+  }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
   const { circuitJson, isLoading: isCircuitJsonLoading } =
     useCurrentPackageCircuitJson()
-  const { mutate: requestAiReview } = useRequestAiReviewMutation()
+  const { mutate: requestAiReview } = useRequestAiReviewMutation({
+    onSuccess: (_packageRelease, aiReview) => {
+      setPendingAiReviewId(aiReview.ai_review_id)
+    },
+  })
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
