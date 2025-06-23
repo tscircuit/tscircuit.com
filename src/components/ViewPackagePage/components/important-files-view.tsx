@@ -309,7 +309,8 @@ export default function ImportantFilesView({
           ))}
         </div>
         <div className="ml-auto flex items-center">
-          {activeFileContent && (
+          {((activeTab === "file" && activeFileContent) ||
+            (activeTab === "ai-review" && aiReviewText)) && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
               onClick={handleCopy}
