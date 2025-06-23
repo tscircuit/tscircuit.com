@@ -9,21 +9,29 @@ import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 function getTranspilationStatus(
   pr?: PackageRelease | null,
 ): BuildStep["status"] {
-  if (!pr) return "pending"
-  if (pr.transpilation_error) return "error"
-  if (pr.transpilation_in_progress) return "running"
-  if (pr.transpilation_completed_at) return "success"
-  if (pr.transpilation_started_at) return "running"
-  return "pending"
+  switch (pr?.transpilation_display_status) {
+    case "complete":
+      return "success"
+    case "error":
+      return "error"
+    case "building":
+      return "running"
+    default:
+      return "pending"
+  }
 }
 
 function getCircuitJsonStatus(pr?: PackageRelease | null): BuildStep["status"] {
-  if (!pr) return "pending"
-  if (pr.circuit_json_build_error) return "error"
-  if (pr.circuit_json_build_in_progress) return "running"
-  if (pr.circuit_json_build_completed_at) return "success"
-  if (pr.circuit_json_build_started_at) return "running"
-  return "pending"
+  switch (pr?.circuit_json_build_display_status) {
+    case "complete":
+      return "success"
+    case "error":
+      return "error"
+    case "building":
+      return "running"
+    default:
+      return "pending"
+  }
 }
 
 export default function SidebarReleasesSection() {

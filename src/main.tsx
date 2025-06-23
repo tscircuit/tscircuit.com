@@ -6,6 +6,9 @@ if (typeof window !== "undefined" && !window.__APP_LOADED_AT) {
   window.__APP_LOADED_AT = Date.now()
 }
 import "./index.css"
+import { setupBuildWatcher } from "./build-watcher"
+
+setupBuildWatcher()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

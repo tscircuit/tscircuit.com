@@ -67,3 +67,14 @@
   padding: 12px !important;
   margin: 0 !important;
 }
+
+.markdown-content {
+  padding-top: 0.5rem;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.markdown-content .prose {
+  max-width: none !important;
+  width: 100% !important;
+}

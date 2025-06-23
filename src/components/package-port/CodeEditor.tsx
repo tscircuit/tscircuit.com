@@ -1,7 +1,12 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
-import { autocompletion } from "@codemirror/autocomplete"
-import { indentWithTab } from "@codemirror/commands"
+import {
+  autocompletion,
+  acceptCompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState, Prec } from "@codemirror/state"
@@ -29,12 +34,14 @@ import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import QuickOpen from "./QuickOpen"
 import {
   ICreateFileProps,
   ICreateFileResult,
   IDeleteFileProps,
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -77,6 +84,7 @@ export const CodeEditor = ({
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
+  const [showQuickOpen, setShowQuickOpen] = useState(false)
 
   const { highlighter } = useShikiHighlighter()
 
@@ -131,6 +139,14 @@ export const CodeEditor = ({
       }
     }
   }, [isStreaming])
+
+  useHotkeyCombo(
+    "cmd+b",
+    () => {
+      setSidebarOpen((prev) => !prev)
+    },
+    { target: window },
+  )
 
   useEffect(() => {
     if (!editorRef.current) return
@@ -242,6 +258,22 @@ export const CodeEditor = ({
           {
             key: "Mod-Enter",
             run: () => true,
+          },
+          {
+            key: "Tab",
+            run: (view) => {
+              if (completionStatus(view.state) === "active") {
+                return acceptCompletion(view)
+              }
+              return indentMore(view)
+            },
+          },
+          {
+            key: "Mod-p",
+            run: () => {
+              setShowQuickOpen(true)
+              return true
+            },
           },
         ]),
       ),
@@ -541,6 +573,17 @@ export const CodeEditor = ({
     updateEditorToMatchCurrentFile()
   }, [currentFile])
 
+  // Global keyboard listeners
+  useHotkeyCombo("cmd+p", () => {
+    setShowQuickOpen(true)
+  })
+
+  useHotkeyCombo("Escape", () => {
+    if (showQuickOpen) {
+      setShowQuickOpen(false)
+    }
+  })
+
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
@@ -579,6 +622,14 @@ export const CodeEditor = ({
           }
         />
       </div>
+      {showQuickOpen && (
+        <QuickOpen
+          files={files.filter((f) => !isHiddenFile(f.path))}
+          currentFile={currentFile}
+          onFileSelect={handleFileChange}
+          onClose={() => setShowQuickOpen(false)}
+        />
+      )}
     </div>
   )
 }

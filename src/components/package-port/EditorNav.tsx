@@ -37,6 +37,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { useFilesDialog } from "@/components/dialogs/files-dialog"
@@ -190,17 +191,14 @@ export default function EditorNav({
     [isLoggedIn, pkg, session?.github_username],
   )
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault()
-        if (!hasUnsavedChanges || !canSavePackage) return
-        onSave()
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [onSave, hasUnsavedChanges, canSavePackage])
+  useHotkeyCombo(
+    "cmd+s",
+    () => {
+      if (!hasUnsavedChanges || !canSavePackage) return
+      onSave()
+    },
+    { target: window },
+  )
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -326,9 +324,11 @@ export default function EditorNav({
             Edit with AI
           </Button> */}
           <DownloadButtonAndMenu
-            snippetUnscopedName={pkg?.unscoped_name}
+            unscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
             className="flex"
+            desiredImageType={pkg?.default_view ?? "pcb"}
+            author={pkg?.owner_github_username ?? undefined}
           />
           <Button
             variant="ghost"
