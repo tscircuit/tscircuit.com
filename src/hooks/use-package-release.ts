@@ -25,7 +25,10 @@ type PackageReleaseQuery = (
 export const usePackageRelease = (
   query: PackageReleaseQuery | null,
   options?: {
-    refetchInterval?: number
+    refetchInterval?:
+      | number
+      | false
+      | ((data: PackageRelease | undefined) => number | false)
   },
 ) => {
   const axios = useAxios()
