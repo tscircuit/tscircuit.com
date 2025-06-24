@@ -70,11 +70,17 @@ export default function RepoPageContent({
   const session = useGlobalStore((s) => s.session)
   const { circuitJson, isLoading: isCircuitJsonLoading } =
     useCurrentPackageCircuitJson()
-  const { mutate: requestAiReview } = useRequestAiReviewMutation({
-    onSuccess: (_packageRelease, aiReview) => {
-      setPendingAiReviewId(aiReview.ai_review_id)
-    },
-  })
+  const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
+    useRequestAiReviewMutation({
+      onSuccess: (_packageRelease, aiReview) => {
+        setPendingAiReviewId(aiReview.ai_review_id)
+      },
+    })
+
+  const aiReviewRequested =
+    Boolean(packageRelease?.ai_review_requested) ||
+    Boolean(pendingAiReviewId) ||
+    isRequestingAiReview
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
@@ -234,7 +240,7 @@ export default function RepoPageContent({
               aiDescription={packageInfo?.ai_description ?? ""}
               aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
               aiReviewText={packageRelease?.ai_review_text ?? null}
-              aiReviewRequested={packageRelease?.ai_review_requested ?? false}
+              aiReviewRequested={aiReviewRequested}
               onRequestAiReview={() => {
                 if (packageRelease) {
                   requestAiReview({
