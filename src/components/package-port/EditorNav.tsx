@@ -432,7 +432,7 @@ export default function EditorNav({
                   onClick={() => openDeleteDialog()}
                 >
                   <Trash2 className="mr-2 h-3 w-3" />
-                  Delete Snippet
+                  Delete Package
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-xs text-gray-500" disabled>
                   @tscircuit/core@{tscircuitCorePkg.version}
