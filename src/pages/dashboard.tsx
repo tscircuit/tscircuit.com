@@ -41,8 +41,9 @@ export const DashboardPage = () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
       })
-      return response.data.packages.sort(
-        (a: any, b: any) =>
+      // Clone before sorting to avoid mutating cached data
+      return [...response.data.packages].sort(
+        (a: Package, b: Package) =>
           new Date(b.updated_at || b.created_at).getTime() -
           new Date(a.updated_at || a.created_at).getTime(),
       )
