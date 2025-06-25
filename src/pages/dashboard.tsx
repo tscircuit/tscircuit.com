@@ -41,15 +41,17 @@ export const DashboardPage = () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
       })
-      // Clone before sorting to avoid mutating cached data
-      return [...response.data.packages].sort(
-        (a: Package, b: Package) =>
-          new Date(b.updated_at || b.created_at).getTime() -
-          new Date(a.updated_at || a.created_at).getTime(),
-      )
+      return response.data.packages
     },
     {
       enabled: isLoggedIn,
+      select: (data: Package[]) => {
+        return [...data].sort(
+          (a: Package, b: Package) =>
+            new Date(b.updated_at || b.created_at).getTime() -
+            new Date(a.updated_at || a.created_at).getTime(),
+        )
+      },
     },
   )
 
