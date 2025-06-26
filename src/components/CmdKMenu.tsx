@@ -55,26 +55,14 @@ const CmdKMenu = () => {
   const blankTemplates = useMemo(
     (): Template[] => [
       {
-        name: "New Circuit Board",
+        name: "Blank Circuit Board",
         type: "board",
         icon: <CircuitBoard className="w-4 h-4 text-green-500" />,
       },
       {
-        name: "New Circuit Module",
+        name: "Blank Circuit Module",
         type: "package",
         icon: <Package2 className="w-4 h-4 text-blue-500" />,
-      },
-      {
-        name: "New 3D Model",
-        type: "model",
-        disabled: true,
-        icon: <Cpu className="w-4 h-4 text-purple-500" />,
-      },
-      {
-        name: "New Footprint",
-        type: "footprint",
-        disabled: true,
-        icon: <FileIcon className="w-4 h-4 text-orange-500" />,
       },
     ],
     [],
