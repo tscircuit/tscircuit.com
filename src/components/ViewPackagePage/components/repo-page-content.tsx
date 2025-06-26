@@ -237,6 +237,7 @@ export default function RepoPageContent({
               importantFiles={importantFiles}
               isLoading={!packageFiles}
               onEditClicked={onEditClicked}
+              packageAuthorOwner={packageInfo?.owner_github_username}
               aiDescription={packageInfo?.ai_description ?? ""}
               aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
               aiReviewText={packageRelease?.ai_review_text ?? null}
