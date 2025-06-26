@@ -20,7 +20,7 @@ export function PackageBuildHeader() {
           <h1 className="text-xl sm:text-2xl font-semibold flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
             <span className="whitespace-nowrap">Package Build</span>
             <a
-              className="bg-gray-100 px-2 py-1 rounded font-mono text-blue-600 text-sm sm:text-base truncate max-w-full"
+              className="bg-gray-100 px-2 py-1 rounded font-mono text-blue-600 text-sm sm:text-base truncate w-fit"
               href={`/${author}/${packageName}`}
             >
               {author}/{packageName}
