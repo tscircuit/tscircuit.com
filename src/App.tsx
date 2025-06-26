@@ -93,7 +93,7 @@ class ErrorBoundary extends React.Component<
     console.error("ErrorBoundary caught", error)
     const message = error.message || ""
     if (
-      /(Loading chunk|ChunkLoadError|dynamically imported module)/i.test(
+      /(Loading chunk|ChunkLoadError|dynamically imported module|Failed to fetch|NetworkError)/i.test(
         message,
       )
     ) {
