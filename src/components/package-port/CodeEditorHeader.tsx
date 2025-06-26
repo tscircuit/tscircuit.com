@@ -240,11 +240,14 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             onClick={() =>
               setAiAutocompleteionEnabled(!aiAutocompleteionEnabled)
             }
-            className={`${aiAutocompleteionEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400"}`}
+            className={`relative ${aiAutocompleteionEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400"}`}
           >
-            <Bot
-              className={`h-4 w-4 ${aiAutocompleteionEnabled ? "opacity-100" : "opacity-50"}`}
-            />
+            <Bot className="h-4 w-4" />
+            {!aiAutocompleteionEnabled && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
+              </div>
+            )}
           </Button>
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
