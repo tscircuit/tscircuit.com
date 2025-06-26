@@ -12,8 +12,6 @@ import {
   Search,
   Package2,
   CircuitBoard,
-  Cpu,
-  FileIcon,
   Download,
   Sparkles,
   Clock,
