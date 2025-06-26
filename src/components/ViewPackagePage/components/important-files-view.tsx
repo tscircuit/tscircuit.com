@@ -16,6 +16,7 @@ import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
 import MarkdownViewer from "./markdown-viewer"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface PackageFile {
   package_file_id: string
@@ -29,7 +30,7 @@ interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
   isLoading?: boolean
   onEditClicked?: (file_path?: string | null) => void
-
+  packageAuthorOwner?: string | null
   aiDescription?: string
   aiUsageInstructions?: string
   aiReviewText?: string | null
@@ -46,10 +47,12 @@ export default function ImportantFilesView({
   onRequestAiReview,
   isLoading = false,
   onEditClicked,
+  packageAuthorOwner,
 }: ImportantFilesViewProps) {
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
+  const { session: user } = useGlobalStore()
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeFileContent)
@@ -140,6 +143,8 @@ export default function ImportantFilesView({
   }
 
   const renderAiReviewContent = () => {
+    const isOwner = user?.github_username === packageAuthorOwner
+
     if (!aiReviewText && !aiReviewRequested) {
       return (
         <div className="flex flex-col items-center justify-center py-8 px-4">
@@ -155,14 +160,20 @@ export default function ImportantFilesView({
                 from our AI assistant.
               </p>
             </div>
-            <Button
-              onClick={onRequestAiReview}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
-            >
-              <SparklesIcon className="h-4 w-4 mr-2" />
-              Request AI Review
-            </Button>
+            {isOwner ? (
+              <Button
+                onClick={onRequestAiReview}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
+              >
+                <SparklesIcon className="h-4 w-4 mr-2" />
+                Request AI Review
+              </Button>
+            ) : (
+              <p className="text-sm text-gray-500">
+                Only the package owner can generate an AI review
+              </p>
+            )}
           </div>
         </div>
       )
@@ -251,6 +262,8 @@ export default function ImportantFilesView({
     )
   }
 
+  const isOwner = user?.github_username === packageAuthorOwner
+
   return (
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
@@ -323,7 +336,7 @@ export default function ImportantFilesView({
               <span className="sr-only">Copy</span>
             </button>
           )}
-          {activeTab === "ai-review" && aiReviewText && (
+          {activeTab === "ai-review" && aiReviewText && isOwner && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
               onClick={onRequestAiReview}
