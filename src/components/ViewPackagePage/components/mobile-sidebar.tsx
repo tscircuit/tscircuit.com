@@ -41,8 +41,8 @@ const MobileSidebar = ({
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const isOwner =
     isLoggedIn &&
-    packageInfo?.creator_account_id ===
-      useGlobalStore((s) => s.session?.account_id)
+    packageInfo?.owner_github_username ===
+      useGlobalStore((s) => s.session?.github_username)
 
   const {
     Dialog: EditPackageDetailsDialog,
