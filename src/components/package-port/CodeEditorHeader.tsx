@@ -44,8 +44,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     useImportPackageDialog()
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const [aiAutocompleteionEnabled, setAiAutocompleteionEnabled] =
-    useState(false)
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -237,13 +236,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           <Button
             size="sm"
             variant="ghost"
-            onClick={() =>
-              setAiAutocompleteionEnabled(!aiAutocompleteionEnabled)
-            }
-            className={`relative ${aiAutocompleteionEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400"}`}
+            onClick={() => setAiAutocompleteEnabled(!aiAutocompleteEnabled)}
+            className={`relative ${aiAutocompleteEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400"}`}
           >
             <Bot className="h-4 w-4" />
-            {!aiAutocompleteionEnabled && (
+            {!aiAutocompleteEnabled && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
               </div>
