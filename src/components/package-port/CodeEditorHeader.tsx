@@ -237,7 +237,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             size="sm"
             variant="ghost"
             onClick={() => setAiAutocompleteEnabled(!aiAutocompleteEnabled)}
-            className={`relative ${aiAutocompleteEnabled ? "text-blue-600 bg-blue-50" : "text-gray-400"}`}
+            className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
           >
             <Bot className="h-4 w-4" />
             {!aiAutocompleteEnabled && (
