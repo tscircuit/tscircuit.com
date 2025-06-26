@@ -8,6 +8,7 @@ import HeaderDropdown from "./HeaderDropdown"
 import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Analytics } from "./Analytics"
+import CmdKMenu from "./CmdKMenu"
 
 const SearchButtonComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -123,6 +124,7 @@ export const Header2 = () => {
           </div>
         </div>
       </header>
+      <CmdKMenu />
       <Analytics />
     </>
   )
