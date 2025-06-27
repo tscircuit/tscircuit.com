@@ -309,10 +309,7 @@ const CmdKMenu = () => {
 
       const chars = text.split("")
       return chars.map((char, i) => (
-        <span
-          key={i}
-          className={item.matches.includes(i) ? "bg-blue-200 px-0.5" : ""}
-        >
+        <span key={i} className={item.matches.includes(i) ? "bg-blue-200" : ""}>
           {char}
         </span>
       ))
