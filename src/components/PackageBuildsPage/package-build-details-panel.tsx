@@ -76,16 +76,16 @@ export function PackageBuildDetailsPanel() {
     : null
 
   return (
-    <div className="space-y-6 bg-white p-4 border border-gray-200 rounded-lg">
+    <div className="space-y-4 sm:space-y-6 bg-white p-3 sm:p-4 border border-gray-200 rounded-lg">
       {/* Created */}
       <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Created</h3>
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
             I
           </div>
-          <span className="text-sm">{author}</span>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm truncate">{author}</span>
+          <span className="text-sm text-gray-500 flex-shrink-0">
             {timeAgo(created_at, "")}
           </span>
         </div>
@@ -96,7 +96,7 @@ export function PackageBuildDetailsPanel() {
         <h3 className="text-sm font-medium text-gray-600 mb-2">Status</h3>
         <div className="flex items-center gap-2">
           <div
-            className={`w-2 h-2 ${getColorFromDisplayStatus(display_status)} rounded-full`}
+            className={`w-2 h-2 ${getColorFromDisplayStatus(display_status)} rounded-full flex-shrink-0`}
           ></div>
           <span className="text-sm">{capitalCase(display_status)}</span>
           {/* <Badge
@@ -110,12 +110,14 @@ export function PackageBuildDetailsPanel() {
 
       <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Build Time</h3>
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center gap-2 min-w-0">
+          <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" />
           {elapsedMs !== null && (
-            <span className="text-sm">{Math.floor(elapsedMs / 1000)}s</span>
+            <span className="text-sm flex-shrink-0">
+              {Math.floor(elapsedMs / 1000)}s
+            </span>
           )}
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 truncate">
             {buildStartedAt
               ? `Started ${timeAgo(buildStartedAt)}`
               : "waiting..."}
@@ -126,9 +128,9 @@ export function PackageBuildDetailsPanel() {
       {/* Version */}
       <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Version</h3>
-        <div className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-gray-500" />
-          <span className="text-sm">{packageRelease.version}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <Globe className="w-4 h-4 text-gray-500 flex-shrink-0" />
+          <span className="text-sm break-all">{packageRelease.version}</span>
           {/* <Badge variant="default" className="bg-blue-600 text-white text-xs">
             Current
           </Badge> */}

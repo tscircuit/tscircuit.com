@@ -53,12 +53,12 @@ export const PackageBuildDetailsPage = () => {
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <PackageBuildHeader />
 
-      <div className="px-6 py-6 container mx-auto">
+      <div className="px-4 sm:px-6 py-4 sm:py-6 container mx-auto max-w-7xl">
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 items-start">
           {/* Preview Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center max-h-[420px]">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center min-h-[280px] sm:min-h-[340px] lg:max-h-[420px]">
               <BuildPreviewContent />
             </div>
           </div>
@@ -68,7 +68,7 @@ export const PackageBuildDetailsPage = () => {
         </div>
 
         {/* Collapsible Sections */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-4 mb-6 sm:mb-8">
           <CollapsibleSection
             title="Transpilation Logs"
             duration={computeDuration(
