@@ -154,25 +154,25 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 <StarIcon className="w-4 h-4 pt-[2.5px]" />
                 <span className="text-[16px]">{pkg.star_count || 0}</span>
               </div>
-              {isCurrentUserPackage && onDeleteClick && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-[1.5rem] w-[1.5rem]"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem
-                      className="text-xs cursor-pointer"
-                      onClick={handleShareClick}
-                    >
-                      <Share2 className="mr-2 h-3 w-3" />
-                      Share Package
-                    </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-[1.5rem] w-[1.5rem]"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    className="text-xs cursor-pointer"
+                    onClick={handleShareClick}
+                  >
+                    <Share2 className="mr-2 h-3 w-3" />
+                    Share Package
+                  </DropdownMenuItem>{" "}
+                  {isCurrentUserPackage && onDeleteClick && (
                     <DropdownMenuItem
                       className="text-xs text-red-600"
                       onClick={handleDeleteClick}
@@ -180,9 +180,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                       <Trash2 className="mr-2 h-3 w-3" />
                       Delete Package
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
               {renderActions && renderActions(pkg)}
             </div>
           </div>
