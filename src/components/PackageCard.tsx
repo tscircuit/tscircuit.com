@@ -2,7 +2,13 @@ import React from "react"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
-import { GlobeIcon, MoreVertical, PencilIcon, Trash2 } from "lucide-react"
+import {
+  GlobeIcon,
+  MoreVertical,
+  PencilIcon,
+  Share2,
+  Trash2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,6 +19,7 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { ImageWithFallback } from "./ImageWithFallback"
+import { useToast } from "@/hooks/use-toast"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -49,11 +56,66 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   withLink = true,
   renderActions,
 }) => {
+  const { toast } = useToast()
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault() // Prevent navigation
     if (onDeleteClick) {
       onDeleteClick(e, pkg)
     }
+  }
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.preventDefault()
+
+    const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
+    const shareText = `Check out this ${pkg.snippet_type} package: ${pkg.unscoped_name}${pkg.description ? ` - ${pkg.description}` : ""}`
+    const imageUrl = `${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png`
+
+    if (navigator.share) {
+      try {
+        const imageResponse = await fetch(imageUrl)
+        const imageBlob = await imageResponse.blob()
+        const imageFile = new File([imageBlob], `${pkg.unscoped_name}.png`, {
+          type: "image/png",
+        })
+
+        await navigator.share({
+          title: `${pkg.unscoped_name} - tscircuit Package`,
+          text: shareText,
+          url: shareUrl,
+          files: [imageFile],
+        })
+      } catch (error) {
+        console.error(error)
+        try {
+          await navigator.share({
+            title: `${pkg.unscoped_name} - tscircuit Package`,
+            text: shareText,
+            url: shareUrl,
+          })
+        } catch (shareError) {
+          fallbackShare(shareText, shareUrl)
+        }
+      }
+    } else {
+      fallbackShare(shareText, shareUrl)
+    }
+  }
+
+  const fallbackShare = (text: string, url: string) => {
+    const shareContent = `${text}\n${url}`
+    navigator.clipboard
+      .writeText(shareContent)
+      .then(() => {
+        toast({
+          title: "Share content copied to clipboard",
+        })
+      })
+      .catch(() => {
+        toast({
+          title: "Unable to share or copy to clipboard",
+        })
+      })
   }
 
   const cardContent = (
@@ -104,6 +166,13 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    <DropdownMenuItem
+                      className="text-xs cursor-pointer"
+                      onClick={handleShareClick}
+                    >
+                      <Share2 className="mr-2 h-3 w-3" />
+                      Share Package
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-xs text-red-600"
                       onClick={handleDeleteClick}
