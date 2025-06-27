@@ -31,17 +31,11 @@ export const useCurrentPackageId = (): {
     error: errorPackageByName,
   } = usePackageByName(packageName)
 
-  const {
-    data: packageById,
-    isLoading: isLoadingPackageById,
-    error: errorPackageById,
-  } = usePackageById(packageIdFromUrl)
-
   const packageId = packageIdFromUrl ?? packageByName?.package_id ?? null
 
   return {
     packageId,
-    isLoading: isLoadingPackageByName || isLoadingPackageById,
-    error: errorPackageByName || errorPackageById,
+    isLoading: isLoadingPackageByName,
+    error: errorPackageByName,
   }
 }

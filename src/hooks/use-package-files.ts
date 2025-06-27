@@ -47,6 +47,7 @@ export const usePackageFile = (
     {
       retry: false,
       enabled: Boolean(query),
+      refetchOnWindowFocus: false,
       ...(opts as any),
     },
   )
@@ -112,6 +113,8 @@ export const usePackageFiles = (packageReleaseId?: string | null) => {
     },
     {
       enabled: Boolean(packageReleaseId),
+      refetchOnWindowFocus: false,
+      staleTime: 0,
     },
   )
 }

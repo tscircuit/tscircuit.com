@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
-import { useImportSnippetDialog } from "@/components/dialogs/import-snippet-dialog"
+import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
 import { useToast } from "@/hooks/use-toast"
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, PanelRightClose } from "lucide-react"
+import { AlertTriangle, PanelRightClose, Bot } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import {
   Select,
@@ -19,13 +19,14 @@ import {
   SelectValue,
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 export type FileName = string
 
 interface CodeEditorHeaderProps {
-  currentFile: FileName
+  currentFile: FileName | null
   files: Record<FileName, string>
-  updateFileContent: (filename: FileName, content: string) => void
+  updateFileContent: (filename: FileName | null, content: string) => void
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
@@ -39,13 +40,15 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   handleFileChange,
   entrypointFileName = "index.tsx",
 }) => {
-  const { Dialog: ImportSnippetDialog, openDialog: openImportDialog } =
-    useImportSnippetDialog()
+  const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
+    useImportPackageDialog()
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
+    if (!currentFile) return
     try {
       const currentContent = files[currentFile]
       let fileExtension = currentFile.split(".").pop()?.toLowerCase()
@@ -101,7 +104,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         markdown: "markdown",
       }
 
-      const parser = parserMap[fileExtension] || "typescript"
+      const parser = parserMap[fileExtension] || "tsx"
       const formattedCode = window.prettier.format(currentContent, {
         semi: false,
         parser: parser,
@@ -136,16 +139,24 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b border-gray-200">
         <button
-          className={`text-gray-400 scale-90 transition-opacity duration-200 ${
-            sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen
+              ? "w-0 pointer-events-none opacity-0"
+              : "w-6 opacity-100"
           }`}
           onClick={() => setSidebarOpen(true)}
         >
-          <PanelRightClose />
+          <div className="w-6 h-6 flex items-center justify-center">
+            <PanelRightClose />
+          </div>
         </button>
         <div>
-          <Select value={currentFile} onValueChange={handleFileChange}>
-            <SelectTrigger className="h-7 px-3 bg-white select-none">
+          <Select value={currentFile || ""} onValueChange={handleFileChange}>
+            <SelectTrigger
+              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+                sidebarOpen ? "-ml-2" : "-ml-1"
+              }`}
+            >
               <SelectValue placeholder="Select file" />
             </SelectTrigger>
             <SelectContent>
@@ -160,7 +171,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
                       className={`text-xs pr-1 block truncate ${
-                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
                       }`}
                     >
                       {filename}
@@ -177,7 +190,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   <SelectItem className="select-none py-1" value={currentFile}>
                     <span
                       className={`text-xs pr-1 block truncate ${
-                        sidebarOpen ? "max-w-[5rem]" : "max-w-[10rem]"
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
                       }`}
                     >
                       {currentFile}
@@ -189,7 +204,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
 
         <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
-          {checkIfManualEditsImported(files, currentFile) && (
+          {checkIfManualEditsImported(files, currentFile || "") && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -218,6 +233,19 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setAiAutocompleteEnabled(!aiAutocompleteEnabled)}
+            className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
+          >
+            <Bot className="h-4 w-4" />
+            {!aiAutocompleteEnabled && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
+              </div>
+            )}
+          </Button>
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
           </Button>
@@ -225,9 +253,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             Format
           </Button>
         </div>
-        <ImportSnippetDialog
-          onSnippetSelected={(snippet: any) => {
-            const newContent = `import {} from "@tsci/${snippet.owner_name}.${snippet.unscoped_name}"\n${files[currentFile]}`
+        <ImportPackageDialog
+          onPackageSelected={(pkg: Package) => {
+            const newContent = `import {} from "@tsci/${pkg.owner_github_username}.${pkg.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
         />

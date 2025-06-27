@@ -24,24 +24,12 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-
-interface PackageInfo {
-  package_id: string
-  name: string
-  unscoped_name: string
-  owner_github_username: string
-  star_count: string
-  description: string
-  ai_description: string
-  creator_account_id?: string
-  owner_org_id?: string
-}
-
+import { Package } from "fake-snippets-api/lib/db/schema"
 interface MainContentHeaderProps {
   activeView: string
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
-  packageInfo?: PackageInfo
+  packageInfo?: Package
 }
 
 export default function MainContentHeader({
@@ -82,7 +70,9 @@ export default function MainContentHeader({
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu
-          snippetUnscopedName={packageInfo?.unscoped_name}
+          unscopedName={packageInfo?.unscoped_name}
+          desiredImageType={activeView}
+          author={packageInfo?.owner_github_username ?? undefined}
           circuitJson={circuitJson}
         />
 
@@ -91,7 +81,7 @@ export default function MainContentHeader({
           <DropdownMenuTrigger asChild>
             <Button
               size="sm"
-              className="h-9 bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
+              className="bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
             >
               <CodeIcon className="h-4 w-4 mr-1.5" />
               Code
@@ -99,14 +89,14 @@ export default function MainContentHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuItem
-              onClick={() => {
-                setLocation(`/editor?package_id=${packageInfo?.package_id}`)
-              }}
-              className="cursor-pointer p-2 py-4"
-            >
-              <Pencil className="h-4 w-4 mx-3" />
-              Edit Online
+            <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
+              <a
+                href={`/editor?package_id=${packageInfo?.package_id}`}
+                className="cursor-pointer p-2 py-4"
+              >
+                <Pencil className="h-4 w-4 mx-3" />
+                Edit Online
+              </a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 

@@ -7,6 +7,19 @@
   }
 }
 
+/* add the code bellow */
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
+
 .shiki {
   font-family: "Fira Code", monospace;
   font-size: 14px;
@@ -53,4 +66,15 @@
 .markdown-code pre {
   padding: 12px !important;
   margin: 0 !important;
+}
+
+.markdown-content {
+  padding-top: 0.5rem;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.markdown-content .prose {
+  max-width: none !important;
+  width: 100% !important;
 }

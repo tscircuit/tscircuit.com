@@ -138,6 +138,34 @@ export const orderQuoteSchema = z.object({
 })
 export type OrderQuote = z.infer<typeof orderQuoteSchema>
 
+export const aiReviewSchema = z.object({
+  ai_review_id: z.string().uuid(),
+  package_release_id: z.string().optional(),
+  ai_review_text: z.string().nullable(),
+  start_processing_at: z.string().datetime().nullable(),
+  finished_processing_at: z.string().datetime().nullable(),
+  processing_error: z.any().nullable(),
+  created_at: z.string().datetime(),
+  display_status: z.enum(["pending", "completed", "failed"]),
+})
+export type AiReview = z.infer<typeof aiReviewSchema>
+
+export const datasheetPinInformationSchema = z.object({
+  pin_number: z.string(),
+  name: z.string(),
+  description: z.string(),
+  capabilities: z.array(z.string()),
+})
+
+export const datasheetSchema = z.object({
+  datasheet_id: z.string(),
+  chip_name: z.string(),
+  created_at: z.string(),
+  pin_information: datasheetPinInformationSchema.array().nullable(),
+  datasheet_pdf_urls: z.array(z.string()).nullable(),
+})
+export type Datasheet = z.infer<typeof datasheetSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -176,6 +204,39 @@ export const packageReleaseSchema = z.object({
   has_transpiled: z.boolean().default(false),
   transpilation_error: z.string().nullable().optional(),
   fs_sha: z.string().nullable().optional(),
+  // Build Status and Display
+  display_status: z
+    .enum(["pending", "building", "complete", "error"])
+    .default("pending"),
+  total_build_duration_ms: z.number().nullable().optional(),
+
+  // Transpilation Process
+  transpilation_display_status: z
+    .enum(["pending", "building", "complete", "error"])
+    .default("pending"),
+  transpilation_in_progress: z.boolean().default(false),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_is_stale: z.boolean().default(false),
+
+  // Circuit JSON Build Process
+  circuit_json_build_display_status: z
+    .enum(["pending", "building", "complete", "error"])
+    .default("pending"),
+  circuit_json_build_in_progress: z.boolean().default(false),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_is_stale: z.boolean().default(false),
+
+  // AI Review
+  ai_review_text: z.string().nullable().default(null).optional(),
+  ai_review_started_at: z.string().datetime().nullable().optional(),
+  ai_review_completed_at: z.string().datetime().nullable().optional(),
+  ai_review_error: z.any().optional().nullable(),
+  ai_review_logs: z.array(z.any()).optional().nullable(),
+  ai_review_requested: z.boolean().default(false),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -219,6 +280,11 @@ export const packageSchema = z.object({
   ai_description: z.string().nullable(),
   latest_license: z.string().nullable().optional(),
   ai_usage_instructions: z.string().nullable(),
+  latest_package_release_fs_sha: z.string().nullable().default(null),
+  default_view: z
+    .enum(["files", "3d", "pcb", "schematic"])
+    .default("files")
+    .optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 
@@ -276,5 +342,7 @@ export const databaseSchema = z.object({
   jlcpcbOrderState: z.array(jlcpcbOrderStateSchema).default([]),
   jlcpcbOrderStepRuns: z.array(jlcpcbOrderStepRunSchema).default([]),
   orderQuotes: z.array(orderQuoteSchema).default([]),
+  aiReviews: z.array(aiReviewSchema).default([]),
+  datasheets: z.array(datasheetSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

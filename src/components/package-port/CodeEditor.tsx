@@ -1,35 +1,47 @@
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
-import { autocompletion } from "@codemirror/autocomplete"
-import { indentWithTab } from "@codemirror/commands"
+import {
+  autocompletion,
+  acceptCompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
-import { EditorState } from "@codemirror/state"
+import { EditorState, Prec } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
+import { linter } from "@codemirror/lint"
 import { TSCI_PACKAGE_PATTERN } from "@/lib/constants"
 import {
   createDefaultMapFromCDN,
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
-import {
-  tsAutocomplete,
-  tsFacet,
-  tsLinter,
-  tsSync,
-} from "@valtown/codemirror-ts"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ts from "typescript"
-import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
+import tsModule from "typescript"
+import CodeEditorHeader, {
+  FileName,
+} from "@/components/package-port/CodeEditorHeader"
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import QuickOpen from "./QuickOpen"
+import {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -39,37 +51,43 @@ import type { CommonLayoutProps } from "@tscircuit/props"
 
 export const CodeEditor = ({
   onCodeChange,
-  onDtsChange,
   readOnly = false,
   files = [],
+  isSaving = false,
   isStreaming = false,
   showImportAndFormatButtons = true,
   onFileContentChanged,
   pkgFilesLoaded,
   currentFile,
-  setCurrentFile,
+  onFileSelect,
+  handleCreateFile,
+  handleDeleteFile,
 }: {
   onCodeChange: (code: string, filename?: string) => void
-  onDtsChange?: (dts: string) => void
   files: PackageFile[]
+  isSaving?: boolean
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
-  currentFile: string
-  setCurrentFile: (path: string) => void
+  currentFile: string | null
+  onFileSelect: (path: string) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
+  const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useSnippetsBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [isCodeEditorReady, setIsCodeEditorReady] = useState(false)
+  const [fontSize, setFontSize] = useState(14)
+  const [showQuickOpen, setShowQuickOpen] = useState(false)
 
-  const { highlighter, isLoading } = useShikiHighlighter()
+  const { highlighter } = useShikiHighlighter()
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
@@ -86,7 +104,6 @@ export const CodeEditor = ({
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
 
     const targetFile = findTargetFile(files, filePathFromUrl)
-
     if (targetFile) {
       handleFileChange(targetFile.path)
       setCode(targetFile.content)
@@ -124,6 +141,14 @@ export const CodeEditor = ({
     }
   }, [isStreaming])
 
+  useHotkeyCombo(
+    "cmd+b",
+    () => {
+      setSidebarOpen((prev) => !prev)
+    },
+    { target: window },
+  )
+
   useEffect(() => {
     if (!editorRef.current) return
 
@@ -134,10 +159,10 @@ export const CodeEditor = ({
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     createDefaultMapFromCDN(
-      { target: ts.ScriptTarget.ES2022 },
+      { target: tsModule.ScriptTarget.ES2022 },
       "5.6.3",
       true,
-      ts,
+      tsModule,
     ).then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
@@ -145,11 +170,12 @@ export const CodeEditor = ({
     })
 
     const system = createSystem(fsMap)
-    const env = createVirtualTypeScriptEnvironment(system, [], ts, {
-      jsx: ts.JsxEmit.ReactJSX,
+
+    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+      jsx: tsModule.JsxEmit.ReactJSX,
       declaration: true,
       allowJs: true,
-      target: ts.ScriptTarget.ES2022,
+      target: tsModule.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
 
@@ -160,7 +186,7 @@ export const CodeEditor = ({
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
-      typescript: ts,
+      typescript: tsModule,
       logger: console,
       fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
         const registryPrefixes = [
@@ -190,9 +216,6 @@ export const CodeEditor = ({
         return fetch(input, init)
       },
       delegate: {
-        finished: () => {
-          setIsCodeEditorReady(true)
-        },
         started: () => {
           const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
@@ -210,16 +233,12 @@ export const CodeEditor = ({
         receivedFile: (code: string, path: string) => {
           fsMap.set(path, code)
           env.createFile(path, code)
-          if (viewRef.current) {
-            viewRef.current.dispatch({
-              changes: {
-                from: 0,
-                to: viewRef.current.state.doc.length,
-                insert: viewRef.current.state.doc.toString(),
-              },
-              selection: viewRef.current.state.selection,
-            })
+          if (/\.tsx?$|\.d\.ts$/.test(path)) {
+            lastReceivedTsFileTimeRef.current = Date.now()
           }
+          // Avoid dispatching a view update when ATA downloads files. Dispatching
+          // here caused the editor to reset the user's selection, which made text
+          // selection impossible while dependencies were loading.
         },
       },
     }
@@ -232,40 +251,73 @@ export const CodeEditor = ({
     // Set up base extensions
     const baseExtensions = [
       basicSetup,
-      currentFile.endsWith(".json")
+      currentFile?.endsWith(".json")
         ? json()
         : javascript({ typescript: true, jsx: true }),
+      Prec.high(
+        keymap.of([
+          {
+            key: "Mod-Enter",
+            run: () => true,
+          },
+          {
+            key: "Tab",
+            run: (view) => {
+              if (completionStatus(view.state) === "active") {
+                return acceptCompletion(view)
+              }
+              return indentMore(view)
+            },
+          },
+          {
+            key: "Mod-p",
+            run: () => {
+              setShowQuickOpen(true)
+              return true
+            },
+          },
+        ]),
+      ),
       keymap.of([indentWithTab]),
-      EditorState.readOnly.of(readOnly),
+      EditorState.readOnly.of(readOnly || isSaving),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
-
+          if (!currentFile) return
           if (newContent === lastFilesEventContent[currentFile]) return
           lastFilesEventContent[currentFile] = newContent
 
           // setCode(newContent)
           onCodeChange(newContent, currentFile)
           onFileContentChanged?.(currentFile, newContent)
-
-          // Generate TypeScript declarations for TypeScript/TSX files
-          if (currentFile.endsWith(".ts") || currentFile.endsWith(".tsx")) {
-            const { outputFiles } = env.languageService.getEmitOutput(
-              currentFile,
-              true,
-            )
-            const dtsFile = outputFiles.find((file) =>
-              file.name.endsWith(".d.ts"),
-            )
-            if (dtsFile?.text && onDtsChange) {
-              onDtsChange(dtsFile.text)
-            }
-          }
         }
         if (update.selectionSet) {
           const pos = update.state.selection.main.head
           setCursorPosition(pos)
         }
+      }),
+      EditorView.theme({
+        ".cm-editor": {
+          fontSize: `${fontSize}px`,
+        },
+        ".cm-content": {
+          fontSize: `${fontSize}px`,
+        },
+      }),
+      EditorView.domEventHandlers({
+        wheel: (event) => {
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault()
+            const delta = event.deltaY
+            setFontSize((prev) => {
+              const newSize =
+                delta > 0 ? Math.max(8, prev - 1) : Math.min(32, prev + 1)
+              return newSize
+            })
+            return true
+          }
+          return false
+        },
       }),
     ]
     if (codeCompletionApi?.apiKey) {
@@ -289,16 +341,27 @@ export const CodeEditor = ({
 
     // Add TypeScript-specific extensions and handlers
     const tsExtensions =
-      currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")
+      currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
         ? [
             tsFacet.of({
               env,
-              path: currentFile.endsWith(".ts")
-                ? currentFile.replace(/\.ts$/, ".tsx")
+              path: currentFile?.endsWith(".ts")
+                ? currentFile?.replace(/\.ts$/, ".tsx")
                 : currentFile,
             }),
             tsSync(),
-            tsLinter(),
+            linter(async (view) => {
+              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+                return []
+              }
+              const config = view.state.facet(tsFacet)
+              return config
+                ? getLints({
+                    ...config,
+                    diagnosticCodesToIgnore: [],
+                  })
+                : []
+            }),
             autocompletion({ override: [tsAutocomplete()] }),
             hoverTooltip((view, pos) => {
               const line = view.state.doc.lineAt(pos)
@@ -336,12 +399,14 @@ export const CodeEditor = ({
 
               const start = info.textSpan.start
               const end = start + info.textSpan.length
-              const content = ts.displayPartsToString(info.displayParts || [])
+              const content = tsModule?.displayPartsToString(
+                info.displayParts || [],
+              )
 
               const dom = document.createElement("div")
               if (highlighter) {
                 dom.innerHTML = highlighter.codeToHtml(content, {
-                  lang: "typescript",
+                  lang: "tsx",
                   themes: {
                     light: "github-light",
                     dark: "github-dark",
@@ -390,6 +455,13 @@ export const CodeEditor = ({
                 }
                 return false
               },
+              keydown: (event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault()
+                  return true
+                }
+                return false
+              },
             }),
             EditorView.theme({
               ".cm-tooltip-hover": {
@@ -422,7 +494,7 @@ export const CodeEditor = ({
                       const end = start + match[0].length
                       decorations.push(
                         Decoration.mark({
-                          class: "cm-underline",
+                          class: "cm-underline cursor-pointer",
                         }).range(start, end),
                       )
                     }
@@ -436,7 +508,7 @@ export const CodeEditor = ({
         : []
 
     const state = EditorState.create({
-      doc: fileMap[currentFile] || "",
+      doc: fileMap[currentFile || ""] || "",
       extensions: [...baseExtensions, ...tsExtensions],
     })
 
@@ -447,16 +519,21 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts")) {
+    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
-    } else if (!!currentFile) {
-      setIsCodeEditorReady(true)
     }
 
     return () => {
       view.destroy()
     }
-  }, [!isStreaming, currentFile, code !== ""])
+  }, [
+    !isStreaming,
+    currentFile,
+    code !== "",
+    Boolean(highlighter),
+    isSaving,
+    fontSize,
+  ])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
@@ -476,7 +553,7 @@ export const CodeEditor = ({
   }
 
   const updateEditorToMatchCurrentFile = () => {
-    const currentContent = fileMap[currentFile] || ""
+    const currentContent = fileMap[currentFile || ""] || ""
     updateCurrentEditorContent(currentContent)
   }
 
@@ -485,14 +562,14 @@ export const CodeEditor = ({
   useEffect(() => {
     if (
       ataRef.current &&
-      (currentFile.endsWith(".tsx") || currentFile.endsWith(".ts"))
+      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
       ataRef.current(`${defaultImports}${code}`)
     }
   }, [codeImports])
 
   const handleFileChange = (path: string) => {
-    setCurrentFile(path)
+    onFileSelect(path)
     try {
       // Set url query to file path
       const urlParams = new URLSearchParams(window.location.search)
@@ -501,7 +578,8 @@ export const CodeEditor = ({
     } catch {}
   }
 
-  const updateFileContent = (path: string, newContent: string) => {
+  const updateFileContent = (path: FileName | null, newContent: string) => {
+    if (!path) return
     if (currentFile === path) {
       setCode(newContent)
       onCodeChange(newContent, path)
@@ -526,6 +604,17 @@ export const CodeEditor = ({
     updateEditorToMatchCurrentFile()
   }, [currentFile])
 
+  // Global keyboard listeners
+  useHotkeyCombo("cmd+p", () => {
+    setShowQuickOpen(true)
+  })
+
+  useHotkeyCombo("Escape", () => {
+    if (showQuickOpen) {
+      setShowQuickOpen(false)
+    }
+  })
+
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
@@ -539,6 +628,8 @@ export const CodeEditor = ({
           [sidebarOpen, setSidebarOpen] as ReturnType<typeof useState<boolean>>
         }
         onFileSelect={handleFileChange}
+        handleCreateFile={handleCreateFile}
+        handleDeleteFile={handleDeleteFile}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
@@ -557,11 +648,19 @@ export const CodeEditor = ({
         )}
         <div
           ref={editorRef}
-          className={`flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full ${
-            !isCodeEditorReady ? "opacity-50" : ""
-          }`}
+          className={
+            "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
+          }
         />
       </div>
+      {showQuickOpen && (
+        <QuickOpen
+          files={files.filter((f) => !isHiddenFile(f.path))}
+          currentFile={currentFile}
+          onFileSelect={handleFileChange}
+          onClose={() => setShowQuickOpen(false)}
+        />
+      )}
     </div>
   )
 }

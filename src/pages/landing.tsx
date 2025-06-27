@@ -60,16 +60,27 @@ export function LandingPage() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
-                    <a href="https://docs.tscircuit.com">
-                      <Button size="lg" aria-label="Get started with TSCircuit">
+                    <a
+                      href="https://docs.tscircuit.com"
+                      className="w-[70vw] min-[500px]:w-auto"
+                    >
+                      <Button
+                        size="lg"
+                        aria-label="Get started with TSCircuit"
+                        className="w-full min-[500px]:w-auto"
+                      >
                         Get Started
                       </Button>
                     </a>
-                    <PrefetchPageLink href="/quickstart">
+                    <PrefetchPageLink
+                      href="/seveibar/usb-c-flashlight#3d"
+                      className="w-[70vw] min-[500px]:w-auto"
+                    >
                       <Button
                         size="lg"
                         variant="outline"
                         aria-label="Open online example of TSCircuit"
+                        className="w-full min-[500px]:w-auto"
                       >
                         Open Online Example
                       </Button>

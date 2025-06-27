@@ -3,6 +3,9 @@ import { HelmetProvider } from "react-helmet-async"
 import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
+import { Toaster } from "react-hot-toast"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
+import { populateQueryCacheWithSSRData } from "./lib/populate-query-cache-with-ssr-data"
 
 const staffGithubUsernames = [
   "imrishabh18",
@@ -12,6 +15,7 @@ const staffGithubUsernames = [
 ]
 
 const queryClient = new QueryClient()
+populateQueryCacheWithSSRData(queryClient)
 
 const isInternalGithubUser = (githubUsername?: string | null) => {
   if (!githubUsername) return false
@@ -61,6 +65,8 @@ export const ContextProviders = ({ children }: any) => {
       <HelmetProvider>
         <PostHogIdentifier />
         {children}
+        <Toaster position="bottom-right" />
+        <SonnerToaster position="bottom-left" />
       </HelmetProvider>
     </QueryClientProvider>
   )

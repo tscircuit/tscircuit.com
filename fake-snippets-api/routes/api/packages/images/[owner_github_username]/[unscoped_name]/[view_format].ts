@@ -11,9 +11,9 @@ import { z } from "zod"
 const VIEW_TYPES = ["schematic", "pcb", "assembly", "3d"] as const
 const EXTENSIONS = ["svg", "png"] as const
 
-// Create a regex pattern for the view format
+// Create a regex pattern for the view format that includes optional width suffix
 const viewFormatPattern = new RegExp(
-  `^(${VIEW_TYPES.join("|")})\\.(${EXTENSIONS.join("|")})$`,
+  `^(${VIEW_TYPES.join("|")})-?(\\d+w)?\\.(${EXTENSIONS.join("|")})$`,
 )
 
 export default withRouteSpec({
@@ -23,7 +23,7 @@ export default withRouteSpec({
     owner_github_username: z.string(),
     unscoped_name: z.string(),
     view_format: z.string().regex(viewFormatPattern, {
-      message: `Invalid view format. Must be one of: ${VIEW_TYPES.join(", ")}.${EXTENSIONS.join(" or ")}`,
+      message: `Invalid view format. Must be one of: ${VIEW_TYPES.join(", ")} with optional width suffix (e.g. -800w).${EXTENSIONS.join(" or ")}`,
     }),
   }),
   queryParams: z.object({

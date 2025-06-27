@@ -6,6 +6,10 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "none",
+  commonParams: z.object({
+    include_logs: z.boolean().optional().default(false),
+    include_ai_review: z.boolean().optional().default(false),
+  }),
   jsonBody: z.object({
     package_release_id: z.string().optional(),
     package_name_with_version: z.string().optional(),
@@ -55,7 +59,10 @@ export default withRouteSpec({
 
     return ctx.json({
       ok: true,
-      package_release: publicMapPackageRelease(packageReleases[0]),
+      package_release: publicMapPackageRelease(packageReleases[0], {
+        include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
+      }),
     })
   }
 
@@ -79,7 +86,10 @@ export default withRouteSpec({
 
     return ctx.json({
       ok: true,
-      package_release: publicMapPackageRelease(packageReleases[0]),
+      package_release: publicMapPackageRelease(packageReleases[0], {
+        include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
+      }),
     })
   }
 
@@ -99,7 +109,10 @@ export default withRouteSpec({
 
     return ctx.json({
       ok: true,
-      package_release: publicMapPackageRelease(pkgRelease),
+      package_release: publicMapPackageRelease(pkgRelease, {
+        include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
+      }),
     })
   }
 
@@ -115,6 +128,10 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package_release: publicMapPackageRelease(foundRelease),
+    package_release: publicMapPackageRelease(foundRelease, {
+      include_logs: req.commonParams?.include_logs,
+      include_ai_review: req.commonParams?.include_ai_review,
+      db: ctx.db,
+    }),
   })
 })

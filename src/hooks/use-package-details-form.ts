@@ -15,6 +15,8 @@ interface PackageDetailsForm {
   website: string
   license: string | null
   visibility: string
+  defaultView: string
+  unscopedPackageName: string
 }
 
 interface UsePackageDetailsFormProps {
@@ -22,6 +24,8 @@ interface UsePackageDetailsFormProps {
   initialWebsite: string
   initialLicense: string | null
   initialVisibility: string
+  initialDefaultView: string
+  initialUnscopedPackageName: string
   isDialogOpen: boolean
 }
 
@@ -30,6 +34,8 @@ export const usePackageDetailsForm = ({
   initialWebsite,
   initialLicense,
   initialVisibility,
+  initialDefaultView,
+  initialUnscopedPackageName,
   isDialogOpen,
 }: UsePackageDetailsFormProps) => {
   const [formData, setFormData] = useState<PackageDetailsForm>({
@@ -37,6 +43,8 @@ export const usePackageDetailsForm = ({
     website: initialWebsite,
     license: initialLicense || null,
     visibility: initialVisibility,
+    defaultView: initialDefaultView,
+    unscopedPackageName: initialUnscopedPackageName,
   })
   const [websiteError, setWebsiteError] = useState<string | null>(null)
 
@@ -47,6 +55,8 @@ export const usePackageDetailsForm = ({
         website: initialWebsite,
         license: initialLicense || null,
         visibility: initialVisibility,
+        defaultView: initialDefaultView,
+        unscopedPackageName: initialUnscopedPackageName,
       })
       setWebsiteError(null)
     }
@@ -56,6 +66,8 @@ export const usePackageDetailsForm = ({
     initialWebsite,
     initialLicense,
     initialVisibility,
+    initialDefaultView,
+    initialUnscopedPackageName,
   ])
 
   useEffect(() => {
@@ -76,18 +88,27 @@ export const usePackageDetailsForm = ({
     [formData.visibility, initialVisibility],
   )
 
+  const hasDefaultViewChanged = useMemo(
+    () => formData.defaultView !== initialDefaultView,
+    [formData.defaultView, initialDefaultView],
+  )
+
   const hasChanges = useMemo(
     () =>
       formData.description !== initialDescription ||
       formData.website !== initialWebsite ||
       formData.license !== initialLicense ||
-      formData.visibility !== initialVisibility,
+      formData.visibility !== initialVisibility ||
+      formData.defaultView !== initialDefaultView ||
+      formData.unscopedPackageName !== initialUnscopedPackageName,
     [
       formData,
       initialDescription,
       initialWebsite,
       initialLicense,
       initialVisibility,
+      initialDefaultView,
+      initialUnscopedPackageName,
     ],
   )
 
@@ -99,6 +120,7 @@ export const usePackageDetailsForm = ({
     websiteError,
     hasLicenseChanged,
     hasVisibilityChanged,
+    hasDefaultViewChanged,
     hasChanges,
     isFormValid,
   }

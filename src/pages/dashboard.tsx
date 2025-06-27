@@ -9,8 +9,7 @@ import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
-import { PackageList } from "@/components/PackagesList"
-import { SnippetList } from "@/components/SnippetList"
+import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
@@ -35,20 +34,24 @@ export const DashboardPage = () => {
     data: myPackages,
     isLoading,
     error,
+    refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    "userPackages",
+    ["userPackages", currentUser],
     async () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
       })
-      return response.data.packages.sort(
-        (a: any, b: any) =>
-          new Date(b.updated_at || b.created_at).getTime() -
-          new Date(a.updated_at || a.created_at).getTime(),
-      )
+      return response.data.packages
     },
     {
       enabled: isLoggedIn,
+      select: (data: Package[]) => {
+        return [...data].sort(
+          (a: Package, b: Package) =>
+            new Date(b.updated_at || b.created_at).getTime() -
+            new Date(a.updated_at || a.created_at).getTime(),
+        )
+      },
     },
   )
 
@@ -95,10 +98,10 @@ export const DashboardPage = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
-                  Log in to access your dashboard and manage your snippets.
+                  Log in to access your dashboard and manage your packages.
                 </p>
                 <Button onClick={() => signIn()} variant="outline">
-                  Log in
+                  Log In
                 </Button>
               </div>
             ) : (
@@ -175,14 +178,14 @@ export const DashboardPage = () => {
             )}
           </div>
           <div className="md:w-1/4">
-            <PackageList
+            <PackagesList
               title="Trending Packages"
               packages={trendingPackages}
               showAll={showAllTrending}
               onToggleShowAll={() => setShowAllTrending(!showAllTrending)}
             />
             <div className="mt-8">
-              <PackageList
+              <PackagesList
                 title="Latest Packages"
                 packages={latestPackages}
                 showAll={showAllLatest}
@@ -195,6 +198,8 @@ export const DashboardPage = () => {
           <DeleteDialog
             packageId={packageToDelete.package_id}
             packageName={packageToDelete.unscoped_name}
+            packageOwner={packageToDelete.owner_github_username ?? ""}
+            refetchUserPackages={refetchUserPackages}
           />
         )}
       </div>

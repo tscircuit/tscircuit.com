@@ -2,30 +2,38 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { createUseDialog } from "./create-use-dialog"
 import { useDeletePackage } from "@/hooks/use-delete-package"
+import { useQueryClient } from "react-query"
 
 export const ConfirmDeletePackageDialog = ({
   open,
   onOpenChange,
   packageId,
   packageName,
+  packageOwner,
   refetchUserPackages,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageId: string
   packageName: string
+  packageOwner: string
   refetchUserPackages?: () => void
 }) => {
+  const queryClient = useQueryClient()
+
   const { mutate: deletePackage, isLoading } = useDeletePackage({
     onSuccess: () => {
       onOpenChange(false)
       refetchUserPackages?.()
+      queryClient.invalidateQueries({
+        queryKey: ["userPackages", packageOwner],
+      })
     },
   })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="w-[90vw]">
         <DialogHeader>
           <DialogTitle>Confirm Delete Package</DialogTitle>
         </DialogHeader>

@@ -37,9 +37,9 @@ import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
 import { useAxios } from "@/hooks/use-axios"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { useCreateOrderDialog } from "@/components/dialogs/create-order-dialog"
 import { useFilesDialog } from "@/components/dialogs/files-dialog"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
@@ -81,8 +81,6 @@ export default function EditorNav({
   } = useUpdatePackageDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
-  const { Dialog: CreateOrderDialog, openDialog: openCreateOrderDialog } =
-    useCreateOrderDialog()
   const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
@@ -193,36 +191,37 @@ export default function EditorNav({
     [isLoggedIn, pkg, session?.github_username],
   )
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault()
-        if (!hasUnsavedChanges || !canSavePackage) return
-        onSave()
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [onSave, hasUnsavedChanges, canSavePackage])
+  useHotkeyCombo(
+    "cmd+s",
+    () => {
+      if (!hasUnsavedChanges || !canSavePackage) return
+      onSave()
+    },
+    { target: window },
+  )
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
         <div className="flex items-center space-x-1">
           {pkg && (
             <>
-              <Link
-                className="text-blue-500 font-semibold hover:underline"
-                href={`/${pkg.owner_github_username}`}
-              >
-                {pkg.owner_github_username}
-              </Link>
-              <span className="px-0.5 text-gray-500">/</span>
-              <Link
-                className="text-blue-500  font-semibold hover:underline"
-                href={`/${pkg.name}`}
-              >
-                {pkg.unscoped_name}
-              </Link>
+              <div className="flex items-center space-x-1 overflow-hidden">
+                <Link
+                  className="text-blue-500 font-semibold hover:underline truncate"
+                  href={`/${pkg.owner_github_username}`}
+                  title={pkg.owner_github_username || ""}
+                >
+                  {pkg.owner_github_username}
+                </Link>
+                <span className="px-0.5 text-gray-500">/</span>
+                <Link
+                  className="text-blue-500 font-semibold hover:underline truncate"
+                  href={`/${pkg.name}`}
+                  title={pkg.unscoped_name}
+                >
+                  {pkg.unscoped_name}
+                </Link>
+              </div>
               {pkg.star_count !== undefined && (
                 <span className="ml-2 text-gray-500 text-xs flex items-center">
                   <Star className="w-3 h-3 mr-1" />
@@ -315,7 +314,7 @@ export default function EditorNav({
       <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
           {pkg && <TypeBadge type={`${packageType ?? pkg.snippet_type}`} />}
-          <Button
+          {/* <Button
             variant="ghost"
             size="sm"
             disabled={hasUnsavedChanges || isSaving || !pkg}
@@ -323,11 +322,13 @@ export default function EditorNav({
           >
             <Sparkles className="mr-1 h-3 w-3" />
             Edit with AI
-          </Button>
+          </Button> */}
           <DownloadButtonAndMenu
-            snippetUnscopedName={pkg?.unscoped_name}
+            unscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
-            className="hidden md:flex"
+            className="flex"
+            desiredImageType={pkg?.default_view ?? "pcb"}
+            author={pkg?.owner_github_username ?? undefined}
           />
           <Button
             variant="ghost"
@@ -358,13 +359,6 @@ export default function EditorNav({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem
-                  className="text-xs"
-                  onClick={() => openCreateOrderDialog()}
-                >
-                  <PackageIcon className="mr-2 h-3 w-3" />
-                  Submit Order
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-xs"
                   onClick={() => openFilesDialog()}
@@ -438,7 +432,7 @@ export default function EditorNav({
                   onClick={() => openDeleteDialog()}
                 >
                   <Trash2 className="mr-2 h-3 w-3" />
-                  Delete Snippet
+                  Delete Package
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-xs text-gray-500" disabled>
                   @tscircuit/core@{tscircuitCorePkg.version}
@@ -474,17 +468,42 @@ export default function EditorNav({
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem className="text-xs">
-                <Download className="mr-1 h-3 w-3" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => {
+                  if (window) {
+                    navigator.clipboard.writeText(
+                      new URL(window.location.href).origin + "/" + pkg?.name,
+                    )
+                    toast({
+                      title: "URL copied!",
+                      description: "The URL has been copied to your clipboard.",
+                    })
+                  }
+                }}
+              >
                 <Share className="mr-1 h-3 w-3" />
                 Copy URL
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-xs">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => {
+                  if (
+                    pkg &&
+                    session?.github_username === pkg.owner_github_username
+                  ) {
+                    updatePackageVisibilityToPrivate(!isPrivate)
+                  }
+                }}
+              >
                 <Eye className="mr-1 h-3 w-3" />
-                Public
+                {session?.github_username === pkg?.owner_github_username
+                  ? isPrivate
+                    ? "Make Public"
+                    : "Make Private"
+                  : isPrivate
+                    ? "Private Package"
+                    : "Public Package"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -519,8 +538,8 @@ export default function EditorNav({
       <DeleteDialog
         packageId={pkg?.package_id ?? ""}
         packageName={pkg?.unscoped_name ?? ""}
+        packageOwner={pkg?.owner_github_username ?? ""}
       />
-      <CreateOrderDialog />
       <FilesDialog snippetId={pkg?.package_id ?? ""} />
       <ViewTsFilesDialog />
     </nav>

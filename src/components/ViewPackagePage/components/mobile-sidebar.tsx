@@ -6,21 +6,20 @@ import { usePreviewImages } from "@/hooks/use-preview-images"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
-import { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
-import { PackageInfo } from "@/lib/types"
 
 interface MobileSidebarProps {
   isLoading?: boolean
   onViewChange: (view: "schematic" | "pcb" | "3d") => void
 }
 
-export default function MobileSidebar({
+const MobileSidebar = ({
   isLoading = false,
   onViewChange,
-}: MobileSidebarProps) {
+}: MobileSidebarProps) => {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
   const { data: licenseFileMeta } = usePackageFile({
     package_release_id: packageInfo?.latest_package_release_id ?? "",
@@ -34,13 +33,16 @@ export default function MobileSidebar({
       return getLicenseFromLicenseContent(licenseFileMeta?.content_text)
     }
     return undefined
-  }, [licenseFileMeta?.content_text])
-  const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
+  }, [licenseFileMeta?.content_text, packageInfo?.latest_license])
+  const topics = useMemo(
+    () => (packageInfo?.is_package ? ["Package"] : ["Board"]),
+    [packageInfo?.is_package],
+  )
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const isOwner =
     isLoggedIn &&
-    packageInfo?.creator_account_id ===
-      useGlobalStore((s) => s.session?.account_id)
+    packageInfo?.owner_github_username ===
+      useGlobalStore((s) => s.session?.github_username)
 
   const {
     Dialog: EditPackageDetailsDialog,
@@ -59,19 +61,26 @@ export default function MobileSidebar({
     }
   }, [packageInfo])
 
-  const handlePackageUpdate = (newDescription: string, newWebsite: string) => {
-    setLocalDescription(newDescription)
-    setLocalWebsite(newWebsite)
-    refetchPackageInfo()
-  }
+  const handlePackageUpdate = useCallback(
+    (newDescription: string, newWebsite: string) => {
+      setLocalDescription(newDescription)
+      setLocalWebsite(newWebsite)
+      refetchPackageInfo()
+    },
+    [refetchPackageInfo],
+  )
 
   const { availableViews } = usePreviewImages({
     packageName: packageInfo?.name,
+    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
   })
 
-  const handleViewClick = (viewId: string) => {
-    onViewChange?.(viewId as "3d" | "pcb" | "schematic")
-  }
+  const handleViewClick = useCallback(
+    (viewId: string) => {
+      onViewChange?.(viewId as "3d" | "pcb" | "schematic")
+    },
+    [onViewChange],
+  )
 
   if (isLoading) {
     return (
@@ -202,11 +211,15 @@ export default function MobileSidebar({
           packageAuthor={packageInfo.owner_github_username}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
+          unscopedPackageName={packageInfo.unscoped_name}
+          currentDefaultView={packageInfo.default_view}
         />
       )}
     </div>
   )
 }
+
+export default React.memo(MobileSidebar)
 
 function PreviewButton({
   view,

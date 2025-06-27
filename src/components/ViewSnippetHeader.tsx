@@ -63,18 +63,21 @@ export default function ViewSnippetHeader() {
           onSuccess?.(forkedSnippet)
         },
         onError: (error: any) => {
-          // Check if the error message contains 'already exists'
-          if (error.message?.includes("already forked")) {
+          const message =
+            error?.data?.error?.message ||
+            error.message ||
+            "Failed to fork snippet. Please try again."
+          if (message.includes("already forked")) {
             toast({
               title: "Snippet already exists",
-              description: error.message,
-              variant: "destructive", // You can style this variant differently
+              description: message,
+              variant: "destructive",
             })
           } else {
             toast({
               title: "Error",
-              description: "Failed to fork snippet. Please try again.",
-              variant: "destructive", // Use destructive variant for errors
+              description: message,
+              variant: "destructive",
             })
           }
           console.error("Error forking snippet:", error)

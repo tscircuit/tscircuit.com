@@ -28,6 +28,8 @@ test("create package release", async () => {
   expect(releaseResponse.data.package_release.version).toBe("1.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
   expect(releaseResponse.data.package_release.is_locked).toBe(false)
+  expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
 })
 
 test("create package release using package_name_with_version", async () => {
@@ -54,6 +56,35 @@ test("create package release using package_name_with_version", async () => {
   )
   expect(releaseResponse.data.package_release.version).toBe("2.0.0")
   expect(releaseResponse.data.package_release.is_latest).toBe(true)
+  expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
+})
+
+test("create package release using package_name and version", async () => {
+  const { axios } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/test-package-name-version",
+    description: "Test Description",
+  })
+  expect(packageResponse.status).toBe(200)
+  const createdPackage = packageResponse.data.package
+
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_name: createdPackage.name,
+    version: "3.0.0",
+  })
+
+  expect(releaseResponse.status).toBe(200)
+  expect(releaseResponse.data.ok).toBe(true)
+  expect(releaseResponse.data.package_release).toBeDefined()
+  expect(releaseResponse.data.package_release.package_id).toBe(
+    createdPackage.package_id,
+  )
+  expect(releaseResponse.data.package_release.version).toBe("3.0.0")
+  expect(releaseResponse.data.package_release.is_latest).toBe(true)
+  expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
 })
 
 test("create package release - version already exists", async () => {

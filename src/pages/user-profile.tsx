@@ -14,6 +14,7 @@ import type { Package } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
+import NotFoundPage from "./404"
 import { useParams } from "wouter"
 import {
   Select,
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
+import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -31,7 +33,31 @@ export const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState("all")
   const [filter, setFilter] = useState("most-recent") // Changed default from "newest" to "most-recent"
   const session = useGlobalStore((s) => s.session)
-  const isCurrentUserProfile = username === session?.github_username
+  const {
+    data: account,
+    error: accountError,
+    isLoading: isLoadingAccount,
+  } = useQuery<
+    { account: { github_username: string } },
+    Error & { status: number }
+  >(
+    ["account", username],
+    async () => {
+      const response = await axios.post("/accounts/get", {
+        github_username: username,
+      })
+      return response.data
+    },
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  )
+
+  // use the username stored in the database so the correct case is displayed
+  const githubUsername = account?.account?.github_username || username
+  const isCurrentUserProfile = githubUsername === session?.github_username
+
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
   const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
@@ -40,33 +66,46 @@ export const UserProfilePage = () => {
     data: userPackages,
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
-  } = useQuery<Package[]>(["userPackages", username], async () => {
-    const response = await axios.post(`/packages/list`, {
-      owner_github_username: username,
-    })
-    return response.data.packages
-  })
+  } = useQuery<Package[]>(
+    ["userPackages", githubUsername],
+    async () => {
+      const response = await axios.post(`/packages/list`, {
+        owner_github_username: githubUsername,
+      })
+      return response.data.packages
+    },
+    {
+      enabled: Boolean(githubUsername),
+      refetchOnWindowFocus: false,
+    },
+  )
 
   const { data: starredPackages, isLoading: isLoadingStarredPackages } =
     useQuery<Package[]>(
-      ["starredPackages", username],
+      ["starredPackages", githubUsername],
       async () => {
         const response = await axios.post(`/packages/list`, {
-          starred_by: username,
+          starred_by: githubUsername,
         })
         return response.data.packages
       },
       {
-        enabled: activeTab === "starred",
+        enabled: activeTab === "starred" && Boolean(githubUsername),
+        refetchOnWindowFocus: false,
       },
     )
 
   const baseUrl = useSnippetsBaseApiUrl()
 
+  if (accountError) {
+    return <NotFoundPage heading="User Not Found" />
+  }
+
   const packagesToShow =
     activeTab === "starred" ? starredPackages : userPackages
   const isLoading =
-    activeTab === "starred" ? isLoadingStarredPackages : isLoadingUserPackages
+    isLoadingAccount ||
+    (activeTab === "starred" ? isLoadingStarredPackages : isLoadingUserPackages)
 
   const filteredPackages = packagesToShow
     ?.filter((pkg) => {
@@ -106,12 +145,16 @@ export const UserProfilePage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={`https://github.com/${username}.png`} />
-            <AvatarFallback>{username?.[0]?.toUpperCase()}</AvatarFallback>
+            <AvatarImage src={`https://github.com/${githubUsername}.png`} />
+            <AvatarFallback>
+              {githubUsername?.[0]?.toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold">
-              {isCurrentUserProfile ? "My Profile" : `${username}'s Profile`}
+              {isCurrentUserProfile
+                ? "My Profile"
+                : `${githubUsername}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
               {userPackages?.length || 0} packages
@@ -120,7 +163,7 @@ export const UserProfilePage = () => {
         </div>
         <div className="mb-6">
           <a
-            href={`https://github.com/${username}`}
+            href={`https://github.com/${githubUsername}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center"
@@ -159,10 +202,10 @@ export const UserProfilePage = () => {
           </Select>
         </div>
         {isLoading ? (
-          <div>
-            {activeTab === "starred"
-              ? "Loading Starred Packages..."
-              : "Loading User Packages..."}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <PackageCardSkeleton key={i} />
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -184,16 +227,20 @@ export const UserProfilePage = () => {
                 <div className="flex flex-col items-center py-12 text-gray-500">
                   {activeTab === "starred" ? (
                     <>
-                      <Star />
+                      <Star className="mb-2" size={24} />
                       <span className="text-lg font-medium">
-                        No starred packages
+                        {searchQuery.trim()
+                          ? `No starred packages matching '${searchQuery.trim()}'`
+                          : "No starred packages"}
                       </span>
                     </>
                   ) : (
                     <>
-                      <Box />
+                      <Box className="mb-2" size={24} />
                       <span className="text-lg font-medium">
-                        No packages available
+                        {searchQuery.trim()
+                          ? `No packages matching '${searchQuery.trim()}'`
+                          : "No packages available"}
                       </span>
                     </>
                   )}
@@ -207,6 +254,7 @@ export const UserProfilePage = () => {
         <DeleteDialog
           packageId={packageToDelete.package_id}
           packageName={packageToDelete.unscoped_name}
+          packageOwner={packageToDelete.owner_github_username ?? ""}
           refetchUserPackages={refetchUserPackages}
         />
       )}

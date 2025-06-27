@@ -3,7 +3,7 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
@@ -48,7 +48,7 @@ export const QuickstartPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 hidden md:block">
-          <h2 className="text-xl font-semibold mb-4">Recent Snippets</h2>
+          <h2 className="text-xl font-semibold mb-4">Recent Packages</h2>
           {isLoading ? (
             <div>Loading...</div>
           ) : (
@@ -63,7 +63,7 @@ export const QuickstartPage = () => {
                 .map((pkg) => (
                   <PrefetchPageLink
                     key={pkg.package_id}
-                    href={`/editor?snippet_id=${pkg.package_id}`}
+                    href={`/editor?package_id=${pkg.package_id}`}
                   >
                     <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col h-full">
                       <CardHeader className="pb-0 p-4">
@@ -85,7 +85,7 @@ export const QuickstartPage = () => {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Start Blank Snippet</h2>
+          <h2 className="text-xl font-semibold mb-4">Start Blank Packages</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {blankTemplates.map((template, index) => (
               <PrefetchPageLink
@@ -117,9 +117,9 @@ export const QuickstartPage = () => {
         </div>
 
         <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Import as Snippet</h2>
+          <h2 className="text-xl font-semibold mb-4">Import as Package</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
+            {/* {[
               { name: "KiCad Footprint", type: "footprint" },
               { name: "KiCad Project", type: "board" },
               { name: "KiCad Module", type: "package" },
@@ -145,7 +145,7 @@ export const QuickstartPage = () => {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+            ))} */}
             <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
@@ -166,7 +166,7 @@ export const QuickstartPage = () => {
               <CardHeader className="p-4 pb-0">
                 <CardTitle className="text-lg flex items-center justify-between">
                   Circuit Json
-                  <TypeBadge type="module" className="ml-2" />
+                  <TypeBadge type="package" className="ml-2" />
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 mt-auto">

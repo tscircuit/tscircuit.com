@@ -38,9 +38,10 @@ export const useForkPackageMutation = ({
       },
       onError: (error: any) => {
         console.error("Error forking package:", error)
+        const message = error?.data?.error?.message
         toast({
           title: "Error",
-          description: "Failed to fork package. Please try again.",
+          description: message || "Failed to fork package. Please try again.",
           variant: "destructive",
         })
       },

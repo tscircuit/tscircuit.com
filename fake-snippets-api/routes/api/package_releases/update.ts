@@ -11,6 +11,8 @@ export default withRouteSpec({
     is_latest: z.boolean().optional(),
     license: z.string().optional(),
     fs_sha: z.string().optional(),
+    ready_to_build: z.boolean().optional(),
+    ai_review_requested: z.boolean().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -23,6 +25,8 @@ export default withRouteSpec({
     is_latest,
     license,
     fs_sha,
+    ready_to_build,
+    ai_review_requested,
   } = req.jsonBody
   let releaseId = package_release_id
 
@@ -47,7 +51,14 @@ export default withRouteSpec({
     })
   }
 
-  const delta = { is_locked, is_latest, license, fs_sha }
+  const delta = {
+    is_locked,
+    is_latest,
+    license,
+    fs_sha,
+    ready_to_build,
+    ai_review_requested,
+  }
   if (
     Object.keys(delta).filter(
       (k) => delta[k as keyof typeof delta] !== undefined,
@@ -76,6 +87,11 @@ export default withRouteSpec({
     ...(is_latest !== undefined && { is_latest }),
     ...(license !== undefined && { license }),
     ...(fs_sha !== undefined && { fs_sha }),
+    ...(ready_to_build !== undefined && { ready_to_build }),
+    ...(ai_review_requested !== undefined && { ai_review_requested }),
+    ...(ai_review_requested === true && {
+      ai_review_text: "Placeholder AI Review Text",
+    }),
   }
 
   // Handle is_latest updates atomically

@@ -25,6 +25,7 @@ export const publicMapPackage = (internalPackage: {
   is_footprint: boolean
   is_private: boolean | null
   is_unlisted: boolean | null
+  latest_package_release_fs_sha: string | null
 }): zt.Package => {
   return {
     ...internalPackage,

@@ -5,13 +5,6 @@ import { FileText, Folder } from "lucide-react"
 import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Settings } from "lucide-react"
 import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 
 interface Directory {

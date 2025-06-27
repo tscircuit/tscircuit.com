@@ -1,8 +1,8 @@
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { useQuery } from "react-query"
+import { type UseQueryOptions, useQuery } from "react-query"
 import { useAxios } from "./use-axios"
 
-type PackageReleaseQuery =
+type PackageReleaseQuery = (
   | {
       package_release_id: string
     }
@@ -17,8 +17,20 @@ type PackageReleaseQuery =
       package_id: string
       is_latest: boolean
     }
+) & {
+  include_logs?: boolean | null | undefined
+  include_ai_review?: boolean | null | undefined
+}
 
-export const usePackageRelease = (query: PackageReleaseQuery | null) => {
+export const usePackageRelease = (
+  query: PackageReleaseQuery | null,
+  options?: {
+    refetchInterval?:
+      | number
+      | false
+      | ((data: PackageRelease | undefined) => number | false)
+  },
+) => {
   const axios = useAxios()
 
   return useQuery<PackageRelease, Error & { status: number }>(
@@ -26,7 +38,12 @@ export const usePackageRelease = (query: PackageReleaseQuery | null) => {
     async () => {
       if (!query) return
 
-      const { data } = await axios.post("/package_releases/get", query)
+      const { data } = await axios.post("/package_releases/get", query, {
+        params: {
+          include_logs: query.include_logs,
+          include_ai_review: query.include_ai_review,
+        },
+      })
 
       if (!data.package_release) {
         throw new Error("Package release not found")
@@ -37,6 +54,8 @@ export const usePackageRelease = (query: PackageReleaseQuery | null) => {
     {
       retry: false,
       enabled: Boolean(query),
+      refetchInterval: options?.refetchInterval,
+      refetchOnWindowFocus: false,
     },
   )
 }

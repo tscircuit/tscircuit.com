@@ -1,7 +1,5 @@
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 import { Link } from "wouter"
-
-import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -10,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { LockClosedIcon } from "@radix-ui/react-icons"
+import { Lock, Globe } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
@@ -20,10 +18,11 @@ import {
 } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { PackageInfo } from "@/lib/types"
+import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
-  packageInfo?: PackageInfo
+  packageInfo?: PackageType
   isPrivate?: boolean
   isCurrentUserAuthor?: boolean
 }
@@ -40,7 +39,12 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog()
+  const signIn = useSignIn()
+  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
+    onSignIn: signIn,
+    isLoggedIn,
+    packageReleaseId: packageInfo?.latest_package_release_id ?? "",
+  })
   const { data: starData, isLoading: isStarDataLoading } =
     usePackageStarsByName(packageInfo?.name ?? null)
   const { addStar, removeStar } = usePackageStarMutationByName(
@@ -72,7 +76,6 @@ export default function PackageHeader({
     window.TSCIRCUIT_REGISTRY_API_BASE_URL =
       import.meta.env.VITE_TSCIRCUIT_REGISTRY_API_URL ??
       `${window.location.origin}/api`
-    window.TSCIRCUIT_REGISTRY_TOKEN = sessionToken ?? ""
     // TODO: replace with production stripe checkout base url
     window.TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL =
       import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL
@@ -100,13 +103,25 @@ export default function PackageHeader({
                     {packageName}
                   </Link>
                 </h1>
-                {packageInfo?.name && <TypeBadge type="package" />}
-                {isPrivate && (
-                  <div className="relative group pl-2">
-                    <LockClosedIcon className="h-4 w-4 text-gray-700" />
-                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 hidden group-hover:block bg-black text-white text-xs rounded py-1 px-2">
-                      private
-                    </span>
+                {packageInfo?.name && (
+                  <div
+                    className={`select-none inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+                      isPrivate
+                        ? "bg-gray-100 text-gray-700 border border-gray-200"
+                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                    }`}
+                  >
+                    {isPrivate ? (
+                      <>
+                        <Lock className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="leading-none">Private</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="leading-none">Public</span>
+                      </>
+                    )}
                   </div>
                 )}
               </>
@@ -254,7 +269,6 @@ export default function PackageHeader({
         onClose={close}
         stage={stage}
         setStage={setStage}
-        packageReleaseId={packageInfo?.latest_package_release_id}
       />
     </header>
   )

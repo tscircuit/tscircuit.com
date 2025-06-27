@@ -28,7 +28,7 @@ const routeSpec = {
     }, "Cannot specify both package_release_id and package_name_with_version")
     .refine((v) => {
       if (v.content_base64 && v.content_text) return false
-      if (!v.content_base64 && !v.content_text) return false
+      if (!v.content_base64 && v.content_text === undefined) return false
       return true
     }, "Either content_base64 or content_text is required"),
   jsonResponse: z.object({
@@ -136,7 +136,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
       exisitingFile.package_file_id,
       {
         content_text:
-          content_text ||
+          content_text ??
           (content_base64
             ? Buffer.from(content_base64, "base64").toString()
             : null),
@@ -145,6 +145,9 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
         npm_pack_output: npm_pack_output || null,
       },
     )
+
+    // Update fs_sha for the package release
+    ctx.db.updatePackageReleaseFsSha(packageReleaseId)
 
     return ctx.json({
       ok: true,
@@ -167,7 +170,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     package_release_id: packageReleaseId,
     file_path,
     content_text:
-      content_text ||
+      content_text ??
       (content_base64
         ? Buffer.from(content_base64, "base64").toString()
         : null),
@@ -180,6 +183,9 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
 
   // Add to the test database
   ctx.db.addPackageFile(newPackageFile)
+
+  // Update fs_sha for the package release
+  ctx.db.updatePackageReleaseFsSha(packageReleaseId)
 
   return ctx.json({
     ok: true,

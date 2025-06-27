@@ -12,13 +12,21 @@ import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
-import { isPackageFileImportant } from "../utils/is-package-file-important"
+import {
+  isPackageFileImportant,
+  scorePackageFileImportance,
+} from "../utils/is-package-file-important"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
-import { PackageInfo } from "@/lib/types"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
+import { useAiReview } from "@/hooks/use-ai-review"
+import { useQueryClient } from "react-query"
+import SidebarReleasesSection from "./sidebar-releases-section"
 
 interface PackageFile {
   package_file_id: string
@@ -32,7 +40,8 @@ interface PackageFile {
 interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
-  packageInfo?: PackageInfo
+  packageInfo?: Package
+  packageRelease?: import("fake-snippets-api/lib/db/schema").PackageRelease
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
 }
@@ -40,25 +49,66 @@ interface RepoPageContentProps {
 export default function RepoPageContent({
   packageFiles,
   packageInfo,
+  packageRelease,
   onFileClicked,
   onEditClicked,
 }: RepoPageContentProps) {
-  const [location, setLocation] = useLocation()
   const [activeView, setActiveView] = useState<string>("files")
-  const session = useGlobalStore((s) => s.session)
-
-  // Handle hash-based view selection
+  const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
+    null,
+  )
+  const queryClient = useQueryClient()
+  const { data: aiReview } = useAiReview(pendingAiReviewId, {
+    refetchInterval: (data) => (data && !data.ai_review_text ? 2000 : false),
+  })
   useEffect(() => {
-    // Get the hash without the # character
-    const hash = window.location.hash.slice(1)
-    // Valid views
-    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
-
-    // If hash is a valid view, set it as active
-    if (validViews.includes(hash)) {
-      setActiveView(hash)
+    if (aiReview?.ai_review_text) {
+      queryClient.invalidateQueries(["packageRelease"])
+      setPendingAiReviewId(null)
     }
-  }, [])
+  }, [aiReview?.ai_review_text, queryClient])
+  const session = useGlobalStore((s) => s.session)
+  const { circuitJson, isLoading: isCircuitJsonLoading } =
+    useCurrentPackageCircuitJson()
+  const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
+    useRequestAiReviewMutation({
+      onSuccess: (_packageRelease, aiReview) => {
+        setPendingAiReviewId(aiReview.ai_review_id)
+      },
+    })
+
+  const aiReviewRequested =
+    Boolean(packageRelease?.ai_review_requested) ||
+    Boolean(pendingAiReviewId) ||
+    isRequestingAiReview
+
+  // Handle initial view selection and hash-based view changes
+  useEffect(() => {
+    if (isCircuitJsonLoading) return
+    if (!packageInfo) return
+    const hash = window.location.hash.slice(1)
+    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+    const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
+
+    const availableViews = circuitJson
+      ? validViews
+      : validViews.filter((view) => !circuitDependentViews.includes(view))
+
+    if (hash && availableViews.includes(hash)) {
+      setActiveView(hash)
+    } else if (
+      packageInfo?.default_view &&
+      availableViews.includes(packageInfo.default_view)
+    ) {
+      setActiveView(packageInfo.default_view)
+      window.location.hash = packageInfo.default_view
+    } else {
+      setActiveView("files")
+      if (!hash || !availableViews.includes(hash)) {
+        window.location.hash = "files"
+      }
+    }
+  }, [packageInfo?.default_view, circuitJson, isCircuitJsonLoading])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
@@ -70,9 +120,16 @@ export default function RepoPageContent({
   const importantFiles = useMemo(() => {
     if (!packageFiles || !importantFilePaths) return []
 
-    return packageFiles.filter((file) =>
-      importantFilePaths.some((path) => file.file_path.endsWith(path)),
-    )
+    return packageFiles
+      .filter((file) =>
+        importantFilePaths.some((path) => file.file_path.endsWith(path)),
+      )
+      .sort((a, b) => {
+        const aImportance = scorePackageFileImportance(a.file_path)
+        const bImportance = scorePackageFileImportance(b.file_path)
+        return aImportance - bImportance
+      })
+      .reverse()
   }, [packageFiles, importantFilePaths])
 
   // Generate package name with version for file lookups
@@ -138,6 +195,7 @@ export default function RepoPageContent({
       <Header />
       <PackageHeader
         packageInfo={packageInfo}
+        isPrivate={packageInfo?.is_private ?? false}
         isCurrentUserAuthor={
           packageInfo?.creator_account_id === session?.github_username
         }
@@ -179,8 +237,18 @@ export default function RepoPageContent({
               importantFiles={importantFiles}
               isLoading={!packageFiles}
               onEditClicked={onEditClicked}
-              aiDescription={packageInfo?.ai_description}
-              aiUsageInstructions={packageInfo?.ai_usage_instructions}
+              packageAuthorOwner={packageInfo?.owner_github_username}
+              aiDescription={packageInfo?.ai_description ?? ""}
+              aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
+              aiReviewText={packageRelease?.ai_review_text ?? null}
+              aiReviewRequested={aiReviewRequested}
+              onRequestAiReview={() => {
+                if (packageRelease) {
+                  requestAiReview({
+                    package_release_id: packageRelease.package_release_id,
+                  })
+                }
+              }}
             />
           </div>
 
@@ -195,6 +263,10 @@ export default function RepoPageContent({
                 window.location.hash = view
               }}
             />
+          </div>
+          {/* Releases section - Only visible on small screens */}
+          <div className="block md:hidden w-full px-5">
+            <SidebarReleasesSection />
           </div>
         </div>
       </div>

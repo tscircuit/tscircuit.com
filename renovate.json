@@ -10,7 +10,8 @@
         "jscad-electronics",
         "circuit-json",
         "dsn-converter",
-        "circuit-json-to-readable-netlist"
+        "circuit-json-to-readable-netlist",
+        "circuit-*"
       ],
       "enabled": false
     },

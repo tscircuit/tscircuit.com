@@ -1,38 +1,47 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
-import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
 import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { usePackage } from "@/hooks/use-package"
 
 export const ViewPackagePage = () => {
-  const { packageInfo } = useCurrentPackageInfo()
+  const {
+    packageId,
+    error: packageIdError,
+    isLoading: isLoadingPackageId,
+  } = useCurrentPackageId()
+  const { data: packageInfo } = usePackage(packageId)
   const { author, packageName } = useParams()
   const [, setLocation] = useLocation()
-  const [isNotFound, setIsNotFound] = useState(false)
-
   const {
     data: packageRelease,
     error: packageReleaseError,
     isLoading: isLoadingPackageRelease,
-  } = usePackageRelease({
-    is_latest: true,
-    package_name: `${author}/${packageName}`,
-  })
+  } = usePackageRelease(
+    {
+      is_latest: true,
+      package_name: `${author}/${packageName}`,
+      include_ai_review: true,
+    },
+    {
+      refetchInterval: (data) =>
+        data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
+    },
+  )
 
   const { data: packageFiles } = usePackageFiles(
     packageRelease?.package_release_id,
   )
-  useEffect(() => {
-    if (isLoadingPackageRelease) return
-    if (packageReleaseError?.status == 404) {
-      setIsNotFound(true)
-    }
-  }, [isLoadingPackageRelease, packageReleaseError])
 
-  if (isNotFound) {
+  if (!isLoadingPackageId && packageIdError) {
+    return <NotFoundPage heading="Package Not Found" />
+  }
+
+  if (!isLoadingPackageRelease && packageReleaseError?.status == 404) {
     return <NotFoundPage heading="Package Not Found" />
   }
 
@@ -43,14 +52,17 @@ export const ViewPackagePage = () => {
       </Helmet>
       <RepoPageContent
         packageFiles={packageFiles as any}
-        packageInfo={packageInfo as any}
+        packageInfo={packageInfo}
+        packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
         onFileClicked={(file) => {
+          if (!packageInfo?.package_id) return
           setLocation(
             `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
           )
         }}
         onEditClicked={(file_path?: string) => {
+          if (!packageInfo?.package_id) return
           setLocation(
             `/editor?package_id=${packageInfo?.package_id}${
               file_path ? `&file_path=${file_path}` : ""

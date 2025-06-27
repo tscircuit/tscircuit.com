@@ -66,6 +66,11 @@ export const RenamePackageDialog = ({
           onChange={(e) => setNewName(e.target.value.replace(" ", "").trim())}
           placeholder="Enter new name"
           disabled={renamePackageMutation.isLoading}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !renamePackageMutation.isLoading) {
+              renamePackageMutation.mutate()
+            }
+          }}
         />
         <Button
           disabled={renamePackageMutation.isLoading}

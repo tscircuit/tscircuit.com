@@ -6,6 +6,9 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["POST"],
   auth: "none",
+  commonParams: z.object({
+    include_ai_review: z.boolean().optional().default(false),
+  }),
   jsonBody: z
     .object({
       package_id: z.string().optional(),
@@ -72,6 +75,11 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    package_releases: releases.map((pr) => publicMapPackageRelease(pr)),
+    package_releases: releases.map((pr) =>
+      publicMapPackageRelease(pr, {
+        include_ai_review: req.commonParams?.include_ai_review,
+        db: ctx.db,
+      }),
+    ),
   })
 })

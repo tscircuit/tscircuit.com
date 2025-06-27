@@ -1,11 +1,8 @@
 export const blankPackageTemplate = {
   type: "package",
   code: `
-import { createUseComponent } from "@tscircuit/core"
+import type { ChipProps } from "@tscircuit/props"
 
-export const MyChip = (props: { name: string }) => (
-  <chip {...props} pinLabels={pinLabels} footprint="soic8" />
-)
 const pinLabels = {
   pin1: [],
   pin2: [],
@@ -17,6 +14,8 @@ const pinLabels = {
   pin8: [],
 } as const
 
-export const useMyChip = createUseComponent(MyChip, pinLabels)
+export const MyChip = (props: ChipProps<typeof pinLabels>) => (
+  <chip footprint="soic8" pinLabels={pinLabels} {...props} />
+)
 `.trim(),
 }

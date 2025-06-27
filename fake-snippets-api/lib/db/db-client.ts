@@ -15,6 +15,11 @@ import {
   type Package,
   type PackageFile,
   type PackageRelease,
+  packageReleaseSchema,
+  type AiReview,
+  aiReviewSchema,
+  type Datasheet,
+  datasheetSchema,
   type Session,
   type Snippet,
   databaseSchema,
@@ -22,6 +27,7 @@ import {
   type snippetSchema,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
+import { generateFsSha } from "../package_file/generate-fs-sha"
 
 export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
   const db = hoist(createStore(initializer))
@@ -271,10 +277,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_public: true,
       is_unlisted: false,
       latest_package_release_id: `package_release_${nextId}`,
+      latest_package_release_fs_sha: null,
     }
 
     // Create package release
-    const newPackageRelease = {
+    const newPackageRelease = packageReleaseSchema.parse({
       package_release_id: `package_release_${nextId}`,
       package_id: newPackage.package_id,
       version: "0.0.1",
@@ -284,7 +291,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       updated_at: currentTime,
       has_transpiled: true,
       transpilation_error: null,
-    }
+    })
 
     // Add all the files
     const packageFiles: PackageFile[] = []
@@ -339,6 +346,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       packageReleases: [...state.packageReleases, newPackageRelease],
       packageFiles: [...state.packageFiles, ...packageFiles],
       idCounter: fileIdCounter,
+    }))
+
+    // Update fs_sha for the new package release
+    const dbState = get()
+    const releaseFiles = dbState.packageFiles.filter(
+      (pf) => pf.package_release_id === newPackageRelease.package_release_id,
+    )
+    const fsSha = generateFsSha(releaseFiles)
+
+    set((state) => ({
+      ...state,
+      packageReleases: state.packageReleases.map((pr) =>
+        pr.package_release_id === newPackageRelease.package_release_id
+          ? { ...pr, fs_sha: fsSha }
+          : pr,
+      ),
+      packages: state.packages.map((pkg) =>
+        pkg.latest_package_release_id === newPackageRelease.package_release_id
+          ? { ...pkg, latest_package_release_fs_sha: fsSha }
+          : pkg,
+      ),
     }))
 
     // Return in the same format as create endpoint
@@ -1215,16 +1243,19 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addPackageRelease: (
-    packageRelease: Omit<PackageRelease, "package_release_id">,
+    packageRelease: Omit<
+      z.input<typeof packageReleaseSchema>,
+      "package_release_id"
+    >,
   ): PackageRelease => {
-    const newPackageRelease = {
+    const parsed = packageReleaseSchema.parse({
       package_release_id: `package_release_${Date.now()}`,
       ...packageRelease,
-    }
+    })
     set((state) => ({
-      packageReleases: [...state.packageReleases, newPackageRelease],
+      packageReleases: [...state.packageReleases, parsed],
     }))
-    return newPackageRelease
+    return parsed
   },
   updatePackageRelease: (packageRelease: PackageRelease): void => {
     set((state) => ({
@@ -1286,5 +1317,101 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.packageFiles.filter(
       (pf) => pf.package_release_id === packageReleaseId,
     )
+  },
+  /**
+   * Update fs_sha for a package release based on its files
+   */
+  updatePackageReleaseFsSha: (packageReleaseId: string): void => {
+    const state = get()
+    const packageFiles = state.packageFiles.filter(
+      (pf) => pf.package_release_id === packageReleaseId,
+    )
+    const fsSha = generateFsSha(packageFiles)
+
+    set((currentState) => ({
+      ...currentState,
+      packageReleases: currentState.packageReleases.map((pr) =>
+        pr.package_release_id === packageReleaseId
+          ? { ...pr, fs_sha: fsSha }
+          : pr,
+      ),
+      packages: currentState.packages.map((pkg) =>
+        pkg.latest_package_release_id === packageReleaseId
+          ? { ...pkg, latest_package_release_fs_sha: fsSha }
+          : pkg,
+      ),
+    }))
+  },
+
+  addAiReview: (review: Omit<AiReview, "ai_review_id">): AiReview => {
+    const base = aiReviewSchema.omit({ ai_review_id: true }).parse(review)
+    const newReview = {
+      ai_review_id: crypto.randomUUID(),
+      ...base,
+    }
+    set((state) => ({
+      aiReviews: [...state.aiReviews, newReview],
+      idCounter: state.idCounter + 1,
+    }))
+    return newReview
+  },
+  updateAiReview: (
+    aiReviewId: string,
+    updates: Partial<AiReview>,
+  ): AiReview | undefined => {
+    let updated: AiReview | undefined
+    set((state) => {
+      const index = state.aiReviews.findIndex(
+        (ar) => ar.ai_review_id === aiReviewId,
+      )
+      if (index === -1) return state
+      const aiReviews = [...state.aiReviews]
+      aiReviews[index] = { ...aiReviews[index], ...updates }
+      updated = aiReviews[index]
+      return { ...state, aiReviews }
+    })
+    return updated
+  },
+  getAiReviewById: (aiReviewId: string): AiReview | undefined => {
+    const state = get()
+    return state.aiReviews.find((ar) => ar.ai_review_id === aiReviewId)
+  },
+  listAiReviews: (): AiReview[] => {
+    const state = get()
+    return state.aiReviews
+  },
+  addDatasheet: ({ chip_name }: { chip_name: string }): Datasheet => {
+    const newDatasheet = datasheetSchema.parse({
+      datasheet_id: `datasheet_${Date.now()}`,
+      chip_name,
+      created_at: new Date().toISOString(),
+      pin_information: null,
+      datasheet_pdf_urls: null,
+    })
+    set((state) => ({
+      datasheets: [...state.datasheets, newDatasheet],
+    }))
+    return newDatasheet
+  },
+  getDatasheetById: (datasheetId: string): Datasheet | undefined => {
+    const state = get()
+    return state.datasheets.find((d) => d.datasheet_id === datasheetId)
+  },
+  updateDatasheet: (
+    datasheetId: string,
+    updates: Partial<Datasheet>,
+  ): Datasheet | undefined => {
+    let updated: Datasheet | undefined
+    set((state) => {
+      const index = state.datasheets.findIndex(
+        (d) => d.datasheet_id === datasheetId,
+      )
+      if (index === -1) return state
+      const datasheets = [...state.datasheets]
+      datasheets[index] = { ...datasheets[index], ...updates }
+      updated = datasheets[index]
+      return { ...state, datasheets }
+    })
+    return updated
   },
 }))

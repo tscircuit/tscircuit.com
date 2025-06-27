@@ -1,11 +1,14 @@
 import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
-import path from "path"
+import path, { extname } from "path"
+import { readFileSync } from "fs"
+import { execSync } from "child_process"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
+import type { IncomingMessage, ServerResponse } from "http"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -35,6 +38,100 @@ function apiFakePlugin(): Plugin {
           next()
         }
       })
+    },
+  }
+}
+
+function vercelSsrDevPlugin(): Plugin {
+  return {
+    name: "vercel-ssr-dev",
+    apply: "serve",
+    async configureServer(server) {
+      const port = server.config.server.port || 5173
+      process.env.TSC_DEV_SSR = "true"
+      process.env.TSC_BASE_URL = `http://127.0.0.1:${port}`
+      process.env.TSC_REGISTRY_API = `http://127.0.0.1:${port}/api`
+
+      const { default: ssrHandler, setHtmlContent } = await import(
+        "./api/generated-index.js"
+      )
+
+      server.middlewares.use(async (req, res, next) => {
+        const url = req.url?.split("?")[0] || ""
+        const accept = req.headers.accept || ""
+
+        if (url === "/" || url === "/landing.html") {
+          return next()
+        }
+
+        if (url.startsWith("/api/")) {
+          return next()
+        }
+
+        if (!accept.includes("text/html")) {
+          return next()
+        }
+
+        if (extname(url)) {
+          return next()
+        }
+
+        const patchedRes = res as ServerResponse & {
+          status?: (code: number) => ServerResponse
+          send?: (body: any) => void
+        }
+
+        if (!patchedRes.status) {
+          patchedRes.status = function (code: number) {
+            patchedRes.statusCode = code
+            return patchedRes
+          }
+        }
+
+        if (!patchedRes.send) {
+          patchedRes.send = function (body: any) {
+            if (Buffer.isBuffer(body) || typeof body === "string") {
+              patchedRes.end(body)
+            } else {
+              patchedRes.end(JSON.stringify(body))
+            }
+          }
+        }
+
+        try {
+          let rawHtml = readFileSync(
+            path.resolve(__dirname, "index.html"),
+            "utf-8",
+          )
+          rawHtml = rawHtml.replace(
+            /src="\.\/src\/main\.tsx"/,
+            'src="/src/main.tsx"',
+          )
+          const transformed = await server.transformIndexHtml(url, rawHtml)
+          setHtmlContent(transformed)
+          await ssrHandler(req as IncomingMessage, patchedRes)
+        } catch (err) {
+          console.error("SSR handler error", err)
+          next()
+        }
+      })
+    },
+  }
+}
+
+function buildIdPlugin(): Plugin {
+  return {
+    name: "build-id",
+    transformIndexHtml(html) {
+      try {
+        const hash = execSync("git rev-parse --short HEAD").toString().trim()
+        return html.replace(
+          /<\/head>/i,
+          `  <meta name="tscircuit-build" content="${hash}"></head>`,
+        )
+      } catch {
+        return html
+      }
     },
   }
 }
@@ -71,6 +168,8 @@ export default defineConfig(async (): Promise<UserConfig> => {
         effort: 6,
       },
     }),
+    vercelSsrDevPlugin(),
+    buildIdPlugin(),
   ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {

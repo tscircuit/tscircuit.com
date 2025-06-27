@@ -18,6 +18,7 @@ export const useSnippet = (snippetId: string | null) => {
     {
       enabled: Boolean(snippetId),
       retry: false,
+      refetchOnWindowFocus: false,
     },
   )
 }

@@ -1,6 +1,5 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
-import { generateCircuitJson } from "bun-tests/fake-snippets-api/fixtures/get-circuit-json"
 import md5 from "md5"
 test("get schematic svg of a package", async () => {
   const { axios, db } = await getTestServer()
@@ -18,27 +17,20 @@ test("get schematic svg of a package", async () => {
     is_latest: true,
   })
 
-  const circuit_json = await generateCircuitJson({
-    code: `
-import { A555Timer } from "@tsci/seveibar.a555timer"
-
-export default () => (
-  <board width="10mm" height="10mm">
-    <A555Timer name="U1" />
-  </board>
-)`.trim(),
-    type: "board",
-    compiled_js: `
-  "use strict";
-  Object.defineProperty(exports, "__esModule", { value: true });
-  exports.A555Timer = void 0;
-  const A555Timer = ({ name }) => /*#__PURE__*/React.createElement("chip", {
-    name: name,
-    footprint: "dip8"
-  });
-  exports.A555Timer = A555Timer;
-  `.trim(),
-  })
+  const circuit_json = [
+    {
+      type: "pcb_board",
+      pcb_board_id: "pcb_board_0",
+      center: {
+        x: 0,
+        y: 0,
+      },
+      thickness: 1.4,
+      num_layers: 4,
+      width: 30,
+      height: 30,
+    },
+  ]
   // create a package file
   const pkg_file = await axios.post("/api/package_files/create", {
     package_release_id: pkg_release.data.package_release.package_release_id,
@@ -53,11 +45,7 @@ export default () => (
     package_release_id: pkg_release.data.package_release.package_release_id,
   })
   for (const file of files.data.package_files) {
-    // get the file content
-    const file_content = await axios.post("/api/package_files/get", {
-      package_file_id: file.package_file_id,
-    })
-    fsMap.set(file.file_path, file_content.data.package_file.content_text)
+    fsMap.set(file.file_path, file.content_text)
   }
 
   const fsMapHash = md5(JSON.stringify(fsMap))

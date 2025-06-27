@@ -4,6 +4,35 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { BuildStatus, BuildStep } from "./build-status"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+
+function getTranspilationStatus(
+  pr?: PackageRelease | null,
+): BuildStep["status"] {
+  switch (pr?.transpilation_display_status) {
+    case "complete":
+      return "success"
+    case "error":
+      return "error"
+    case "building":
+      return "running"
+    default:
+      return "pending"
+  }
+}
+
+function getCircuitJsonStatus(pr?: PackageRelease | null): BuildStep["status"] {
+  switch (pr?.circuit_json_build_display_status) {
+    case "complete":
+      return "success"
+    case "error":
+      return "error"
+    case "building":
+      return "running"
+    default:
+      return "pending"
+  }
+}
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -15,14 +44,12 @@ export default function SidebarReleasesSection() {
     {
       id: "package_transpilation",
       name: "Package Transpilation",
-      status: packageRelease?.has_transpiled ? "success" : "failed",
-      message: packageRelease?.transpilation_error || undefined,
+      status: getTranspilationStatus(packageRelease),
     },
     {
       id: "circuit_json_build",
       name: "Circuit JSON Build",
-      status: packageRelease?.circuit_json_build_error ? "failed" : "success",
-      message: packageRelease?.circuit_json_build_error || undefined,
+      status: getCircuitJsonStatus(packageRelease),
     },
   ]
 
@@ -56,7 +83,11 @@ export default function SidebarReleasesSection() {
           </span>
         </div>
         {buildSteps.map((step) => (
-          <BuildStatus key={step.id} step={step} />
+          <BuildStatus
+            key={step.id}
+            step={step}
+            packageReleaseId={packageRelease.package_release_id}
+          />
         ))}
       </div>
       {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">

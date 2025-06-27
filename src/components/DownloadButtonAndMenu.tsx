@@ -13,6 +13,7 @@ import { downloadFabricationFiles } from "@/lib/download-fns/download-fabricatio
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
@@ -21,28 +22,33 @@ import { CubeIcon } from "@radix-ui/react-icons"
 
 interface DownloadButtonAndMenuProps {
   className?: string
-  snippetUnscopedName: string | undefined
+  unscopedName?: string
+  author?: string
   circuitJson?: AnyCircuitElement[] | null
+  desiredImageType?: string
 }
 
 export function DownloadButtonAndMenu({
   className,
-  snippetUnscopedName,
+  unscopedName,
+  author,
+  desiredImageType = "pcb",
   circuitJson,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
+  const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
+    usePcbDownloadDialog()
 
   if (!circuitJson) {
     return (
-      <div>
+      <div className={className}>
         <Button
           disabled
-          variant="ghost"
           size="sm"
-          className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+          className="h-9 bg-muted text-muted-foreground border border-input cursor-not-allowed"
         >
           <Download className="h-4 w-4 mr-1.5" />
-          Export
+          Download
           <ChevronDown className="h-4 w-4 ml-0.5" />
         </Button>
       </div>
@@ -54,22 +60,21 @@ export function DownloadButtonAndMenu({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="outline"
             size="sm"
-            className="h-9 border-gray-300 dark:border-[#30363d] hover:bg-gray-200 dark:bg-[#21262d] dark:hover:bg-[#30363d] text-gray-700 dark:text-[#c9d1d9]"
+            className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2"
           >
-            <Download className="h-4 w-4 mr-1.5" />
-            Export
-            <ChevronDown className="h-4 w-4 ml-0.5" />
+            <Download className="w-4 h-4 mr-2" />
+            Download
+            <ChevronDown className="w-4 h-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="!z-[101]">
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
               downloadCircuitJson(
                 circuitJson,
-                snippetUnscopedName || "circuit" + ".json",
+                unscopedName || "circuit" + ".json",
               )
             }}
           >
@@ -83,10 +88,7 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
-                await downloadGltf(
-                  circuitJson,
-                  snippetUnscopedName || "circuit",
-                )
+                await downloadGltf(unscopedName || "circuit")
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",
@@ -107,7 +109,7 @@ export function DownloadButtonAndMenu({
             onClick={async () => {
               await downloadFabricationFiles({
                 circuitJson,
-                snippetUnscopedName: snippetUnscopedName || "snippet",
+                snippetUnscopedName: unscopedName || "snippet",
               }).catch((error) => {
                 console.error(error)
                 console.log(error, error.stack)
@@ -138,10 +140,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadKicadFiles(
-                circuitJson,
-                snippetUnscopedName || "kicad_project",
-              )
+              downloadKicadFiles(circuitJson, unscopedName || "kicad_project")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -154,10 +153,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadSchematicSvg(
-                circuitJson,
-                snippetUnscopedName || "circuit",
-              )
+              downloadSchematicSvg(circuitJson, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -169,7 +165,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadAssemblySvg(circuitJson, snippetUnscopedName || "circuit")
+              downloadAssemblySvg(circuitJson, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -181,7 +177,19 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadDsnFile(circuitJson, snippetUnscopedName || "circuit")
+              openPcbDownloadDialog()
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">PCB SVG</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              svg
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() => {
+              downloadDsnFile(circuitJson, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -193,10 +201,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onClick={() => {
-              downloadReadableNetlist(
-                circuitJson,
-                snippetUnscopedName || "circuit",
-              )
+              downloadReadableNetlist(circuitJson, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -208,10 +213,7 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onSelect={() => {
-              downloadSimpleRouteJson(
-                circuitJson,
-                snippetUnscopedName || "circuit",
-              )
+              downloadSimpleRouteJson(circuitJson, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -220,8 +222,51 @@ export function DownloadButtonAndMenu({
               json
             </span>
           </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onClick={async () => {
+              try {
+                const desiredImageFormat = [
+                  "pcb",
+                  "schematic",
+                  "assembly",
+                  "3d",
+                ].includes(desiredImageType)
+                  ? desiredImageType
+                  : "pcb"
+                const imageUrl = `https://registry-api.tscircuit.com/packages/images/${author}/${unscopedName}/${desiredImageFormat}.png`
+                const response = await fetch(imageUrl)
+                if (!response.ok) throw new Error("Failed to download image")
+                const blob = await response.blob()
+                const url = window.URL.createObjectURL(blob)
+                const a = document.createElement("a")
+                a.href = url
+                a.download = `${unscopedName}_${desiredImageFormat}.png`
+                document.body.appendChild(a)
+                a.click()
+                a.remove()
+                window.URL.revokeObjectURL(url)
+              } catch (error: any) {
+                toast({
+                  title: "Error Downloading Image",
+                  description: error.toString(),
+                  variant: "destructive",
+                })
+              }
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Image PNG</span>
+            <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              png
+            </span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <PcbDownloadDialog
+        circuitJson={circuitJson}
+        fileName={unscopedName || "circuit"}
+      />
     </div>
   )
 }
