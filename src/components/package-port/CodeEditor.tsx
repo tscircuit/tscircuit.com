@@ -620,7 +620,7 @@ export const CodeEditor = ({
   }
   const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-[98vh] w-full overflow-hidden">
       <FileSidebar
         files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
         currentFile={currentFile}

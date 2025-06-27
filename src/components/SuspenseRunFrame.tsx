@@ -10,7 +10,9 @@ export const SuspenseRunFrame = (
 ) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <RunFrame {...props} />
+      <div className="h-[98vh]">
+        <RunFrame {...props} />
+      </div>
     </Suspense>
   )
 }
