@@ -137,10 +137,7 @@ const QuickOpen = ({
 
       const chars = file.path.split("")
       return chars.map((char, i) => (
-        <span
-          key={i}
-          className={file.matches.includes(i) ? "bg-slate-200 rounded-sm" : ""}
-        >
+        <span key={i} className={file.matches.includes(i) ? "bg-blue-200" : ""}>
           {char}
         </span>
       ))
