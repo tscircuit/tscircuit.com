@@ -68,35 +68,13 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     e.preventDefault()
 
     const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
-    const shareText = `Check out this ${pkg.snippet_type} package: ${pkg.unscoped_name}${pkg.description ? ` - ${pkg.description}` : ""}`
-    const imageUrl = `${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png`
-
+    const shareText =
+      `Explore this tscircuit package: ${pkg.unscoped_name} by ${pkg.owner_github_username}\n${pkg.description ? ` - ${pkg.description}` : ""}`.trim()
     if (navigator.share) {
-      try {
-        const imageResponse = await fetch(imageUrl)
-        const imageBlob = await imageResponse.blob()
-        const imageFile = new File([imageBlob], `${pkg.unscoped_name}.png`, {
-          type: "image/png",
-        })
-
-        await navigator.share({
-          title: `${pkg.unscoped_name} - tscircuit Package`,
-          text: shareText,
-          url: shareUrl,
-          files: [imageFile],
-        })
-      } catch (error) {
-        console.error(error)
-        try {
-          await navigator.share({
-            title: `${pkg.unscoped_name} - tscircuit Package`,
-            text: shareText,
-            url: shareUrl,
-          })
-        } catch (shareError) {
-          fallbackShare(shareText, shareUrl)
-        }
-      }
+      await navigator.share({
+        title: shareText,
+        url: shareUrl,
+      })
     } else {
       fallbackShare(shareText, shareUrl)
     }
