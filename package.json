@@ -114,7 +114,7 @@
     "circuit-json-to-gerber": "^0.0.25",
     "circuit-json-to-pnp-csv": "^0.0.7",
     "circuit-json-to-readable-netlist": "^0.0.13",
-    "circuit-json-to-tscircuit": "^0.0.5",
+    "circuit-json-to-tscircuit": "^0.0.4",
     "circuit-to-svg": "^0.0.160",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
