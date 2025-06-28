@@ -2,7 +2,13 @@ import React from "react"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
-import { GlobeIcon, MoreVertical, PencilIcon, Trash2 } from "lucide-react"
+import {
+  GlobeIcon,
+  MoreVertical,
+  PencilIcon,
+  Share2,
+  Trash2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,6 +19,7 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { ImageWithFallback } from "./ImageWithFallback"
+import { useToast } from "@/hooks/use-toast"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -49,11 +56,47 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   withLink = true,
   renderActions,
 }) => {
+  const { toast } = useToast()
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault() // Prevent navigation
     if (onDeleteClick) {
       onDeleteClick(e, pkg)
     }
+  }
+
+  const handleShareClick = async (e: React.MouseEvent) => {
+    e.preventDefault()
+
+    const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
+    const shareText =
+      `Explore this tscircuit package: ${pkg.unscoped_name} by ${pkg.owner_github_username}${pkg.description ? ` - ${pkg.description}` : ""}`.trim()
+    if (navigator.share) {
+      await navigator
+        .share({
+          title: shareText,
+          text: shareText,
+          url: shareUrl,
+        })
+        .catch(() => fallbackShare(shareText, shareUrl))
+    } else {
+      fallbackShare(shareText, shareUrl)
+    }
+  }
+
+  const fallbackShare = (text: string, url: string) => {
+    const shareContent = `${text}\n${url}`
+    navigator.clipboard
+      .writeText(shareContent)
+      .then(() => {
+        toast({
+          title: "Share content copied to clipboard",
+        })
+      })
+      .catch(() => {
+        toast({
+          title: "Unable to share or copy to clipboard",
+        })
+      })
   }
 
   const cardContent = (
@@ -92,18 +135,25 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 <StarIcon className="w-4 h-4 pt-[2.5px]" />
                 <span className="text-[16px]">{pkg.star_count || 0}</span>
               </div>
-              {isCurrentUserPackage && onDeleteClick && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-[1.5rem] w-[1.5rem]"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-[1.5rem] w-[1.5rem]"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    className="text-xs cursor-pointer"
+                    onClick={handleShareClick}
+                  >
+                    <Share2 className="mr-2 h-3 w-3" />
+                    Share Package
+                  </DropdownMenuItem>{" "}
+                  {isCurrentUserPackage && onDeleteClick && (
                     <DropdownMenuItem
                       className="text-xs text-red-600"
                       onClick={handleDeleteClick}
@@ -111,9 +161,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                       <Trash2 className="mr-2 h-3 w-3" />
                       Delete Package
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
               {renderActions && renderActions(pkg)}
             </div>
           </div>
