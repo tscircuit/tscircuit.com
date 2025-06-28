@@ -35,6 +35,7 @@ import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "./CodeAndPreview"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import QuickOpen from "./QuickOpen"
+import GlobalFindReplace from "./GlobalFindReplace"
 import {
   ICreateFileProps,
   ICreateFileResult,
@@ -86,6 +87,7 @@ export const CodeEditor = ({
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
+  const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
 
   const { highlighter } = useShikiHighlighter()
 
@@ -273,6 +275,13 @@ export const CodeEditor = ({
             key: "Mod-p",
             run: () => {
               setShowQuickOpen(true)
+              return true
+            },
+          },
+          {
+            key: "Mod-Shift-f",
+            run: () => {
+              setShowGlobalFindReplace(true)
               return true
             },
           },
@@ -609,9 +618,20 @@ export const CodeEditor = ({
     setShowQuickOpen(true)
   })
 
+  useHotkeyCombo("cmd+shift+f", () => {
+    setShowGlobalFindReplace(true)
+  })
+
+  useHotkeyCombo("ctrl+shift+f", () => {
+    setShowGlobalFindReplace(true)
+  })
+
   useHotkeyCombo("Escape", () => {
     if (showQuickOpen) {
       setShowQuickOpen(false)
+    }
+    if (showGlobalFindReplace) {
+      setShowGlobalFindReplace(false)
     }
   })
 
@@ -659,6 +679,15 @@ export const CodeEditor = ({
           currentFile={currentFile}
           onFileSelect={handleFileChange}
           onClose={() => setShowQuickOpen(false)}
+        />
+      )}
+      {showGlobalFindReplace && (
+        <GlobalFindReplace
+          files={files.filter((f) => !isHiddenFile(f.path))}
+          currentFile={currentFile}
+          onFileSelect={handleFileChange}
+          onFileContentChanged={onFileContentChanged}
+          onClose={() => setShowGlobalFindReplace(false)}
         />
       )}
     </div>
