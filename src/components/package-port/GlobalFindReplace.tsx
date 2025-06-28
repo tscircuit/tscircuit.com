@@ -4,9 +4,7 @@ import {
   Code,
   Braces,
   FileIcon,
-  Hash,
   BookOpen,
-  FileText,
   ChevronDown,
   ChevronRight,
   X,
@@ -77,7 +75,7 @@ const GlobalFindReplace = ({
   }, [fileMatches])
 
   const searchFiles = useCallback(() => {
-    if (!searchQuery.trim()) {
+    if (!searchQuery) {
       setFileMatches([])
       return
     }
@@ -254,10 +252,70 @@ const GlobalFindReplace = ({
     const matchText = lineText.substring(match.startIndex, match.endIndex)
     const after = lineText.substring(match.endIndex)
 
+    const renderMatchText = (text: string) => {
+      const renderChar = (char: string, index: number) => {
+        if (char === " ") {
+          return (
+            <span
+              key={index}
+              className="bg-blue-200 text-blue-800 relative inline-block min-w-[8px]"
+            >
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-60">
+                •
+              </span>
+              &nbsp;
+            </span>
+          )
+        } else if (char === "\t") {
+          return (
+            <span
+              key={index}
+              className="bg-blue-200 text-blue-800 relative inline-block min-w-[16px]"
+            >
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-60">
+                →
+              </span>
+              &nbsp;&nbsp;
+            </span>
+          )
+        } else if (char === "\n") {
+          return (
+            <span
+              key={index}
+              className="bg-blue-200 text-blue-800 relative inline-block min-w-[12px]"
+            >
+              <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold opacity-60">
+                ↵
+              </span>
+              &nbsp;
+            </span>
+          )
+        } else {
+          return (
+            <span key={index} className="bg-blue-200 text-blue-800">
+              {char}
+            </span>
+          )
+        }
+      }
+
+      if (text.length === 1) {
+        return renderChar(text, 0)
+      } else if (/\s/.test(text)) {
+        return text.split("").map((char, i) => renderChar(char, i))
+      } else {
+        return (
+          <span className="bg-blue-200 text-blue-800 px-0.5 rounded">
+            {text}
+          </span>
+        )
+      }
+    }
+
     return (
       <>
         {before}
-        <span className="bg-blue-200">{matchText}</span>
+        {renderMatchText(matchText)}
         {after}
       </>
     )
@@ -265,7 +323,7 @@ const GlobalFindReplace = ({
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (searchQuery.trim()) {
+      if (searchQuery) {
         searchFiles()
       } else {
         setFileMatches([])
@@ -331,14 +389,21 @@ const GlobalFindReplace = ({
 
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row gap-2">
-                <div className="flex-1">
+                <div className="flex-1 relative">
                   <Input
                     ref={searchInputRef}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search across files..."
-                    className="font-mono text-sm"
+                    placeholder="Search across files... (supports whitespace)"
+                    className="font-mono text-sm pr-8"
                   />
+                  {searchQuery && /^\s+$/.test(searchQuery) && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none">
+                      {searchQuery.length === 1 && searchQuery === " " && "•"}
+                      {searchQuery.length === 1 && searchQuery === "\t" && "→"}
+                      {searchQuery.length > 1 && `${searchQuery.length} spaces`}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-1 justify-center sm:justify-start">
                   <Tooltip>
@@ -429,6 +494,11 @@ const GlobalFindReplace = ({
                       <p>
                         Replace all {totalMatches} matches across{" "}
                         {fileMatches.length} files
+                        {searchQuery === " " && " (spaces)"}
+                        {searchQuery === "\t" && " (tabs)"}
+                        {/^\s+$/.test(searchQuery) &&
+                          searchQuery.length > 1 &&
+                          " (whitespace)"}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -463,7 +533,25 @@ const GlobalFindReplace = ({
             <div className="p-4 space-y-2">
               {fileMatches.length === 0 && searchQuery && !isSearching && (
                 <div className="text-center py-8 text-slate-500">
-                  No matches found for "{searchQuery}"
+                  No matches found for "
+                  {searchQuery === " " ? (
+                    <span className="bg-slate-200 text-slate-700 px-1 rounded font-mono">
+                      <span className="text-[10px] opacity-60">•</span>
+                      &nbsp;(space)
+                    </span>
+                  ) : searchQuery === "\t" ? (
+                    <span className="bg-slate-200 text-slate-700 px-1 rounded font-mono">
+                      <span className="text-[10px] opacity-60">→</span>
+                      &nbsp;(tab)
+                    </span>
+                  ) : /^\s+$/.test(searchQuery) ? (
+                    <span className="bg-slate-200 text-slate-700 px-1 rounded font-mono">
+                      {searchQuery.length} whitespace chars
+                    </span>
+                  ) : (
+                    searchQuery
+                  )}
+                  "
                 </div>
               )}
 
@@ -514,6 +602,11 @@ const GlobalFindReplace = ({
                           <p>
                             Replace all {fileMatch.matches.length} matches in{" "}
                             {fileMatch.file.path}
+                            {searchQuery === " " && " (spaces)"}
+                            {searchQuery === "\t" && " (tabs)"}
+                            {/^\s+$/.test(searchQuery) &&
+                              searchQuery.length > 1 &&
+                              " (whitespace)"}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -555,7 +648,14 @@ const GlobalFindReplace = ({
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Replace this match on line {match.line}</p>
+                                <p>
+                                  Replace this match on line {match.line}
+                                  {searchQuery === " " && " (space)"}
+                                  {searchQuery === "\t" && " (tab)"}
+                                  {/^\s+$/.test(searchQuery) &&
+                                    searchQuery.length > 1 &&
+                                    " (whitespace)"}
+                                </p>
                               </TooltipContent>
                             </Tooltip>
                           )}
