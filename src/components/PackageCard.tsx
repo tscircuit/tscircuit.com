@@ -69,12 +69,15 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
     const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
     const shareText =
-      `Explore this tscircuit package: ${pkg.unscoped_name} by ${pkg.owner_github_username}\n${pkg.description ? ` - ${pkg.description}` : ""}`.trim()
+      `Explore this tscircuit package: ${pkg.unscoped_name} by ${pkg.owner_github_username}${pkg.description ? ` - ${pkg.description}` : ""}`.trim()
     if (navigator.share) {
-      await navigator.share({
-        title: shareText,
-        url: shareUrl,
-      })
+      await navigator
+        .share({
+          title: shareText,
+          text: shareText,
+          url: shareUrl,
+        })
+        .catch(() => fallbackShare(shareText, shareUrl))
     } else {
       fallbackShare(shareText, shareUrl)
     }
