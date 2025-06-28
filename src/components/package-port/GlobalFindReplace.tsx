@@ -213,7 +213,7 @@ const GlobalFindReplace = ({
   }, [])
 
   const goToMatch = useCallback(
-    (fileMatch: FileMatch) => {
+    (fileMatch: FileMatch, match: Match) => {
       onFileSelect(fileMatch.file.path)
       onClose()
     },
