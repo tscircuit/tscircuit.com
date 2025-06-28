@@ -213,7 +213,7 @@ const GlobalFindReplace = ({
   }, [])
 
   const goToMatch = useCallback(
-    (fileMatch: FileMatch, match: Match) => {
+    (fileMatch: FileMatch) => {
       onFileSelect(fileMatch.file.path)
       onClose()
     },
@@ -243,12 +243,6 @@ const GlobalFindReplace = ({
       case "md":
         iconProps.className = "text-gray-600"
         return <BookOpen {...iconProps} />
-      case "css":
-        iconProps.className = "text-pink-500"
-        return <Hash {...iconProps} />
-      case "html":
-        iconProps.className = "text-red-500"
-        return <FileText {...iconProps} />
       default:
         iconProps.className = "text-gray-400"
         return <FileIcon {...iconProps} />
