@@ -686,7 +686,7 @@ export const CodeEditor = ({
           files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
           onFileSelect={handleFileChange}
-          onFileContentChanged={onFileContentChanged}
+          onFileContentChanged={onCodeChange}
           onClose={() => setShowGlobalFindReplace(false)}
         />
       )}
