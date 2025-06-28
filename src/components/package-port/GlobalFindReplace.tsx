@@ -344,7 +344,7 @@ const GlobalFindReplace = ({
         onClose()
       } else if (e.key === "Enter" && e.ctrlKey) {
         e.preventDefault()
-        if (showReplace && replaceQuery) {
+        if (showReplace) {
           replaceAll()
         }
       } else if (e.key === "Tab" && e.shiftKey) {
@@ -476,7 +476,7 @@ const GlobalFindReplace = ({
                       ref={replaceInputRef}
                       value={replaceQuery}
                       onChange={(e) => setReplaceQuery(e.target.value)}
-                      placeholder="Replace with..."
+                      placeholder="Replace with... (empty = delete)"
                       className="font-mono text-sm"
                     />
                   </div>
@@ -484,10 +484,10 @@ const GlobalFindReplace = ({
                     <TooltipTrigger asChild>
                       <Button
                         onClick={replaceAll}
-                        disabled={fileMatches.length === 0 || !replaceQuery}
+                        disabled={fileMatches.length === 0}
                         className="h-9 w-full sm:w-auto"
                       >
-                        Replace All ({totalMatches})
+                        Replace All ({`${totalMatches}`})
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -589,7 +589,7 @@ const GlobalFindReplace = ({
                               e.stopPropagation()
                               replaceInFile(fileMatch, undefined, true)
                             }}
-                            disabled={!replaceQuery}
+                            disabled={false}
                             className="h-8 px-2 text-xs sm:h-6"
                           >
                             <span className="hidden sm:inline">
@@ -641,7 +641,7 @@ const GlobalFindReplace = ({
                                     e.stopPropagation()
                                     replaceInFile(fileMatch, matchIndex, false)
                                   }}
-                                  disabled={!replaceQuery}
+                                  disabled={false}
                                   className="h-8 px-2 text-xs sm:h-6 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                                 >
                                   Replace
