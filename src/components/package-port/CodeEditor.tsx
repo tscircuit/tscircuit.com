@@ -622,10 +622,6 @@ export const CodeEditor = ({
     setShowGlobalFindReplace(true)
   })
 
-  useHotkeyCombo("ctrl+shift+f", () => {
-    setShowGlobalFindReplace(true)
-  })
-
   useHotkeyCombo("Escape", () => {
     if (showQuickOpen) {
       setShowQuickOpen(false)
