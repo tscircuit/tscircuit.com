@@ -74,6 +74,12 @@ export const Header2 = () => {
                 Dashboard
               </Link>
             )}
+            <Link
+              className="text-sm font-medium hover:underline underline-offset-4 ml-4"
+              href="/datasheets"
+            >
+              Datasheets
+            </Link>
           </nav>
           <nav className="hidden md:flex gap-6">
             <PrefetchPageLink
@@ -87,6 +93,12 @@ export const Header2 = () => {
               href="/quickstart"
             >
               Editor
+            </PrefetchPageLink>
+            <PrefetchPageLink
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="/datasheets"
+            >
+              Datasheets
             </PrefetchPageLink>
             {/* <a
             className="text-sm font-medium hover:underline underline-offset-4"
