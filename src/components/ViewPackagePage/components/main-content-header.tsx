@@ -12,7 +12,10 @@ import {
   Pencil,
   GitForkIcon,
   DownloadIcon,
+  Package2,
 } from "lucide-react"
+import JSZip from "jszip"
+import { saveAs } from "file-saver"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
   DropdownMenu,
@@ -25,6 +28,9 @@ import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { useAxios } from "@/hooks/use-axios"
+import { isHiddenFile } from "../utils/is-hidden-file"
 interface MainContentHeaderProps {
   activeView: string
   onViewChange: (view: string) => void
@@ -57,6 +63,47 @@ export default function MainContentHeader({
     navigator.clipboard.writeText(command)
     setCopyCloneState("copied")
     setTimeout(() => setCopyCloneState("copy"), 2000)
+  }
+
+  const axios = useAxios()
+  const { data: packageFiles } = usePackageFiles(
+    packageInfo?.latest_package_release_id,
+  )
+
+  const handleDownloadZip = async () => {
+    if (!packageInfo || !packageFiles) return
+
+    const zip = new JSZip()
+
+    const visibleFiles = packageFiles.filter(
+      (file) => !isHiddenFile(file.file_path),
+    )
+
+    for (const file of visibleFiles) {
+      try {
+        const response = await axios.post("/package_files/get", {
+          package_file_id: file.package_file_id,
+        })
+
+        const content = response.data.package_file?.content_text || ""
+
+        const cleanPath = file.file_path.startsWith("/")
+          ? file.file_path.slice(1)
+          : file.file_path
+
+        zip.file(cleanPath, content)
+      } catch (error) {
+        console.error(
+          `Failed to fetch content for file ${file.file_path}:`,
+          error,
+        )
+      }
+    }
+
+    // Generate and download the zip
+    const blob = await zip.generateAsync({ type: "blob" })
+    const fileName = `${packageInfo.unscoped_name || packageInfo.name}.zip`
+    saveAs(blob, fileName)
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
@@ -97,6 +144,15 @@ export default function MainContentHeader({
                 <Pencil className="h-4 w-4 mx-3" />
                 Edit Online
               </a>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              disabled={!Boolean(packageInfo)}
+              onClick={handleDownloadZip}
+              className="cursor-pointer p-2 py-4"
+            >
+              <Package2 className="h-4 w-4 mx-3" />
+              Download ZIP
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
