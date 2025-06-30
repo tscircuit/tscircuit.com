@@ -20,6 +20,12 @@ import {
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export type FileName = string
 
@@ -233,19 +239,30 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setAiAutocompleteEnabled(!aiAutocompleteEnabled)}
-            className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
-          >
-            <Bot className="h-4 w-4" />
-            {!aiAutocompleteEnabled && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
-              </div>
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    setAiAutocompleteEnabled(!aiAutocompleteEnabled)
+                  }
+                  className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
+                >
+                  <Bot className="h-4 w-4" />
+                  {!aiAutocompleteEnabled && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
+                    </div>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle AI autocomplete for code suggestions</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
           </Button>
