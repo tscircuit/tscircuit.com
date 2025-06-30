@@ -80,7 +80,7 @@
     "@tscircuit/core": "^0.0.531",
     "@tscircuit/create-snippet-url": "^0.0.8",
     "@tscircuit/eval": "^0.0.235",
-    "@tscircuit/footprinter": "^0.0.176",
+    "@tscircuit/footprinter": "^0.0.186",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.10",
     "@tscircuit/mm": "^0.0.8",
