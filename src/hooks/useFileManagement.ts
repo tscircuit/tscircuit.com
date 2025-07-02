@@ -8,6 +8,7 @@ import {
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "./use-package-files"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
+import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
 import { usePackageFilesLoader } from "./usePackageFilesLoader"
 import { useGlobalStore } from "./use-global-store"
 import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
@@ -15,7 +16,7 @@ import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
 import { useCreatePackageMutation } from "./use-create-package-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import { createSnippetUrl } from "@tscircuit/create-snippet-url"
+import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 
 export interface ICreateFileProps {
   newFileName: string
@@ -117,6 +118,22 @@ export function useFileManagement({
 
   useEffect(() => {
     if (!currentPackage || isLoadingPackageFilesWithContent) {
+      const decodedFsMap = decodeUrlHashToFsMap(window.location.toString())
+
+      if (decodedFsMap && Object.keys(decodedFsMap).length > 0) {
+        const filesFromUrl = Object.entries(decodedFsMap).map(
+          ([path, content]) => ({
+            path,
+            content: String(content),
+          }),
+        )
+        const targetFile = findTargetFile(filesFromUrl, fileChoosen)
+        setLocalFiles(filesFromUrl)
+        setInitialFiles([])
+        setCurrentFile(targetFile?.path || filesFromUrl[0]?.path || null)
+        return
+      }
+
       setLocalFiles([
         {
           path: "index.tsx",
@@ -243,14 +260,15 @@ export function useFileManagement({
 
       debounceTimeoutRef.current = setTimeout(() => {
         try {
-          const mainFile =
-            files.find((f) => f.path === currentFile) ||
-            files.find((f) => f.path === "index.tsx") ||
-            files[0]
+          const map = files.reduce(
+            (acc, f) => {
+              acc[f.path] = f.content || ""
+              return acc
+            },
+            {} as Record<string, string>,
+          )
 
-          if (mainFile.content.length > 50000) return
-
-          const snippetUrl = createSnippetUrl(mainFile.content)
+          const snippetUrl = encodeFsMapToUrlHash(map)
           if (typeof snippetUrl !== "string") return
 
           const currentUrl = new URL(window.location.href)

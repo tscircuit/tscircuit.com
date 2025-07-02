@@ -187,6 +187,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         pkg={pkg}
         packageType={packageType}
         code={String(currentFileCode)}
+        fsMap={fsMap}
         isSaving={isSaving}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={saveFiles}
