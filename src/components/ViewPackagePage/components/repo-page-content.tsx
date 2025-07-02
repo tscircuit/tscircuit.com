@@ -193,7 +193,7 @@ export default function RepoPageContent({
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
-              packageFiles={packageFiles}
+              packageFiles={packageFiles ?? []}
               onViewChange={(view) => {
                 setActiveView(view)
                 // Update URL hash when view changes
