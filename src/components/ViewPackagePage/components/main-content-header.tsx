@@ -14,8 +14,6 @@ import {
   DownloadIcon,
   Package2,
 } from "lucide-react"
-import JSZip from "jszip"
-import { saveAs } from "file-saver"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
   DropdownMenu,
@@ -27,11 +25,11 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "@/hooks/use-package-files"
-import { useAxios } from "@/hooks/use-axios"
-import { isHiddenFile } from "../utils/is-hidden-file"
+import { useDownloadZip } from "@/hooks/use-download-zip"
 interface MainContentHeaderProps {
+  packageFiles: PackageFile[]
   activeView: string
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
@@ -39,6 +37,7 @@ interface MainContentHeaderProps {
 }
 
 export default function MainContentHeader({
+  packageFiles,
   activeView,
   onViewChange,
   packageInfo,
@@ -65,45 +64,12 @@ export default function MainContentHeader({
     setTimeout(() => setCopyCloneState("copy"), 2000)
   }
 
-  const axios = useAxios()
-  const { data: packageFiles } = usePackageFiles(
-    packageInfo?.latest_package_release_id,
-  )
+  const { downloadZip } = useDownloadZip()
 
-  const handleDownloadZip = async () => {
-    if (!packageInfo || !packageFiles) return
-
-    const zip = new JSZip()
-
-    const visibleFiles = packageFiles.filter(
-      (file) => !isHiddenFile(file.file_path),
-    )
-
-    for (const file of visibleFiles) {
-      try {
-        const response = await axios.post("/package_files/get", {
-          package_file_id: file.package_file_id,
-        })
-
-        const content = response.data.package_file?.content_text || ""
-
-        const cleanPath = file.file_path.startsWith("/")
-          ? file.file_path.slice(1)
-          : file.file_path
-
-        zip.file(cleanPath, content)
-      } catch (error) {
-        console.error(
-          `Failed to fetch content for file ${file.file_path}:`,
-          error,
-        )
-      }
+  const handleDownloadZip = () => {
+    if (packageInfo && packageFiles) {
+      downloadZip(packageInfo, packageFiles)
     }
-
-    // Generate and download the zip
-    const blob = await zip.generateAsync({ type: "blob" })
-    const fileName = `${packageInfo.unscoped_name || packageInfo.name}.zip`
-    saveAs(blob, fileName)
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()

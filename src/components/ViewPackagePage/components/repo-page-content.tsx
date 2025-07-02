@@ -132,34 +132,6 @@ export default function RepoPageContent({
       .reverse()
   }, [packageFiles, importantFilePaths])
 
-  // Generate package name with version for file lookups
-  const packageNameWithVersion = useMemo(() => {
-    if (!packageInfo) return ""
-
-    // Format: @scope/packageName@version or packageName@version
-    const name = packageInfo.name
-
-    // Extract the latest version from the files (assuming version information is available)
-    const versionFile = packageFiles?.find(
-      (file) => file.file_path === "package.json",
-    )
-    let version = "latest"
-
-    if (versionFile) {
-      try {
-        const content =
-          versionFile.file_content || versionFile.content_text || "{}"
-        const packageJson = JSON.parse(content)
-        if (packageJson.version) {
-          version = packageJson.version
-        }
-      } catch (e) {
-        // If package.json can't be parsed, use "latest"
-      }
-    }
-
-    return `${name}@${version}`
-  }, [packageInfo, packageFiles])
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
@@ -221,6 +193,7 @@ export default function RepoPageContent({
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
+              packageFiles={packageFiles}
               onViewChange={(view) => {
                 setActiveView(view)
                 // Update URL hash when view changes
