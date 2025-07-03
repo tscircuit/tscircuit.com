@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
+import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { cn } from "@/lib/utils"
 import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
 import { AnyCircuitElement } from "circuit-json"
@@ -53,6 +53,7 @@ export default function EditorNav({
   circuitJson,
   pkg,
   code,
+  fsMap,
   hasUnsavedChanges,
   onTogglePreview,
   previewOpen,
@@ -63,6 +64,7 @@ export default function EditorNav({
   pkg?: Package | null
   circuitJson?: AnyCircuitElement[] | null
   code: string
+  fsMap: Record<string, string>
   packageType?: string
   hasUnsavedChanges: boolean
   previewOpen: boolean
@@ -335,7 +337,7 @@ export default function EditorNav({
             size="sm"
             className="hidden md:flex px-2 text-xs"
             onClick={() => {
-              const url = encodeTextToUrlHash(code, packageType)
+              const url = encodeFsMapToUrlHash(fsMap, packageType)
               navigator.clipboard.writeText(url)
               alert("URL copied to clipboard!")
             }}
