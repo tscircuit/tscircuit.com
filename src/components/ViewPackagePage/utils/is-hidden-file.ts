@@ -1,4 +1,8 @@
 export const isHiddenFile = (filePath: string): boolean => {
+  if (filePath.startsWith("/")) {
+    filePath = filePath.slice(1)
+  }
+
   // Normalize the path to handle both Unix and Windows paths
   const normalizedPath = filePath.replace(/\\/g, "/")
 

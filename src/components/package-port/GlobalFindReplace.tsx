@@ -24,6 +24,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import type { PackageFile } from "./CodeAndPreview"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 interface Match {
   line: number
@@ -85,6 +86,10 @@ const GlobalFindReplace = ({
     const results: FileMatch[] = []
 
     files.forEach((file) => {
+      if (isHiddenFile(file?.path)) {
+        return
+      }
+
       const matches: Match[] = []
       const content = file.content
       const lines = content.split("\n")
