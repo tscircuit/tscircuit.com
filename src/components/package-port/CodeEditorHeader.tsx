@@ -26,8 +26,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ImportComponentDialog } from "@/components/RunframeJLCPCB"
 
 export type FileName = string
+
+// Add ComponentSearchResult type
+interface ComponentSearchResult {
+  name: string
+  partNumber?: string
+  source: "jlcpcb" | "tscircuit.com"
+  owner?: string
+}
 
 interface CodeEditorHeaderProps {
   currentFile: FileName | null
@@ -51,6 +60,19 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+  const [isRunframeImportOpen, setIsRunframeImportOpen] = useState(false)
+
+  const handleImportComponent = (component: ComponentSearchResult) => {
+    if (component.source === "jlcpcb") {
+      // Handle JLCPCB import - navigate to proper editor
+      window.location.href = `/p/editor?jlcpcb_part=${component.partNumber}`
+    } else if (component.source === "tscircuit.com") {
+      // Handle tscircuit.com package import - add import statement
+      const importStatement = `import { ${component.name} } from "@tsci/${component.owner}.${component.name}"\n`
+      const currentContent = files[currentFile || entrypointFileName] || ""
+      updateFileContent(currentFile || entrypointFileName, importStatement + currentContent)
+    }
+  }
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -263,7 +285,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            onClick={() => setIsRunframeImportOpen(true)}
+          >
             Import
           </Button>
           <Button size="sm" variant="ghost" onClick={handleFormatFile}>
@@ -275,6 +301,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             const newContent = `import {} from "@tsci/${pkg.owner_github_username}.${pkg.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
+        />
+        <ImportComponentDialog
+          isOpen={isRunframeImportOpen}
+          onClose={() => setIsRunframeImportOpen(false)}
+          onImport={handleImportComponent}
         />
       </div>
     </>
