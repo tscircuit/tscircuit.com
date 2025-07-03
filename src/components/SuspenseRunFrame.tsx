@@ -9,7 +9,17 @@ export const SuspenseRunFrame = (
   props: React.ComponentProps<typeof RunFrame>,
 ) => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center h-full">
+          <div className="w-48">
+            <div className="loading">
+              <div className="loading-bar"></div>
+            </div>
+          </div>
+        </div>
+      }
+    >
       <div className="h-[98vh]">
         <RunFrame {...props} />
       </div>

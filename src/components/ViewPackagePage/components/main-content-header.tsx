@@ -12,6 +12,7 @@ import {
   Pencil,
   GitForkIcon,
   DownloadIcon,
+  Package2,
 } from "lucide-react"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
@@ -24,8 +25,11 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { useDownloadZip } from "@/hooks/use-download-zip"
 interface MainContentHeaderProps {
+  packageFiles: PackageFile[]
   activeView: string
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
@@ -33,6 +37,7 @@ interface MainContentHeaderProps {
 }
 
 export default function MainContentHeader({
+  packageFiles,
   activeView,
   onViewChange,
   packageInfo,
@@ -57,6 +62,14 @@ export default function MainContentHeader({
     navigator.clipboard.writeText(command)
     setCopyCloneState("copied")
     setTimeout(() => setCopyCloneState("copy"), 2000)
+  }
+
+  const { downloadZip } = useDownloadZip()
+
+  const handleDownloadZip = () => {
+    if (packageInfo && packageFiles) {
+      downloadZip(packageInfo, packageFiles)
+    }
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
@@ -97,6 +110,15 @@ export default function MainContentHeader({
                 <Pencil className="h-4 w-4 mx-3" />
                 Edit Online
               </a>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              disabled={!Boolean(packageInfo)}
+              onClick={handleDownloadZip}
+              className="cursor-pointer p-2 py-4"
+            >
+              <Package2 className="h-4 w-4 mx-3" />
+              Download ZIP
             </DropdownMenuItem>
             <DropdownMenuSeparator />
 
