@@ -326,6 +326,7 @@ export default function EditorNav({
             Edit with AI
           </Button> */}
           <DownloadButtonAndMenu
+            offerMultipleImageFormats
             unscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
             className="flex"
