@@ -18,6 +18,8 @@ import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
 import { downloadGltf } from "@/lib/download-fns/download-gltf"
+import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
+import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
 import { CubeIcon } from "@radix-ui/react-icons"
 
 interface DownloadButtonAndMenuProps {
@@ -26,6 +28,7 @@ interface DownloadButtonAndMenuProps {
   author?: string
   circuitJson?: AnyCircuitElement[] | null
   desiredImageType?: string
+  offerMultipleImageFormats?: boolean
 }
 
 export function DownloadButtonAndMenu({
@@ -34,6 +37,7 @@ export function DownloadButtonAndMenu({
   author,
   desiredImageType = "pcb",
   circuitJson,
+  offerMultipleImageFormats = false,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
@@ -222,10 +226,11 @@ export function DownloadButtonAndMenu({
               json
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onClick={async () => {
-              try {
+
+          {!offerMultipleImageFormats && (
+            <DropdownMenuItem
+              className="text-xs"
+              onClick={() => {
                 const desiredImageFormat = [
                   "pcb",
                   "schematic",
@@ -234,33 +239,76 @@ export function DownloadButtonAndMenu({
                 ].includes(desiredImageType)
                   ? desiredImageType
                   : "pcb"
-                const imageUrl = `https://registry-api.tscircuit.com/packages/images/${author}/${unscopedName}/${desiredImageFormat}.png`
-                const response = await fetch(imageUrl)
-                if (!response.ok) throw new Error("Failed to download image")
-                const blob = await response.blob()
-                const url = window.URL.createObjectURL(blob)
-                const a = document.createElement("a")
-                a.href = url
-                a.download = `${unscopedName}_${desiredImageFormat}.png`
-                document.body.appendChild(a)
-                a.click()
-                a.remove()
-                window.URL.revokeObjectURL(url)
-              } catch (error: any) {
-                toast({
-                  title: "Error Downloading Image",
-                  description: error.toString(),
-                  variant: "destructive",
+                downloadPngImage({
+                  circuitJson,
+                  unscopedName,
+                  author,
+                  format: desiredImageFormat as ImageFormat,
                 })
-              }
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Image PNG</span>
-            <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              png
-            </span>
-          </DropdownMenuItem>
+              }}
+            >
+              <Download className="mr-1 h-3 w-3" />
+              <span className="flex-grow mr-6">Image PNG</span>
+              <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                png
+              </span>
+            </DropdownMenuItem>
+          )}
+          {offerMultipleImageFormats && (
+            <>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() =>
+                  downloadPngImage({
+                    circuitJson,
+                    unscopedName,
+                    author,
+                    format: "schematic",
+                  })
+                }
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Schematic PNG</span>
+                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                  png
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() =>
+                  downloadPngImage({
+                    circuitJson,
+                    unscopedName,
+                    author,
+                    format: "pcb",
+                  })
+                }
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">PCB PNG</span>
+                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                  png
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() =>
+                  downloadPngImage({
+                    circuitJson,
+                    unscopedName,
+                    author,
+                    format: "assembly",
+                  })
+                }
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Assembly PNG</span>
+                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                  png
+                </span>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <PcbDownloadDialog
