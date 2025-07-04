@@ -101,8 +101,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         description: "JLCPCB component has been imported successfully.",
       })
 
-      // Navigate to the new editor with the imported component
-      navigate(`/editor?package_id=${generatedPackage.package_id}`)
+      // Navigate to the new editor with the import 
+      navigate(`/editor?package_id=${generatedPackage.package_id}`,{replace: true} )
+      setTimeout(() => {
+  window.location.reload()
+}, 100)
       return { success: true }
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred"
@@ -139,7 +142,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         })
       }
     } else if (component.source === "tscircuit.com") {
-      // Handle tscircuit.com package import - add import statement
+      //tscircuit.com package add import statement
       const importStatement = `import { ${component.name} } from "@tsci/${component.owner}.${component.name}"\n`
       const currentContent = files[currentFile || entrypointFileName] || ""
       updateFileContent(currentFile || entrypointFileName, importStatement + currentContent)
