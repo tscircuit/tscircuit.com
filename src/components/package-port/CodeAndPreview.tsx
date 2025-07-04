@@ -1,5 +1,6 @@
 import { CodeEditor } from "@/components/package-port/CodeEditor"
 import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
+import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
 import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
@@ -72,6 +73,9 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
 
   const { Dialog: NewPackageSaveDialog, openDialog: openNewPackageSaveDialog } =
     usePackageVisibilitySettingsDialog()
+
+  const { Dialog: DiscardChangesDialog, openDialog: openDiscardChangesDialog } =
+    useConfirmDiscardChangesDialog()
 
   const {
     savePackage,
@@ -169,6 +173,15 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     )
   }
 
+  const handleDiscardChanges = () => {
+    setLocalFiles([...initialFiles])
+    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
+    toast({
+      title: "Changes discarded",
+      description: "All unsaved changes have been discarded.",
+    })
+  }
+
   if (urlParams.package_id && (!pkg || isLoading)) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -191,6 +204,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         isSaving={isSaving}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={saveFiles}
+        onDiscard={() => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
         }
@@ -255,6 +269,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         )}
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
+      <DiscardChangesDialog onConfirm={handleDiscardChanges} />
     </div>
   )
 }
