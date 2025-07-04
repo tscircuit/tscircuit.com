@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { useAxios } from "@/hooks/use-axios"
+import { useLocation } from "wouter"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,14 +61,83 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
     useImportPackageDialog()
   const { toast } = useToast()
+  const axios = useAxios()
+  const [, navigate] = useLocation()
+  const session = useGlobalStore((s) => s.session)
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
   const [isRunframeImportOpen, setIsRunframeImportOpen] = useState(false)
 
-  const handleImportComponent = (component: ComponentSearchResult) => {
+  
+  const importJLCPCBComponent = async (partNumber: string) => {
+    if (!partNumber.startsWith("C") || partNumber.length < 2) {
+      toast({
+        title: "Invalid Part Number",
+        description:
+          "JLCPCB part numbers should start with 'C' and be at least 2 characters long.",
+        variant: "destructive",
+      })
+      return { success: false }
+    }
+
+    try {
+      const response = await axios.post("/packages/generate_from_jlcpcb", {
+        jlcpcb_part_number: partNumber,
+      })
+
+      if (!response.data.ok) {
+        toast({
+          title: "Import Failed",
+          description: "Failed to generate package from JLCPCB part",
+          variant: "destructive",
+        })
+        return { success: false }
+      }
+
+      const { package: generatedPackage } = response.data
+
+      toast({
+        title: "Import Successful",
+        description: "JLCPCB component has been imported successfully.",
+      })
+
+      // Navigate to the new editor with the imported component
+      navigate(`/editor?package_id=${generatedPackage.package_id}`)
+      return { success: true }
+    } catch (error: any) {
+      let errorMessage = "An unexpected error occurred"
+
+      if (error.status === 404) {
+        errorMessage = `Component with JLCPCB part number ${partNumber} not found`
+      } else if (error.status === 409) {
+        errorMessage = `Component ${partNumber} already exists in your profile`
+      } else {
+        errorMessage =
+          error?.data?.message || error?.data?.error?.message || errorMessage
+      }
+
+      toast({
+        title: "Import Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+
+      return { success: false }
+    }
+  }
+
+  const handleImportComponent = async (component: ComponentSearchResult) => {
     if (component.source === "jlcpcb") {
-      // Handle JLCPCB import - navigate to proper editor
-      window.location.href = `/p/editor?jlcpcb_part=${component.partNumber}`
+      // Handle JLCPCB import - trigger the same import process as JLCPCBImportDialog
+      if (component.partNumber) {
+        await importJLCPCBComponent(component.partNumber)
+      } else {
+        toast({
+          title: "Missing Part Number",
+          description: "JLCPCB component is missing a part number",
+          variant: "destructive",
+        })
+      }
     } else if (component.source === "tscircuit.com") {
       // Handle tscircuit.com package import - add import statement
       const importStatement = `import { ${component.name} } from "@tsci/${component.owner}.${component.name}"\n`
