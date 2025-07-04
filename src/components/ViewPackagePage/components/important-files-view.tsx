@@ -55,6 +55,12 @@ export default function ImportantFilesView({
   const { session: user } = useGlobalStore()
 
   const handleCopy = () => {
+    if (activeTab === "ai-review" && aiReviewText) {
+      navigator.clipboard.writeText(aiReviewText || "")
+      setCopyState("copied")
+      setTimeout(() => setCopyState("copy"), 500)
+      return
+    }
     navigator.clipboard.writeText(activeFileContent)
     setCopyState("copied")
     setTimeout(() => setCopyState("copy"), 500)
