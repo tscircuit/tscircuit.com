@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
-import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
+import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useToast } from "@/hooks/use-toast"
 import {
   DropdownMenu,
@@ -19,13 +19,14 @@ import {
   SelectValue,
 } from "../ui/select"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import { Package } from "fake-snippets-api/lib/db/schema"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { convertRawEasyEdaToTs, fetchEasyEDAComponent } from "easyeda"
+import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 
 export type FileName = string
 
@@ -36,18 +37,20 @@ interface CodeEditorHeaderProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
+  appendNewFile: (path: string, content: string) => void
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   currentFile,
   files,
   updateFileContent,
+  appendNewFile,
   fileSidebarState,
   handleFileChange,
   entrypointFileName = "index.tsx",
 }) => {
-  const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
-    useImportPackageDialog()
+  const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
+    useImportComponentDialog()
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
@@ -140,6 +143,24 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       }
     }
   }, [currentFile, files, toast, updateFileContent])
+
+  const handleComponentImport = async (component: ComponentSearchResult) => {
+    if (component.source == "tscircuit.com") {
+      const newContent = `import {} from "@tsci/${component.owner}.${component.name}"\n${files[currentFile || ""]}`
+      updateFileContent(currentFile, newContent)
+    }
+    if (component.source == "jlcpcb") {
+      const jlcpcbComponent = await fetchEasyEDAComponent("C1")
+      const tsx = await convertRawEasyEdaToTs(jlcpcbComponent)
+      let componentName = component.name.replace(/ /g, "-")
+      if (files[`${componentName}.tsx`] || files[`./${componentName}.tsx`]) {
+        componentName = `${componentName}-1`
+      }
+      appendNewFile(componentName, tsx)
+      const newContent = `import {} from "./${componentName}.tsx"\n${files[currentFile || ""]}`
+      updateFileContent(componentName, newContent)
+    }
+  }
 
   return (
     <>
@@ -270,10 +291,15 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             Format
           </Button>
         </div>
-        <ImportPackageDialog
-          onPackageSelected={(pkg: Package) => {
-            const newContent = `import {} from "@tsci/${pkg.owner_github_username}.${pkg.unscoped_name}"\n${files[currentFile || ""]}`
-            updateFileContent(currentFile, newContent)
+        <ImportComponentDialog
+          onComponentSelected={async (component) => {
+            handleComponentImport(component).catch((error) => {
+              toast({
+                title: "Error importing component",
+                description: error.message,
+                variant: "destructive",
+              })
+            })
           }}
         />
       </div>

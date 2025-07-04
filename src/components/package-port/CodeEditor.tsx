@@ -646,6 +646,9 @@ export const CodeEditor = ({
         {showImportAndFormatButtons && (
           <CodeEditorHeader
             entrypointFileName={entryPointFileName}
+            appendNewFile={(path: string, content: string) => {
+              onFileContentChanged?.(path, content)
+            }}
             fileSidebarState={
               [sidebarOpen, setSidebarOpen] as ReturnType<
                 typeof useState<boolean>
