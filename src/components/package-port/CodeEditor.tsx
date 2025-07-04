@@ -649,6 +649,7 @@ export const CodeEditor = ({
             appendNewFile={(path: string, content: string) => {
               onFileContentChanged?.(path, content)
             }}
+            createFile={handleCreateFile}
             fileSidebarState={
               [sidebarOpen, setSidebarOpen] as ReturnType<
                 typeof useState<boolean>

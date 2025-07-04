@@ -27,7 +27,8 @@ import {
 } from "@/components/ui/tooltip"
 import { convertRawEasyEdaToTs, fetchEasyEDAComponent } from "easyeda"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
-
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -38,6 +39,7 @@ interface CodeEditorHeaderProps {
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
   appendNewFile: (path: string, content: string) => void
+  createFile: (props: ICreateFileProps) => ICreateFileResult
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -48,13 +50,14 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   fileSidebarState,
   handleFileChange,
   entrypointFileName = "index.tsx",
+  createFile,
 }) => {
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
-  const { toast } = useToast()
+  const { toast, toastLibrary } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
-
+  const API_BASE = useSnippetsBaseApiUrl()
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
     if (!currentFile) return
@@ -150,15 +153,39 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       updateFileContent(currentFile, newContent)
     }
     if (component.source == "jlcpcb") {
-      const jlcpcbComponent = await fetchEasyEDAComponent("C1")
-      const tsx = await convertRawEasyEdaToTs(jlcpcbComponent)
+      const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
+        fetch: (url, options: any) => {
+          return fetch(`${API_BASE}/proxy`, {
+            ...options,
+            headers: {
+              ...options?.headers,
+              "X-Target-Url": url.toString(),
+              "X-Sender-Origin": options?.headers?.origin ?? "",
+              "X-Sender-Host": options?.headers?.host ?? "https://easyeda.com",
+              "X-Sender-Referer": options?.headers?.referer ?? "",
+              "X-Sender-User-Agent": options?.headers?.userAgent ?? "",
+              "X-Sender-Cookie": options?.headers?.cookie ?? "",
+            },
+          })
+        },
+      })
+      const tsxComponent = await convertRawEasyEdaToTs(jlcpcbComponent)
       let componentName = component.name.replace(/ /g, "-")
       if (files[`${componentName}.tsx`] || files[`./${componentName}.tsx`]) {
         componentName = `${componentName}-1`
       }
-      appendNewFile(componentName, tsx)
-      const newContent = `import {} from "./${componentName}.tsx"\n${files[currentFile || ""]}`
-      updateFileContent(componentName, newContent)
+      const createFileResult = createFile({
+        newFileName: `${componentName}.tsx`,
+        content: tsxComponent,
+        onError: (error) => {
+          throw error
+        },
+      })
+      if (!createFileResult.newFileCreated) {
+        throw new Error("Failed to create file")
+      }
+      const newContent = `import ${componentName.replace(/-/g, "")} from "./${componentName}.tsx"\n${files[currentFile || ""]}`
+      updateFileContent(currentFile, newContent)
     }
   }
 
@@ -293,12 +320,14 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         </div>
         <ImportComponentDialog
           onComponentSelected={async (component) => {
-            handleComponentImport(component).catch((error) => {
-              toast({
-                title: "Error importing component",
-                description: error.message,
-                variant: "destructive",
-              })
+            toastLibrary.promise(handleComponentImport(component), {
+              loading: "Importing component...",
+              success: <p>Component imported successfully!</p>,
+              error: (error) => (
+                <p>
+                  Error importing component: {error.message || String(error)}
+                </p>
+              ),
             })
           }}
         />
