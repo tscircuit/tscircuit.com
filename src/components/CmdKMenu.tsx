@@ -177,7 +177,10 @@ const CmdKMenu = () => {
 
     const searchImportOptions = importOptions
       .map((option) => {
-        const { score, matches } = fuzzyMatch(searchQuery, option.name)
+        const { score, matches } = fuzzyMatch(
+          searchQuery,
+          `Import ${option.name}`,
+        )
         return { ...option, score, matches }
       })
       .filter((option) => option.score >= 0)
