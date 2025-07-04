@@ -32,6 +32,7 @@ import {
   Sidebar,
   Sparkles,
   Trash2,
+  Undo2,
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
@@ -58,6 +59,7 @@ export default function EditorNav({
   onTogglePreview,
   previewOpen,
   onSave,
+  onDiscard,
   packageType,
   isSaving,
 }: {
@@ -71,6 +73,7 @@ export default function EditorNav({
   onTogglePreview: () => void
   isSaving: boolean
   onSave: () => void
+  onDiscard?: () => void
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -311,6 +314,17 @@ export default function EditorNav({
               {pkg ? "unsaved changes" : "unsaved"}
             </div>
           )}
+          {hasUnsavedChanges && onDiscard && Boolean(pkg?.package_id) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+              onClick={onDiscard}
+              title="Discard all unsaved changes (Cmd+Shift+Z)"
+            >
+              <Undo2 className="mr-1 h-3 w-3" />
+            </Button>
+          )}
         </div>
       </div>
       <div className="flex items-center justify-end -space-x-1">
@@ -470,6 +484,15 @@ export default function EditorNav({
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              {hasUnsavedChanges && onDiscard && (
+                <DropdownMenuItem
+                  className="text-xs text-red-600"
+                  onClick={onDiscard}
+                >
+                  <Undo2 className="mr-1 h-3 w-3" />
+                  Discard Changes
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => {
