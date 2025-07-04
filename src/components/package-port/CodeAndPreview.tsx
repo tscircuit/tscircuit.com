@@ -242,7 +242,6 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
               }
               onRenderFinished={({ circuitJson }) => {
                 setState((prev) => ({ ...prev, circuitJson }))
-                console.log("circuitJson", circuitJson, state.circuitJson)
                 toastManualEditConflicts(circuitJson, toast)
               }}
               mainComponentPath={mainComponentPath}
