@@ -29,7 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ImportComponentDialog } from "@/components/RunframeJLCPCB"
+import { ImportComponentDialog } from "@/components/RunframeImportDialog"
 
 export type FileName = string
 
