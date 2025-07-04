@@ -1,5 +1,5 @@
-import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 
 test("create package file with content_text", async () => {
   const { axios } = await getTestServer()

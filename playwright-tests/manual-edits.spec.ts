@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test.skip("Manual edits test", async ({ page }) => {
   test.setTimeout(60000) // Extend timeout for the test

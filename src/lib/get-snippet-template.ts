@@ -1,8 +1,8 @@
-import { blankPackageTemplate } from "@/lib/templates/blank-package-template"
-import { blankFootprintTemplate } from "@/lib/templates/blank-footprint-template"
-import { blankCircuitBoardTemplate } from "@/lib/templates/blank-circuit-board-template"
-import { blank3dModelTemplate } from "@/lib/templates/blank-3d-model-template"
 import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
+import { blank3dModelTemplate } from "@/lib/templates/blank-3d-model-template"
+import { blankCircuitBoardTemplate } from "@/lib/templates/blank-circuit-board-template"
+import { blankFootprintTemplate } from "@/lib/templates/blank-footprint-template"
+import { blankPackageTemplate } from "@/lib/templates/blank-package-template"
 import { blinkingLedBoardTemplate } from "@/lib/templates/blinking-led-board-template"
 import { usbCLedFlashlightTemplate } from "@/lib/templates/usb-c-led-flashlight-template"
 

@@ -1,5 +1,3 @@
-import { useEffect } from "react"
-import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -8,18 +6,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Lock, Globe } from "lucide-react"
+import { Globe, Lock } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
+import { useEffect } from "react"
+import { Link } from "wouter"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import {
   usePackageStarMutationByName,
   usePackageStarsByName,
 } from "@/hooks/use-package-stars"
-import { useOrderDialog } from "@tscircuit/runframe"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
 import { useSignIn } from "@/hooks/use-sign-in"
+import { useOrderDialog } from "@tscircuit/runframe"
+import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType

@@ -1,11 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { useState } from "react"
-import { useMutation, useQueryClient } from "react-query"
-import { createUseDialog } from "./create-use-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
+import { useState } from "react"
+import { useMutation, useQueryClient } from "react-query"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Input } from "../ui/input"
+import { createUseDialog } from "./create-use-dialog"
 
 export const RenameSnippetDialog = ({
   open,

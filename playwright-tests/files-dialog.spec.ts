@@ -1,5 +1,5 @@
 // files-dialog.spec.js
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test("files dialog", async ({ page }) => {
   // Wait for network requests during navigation

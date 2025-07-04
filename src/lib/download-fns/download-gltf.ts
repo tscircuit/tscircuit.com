@@ -1,6 +1,6 @@
-import { GLTFExporter, type GLTFExporterOptions } from "three-stdlib"
 import { saveAs } from "file-saver"
 import * as THREE from "three"
+import { GLTFExporter, type GLTFExporterOptions } from "three-stdlib"
 
 export const downloadGltf = async (fileName: string) => {
   const threeJsObject = window.TSCIRCUIT_3D_OBJECT_REF as THREE.Object3D

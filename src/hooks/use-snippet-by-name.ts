@@ -1,6 +1,6 @@
-import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import { useQuery } from "react-query"
 
 export const useSnippetByName = (fullSnippetName: string | null) => {
   const axios = useAxios()

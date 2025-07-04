@@ -1,22 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import {
-  Edit,
-  FileText,
   Code,
   Copy,
   CopyCheck,
+  Edit,
+  FileText,
   Loader2,
   RefreshCcwIcon,
 } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
-import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
-import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
-import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface PackageFile {
   package_file_id: string

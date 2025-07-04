@@ -1,6 +1,6 @@
+import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
 import { createBlobURL } from "./createBlobURL"
-import { AnyCircuitElement } from "circuit-json"
 
 export const downloadCircuitJson = (
   circuitJson: AnyCircuitElement[],

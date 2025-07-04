@@ -1,5 +1,5 @@
-import { DbClient } from "./db-client"
 import { loadAutoloadPackages } from "./autoload-dev-packages"
+import { DbClient } from "./db-client"
 
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({

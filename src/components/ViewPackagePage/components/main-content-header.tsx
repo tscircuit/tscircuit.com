@@ -1,33 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { Button } from "@/components/ui/button"
-import {
-  ChevronDown,
-  CodeIcon,
-  Download,
-  Copy,
-  Check,
-  Hammer,
-  Pencil,
-  GitForkIcon,
-  DownloadIcon,
-  Package2,
-} from "lucide-react"
-import MainContentViewSelector from "./main-content-view-selector"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import { useLocation } from "wouter"
-import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
-import { usePackageFiles } from "@/hooks/use-package-files"
 import { useDownloadZip } from "@/hooks/use-download-zip"
+import { usePackageFiles } from "@/hooks/use-package-files"
+import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
+import {
+  Check,
+  ChevronDown,
+  CodeIcon,
+  Copy,
+  Download,
+  DownloadIcon,
+  GitForkIcon,
+  Hammer,
+  Package2,
+  Pencil,
+} from "lucide-react"
+import { useState } from "react"
+import { useLocation } from "wouter"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import MainContentViewSelector from "./main-content-view-selector"
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
   activeView: string

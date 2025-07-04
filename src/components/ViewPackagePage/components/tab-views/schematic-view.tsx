@@ -1,5 +1,5 @@
-import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { SchematicViewer } from "@tscircuit/runframe"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function SchematicView() {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()

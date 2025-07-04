@@ -1,13 +1,7 @@
-import React, { useState, useEffect } from "react"
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import { useSearchParams } from "wouter"
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import Header from "@/components/Header"
 import PackageSearchResults from "@/components/PackageSearchResults"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -15,7 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useAxios } from "@/hooks/use-axios"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { Search } from "lucide-react"
+import React, { useState, useEffect } from "react"
+import { useQuery } from "react-query"
+import { useSearchParams } from "wouter"
 
 export const SearchPage = () => {
   const axios = useAxios()

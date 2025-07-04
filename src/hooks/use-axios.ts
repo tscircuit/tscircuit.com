@@ -1,7 +1,7 @@
-import axios from "redaxios"
 import { useMemo } from "react"
-import { useSnippetsBaseApiUrl } from "./use-snippets-base-api-url"
+import axios from "redaxios"
 import { useGlobalStore } from "./use-global-store"
+import { useSnippetsBaseApiUrl } from "./use-snippets-base-api-url"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useSnippetsBaseApiUrl()

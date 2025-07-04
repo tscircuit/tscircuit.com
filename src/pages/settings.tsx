@@ -1,5 +1,5 @@
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import Header from "@/components/Header"
 import ShippingInformationForm from "@/components/ShippingInformationForm"
 
 export const SettingsPage = () => {

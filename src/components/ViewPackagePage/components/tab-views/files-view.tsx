@@ -1,11 +1,11 @@
 "use client"
 
+import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FileText, Folder } from "lucide-react"
 import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
-import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 
 interface Directory {
   type: "directory"

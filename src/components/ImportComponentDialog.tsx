@@ -1,22 +1,25 @@
+import { ExternalLink, Loader2, Search } from "lucide-react"
 import * as React from "react"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
+import {
+  mapJLCComponentToSearchResult,
+  searchJLCComponents,
+} from "../lib/jlc-api"
+import {
+  mapTscircuitSnippetToSearchResult,
+  searchTscircuitComponents,
+} from "../lib/tscircuit-registry-api"
+import { Button } from "./ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./ui/dialog"
-import { Button } from "./ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "./ui/tabs"
-import { Loader2, Search, ExternalLink } from "lucide-react"
 import { Input } from "./ui/input"
-import { searchJLCComponents, mapJLCComponentToSearchResult } from "../lib/jlc-api"
-import {
-  searchTscircuitComponents,
-  mapTscircuitSnippetToSearchResult,
-} from "../lib/tscircuit-registry-api"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 
 export interface ComponentSearchResult {
   id: string

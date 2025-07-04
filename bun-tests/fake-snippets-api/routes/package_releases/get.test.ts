@@ -1,5 +1,5 @@
-import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { packageReleaseSchema } from "fake-snippets-api/lib/db/schema"
 
 test("POST /api/package_releases/get - should return package release by package_release_id", async () => {

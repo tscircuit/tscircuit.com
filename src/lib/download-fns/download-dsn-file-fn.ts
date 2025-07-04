@@ -1,6 +1,6 @@
 import { AnyCircuitElement } from "circuit-json"
-import { saveAs } from "file-saver"
 import { convertCircuitJsonToDsnString } from "dsn-converter"
+import { saveAs } from "file-saver"
 
 export const downloadDsnFile = (
   circuitJson: AnyCircuitElement[],

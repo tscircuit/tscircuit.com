@@ -1,5 +1,5 @@
-import { Middleware } from "winterspec/middleware"
 import kleur from "kleur"
+import { Middleware } from "winterspec/middleware"
 
 export const withErrorHandling: Middleware<{}, {}> = async (req, ctx, next) => {
   try {

@@ -1,10 +1,10 @@
-import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { StarFilledIcon } from "@radix-ui/react-icons"
-import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useRef, useState } from "react"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { useQuery } from "react-query"
+import { Link } from "wouter"
 
 const CarouselItem = ({
   pkg,

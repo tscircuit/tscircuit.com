@@ -1,18 +1,18 @@
-import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useToast } from "@/hooks/use-toast"
+import React, { useState } from "react"
+import { useLocation } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface JLCPCBImportDialogProps {
@@ -88,7 +88,10 @@ const useJLCPCBImport = () => {
     })
   }
 
-  const importComponent = async (partNumber: string, onComponentImported?: (data: any) => void) => {
+  const importComponent = async (
+    partNumber: string,
+    onComponentImported?: (data: any) => void,
+  ) => {
     if (!partNumber.startsWith("C") || partNumber.length < 2) {
       toast({
         title: "Invalid Part Number",
@@ -130,13 +133,13 @@ const useJLCPCBImport = () => {
         const username = session?.github_username || ""
         const packageName = `${username}.${partNumber}`
         const importStatement = `import { ${partNumber} } from "@tsci/${packageName}"`
-        
+
         onComponentImported({
           partNumber,
           packageName,
           importStatement,
         })
-        
+
         setState((prev) => ({ ...prev, isLoading: false }))
         return { success: true }
       }

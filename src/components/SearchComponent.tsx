@@ -1,13 +1,13 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
-import { useLocation } from "wouter"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { cn } from "@/lib/utils"
+import { CircuitBoard } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
-import { Alert } from "./ui/alert"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { useLocation } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
-import { CircuitBoard } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Alert } from "./ui/alert"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void

@@ -1,19 +1,28 @@
-import React, { useState, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
+import { ImportComponentDialog } from "@/components/ImportComponentDialog"
 import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
-import { useToast } from "@/hooks/use-toast"
-import { useAxios } from "@/hooks/use-axios"
-import { useLocation } from "wouter"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, PanelRightClose, Bot } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useAxios } from "@/hooks/use-axios"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useToast } from "@/hooks/use-toast"
+import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { AlertTriangle, Bot, PanelRightClose } from "lucide-react"
+import React, { useState, useCallback } from "react"
+import { useLocation } from "wouter"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import {
   Select,
   SelectContent,
@@ -21,15 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { ImportComponentDialog } from "@/components/ImportComponentDialog"
 
 export type FileName = string
 
@@ -68,7 +68,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
   const [isRunframeImportOpen, setIsRunframeImportOpen] = useState(false)
 
-  
   const importJLCPCBComponent = async (partNumber: string) => {
     if (!partNumber.startsWith("C") || partNumber.length < 2) {
       toast({
@@ -101,11 +100,13 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         description: "JLCPCB component has been imported successfully.",
       })
 
-      // Navigate to the new editor with the import 
-      navigate(`/editor?package_id=${generatedPackage.package_id}`,{replace: true} )
+      // Navigate to the new editor with the import
+      navigate(`/editor?package_id=${generatedPackage.package_id}`, {
+        replace: true,
+      })
       setTimeout(() => {
-  window.location.reload()
-}, 100)
+        window.location.reload()
+      }, 100)
       return { success: true }
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred"
@@ -145,7 +146,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       //tscircuit.com package add import statement
       const importStatement = `import { ${component.name} } from "@tsci/${component.owner}.${component.name}"\n`
       const currentContent = files[currentFile || entrypointFileName] || ""
-      updateFileContent(currentFile || entrypointFileName, importStatement + currentContent)
+      updateFileContent(
+        currentFile || entrypointFileName,
+        importStatement + currentContent,
+      )
     }
   }
 
@@ -360,9 +364,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Button 
-            size="sm" 
-            variant="ghost" 
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => setIsRunframeImportOpen(true)}
           >
             Import

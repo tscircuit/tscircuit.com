@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
 /**
  * OptimizedImage component for responsive images with automatic srcset generation

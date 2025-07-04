@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test.skip("test delete functionality in profile", async ({ page }) => {
   // Go to profile page

@@ -1,5 +1,5 @@
-import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import md5 from "md5"
 test("get schematic svg of a package", async () => {
   const { axios, db } = await getTestServer()

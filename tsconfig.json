@@ -26,5 +26,11 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src", "fake-snippets-api", "bun-tests", "api/**/*.js", "api/jlc-api.ts"]
+  "include": [
+    "src",
+    "fake-snippets-api",
+    "bun-tests",
+    "api/**/*.js",
+    "api/jlc-api.ts"
+  ]
 }
