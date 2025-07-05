@@ -123,7 +123,7 @@
     "country-list": "^2.3.0",
     "date-fns": "^4.1.0",
     "dsn-converter": "^0.0.60",
-    "easyeda": "^0.0.193",
+    "easyeda": "^0.0.195",
     "embla-carousel-react": "^8.3.0",
     "extract-codefence": "^0.0.4",
     "fflate": "^0.8.2",
