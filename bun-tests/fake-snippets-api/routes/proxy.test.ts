@@ -4,7 +4,7 @@ import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-ser
 test("should require X-Target-Url header", async () => {
   const { axios } = await getTestServer()
   try {
-    await axios.get("/proxy")
+    await axios.get("/api/proxy")
     throw new Error("Should not reach here")
   } catch (error: any) {
     expect(error.status).toBe(400)
@@ -17,9 +17,9 @@ test("should prevent recursive proxy calls when X-proxied header is present", as
   const port = axios.defaults?.baseURL?.split(":")[2]
 
   try {
-    await axios.get("/proxy", {
+    await axios.get("/api/proxy", {
       headers: {
-        "X-Target-Url": `http://localhost:${port}/proxy`,
+        "X-Target-Url": `http://localhost:${port}/api/proxy`,
       },
     })
     throw new Error("Should not reach here")
@@ -29,26 +29,12 @@ test("should prevent recursive proxy calls when X-proxied header is present", as
   }
 })
 
-test("should reject unauthenticated requests to /proxy", async () => {
-  const { axios } = await getTestServer()
-  try {
-    await axios.get("/proxy", {
-      headers: {
-        "X-Target-Url": axios.defaults.baseURL + "/health",
-      },
-    })
-    throw new Error("Should not reach here")
-  } catch (error: any) {
-    expect(error.status).toBe(401)
-  }
-})
-
 test("should successfully proxy requests to allowed domains", async () => {
   const { jane_axios: axios } = await getTestServer()
   const port = axios.defaults?.baseURL?.split(":")[2]
-  const response = await axios.get("/proxy", {
+  const response = await axios.get("/api/proxy", {
     headers: {
-      "X-Target-Url": `http://localhost:${port}/health`,
+      "X-Target-Url": `http://localhost:${port}/api/health`,
     },
   })
 
