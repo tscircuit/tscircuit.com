@@ -1,7 +1,14 @@
+import { FAQ } from "@/components/FAQ"
+import Footer from "@/components/Footer"
+import { Header2 } from "@/components/Header2"
+import { OptimizedImage } from "@/components/OptimizedImage"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { OptimizedImage } from "@/components/OptimizedImage"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
 import {
   Code2,
   Cpu,
@@ -11,14 +18,7 @@ import {
   Zap,
 } from "lucide-react"
 import { Helmet } from "react-helmet"
-import { Header2 } from "@/components/Header2"
-import Footer from "@/components/Footer"
-import { useSignIn } from "@/hooks/use-sign-in"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
-import { FAQ } from "@/components/FAQ"
-import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
 export function LandingPage() {
   const signIn = useSignIn()

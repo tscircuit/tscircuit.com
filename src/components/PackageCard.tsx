@@ -1,14 +1,3 @@
-import React from "react"
-import { Link } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import { StarIcon, LockClosedIcon } from "@radix-ui/react-icons"
-import {
-  GlobeIcon,
-  MoreVertical,
-  PencilIcon,
-  Share2,
-  Trash2,
-} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,10 +5,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
-import { timeAgo } from "@/lib/utils/timeAgo"
-import { ImageWithFallback } from "./ImageWithFallback"
 import { useToast } from "@/hooks/use-toast"
+import { timeAgo } from "@/lib/utils/timeAgo"
+import { LockClosedIcon, StarIcon } from "@radix-ui/react-icons"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import {
+  GlobeIcon,
+  MoreVertical,
+  PencilIcon,
+  Share2,
+  Trash2,
+} from "lucide-react"
+import React from "react"
+import { Link } from "wouter"
+import { ImageWithFallback } from "./ImageWithFallback"
+import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 
 export interface PackageCardProps {
   /** The package data to display */

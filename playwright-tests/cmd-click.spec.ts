@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test("Editor handles imports with underlining and cmd+click", async ({
   page,

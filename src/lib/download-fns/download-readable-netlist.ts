@@ -1,6 +1,6 @@
 import { AnyCircuitElement } from "circuit-json"
-import { saveAs } from "file-saver"
 import { convertCircuitJsonToReadableNetlist } from "circuit-json-to-readable-netlist"
+import { saveAs } from "file-saver"
 
 export const downloadReadableNetlist = (
   circuitJson: AnyCircuitElement[],

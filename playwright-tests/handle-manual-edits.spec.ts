@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test("Handle manual edits test", async ({ page }) => {
   await page.goto("http://127.0.0.1:5177/editor?snippet_id=snippet_3")

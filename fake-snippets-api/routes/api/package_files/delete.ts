@@ -1,6 +1,6 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
 import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find-package-release-id"
+import { z } from "zod"
 
 export default withRouteSpec({
   methods: ["POST"],

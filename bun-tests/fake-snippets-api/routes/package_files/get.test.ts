@@ -1,5 +1,5 @@
-import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { packageFileSchema } from "fake-snippets-api/lib/db/schema"
 
 test("POST /api/package_files/get - should return package file by package_file_id", async () => {

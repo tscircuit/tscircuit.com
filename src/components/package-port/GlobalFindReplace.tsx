@@ -1,30 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import {
-  Replace,
-  Code,
-  Braces,
-  FileIcon,
-  BookOpen,
-  ChevronDown,
-  ChevronRight,
-  X,
-  Regex,
-  CaseSensitive,
-  WholeWord,
-  RefreshCw,
-} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { PackageFile } from "./CodeAndPreview"
+import {
+  BookOpen,
+  Braces,
+  CaseSensitive,
+  ChevronDown,
+  ChevronRight,
+  Code,
+  FileIcon,
+  RefreshCw,
+  Regex,
+  Replace,
+  WholeWord,
+  X,
+} from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import type { PackageFile } from "./CodeAndPreview"
 
 interface Match {
   line: number

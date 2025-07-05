@@ -1,8 +1,8 @@
-import { Clock, FileText, Folder, Tag } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
-import { Skeleton } from "@/components/ui/skeleton"
 import { timeAgo } from "@/lib/utils/timeAgo"
+import { Clock, FileText, Folder, Tag } from "lucide-react"
 
 export default function FileExplorer() {
   const { packageInfo } = useCurrentPackageInfo()

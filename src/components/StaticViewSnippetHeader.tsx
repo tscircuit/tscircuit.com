@@ -1,7 +1,7 @@
-import React from "react"
 import { TypeBadge } from "@/components/TypeBadge"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, Eye, GitFork, Star } from "lucide-react"
+import React from "react"
 import { Link } from "wouter"
 
 export default function StaticViewSnippetHeader({

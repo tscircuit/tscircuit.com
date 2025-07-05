@@ -1,6 +1,6 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
 import { orderSteps } from "fake-snippets-api/utils/order-steps"
+import { z } from "zod"
 
 export default withRouteSpec({
   methods: ["GET"],

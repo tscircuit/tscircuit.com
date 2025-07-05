@@ -1,11 +1,11 @@
 import { createWithWinterSpec } from "winterspec"
-import { withDb } from "./with-db"
 import { createWithDefaultExceptionHandling } from "winterspec/middleware"
 import { withCtxError } from "./with-ctx-error"
-import { withSessionAuth } from "./with-session-auth"
-import { withOptionalSessionAuth } from "./with-optional-session-auth"
+import { withDb } from "./with-db"
 import { withErrorHandling } from "./with-error-handling"
+import { withOptionalSessionAuth } from "./with-optional-session-auth"
 import { withRequestLogging } from "./with-request-logging"
+import { withSessionAuth } from "./with-session-auth"
 
 export const withRouteSpec = createWithWinterSpec({
   apiName: "tscircuit Snippets API",

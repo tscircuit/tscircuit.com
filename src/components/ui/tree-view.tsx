@@ -1,8 +1,8 @@
-import React from "react"
-import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronRight } from "lucide-react"
-import { cva } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import * as AccordionPrimitive from "@radix-ui/react-accordion"
+import { cva } from "class-variance-authority"
+import { ChevronRight } from "lucide-react"
+import React from "react"
 
 const treeVariants = cva(
   "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 before:w-full before:opacity-0 before:bg-slate-100/70 before:h-[2rem] before:-z-10' dark:before:bg-slate-800/70",

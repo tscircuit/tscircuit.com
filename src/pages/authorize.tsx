@@ -1,13 +1,13 @@
 "use client"
 
+import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useEffect, useState } from "react"
-import * as jose from "jose"
-import Footer from "@/components/Footer"
-import { useLocation } from "wouter"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import * as jose from "jose"
+import { AlertCircle, CheckCircle, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useLocation } from "wouter"
 
 const handleRedirect = (
   redirect: string | null,

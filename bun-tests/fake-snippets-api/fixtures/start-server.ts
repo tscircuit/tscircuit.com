@@ -1,12 +1,12 @@
+import os from "node:os"
+import { join } from "node:path"
+import { Request as EdgeRuntimeRequest } from "@edge-runtime/primitives"
+import { createDatabase } from "fake-snippets-api/lib/db/db-client"
+import type { Middleware } from "winterspec"
 import {
   createFetchHandlerFromDir,
   createWinterSpecBundleFromDir,
 } from "winterspec/adapters/node"
-import { Request as EdgeRuntimeRequest } from "@edge-runtime/primitives"
-import { join } from "node:path"
-import os from "node:os"
-import type { Middleware } from "winterspec"
-import { createDatabase } from "fake-snippets-api/lib/db/db-client"
 
 export const startServer = async ({
   port,

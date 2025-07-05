@@ -1,9 +1,9 @@
-// api/generated-index.js
-import ky from "ky"
 import { readFileSync } from "fs"
-import { join, dirname } from "path"
+import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import he from "he"
+// api/generated-index.js
+import ky from "ky"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 

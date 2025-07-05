@@ -1,7 +1,7 @@
-import { Helmet } from "react-helmet"
-import { Header2 } from "@/components/Header2"
 import Footer from "@/components/Footer"
+import { Header2 } from "@/components/Header2"
 import { NotFound } from "@/components/NotFound"
+import { Helmet } from "react-helmet"
 
 export function NotFoundPage({
   heading = "Page Not Found",

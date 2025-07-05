@@ -1,7 +1,7 @@
-import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
 import { packageSchema } from "fake-snippets-api/lib/db/schema"
+import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { publicMapPackage } from "fake-snippets-api/lib/public-mapping/public-map-package"
+import { z } from "zod"
 
 export default withRouteSpec({
   methods: ["GET"],

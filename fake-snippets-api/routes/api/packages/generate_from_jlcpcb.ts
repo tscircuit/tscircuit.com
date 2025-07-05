@@ -1,12 +1,12 @@
+import {
+  EasyEdaJsonSchema,
+  convertRawEasyEdaToTs,
+  fetchEasyEDAComponent,
+  normalizeManufacturerPartNumber,
+} from "easyeda"
+import { packageSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { packageSchema } from "fake-snippets-api/lib/db/schema"
-import {
-  fetchEasyEDAComponent,
-  convertRawEasyEdaToTs,
-  normalizeManufacturerPartNumber,
-  EasyEdaJsonSchema,
-} from "easyeda"
 
 export default withRouteSpec({
   methods: ["POST"],

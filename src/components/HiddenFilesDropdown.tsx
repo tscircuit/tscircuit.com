@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreVertical, Check } from "lucide-react"
+import { Check, MoreVertical } from "lucide-react"
 
 interface HiddenFilesDropdownProps {
   showHiddenFiles: boolean

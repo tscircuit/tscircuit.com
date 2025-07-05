@@ -1,7 +1,7 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { createUseDialog } from "./create-use-dialog"
 import { useState } from "react"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import { createUseDialog } from "./create-use-dialog"
 
 export const ConfirmDiscardChangesDialog = ({
   open,

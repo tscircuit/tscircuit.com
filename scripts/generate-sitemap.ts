@@ -1,7 +1,7 @@
-import { SitemapStream, streamToPromise } from "sitemap"
-import { Readable } from "stream"
 import fs from "fs"
 import path from "path"
+import { Readable } from "stream"
+import { SitemapStream, streamToPromise } from "sitemap"
 
 const staticRoutes = [
   { url: "/", changefreq: "weekly", priority: 1.0 },

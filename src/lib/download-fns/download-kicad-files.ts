@@ -1,8 +1,8 @@
+import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
+import JSZip from "jszip"
 import { convertCircuitJsonToKiCadPcb } from "kicad-converter"
 import { convertCircuitJsonToKicadPro } from "kicad-converter"
-import { AnyCircuitElement } from "circuit-json"
-import JSZip from "jszip"
 
 export const downloadKicadFiles = (
   circuitJson: AnyCircuitElement[],

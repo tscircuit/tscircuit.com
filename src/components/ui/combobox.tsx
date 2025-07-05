@@ -1,6 +1,5 @@
-import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "../../lib/utils"
+import * as React from "react"
 import { Button } from "../../components/ui/button"
 import {
   Command,
@@ -14,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../components/ui/popover"
+import { cn } from "../../lib/utils"
 
 interface ComboboxProps {
   value: string

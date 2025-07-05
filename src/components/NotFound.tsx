@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Button } from "@/components/ui/button"
 
 export function NotFound({ heading = "Page not found" }: { heading?: string }) {
   return (

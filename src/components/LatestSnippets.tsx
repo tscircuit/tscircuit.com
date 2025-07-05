@@ -1,7 +1,7 @@
-import React from "react"
-import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
+import React from "react"
+import { useQuery } from "react-query"
 import { Link } from "wouter"
 
 export const LatestSnippets: React.FC = () => {

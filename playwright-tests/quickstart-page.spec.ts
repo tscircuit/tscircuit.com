@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 import { viewports } from "./viewports"
 
 for (const [size, viewport] of Object.entries(viewports)) {

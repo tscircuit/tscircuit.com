@@ -1,13 +1,13 @@
 import { Input } from "@/components/ui/input"
 import { useAxios } from "@/hooks/use-axios"
-import { useLocation } from "wouter"
-import React, { useState } from "react"
-import { useQuery } from "react-query"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { Search } from "lucide-react"
-import { Button } from "./ui/button"
-import { PackageCardSkeleton } from "./PackageCardSkeleton"
+import React, { useState } from "react"
+import { useQuery } from "react-query"
+import { useLocation } from "wouter"
 import { PackageCard } from "./PackageCard"
+import { PackageCardSkeleton } from "./PackageCardSkeleton"
+import { Button } from "./ui/button"
 
 interface PageSearchComponentProps {
   onResultsFetched?: (results: any[]) => void

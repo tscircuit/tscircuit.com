@@ -1,4 +1,3 @@
-import { useState } from "react"
 import {
   Select,
   SelectContent,
@@ -7,9 +6,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useAxios } from "@/hooks/use-axios"
+import { useDeletePackage } from "@/hooks/use-delete-package"
 import { usePackageDetailsForm } from "@/hooks/use-package-details-form"
 import { useToast } from "@/hooks/use-toast"
+import { ChevronDown } from "lucide-react"
+import { useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
+import { useLocation } from "wouter"
 import { getLicenseContent } from "../ViewPackagePage/utils/get-license-content"
 import { Button } from "../ui/button"
 import {
@@ -24,9 +27,6 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Textarea } from "../ui/textarea"
 import { createUseDialog } from "./create-use-dialog"
-import { ChevronDown } from "lucide-react"
-import { useLocation } from "wouter"
-import { useDeletePackage } from "@/hooks/use-delete-package"
 
 interface EditPackageDetailsDialogProps {
   open: boolean

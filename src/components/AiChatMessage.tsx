@@ -1,12 +1,12 @@
-import { BotIcon, ChevronDown, Eye, RotateCcw } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Avatar } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { BotIcon, ChevronDown, Eye, RotateCcw } from "lucide-react"
 
 export interface AiChatMessage {
   sender: "user" | "bot"

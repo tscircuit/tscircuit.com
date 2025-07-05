@@ -4,8 +4,8 @@ import {
   orderSchema,
 } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
 import { orderSteps as simulateScenarios } from "fake-snippets-api/utils/order-steps"
+import { z } from "zod"
 
 const defaultOrderState = {
   are_gerbers_uploaded: false,

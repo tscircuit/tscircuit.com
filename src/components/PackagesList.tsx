@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import { ChevronDown, ChevronUp, Star } from "lucide-react"
 import { Link } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
 
 interface PackagesListProps {
   title: string

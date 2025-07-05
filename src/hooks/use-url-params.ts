@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 
 const getUrlParams = () => {
   const searchParams = new URLSearchParams(window.location.search)

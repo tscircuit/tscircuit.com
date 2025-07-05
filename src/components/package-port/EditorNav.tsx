@@ -1,5 +1,9 @@
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
+import { TypeBadge } from "@/components/TypeBadge"
+import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
+import { useFilesDialog } from "@/components/dialogs/files-dialog"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Button } from "@/components/ui/button"
-import { GitFork, Star } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,12 +13,18 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { useToast } from "@/hooks/use-toast"
+import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { cn } from "@/lib/utils"
-import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
+import { LockClosedIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons"
+import tscircuitCorePkg from "@tscircuit/core/package.json"
 import { AnyCircuitElement } from "circuit-json"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { GitFork, Star } from "lucide-react"
 import {
   ChevronDown,
   CodeIcon,
@@ -37,16 +47,6 @@ import {
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
-import { useAxios } from "@/hooks/use-axios"
-import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { useToast } from "@/hooks/use-toast"
-import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { useFilesDialog } from "@/components/dialogs/files-dialog"
-import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
-import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
-import { TypeBadge } from "@/components/TypeBadge"
-import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
-import tscircuitCorePkg from "@tscircuit/core/package.json"
 import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
 

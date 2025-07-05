@@ -1,4 +1,4 @@
-import { CheckCircle, XCircle, Clock, Loader2 } from "lucide-react"
+import { CheckCircle, Clock, Loader2, XCircle } from "lucide-react"
 import { Link, useParams } from "wouter"
 
 export interface BuildStep {

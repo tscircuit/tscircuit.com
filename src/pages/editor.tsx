@@ -1,9 +1,9 @@
-import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { Helmet } from "react-helmet-async"
+import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { usePackage } from "@/hooks/use-package"
+import { Helmet } from "react-helmet-async"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()

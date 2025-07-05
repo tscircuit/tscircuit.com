@@ -4,10 +4,10 @@
  * We then run "bunx playwright test --update-snapshots" for that file.
  */
 
-import prompts from "prompts"
 import { execSync } from "child_process"
-import { Glob } from "bun"
 import path from "path"
+import { Glob } from "bun"
+import prompts from "prompts"
 
 const run = async () => {
   const { file } = await prompts({

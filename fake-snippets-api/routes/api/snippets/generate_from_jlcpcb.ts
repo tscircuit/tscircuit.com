@@ -1,7 +1,7 @@
+import { convertRawEasyEdaToTs, fetchEasyEDAComponent } from "easyeda"
+import { snippetSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { snippetSchema } from "fake-snippets-api/lib/db/schema"
-import { fetchEasyEDAComponent, convertRawEasyEdaToTs } from "easyeda"
 
 export default withRouteSpec({
   methods: ["POST"],

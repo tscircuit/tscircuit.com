@@ -1,15 +1,15 @@
 "use client"
-import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { usePreviewImages } from "@/hooks/use-preview-images"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
-import React, { useState, useEffect, useMemo, useCallback } from "react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageFile } from "@/hooks/use-package-files"
+import { usePreviewImages } from "@/hooks/use-preview-images"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
+import { GitFork, LinkIcon, Settings, Star, Tag } from "lucide-react"
+import React, { useState, useEffect, useMemo, useCallback } from "react"
 
 interface MobileSidebarProps {
   isLoading?: boolean

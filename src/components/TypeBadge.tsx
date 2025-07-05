@@ -1,5 +1,5 @@
-import React from "react"
 import { cn } from "@/lib/utils"
+import React from "react"
 
 type BadgeType = "board" | "package" | "footprint" | "model"
 

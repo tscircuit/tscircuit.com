@@ -1,5 +1,5 @@
-import { AnyCircuitElement } from "circuit-json"
 import { getSimpleRouteJsonFromCircuitJson } from "@tscircuit/core"
+import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
 
 export const downloadSimpleRouteJson = (

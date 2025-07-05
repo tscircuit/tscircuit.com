@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
-  Search,
-  Code,
-  Braces,
-  FileIcon,
-  Hash,
   BookOpen,
+  Braces,
+  Code,
+  FileIcon,
   FileText,
+  Hash,
+  Search,
 } from "lucide-react"
-import type { PackageFile } from "./CodeAndPreview"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { fuzzyMatch } from "../ViewPackagePage/utils/fuzz-search"
+import type { PackageFile } from "./CodeAndPreview"
 
 interface ScoredFile extends PackageFile {
   score: number

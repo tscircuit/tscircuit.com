@@ -1,12 +1,7 @@
-import React, { useState } from "react"
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
+import Header from "@/components/Header"
+import PackageSearchResults from "@/components/PackageSearchResults"
 import { Input } from "@/components/ui/input"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import {
   Select,
   SelectContent,
@@ -14,7 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import PackageSearchResults from "@/components/PackageSearchResults"
+import { useAxios } from "@/hooks/use-axios"
+import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { Cpu, Keyboard, Layers, LucideBellElectric, Search } from "lucide-react"
+import React, { useState } from "react"
+import { useQuery } from "react-query"
 
 const LatestPage: React.FC = () => {
   const axios = useAxios()

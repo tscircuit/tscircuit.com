@@ -1,10 +1,10 @@
-import { Tag, Clock } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { BuildStatus, BuildStep } from "./build-status"
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { Clock, Tag } from "lucide-react"
+import { BuildStatus, BuildStep } from "./build-status"
 
 function getTranspilationStatus(
   pr?: PackageRelease | null,

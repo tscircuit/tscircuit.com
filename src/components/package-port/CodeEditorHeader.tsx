@@ -1,16 +1,28 @@
-import React, { useState, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
+import { ImportComponentDialog } from "@/components/ImportComponentDialog"
 import { useImportPackageDialog } from "@/components/dialogs/import-package-dialog"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, PanelRightClose, Bot } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useAxios } from "@/hooks/use-axios"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useToast } from "@/hooks/use-toast"
+import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { AlertTriangle, Bot, PanelRightClose } from "lucide-react"
+import React, { useState, useCallback } from "react"
+import { useLocation } from "wouter"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import {
   Select,
   SelectContent,
@@ -18,16 +30,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 export type FileName = string
+
+// Add ComponentSearchResult type
+interface ComponentSearchResult {
+  name: string
+  partNumber?: string
+  source: "jlcpcb" | "tscircuit.com"
+  owner?: string
+}
 
 interface CodeEditorHeaderProps {
   currentFile: FileName | null
@@ -49,8 +61,97 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
     useImportPackageDialog()
   const { toast } = useToast()
+  const axios = useAxios()
+  const [, navigate] = useLocation()
+  const session = useGlobalStore((s) => s.session)
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+  const [isRunframeImportOpen, setIsRunframeImportOpen] = useState(false)
+
+  const importJLCPCBComponent = async (partNumber: string) => {
+    if (!partNumber.startsWith("C") || partNumber.length < 2) {
+      toast({
+        title: "Invalid Part Number",
+        description:
+          "JLCPCB part numbers should start with 'C' and be at least 2 characters long.",
+        variant: "destructive",
+      })
+      return { success: false }
+    }
+
+    try {
+      const response = await axios.post("/packages/generate_from_jlcpcb", {
+        jlcpcb_part_number: partNumber,
+      })
+
+      if (!response.data.ok) {
+        toast({
+          title: "Import Failed",
+          description: "Failed to generate package from JLCPCB part",
+          variant: "destructive",
+        })
+        return { success: false }
+      }
+
+      const { package: generatedPackage } = response.data
+
+      toast({
+        title: "Import Successful",
+        description: "JLCPCB component has been imported successfully.",
+      })
+
+      // Navigate to the new editor with the import
+      navigate(`/editor?package_id=${generatedPackage.package_id}`, {
+        replace: true,
+      })
+      setTimeout(() => {
+        window.location.reload()
+      }, 100)
+      return { success: true }
+    } catch (error: any) {
+      let errorMessage = "An unexpected error occurred"
+
+      if (error.status === 404) {
+        errorMessage = `Component with JLCPCB part number ${partNumber} not found`
+      } else if (error.status === 409) {
+        errorMessage = `Component ${partNumber} already exists in your profile`
+      } else {
+        errorMessage =
+          error?.data?.message || error?.data?.error?.message || errorMessage
+      }
+
+      toast({
+        title: "Import Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+
+      return { success: false }
+    }
+  }
+
+  const handleImportComponent = async (component: ComponentSearchResult) => {
+    if (component.source === "jlcpcb") {
+      // Handle JLCPCB import - trigger the same import process as JLCPCBImportDialog
+      if (component.partNumber) {
+        await importJLCPCBComponent(component.partNumber)
+      } else {
+        toast({
+          title: "Missing Part Number",
+          description: "JLCPCB component is missing a part number",
+          variant: "destructive",
+        })
+      }
+    } else if (component.source === "tscircuit.com") {
+      //tscircuit.com package add import statement
+      const importStatement = `import { ${component.name} } from "@tsci/${component.owner}.${component.name}"\n`
+      const currentContent = files[currentFile || entrypointFileName] || ""
+      updateFileContent(
+        currentFile || entrypointFileName,
+        importStatement + currentContent,
+      )
+    }
+  }
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -263,7 +364,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setIsRunframeImportOpen(true)}
+          >
             Import
           </Button>
           <Button size="sm" variant="ghost" onClick={handleFormatFile}>
@@ -275,6 +380,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             const newContent = `import {} from "@tsci/${pkg.owner_github_username}.${pkg.unscoped_name}"\n${files[currentFile || ""]}`
             updateFileContent(currentFile, newContent)
           }}
+        />
+        <ImportComponentDialog
+          isOpen={isRunframeImportOpen}
+          onClose={() => setIsRunframeImportOpen(false)}
+          onImport={handleImportComponent}
         />
       </div>
     </>
