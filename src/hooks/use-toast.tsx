@@ -63,6 +63,7 @@ function useToast() {
   return {
     toast,
     dismiss: toastLibrary.dismiss,
+    toastLibrary,
   }
 }
 
