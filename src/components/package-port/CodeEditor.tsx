@@ -32,7 +32,7 @@ import CodeEditorHeader, {
 import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "./CodeAndPreview"
+import type { PackageFile } from "@/types/package"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import QuickOpen from "./QuickOpen"
 import GlobalFindReplace from "./GlobalFindReplace"
