@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/fake-snippets",
-  "version": "0.0.88",
+  "version": "0.0.89",
   "type": "module",
   "repository": {
     "type": "git",
@@ -87,7 +87,7 @@
     "@tscircuit/pcb-viewer": "^1.11.194",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/props": "^0.0.246",
-    "@tscircuit/runframe": "^0.0.653",
+    "@tscircuit/runframe": "^0.0.669",
     "@tscircuit/schematic-viewer": "^2.0.21",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",

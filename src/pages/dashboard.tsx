@@ -61,6 +61,11 @@ export const DashboardPage = () => {
       const response = await axios.get("/packages/list_trending")
       return response.data.packages
     },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+    },
   )
 
   const { data: latestPackages } = useQuery<Package[]>(
@@ -68,6 +73,11 @@ export const DashboardPage = () => {
     async () => {
       const response = await axios.get("/packages/list_latest")
       return response.data.packages
+    },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     },
   )
 
