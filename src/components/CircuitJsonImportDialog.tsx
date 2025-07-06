@@ -15,7 +15,7 @@ import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
-import { generateRandomPackageName } from "./package-port/CodeAndPreview"
+import { generateRandomPackageName } from "@/lib/utils/package-utils"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
 import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
 

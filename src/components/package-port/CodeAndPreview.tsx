@@ -15,6 +15,7 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 
 interface Props {
   pkg?: Package
@@ -23,11 +24,6 @@ interface Props {
    * reporting autorouting bugs
    */
   projectUrl?: string
-}
-
-export interface PackageFile {
-  path: string
-  content: string
 }
 
 export interface CodeAndPreviewState {
@@ -39,17 +35,6 @@ export interface CodeAndPreviewState {
   lastRunCode: string
   defaultComponentFile?: string
 }
-
-export const DEFAULT_CODE = `
-export default () => (
-  <board width="10mm" height="10mm">
-    {/* write your code here! */}
-  </board>
-)
-`.trim()
-
-export const generateRandomPackageName = () =>
-  `untitled-package-${Math.floor(Math.random() * 900) + 100}`
 
 export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()

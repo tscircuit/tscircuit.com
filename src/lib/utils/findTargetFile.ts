@@ -1,4 +1,4 @@
-import { PackageFile } from "@/components/package-port/CodeAndPreview"
+import { PackageFile } from "@/types/package"
 
 export const findMainEntrypointFileFromTscircuitConfig = (
   files: PackageFile[],
