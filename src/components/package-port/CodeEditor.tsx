@@ -43,6 +43,8 @@ import {
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { inlineCopilot } from "codemirror-copilot"
+import ai from "fake-snippets-api/routes/api/ai"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -94,6 +96,7 @@ export const CodeEditor = ({
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
 
   const entryPointFileName = useMemo(() => {
     const entryPointFile = findTargetFile(files, null)
@@ -324,12 +327,24 @@ export const CodeEditor = ({
         },
       }),
     ]
-    if (codeCompletionApi?.apiKey) {
+    if (aiAutocompleteEnabled) {
       baseExtensions.push(
-        // copilotPlugin({
-        //   apiKey: codeCompletionApi.apiKey,
-        //   language: Language.TYPESCRIPT,
-        // }),
+        inlineCopilot(async (prefix, suffix) => {
+          const res = await fetch("/api/autocomplete/create_autocomplete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prefix,
+              suffix,
+              language: "typescript",
+            }),
+          })
+
+          const { prediction } = await res.json()
+          return prediction
+        }),
         EditorView.theme({
           ".cm-ghostText, .cm-ghostText *": {
             opacity: "0.6",
@@ -537,6 +552,7 @@ export const CodeEditor = ({
     Boolean(highlighter),
     isSaving,
     fontSize,
+    aiAutocompleteEnabled,
   ])
 
   const updateCurrentEditorContent = (newContent: string) => {
@@ -655,6 +671,10 @@ export const CodeEditor = ({
             files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
             updateFileContent={updateFileContent}
             handleFileChange={handleFileChange}
+            aiAutocompleteState={[
+              aiAutocompleteEnabled,
+              setAiAutocompleteEnabled,
+            ]}
           />
         )}
         <div

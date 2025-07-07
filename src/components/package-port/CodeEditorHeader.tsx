@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import ai from "fake-snippets-api/routes/api/ai"
 
 export type FileName = string
 
@@ -36,6 +37,7 @@ interface CodeEditorHeaderProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
+  aiAutocompleteState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -45,12 +47,13 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   fileSidebarState,
   handleFileChange,
   entrypointFileName = "index.tsx",
+  aiAutocompleteState,
 }) => {
   const { Dialog: ImportPackageDialog, openDialog: openImportDialog } =
     useImportPackageDialog()
   const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -239,15 +242,16 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() =>
-                    setAiAutocompleteEnabled(!aiAutocompleteEnabled)
-                  }
+                  onClick={() => {
+                    setAiAutocompleteEnabled((prev) => !prev)
+                  }}
                   className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
                 >
                   <Bot className="h-4 w-4" />
@@ -263,6 +267,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
           </Button>
