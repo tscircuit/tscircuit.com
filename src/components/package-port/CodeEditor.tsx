@@ -44,7 +44,6 @@ import {
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
-import ai from "fake-snippets-api/routes/api/ai"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
