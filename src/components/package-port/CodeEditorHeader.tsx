@@ -25,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { convertRawEasyEdaToTs, fetchEasyEDAComponent } from "easyeda"
+import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
@@ -169,7 +169,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           })
         },
       })
-      const tsxComponent = await convertRawEasyEdaToTs(jlcpcbComponent)
+      const tsxComponent = await convertRawEasyToTsx(jlcpcbComponent)
       let componentName = component.name.replace(/ /g, "-")
       if (files[`${componentName}.tsx`] || files[`./${componentName}.tsx`]) {
         componentName = `${componentName}-1`

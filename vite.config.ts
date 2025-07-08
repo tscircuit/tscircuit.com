@@ -229,7 +229,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
           main: path.resolve(__dirname, "index.html"),
           landing: path.resolve(__dirname, "landing.html"),
         },
-        external: ["easyeda"],
       },
     },
     ssr: {
