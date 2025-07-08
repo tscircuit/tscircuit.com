@@ -1,11 +1,11 @@
 import { useMemo } from "react"
 
 export const useCodeCompletionApi = () => {
-  const codeiumApiKey = useMemo(() => {
+  const openrouterApiKey = useMemo(() => {
     return {
-      apiKey: import.meta.env.VITE_CODIUM_API_KEY,
+      apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
     }
   }, [])
 
-  return codeiumApiKey
+  return openrouterApiKey
 }
