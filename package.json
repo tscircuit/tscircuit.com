@@ -82,6 +82,7 @@
     "@tscircuit/eval": "^0.0.244",
     "@tscircuit/footprinter": "^0.0.186",
     "@tscircuit/layout": "^0.0.29",
+    "@tscircuit/math-utils": "^0.0.18",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.11.195",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
