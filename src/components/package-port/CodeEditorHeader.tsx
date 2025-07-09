@@ -29,7 +29,6 @@ import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
-import ai from "fake-snippets-api/routes/api/ai"
 
 export type FileName = string
 
@@ -159,7 +158,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     }
     if (component.source == "jlcpcb") {
       const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
-        fetch: (url, options: any) => {
+        fetch: ((url, options: any) => {
           return fetch(`${API_BASE}/proxy`, {
             ...options,
             headers: {
@@ -172,7 +171,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               "X-Sender-Cookie": options?.headers?.cookie ?? "",
             },
           })
-        },
+        }) as typeof fetch,
       })
       const tsxComponent = await convertRawEasyToTsx(jlcpcbComponent)
       let componentName = component.name.replace(/ /g, "-")
