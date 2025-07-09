@@ -11,8 +11,6 @@ declare global {
       format: (code: string, options: any) => string
     }
     prettierPlugins: any
-    /** Timestamp in milliseconds of when the application was first loaded */
-    __APP_LOADED_AT?: number
   }
 }
 

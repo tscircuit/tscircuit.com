@@ -78,37 +78,18 @@ const PackageEditorPage = lazyImport(async () => {
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
-  { hasError: boolean; reloading: boolean }
+  { hasError: boolean }
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props)
-    this.state = { hasError: false, reloading: false }
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError() {
-    return { hasError: true, reloading: false }
-  }
-
-  componentDidCatch(error: Error) {
-    console.error("ErrorBoundary caught", error)
-    const message = error.message || ""
-    if (
-      /(Loading chunk|ChunkLoadError|dynamically imported module)/i.test(
-        message,
-      )
-    ) {
-      const loadedAt = window.__APP_LOADED_AT || Date.now()
-      if (Date.now() - loadedAt >= 10_000) {
-        this.setState({ reloading: true })
-        window.location.reload()
-      }
-    }
+    return { hasError: true }
   }
 
   render() {
-    if (this.state.reloading) {
-      return <div>There was a problem loading this page. Reloading…</div>
-    }
     if (this.state.hasError) {
       return <div>Something went wrong loading the page.</div>
     }
