@@ -126,6 +126,7 @@
     "dsn-converter": "^0.0.60",
     "easyeda": "^0.0.203",
     "embla-carousel-react": "^8.3.0",
+    "esbuild": "^0.25.6",
     "extract-codefence": "^0.0.4",
     "fflate": "^0.8.2",
     "file-saver": "^2.0.5",
