@@ -18,19 +18,16 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import {
   ChevronDown,
   CodeIcon,
-  Download,
   Edit2,
   Eye,
   EyeIcon,
   File,
   FilePenLine,
   MoreVertical,
-  Package as PackageIcon,
   Pencil,
   Save,
   Share,
   Sidebar,
-  Sparkles,
   Trash2,
   Undo2,
 } from "lucide-react"
@@ -41,7 +38,6 @@ import { useAxios } from "@/hooks/use-axios"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { useFilesDialog } from "@/components/dialogs/files-dialog"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { TypeBadge } from "@/components/TypeBadge"
@@ -86,7 +82,6 @@ export default function EditorNav({
   } = useUpdatePackageDescriptionDialog()
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
-  const { Dialog: FilesDialog, openDialog: openFilesDialog } = useFilesDialog()
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
 
@@ -378,13 +373,6 @@ export default function EditorNav({
               <DropdownMenuContent>
                 <DropdownMenuItem
                   className="text-xs"
-                  onClick={() => openFilesDialog()}
-                >
-                  <File className="mr-2 h-3 w-3" />
-                  View Files
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
                   onClick={() => openupdateDescriptionDialog()}
                 >
                   <FilePenLine className="mr-2 h-3 w-3" />
@@ -395,7 +383,7 @@ export default function EditorNav({
                   onClick={() => openViewTsFilesDialog()}
                 >
                   <File className="mr-2 h-3 w-3" />
-                  [Debug] View TS Files
+                  View Files
                 </DropdownMenuItem>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger
@@ -566,7 +554,6 @@ export default function EditorNav({
         packageName={pkg?.unscoped_name ?? ""}
         packageOwner={pkg?.owner_github_username ?? ""}
       />
-      <FilesDialog snippetId={pkg?.package_id ?? ""} />
       <ViewTsFilesDialog />
     </nav>
   )

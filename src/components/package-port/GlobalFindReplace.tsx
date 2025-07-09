@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { PackageFile } from "./CodeAndPreview"
+import type { PackageFile } from "@/types/package"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 interface Match {

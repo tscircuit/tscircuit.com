@@ -8,7 +8,7 @@ import {
   BookOpen,
   FileText,
 } from "lucide-react"
-import type { PackageFile } from "./CodeAndPreview"
+import type { PackageFile } from "@/types/package"
 import { fuzzyMatch } from "../ViewPackagePage/utils/fuzz-search"
 
 interface ScoredFile extends PackageFile {

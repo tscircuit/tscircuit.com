@@ -1,4 +1,4 @@
-import { useMutation } from "react-query"
+import { useMutation, useQueryClient } from "react-query"
 import { useAxios } from "./use-axios"
 import { useToast } from "./use-toast"
 
@@ -7,6 +7,7 @@ export const useDeletePackage = ({
 }: { onSuccess?: () => void } = {}) => {
   const axios = useAxios()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   return useMutation(
     ["deletePackage"],
@@ -22,11 +23,14 @@ export const useDeletePackage = ({
       return response.data
     },
     {
-      onSuccess: () => {
+      onSuccess: (_, variables) => {
         toast({
           title: "Package deleted",
           description: "Package deleted successfully",
         })
+        if (variables?.package_id) {
+          queryClient.invalidateQueries(["packages", variables.package_id])
+        }
         onSuccess?.()
       },
       onError: (error: any) => {

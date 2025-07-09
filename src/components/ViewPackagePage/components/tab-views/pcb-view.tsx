@@ -1,6 +1,4 @@
-import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
-import { useEffect, useState } from "react"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function PCBView() {

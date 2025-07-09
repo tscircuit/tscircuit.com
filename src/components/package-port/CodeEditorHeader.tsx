@@ -29,6 +29,8 @@ import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
+import ai from "fake-snippets-api/routes/api/ai"
+
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -40,6 +42,7 @@ interface CodeEditorHeaderProps {
   entrypointFileName?: string
   appendNewFile: (path: string, content: string) => void
   createFile: (props: ICreateFileProps) => ICreateFileResult
+  aiAutocompleteState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -51,13 +54,15 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   handleFileChange,
   entrypointFileName = "index.tsx",
   createFile,
+  aiAutocompleteState,
 }) => {
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
   const { toast, toastLibrary } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
   const API_BASE = useSnippetsBaseApiUrl()
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
+
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
     if (!currentFile) return
@@ -287,15 +292,16 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() =>
-                    setAiAutocompleteEnabled(!aiAutocompleteEnabled)
-                  }
+                  onClick={() => {
+                    setAiAutocompleteEnabled((prev) => !prev)
+                  }}
                   className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
                 >
                   <Bot className="h-4 w-4" />
@@ -311,6 +317,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+
           <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
             Import
           </Button>
