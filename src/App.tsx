@@ -80,9 +80,6 @@ class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; reloading: boolean }
 > {
-  private visibilityHandler?: () => void
-  private reloadTimeout?: number
-
   constructor(props: { children: React.ReactNode }) {
     super(props)
     this.state = { hasError: false, reloading: false }
@@ -102,52 +99,10 @@ class ErrorBoundary extends React.Component<
     ) {
       const loadedAt = window.__APP_LOADED_AT || Date.now()
       if (Date.now() - loadedAt >= 10_000) {
-        this.performReload()
+        this.setState({ reloading: true })
+        window.location.reload()
       }
     }
-  }
-
-  componentDidUpdate(_prevProps: any, prevState: any) {
-    if (!prevState.hasError && this.state.hasError && !this.state.reloading) {
-      this.setupIdleReload()
-    }
-  }
-
-  componentWillUnmount() {
-    this.cleanup()
-  }
-
-  cleanup = () => {
-    if (this.visibilityHandler) {
-      document.removeEventListener("visibilitychange", this.visibilityHandler)
-      this.visibilityHandler = undefined
-    }
-    if (this.reloadTimeout) {
-      clearTimeout(this.reloadTimeout)
-      this.reloadTimeout = undefined
-    }
-  }
-
-  performReload = () => {
-    if (this.state.reloading) return // Prevent multiple reloads
-
-    this.cleanup() // Clean up listeners before reload
-    this.setState({ reloading: true })
-    this.reloadTimeout = window.setTimeout(() => {
-      window.location.reload()
-    }, 500)
-  }
-
-  setupIdleReload = () => {
-    this.cleanup() // Clean up any existing handlers
-
-    this.visibilityHandler = () => {
-      if (!document.hidden && this.state.hasError && !this.state.reloading) {
-        this.performReload()
-      }
-    }
-
-    document.addEventListener("visibilitychange", this.visibilityHandler)
   }
 
   render() {
