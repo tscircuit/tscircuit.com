@@ -16,7 +16,7 @@
       "destination": "/landing.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/(?!api/)(.*)",
       "destination": "/api/generated-index"
     }
   ],
