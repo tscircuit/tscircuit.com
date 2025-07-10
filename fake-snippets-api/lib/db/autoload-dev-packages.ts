@@ -118,6 +118,7 @@ const loadPackageWithDependencies = async (
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     latest_package_release_id: release.package_release_id,
+    star_count: Math.floor(Math.random() * 11),
   })
 
   db.addPackageRelease({

@@ -24,7 +24,7 @@ export default withRouteSpec({
   })
 
   // Filter out packages with no stars and sort by star count
-  const trendingPackages = packagesWithStars
+  const trendingPackages = ctx.db.packages
     .filter((p) => p.star_count > 0)
     .sort((a, b) => b.star_count - a.star_count)
     .slice(0, 50)
