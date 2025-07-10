@@ -224,34 +224,33 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             pkgFilesLoaded={!isLoading}
           />
         </div>
-        {state.showPreview && (
-          <div
-            className={cn(
-              "flex p-0 flex-col min-h-[640px]",
-              state.fullScreen
-                ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-                : "w-full md:w-1/2",
-            )}
-          >
-            <SuspenseRunFrame
-              showRunButton
-              forceLatestEvalVersion
-              onRenderStarted={() =>
-                setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-              }
-              onRenderFinished={({ circuitJson }) => {
-                setState((prev) => ({ ...prev, circuitJson }))
-                toastManualEditConflicts(circuitJson, toast)
-              }}
-              mainComponentPath={mainComponentPath}
-              onEditEvent={(event) => {
-                handleEditEvent(event)
-              }}
-              fsMap={fsMap ?? {}}
-              projectUrl={projectUrl}
-            />
-          </div>
-        )}
+        <div
+          className={cn(
+            "flex p-0 flex-col min-h-[640px]",
+            state.fullScreen
+              ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+              : "w-full md:w-1/2",
+            !state.showPreview && "hidden",
+          )}
+        >
+          <SuspenseRunFrame
+            showRunButton
+            forceLatestEvalVersion
+            onRenderStarted={() =>
+              setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
+            }
+            onRenderFinished={({ circuitJson }) => {
+              setState((prev) => ({ ...prev, circuitJson }))
+              toastManualEditConflicts(circuitJson, toast)
+            }}
+            mainComponentPath={mainComponentPath}
+            onEditEvent={(event) => {
+              handleEditEvent(event)
+            }}
+            fsMap={fsMap ?? {}}
+            projectUrl={projectUrl}
+          />
+        </div>
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
