@@ -20,7 +20,9 @@ import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 
 export interface ICreateFileProps {
   newFileName: string
+  content?: string
   onError: (error: Error) => void
+  openFile?: boolean
 }
 export interface ICreateFileResult {
   newFileCreated: boolean
@@ -182,6 +184,8 @@ export function useFileManagement({
   const createFile = ({
     newFileName,
     onError,
+    content,
+    openFile = true,
   }: ICreateFileProps): ICreateFileResult => {
     newFileName = newFileName.trim()
     if (!newFileName) {
@@ -206,11 +210,12 @@ export function useFileManagement({
     }
     const updatedFiles = [
       ...(localFiles || []),
-      { path: newFileName, content: "" },
+      { path: newFileName, content: content || "" },
     ]
     setLocalFiles(updatedFiles)
-    // immediately select the newly created file
-    setCurrentFile(newFileName)
+    if (openFile) {
+      setCurrentFile(newFileName)
+    }
     return {
       newFileCreated: true,
     }
