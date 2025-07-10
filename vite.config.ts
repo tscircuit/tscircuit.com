@@ -3,7 +3,6 @@ import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
 import path, { extname } from "path"
 import { readFileSync } from "fs"
-import { execSync } from "child_process"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
@@ -126,23 +125,6 @@ function vercelSsrDevPlugin(): Plugin {
   }
 }
 
-function buildIdPlugin(): Plugin {
-  return {
-    name: "build-id",
-    transformIndexHtml(html) {
-      try {
-        const hash = execSync("git rev-parse --short HEAD").toString().trim()
-        return html.replace(
-          /<\/head>/i,
-          `  <meta name="tscircuit-build" content="${hash}"></head>`,
-        )
-      } catch {
-        return html
-      }
-    },
-  }
-}
-
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
@@ -176,7 +158,6 @@ export default defineConfig(async (): Promise<UserConfig> => {
       },
     }),
     vercelSsrDevPlugin(),
-    buildIdPlugin(),
   ]
 
   if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {

@@ -187,7 +187,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
+      fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
         const registryPrefixes = [
           "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
           "https://data.jsdelivr.com/v1/package/npm/@tsci/",
@@ -213,7 +213,7 @@ export const CodeEditor = ({
           )
         }
         return fetch(input, init)
-      }) as typeof fetch,
+      },
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `

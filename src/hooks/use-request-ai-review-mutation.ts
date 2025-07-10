@@ -34,7 +34,7 @@ export const useRequestAiReviewMutation = ({
       onSuccess: ({ package_release, ai_review }) => {
         toast({
           title: "AI review requested",
-          description: "An AI review has been generated.",
+          description: "An AI review has been requested.",
         })
         queryClient.invalidateQueries(["packageRelease"])
         onSuccess?.(package_release, ai_review)
