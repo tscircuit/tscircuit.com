@@ -110,7 +110,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
           <ImageWithFallback
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.svg?fs_sha=${pkg.latest_package_release_fs_sha}`}
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             alt={`${pkg.unscoped_name} PCB image`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />
