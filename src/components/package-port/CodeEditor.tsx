@@ -76,25 +76,27 @@ export const CodeEditor = ({
   showImportAndFormatButtons?: boolean
   onFileContentChanged?: (path: string, content: string) => void
   currentFile: string | null
-  onFileSelect: (path: string) => void
+  onFileSelect: (path: string, lineNumber?: number) => void
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = usePackagesBaseApiUrl()
-  const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
+  const [highlightedLine, setHighlightedLine] = useState<number | null>(null)
+  const highlightTimeoutRef = useRef<number | null>(null)
 
   const { highlighter } = useShikiHighlighter()
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
+  const lineNumberFromUrl = urlParams.get("line")
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
 
   const entryPointFileName = useMemo(() => {
@@ -109,10 +111,13 @@ export const CodeEditor = ({
 
     const targetFile = findTargetFile(files, filePathFromUrl)
     if (targetFile) {
-      handleFileChange(targetFile.path)
+      const lineNumber = lineNumberFromUrl
+        ? parseInt(lineNumberFromUrl, 10)
+        : undefined
+      handleFileChange(targetFile.path, lineNumber)
       setCode(targetFile.content)
     }
-  }, [filePathFromUrl, pkgFilesLoaded])
+  }, [filePathFromUrl, lineNumberFromUrl, pkgFilesLoaded])
 
   const fileMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -309,6 +314,14 @@ export const CodeEditor = ({
         ".cm-content": {
           fontSize: `${fontSize}px`,
         },
+        ".cm-line-highlight": {
+          backgroundColor: "#dbeafe !important",
+          animation: "lineHighlightFade 3s ease-in-out forwards",
+        },
+        "@keyframes lineHighlightFade": {
+          "0%": { backgroundColor: "#93c5fd" },
+          "100%": { backgroundColor: "transparent" },
+        },
       }),
       EditorView.domEventHandlers({
         wheel: (event) => {
@@ -324,6 +337,21 @@ export const CodeEditor = ({
           }
           return false
         },
+      }),
+      EditorView.decorations.of((view) => {
+        const decorations = []
+        if (highlightedLine) {
+          const doc = view.state.doc
+          if (highlightedLine >= 1 && highlightedLine <= doc.lines) {
+            const line = doc.line(highlightedLine)
+            decorations.push(
+              Decoration.line({
+                class: "cm-line-highlight",
+              }).range(line.from),
+            )
+          }
+        }
+        return Decoration.set(decorations)
       }),
     ]
     if (aiAutocompleteEnabled) {
@@ -546,6 +574,11 @@ export const CodeEditor = ({
 
     return () => {
       view.destroy()
+      // Clean up any pending highlight timeout
+      if (highlightTimeoutRef.current) {
+        window.clearTimeout(highlightTimeoutRef.current)
+        highlightTimeoutRef.current = null
+      }
     }
   }, [
     !isStreaming,
@@ -555,6 +588,7 @@ export const CodeEditor = ({
     isSaving,
     fontSize,
     aiAutocompleteEnabled,
+    highlightedLine,
   ])
 
   const updateCurrentEditorContent = (newContent: string) => {
@@ -574,6 +608,35 @@ export const CodeEditor = ({
     }
   }
 
+  const navigateToLine = (lineNumber: number) => {
+    if (!viewRef.current) return
+
+    const view = viewRef.current
+    const doc = view.state.doc
+
+    if (lineNumber < 1 || lineNumber > doc.lines) return
+
+    if (highlightTimeoutRef.current) {
+      window.clearTimeout(highlightTimeoutRef.current)
+      highlightTimeoutRef.current = null
+    }
+
+    const line = doc.line(lineNumber)
+    const pos = line.from
+
+    view.dispatch({
+      selection: { anchor: pos, head: pos },
+      effects: EditorView.scrollIntoView(pos, { y: "center" }),
+    })
+
+    setHighlightedLine(lineNumber)
+
+    highlightTimeoutRef.current = window.setTimeout(() => {
+      setHighlightedLine(null)
+      highlightTimeoutRef.current = null
+    }, 3000)
+  }
+
   const updateEditorToMatchCurrentFile = () => {
     const currentContent = fileMap[currentFile || ""] || ""
     updateCurrentEditorContent(currentContent)
@@ -590,14 +653,26 @@ export const CodeEditor = ({
     }
   }, [codeImports])
 
-  const handleFileChange = (path: string) => {
-    onFileSelect(path)
+  const handleFileChange = (path: string, lineNumber?: number) => {
+    onFileSelect(path, lineNumber)
     try {
-      // Set url query to file path
+      // Set url query to file path and line number
       const urlParams = new URLSearchParams(window.location.search)
       urlParams.set("file_path", path)
+      if (lineNumber) {
+        urlParams.set("line", lineNumber.toString())
+      } else {
+        urlParams.delete("line")
+      }
       window.history.replaceState(null, "", `?${urlParams.toString()}`)
     } catch {}
+
+    // Navigate to line after a short delay to ensure editor is ready
+    if (lineNumber) {
+      setTimeout(() => {
+        navigateToLine(lineNumber)
+      }, 100)
+    }
   }
 
   const updateFileContent = (path: FileName | null, newContent: string) => {
@@ -656,7 +731,7 @@ export const CodeEditor = ({
         fileSidebarState={
           [sidebarOpen, setSidebarOpen] as ReturnType<typeof useState<boolean>>
         }
-        onFileSelect={handleFileChange}
+        onFileSelect={(path) => handleFileChange(path)}
         handleCreateFile={handleCreateFile}
         handleDeleteFile={handleDeleteFile}
       />
@@ -694,7 +769,7 @@ export const CodeEditor = ({
         <QuickOpen
           files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
-          onFileSelect={handleFileChange}
+          onFileSelect={(path) => handleFileChange(path)}
           onClose={() => setShowQuickOpen(false)}
         />
       )}

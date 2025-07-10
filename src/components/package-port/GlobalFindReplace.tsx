@@ -44,7 +44,7 @@ interface FileMatch {
 interface GlobalFindReplaceProps {
   files: PackageFile[]
   currentFile: string | null
-  onFileSelect: (path: string) => void
+  onFileSelect: (path: string, lineNumber?: number) => void
   onFileContentChanged?: (path: string, content: string) => void
   onClose: () => void
 }
@@ -217,7 +217,7 @@ const GlobalFindReplace = ({
 
   const goToMatch = useCallback(
     (fileMatch: FileMatch, match: Match) => {
-      onFileSelect(fileMatch.file.path)
+      onFileSelect(fileMatch.file.path, match.line)
       onClose()
     },
     [onFileSelect, onClose],
