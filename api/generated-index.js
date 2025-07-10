@@ -130,7 +130,13 @@ function getHtmlWithModifiedSeoTags({
 }
 
 export async function handleUserProfile(req, res) {
-  const username = req.url.split("/")[req.url.split("/").length - 1]
+  // Ensure this handler only matches paths with exactly one segment (e.g. /username)
+  const pathSegments = req.url.split("?")[0].split("/").filter(Boolean)
+  if (pathSegments.length !== 1) {
+    throw new Error("Not a user profile route")
+  }
+
+  const username = pathSegments[0]
 
   if (!username) {
     throw new Error("Username not provided")
@@ -280,5 +286,5 @@ export default async function handler(req, res) {
   res.setHeader("Cache-Control", cacheControlHeader)
   // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
-  res.status(200).send(htmlContent)
+  res.status(404).send(htmlContent)
 }
