@@ -31,6 +31,21 @@ const PREFETCHABLE_PAGES = new Set([
   "latest",
   "settings",
   "quickstart",
+  // additional single-segment routes served by the SPA that should **not** be treated as 404s
+  "authorize",
+  "my-orders",
+  "dev-login",
+  "package-editor",
+  "legacy-editor",
+])
+
+// First-segment path names that should never be considered a GitHub username
+const RESERVED_FIRST_SEGMENTS = new Set([
+  ...PREFETCHABLE_PAGES,
+  "api",
+  "view-package",
+  "robots.txt",
+  "favicon.ico",
 ])
 
 const pageDescriptions = {
@@ -130,7 +145,7 @@ function getHtmlWithModifiedSeoTags({
 }
 
 export async function handleUserProfile(req, res) {
-  // Ensure this handler only matches paths with exactly one segment (e.g. /username)
+  // Only handle paths with exactly one non-reserved segment (e.g. "/username")
   const pathSegments = req.url.split("?")[0].split("/").filter(Boolean)
   if (pathSegments.length !== 1) {
     throw new Error("Not a user profile route")
@@ -138,8 +153,23 @@ export async function handleUserProfile(req, res) {
 
   const username = pathSegments[0]
 
-  if (!username) {
-    throw new Error("Username not provided")
+  if (!username || RESERVED_FIRST_SEGMENTS.has(username)) {
+    throw new Error("Not a user profile route")
+  }
+
+  // Verify the user exists in the registry. If the lookup fails or the user is missing, treat as 404.
+  try {
+    const { account } = await ky
+      .post(`${REGISTRY_URL}/accounts/get`, {
+        json: { github_username: username },
+      })
+      .json()
+
+    if (!account) {
+      throw new Error("Account not found")
+    }
+  } catch (_e) {
+    throw new Error("Account not found")
   }
 
   const description = he.encode(`Circuits created by ${username} on tscircuit`)
@@ -160,8 +190,27 @@ export async function handleUserProfile(req, res) {
 }
 
 async function handleCustomPackageHtml(req, res) {
-  // Get the author and package name
-  const [_, author, unscopedPackageName] = req.url.split("?")[0].split("/")
+  // Accept multiple URL shapes:
+  //  1. /<author>/<package>
+  //  2. /<author>/<package>/builds
+  //  3. /view-package/<author>/<package>
+
+  const pathSegments = req.url.split("?")[0].split("/").filter(Boolean)
+
+  let author, unscopedPackageName
+
+  // Strip a trailing "builds" segment (case 2)
+  const buildSegment = pathSegments[pathSegments.length - 1] === "builds"
+  const effectiveSegments = buildSegment ? pathSegments.slice(0, -1) : pathSegments
+
+  if (effectiveSegments.length === 3 && effectiveSegments[0] === "view-package") {
+    // case 3
+    ;[author, unscopedPackageName] = effectiveSegments.slice(1)
+  } else if (effectiveSegments.length === 2) {
+    // case 1
+    ;[author, unscopedPackageName] = effectiveSegments
+  }
+
   if (!author || !unscopedPackageName) {
     throw new Error("Invalid author/package URL")
   }
@@ -213,7 +262,8 @@ async function handleCustomPackageHtml(req, res) {
   const description = he.encode(
     `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
   )
-  const title = he.encode(`${packageInfo.name} - tscircuit`)
+  const titleSuffix = buildSegment ? "Builds" : ""
+  const title = he.encode(`${packageInfo.name}${titleSuffix ? " " + titleSuffix : ""} - tscircuit`)
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
   const defaultView = packageInfo.default_view || "pcb"
