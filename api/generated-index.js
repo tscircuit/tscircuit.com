@@ -224,7 +224,6 @@ async function handleCustomPackageHtml(req, res) {
   const description = he.encode(
     `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
   )
-  console.log(69, packageInfo)
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
