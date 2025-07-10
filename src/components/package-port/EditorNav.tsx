@@ -436,15 +436,15 @@ export default function EditorNav({
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
-                    <DropdownMenuItem
-                      className="text-xs text-red-600"
-                      onClick={() => openDeleteDialog()}
-                    >
-                      <Trash2 className="mr-2 h-3 w-3" />
-                      Delete Package
-                    </DropdownMenuItem>
                   </>
                 )}
+                <DropdownMenuItem
+                  className="text-xs text-red-600"
+                  onClick={() => openDeleteDialog()}
+                >
+                  <Trash2 className="mr-2 h-3 w-3" />
+                  Delete Package
+                </DropdownMenuItem>
                 <DropdownMenuItem className="text-xs text-gray-500" disabled>
                   @tscircuit/core@{tscircuitCorePkg.version}
                 </DropdownMenuItem>
