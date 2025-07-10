@@ -118,7 +118,6 @@ export default withRouteSpec({
     prediction: z.string(),
   }),
 })(async (req, ctx) => {
-  return ctx.json({ prediction: "mock" })
   const openai = getOpenAIClient()
   const { prefix, suffix, model, language } = req.jsonBody
 
