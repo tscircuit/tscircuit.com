@@ -99,6 +99,8 @@ export const PackageCard: React.FC<PackageCardProps> = ({
       })
   }
 
+  const availableImages = ["pcb", "schematic", "assembly", "3d"]
+
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -108,8 +110,8 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
           <ImageWithFallback
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            alt={`${pkg.unscoped_name} PCB image`}
+            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
+            alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />
         </div>
