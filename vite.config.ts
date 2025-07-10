@@ -24,13 +24,6 @@ const fakeHandler = getNodeHandler(winterspecBundle as any, {
   ],
 })
 
-// Configuration for resolving esbuild
-const resolveConfig = {
-  alias: {
-    'esbuild': 'esbuild/lib/main.js'
-  }
-}
-
 function apiFakePlugin(): Plugin {
   return {
     name: "api-fake",
@@ -202,7 +195,16 @@ export default defineConfig(async (): Promise<UserConfig> => {
     build: {
       copyPublicDir: true,
       minify: "esbuild",
-      reportCompressedSize: true,
+      // terserOptions: {
+      //   compress: {
+      //     drop_console: true,
+      //     drop_debugger: true,
+      //   },
+      //   format: {
+      //     comments: false,
+      //   },
+      // },
+      reportCompressedSize: true, // https://github.com/vitejs/vite/issues/10086
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, "index.html"),
@@ -217,11 +219,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        'esbuild': 'esbuild/lib/main.js'  // Add esbuild resolution
       },
-    },
-    optimizeDeps: {
-      include: ['esbuild']  // Ensure esbuild is pre-bundled
     },
     logLevel: "info",
   }

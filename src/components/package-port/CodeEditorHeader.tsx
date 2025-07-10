@@ -184,6 +184,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         onError: (error) => {
           throw error
         },
+        openFile: false,
       })
       if (!createFileResult.newFileCreated) {
         throw new Error("Failed to create file")
