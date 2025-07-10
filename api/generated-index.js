@@ -158,18 +158,25 @@ export async function handleUserProfile(req, res) {
   }
 
   // Verify the user exists in the registry. If the lookup fails or the user is missing, treat as 404.
+  let accountExists = false
   try {
     const { account } = await ky
       .post(`${REGISTRY_URL}/accounts/get`, {
         json: { github_username: username },
       })
       .json()
-
-    if (!account) {
-      throw new Error("Account not found")
-    }
+    accountExists = Boolean(account)
   } catch (_e) {
-    throw new Error("Account not found")
+    accountExists = false
+  }
+
+  if (!accountExists) {
+    // Serve SPA but with 404 status so client shows NotFound page
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(htmlContent)
+    return true
   }
 
   const description = he.encode(`Circuits created by ${username} on tscircuit`)
@@ -187,6 +194,7 @@ export async function handleUserProfile(req, res) {
   res.setHeader("Cache-Control", cacheControlHeader)
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
+  return true
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -224,7 +232,11 @@ async function handleCustomPackageHtml(req, res) {
     .json()
 
   if (!packageInfo) {
-    throw new Error("Package not found")
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(htmlContent)
+    return true
   }
 
   let packageRelease = null
@@ -283,6 +295,7 @@ async function handleCustomPackageHtml(req, res) {
   // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
+  return true
 }
 
 async function handleCustomPage(req, res) {
