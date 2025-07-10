@@ -111,7 +111,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         >
           <ImageWithFallback
             src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            alt={`${pkg.unscoped_name} PCB image`}
+            alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
           />
         </div>
