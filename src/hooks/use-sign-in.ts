@@ -1,9 +1,9 @@
 import { useGlobalStore } from "./use-global-store"
 import { useIsUsingFakeApi } from "./use-is-using-fake-api"
-import { useSnippetsBaseApiUrl } from "./use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "./use-packages-base-api-url"
 
 export const useSignIn = () => {
-  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const snippetsBaseApiUrl = usePackagesBaseApiUrl()
   const isUsingFakeApi = useIsUsingFakeApi()
   const setSession = useGlobalStore((s) => s.setSession)
   return () => {

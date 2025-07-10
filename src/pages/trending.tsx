@@ -4,7 +4,7 @@ import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useSearchParams } from "wouter"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import {
@@ -19,7 +19,7 @@ import PackageSearchResults from "@/components/PackageSearchResults"
 
 const TrendingPage: React.FC = () => {
   const axios = useAxios()
-  const apiBaseUrl = useSnippetsBaseApiUrl()
+  const apiBaseUrl = usePackagesBaseApiUrl()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")

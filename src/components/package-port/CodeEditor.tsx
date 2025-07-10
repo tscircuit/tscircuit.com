@@ -1,4 +1,4 @@
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
 import {
@@ -82,7 +82,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
-  const apiUrl = useSnippetsBaseApiUrl()
+  const apiUrl = usePackagesBaseApiUrl()
   const codeCompletionApi = useCodeCompletionApi()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -329,17 +329,20 @@ export const CodeEditor = ({
     if (aiAutocompleteEnabled) {
       baseExtensions.push(
         inlineCopilot(async (prefix, suffix) => {
-          const res = await fetch("/api/autocomplete/create_autocomplete", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          const res = await fetch(
+            `${apiUrl}/autocomplete/create_autocomplete`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                prefix,
+                suffix,
+                language: "typescript",
+              }),
             },
-            body: JSON.stringify({
-              prefix,
-              suffix,
-              language: "typescript",
-            }),
-          })
+          )
 
           const { prediction } = await res.json()
           return prediction
