@@ -276,9 +276,16 @@ export default async function handler(req, res) {
     console.warn(e)
   }
 
+  // If no handler matched, this is a 404
+  const notFoundHtml = getHtmlWithModifiedSeoTags({
+    title: "404 - Page Not Found | tscircuit",
+    description: "The page you're looking for doesn't exist.",
+    canonicalUrl: `${BASE_URL}${req.url}`,
+  })
+  
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
   // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
-  res.status(200).send(htmlContent)
+  res.status(404).send(notFoundHtml)
 }
