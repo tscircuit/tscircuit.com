@@ -7,7 +7,7 @@ import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import PackageSearchResults from "@/components/PackageSearchResults"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 
 export const SearchPage = () => {
   const axios = useAxios()
-  const apiBaseUrl = useSnippetsBaseApiUrl()
+  const apiBaseUrl = usePackagesBaseApiUrl()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")

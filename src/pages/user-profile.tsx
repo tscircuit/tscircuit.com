@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
@@ -95,7 +95,7 @@ export const UserProfilePage = () => {
       },
     )
 
-  const baseUrl = useSnippetsBaseApiUrl()
+  const baseUrl = usePackagesBaseApiUrl()
 
   if (accountError) {
     return <NotFoundPage heading="User Not Found" />

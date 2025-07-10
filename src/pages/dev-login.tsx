@@ -1,10 +1,10 @@
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useState } from "react"
 import { useLocation } from "wouter"
 
 export const DevLoginPage = () => {
-  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const snippetsBaseApiUrl = usePackagesBaseApiUrl()
   const [username, setUsername] = useState("")
   const setSession = useGlobalStore((s) => s.setSession)
   const [, setLocation] = useLocation()

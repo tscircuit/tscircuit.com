@@ -4,7 +4,7 @@ import { useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -60,7 +60,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location, setLocation] = useLocation()
-  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const snippetsBaseApiUrl = usePackagesBaseApiUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["packageSearch", searchQuery],
