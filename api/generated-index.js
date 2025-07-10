@@ -165,7 +165,7 @@ async function handleCustomPackageHtml(req, res) {
     description: `The package ${author}/${unscopedPackageName} could not be found.`,
     canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
   })
-  const packageInfo = await ky
+  const packageDetails = await ky
     .get(`${REGISTRY_URL}/packages/get`, {
       searchParams: {
         name: `${author}/${unscopedPackageName}`,
@@ -179,13 +179,15 @@ async function handleCustomPackageHtml(req, res) {
       throw e
     })
 
-  if (!packageInfo) {
+  if (!packageDetails) {
     res.setHeader("Content-Type", "text/html; charset=utf-8")
     res.setHeader("Cache-Control", cacheControlHeader)
     res.setHeader("Vary", "Accept-Encoding")
     res.status(404).send(packageNotFoundHtml)
     return
   }
+
+  const { package: packageInfo } = packageDetails
 
   let packageRelease = null
   let packageFiles = null
