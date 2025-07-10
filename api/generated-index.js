@@ -160,16 +160,38 @@ async function handleCustomPackageHtml(req, res) {
     throw new Error("Invalid author/package URL")
   }
 
-  const { package: packageInfo } = await ky
-    .get(`${REGISTRY_URL}/packages/get`, {
-      searchParams: {
-        name: `${author}/${unscopedPackageName}`,
-      },
-    })
-    .json()
+  const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+    title: "Package Not Found - tscircuit",
+    description: `The package ${author}/${unscopedPackageName} could not be found.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
+  })
+  let packageInfo
+  try {
+    const response = await ky
+      .get(`${REGISTRY_URL}/packages/get`, {
+        searchParams: {
+          name: `${author}/${unscopedPackageName}`,
+        },
+      })
+      .json()
+    packageInfo = response.package
+  } catch (error) {
+    if (error.response?.status === 404) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8")
+      res.setHeader("Cache-Control", cacheControlHeader)
+      res.setHeader("Vary", "Accept-Encoding")
+      res.status(404).send(packageNotFoundHtml)
+      return
+    }
+    throw error
+  }
 
   if (!packageInfo) {
-    throw new Error("Package not found")
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
   }
 
   let packageRelease = null
