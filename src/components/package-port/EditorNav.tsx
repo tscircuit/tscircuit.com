@@ -373,13 +373,6 @@ export default function EditorNav({
               <DropdownMenuContent>
                 <DropdownMenuItem
                   className="text-xs"
-                  onClick={() => openupdateDescriptionDialog()}
-                >
-                  <FilePenLine className="mr-2 h-3 w-3" />
-                  Edit Description
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-xs"
                   onClick={() => openViewTsFilesDialog()}
                 >
                   <File className="mr-2 h-3 w-3" />
@@ -387,6 +380,13 @@ export default function EditorNav({
                 </DropdownMenuItem>
                 {session?.github_username === pkg.owner_github_username && (
                   <>
+                    <DropdownMenuItem
+                      className="text-xs"
+                      onClick={() => openupdateDescriptionDialog()}
+                    >
+                      <FilePenLine className="mr-2 h-3 w-3" />
+                      Edit Description
+                    </DropdownMenuItem>
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger
                         className="text-xs"
