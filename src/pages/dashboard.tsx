@@ -12,7 +12,7 @@ import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { PackageCard } from "@/components/PackageCard"
@@ -81,7 +81,7 @@ export const DashboardPage = () => {
     },
   )
 
-  const baseUrl = useSnippetsBaseApiUrl()
+  const baseUrl = usePackagesBaseApiUrl()
 
   const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation

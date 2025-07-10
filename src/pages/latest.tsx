@@ -6,7 +6,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import {
   Select,
   SelectContent,
@@ -18,7 +18,7 @@ import PackageSearchResults from "@/components/PackageSearchResults"
 
 const LatestPage: React.FC = () => {
   const axios = useAxios()
-  const apiBaseUrl = useSnippetsBaseApiUrl()
+  const apiBaseUrl = usePackagesBaseApiUrl()
   const [searchQuery, setSearchQuery] = useState("")
   const [category, setCategory] = useState("all")
 

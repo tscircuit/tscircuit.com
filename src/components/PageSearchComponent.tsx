@@ -3,7 +3,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useLocation } from "wouter"
 import React, { useState } from "react"
 import { useQuery } from "react-query"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { Search } from "lucide-react"
 import { Button } from "./ui/button"
 import { PackageCardSkeleton } from "./PackageCardSkeleton"
@@ -20,7 +20,7 @@ const PageSearchComponent: React.FC<PageSearchComponentProps> = ({
 }) => {
   const [location, setLocation] = useLocation()
   const axios = useAxios()
-  const snippetsBaseApiUrl = useSnippetsBaseApiUrl()
+  const snippetsBaseApiUrl = usePackagesBaseApiUrl()
 
   // Initialize search query directly from URL
   const [searchQuery, setSearchQuery] = useState(

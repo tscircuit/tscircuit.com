@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip"
 import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
-import { useSnippetsBaseApiUrl } from "@/hooks/use-snippets-base-api-url"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 
 export type FileName = string
@@ -59,7 +59,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     useImportComponentDialog()
   const { toast, toastLibrary } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const API_BASE = useSnippetsBaseApiUrl()
+  const API_BASE = usePackagesBaseApiUrl()
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
 
   const handleFormatFile = useCallback(() => {
