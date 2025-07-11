@@ -48,7 +48,7 @@ export function PackageBuildHeader() {
             variant="outline"
             size="sm"
             className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
-            disabled={isLoading || !packageRelease}
+            disabled={isLoading}
             onClick={() =>
               packageRelease &&
               rebuildPackage({
