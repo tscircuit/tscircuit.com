@@ -71,7 +71,11 @@ export const DashboardPage = () => {
   const { data: latestPackages } = useQuery<Package[]>(
     "latestPackages",
     async () => {
-      const response = await axios.get("/packages/list_latest")
+      const response = await axios.get("/packages/list_latest", {
+        params: {
+          limit: 10,
+        },
+      })
       return response.data.packages
     },
     {
