@@ -18,6 +18,7 @@ export const LogContent = ({
   logs: Array<{
     type?: "info" | "success" | "error"
     msg?: string
+    message?: string
     timestamp?: string
   }>
   error?: ErrorObject | string | null
@@ -25,7 +26,8 @@ export const LogContent = ({
   return (
     <div className="font-mono text-xs space-y-1 min-w-0">
       {logs.map((log, i) => {
-        if (!log.msg) return null
+        const text = log.msg ?? log.message
+        if (!text) return null
 
         return (
           <div
@@ -44,7 +46,7 @@ export const LogContent = ({
               </span>
             )}
             {log.timestamp && " "}
-            <span className="break-all">{log.msg}</span>
+            <span className="break-all">{text}</span>
           </div>
         )
       })}
