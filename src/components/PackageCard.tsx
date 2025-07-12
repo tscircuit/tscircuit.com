@@ -8,6 +8,7 @@ import {
   PencilIcon,
   Share2,
   Trash2,
+  CircuitBoard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -107,14 +108,21 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     >
       <div className="flex items-start gap-4">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
+          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
-          <ImageWithFallback
-            fallbackSrc={`/assets/fallback-3d-board-800w.png`}
+          <img
             src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
+            onError={(e) => {
+              e.currentTarget.style.display = "none"
+              e.currentTarget.nextElementSibling?.classList.remove("hidden")
+              e.currentTarget.nextElementSibling?.classList.add("flex")
+            }}
           />
+          <div className="hidden items-center justify-center h-full w-full">
+            <CircuitBoard className="w-6 h-6 text-gray-300" />
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-[2px] -mt-[3px]">
