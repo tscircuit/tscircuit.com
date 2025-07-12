@@ -1397,6 +1397,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const state = get()
     return state.datasheets.find((d) => d.datasheet_id === datasheetId)
   },
+  getDatasheetByChipName: (chipName: string): Datasheet | undefined => {
+    const state = get()
+    return state.datasheets.find((d) => d.chip_name === chipName)
+  },
   updateDatasheet: (
     datasheetId: string,
     updates: Partial<Datasheet>,
