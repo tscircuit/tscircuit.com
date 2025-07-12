@@ -17,7 +17,7 @@ export const useAccountBalance = () => {
       return data.account_balance
     },
     {
-      refetchInterval: 60000, // Refetch every minute
+      // refetchInterval: 60000, // Refetch every minute
       enabled: isLoggedIn,
     },
   )
