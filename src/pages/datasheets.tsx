@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
+import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ interface DatasheetSummary {
 
 export const DatasheetsPage: React.FC = () => {
   const axios = useAxios()
+  const createDatasheet = useCreateDatasheet()
   const [searchQuery, setSearchQuery] = useState("")
 
   const {
@@ -119,6 +121,19 @@ export const DatasheetsPage: React.FC = () => {
                 ? `No datasheets match your search for "${searchQuery}".`
                 : "There are no popular datasheets at the moment."}
             </p>
+            {searchQuery && (
+              <button
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={() =>
+                  createDatasheet.mutate({ chip_name: searchQuery })
+                }
+                disabled={createDatasheet.isLoading}
+              >
+                {createDatasheet.isLoading
+                  ? "Creating..."
+                  : `Create Datasheet for ${searchQuery}`}
+              </button>
+            )}
           </div>
         )}
       </main>
