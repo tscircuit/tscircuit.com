@@ -122,6 +122,7 @@ class ErrorBoundary extends React.Component<
   cleanup = () => {
     if (this.visibilityHandler) {
       document.removeEventListener("visibilitychange", this.visibilityHandler)
+      window.removeEventListener("focus", this.visibilityHandler)
       this.visibilityHandler = undefined
     }
     if (this.reloadTimeout) {
@@ -144,12 +145,20 @@ class ErrorBoundary extends React.Component<
     this.cleanup() // Clean up any existing handlers
 
     this.visibilityHandler = () => {
-      if (!document.hidden && this.state.hasError && !this.state.reloading) {
+      if (
+        document.visibilityState === "visible" &&
+        this.state.hasError &&
+        !this.state.reloading
+      ) {
         this.performReload()
       }
     }
 
     document.addEventListener("visibilitychange", this.visibilityHandler)
+    window.addEventListener("focus", this.visibilityHandler)
+
+    // In case the tab is already visible when the error occurs
+    this.visibilityHandler()
   }
 
   render() {
