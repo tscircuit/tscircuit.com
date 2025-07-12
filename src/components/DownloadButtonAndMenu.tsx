@@ -49,7 +49,7 @@ export function DownloadButtonAndMenu({
         <Button
           disabled
           size="sm"
-          className="h-9 bg-muted text-muted-foreground border border-input cursor-not-allowed"
+          className="shadow-none bg-muted text-muted-foreground border border-input cursor-not-allowed"
         >
           <Download className="h-4 w-4 mr-1.5" />
           Download
