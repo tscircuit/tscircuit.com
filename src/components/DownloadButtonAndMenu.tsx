@@ -43,7 +43,7 @@ export function DownloadButtonAndMenu({
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
     usePcbDownloadDialog()
 
-  if (true) {
+  if (!circuitJson) {
     return (
       <div className={className}>
         <Button
