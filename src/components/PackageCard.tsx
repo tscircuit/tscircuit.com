@@ -122,7 +122,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               {showOwner && (
                 <>
                   <span className="text-gray-700 text-md">
-                    {pkg.owner_github_username}dsd
+                    {pkg.owner_github_username}
                   </span>
                   <span className="mx-1">/</span>
                 </>
