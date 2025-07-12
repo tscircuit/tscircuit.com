@@ -1382,7 +1382,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   addDatasheet: ({ chip_name }: { chip_name: string }): Datasheet => {
     const newDatasheet = datasheetSchema.parse({
-      datasheet_id: `datasheet_${Date.now()}`,
+      datasheet_id: crypto.randomUUID(),
       chip_name,
       created_at: new Date().toISOString(),
       pin_information: null,
@@ -1400,6 +1400,23 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getDatasheetByChipName: (chipName: string): Datasheet | undefined => {
     const state = get()
     return state.datasheets.find((d) => d.chip_name === chipName)
+  },
+  listDatasheets: ({
+    chip_name,
+    is_popular,
+  }: { chip_name?: string; is_popular?: boolean } = {}): Datasheet[] => {
+    const state = get()
+    if (is_popular) {
+      return state.datasheets
+    }
+
+    if (chip_name) {
+      return state.datasheets.filter(
+        (d) => d.chip_name.toLowerCase() === chip_name.toLowerCase(),
+      )
+    }
+
+    return state.datasheets
   },
   updateDatasheet: (
     datasheetId: string,
