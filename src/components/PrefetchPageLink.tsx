@@ -14,18 +14,27 @@ const PREFETCHABLE_PAGES = new Set([
   "latest",
   "settings",
   "quickstart",
+  "datasheets",
 ])
 
 // Helper to check if a path is a package path (e.g. /username/package-name)
 const isPackagePath = (path: string) => {
   const parts = path.split("/").filter(Boolean)
-  return parts.length === 2
+  if (parts.length !== 2) return false
+
+  // Make sure we're not matching paths with query parameters in the first segment
+  const firstPart = parts[0].split("?")[0]
+  return firstPart.length > 0 && !PREFETCHABLE_PAGES.has(firstPart)
 }
 
 // Helper to check if a path is a user profile path
 const isUserProfilePath = (path: string) => {
   const parts = path.split("/").filter(Boolean)
-  return parts.length === 1 && !PREFETCHABLE_PAGES.has(parts[0])
+  if (parts.length !== 1) return false
+
+  // Extract the base path without query parameters
+  const basePath = parts[0].split("?")[0]
+  return !PREFETCHABLE_PAGES.has(basePath)
 }
 
 export const PrefetchPageLink = ({
