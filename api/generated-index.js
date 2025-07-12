@@ -153,11 +153,33 @@ export async function handleUserProfile(req, res) {
   res.status(200).send(html)
 }
 
+async function handleDatasheetPage(req, res) {
+  const parts = req.url.split("?")[0].split("/")
+  if (parts[1] !== "datasheets" || !parts[2]) {
+    throw new Error("Not a datasheet page")
+  }
+  const chipName = parts[2]
+
+  const html = getHtmlWithModifiedSeoTags({
+    title: `${chipName} Datasheet - tscircuit`,
+    description: `View the ${chipName} datasheet on tscircuit.`,
+    canonicalUrl: `${BASE_URL}/datasheets/${he.encode(chipName)}`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 async function handleCustomPackageHtml(req, res) {
   // Get the author and package name
   const [_, author, unscopedPackageName] = req.url.split("?")[0].split("/")
   if (!author || !unscopedPackageName) {
     throw new Error("Invalid author/package URL")
+  }
+  if (author === "datasheets") {
+    throw new Error("Datasheet route")
   }
 
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
@@ -277,6 +299,16 @@ export default async function handler(req, res) {
     return
   } catch (e) {
     console.warn(e)
+  }
+
+  const pathParts = req.url.split("?")[0].split("/")
+  if (pathParts[1] === "datasheets" && pathParts[2]) {
+    try {
+      await handleDatasheetPage(req, res)
+      return
+    } catch (e) {
+      console.warn(e)
+    }
   }
 
   try {

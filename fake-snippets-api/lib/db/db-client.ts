@@ -1399,7 +1399,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   },
   getDatasheetByChipName: (chipName: string): Datasheet | undefined => {
     const state = get()
-    return state.datasheets.find((d) => d.chip_name === chipName)
+    return state.datasheets.find(
+      (d) => d.chip_name.toLowerCase() === chipName.toLowerCase(),
+    )
   },
   listDatasheets: ({
     chip_name,
