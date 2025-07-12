@@ -88,6 +88,12 @@ export const Header2 = () => {
             >
               Editor
             </PrefetchPageLink>
+            <PrefetchPageLink
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="/datasheets"
+            >
+              Datasheets
+            </PrefetchPageLink>
             {/* <a
             className="text-sm font-medium hover:underline underline-offset-4"
             href="https://github.com/tscircuit/tscircuit"
