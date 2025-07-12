@@ -19,6 +19,7 @@ export const useAccountBalance = () => {
     {
       // refetchInterval: 60000, // Refetch every minute
       enabled: isLoggedIn,
+      refetchOnWindowFocus: false,
     },
   )
 }
