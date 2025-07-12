@@ -40,3 +40,15 @@ test("get datasheet by chip name 404", async () => {
   })
   expect(res.status).toBe(404)
 })
+
+test("get datasheet by chip name case insensitive", async () => {
+  const { axios } = await getTestServer()
+  await axios.post("/api/datasheets/create", { chip_name: "ChipCase" })
+
+  const res = await axios.get("/api/datasheets/get", {
+    params: { chip_name: "chipcase" },
+  })
+
+  expect(res.status).toBe(200)
+  expect(res.data.datasheet.chip_name).toBe("ChipCase")
+})
