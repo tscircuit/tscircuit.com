@@ -255,6 +255,14 @@ async function handleCustomPage(req, res) {
 }
 
 export default async function handler(req, res) {
+  const urlPath = req.url.split("?")[0]
+  if (urlPath === "/api/generated-index") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(200).send(htmlContent)
+    return
+  }
   try {
     await handleCustomPackageHtml(req, res)
     return
