@@ -5,7 +5,7 @@ import { z } from "zod"
 export const processAllDatasheets = (ctx: any) => {
   const processed = [] as z.infer<typeof datasheetSchema>[]
   ctx.db.datasheets.forEach((ds: any) => {
-    if (!ds.pin_information || !ds.datasheet_pdf_urls) {
+    if (!ds.pin_information || !ds.datasheet_pdf_urls || !ds.ai_description) {
       const updated = ctx.db.updateDatasheet(ds.datasheet_id, {
         pin_information: [
           {
@@ -16,6 +16,7 @@ export const processAllDatasheets = (ctx: any) => {
           },
         ],
         datasheet_pdf_urls: ["https://example.com/datasheet.pdf"],
+        ai_description: "Placeholder ai description",
       })
       processed.push(updated!)
     } else {

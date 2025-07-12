@@ -15,4 +15,5 @@ test("run async tasks processes datasheets", async () => {
     params: { datasheet_id: id },
   })
   expect(res.data.datasheet.pin_information).not.toBeNull()
+  expect(res.data.datasheet.ai_description).not.toBeNull()
 })

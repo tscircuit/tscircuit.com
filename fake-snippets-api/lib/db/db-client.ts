@@ -1387,6 +1387,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       created_at: new Date().toISOString(),
       pin_information: null,
       datasheet_pdf_urls: null,
+      ai_description: null,
     })
     set((state) => ({
       datasheets: [...state.datasheets, newDatasheet],
