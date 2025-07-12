@@ -21,6 +21,14 @@ export const DatasheetPage = () => {
       <Header />
       <main className="container mx-auto flex-1 px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">{chipName} Datasheet</h1>
+        <p className="mb-4">
+          <a
+            href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
+            className="text-blue-600 underline"
+          >
+            Download JSON
+          </a>
+        </p>
         {datasheetQuery.isLoading ? (
           <p>Loading...</p>
         ) : datasheetQuery.data ? (
