@@ -29,7 +29,9 @@ export const DatasheetsPage: React.FC = () => {
       } else {
         params.append("is_popular", "true")
       }
-      const { data } = await axios.get(`/datasheets/list?${params.toString()}`)
+      const { data } = await axios.get(
+        `/api/datasheets/list?${params.toString()}`,
+      )
       return data.datasheets as DatasheetSummary[]
     },
     { keepPreviousData: true },
