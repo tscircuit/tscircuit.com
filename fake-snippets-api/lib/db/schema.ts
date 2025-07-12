@@ -163,6 +163,7 @@ export const datasheetSchema = z.object({
   created_at: z.string(),
   pin_information: datasheetPinInformationSchema.array().nullable(),
   datasheet_pdf_urls: z.array(z.string()).nullable(),
+  ai_description: z.string().nullable(),
 })
 export type Datasheet = z.infer<typeof datasheetSchema>
 

@@ -18,4 +18,5 @@ test("process datasheets", async () => {
   })
   expect(res.data.datasheet.pin_information).not.toBeNull()
   expect(res.data.datasheet.datasheet_pdf_urls).not.toBeNull()
+  expect(res.data.datasheet.ai_description).not.toBeNull()
 })
