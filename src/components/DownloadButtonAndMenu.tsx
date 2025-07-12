@@ -43,7 +43,7 @@ export function DownloadButtonAndMenu({
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
     usePcbDownloadDialog()
 
-  if (!circuitJson) {
+  if (true) {
     return (
       <div className={className}>
         <Button
@@ -51,9 +51,9 @@ export function DownloadButtonAndMenu({
           size="sm"
           className="shadow-none bg-muted text-muted-foreground border border-input cursor-not-allowed"
         >
-          <Download className="h-4 w-4 mr-1.5" />
+          <Download className="h-4 w-4 mr-2" />
           Download
-          <ChevronDown className="h-4 w-4 ml-0.5" />
+          <ChevronDown className="h-4 w-4 ml-1" />
         </Button>
       </div>
     )
