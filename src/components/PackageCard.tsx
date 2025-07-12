@@ -110,6 +110,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden`}
         >
           <ImageWithFallback
+            fallbackSrc={`/assets/fallback-3d-board-800w.png`}
             src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
@@ -121,7 +122,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               {showOwner && (
                 <>
                   <span className="text-gray-700 text-md">
-                    {pkg.owner_github_username}
+                    {pkg.owner_github_username}dsd
                   </span>
                   <span className="mx-1">/</span>
                 </>
