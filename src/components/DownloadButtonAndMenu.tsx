@@ -65,11 +65,11 @@ export function DownloadButtonAndMenu({
         <DropdownMenuTrigger asChild>
           <Button
             size="sm"
-            className="bg-white text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2"
+            className="bg-transparent shadow-inner hover:bg-gray-100 text-gray-700 outline-none"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="h-4 w-4 mr-1.5" />
             Download
-            <ChevronDown className="w-4 h-4 ml-1" />
+            <ChevronDown className="h-4 w-4 ml-0.5" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="!z-[101]">
