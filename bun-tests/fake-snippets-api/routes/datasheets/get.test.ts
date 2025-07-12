@@ -15,3 +15,28 @@ test("get datasheet", async () => {
   expect(res.status).toBe(200)
   expect(res.data.datasheet.datasheet_id).toBe(id)
 })
+
+test("get datasheet by chip name", async () => {
+  const { axios } = await getTestServer()
+  const create = await axios.post("/api/datasheets/create", {
+    chip_name: "Chip1",
+  })
+
+  const res = await axios.get("/api/datasheets/get", {
+    params: { chip_name: "Chip1" },
+  })
+
+  expect(res.status).toBe(200)
+  expect(res.data.datasheet.datasheet_id).toBe(
+    create.data.datasheet.datasheet_id,
+  )
+})
+
+test("get datasheet by chip name 404", async () => {
+  const { axios } = await getTestServer()
+  const res = await axios.get("/api/datasheets/get", {
+    params: { chip_name: "Missing" },
+    validateStatus: () => true,
+  })
+  expect(res.status).toBe(404)
+})

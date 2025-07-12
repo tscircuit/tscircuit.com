@@ -68,6 +68,7 @@ const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const PackageBuildsPage = lazyImport(() => import("@/pages/package-builds"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
+const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
 const PackageEditorPage = lazyImport(async () => {
   const [editorModule] = await Promise.all([
     import("@/pages/package-editor"),
@@ -180,6 +181,7 @@ function App() {
             <Route path="/settings" component={SettingsPage} />
             <Route path="/search" component={SearchPage} />
             <Route path="/trending" component={TrendingPage} />
+            <Route path="/datasheets/:chipName" component={DatasheetPage} />
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
