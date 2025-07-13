@@ -6,7 +6,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
-import { Link } from "wouter"
+import { Link, useLocation } from "wouter"
 
 interface DatasheetSummary {
   datasheet_id: string
@@ -15,7 +15,10 @@ interface DatasheetSummary {
 
 export const DatasheetsPage: React.FC = () => {
   const axios = useAxios()
-  const createDatasheet = useCreateDatasheet()
+  const [, navigate] = useLocation()
+  const createDatasheet = useCreateDatasheet({
+    onSuccess: (datasheet) => navigate(`/datasheets/${datasheet.chip_name}`),
+  })
   const [searchQuery, setSearchQuery] = useState("")
 
   const {
