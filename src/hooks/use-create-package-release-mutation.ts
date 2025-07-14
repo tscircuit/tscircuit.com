@@ -42,9 +42,9 @@ export const useCreatePackageReleaseMutation = ({
         resolvedPkgName = pkgName
       }
 
-      // Default version to 1.0.0 when it contains no digits
+      // Default version to 0.0.1 when it contains no digits
       if (!resolvedVersion || !/[0-9]/.test(resolvedVersion)) {
-        resolvedVersion = "1.0.0"
+        resolvedVersion = "0.0.1"
       }
 
       const normalizedPackageNameWithVersion =
