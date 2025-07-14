@@ -20,7 +20,7 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { ImageWithFallback } from "./ImageWithFallback"
-import { useToast } from "@/hooks/use-toast"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 export interface PackageCardProps {
   /** The package data to display */
@@ -57,7 +57,6 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   withLink = true,
   renderActions,
 }) => {
-  const { toast } = useToast()
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault() // Prevent navigation
     if (onDeleteClick) {
@@ -65,39 +64,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     }
   }
 
-  const handleShareClick = async (e: React.MouseEvent) => {
+  const { copyToClipboard } = useCopyToClipboard()
+
+  const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault()
-
     const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
-    const shareText =
-      `Explore this tscircuit package: ${pkg.unscoped_name} by ${pkg.owner_github_username}${pkg.description ? ` - ${pkg.description}` : ""}`.trim()
-    if (navigator.share) {
-      await navigator
-        .share({
-          title: shareText,
-          text: shareText,
-          url: shareUrl,
-        })
-        .catch(() => fallbackShare(shareText, shareUrl))
-    } else {
-      fallbackShare(shareText, shareUrl)
-    }
-  }
-
-  const fallbackShare = (text: string, url: string) => {
-    const shareContent = `${text}\n${url}`
-    navigator.clipboard
-      .writeText(shareContent)
-      .then(() => {
-        toast({
-          title: "Share content copied to clipboard",
-        })
-      })
-      .catch(() => {
-        toast({
-          title: "Unable to share or copy to clipboard",
-        })
-      })
+    copyToClipboard(shareUrl)
   }
 
   const availableImages = ["pcb", "schematic", "assembly", "3d"]
