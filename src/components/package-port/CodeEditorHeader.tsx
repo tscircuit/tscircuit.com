@@ -160,7 +160,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     }
     if (component.source == "jlcpcb") {
       if (!session?.token) {
-        toast({
+        return toast({
           title: "Login Required",
           description:
             "You need to be logged in to access this feature. Please log in to your account.",
