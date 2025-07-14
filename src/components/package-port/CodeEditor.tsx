@@ -541,7 +541,7 @@ export const CodeEditor = ({
                         onFileSelect(targetPath)
                         return true
                       }
-                      return !!fileMap[targetFile]
+                      return !!fileMap[targetPath]
                     }
                   }
                 }
