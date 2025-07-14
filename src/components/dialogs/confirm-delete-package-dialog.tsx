@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog"
 import { Button } from "../ui/button"
 import { createUseDialog } from "./create-use-dialog"
 import { useDeletePackage } from "@/hooks/use-delete-package"
@@ -33,13 +39,20 @@ export const ConfirmDeletePackageDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw]">
+      <DialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
         <DialogHeader>
-          <DialogTitle>Confirm Delete Package</DialogTitle>
+          <DialogTitle className="text-left">
+            Confirm Delete Package
+          </DialogTitle>
+          <DialogDescription className="text-left">
+            Are you sure you want to delete the package{" "}
+            <span className="font-bold">{packageName}</span>?
+          </DialogDescription>
         </DialogHeader>
-        <p>Are you sure you want to delete the package "{packageName}"?</p>
-        <p>This action cannot be undone.</p>
-        <div className="flex justify-end space-x-2 mt-4">
+        <p className="text-red-600 font-medium">
+          This action cannot be undone.
+        </p>
+        <div className="flex justify-end gap-4 mt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
