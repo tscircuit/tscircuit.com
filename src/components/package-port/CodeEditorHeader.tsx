@@ -160,12 +160,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     }
     if (component.source == "jlcpcb") {
       if (!session?.token) {
-        return toast({
-          title: "Login Required",
-          description:
-            "You need to be logged in to access this feature. Please log in to your account.",
-          variant: "destructive",
-        })
+        throw new Error("You need to be logged in to import jlcpcb component")
       }
       const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
         fetch: ((url, options: any) => {
