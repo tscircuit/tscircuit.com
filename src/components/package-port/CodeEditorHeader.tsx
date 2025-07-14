@@ -29,6 +29,7 @@ import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export type FileName = string
 
@@ -61,6 +62,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const API_BASE = usePackagesBaseApiUrl()
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
+  const session = useGlobalStore((s) => s.session)
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -157,12 +159,21 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       updateFileContent(currentFile, newContent)
     }
     if (component.source == "jlcpcb") {
+      if (!session?.token) {
+        toast({
+          title: "Login Required",
+          description:
+            "You need to be logged in to access this feature. Please log in to your account.",
+          variant: "destructive",
+        })
+      }
       const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
         fetch: ((url, options: any) => {
           return fetch(`${API_BASE}/proxy`, {
             ...options,
             headers: {
               ...options?.headers,
+              Authorization: `Bearer ${session?.token}`,
               "X-Target-Url": url.toString(),
               "X-Sender-Origin": options?.headers?.origin ?? "",
               "X-Sender-Host": options?.headers?.host ?? "https://easyeda.com",
