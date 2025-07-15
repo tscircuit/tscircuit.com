@@ -15,7 +15,10 @@ import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-uti
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
 import { linter } from "@codemirror/lint"
-import { TSCI_PACKAGE_PATTERN } from "@/lib/constants"
+import {
+  TSCI_PACKAGE_PATTERN,
+  LOCAL_FILE_IMPORT_PATTERN,
+} from "@/lib/constants"
 import {
   createSystem,
   createVirtualTypeScriptEnvironment,
@@ -29,7 +32,6 @@ import tsModule from "typescript"
 import CodeEditorHeader, {
   FileName,
 } from "@/components/package-port/CodeEditorHeader"
-import { useCodeCompletionApi } from "@/hooks/use-code-completion-ai-api"
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "@/types/package"
@@ -44,6 +46,7 @@ import {
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
+import { resolveRelativePath } from "@/lib/utils/resolveRelativePath"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -417,11 +420,13 @@ export const CodeEditor = ({
               const lineStart = line.from
               const lineEnd = line.to
               const lineText = view.state.sliceDoc(lineStart, lineEnd)
-              const matches = Array.from(
+
+              // Check for TSCI package imports
+              const packageMatches = Array.from(
                 lineText.matchAll(TSCI_PACKAGE_PATTERN),
               )
 
-              for (const match of matches) {
+              for (const match of packageMatches) {
                 if (match.index !== undefined) {
                   const start = lineStart + match.index
                   const end = start + match[0].length
@@ -484,10 +489,12 @@ export const CodeEditor = ({
                 const lineStart = line.from
                 const lineEnd = line.to
                 const lineText = view.state.sliceDoc(lineStart, lineEnd)
-                const matches = Array.from(
+
+                // Check for TSCI package imports first
+                const packageMatches = Array.from(
                   lineText.matchAll(TSCI_PACKAGE_PATTERN),
                 )
-                for (const match of matches) {
+                for (const match of packageMatches) {
                   if (match.index !== undefined) {
                     const start = lineStart + match.index
                     const end = start + match[0].length
@@ -499,6 +506,42 @@ export const CodeEditor = ({
                         .split(".")
                       window.open(`/${owner}/${name}`, "_blank")
                       return true
+                    }
+                  }
+                }
+
+                // Check for local file imports
+                const localFileMatches = Array.from(
+                  lineText.matchAll(LOCAL_FILE_IMPORT_PATTERN),
+                )
+                for (const match of localFileMatches) {
+                  if (match.index !== undefined) {
+                    const start = lineStart + match.index
+                    const end = start + match[0].length
+                    if (pos >= start && pos <= end) {
+                      const relativePath = match[0]
+                      const resolvedPath = resolveRelativePath(
+                        relativePath,
+                        currentFile || "",
+                      )
+
+                      // Add common extensions if not present
+                      let targetPath = resolvedPath
+                      if (!targetPath.includes(".")) {
+                        const extensions = [".tsx", ".ts", ".js", ".jsx"]
+                        for (const ext of extensions) {
+                          if (fileMap[`${targetPath}${ext}`]) {
+                            targetPath = `${targetPath}${ext}`
+                            break
+                          }
+                        }
+                      }
+
+                      if (fileMap[targetPath]) {
+                        onFileSelect(targetPath)
+                        return true
+                      }
+                      return !!fileMap[targetPath]
                     }
                   }
                 }
@@ -529,6 +572,12 @@ export const CodeEditor = ({
                 overflow: "auto",
                 zIndex: "9999",
               },
+              ".cm-import:hover": {
+                textDecoration: "underline",
+                textDecorationColor: "#aa1111",
+                textUnderlineOffset: "1px",
+                filter: "brightness(0.7)",
+              },
             }),
             EditorView.decorations.of((view) => {
               const decorations = []
@@ -536,14 +585,32 @@ export const CodeEditor = ({
                 for (let pos = from; pos < to; ) {
                   const line = view.state.doc.lineAt(pos)
                   const lineText = line.text
-                  const matches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
-                  for (const match of matches) {
+
+                  // Add decorations for TSCI package imports
+                  const packageMatches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
+                  for (const match of packageMatches) {
                     if (match.index !== undefined) {
                       const start = line.from + match.index
                       const end = start + match[0].length
                       decorations.push(
                         Decoration.mark({
-                          class: "cm-underline cursor-pointer",
+                          class: "cm-import cursor-pointer",
+                        }).range(start, end),
+                      )
+                    }
+                  }
+
+                  // Add decorations for local file imports
+                  const localFileMatches = lineText.matchAll(
+                    LOCAL_FILE_IMPORT_PATTERN,
+                  )
+                  for (const match of localFileMatches) {
+                    if (match.index !== undefined) {
+                      const start = line.from + match.index
+                      const end = start + match[0].length
+                      decorations.push(
+                        Decoration.mark({
+                          class: "cm-import cursor-pointer",
                         }).range(start, end),
                       )
                     }
