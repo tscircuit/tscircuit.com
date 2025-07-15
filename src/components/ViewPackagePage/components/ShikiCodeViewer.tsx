@@ -1,11 +1,18 @@
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useEffect, useMemo } from "react"
 import { useQuery } from "react-query"
+import { Skeleton } from "@/components/ui/skeleton"
+
+// Pre-randomized array to avoid flickering on re-renders
+const SKELETON_WIDTHS = ["w-2/3", "w-1/4", "w-5/6", "w-1/3 ", "w-1/2", "w-3/4"]
 
 export const ShikiCodeViewer = ({
   code,
   filePath,
-}: { code: string; filePath: string }) => {
+}: {
+  code: string
+  filePath: string
+}) => {
   const { highlighter } = useShikiHighlighter()
 
   const html = useMemo(
@@ -20,14 +27,9 @@ export const ShikiCodeViewer = ({
   if (!html) {
     return (
       <div className="text-sm p-4">
-        {["w-1/3", "w-1/4", "w-1/2", "w-2/3", "w-3/4", "w-5/6"]
-          .sort(() => Math.random() - 0.5)
-          .map((w, i) => (
-            <div
-              key={i}
-              className={`h-4 bg-gray-200 rounded animate-pulse mb-2 ${w}`}
-            />
-          ))}
+        {SKELETON_WIDTHS.map((w, i) => (
+          <Skeleton key={i} className={`h-4 mb-2 ${w}`} />
+        ))}
       </div>
     )
   }
