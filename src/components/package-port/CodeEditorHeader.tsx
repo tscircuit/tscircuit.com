@@ -30,8 +30,7 @@ import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
-
-export type FileName = string
+import { FileName } from "./types"
 
 interface CodeEditorHeaderProps {
   currentFile: FileName | null

@@ -1,4 +1,4 @@
-import { FileName } from "@/components/package-port/CodeEditorHeader"
+import { FileName } from "@/components/package-port/types"
 
 export const handleManualEditsImportWithSupportForMultipleFiles = (
   files: Record<string, string>,
