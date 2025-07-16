@@ -164,7 +164,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       }
       const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
         fetch: ((url, options: any) => {
-          console.log(69, url, options)
           return fetch(`${"http://localhost:3100"}/proxy`, {
             body: options.body,
             method: options.method,
