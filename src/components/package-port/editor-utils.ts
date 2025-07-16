@@ -18,7 +18,10 @@ export const findEntryPointFileName = (files: PackageFile[]): string => {
   return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
 }
 
-export const updateEditorContent = (viewRef: React.RefObject<EditorView | null>, newContent: string) => {
+export const updateEditorContent = (
+  viewRef: React.RefObject<EditorView | null>,
+  newContent: string,
+) => {
   if (viewRef.current) {
     const state = viewRef.current.state
     const scrollPos = viewRef.current.scrollDOM.scrollTop
@@ -39,7 +42,7 @@ export const navigateToLine = (
   viewRef: React.RefObject<EditorView | null>,
   lineNumber: number,
   setHighlightedLine: (line: number | null) => void,
-  highlightTimeoutRef: React.RefObject<number | null>
+  highlightTimeoutRef: React.RefObject<number | null>,
 ) => {
   if (!viewRef.current) return
 
@@ -62,7 +65,6 @@ export const navigateToLine = (
   })
 
   setHighlightedLine(lineNumber)
-
   ;(highlightTimeoutRef as any).current = window.setTimeout(() => {
     setHighlightedLine(null)
     ;(highlightTimeoutRef as any).current = null
@@ -73,7 +75,7 @@ export const handleFileChange = (
   path: string,
   lineNumber: number | undefined,
   onFileSelect: (path: string, lineNumber?: number) => void,
-  navigateToLineFn: (lineNumber: number) => void
+  navigateToLineFn: (lineNumber: number) => void,
 ) => {
   onFileSelect(path, lineNumber)
   try {
@@ -104,7 +106,7 @@ export const updateFileContent = (
   onCodeChange: (code: string, filename?: string) => void,
   fileMap: Record<string, string>,
   onFileContentChanged: ((path: string, content: string) => void) | undefined,
-  viewRef: React.RefObject<EditorView | null>
+  viewRef: React.RefObject<EditorView | null>,
 ) => {
   if (!path) return
   if (currentFile === path) {
@@ -124,4 +126,4 @@ export const updateFileContent = (
       },
     })
   }
-} 
+}

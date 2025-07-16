@@ -10,7 +10,10 @@ import { json } from "@codemirror/lang-json"
 import { EditorState, Prec } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { linter } from "@codemirror/lint"
-import { TSCI_PACKAGE_PATTERN, LOCAL_FILE_IMPORT_PATTERN } from "@/lib/constants"
+import {
+  TSCI_PACKAGE_PATTERN,
+  LOCAL_FILE_IMPORT_PATTERN,
+} from "@/lib/constants"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
@@ -31,7 +34,7 @@ export const createBaseExtensions = (
   onCodeChange: (code: string, filename?: string) => void,
   onFileContentChanged: ((path: string, content: string) => void) | undefined,
   setCursorPosition: (pos: number | null) => void,
-  lastFilesEventContent: Record<string, string>
+  lastFilesEventContent: Record<string, string>,
 ) => {
   return [
     basicSetup,
@@ -109,7 +112,9 @@ export const createBaseExtensions = (
           const delta = event.deltaY
           setFontSize((prev) => {
             const newSize =
-              delta > 0 ? Math.max(MIN_FONT_SIZE, prev - 1) : Math.min(MAX_FONT_SIZE, prev + 1)
+              delta > 0
+                ? Math.max(MIN_FONT_SIZE, prev - 1)
+                : Math.min(MAX_FONT_SIZE, prev + 1)
             return newSize
           })
           return true
@@ -170,7 +175,7 @@ export const createTypeScriptExtensions = (
   lastReceivedTsFileTimeRef: React.RefObject<number>,
   highlighter: any,
   fileMap: Record<string, string>,
-  onFileSelect: (path: string) => void
+  onFileSelect: (path: string) => void,
 ) => {
   if (!currentFile?.endsWith(".tsx") && !currentFile?.endsWith(".ts")) {
     return []
@@ -269,7 +274,9 @@ export const createTypeScriptExtensions = (
         const lineText = view.state.sliceDoc(lineStart, lineEnd)
 
         // Check for TSCI package imports first
-        const packageMatches = Array.from(lineText.matchAll(TSCI_PACKAGE_PATTERN))
+        const packageMatches = Array.from(
+          lineText.matchAll(TSCI_PACKAGE_PATTERN),
+        )
         for (const match of packageMatches) {
           if (match.index !== undefined) {
             const start = lineStart + match.index
@@ -285,14 +292,19 @@ export const createTypeScriptExtensions = (
         }
 
         // Check for local file imports
-        const localFileMatches = Array.from(lineText.matchAll(LOCAL_FILE_IMPORT_PATTERN))
+        const localFileMatches = Array.from(
+          lineText.matchAll(LOCAL_FILE_IMPORT_PATTERN),
+        )
         for (const match of localFileMatches) {
           if (match.index !== undefined) {
             const start = lineStart + match.index
             const end = start + match[0].length
             if (pos >= start && pos <= end) {
               const relativePath = match[0]
-              const resolvedPath = resolveRelativePath(relativePath, currentFile || "")
+              const resolvedPath = resolveRelativePath(
+                relativePath,
+                currentFile || "",
+              )
 
               // Add common extensions if not present
               let targetPath = resolvedPath
@@ -388,4 +400,4 @@ export const createTypeScriptExtensions = (
       return Decoration.set(decorations)
     }),
   ]
-} 
+}

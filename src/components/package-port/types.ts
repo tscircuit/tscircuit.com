@@ -40,4 +40,4 @@ export interface EditorState {
   aiAutocompleteEnabled: boolean
 }
 
-export type FileName = string 
+export type FileName = string

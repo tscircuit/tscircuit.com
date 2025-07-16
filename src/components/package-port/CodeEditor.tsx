@@ -12,7 +12,11 @@ import GlobalFindReplace from "./GlobalFindReplace"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 import { CodeEditorProps } from "./types"
-import { defaultImports, DEFAULT_FONT_SIZE, EDITOR_UPDATE_DELAY } from "./constants"
+import {
+  defaultImports,
+  DEFAULT_FONT_SIZE,
+  EDITOR_UPDATE_DELAY,
+} from "./constants"
 import {
   createFileSystemMap,
   setupTypeScriptEnvironment,
@@ -52,7 +56,7 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof initializeATA> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const highlightTimeoutRef = useRef<number | null>(null)
-  
+
   const apiUrl = usePackagesBaseApiUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -70,7 +74,10 @@ export const CodeEditor = ({
   const filePathFromUrl = urlParams.get("file_path")
   const lineNumberFromUrl = urlParams.get("line")
 
-  const entryPointFileName = useMemo(() => findEntryPointFileName(files), [files])
+  const entryPointFileName = useMemo(
+    () => findEntryPointFileName(files),
+    [files],
+  )
 
   // Set current file on component mount
   useEffect(() => {
@@ -127,8 +134,13 @@ export const CodeEditor = ({
 
     const setupEditor = async () => {
       const { env } = await setupTypeScriptEnvironment(fsMap)
-      
-      const ataConfig = createATAConfig(apiUrl, env, fsMap, lastReceivedTsFileTimeRef)
+
+      const ataConfig = createATAConfig(
+        apiUrl,
+        env,
+        fsMap,
+        lastReceivedTsFileTimeRef,
+      )
       const ata = initializeATA(ataConfig)
       ataRef.current = ata
 
@@ -145,7 +157,7 @@ export const CodeEditor = ({
         onCodeChange,
         onFileContentChanged,
         setCursorPosition,
-        lastFilesEventContent
+        lastFilesEventContent,
       )
 
       // Add AI autocomplete extensions if enabled
@@ -160,7 +172,7 @@ export const CodeEditor = ({
         lastReceivedTsFileTimeRef,
         highlighter,
         fileMap,
-        onFileSelect
+        onFileSelect,
       )
 
       const state = EditorState.create({
@@ -229,7 +241,10 @@ export const CodeEditor = ({
     handleFileChange(path, lineNumber, onFileSelect, navigateToLineWrapper)
   }
 
-  const updateFileContentWrapper = (path: string | null, newContent: string) => {
+  const updateFileContentWrapper = (
+    path: string | null,
+    newContent: string,
+  ) => {
     updateFileContent(
       path,
       newContent,
@@ -238,7 +253,7 @@ export const CodeEditor = ({
       onCodeChange,
       fileMap,
       onFileContentChanged,
-      viewRef
+      viewRef,
     )
   }
 

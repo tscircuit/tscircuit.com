@@ -1,6 +1,9 @@
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
-import { createSystem, createVirtualTypeScriptEnvironment } from "@typescript/vfs"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
 import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
 import tsModule from "typescript"
 import type { PackageFile } from "@/types/package"
@@ -14,7 +17,9 @@ export const createFileSystemMap = (files: PackageFile[]) => {
   return fsMap
 }
 
-export const setupTypeScriptEnvironment = async (fsMap: Map<string, string>) => {
+export const setupTypeScriptEnvironment = async (
+  fsMap: Map<string, string>,
+) => {
   const defaultFsMap = await loadDefaultLibMap()
   defaultFsMap.forEach((content, filename) => {
     fsMap.set(filename, content)
@@ -40,7 +45,7 @@ export const createATAConfig = (
   apiUrl: string,
   env: any,
   fsMap: Map<string, string>,
-  lastReceivedTsFileTimeRef: React.RefObject<number>
+  lastReceivedTsFileTimeRef: React.RefObject<number>,
 ): ATABootstrapConfig => ({
   projectName: "my-project",
   typescript: tsModule,
@@ -102,4 +107,4 @@ export const createATAConfig = (
 
 export const initializeATA = (config: ATABootstrapConfig) => {
   return setupTypeAcquisition(config)
-} 
+}

@@ -10,4 +10,4 @@ export const MAX_FONT_SIZE = 32
 export const HIGHLIGHT_DURATION = 3000
 export const LINE_NAVIGATION_DELAY = 100
 export const EDITOR_UPDATE_DELAY = 200
-export const ATA_TIMEOUT = 3000 
+export const ATA_TIMEOUT = 3000
