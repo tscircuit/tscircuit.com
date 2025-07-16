@@ -164,17 +164,17 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       }
       const jlcpcbComponent = await fetchEasyEDAComponent("C1", {
         fetch: ((url, options: any) => {
-          return fetch(`${API_BASE}/proxy`, {
-            ...options,
+          console.log(69, url, options)
+          return fetch(`${"http://localhost:3100"}/proxy`, {
+            body: options.body,
+            method: options.method,
             headers: {
-              ...options?.headers,
+              authority: options.headers.authority,
               Authorization: `Bearer ${session?.token}`,
               "X-Target-Url": url.toString(),
-              "X-Sender-Origin": options?.headers?.origin ?? "",
-              "X-Sender-Host": options?.headers?.host ?? "https://easyeda.com",
-              "X-Sender-Referer": options?.headers?.referer ?? "",
-              "X-Sender-User-Agent": options?.headers?.userAgent ?? "",
-              "X-Sender-Cookie": options?.headers?.cookie ?? "",
+              "X-Sender-Host": options.headers.origin,
+              "X-Sender-Origin": options.headers.origin,
+              "content-type": options.headers["content-type"],
             },
           })
         }) as typeof fetch,
