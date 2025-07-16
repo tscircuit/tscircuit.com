@@ -1,41 +1,58 @@
 import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
+import {
+  autocompletion,
+  acceptCompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentWithTab, indentMore } from "@codemirror/commands"
+import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
+import { EditorState, Prec } from "@codemirror/state"
+import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import { EditorState } from "@codemirror/state"
+import type { ATABootstrapConfig } from "@typescript/ata"
+import { setupTypeAcquisition } from "@typescript/ata"
+import { linter } from "@codemirror/lint"
+import {
+  TSCI_PACKAGE_PATTERN,
+  LOCAL_FILE_IMPORT_PATTERN,
+} from "@/lib/constants"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
 import { useEffect, useMemo, useRef, useState } from "react"
-import CodeEditorHeader from "@/components/package-port/CodeEditorHeader"
+import tsModule from "typescript"
+import CodeEditorHeader, {
+  FileName,
+} from "@/components/package-port/CodeEditorHeader"
 import FileSidebar from "../FileSidebar"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
+import type { PackageFile } from "@/types/package"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import QuickOpen from "./QuickOpen"
 import GlobalFindReplace from "./GlobalFindReplace"
+import {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { inlineCopilot } from "codemirror-copilot"
+import { resolveRelativePath } from "@/lib/utils/resolveRelativePath"
 
-import { CodeEditorProps } from "./types"
-import {
-  defaultImports,
-  DEFAULT_FONT_SIZE,
-  EDITOR_UPDATE_DELAY,
-} from "./constants"
-import {
-  createFileSystemMap,
-  setupTypeScriptEnvironment,
-  createATAConfig,
-  initializeATA,
-} from "./typescript-setup"
-import {
-  createBaseExtensions,
-  createAIAutocompleteExtensions,
-  createTypeScriptExtensions,
-} from "./editor-extensions"
-import {
-  createFileMap,
-  findEntryPointFileName,
-  updateEditorContent,
-  navigateToLine,
-  handleFileChange,
-  updateFileContent,
-} from "./editor-utils"
+const defaultImports = `
+import React from "@types/react/jsx-runtime"
+import { Circuit, createUseComponent } from "@tscircuit/core"
+import type { CommonLayoutProps } from "@tscircuit/props"
+`
 
 export const CodeEditor = ({
   onCodeChange,
@@ -50,22 +67,32 @@ export const CodeEditor = ({
   onFileSelect,
   handleCreateFile,
   handleDeleteFile,
-}: CodeEditorProps) => {
+}: {
+  onCodeChange: (code: string, filename?: string) => void
+  files: PackageFile[]
+  isSaving?: boolean
+  handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
+  handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  readOnly?: boolean
+  isStreaming?: boolean
+  pkgFilesLoaded?: boolean
+  showImportAndFormatButtons?: boolean
+  onFileContentChanged?: (path: string, content: string) => void
+  currentFile: string | null
+  onFileSelect: (path: string, lineNumber?: number) => void
+}) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
-  const ataRef = useRef<ReturnType<typeof initializeATA> | null>(null)
+  const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
-  const highlightTimeoutRef = useRef<number | null>(null)
-
   const apiUrl = usePackagesBaseApiUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
-  const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE)
+  const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+  const highlightTimeoutRef = useRef<number | null>(null)
 
   const { highlighter } = useShikiHighlighter()
 
@@ -73,34 +100,42 @@ export const CodeEditor = ({
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
   const lineNumberFromUrl = urlParams.get("line")
+  const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
 
-  const entryPointFileName = useMemo(
-    () => findEntryPointFileName(files),
-    [files],
-  )
+  const entryPointFileName = useMemo(() => {
+    const entryPointFile = findTargetFile(files, null)
+    if (entryPointFile?.path) return entryPointFile.path
+    return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
+  }, [files])
 
   // Set current file on component mount
   useEffect(() => {
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
 
-    const targetFile = files.find((f) => f.path === filePathFromUrl) || files[0]
+    const targetFile = findTargetFile(files, filePathFromUrl)
     if (targetFile) {
       const lineNumber = lineNumberFromUrl
         ? parseInt(lineNumberFromUrl, 10)
         : undefined
-      handleFileChangeWrapper(targetFile.path, lineNumber)
+      handleFileChange(targetFile.path, lineNumber)
       setCode(targetFile.content)
     }
   }, [filePathFromUrl, lineNumberFromUrl, pkgFilesLoaded])
 
-  const fileMap = useMemo(() => createFileMap(files), [files])
+  const fileMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    files.forEach((file) => {
+      map[file.path] = file.content
+    })
+    return map
+  }, [files])
 
   useEffect(() => {
     const currentFileContent =
       files.find((f) => f.path === currentFile)?.content || ""
     if (currentFileContent !== code) {
       setCode(currentFileContent)
-      updateEditorContent(viewRef, currentFileContent)
+      updateCurrentEditorContent(currentFileContent)
     }
   }, [files])
 
@@ -112,8 +147,8 @@ export const CodeEditor = ({
       if (code !== currentFileContent && currentFileContent) {
         setCode(currentFileContent)
         setTimeout(() => {
-          updateEditorContent(viewRef, currentFileContent)
-        }, EDITOR_UPDATE_DELAY)
+          updateCurrentEditorContent(currentFileContent)
+        }, 200)
       }
     }
   }, [isStreaming])
@@ -129,73 +164,483 @@ export const CodeEditor = ({
   useEffect(() => {
     if (!editorRef.current) return
 
-    const fsMap = createFileSystemMap(files)
-    const lastFilesEventContent: Record<string, string> = {}
+    const fsMap = new Map<string, string>()
+    files.forEach(({ path, content }) => {
+      fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
+    })
+    ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    const setupEditor = async () => {
-      const { env } = await setupTypeScriptEnvironment(fsMap)
-
-      const ataConfig = createATAConfig(
-        apiUrl,
-        env,
-        fsMap,
-        lastReceivedTsFileTimeRef,
-      )
-      const ata = initializeATA(ataConfig)
-      ataRef.current = ata
-
-      // Set up base extensions
-      const baseExtensions = createBaseExtensions(
-        currentFile,
-        readOnly,
-        isSaving,
-        fontSize,
-        highlightedLine,
-        setShowQuickOpen,
-        setShowGlobalFindReplace,
-        setFontSize,
-        onCodeChange,
-        onFileContentChanged,
-        setCursorPosition,
-        lastFilesEventContent,
-      )
-
-      // Add AI autocomplete extensions if enabled
-      if (aiAutocompleteEnabled) {
-        baseExtensions.push(...createAIAutocompleteExtensions(apiUrl))
-      }
-
-      // Add TypeScript-specific extensions
-      const tsExtensions = createTypeScriptExtensions(
-        currentFile,
-        env,
-        lastReceivedTsFileTimeRef,
-        highlighter,
-        fileMap,
-        onFileSelect,
-      )
-
-      const state = EditorState.create({
-        doc: fileMap[currentFile || ""] || "",
-        extensions: [...baseExtensions, ...tsExtensions],
+    loadDefaultLibMap().then((defaultFsMap) => {
+      defaultFsMap.forEach((content, filename) => {
+        fsMap.set(filename, content)
       })
+    })
 
-      const view = new EditorView({
-        state,
-        parent: editorRef.current!,
-      })
+    const system = createSystem(fsMap)
 
-      viewRef.current = view
+    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+      jsx: tsModule.JsxEmit.ReactJSX,
+      declaration: true,
+      allowJs: true,
+      target: tsModule.ScriptTarget.ES2022,
+      resolveJsonModule: true,
+    })
 
-      if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-        ata(`${defaultImports}${code}`)
-      }
+    // Add alias for tscircuit -> @tscircuit/core
+    const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+    env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+
+    // Initialize ATA
+    const ataConfig: ATABootstrapConfig = {
+      projectName: "my-project",
+      typescript: tsModule,
+      logger: console,
+      fetcher: async (input: RequestInfo | URL, init?: RequestInit) => {
+        const registryPrefixes = [
+          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
+          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
+          "https://cdn.jsdelivr.net/npm/@tsci/",
+        ]
+        if (
+          typeof input === "string" &&
+          registryPrefixes.some((prefix) => input.startsWith(prefix))
+        ) {
+          const fullPackageName = input
+            .replace(registryPrefixes[0], "")
+            .replace(registryPrefixes[1], "")
+            .replace(registryPrefixes[2], "")
+          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
+          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
+          const jsdelivrPath = `${packageName}${
+            pathInPackage ? `/${pathInPackage}` : ""
+          }`
+          return fetch(
+            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
+              "/resolve/",
+            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+          )
+        }
+        return fetch(input, init)
+      },
+      delegate: {
+        started: () => {
+          const manualEditsTypeDeclaration = `
+				  declare module "manual-edits.json" {
+				  const value: {
+					  pcb_placements?: any[],
+            schematic_placements?: any[],
+					  edit_events?: any[],
+					  manual_trace_hints?: any[],
+				  } | undefined;
+				  export default value;
+				}
+			`
+          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+        },
+        receivedFile: (code: string, path: string) => {
+          fsMap.set(path, code)
+          env.createFile(path, code)
+          if (/\.tsx?$|\.d\.ts$/.test(path)) {
+            lastReceivedTsFileTimeRef.current = Date.now()
+          }
+          // Avoid dispatching a view update when ATA downloads files. Dispatching
+          // here caused the editor to reset the user's selection, which made text
+          // selection impossible while dependencies were loading.
+        },
+      },
     }
 
-    setupEditor()
+    const ata = setupTypeAcquisition(ataConfig)
+    ataRef.current = ata
+
+    const lastFilesEventContent: Record<string, string> = {}
+
+    // Set up base extensions
+    const baseExtensions = [
+      basicSetup,
+      currentFile?.endsWith(".json")
+        ? json()
+        : javascript({ typescript: true, jsx: true }),
+      Prec.high(
+        keymap.of([
+          {
+            key: "Mod-Enter",
+            run: () => true,
+          },
+          {
+            key: "Tab",
+            run: (view) => {
+              if (completionStatus(view.state) === "active") {
+                return acceptCompletion(view)
+              }
+              return indentMore(view)
+            },
+          },
+          {
+            key: "Mod-p",
+            run: () => {
+              setShowQuickOpen(true)
+              return true
+            },
+          },
+          {
+            key: "Mod-Shift-f",
+            run: () => {
+              setShowGlobalFindReplace(true)
+              return true
+            },
+          },
+        ]),
+      ),
+      keymap.of([indentWithTab]),
+      EditorState.readOnly.of(readOnly || isSaving),
+      EditorView.updateListener.of((update) => {
+        if (update.docChanged) {
+          const newContent = update.state.doc.toString()
+          if (!currentFile) return
+          if (newContent === lastFilesEventContent[currentFile]) return
+          lastFilesEventContent[currentFile] = newContent
+
+          // setCode(newContent)
+          onCodeChange(newContent, currentFile)
+          onFileContentChanged?.(currentFile, newContent)
+        }
+        if (update.selectionSet) {
+          const pos = update.state.selection.main.head
+          setCursorPosition(pos)
+        }
+      }),
+      EditorView.theme({
+        ".cm-editor": {
+          fontSize: `${fontSize}px`,
+        },
+        ".cm-content": {
+          fontSize: `${fontSize}px`,
+        },
+        ".cm-line-highlight": {
+          backgroundColor: "#dbeafe !important",
+          animation: "lineHighlightFade 3s ease-in-out forwards",
+        },
+        "@keyframes lineHighlightFade": {
+          "0%": { backgroundColor: "#93c5fd" },
+          "100%": { backgroundColor: "transparent" },
+        },
+      }),
+      EditorView.domEventHandlers({
+        wheel: (event) => {
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault()
+            const delta = event.deltaY
+            setFontSize((prev) => {
+              const newSize =
+                delta > 0 ? Math.max(8, prev - 1) : Math.min(32, prev + 1)
+              return newSize
+            })
+            return true
+          }
+          return false
+        },
+      }),
+      EditorView.decorations.of((view) => {
+        const decorations = []
+        if (highlightedLine) {
+          const doc = view.state.doc
+          if (highlightedLine >= 1 && highlightedLine <= doc.lines) {
+            const line = doc.line(highlightedLine)
+            decorations.push(
+              Decoration.line({
+                class: "cm-line-highlight",
+              }).range(line.from),
+            )
+          }
+        }
+        return Decoration.set(decorations)
+      }),
+    ]
+    if (aiAutocompleteEnabled) {
+      baseExtensions.push(
+        inlineCopilot(async (prefix, suffix) => {
+          const res = await fetch(
+            `${apiUrl}/autocomplete/create_autocomplete`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                prefix,
+                suffix,
+                language: "typescript",
+              }),
+            },
+          )
+
+          const { prediction } = await res.json()
+          return prediction
+        }),
+        EditorView.theme({
+          ".cm-ghostText, .cm-ghostText *": {
+            opacity: "0.6",
+            filter: "grayscale(20%)",
+            cursor: "pointer",
+          },
+          ".cm-ghostText:hover": {
+            background: "#eee",
+          },
+        }),
+      )
+    }
+
+    // Add TypeScript-specific extensions and handlers
+    const tsExtensions =
+      currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
+        ? [
+            tsFacet.of({
+              env,
+              path: currentFile?.endsWith(".ts")
+                ? currentFile?.replace(/\.ts$/, ".tsx")
+                : currentFile,
+            }),
+            tsSync(),
+            linter(async (view) => {
+              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+                return []
+              }
+              const config = view.state.facet(tsFacet)
+              return config
+                ? getLints({
+                    ...config,
+                    diagnosticCodesToIgnore: [],
+                  })
+                : []
+            }),
+            autocompletion({ override: [tsAutocomplete()] }),
+            hoverTooltip((view, pos) => {
+              const line = view.state.doc.lineAt(pos)
+              const lineStart = line.from
+              const lineEnd = line.to
+              const lineText = view.state.sliceDoc(lineStart, lineEnd)
+
+              // Check for TSCI package imports
+              const packageMatches = Array.from(
+                lineText.matchAll(TSCI_PACKAGE_PATTERN),
+              )
+
+              for (const match of packageMatches) {
+                if (match.index !== undefined) {
+                  const start = lineStart + match.index
+                  const end = start + match[0].length
+                  if (pos >= start && pos <= end) {
+                    return {
+                      pos: start,
+                      end: end,
+                      above: true,
+                      create() {
+                        const dom = document.createElement("div")
+                        dom.textContent = "Ctrl/Cmd+Click to open package"
+                        return { dom }
+                      },
+                    }
+                  }
+                }
+              }
+              const facet = view.state.facet(tsFacet)
+              if (!facet) return null
+
+              const { env, path } = facet
+              const info = env.languageService.getQuickInfoAtPosition(path, pos)
+              if (!info) return null
+
+              const start = info.textSpan.start
+              const end = start + info.textSpan.length
+              const content = tsModule?.displayPartsToString(
+                info.displayParts || [],
+              )
+
+              const dom = document.createElement("div")
+              if (highlighter) {
+                dom.innerHTML = highlighter.codeToHtml(content, {
+                  lang: "tsx",
+                  themes: {
+                    light: "github-light",
+                    dark: "github-dark",
+                  },
+                })
+
+                return {
+                  pos: start,
+                  end,
+                  above: true,
+                  create: () => ({ dom }),
+                }
+              }
+              return null
+            }),
+            EditorView.domEventHandlers({
+              click: (event, view) => {
+                if (!event.ctrlKey && !event.metaKey) return false
+                const pos = view.posAtCoords({
+                  x: event.clientX,
+                  y: event.clientY,
+                })
+                if (pos === null) return false
+
+                const line = view.state.doc.lineAt(pos)
+                const lineStart = line.from
+                const lineEnd = line.to
+                const lineText = view.state.sliceDoc(lineStart, lineEnd)
+
+                // Check for TSCI package imports first
+                const packageMatches = Array.from(
+                  lineText.matchAll(TSCI_PACKAGE_PATTERN),
+                )
+                for (const match of packageMatches) {
+                  if (match.index !== undefined) {
+                    const start = lineStart + match.index
+                    const end = start + match[0].length
+                    if (pos >= start && pos <= end) {
+                      const importName = match[0]
+                      // Handle potential dots and dashes in package names
+                      const [owner, name] = importName
+                        .replace("@tsci/", "")
+                        .split(".")
+                      window.open(`/${owner}/${name}`, "_blank")
+                      return true
+                    }
+                  }
+                }
+
+                // Check for local file imports
+                const localFileMatches = Array.from(
+                  lineText.matchAll(LOCAL_FILE_IMPORT_PATTERN),
+                )
+                for (const match of localFileMatches) {
+                  if (match.index !== undefined) {
+                    const start = lineStart + match.index
+                    const end = start + match[0].length
+                    if (pos >= start && pos <= end) {
+                      const relativePath = match[0]
+                      const resolvedPath = resolveRelativePath(
+                        relativePath,
+                        currentFile || "",
+                      )
+
+                      // Add common extensions if not present
+                      let targetPath = resolvedPath
+                      if (!targetPath.includes(".")) {
+                        const extensions = [".tsx", ".ts", ".js", ".jsx"]
+                        for (const ext of extensions) {
+                          if (fileMap[`${targetPath}${ext}`]) {
+                            targetPath = `${targetPath}${ext}`
+                            break
+                          }
+                        }
+                      }
+
+                      if (fileMap[targetPath]) {
+                        onFileSelect(targetPath)
+                        return true
+                      }
+                      return !!fileMap[targetPath]
+                    }
+                  }
+                }
+                return false
+              },
+              keydown: (event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                  event.preventDefault()
+                  return true
+                }
+                return false
+              },
+            }),
+            EditorView.theme({
+              ".cm-tooltip-hover": {
+                maxWidth: "600px",
+                padding: "12px",
+                maxHeight: "400px",
+                borderRadius: "0.5rem",
+                backgroundColor: "#fff",
+                color: "#0f172a",
+                border: "1px solid #e2e8f0",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                fontSize: "14px",
+                fontFamily: "monospace",
+                whiteSpace: "pre-wrap",
+                lineHeight: "1.6",
+                overflow: "auto",
+                zIndex: "9999",
+              },
+              ".cm-import:hover": {
+                textDecoration: "underline",
+                textDecorationColor: "#aa1111",
+                textUnderlineOffset: "1px",
+                filter: "brightness(0.7)",
+              },
+            }),
+            EditorView.decorations.of((view) => {
+              const decorations = []
+              for (const { from, to } of view.visibleRanges) {
+                for (let pos = from; pos < to; ) {
+                  const line = view.state.doc.lineAt(pos)
+                  const lineText = line.text
+
+                  // Add decorations for TSCI package imports
+                  const packageMatches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
+                  for (const match of packageMatches) {
+                    if (match.index !== undefined) {
+                      const start = line.from + match.index
+                      const end = start + match[0].length
+                      decorations.push(
+                        Decoration.mark({
+                          class: "cm-import cursor-pointer",
+                        }).range(start, end),
+                      )
+                    }
+                  }
+
+                  // Add decorations for local file imports
+                  const localFileMatches = lineText.matchAll(
+                    LOCAL_FILE_IMPORT_PATTERN,
+                  )
+                  for (const match of localFileMatches) {
+                    if (match.index !== undefined) {
+                      const start = line.from + match.index
+                      const end = start + match[0].length
+                      decorations.push(
+                        Decoration.mark({
+                          class: "cm-import cursor-pointer",
+                        }).range(start, end),
+                      )
+                    }
+                  }
+                  pos = line.to + 1
+                }
+              }
+              return Decoration.set(decorations)
+            }),
+          ]
+        : []
+
+    const state = EditorState.create({
+      doc: fileMap[currentFile || ""] || "",
+      extensions: [...baseExtensions, ...tsExtensions],
+    })
+
+    const view = new EditorView({
+      state,
+      parent: editorRef.current,
+    })
+
+    viewRef.current = view
+
+    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
+      ata(`${defaultImports}${code}`)
+    }
 
     return () => {
-      viewRef.current?.destroy()
+      view.destroy()
       // Clean up any pending highlight timeout
       if (highlightTimeoutRef.current) {
         window.clearTimeout(highlightTimeoutRef.current)
@@ -214,11 +659,49 @@ export const CodeEditor = ({
   ])
 
   const updateCurrentEditorContent = (newContent: string) => {
-    updateEditorContent(viewRef, newContent)
+    if (viewRef.current) {
+      const state = viewRef.current.state
+      const scrollPos = viewRef.current.scrollDOM.scrollTop
+      if (state.doc.toString() !== newContent) {
+        viewRef.current.dispatch({
+          changes: { from: 0, to: state.doc.length, insert: newContent },
+        })
+        requestAnimationFrame(() => {
+          if (viewRef.current) {
+            viewRef.current.scrollDOM.scrollTop = scrollPos
+          }
+        })
+      }
+    }
   }
 
-  const navigateToLineWrapper = (lineNumber: number) => {
-    navigateToLine(viewRef, lineNumber, setHighlightedLine, highlightTimeoutRef)
+  const navigateToLine = (lineNumber: number) => {
+    if (!viewRef.current) return
+
+    const view = viewRef.current
+    const doc = view.state.doc
+
+    if (lineNumber < 1 || lineNumber > doc.lines) return
+
+    if (highlightTimeoutRef.current) {
+      window.clearTimeout(highlightTimeoutRef.current)
+      highlightTimeoutRef.current = null
+    }
+
+    const line = doc.line(lineNumber)
+    const pos = line.from
+
+    view.dispatch({
+      selection: { anchor: pos, head: pos },
+      effects: EditorView.scrollIntoView(pos, { y: "center" }),
+    })
+
+    setHighlightedLine(lineNumber)
+
+    highlightTimeoutRef.current = window.setTimeout(() => {
+      setHighlightedLine(null)
+      highlightTimeoutRef.current = null
+    }, 3000)
   }
 
   const updateEditorToMatchCurrentFile = () => {
@@ -237,24 +720,47 @@ export const CodeEditor = ({
     }
   }, [codeImports])
 
-  const handleFileChangeWrapper = (path: string, lineNumber?: number) => {
-    handleFileChange(path, lineNumber, onFileSelect, navigateToLineWrapper)
+  const handleFileChange = (path: string, lineNumber?: number) => {
+    onFileSelect(path, lineNumber)
+    try {
+      // Set url query to file path and line number
+      const urlParams = new URLSearchParams(window.location.search)
+      urlParams.set("file_path", path)
+      if (lineNumber) {
+        urlParams.set("line", lineNumber.toString())
+      } else {
+        urlParams.delete("line")
+      }
+      window.history.replaceState(null, "", `?${urlParams.toString()}`)
+    } catch {}
+
+    // Navigate to line after a short delay to ensure editor is ready
+    if (lineNumber) {
+      setTimeout(() => {
+        navigateToLine(lineNumber)
+      }, 100)
+    }
   }
 
-  const updateFileContentWrapper = (
-    path: string | null,
-    newContent: string,
-  ) => {
-    updateFileContent(
-      path,
-      newContent,
-      currentFile,
-      setCode,
-      onCodeChange,
-      fileMap,
-      onFileContentChanged,
-      viewRef,
-    )
+  const updateFileContent = (path: FileName | null, newContent: string) => {
+    if (!path) return
+    if (currentFile === path) {
+      setCode(newContent)
+      onCodeChange(newContent, path)
+    } else {
+      fileMap[path] = newContent
+    }
+    onFileContentChanged?.(path, newContent)
+
+    if (viewRef.current && currentFile === path) {
+      viewRef.current.dispatch({
+        changes: {
+          from: 0,
+          to: viewRef.current.state.doc.length,
+          insert: newContent,
+        },
+      })
+    }
   }
 
   // Whenever the current file changes, updated the editor content
@@ -283,7 +789,7 @@ export const CodeEditor = ({
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
-
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
     <div className="flex h-[98vh] w-full overflow-hidden">
       <FileSidebar
@@ -292,7 +798,7 @@ export const CodeEditor = ({
         fileSidebarState={
           [sidebarOpen, setSidebarOpen] as ReturnType<typeof useState<boolean>>
         }
-        onFileSelect={(path) => handleFileChangeWrapper(path)}
+        onFileSelect={(path) => handleFileChange(path)}
         handleCreateFile={handleCreateFile}
         handleDeleteFile={handleDeleteFile}
       />
@@ -311,8 +817,8 @@ export const CodeEditor = ({
             }
             currentFile={currentFile}
             files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
-            updateFileContent={updateFileContentWrapper}
-            handleFileChange={handleFileChangeWrapper}
+            updateFileContent={updateFileContent}
+            handleFileChange={handleFileChange}
             aiAutocompleteState={[
               aiAutocompleteEnabled,
               setAiAutocompleteEnabled,
@@ -330,7 +836,7 @@ export const CodeEditor = ({
         <QuickOpen
           files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
-          onFileSelect={(path) => handleFileChangeWrapper(path)}
+          onFileSelect={(path) => handleFileChange(path)}
           onClose={() => setShowQuickOpen(false)}
         />
       )}
@@ -338,7 +844,7 @@ export const CodeEditor = ({
         <GlobalFindReplace
           files={files.filter((f) => !isHiddenFile(f.path))}
           currentFile={currentFile}
-          onFileSelect={handleFileChangeWrapper}
+          onFileSelect={handleFileChange}
           onFileContentChanged={onCodeChange}
           onClose={() => setShowGlobalFindReplace(false)}
         />
