@@ -1,5 +1,6 @@
 import { CadViewer } from "@tscircuit/runframe"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import { Suspense } from "react"
 
 export default function ThreeDView() {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
@@ -24,7 +25,19 @@ export default function ThreeDView() {
 
   return (
     <div className="h-[620px]">
-      <CadViewer clickToInteractEnabled circuitJson={circuitJson} />
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center h-full">
+            <div className="w-48">
+              <div className="loading">
+                <div className="loading-bar"></div>
+              </div>
+            </div>
+          </div>
+        }
+      >
+        <CadViewer clickToInteractEnabled circuitJson={circuitJson} />
+      </Suspense>
     </div>
   )
 }
