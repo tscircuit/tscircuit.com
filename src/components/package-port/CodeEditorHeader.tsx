@@ -189,13 +189,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         onError: (error) => {
           throw error
         },
-        openFile: false,
       })
       if (!createFileResult.newFileCreated) {
-        throw new Error("Failed to create file")
+        throw new Error("Failed to create component file")
       }
-      const newContent = `import ${componentName.replace(/-/g, "")} from "./${componentName}.tsx"\n${files[currentFile || ""]}`
-      updateFileContent(currentFile, newContent)
     }
   }
 
