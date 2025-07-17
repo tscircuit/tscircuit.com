@@ -34,8 +34,9 @@ export const useForkSnippetMutation = ({
     {
       onSuccess: (forkedSnippet: Snippet) => {
         toast({
-          title: `Forked snippet`,
-          description: `You have successfully forked the snippet. Redirecting...`,
+          title: "Forked snippet",
+          description:
+            "You have successfully forked the snippet. Redirecting...",
         })
         onSuccess?.(forkedSnippet)
       },

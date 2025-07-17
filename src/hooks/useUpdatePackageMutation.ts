@@ -34,12 +34,8 @@ export function useUpdatePackageMutation({
         manual_edits_json_content: manualEditsFileContent,
       }
 
-      try {
-        const response = await axios.post("/packages/update", updatePkgPayload)
-        return response.data
-      } catch (error: any) {
-        throw error
-      }
+      const response = await axios.post("/packages/update", updatePkgPayload)
+      return response.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["package", pkg?.package_id] })

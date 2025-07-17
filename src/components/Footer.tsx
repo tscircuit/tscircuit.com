@@ -46,7 +46,8 @@ export default function Footer() {
               <a
                 href="https://chat.tscircuit.com"
                 className="hover:underline"
-                target="_blank" rel="noreferrer"
+                target="_blank"
+                rel="noreferrer"
               >
                 Create with AI
               </a>

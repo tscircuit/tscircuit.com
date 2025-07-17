@@ -58,7 +58,8 @@ export const ImportPackageDialog = ({
                   <a
                     href={`/${pkg.name}`}
                     target="_blank"
-                    className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2" rel="noreferrer"
+                    className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2"
+                    rel="noreferrer"
                   >
                     {pkg.name}
                   </a>

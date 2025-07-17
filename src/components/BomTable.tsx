@@ -12,7 +12,8 @@ export const linkify = (supplier: string, partNumber: string) => {
       <a
         className="underline text-blue-500"
         target="_blank"
-        href={`https://jlcpcb.com/partdetail/${partNumber}`} rel="noreferrer"
+        href={`https://jlcpcb.com/partdetail/${partNumber}`}
+        rel="noreferrer"
       >
         {partNumber}
       </a>

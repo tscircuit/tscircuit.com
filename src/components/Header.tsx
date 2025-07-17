@@ -98,7 +98,8 @@ export default function Header() {
                 <a
                   href="https://tscircuit.com/join"
                   target="_blank"
-                  className="mr-2" rel="noreferrer"
+                  className="mr-2"
+                  rel="noreferrer"
                 >
                   <Button variant="ghost">
                     <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
@@ -113,7 +114,8 @@ export default function Header() {
           href="https://github.com/tscircuit/tscircuit"
           target="_blank"
           className="mr-4"
-          aria-label="View TSCircuit on GitHub" rel="noreferrer"
+          aria-label="View TSCircuit on GitHub"
+          rel="noreferrer"
         >
           <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
         </a>

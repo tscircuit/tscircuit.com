@@ -15,7 +15,10 @@ import {
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useToast } from "@/hooks/useToast"
-import type { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
+import type {
+  ICreateFileProps,
+  ICreateFileResult,
+} from "@/hooks/useFileManagement"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import type { ComponentSearchResult } from "@tscircuit/runframe/runner"

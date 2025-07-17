@@ -6,7 +6,7 @@ export const downloadAssemblySvg = (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {
-  const svg = convertCircuitJsonToAssemblySvg(circuitJson);
-  const blob = new Blob([svg], { type: "image/svg" });
-  saveAs(blob, `${fileName}.svg`);
+  const svg = convertCircuitJsonToAssemblySvg(circuitJson)
+  const blob = new Blob([svg], { type: "image/svg" })
+  saveAs(blob, `${fileName}.svg`)
 }

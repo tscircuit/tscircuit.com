@@ -97,19 +97,15 @@ export const usePackageFiles = (packageReleaseId?: string | null) => {
     async () => {
       if (!packageReleaseId) return []
 
-      try {
-        const { data } = await axios.post("/package_files/list", {
-          package_release_id: packageReleaseId,
-        })
+      const { data } = await axios.post("/package_files/list", {
+        package_release_id: packageReleaseId,
+      })
 
-        if (!data.package_files) {
-          return []
-        }
-
-        return data.package_files
-      } catch (error) {
-        throw error
+      if (!data.package_files) {
+        return []
       }
+
+      return data.package_files
     },
     {
       enabled: Boolean(packageReleaseId),
