@@ -1,4 +1,4 @@
-import { Package, PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { Package, PackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const findPackageReleaseId = async (
   params:

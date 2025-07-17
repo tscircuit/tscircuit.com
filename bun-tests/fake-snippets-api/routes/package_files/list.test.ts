@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
-import * as ZT from "fake-snippets-api/lib/db/schema"
+import type * as ZT from "fake-snippets-api/lib/db/schema"
 test("list package files by package_release_id", async () => {
   const { axios, db } = await getTestServer()
 

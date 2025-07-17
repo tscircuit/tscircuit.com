@@ -1,6 +1,6 @@
-import sharp from "sharp"
-import path from "path"
 import fs from "fs"
+import path from "path"
+import sharp from "sharp"
 
 const WIDTHS = [400, 600, 800, 1000, 1200, 1600, 2000]
 const INPUT_DIR = "src/assets/originals"

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 import { viewports } from "./viewports"
 
 test("Editor loads snippet correctly", async ({ page }) => {

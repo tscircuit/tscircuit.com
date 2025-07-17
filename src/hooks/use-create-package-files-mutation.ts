@@ -1,6 +1,6 @@
 import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 
 export const useCreatePackageFilesMutation = ({
   onSuccess,

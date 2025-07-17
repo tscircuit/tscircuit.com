@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { createHighlighterCore, type HighlighterCore } from "shiki/core"
+import { useEffect, useState } from "react"
+import { type HighlighterCore, createHighlighterCore } from "shiki/core"
 import { createOnigurumaEngine } from "shiki/engine/oniguruma"
 
 let cachedHighlighter: HighlighterCore | null = null

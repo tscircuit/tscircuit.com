@@ -1,9 +1,9 @@
 "use client"
 
-import { Package } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import PreviewImageSquares from "./preview-image-squares"
 import SidebarAboutSection from "./sidebar-about-section"
 import SidebarReleasesSection from "./sidebar-releases-section"
-import PreviewImageSquares from "./preview-image-squares"
 
 interface SidebarProps {
   packageInfo?: Package

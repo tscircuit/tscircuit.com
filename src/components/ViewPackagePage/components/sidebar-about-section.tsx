@@ -1,15 +1,15 @@
+import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import { Badge } from "@/components/ui/badge"
-import { GitFork, Star, Settings, LinkIcon } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Button } from "@/components/ui/button"
-import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
-import { useState, useEffect, useMemo } from "react"
 import { usePackageFile } from "@/hooks/use-package-files"
+import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
-import { PackageInfo } from "@/lib/types"
+import type { PackageInfo } from "@/lib/types"
+import { GitFork, LinkIcon, Settings, Star } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
   isLoading?: boolean

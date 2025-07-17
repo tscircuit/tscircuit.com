@@ -1,10 +1,10 @@
-import { QueryClient, QueryClientProvider } from "react-query"
-import { HelmetProvider } from "react-helmet-async"
 import { useEffect } from "react"
-import { useGlobalStore } from "./hooks/use-global-store"
-import { posthog } from "./lib/posthog"
+import { HelmetProvider } from "react-helmet-async"
 import { Toaster } from "react-hot-toast"
+import { QueryClient, QueryClientProvider } from "react-query"
+import { useGlobalStore } from "./hooks/use-global-store"
 import { populateQueryCacheWithSSRData } from "./lib/populate-query-cache-with-ssr-data"
+import { posthog } from "./lib/posthog"
 
 const staffGithubUsernames = [
   "imrishabh18",

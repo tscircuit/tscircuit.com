@@ -2,7 +2,7 @@ import { findTargetFile } from "./findTargetFile"
 
 export const checkIfManualEditsImported = (
   files: Record<string, string>,
-  file: string = "index.tsx",
+  file = "index.tsx",
 ) => {
   if (!files[file]) return false
   const targetFile = findTargetFile(

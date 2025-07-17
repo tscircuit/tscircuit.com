@@ -1,23 +1,23 @@
 import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
-import { useAxios } from "@/hooks/use-axios"
+import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
+import { DialogDescription, DialogTitle } from "@/components/ui/dialog"
+import { useAxios } from "@/hooks/useAxios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { useNotImplementedToast } from "@/hooks/use-toast"
-import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
+import { useNotImplementedToast } from "@/hooks/useToast"
 import { Command } from "cmdk"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import {
+  ArrowRight,
+  CircuitBoard,
+  Clock,
+  Download,
+  Package2,
+  Search,
+  Sparkles,
+} from "lucide-react"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
-import {
-  Search,
-  Package2,
-  CircuitBoard,
-  Download,
-  Sparkles,
-  Clock,
-  ArrowRight,
-} from "lucide-react"
-import { DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 type SnippetType = "board" | "package" | "model" | "footprint"
 

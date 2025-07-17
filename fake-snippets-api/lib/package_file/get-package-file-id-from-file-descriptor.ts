@@ -1,6 +1,6 @@
-import { NotFoundError } from "winterspec/middleware"
-import * as ZT from "../db/schema"
 import { normalizeProjectFilePath } from "fake-snippets-api/utils/normalizeProjectFilePath"
+import { NotFoundError } from "winterspec/middleware"
+import type * as ZT from "../db/schema"
 export const getPackageFileIdFromFileDescriptor = async (
   descriptor:
     | { package_file_id: string }

@@ -1,11 +1,17 @@
+import {
+  type DownloadPcbSvgOptions,
+  downloadPcbSvg,
+} from "@/lib/download-fns/download-pcb-svg"
+import type { AnyCircuitElement } from "circuit-json"
 import { useState } from "react"
 import { Button } from "../ui/button"
+import { Checkbox } from "../ui/checkbox"
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "../ui/dialog"
 import { Label } from "../ui/label"
 import {
@@ -15,13 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { Checkbox } from "../ui/checkbox"
-import { AnyCircuitElement } from "circuit-json"
 import { createUseDialog } from "./create-use-dialog"
-import {
-  downloadPcbSvg,
-  DownloadPcbSvgOptions,
-} from "@/lib/download-fns/download-pcb-svg"
 
 interface PcbDownloadDialogProps {
   open: boolean

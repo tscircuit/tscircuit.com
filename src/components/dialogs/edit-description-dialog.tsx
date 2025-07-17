@@ -1,11 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Button } from "../ui/button"
+import { useAxios } from "@/hooks/useAxios"
+import { useToast } from "@/hooks/useToast"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
-import { createUseDialog } from "./create-use-dialog"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Textarea } from "../ui/textarea"
+import { createUseDialog } from "./create-use-dialog"
 
 export const UpdateDescriptionDialog = ({
   open,

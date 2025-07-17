@@ -1,5 +1,5 @@
+import { expect, test } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
-import { test, expect } from "bun:test"
 
 test.skip("get order file", async () => {
   const {

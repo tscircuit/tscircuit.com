@@ -1,5 +1,5 @@
-import { Middleware } from "winterspec/middleware"
 import kleur from "kleur"
+import type { Middleware } from "winterspec/middleware"
 
 // ENABLE COLORS ALWAYS
 kleur.enabled = true

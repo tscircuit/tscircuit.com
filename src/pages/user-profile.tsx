@@ -1,21 +1,11 @@
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { PackageCard } from "@/components/PackageCard"
+import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAxios } from "@/hooks/use-axios"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import type { Package } from "fake-snippets-api/lib/db/schema"
-import type React from "react"
-import { useState } from "react"
-import { useQuery } from "react-query"
-import NotFoundPage from "./404"
-import { useParams } from "wouter"
 import {
   Select,
   SelectContent,
@@ -23,8 +13,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useAxios } from "@/hooks/useAxios"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Box, Star } from "lucide-react"
-import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
+import type React from "react"
+import { useState } from "react"
+import { useQuery } from "react-query"
+import { useParams } from "wouter"
+import NotFoundPage from "./404"
 
 export const UserProfilePage = () => {
   const { username } = useParams()

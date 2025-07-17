@@ -1,6 +1,6 @@
 "use client"
+import type React from "react"
 import toastLibrary, { Toaster, type Toast } from "react-hot-toast"
-import React from "react"
 
 export interface ToasterToast {
   title?: React.ReactNode

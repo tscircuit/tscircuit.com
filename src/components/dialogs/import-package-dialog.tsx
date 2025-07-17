@@ -1,4 +1,4 @@
-import { useAxios } from "@/hooks/use-axios"
+import { useAxios } from "@/hooks/useAxios"
 import { useDebounce } from "@/hooks/use-debounce"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
@@ -58,7 +58,7 @@ export const ImportPackageDialog = ({
                   <a
                     href={`/${pkg.name}`}
                     target="_blank"
-                    className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2"
+                    className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2" rel="noreferrer"
                   >
                     {pkg.name}
                   </a>

@@ -1,4 +1,4 @@
-import { AnyCircuitElement } from "circuit-json"
+import type { AnyCircuitElement } from "circuit-json"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,

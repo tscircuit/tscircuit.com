@@ -1,8 +1,8 @@
-import { Package } from "fake-snippets-api/lib/db/schema"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 import { useGlobalStore } from "./use-global-store"
-import { useToast } from "./use-toast"
+import { useToast } from "./useToast"
 
 export const useForkPackageMutation = ({
   onSuccess,

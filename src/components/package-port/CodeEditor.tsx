@@ -1,52 +1,52 @@
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
-import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { basicSetup } from "@/lib/codemirror/basic-setup"
-import {
-  autocompletion,
-  acceptCompletion,
-  completionStatus,
-} from "@codemirror/autocomplete"
-import { indentWithTab, indentMore } from "@codemirror/commands"
-import { javascript } from "@codemirror/lang-javascript"
-import { json } from "@codemirror/lang-json"
-import { EditorState, Prec } from "@codemirror/state"
-import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import type { ATABootstrapConfig } from "@typescript/ata"
-import { setupTypeAcquisition } from "@typescript/ata"
-import { linter } from "@codemirror/lint"
-import {
-  TSCI_PACKAGE_PATTERN,
-  LOCAL_FILE_IMPORT_PATTERN,
-} from "@/lib/constants"
-import {
-  createSystem,
-  createVirtualTypeScriptEnvironment,
-} from "@typescript/vfs"
-import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
-import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
-import { getLints } from "@valtown/codemirror-ts"
-import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
-import tsModule from "typescript"
 import CodeEditorHeader, {
-  FileName,
+  type FileName,
 } from "@/components/package-port/CodeEditorHeader"
-import FileSidebar from "../FileSidebar"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "@/types/package"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import QuickOpen from "./QuickOpen"
-import GlobalFindReplace from "./GlobalFindReplace"
-import {
+import type {
   ICreateFileProps,
   ICreateFileResult,
   IDeleteFileProps,
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import { inlineCopilot } from "codemirror-copilot"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
+import {
+  LOCAL_FILE_IMPORT_PATTERN,
+  TSCI_PACKAGE_PATTERN,
+} from "@/lib/constants"
+import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { resolveRelativePath } from "@/lib/utils/resolveRelativePath"
+import type { PackageFile } from "@/types/package"
+import {
+  acceptCompletion,
+  autocompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentMore, indentWithTab } from "@codemirror/commands"
+import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
+import { linter } from "@codemirror/lint"
+import { EditorState, Prec } from "@codemirror/state"
+import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
+import type { ATABootstrapConfig } from "@typescript/ata"
+import { setupTypeAcquisition } from "@typescript/ata"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
+import { EditorView } from "codemirror"
+import { inlineCopilot } from "codemirror-copilot"
+import { useEffect, useMemo, useRef, useState } from "react"
+import tsModule from "typescript"
+import FileSidebar from "../FileSidebar"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import GlobalFindReplace from "./GlobalFindReplace"
+import QuickOpen from "./QuickOpen"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"

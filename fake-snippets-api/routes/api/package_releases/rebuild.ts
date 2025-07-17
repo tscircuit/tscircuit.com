@@ -1,6 +1,6 @@
+import Debug from "debug"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import Debug from "debug"
 
 const debug = Debug("fake-snippets-api:rebuild-package")
 

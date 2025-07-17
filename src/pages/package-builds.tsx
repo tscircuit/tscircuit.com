@@ -1,12 +1,12 @@
-import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
+import { ErrorOutline } from "@/components/ErrorOutline"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
+import { NotFound } from "@/components/NotFound"
+import { PackageBuildDetailsPage } from "@/components/PackageBuildsPage/PackageBuildDetailsPage"
+import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
+import { useCurrentPackageId } from "@/hooks/useCurrentPackageId"
 import { usePackage } from "@/hooks/use-package"
 import { Helmet } from "react-helmet-async"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { NotFound } from "@/components/NotFound"
-import { ErrorOutline } from "@/components/ErrorOutline"
-import { PackageBuildDetailsPage } from "@/components/PackageBuildsPage/PackageBuildDetailsPage"
 
 export const EditorPage = () => {
   const { packageId } = useCurrentPackageId()

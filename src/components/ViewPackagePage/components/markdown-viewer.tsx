@@ -3,8 +3,8 @@ import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import { useToast } from "@/hooks/useToast"
 import { Check, Clipboard, Copy, CopyPlus } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 
 export default function MarkdownViewer({
   markdownContent,

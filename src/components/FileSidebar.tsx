@@ -1,9 +1,17 @@
-import React, { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { type TreeDataItem, TreeView } from "@/components/ui/tree-view"
+import { useToast } from "@/hooks/useToast"
+import type {
+  ICreateFileProps,
+  ICreateFileResult,
+  IDeleteFileProps,
+  IDeleteFileResult,
+} from "@/hooks/useFileManagement"
 import { cn } from "@/lib/utils"
 import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
-import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
+import type React from "react"
+import { useState } from "react"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
-import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,13 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
-import type {
-  ICreateFileProps,
-  ICreateFileResult,
-  IDeleteFileProps,
-  IDeleteFileResult,
-} from "@/hooks/useFileManagement"
-import { useToast } from "@/hooks/use-toast"
 type FileName = string
 
 interface FileSidebarProps {

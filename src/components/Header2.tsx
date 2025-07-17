@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button"
-import { CircuitBoard, Search } from "lucide-react"
-import { Link } from "wouter"
-import { PrefetchPageLink } from "./PrefetchPageLink"
-import { HeaderLogin } from "./HeaderLogin"
-import SearchComponent from "./SearchComponent"
-import HeaderDropdown from "./HeaderDropdown"
-import { useState } from "react"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { CircuitBoard, Search } from "lucide-react"
+import { useState } from "react"
+import { Link } from "wouter"
 import { Analytics } from "./Analytics"
 import CmdKMenu from "./CmdKMenu"
+import HeaderDropdown from "./HeaderDropdown"
+import { HeaderLogin } from "./HeaderLogin"
+import { PrefetchPageLink } from "./PrefetchPageLink"
+import SearchComponent from "./SearchComponent"
 
 const SearchButtonComponent = () => {
   const [isExpanded, setIsExpanded] = useState(false)

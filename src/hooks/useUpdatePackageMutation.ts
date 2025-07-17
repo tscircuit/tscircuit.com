@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from "react-query"
-import { useToast } from "@/hooks/use-toast"
-import { useAxios } from "@/hooks/use-axios"
+import { useAxios } from "@/hooks/useAxios"
+import { useToast } from "@/hooks/useToast"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useMutation, useQueryClient } from "react-query"
 
 interface UseUpdatePackageMutationProps {
   pkg: Package | undefined

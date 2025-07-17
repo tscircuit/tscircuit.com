@@ -1,6 +1,6 @@
-import React from "react"
 import { cn } from "@/lib/utils"
-import { Code, Bot, GitFork, AtSign, Package, Clock, File } from "lucide-react"
+import { AtSign, Bot, Clock, Code, File, GitFork, Package } from "lucide-react"
+import React from "react"
 import { Skeleton } from "./ui/skeleton"
 
 export default function StaticViewSnippetSidebar({

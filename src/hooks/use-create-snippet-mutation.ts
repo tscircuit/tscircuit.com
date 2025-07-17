@@ -1,9 +1,9 @@
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 import { useGlobalStore } from "./use-global-store"
-import { useUrlParams } from "./use-url-params"
+import { useUrlParams } from "./useUrlParams"
 
 export const useCreateSnippetMutation = ({
   onSuccess,

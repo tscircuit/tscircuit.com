@@ -1,6 +1,6 @@
 import { CadViewer } from "@tscircuit/runframe"
-import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { Suspense } from "react"
+import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
 export default function ThreeDView() {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()

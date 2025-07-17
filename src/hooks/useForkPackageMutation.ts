@@ -1,8 +1,8 @@
-import { useMutation } from "react-query"
+import { useAxios } from "@/hooks/useAxios"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { useToast } from "@/hooks/useToast"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useMutation } from "react-query"
 
 export const useForkPackageMutation = ({
   pkg,

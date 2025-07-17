@@ -1,4 +1,4 @@
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/useToast"
 import { useCallback } from "react"
 
 export const useCopyToClipboard = () => {

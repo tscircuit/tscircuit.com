@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 
 type PackageStarQuery = { package_id: string } | { name: string }
 

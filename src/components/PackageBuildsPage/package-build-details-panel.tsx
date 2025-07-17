@@ -1,7 +1,7 @@
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useNow } from "@/hooks/use-now"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, GitBranch, GitCommit, Globe } from "lucide-react"
 import { useParams } from "wouter"
 

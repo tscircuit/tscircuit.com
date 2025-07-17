@@ -1,7 +1,7 @@
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { useMutation, useQueryClient } from "react-query"
-import { useAxios } from "./use-axios"
-import { useToast } from "./use-toast"
+import { useAxios } from "./useAxios"
+import { useToast } from "./useToast"
 
 export const useRebuildPackageReleaseMutation = ({
   onSuccess,

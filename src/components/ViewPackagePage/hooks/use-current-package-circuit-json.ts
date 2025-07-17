@@ -1,4 +1,4 @@
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { useCurrentPackageId } from "@/hooks/useCurrentPackageId"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { useEffect, useState } from "react"
 

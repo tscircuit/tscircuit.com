@@ -1,11 +1,11 @@
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
+import { Button } from "@/components/ui/button"
+import { useAxios } from "@/hooks/useAxios"
+import type { Order } from "fake-snippets-api/lib/db/schema"
 import React from "react"
 import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { Order } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
-import { Button } from "@/components/ui/button"
 
 export const MyOrdersPage = () => {
   const axios = useAxios()

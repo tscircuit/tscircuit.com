@@ -1,10 +1,10 @@
-import { useParams } from "wouter"
-import { useDatasheet } from "@/hooks/use-datasheet"
-import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
 import ExpandableText from "@/components/ExpandableText"
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
+import { useCreateDatasheet } from "@/hooks/useCreateDatasheet"
+import { useDatasheet } from "@/hooks/useDatasheet"
 import type { Datasheet } from "fake-snippets-api/lib/db/schema"
+import { useParams } from "wouter"
 
 export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()

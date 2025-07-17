@@ -1,7 +1,7 @@
 "use client"
 
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
 import { LogContent } from "./LogContent"
 import { BuildPreviewContent } from "./build-preview-content"

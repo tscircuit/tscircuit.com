@@ -1,8 +1,8 @@
-import { Link } from "wouter"
+import { useAxios } from "@/hooks/useAxios"
 import { useEffect } from "react"
 import { useInView } from "react-intersection-observer"
 import { useQueryClient } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
+import { Link } from "wouter"
 
 // Whitelist of known pages that can be safely prefetched
 const PREFETCHABLE_PAGES = new Set([

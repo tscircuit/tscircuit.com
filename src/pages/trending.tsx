@@ -1,11 +1,6 @@
-import React, { useEffect, useState } from "react"
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
-import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { useSearchParams } from "wouter"
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
-import { Search, Keyboard, Cpu, Layers, LucideBellElectric } from "lucide-react"
+import Header from "@/components/Header"
+import PackageSearchResults from "@/components/PackageSearchResults"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -14,8 +9,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import PackageSearchResults from "@/components/PackageSearchResults"
+import { useAxios } from "@/hooks/useAxios"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { Cpu, Keyboard, Layers, LucideBellElectric, Search } from "lucide-react"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { useQuery } from "react-query"
+import { useSearchParams } from "wouter"
 
 const TrendingPage: React.FC = () => {
   const axios = useAxios()

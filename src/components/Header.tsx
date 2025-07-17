@@ -2,15 +2,16 @@ import { HeaderLogin } from "@/components/HeaderLogin"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import { GitHubLogoIcon, DiscordLogoIcon } from "@radix-ui/react-icons"
+import { DiscordLogoIcon, GitHubLogoIcon } from "@radix-ui/react-icons"
 import { Menu, X } from "lucide-react"
-import React, { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState } from "react"
 import { useLocation } from "wouter"
-import { PrefetchPageLink } from "./PrefetchPageLink"
+import { Analytics } from "./Analytics"
 import CmdKMenu from "./CmdKMenu"
 import HeaderDropdown from "./HeaderDropdown"
+import { PrefetchPageLink } from "./PrefetchPageLink"
 import SearchComponent from "./SearchComponent"
-import { Analytics } from "./Analytics"
 
 const HeaderButton = ({
   href,
@@ -97,7 +98,7 @@ export default function Header() {
                 <a
                   href="https://tscircuit.com/join"
                   target="_blank"
-                  className="mr-2"
+                  className="mr-2" rel="noreferrer"
                 >
                   <Button variant="ghost">
                     <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
@@ -112,7 +113,7 @@ export default function Header() {
           href="https://github.com/tscircuit/tscircuit"
           target="_blank"
           className="mr-4"
-          aria-label="View TSCircuit on GitHub"
+          aria-label="View TSCircuit on GitHub" rel="noreferrer"
         >
           <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
         </a>

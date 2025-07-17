@@ -14,7 +14,7 @@ export default withRouteSpec({
   const { package_release_id } = req.jsonBody
   const vendorNames = ["JLCPCB", "MacroFab"]
 
-  let orderQuoteIds = []
+  const orderQuoteIds = []
   for (const vendorName of vendorNames) {
     const orderQuoteId = ctx.db.addOrderQuote({
       account_id: ctx.auth.account_id,

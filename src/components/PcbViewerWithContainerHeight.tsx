@@ -1,5 +1,6 @@
-import React, { useRef, useState, useLayoutEffect } from "react"
 import { PCBViewer } from "@tscircuit/pcb-viewer"
+import type React from "react"
+import { useRef, useState, useLayoutEffect } from "react"
 
 export const PcbViewerWithContainerHeight = ({
   containerClassName,

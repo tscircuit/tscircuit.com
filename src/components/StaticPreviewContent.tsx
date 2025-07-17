@@ -1,8 +1,8 @@
-import React from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Share, PlayIcon, Download, EllipsisIcon } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Download, EllipsisIcon, PlayIcon, Share } from "lucide-react"
+import React from "react"
 
 const SkeletonContent = () => (
   <div className="h-full p-4 space-y-4">

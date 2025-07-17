@@ -1,32 +1,32 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
-import MainContentHeader from "./main-content-header"
-import Sidebar from "./sidebar"
-import MobileSidebar from "./mobile-sidebar"
+import { useEffect, useMemo, useState } from "react"
 import ImportantFilesView from "./important-files-view"
+import MainContentHeader from "./main-content-header"
+import MobileSidebar from "./mobile-sidebar"
+import Sidebar from "./sidebar"
 
-// Tab Views
-import FilesView from "./tab-views/files-view"
-import ThreeDView from "./tab-views/3d-view"
-import PCBView from "./tab-views/pcb-view"
-import SchematicView from "./tab-views/schematic-view"
-import BOMView from "./tab-views/bom-view"
+import Footer from "@/components/Footer"
+import Header from "@/components/Header"
+import { useAiReview } from "@/hooks/useAiReview"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useQueryClient } from "react-query"
+import { useLocation } from "wouter"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import {
   isPackageFileImportant,
   scorePackageFileImportance,
 } from "../utils/is-package-file-important"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useLocation } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
-import { useAiReview } from "@/hooks/use-ai-review"
-import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
+import ThreeDView from "./tab-views/3d-view"
+import BOMView from "./tab-views/bom-view"
+// Tab Views
+import FilesView from "./tab-views/files-view"
+import PCBView from "./tab-views/pcb-view"
+import SchematicView from "./tab-views/schematic-view"
 
 interface PackageFile {
   package_file_id: string

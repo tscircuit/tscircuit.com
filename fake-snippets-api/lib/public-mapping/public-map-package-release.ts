@@ -1,5 +1,5 @@
-import * as ZT from "fake-snippets-api/lib/db/schema"
 import type { DbClient } from "fake-snippets-api/lib/db/db-client"
+import type * as ZT from "fake-snippets-api/lib/db/schema"
 
 export const publicMapPackageRelease = (
   internal_package_release: ZT.PackageRelease,

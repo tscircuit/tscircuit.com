@@ -1,10 +1,10 @@
+import type { AnyCircuitElement } from "circuit-json"
+import {
+  convertCircuitJsonToPcbSvg,
+  convertCircuitJsonToSchematicSvg,
+} from "circuit-to-svg"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import {
-  convertCircuitJsonToSchematicSvg,
-  convertCircuitJsonToPcbSvg,
-} from "circuit-to-svg"
-import { AnyCircuitElement } from "circuit-json"
 
 export default withRouteSpec({
   methods: ["GET"],

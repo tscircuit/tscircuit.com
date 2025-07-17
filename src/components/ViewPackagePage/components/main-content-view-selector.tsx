@@ -1,26 +1,26 @@
 "use client"
-import React from "react"
-import {
-  Code,
-  CuboidIcon as Cube,
-  CircuitBoardIcon as Circuit,
-  FileTerminal,
-  ClipboardList,
-} from "lucide-react"
+import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useCurrentPackageCircuitJson } from "@/components/ViewPackagePage/hooks/use-current-package-circuit-json"
+import {
+  CircuitBoardIcon as Circuit,
+  ClipboardList,
+  Code,
+  CuboidIcon as Cube,
+  FileTerminal,
+} from "lucide-react"
+import React from "react"
 
 interface MainContentViewSelectorProps {
   activeView: string

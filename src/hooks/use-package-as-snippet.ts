@@ -1,4 +1,4 @@
-import { useAxios } from "@/hooks/use-axios"
+import { useAxios } from "@/hooks/useAxios"
 import type {
   Package,
   PackageFile,

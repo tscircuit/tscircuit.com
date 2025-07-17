@@ -1,4 +1,4 @@
-import { it, expect } from "bun:test"
+import { expect, it } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 
 it("GET /health should return ok", async () => {

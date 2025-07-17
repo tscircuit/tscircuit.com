@@ -1,6 +1,6 @@
-import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
+import { useAxios } from "@/hooks/useAxios"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useQuery } from "react-query"
 
 export const usePackageById = (packageId: string | null) => {
   const axios = useAxios()

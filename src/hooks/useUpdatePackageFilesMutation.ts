@@ -1,7 +1,7 @@
-import { useMutation } from "react-query"
-import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useAxios } from "./use-axios"
 import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useMutation } from "react-query"
+import { useAxios } from "./useAxios"
 
 interface PackageFile {
   path: string

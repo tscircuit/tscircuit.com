@@ -1,14 +1,14 @@
+import { useDeletePackage } from "@/hooks/use-delete-package"
+import { useQueryClient } from "react-query"
+import { Button } from "../ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "../ui/dialog"
-import { Button } from "../ui/button"
 import { createUseDialog } from "./create-use-dialog"
-import { useDeletePackage } from "@/hooks/use-delete-package"
-import { useQueryClient } from "react-query"
 
 export const ConfirmDeletePackageDialog = ({
   open,

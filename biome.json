@@ -22,36 +22,18 @@
     }
   },
   "linter": {
-    "enabled": false,
+    "enabled": true,
+    "include": ["src/lib/*.*", "src/hooks/*.*"],
     "rules": {
-      "recommended": true,
-      "suspicious": {
-        "noExplicitAny": "off"
-      },
+      "recommended": false,
       "style": {
-        "noNonNullAssertion": "off",
-        "useNumberNamespace": "off",
+        "noUnusedTemplateLiteral": "error",
         "useFilenamingConvention": {
           "level": "error",
           "options": {
             "strictCase": true,
             "requireAscii": true,
-            "filenameCases": ["kebab-case", "export"]
-          }
-        },
-        "useNamingConvention": {
-          "level": "error",
-          "options": {
-            "strictCase": true,
-            "requireAscii": true,
-            "conventions": [
-              {
-                "selector": {
-                  "kind": "const"
-                },
-                "formats": ["camelCase"]
-              }
-            ]
+            "filenameCases": ["camelCase", "PascalCase"]
           }
         }
       }

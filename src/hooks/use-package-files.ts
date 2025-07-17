@@ -1,6 +1,6 @@
-import { PackageFile } from "fake-snippets-api/lib/db/schema"
-import { useQuery, UseQueryOptions } from "react-query"
-import { useAxios } from "./use-axios"
+import type { PackageFile } from "fake-snippets-api/lib/db/schema"
+import { type UseQueryOptions, useQuery } from "react-query"
+import { useAxios } from "./useAxios"
 
 type PackageFileQuery =
   | {

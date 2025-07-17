@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams } from "wouter"
 import { usePackageById } from "./use-package-by-package-id"
 import { usePackageByName } from "./use-package-by-package-name"
-import { useUrlParams } from "./use-url-params"
+import { useUrlParams } from "./useUrlParams"
 
 export const useCurrentPackageId = (): {
   packageId: string | null

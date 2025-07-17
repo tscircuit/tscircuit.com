@@ -1,6 +1,6 @@
-import { Link } from "wouter"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Star } from "lucide-react"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Link } from "wouter"
 
 export const PackageLink = (pkg: Package) => {
   return (

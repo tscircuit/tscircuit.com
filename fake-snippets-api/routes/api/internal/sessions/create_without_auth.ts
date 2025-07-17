@@ -1,7 +1,7 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
-import ms from "ms"
 import { SignJWT } from "jose"
+import ms from "ms"
+import { z } from "zod"
 
 export default withRouteSpec({
   methods: ["POST"],

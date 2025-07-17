@@ -1,8 +1,8 @@
-import React from "react"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import { PackageCardSkeleton } from "./PackageCardSkeleton"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Search } from "lucide-react"
+import type React from "react"
 import { PackageCard } from "./PackageCard"
+import { PackageCardSkeleton } from "./PackageCardSkeleton"
 
 interface PackageSearchResultsProps {
   isLoading: boolean

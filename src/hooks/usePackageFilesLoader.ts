@@ -1,6 +1,6 @@
-import { useQueries } from "react-query"
-import { useAxios } from "./use-axios"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useQueries } from "react-query"
+import { useAxios } from "./useAxios"
 import { usePackageFileById, usePackageFiles } from "./use-package-files"
 
 export interface PackageFile {

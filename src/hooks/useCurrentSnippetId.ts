@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react"
-import { useUrlParams } from "./use-url-params"
-import { useAxios } from "./use-axios"
-import { useLocation, useParams } from "wouter"
-import { useMutation } from "react-query"
-import { useSnippetByName } from "./use-snippet-by-name"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
-import { useGlobalStore } from "./use-global-store"
+import { useEffect, useRef, useState } from "react"
+import { useMutation } from "react-query"
+import { useLocation, useParams } from "wouter"
+import { useAxios } from "./useAxios"
 import { useCreateSnippetMutation } from "./use-create-snippet-mutation"
+import { useGlobalStore } from "./use-global-store"
+import { useSnippetByName } from "./useSnippetByName"
+import { useUrlParams } from "./useUrlParams"
 
 export const useCurrentSnippetId = (): {
   snippetId: string | null

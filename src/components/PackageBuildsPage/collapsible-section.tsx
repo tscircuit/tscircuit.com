@@ -1,14 +1,14 @@
-import type React from "react"
-import { ChevronRight } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getColorForDisplayStatus } from "./getColorForDisplayStatus"
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { ErrorObjectOrString } from "./ErrorObject"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { ChevronRight } from "lucide-react"
+import type React from "react"
+import type { ErrorObjectOrString } from "./ErrorObject"
 import { capitalCase } from "./capitalCase"
+import { getColorForDisplayStatus } from "./getColorForDisplayStatus"
 
 interface CollapsibleSectionProps {
   title: string

@@ -1,6 +1,6 @@
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { type UseQueryOptions, useQuery } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 
 type PackageReleaseQuery = (
   | {

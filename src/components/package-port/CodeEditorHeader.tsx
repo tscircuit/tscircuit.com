@@ -1,16 +1,29 @@
-import React, { useState, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, PanelRightClose, Bot } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
+import { useToast } from "@/hooks/useToast"
+import type { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
+import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import type { ComponentSearchResult } from "@tscircuit/runframe/runner"
+import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
+import { AlertTriangle, Bot, PanelRightClose } from "lucide-react"
+import type React from "react"
+import { type useState, useCallback } from "react"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import {
   Select,
   SelectContent,
@@ -18,18 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
-import { ComponentSearchResult } from "@tscircuit/runframe/runner"
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
-import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
-import { useGlobalStore } from "@/hooks/use-global-store"
 
 export type FileName = string
 

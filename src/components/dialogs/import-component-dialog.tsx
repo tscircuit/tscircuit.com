@@ -1,8 +1,8 @@
-import { createUseDialog } from "./create-use-dialog"
 import {
-  ComponentSearchResult,
+  type ComponentSearchResult,
   ImportComponentDialog as RunframeImportComponentDialog,
 } from "@tscircuit/runframe/runner"
+import { createUseDialog } from "./create-use-dialog"
 
 export const ImportComponentDialog = ({
   open,

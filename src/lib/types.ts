@@ -1,4 +1,4 @@
-import { Object3D, Object3DEventMap } from "three"
+import type { Object3D, Object3DEventMap } from "three"
 
 declare global {
   interface Window {

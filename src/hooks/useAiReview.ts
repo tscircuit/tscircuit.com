@@ -1,6 +1,6 @@
 import type { AiReview } from "fake-snippets-api/lib/db/schema"
 import { useQuery } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 
 export const useAiReview = (
   aiReviewId: string | null,

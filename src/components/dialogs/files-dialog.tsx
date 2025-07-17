@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import { useSnippet } from "@/hooks/useSnippet"
+import { cn } from "@/lib/utils"
+import type React from "react"
+import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { ScrollArea } from "../ui/scroll-area"
-import { cn } from "@/lib/utils"
 import { createUseDialog } from "./create-use-dialog"
-import { useSnippet } from "@/hooks/use-snippet"
 
 interface FilesDialogProps {
   open: boolean

@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import { useAxios } from "./use-axios"
+import { useAxios } from "./useAxios"
 import { useGlobalStore } from "./use-global-store"
 
 interface AccountBalance {

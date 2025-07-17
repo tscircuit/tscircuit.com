@@ -1,10 +1,10 @@
+import { Button } from "@/components/ui/button"
+import { useAiApi } from "@/hooks/useAiApi"
+import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
+import type { TextBlock } from "@anthropic-ai/sdk/resources/messages.mjs"
 import { GitHubLogoIcon, MagicWandIcon } from "@radix-ui/react-icons"
 import { ClipboardIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useAiApi } from "@/hooks/use-ai-api"
 import { useAsyncMemo } from "use-async-memo"
-import { TextBlock } from "@anthropic-ai/sdk/resources/messages.mjs"
-import { encodeTextToUrlHash } from "@/lib/encodeTextToUrlHash"
 
 export const ErrorTabContent = ({
   code,

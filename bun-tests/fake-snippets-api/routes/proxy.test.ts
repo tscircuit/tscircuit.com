@@ -1,4 +1,4 @@
-import { test, expect } from "bun:test"
+import { expect, test } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 
 test("should require X-Target-Url header", async () => {

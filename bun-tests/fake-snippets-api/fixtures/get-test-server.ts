@@ -1,7 +1,7 @@
 import { afterEach } from "bun:test"
+import type { DbClient } from "fake-snippets-api/lib/db/db-client"
 import defaultAxios from "redaxios"
 import { startServer } from "./start-server"
-import { DbClient } from "fake-snippets-api/lib/db/db-client"
 
 process.env.BUN_TEST = "true"
 interface TestFixture {

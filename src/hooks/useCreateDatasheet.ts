@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
+import { useAxios } from "@/hooks/useAxios"
 import type { Datasheet } from "fake-snippets-api/lib/db/schema"
+import { useMutation, useQueryClient } from "react-query"
 
 export const useCreateDatasheet = ({
   onSuccess,

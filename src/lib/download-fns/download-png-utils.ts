@@ -1,6 +1,6 @@
-import { AnyCircuitElement } from "circuit-json"
-import { downloadCircuitPng, ImageFormat } from "./download-circuit-png"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/hooks/useToast"
+import type { AnyCircuitElement } from "circuit-json"
+import { type ImageFormat, downloadCircuitPng } from "./download-circuit-png"
 
 interface DownloadPngOptions {
   circuitJson?: AnyCircuitElement[] | null

@@ -1,4 +1,4 @@
-import { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const getColorForDisplayStatus = (
   display_status?: PackageRelease["display_status"] | null,

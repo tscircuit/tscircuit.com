@@ -1,13 +1,13 @@
-import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
-import { defineConfig, Plugin, UserConfig } from "vite"
-import type { PluginOption } from "vite"
-import path, { extname } from "path"
 import { readFileSync } from "fs"
-import react from "@vitejs/plugin-react"
-import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
-import { getNodeHandler } from "winterspec/adapters/node"
-import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
+import path, { extname } from "path"
+import react from "@vitejs/plugin-react"
+import { type Plugin, type UserConfig, defineConfig } from "vite"
+import type { PluginOption } from "vite"
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
+import vercel from "vite-plugin-vercel"
+import { getNodeHandler } from "winterspec/adapters/node"
+import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -81,14 +81,14 @@ function vercelSsrDevPlugin(): Plugin {
         }
 
         if (!patchedRes.status) {
-          patchedRes.status = function (code: number) {
+          patchedRes.status = (code: number) => {
             patchedRes.statusCode = code
             return patchedRes
           }
         }
 
         if (!patchedRes.send) {
-          patchedRes.send = function (body: any) {
+          patchedRes.send = (body: any) => {
             if (Buffer.isBuffer(body) || typeof body === "string") {
               patchedRes.end(body)
             } else {

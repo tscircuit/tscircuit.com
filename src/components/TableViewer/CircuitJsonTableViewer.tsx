@@ -1,5 +1,6 @@
 // CircuitJsonTableViewer.tsx
-import React, { useReducer, useState } from "react"
+import type React from "react"
+import { useReducer, useState } from "react"
 import { ClickableText } from "./ClickableText"
 import { HeaderCell } from "./HeaderCell"
 import Modal from "./Modal"

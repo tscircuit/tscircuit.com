@@ -1,4 +1,4 @@
-import { useCurrentPackageId } from "./use-current-package-id"
+import { useCurrentPackageId } from "./useCurrentPackageId"
 import { usePackageById } from "./use-package-by-package-id"
 
 export const useCurrentPackageInfo = () => {

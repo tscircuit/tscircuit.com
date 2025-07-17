@@ -1,22 +1,22 @@
-import { useEffect, useMemo, useState, useCallback, useRef } from "react"
+import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
+import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
+import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
+import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
-import { PackageFile } from "@/types/package"
 import {
   DEFAULT_CODE,
   generateRandomPackageName,
 } from "@/lib/utils/package-utils"
-import { Package } from "fake-snippets-api/lib/db/schema"
-import { usePackageFiles } from "./use-package-files"
-import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
-import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
-import { usePackageFilesLoader } from "./usePackageFilesLoader"
-import { useGlobalStore } from "./use-global-store"
-import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
-import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
+import type { PackageFile } from "@/types/package"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCreatePackageMutation } from "./useCreatePackageMutation"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
-import { useCreatePackageMutation } from "./use-create-package-mutation"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
-import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
+import { useGlobalStore } from "./use-global-store"
+import { usePackageFiles } from "./use-package-files"
+import { usePackageFilesLoader } from "./usePackageFilesLoader"
+import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 
 export interface ICreateFileProps {
   newFileName: string

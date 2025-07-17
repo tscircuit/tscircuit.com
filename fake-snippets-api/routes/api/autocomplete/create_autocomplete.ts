@@ -1,7 +1,7 @@
 import "dotenv/config"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
-import { z } from "zod"
 import OpenAI from "openai"
+import { z } from "zod"
 
 // Lazy-loaded client instance
 let openai: OpenAI | null = null

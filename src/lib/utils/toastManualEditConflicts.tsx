@@ -1,4 +1,4 @@
-import { ToasterToast } from "@/hooks/use-toast"
+import type { ToasterToast } from "@/hooks/useToast"
 
 export function toastManualEditConflicts(
   circuitJson: { type: string; message: string }[],

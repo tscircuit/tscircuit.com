@@ -1,8 +1,8 @@
-import { type AnyCircuitElement } from "circuit-json"
-import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
+import type { AnyCircuitElement } from "circuit-json"
 import { convertCircuitJsonToSchematicSvg } from "circuit-to-svg"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { toString as transformToString } from "transformation-matrix"
+import { useMouseMatrixTransform } from "use-mouse-matrix-transform"
 
 interface Props {
   circuitJson: AnyCircuitElement[]

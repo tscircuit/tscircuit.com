@@ -1,12 +1,12 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
+import { useCurrentPackageId } from "@/hooks/useCurrentPackageId"
+import { usePackage } from "@/hooks/use-package"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageRelease } from "@/hooks/use-package-release"
-import { useLocation, useParams } from "wouter"
-import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
+import { Helmet } from "react-helmet-async"
+import { useLocation, useParams } from "wouter"
 import NotFoundPage from "./404"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { usePackage } from "@/hooks/use-package"
 
 export const ViewPackagePage = () => {
   const {

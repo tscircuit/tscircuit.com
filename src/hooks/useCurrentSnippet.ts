@@ -1,7 +1,7 @@
-import { useCurrentSnippetId } from "./use-current-snippet-id"
-import { useSnippet } from "./use-snippet"
-import { Snippet } from "fake-snippets-api/lib/db/schema"
-import { useAxios } from "./use-axios"
+import type { Snippet } from "fake-snippets-api/lib/db/schema"
+import { useAxios } from "./useAxios"
+import { useCurrentSnippetId } from "./useCurrentSnippetId"
+import { useSnippet } from "./useSnippet"
 
 export const useCurrentSnippet = (): {
   snippet: Snippet | null

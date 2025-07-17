@@ -1,5 +1,5 @@
-import { SupplierName } from "@tscircuit/props"
-import { AnyCircuitElement } from "circuit-json"
+import type { SupplierName } from "@tscircuit/props"
+import type { AnyCircuitElement } from "circuit-json"
 import { Link } from "wouter"
 
 interface BomTableProps {
@@ -12,7 +12,7 @@ export const linkify = (supplier: string, partNumber: string) => {
       <a
         className="underline text-blue-500"
         target="_blank"
-        href={`https://jlcpcb.com/partdetail/${partNumber}`}
+        href={`https://jlcpcb.com/partdetail/${partNumber}`} rel="noreferrer"
       >
         {partNumber}
       </a>

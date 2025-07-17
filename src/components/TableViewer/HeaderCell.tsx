@@ -1,5 +1,5 @@
 // HeaderCell.tsx
-import React from "react"
+import type React from "react"
 
 interface HeaderCellProps {
   column: { name: string }

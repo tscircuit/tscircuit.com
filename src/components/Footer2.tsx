@@ -1,12 +1,13 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Header2 } from "@/components/Header2"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   CircuitBoard,
   Cpu,
@@ -16,7 +17,6 @@ import {
   Zap,
 } from "lucide-react"
 import { Link } from "wouter"
-import { Header2 } from "@/components/Header2"
 
 export const Footer2 = () => (
   <footer className="w-full py-6 bg-background">

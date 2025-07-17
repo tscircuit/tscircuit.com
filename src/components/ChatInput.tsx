@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Paperclip, ArrowUp } from "lucide-react"
-import { useState, FormEvent } from "react"
+import { ArrowUp, Paperclip } from "lucide-react"
+import { type FormEvent, useState } from "react"
 
 interface ChatInputProps {
   onSubmit: (message: string) => void

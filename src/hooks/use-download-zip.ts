@@ -1,9 +1,9 @@
-import { useCallback } from "react"
-import JSZip from "jszip"
-import { saveAs } from "file-saver"
-import { useAxios } from "@/hooks/use-axios"
-import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
+import { useAxios } from "@/hooks/useAxios"
+import type { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
+import { saveAs } from "file-saver"
+import JSZip from "jszip"
+import { useCallback } from "react"
 
 export const useDownloadZip = () => {
   const axios = useAxios()

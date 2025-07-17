@@ -1,18 +1,18 @@
-import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { useLocation } from "wouter"
+import { useAxios } from "@/hooks/useAxios"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useToast } from "@/hooks/useToast"
+import React, { useState } from "react"
+import { useLocation } from "wouter"
 import { PrefetchPageLink } from "./PrefetchPageLink"
 
 interface JLCPCBImportDialogProps {
