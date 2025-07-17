@@ -20,7 +20,7 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
   for (const lib of libs) {
     const cached = await get(CACHE_PREFIX + lib)
     if (cached) {
-      fsMap.set("/" + lib, decompressFromUTF16(cached as string))
+      fsMap.set(`/${lib}`, decompressFromUTF16(cached as string))
     } else {
       missing.push(lib)
     }

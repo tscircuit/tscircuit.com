@@ -9,9 +9,9 @@ export const downloadSimpleRouteJson = (
   const simpleRouteJson = getSimpleRouteJsonFromCircuitJson({
     circuitJson: circuitJson as any,
     minTraceWidth: 0.1,
-  })
+  });
   const blob = new Blob([JSON.stringify(simpleRouteJson, null, 2)], {
     type: "application/json",
-  })
-  saveAs(blob, fileName + "_routes.json")
+  });
+  saveAs(blob, `${fileName}_routes.json`);
 }

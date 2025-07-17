@@ -8,5 +8,5 @@ export const downloadDsnFile = (
 ) => {
   const dsnString = convertCircuitJsonToDsnString(circuitJson)
   const blob = new Blob([dsnString], { type: "text/plain" })
-  saveAs(blob, fileName + ".dsn")
+  saveAs(blob, `${fileName}.dsn`)
 }

@@ -8,5 +8,5 @@ export const downloadSchematicSvg = (
 ) => {
   const svg = convertCircuitJsonToSchematicSvg(circuitJson)
   const blob = new Blob([svg], { type: "image/svg" })
-  saveAs(blob, fileName + ".svg")
+  saveAs(blob, `${fileName}.svg`)
 }

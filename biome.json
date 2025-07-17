@@ -25,7 +25,7 @@
     "enabled": true,
     "include": ["src/lib/*.*", "src/hooks/*.*"],
     "rules": {
-      "recommended": false,
+      "recommended": true,
       "style": {
         "noUnusedTemplateLiteral": "error",
         "useFilenamingConvention": {
@@ -35,7 +35,23 @@
             "requireAscii": true,
             "filenameCases": ["camelCase", "PascalCase"]
           }
-        }
+        },
+        "useDefaultParameterLast": "off",
+        "noParameterAssign": "off",
+        "noNonNullAssertion": "off",
+        "useConst": "off",
+        "noUselessElse": "off",
+        "useNodejsImportProtocol": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noUselessFragments": "off"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
       }
     }
   }
