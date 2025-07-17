@@ -1,4 +1,4 @@
-import { basicSetup } from "@/lib/codemirror/basic-setup"
+import { basicSetup } from "@/lib/codemirror/basicSetup"
 import { cn } from "@/lib/utils"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"

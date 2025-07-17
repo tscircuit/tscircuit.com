@@ -31,7 +31,7 @@
         "useFilenamingConvention": {
           "level": "error",
           "options": {
-            "strictCase": true,
+            "strictCase": false,
             "requireAscii": true,
             "filenameCases": ["camelCase", "PascalCase"]
           }

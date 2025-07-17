@@ -24,3 +24,6 @@ jobs:
 
       - name: Run format check
         run: bun run lint
+
+      - name: Run lint check
+        run: bun run lint

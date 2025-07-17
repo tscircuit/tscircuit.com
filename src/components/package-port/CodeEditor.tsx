@@ -10,7 +10,7 @@ import type {
   IDeleteFileProps,
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
-import { basicSetup } from "@/lib/codemirror/basic-setup"
+import { basicSetup } from "@/lib/codemirror/basicSetup"
 import {
   LOCAL_FILE_IMPORT_PATTERN,
   TSCI_PACKAGE_PATTERN,

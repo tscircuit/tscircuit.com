@@ -1,44 +1,55 @@
-import { useAxios } from "@/hooks/useAxios"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useToast } from "@/hooks/useToast"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
+import { useAxios } from "./useAxios"
+import { useGlobalStore } from "./use-global-store"
+import { useToast } from "./useToast"
 
 export const useForkPackageMutation = ({
-  pkg,
-  currentCode,
   onSuccess,
 }: {
-  pkg: Package
-  currentCode?: string
-  onSuccess?: (forkedSnippet: Package) => void
-}) => {
+  onSuccess?: (forkedPackage: Package) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const { toast } = useToast()
 
   return useMutation(
-    ["createForkSnippet"],
-    async () => {
+    ["forkPackage"],
+    async (packageId: string) => {
       if (!session) throw new Error("No session")
-      if (!pkg) throw new Error("No package to fork")
 
       const { data } = await axios.post("/packages/fork", {
-        package_id: pkg?.package_id,
+        package_id: packageId,
       })
-      return data.package
+
+      const forkedPackage: Package = data.package
+      if (!forkedPackage) throw new Error("Failed to fork package")
+
+      return forkedPackage
     },
     {
-      onSuccess: (forkedPkg: Package) => {
+      onSuccess: (result) => {
         toast({
-          title: `Forked Package`,
-          description: `You have successfully forked the package. Redirecting...`,
+          title: "Package Forked",
+          description: `Successfully forked package to @${session?.github_username}/${result.unscoped_name}`,
         })
-        onSuccess?.(forkedPkg)
+
+        const url = new URL(window.location.href)
+        url.pathname = `/${session?.github_username}/${result.unscoped_name}`
+        url.search = ""
+        window.location.href = url.toString()
+
+        onSuccess?.(result)
       },
       onError: (error: any) => {
-        console.error("Error forking package:", error)
         const message = error?.data?.error?.message
+        if (error?.data?.error_code === "cannot_fork_own_package") {
+          toast({
+            title: "Cannot Fork Package",
+            description: message || "You cannot fork your own package.",
+          })
+          return
+        }
         toast({
           title: "Error",
           description: message || "Failed to fork package. Please try again.",
