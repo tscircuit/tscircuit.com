@@ -53,6 +53,9 @@ export const DatasheetPage = () => {
               <p>No datasheet PDFs available.</p>
             )}
 
+            <h2 className="text-xl font-semibold mb-2">Summary</h2>
+            <p>{datasheetQuery.data.ai_description}</p>
+
             <h2 className="text-xl font-semibold mb-2">Pin Information</h2>
             {datasheetQuery.data.pin_information ? (
               <table className="table-auto border-collapse mb-6">
