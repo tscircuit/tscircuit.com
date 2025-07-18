@@ -38,20 +38,21 @@ export const DatasheetPage = () => {
                 <p>Datasheet is processing. Please check back later.</p>
               )}
 
-            {datasheetQuery.data.datasheet_pdf_urls && datasheetQuery.data.datasheet_pdf_urls.length > 0 && (
-              <>
-                <h2 className="text-xl font-semibold mb-2">PDFs</h2>
-                <ul className="list-disc pl-5 mb-6">
-                  {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
-                    <li key={url}>
-                      <a href={url} className="text-blue-600 underline">
-                        {url}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+            {datasheetQuery.data.datasheet_pdf_urls &&
+              datasheetQuery.data.datasheet_pdf_urls.length > 0 && (
+                <>
+                  <h2 className="text-xl font-semibold mb-2">PDFs</h2>
+                  <ul className="list-disc pl-5 mb-6">
+                    {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
+                      <li key={url}>
+                        <a href={url} className="text-blue-600 underline">
+                          {url}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
             {datasheetQuery.data.ai_description && (
               <>
@@ -60,36 +61,41 @@ export const DatasheetPage = () => {
               </>
             )}
 
-            {datasheetQuery.data.pin_information && datasheetQuery.data.pin_information.length > 0 && (
-              <>
-                <h2 className="text-xl font-semibold mb-2">Pin Information</h2>
-                <table className="table-auto border-collapse mb-6">
-                  <thead>
-                    <tr>
-                      <th className="border px-2 py-1">Pin</th>
-                      <th className="border px-2 py-1">Name</th>
-                      <th className="border px-2 py-1">Description</th>
-                      <th className="border px-2 py-1">Capabilities</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {datasheetQuery.data.pin_information.map((pin) => (
-                      <tr key={pin.pin_number}>
-                        <td className="border px-2 py-1">{pin.pin_number}</td>
-                        <td className="border px-2 py-1">{pin.name}</td>
-                        <td className="border px-2 py-1">{pin.description}</td>
-                        <td className="border px-2 py-1">
-                          <ExpandableText
-                            text={pin.capabilities.join(", ")}
-                            maxChars={30}
-                          />
-                        </td>
+            {datasheetQuery.data.pin_information &&
+              datasheetQuery.data.pin_information.length > 0 && (
+                <>
+                  <h2 className="text-xl font-semibold mb-2">
+                    Pin Information
+                  </h2>
+                  <table className="table-auto border-collapse mb-6">
+                    <thead>
+                      <tr>
+                        <th className="border px-2 py-1">Pin</th>
+                        <th className="border px-2 py-1">Name</th>
+                        <th className="border px-2 py-1">Description</th>
+                        <th className="border px-2 py-1">Capabilities</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
+                    </thead>
+                    <tbody>
+                      {datasheetQuery.data.pin_information.map((pin) => (
+                        <tr key={pin.pin_number}>
+                          <td className="border px-2 py-1">{pin.pin_number}</td>
+                          <td className="border px-2 py-1">{pin.name}</td>
+                          <td className="border px-2 py-1">
+                            {pin.description}
+                          </td>
+                          <td className="border px-2 py-1">
+                            <ExpandableText
+                              text={pin.capabilities.join(", ")}
+                              maxChars={30}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
           </div>
         ) : datasheetQuery.error &&
           (datasheetQuery.error as any).status === 404 ? (
