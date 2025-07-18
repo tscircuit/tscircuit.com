@@ -28,6 +28,8 @@ interface FileSidebarProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  isCreatingFile: boolean
+  setIsCreatingFile: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -38,10 +40,11 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   fileSidebarState,
   handleCreateFile,
   handleDeleteFile,
+  isCreatingFile,
+  setIsCreatingFile,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
-  const [isCreatingFile, setIsCreatingFile] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const { toast } = useToast()
 

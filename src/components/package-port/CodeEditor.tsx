@@ -108,6 +108,9 @@ export const CodeEditor = ({
     return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
   }, [files])
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isCreatingFile, setIsCreatingFile] = useState(false)
+
   // Set current file on component mount
   useEffect(() => {
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
@@ -287,6 +290,15 @@ export const CodeEditor = ({
             key: "Mod-Shift-f",
             run: () => {
               setShowGlobalFindReplace(true)
+              return true
+            },
+          },
+          {
+            key: "Mod-m",
+            preventDefault: true,
+            run: () => {
+              setSidebarOpen(true)
+              setIsCreatingFile(true)
               return true
             },
           },
@@ -789,7 +801,6 @@ export const CodeEditor = ({
   if (isStreaming) {
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   return (
     <div className="flex h-[98vh] w-full overflow-hidden">
       <FileSidebar
@@ -801,6 +812,8 @@ export const CodeEditor = ({
         onFileSelect={(path) => handleFileChange(path)}
         handleCreateFile={handleCreateFile}
         handleDeleteFile={handleDeleteFile}
+        isCreatingFile={isCreatingFile}
+        setIsCreatingFile={setIsCreatingFile}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
