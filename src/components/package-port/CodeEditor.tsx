@@ -35,6 +35,7 @@ import CodeEditorHeader, {
 import FileSidebar from "../FileSidebar"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import type { PackageFile } from "@/types/package"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import QuickOpen from "./QuickOpen"
 import GlobalFindReplace from "./GlobalFindReplace"
@@ -67,12 +68,14 @@ export const CodeEditor = ({
   onFileSelect,
   handleCreateFile,
   handleDeleteFile,
+  pkg,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
   isSaving?: boolean
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  pkg?: Package
   readOnly?: boolean
   isStreaming?: boolean
   pkgFilesLoaded?: boolean
@@ -801,6 +804,7 @@ export const CodeEditor = ({
         onFileSelect={(path) => handleFileChange(path)}
         handleCreateFile={handleCreateFile}
         handleDeleteFile={handleDeleteFile}
+        pkg={pkg}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
