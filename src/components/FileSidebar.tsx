@@ -1,6 +1,13 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import { File, Folder, MoreVertical, PanelRightOpen, Plus } from "lucide-react"
+import {
+  File,
+  Folder,
+  MoreVertical,
+  PanelRightOpen,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
 import { Input } from "@/components/ui/input"
@@ -18,6 +25,8 @@ import type {
   IDeleteFileResult,
 } from "@/hooks/useFileManagement"
 import { useToast } from "@/hooks/use-toast"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 type FileName = string
 
 interface FileSidebarProps {
@@ -28,6 +37,7 @@ interface FileSidebarProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  pkg?: Package
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -38,12 +48,18 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   fileSidebarState,
   handleCreateFile,
   handleDeleteFile,
+  pkg,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
   const [isCreatingFile, setIsCreatingFile] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const { toast } = useToast()
+  const session = useGlobalStore((s) => s.session)
+  const isLoggedIn = Boolean(session)
+  const canDeleteFiles =
+    isLoggedIn &&
+    (!pkg || pkg.owner_github_username === session?.github_username)
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -85,7 +101,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             draggable: false,
             droppable: !isLeafNode,
             children: isLeafNode ? undefined : {},
-            actions: (
+            actions: canDeleteFiles ? (
               <>
                 <DropdownMenu key={itemId}>
                   <DropdownMenuTrigger asChild>
@@ -118,15 +134,16 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                             setErrorMessage("")
                           }
                         }}
-                        className="flex items-center px-4 py-1 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center px-4 py-1 text-xs text-red-600 hover:bg-gray-100 cursor-pointer"
                       >
+                        <Trash2 className="mr-2 h-3 w-3" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
-            ),
+            ) : undefined,
           }
         }
 
