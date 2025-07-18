@@ -54,7 +54,7 @@ export const DatasheetPage = () => {
             )}
 
             <h2 className="text-xl font-semibold mb-2">Description</h2>
-            <p>{datasheetQuery.data.ai_description}</p>
+            <p className="mb-6">{datasheetQuery.data.ai_description}</p>
 
             <h2 className="text-xl font-semibold mb-2">Pin Information</h2>
             {datasheetQuery.data.pin_information ? (
