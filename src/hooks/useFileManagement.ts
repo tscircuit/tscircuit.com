@@ -17,6 +17,7 @@ import { useCreatePackageReleaseMutation } from "./use-create-package-release-mu
 import { useCreatePackageMutation } from "./use-create-package-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
+import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 
 export interface ICreateFileProps {
   newFileName: string
@@ -234,7 +235,9 @@ export function useFileManagement({
     }
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
-    onFileSelect(updatedFiles[0]?.path || "")
+    onFileSelect(
+      updatedFiles.filter((file) => !isHiddenFile(file.path))[0]?.path || "",
+    )
     return {
       fileDeleted: true,
     }
