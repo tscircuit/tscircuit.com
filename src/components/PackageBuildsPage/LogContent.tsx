@@ -19,34 +19,46 @@ export const LogContent = ({
     type?: "info" | "success" | "error"
     msg?: string
     message?: string
-    timestamp?: string
+    timestamp?: string | number
+    [key: string]: unknown
   }>
   error?: ErrorObject | string | null
 }) => {
   return (
     <div className="font-mono text-xs space-y-1 min-w-0">
       {logs.map((log, i) => {
-        const text = log.msg ?? log.message
+        const { type, msg, message, timestamp, ...rest } = log
+        const text = msg ?? message
         if (!text) return null
 
         return (
           <div
             key={i}
             className={`break-words whitespace-pre-wrap ${
-              log.type === "error"
+              type === "error"
                 ? "text-red-600"
-                : log.type === "success"
+                : type === "success"
                   ? "text-green-600"
                   : "text-gray-600"
             }`}
           >
-            {log.timestamp && (
+            {timestamp !== undefined && (
               <span className="text-gray-500 whitespace-nowrap">
-                {new Date(log.timestamp).toLocaleTimeString()}
+                {new Date(Number(timestamp)).toLocaleTimeString()}
               </span>
             )}
-            {log.timestamp && " "}
+            {timestamp !== undefined && " "}
             <span className="break-all">{text}</span>
+            {Object.keys(rest).filter((k) => k !== "package_release_id")
+              .length > 0 && (
+              <span className="text-gray-500">
+                {" "}
+                {Object.entries(rest)
+                  .filter(([key]) => key !== "package_release_id")
+                  .map(([key, value]) => `${key}: ${String(value)}`)
+                  .join(" ")}
+              </span>
+            )}
           </div>
         )
       })}
