@@ -5,6 +5,21 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import ExpandableText from "@/components/ExpandableText"
 import type { Datasheet } from "fake-snippets-api/lib/db/schema"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Loader2, AlertCircle, FileText } from "lucide-react"
+
+const SectionCard = ({
+  title,
+  children,
+}: { title: string; children: React.ReactNode }) => (
+  <Card className="mb-6">
+    <CardHeader className="pb-2">
+      <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+    </CardHeader>
+    <CardContent>{children}</CardContent>
+  </Card>
+)
 
 export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
@@ -19,85 +34,150 @@ export const DatasheetPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="container mx-auto flex-1 px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">{chipName} Datasheet</h1>
-        <p className="mb-4">
+      <main className="flex-grow  mx-auto px-28 py-8 w-full">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
+            {chipName} Datasheet
+          </h1>
+          <p className="text-lg text-gray-600 mb-4">
+            View and download the datasheet for{" "}
+            <span className="font-semibold text-gray-800">{chipName}</span>. If
+            the datasheet is not available, you can request its creation.
+          </p>
           <a
             href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-            className="text-blue-600 underline"
+            className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Download JSON
+            <FileText className="w-4 h-4" /> Download JSON
           </a>
-        </p>
+        </div>
+
         {datasheetQuery.isLoading ? (
-          <p>Loading...</p>
-        ) : datasheetQuery.data ? (
-          <div>
-            {!datasheetQuery.data.pin_information &&
-              !datasheetQuery.data.datasheet_pdf_urls && (
-                <p>Datasheet is processing. Please check back later.</p>
-              )}
-
-            <h2 className="text-xl font-semibold mb-2">PDFs</h2>
-            {datasheetQuery.data.datasheet_pdf_urls ? (
-              <ul className="list-disc pl-5 mb-6">
-                {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
-                  <li key={url}>
-                    <a href={url} className="text-blue-600 underline">
-                      {url}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No datasheet PDFs available.</p>
-            )}
-
-            <h2 className="text-xl font-semibold mb-2">Pin Information</h2>
-            {datasheetQuery.data.pin_information ? (
-              <table className="table-auto border-collapse mb-6">
-                <thead>
-                  <tr>
-                    <th className="border px-2 py-1">Pin</th>
-                    <th className="border px-2 py-1">Name</th>
-                    <th className="border px-2 py-1">Description</th>
-                    <th className="border px-2 py-1">Capabilities</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {datasheetQuery.data.pin_information.map((pin) => (
-                    <tr key={pin.pin_number}>
-                      <td className="border px-2 py-1">{pin.pin_number}</td>
-                      <td className="border px-2 py-1">{pin.name}</td>
-                      <td className="border px-2 py-1">{pin.description}</td>
-                      <td className="border px-2 py-1">
-                        <ExpandableText
-                          text={pin.capabilities.join(", ")}
-                          maxChars={30}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No pin information available.</p>
-            )}
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Loading Datasheet...</h3>
+            <p className="text-gray-500 max-w-md text-center">
+              Please wait while we fetch the datasheet information for{" "}
+              <span className="font-semibold">{chipName}</span>.
+            </p>
           </div>
+        ) : datasheetQuery.data ? (
+          <>
+            {!(
+              datasheetQuery.data.pin_information ||
+              datasheetQuery.data.datasheet_pdf_urls
+            ) && (
+              <SectionCard title="Processing">
+                <div className="flex items-center gap-3 text-yellow-700">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Datasheet is processing. Please check back later.</span>
+                </div>
+              </SectionCard>
+            )}
+
+            <SectionCard title="PDFs">
+              {datasheetQuery.data.datasheet_pdf_urls &&
+              datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
+                <ul className="list-disc pl-5 space-y-2">
+                  {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
+                    <li key={url}>
+                      <a
+                        href={url}
+                        className="text-blue-600 underline break-all"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {url}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">No datasheet PDFs available.</p>
+              )}
+            </SectionCard>
+
+            <SectionCard title="Pin Information">
+              {datasheetQuery.data.pin_information &&
+              datasheetQuery.data.pin_information.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse text-sm">
+                    <thead>
+                      <tr>
+                        <th className="border-b px-3 py-2 text-left font-semibold">
+                          Pin
+                        </th>
+                        <th className="border-b px-3 py-2 text-left font-semibold">
+                          Name
+                        </th>
+                        <th className="border-b px-3 py-2 text-left font-semibold">
+                          Description
+                        </th>
+                        <th className="border-b px-3 py-2 text-left font-semibold">
+                          Capabilities
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {datasheetQuery.data.pin_information.map((pin) => (
+                        <tr key={pin.pin_number} className="hover:bg-gray-50">
+                          <td className="border-b px-3 py-2 font-mono">
+                            {pin.pin_number}
+                          </td>
+                          <td className="border-b px-3 py-2">{pin.name}</td>
+                          <td className="border-b px-3 py-2">
+                            {pin.description}
+                          </td>
+                          <td className="border-b px-3 py-2">
+                            <ExpandableText
+                              text={pin.capabilities.join(", ")}
+                              maxChars={30}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-gray-500">No pin information available.</p>
+              )}
+            </SectionCard>
+          </>
         ) : datasheetQuery.error &&
           (datasheetQuery.error as any).status === 404 ? (
-          <div>
-            <p>No datasheet found.</p>
-            <button
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={handleCreate}
-              disabled={createDatasheet.isLoading}
-            >
-              {createDatasheet.isLoading ? "Creating..." : "Create Datasheet"}
-            </button>
-          </div>
+          <SectionCard title="No Datasheet Found">
+            <div className="flex flex-col items-center gap-4">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+              <p className="text-gray-700 text-center">
+                No datasheet found for{" "}
+                <span className="font-semibold">{chipName}</span>.<br />
+                You can request its creation below.
+              </p>
+              <Button
+                className="mt-2"
+                onClick={handleCreate}
+                disabled={createDatasheet.isLoading}
+                size="lg"
+              >
+                {createDatasheet.isLoading ? "Creating..." : "Create Datasheet"}
+              </Button>
+            </div>
+          </SectionCard>
         ) : (
-          <p>Error loading datasheet.</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
+            <h3 className="text-xl font-semibold mb-2">
+              Error loading datasheet
+            </h3>
+            <p className="text-gray-500 max-w-md text-center">
+              There was an error loading the datasheet for{" "}
+              <span className="font-semibold">{chipName}</span>. Please try
+              again later.
+            </p>
+          </div>
         )}
       </main>
       <Footer />
