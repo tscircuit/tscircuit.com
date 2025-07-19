@@ -304,12 +304,12 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   onClick={() => {
                     setAiAutocompleteEnabled((prev) => !prev)
                   }}
-                  className={`relative bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
+                  className={`relative group bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
                 >
                   <Bot className="h-4 w-4" />
                   {!aiAutocompleteEnabled && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-5 h-0.5 bg-gray-400 rotate-45 rounded-full" />
+                      <div className="w-5 h-0.5 group-hover:bg-slate-900 bg-gray-400 rotate-45 rounded-full" />
                     </div>
                   )}
                 </Button>
