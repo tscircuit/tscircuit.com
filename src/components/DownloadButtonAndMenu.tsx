@@ -12,6 +12,7 @@ import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
+import { downloadSpiceFile } from "@/lib/download-fns/download-spice-file"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
@@ -212,6 +213,18 @@ export function DownloadButtonAndMenu({
             <span className="flex-grow mr-6">Readable Netlist</span>
             <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               txt
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={() => {
+              downloadSpiceFile(circuitJson, unscopedName || "circuit")
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">SPICE Netlist</span>
+            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              spice
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
