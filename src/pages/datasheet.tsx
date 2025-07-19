@@ -1,6 +1,7 @@
 import { useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
+import { useToast } from "@/hooks/use-toast"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import ExpandableText from "@/components/ExpandableText"
@@ -25,6 +26,7 @@ export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
   const datasheetQuery = useDatasheet(chipName)
   const createDatasheet = useCreateDatasheet()
+  const { toastLibrary } = useToast()
 
   const handleCreate = () => {
     if (!chipName) return
@@ -32,28 +34,28 @@ export const DatasheetPage = () => {
   }
 
   const handleDownload = async () => {
-    if (!chipName) return
-    
-    try {
-      const response = await fetch(`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch datasheet')
-      }
-      
-      const data = await response.json()
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-      const url = URL.createObjectURL(blob)
-      
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${chipName}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error downloading datasheet:', error)
+    const response = await fetch(
+      `https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`,
+    )
+    if (!response.ok) {
+      throw new Error("Failed to fetch datasheet")
     }
+
+    const data = await response.json()
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    })
+    const url = URL.createObjectURL(blob)
+
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${chipName}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    return data
   }
 
   return (
@@ -78,13 +80,18 @@ export const DatasheetPage = () => {
             >
               <FileText className="w-4 h-4" /> View JSON
             </a>
-            <a
-              href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
-              download={`${chipName}.json`}
+            <button
+              onClick={() => {
+                toastLibrary.promise(handleDownload(), {
+                  loading: `Downloading ${chipName}.json...`,
+                  success: `${chipName}.json downloaded successfully!`,
+                  error: "Failed to download datasheet. Please try again.",
+                })
+              }}
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium bg-transparent border-none cursor-pointer p-0"
             >
               <DownloadCloud className="w-4 h-4" /> Download JSON
-            </a>
+            </button>
           </div>
         </div>
 
