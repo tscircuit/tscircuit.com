@@ -16,6 +16,7 @@ import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface Props {
   pkg?: Package
@@ -38,6 +39,7 @@ export interface CodeAndPreviewState {
 
 export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()
+  const session = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
 
   const templateFromUrl = useMemo(
@@ -208,6 +210,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             isSaving={isSaving}
             handleCreateFile={createFile}
             handleDeleteFile={deleteFile}
+            pkg={pkg}
             currentFile={currentFile}
             onFileSelect={onFileSelect}
             files={localFiles}
