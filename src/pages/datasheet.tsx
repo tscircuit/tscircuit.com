@@ -7,7 +7,7 @@ import ExpandableText from "@/components/ExpandableText"
 import type { Datasheet } from "fake-snippets-api/lib/db/schema"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, AlertCircle, FileText } from "lucide-react"
+import { Loader2, AlertCircle, FileText, DownloadCloud } from "lucide-react"
 
 const SectionCard = ({
   title,
@@ -31,10 +31,35 @@ export const DatasheetPage = () => {
     createDatasheet.mutate({ chip_name: chipName })
   }
 
+  const handleDownload = async () => {
+    if (!chipName) return
+    
+    try {
+      const response = await fetch(`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch datasheet')
+      }
+      
+      const data = await response.json()
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${chipName}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error downloading datasheet:', error)
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow  mx-auto px-28 py-8 w-full">
+      <main className="flex-grow  mx-auto px-4 md:px-20 lg:px-28 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
             {chipName} Datasheet
@@ -44,14 +69,23 @@ export const DatasheetPage = () => {
             <span className="font-semibold text-gray-800">{chipName}</span>. If
             the datasheet is not available, you can request its creation.
           </p>
-          <a
-            href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FileText className="w-4 h-4" /> Download JSON
-          </a>
+          <div className="flex gap-4">
+            <a
+              href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FileText className="w-4 h-4" /> View JSON
+            </a>
+            <a
+              href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
+              download={`${chipName}.json`}
+            >
+              <DownloadCloud className="w-4 h-4" /> Download JSON
+            </a>
+          </div>
         </div>
 
         {datasheetQuery.isLoading ? (

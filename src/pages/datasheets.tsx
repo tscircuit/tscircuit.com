@@ -43,7 +43,7 @@ export const DatasheetsPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8 min-h-[80vh]">
         <div className="mb-8 max-w-3xl">
           <div className="flex items-center gap-2 mb-3">
             <h1 className="text-4xl font-bold text-gray-900">Datasheets</h1>
