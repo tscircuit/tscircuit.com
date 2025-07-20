@@ -218,7 +218,15 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 sidebarOpen ? "-ml-2" : "-ml-1"
               }`}
             >
-              <SelectValue placeholder="Select file" />
+              <SelectValue
+                placeholder={
+                  Object.keys(files).filter(
+                    (filename) => !isHiddenFile(filename),
+                  ).length > 0
+                    ? "Select file"
+                    : "No files"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {Object.keys(files)
