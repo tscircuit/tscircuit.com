@@ -46,7 +46,7 @@ export const DatasheetPage = () => {
           </p>
           <a
             href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium"
+            className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
             target="_blank"
             rel="noopener noreferrer"
           >
