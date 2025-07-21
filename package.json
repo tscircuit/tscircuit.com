@@ -32,9 +32,6 @@
     "generate-images": "bun run scripts/generate-image-sizes.ts",
     "generate-sitemap": "bun run scripts/generate-sitemap.ts"
   },
-  "dependencies": {
-    "@tscircuit/pcb-viewer": "1.11.194"
-  },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
     "@babel/preset-react": "^7.25.9",
@@ -84,6 +81,7 @@
     "@tscircuit/eval": "^0.0.244",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
+    "@tscircuit/pcb-viewer": "1.11.194",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/runframe": "0.0.712",
     "@tscircuit/schematic-viewer": "^2.0.24",
