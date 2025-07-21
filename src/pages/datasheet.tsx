@@ -77,6 +77,16 @@ export const DatasheetPage = () => {
               </SectionCard>
             )}
 
+            <SectionCard title="Description">
+              {datasheetQuery.data.ai_description ? (
+                <div className="flex items-center gap-3 text-gray-500">
+                  <span>{datasheetQuery.data.ai_description}</span>
+                </div>
+              ) : (
+                <p className="text-gray-500">No description available.</p>
+              )}
+            </SectionCard>
+
             <SectionCard title="PDFs">
               {datasheetQuery.data.datasheet_pdf_urls &&
               datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
