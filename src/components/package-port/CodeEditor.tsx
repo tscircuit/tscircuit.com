@@ -296,15 +296,6 @@ export const CodeEditor = ({
               return true
             },
           },
-          {
-            key: "Mod-m",
-            preventDefault: true,
-            run: () => {
-              setSidebarOpen(true)
-              setIsCreatingFile(true)
-              return true
-            },
-          },
         ]),
       ),
       keymap.of([indentWithTab]),
@@ -799,6 +790,11 @@ export const CodeEditor = ({
     if (showGlobalFindReplace) {
       setShowGlobalFindReplace(false)
     }
+  })
+
+  useHotkeyCombo("cmd+m", () => {
+    setSidebarOpen(true)
+    setIsCreatingFile(true)
   })
 
   if (isStreaming) {
