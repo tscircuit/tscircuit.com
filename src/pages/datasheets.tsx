@@ -43,7 +43,7 @@ export const DatasheetsPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8 min-h-[80vh]">
         <div className="mb-8 max-w-3xl">
           <div className="flex items-center gap-2 mb-3">
             <h1 className="text-4xl font-bold text-gray-900">Datasheets</h1>
@@ -126,7 +126,7 @@ export const DatasheetsPage: React.FC = () => {
             </p>
             {searchQuery && (
               <button
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
                 onClick={() =>
                   createDatasheet.mutate({ chip_name: searchQuery })
                 }

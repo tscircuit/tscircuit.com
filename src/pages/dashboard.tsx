@@ -98,7 +98,7 @@ export const DashboardPage = () => {
         <title>Dashboard - tscircuit</title>
       </Helmet>
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 min-h-[80vh]">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">

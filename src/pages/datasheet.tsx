@@ -34,7 +34,7 @@ export const DatasheetPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow  mx-auto px-28 py-8 w-full">
+      <main className="flex-grow  mx-auto px-4 md:px-20 lg:px-28 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
             {chipName} Datasheet
@@ -46,7 +46,7 @@ export const DatasheetPage = () => {
           </p>
           <a
             href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm font-medium"
+            className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
             target="_blank"
             rel="noopener noreferrer"
           >

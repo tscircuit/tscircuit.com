@@ -91,7 +91,7 @@ export const SearchPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow bg-gray-50 pb-12">
+      <main className="flex-grow pb-12 min-h-[80vh]">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-8xl mx-auto">
             <div className="mb-6">
