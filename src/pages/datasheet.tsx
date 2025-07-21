@@ -34,7 +34,7 @@ export const DatasheetPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow  mx-auto px-28 py-8 w-full">
+      <main className="flex-grow  mx-auto px-4 md:px-20 lg:px-28 py-8 w-full">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
             {chipName} Datasheet
