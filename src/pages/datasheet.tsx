@@ -70,7 +70,7 @@ export const DatasheetPage = () => {
               datasheetQuery.data.datasheet_pdf_urls
             ) && (
               <SectionCard title="Processing">
-                <div className="flex items-center gap-3 text-gray-500">
+                <div className="flex items-center gap-3 text-yellow-700">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Datasheet is processing. Please check back later.</span>
                 </div>
@@ -79,7 +79,7 @@ export const DatasheetPage = () => {
 
             <SectionCard title="Description">
               {datasheetQuery.data.ai_description ? (
-                <div className="flex items-center gap-3 text-yellow-700">
+                <div className="flex items-center gap-3 text-gray-500">
                   <span>{datasheetQuery.data.ai_description}</span>
                 </div>
               ) : (
