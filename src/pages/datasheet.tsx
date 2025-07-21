@@ -77,6 +77,12 @@ export const DatasheetPage = () => {
               </SectionCard>
             )}
 
+            <SectionCard title="Description">
+              <div className="flex items-center gap-3 text-yellow-700">
+                <span>{datasheetQuery.data.ai_description}</span>
+              </div>
+            </SectionCard>
+
             <SectionCard title="PDFs">
               {datasheetQuery.data.datasheet_pdf_urls &&
               datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
