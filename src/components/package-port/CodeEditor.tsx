@@ -44,6 +44,8 @@ import {
   ICreateFileResult,
   IDeleteFileProps,
   IDeleteFileResult,
+  IRenameFileProps,
+  IRenameFileResult,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
@@ -66,6 +68,7 @@ export const CodeEditor = ({
   pkgFilesLoaded,
   currentFile,
   onFileSelect,
+  handleRenameFile,
   handleCreateFile,
   handleDeleteFile,
   pkg,
@@ -75,6 +78,7 @@ export const CodeEditor = ({
   isSaving?: boolean
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  handleRenameFile: (props: IRenameFileProps) => IRenameFileResult
   pkg?: Package
   readOnly?: boolean
   isStreaming?: boolean
@@ -810,6 +814,7 @@ export const CodeEditor = ({
         }
         onFileSelect={(path) => handleFileChange(path)}
         handleCreateFile={handleCreateFile}
+        handleRenameFile={handleRenameFile}
         handleDeleteFile={handleDeleteFile}
         isCreatingFile={isCreatingFile}
         setIsCreatingFile={setIsCreatingFile}
