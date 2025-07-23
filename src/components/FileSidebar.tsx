@@ -104,9 +104,28 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             name: segment,
             isRenaming: renamingFile === itemId,
             onRename: (newFilename: string) => {
+              // Preserve the folder structure when renaming
+              const oldPath = itemId
+              const pathParts = oldPath.split("/").filter((part) => part !== "") // Remove empty segments
+              let newPath: string
+
+              if (pathParts.length > 1) {
+                // File is in a folder, preserve the folder structure
+                const folderPath = pathParts.slice(0, -1).join("/")
+                newPath = folderPath + "/" + newFilename
+              } else {
+                // File is in root, just use the new filename
+                newPath = newFilename
+              }
+
+              // Preserve leading slash if original path had one
+              if (oldPath.startsWith("/") && !newPath.startsWith("/")) {
+                newPath = "/" + newPath
+              }
+
               const { fileRenamed } = handleRenameFile({
                 oldFilename: itemId,
-                newFilename: newFilename,
+                newFilename: newPath,
                 onError: (error) => {
                   toast({
                     title: `Error renaming file`,
@@ -145,22 +164,24 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                     }}
                   >
                     <DropdownMenuGroup>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setRenamingFile(itemId)
-                        }}
-                        className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
-                      >
-                        <Pencil className="mr-2 h-3 w-3" />
-                        Rename
-                      </DropdownMenuItem>
+                      {isLeafNode && (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setRenamingFile(itemId)
+                          }}
+                          className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-3 w-3" />
+                          Rename
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem
                         onClick={() => {
                           const { fileDeleted } = handleDeleteFile({
-                            filename: relativePath,
+                            filename: itemId,
                             onError: (error) => {
                               toast({
-                                title: `Error deleting file ${relativePath}`,
+                                title: `Error deleting file ${itemId}`,
                                 description: error.message,
                               })
                             },

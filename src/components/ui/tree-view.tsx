@@ -415,18 +415,40 @@ const TreeLeaf = React.forwardRef<
             defaultValue={item.name as string}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                item.onRename?.(e.currentTarget.value)
+                e.preventDefault()
+                const value = e.currentTarget.value.trim()
+                if (value && value !== item.name) {
+                  item.onRename?.(value)
+                } else {
+                  item.onCancelRename?.()
+                }
               } else if (e.key === "Escape") {
+                e.preventDefault()
                 item.onCancelRename?.()
               }
             }}
             spellCheck={false}
             autoComplete="off"
-            onBlur={(e) => item.onRename?.(e.currentTarget.value)}
+            onBlur={(e) => {
+              const value = e.currentTarget.value.trim()
+              if (value && value !== item.name) {
+                item.onRename?.(value)
+              } else {
+                item.onCancelRename?.()
+              }
+            }}
             autoFocus
             onClick={(e) => e.stopPropagation()}
-            className="h-7 px-2 py-0 text-sm w-[80%] bg-transparent"
-            onFocus={(e) => e.currentTarget.select()}
+            className="h-6 px-2 py-0 text-sm flex-1 mr-8 bg-white border border-blue-500 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            onFocus={(e) => {
+              e.currentTarget.select()
+              // Select filename without extension
+              const filename = e.currentTarget.value
+              const lastDotIndex = filename.lastIndexOf(".")
+              if (lastDotIndex > 0) {
+                e.currentTarget.setSelectionRange(0, lastDotIndex)
+              }
+            }}
           />
         ) : (
           <span className="text-sm truncate">{item.name}</span>

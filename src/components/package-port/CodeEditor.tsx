@@ -171,14 +171,37 @@ export const CodeEditor = ({
     { target: window },
   )
 
-  useEffect(() => {
-    if (!editorRef.current) return
+  // Separate effect for updating file system map to avoid recreating TS environment
+  const fsMapRef = useRef<Map<string, string>>(new Map())
+  const envRef = useRef<any>(null)
 
+  useEffect(() => {
     const fsMap = new Map<string, string>()
     files.forEach(({ path, content }) => {
       fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
     })
+    fsMapRef.current = fsMap
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
+
+    // Update existing environment if it exists
+    if (envRef.current) {
+      // Update the file system map in the existing environment
+      files.forEach(({ path, content }) => {
+        const normalizedPath = `${path.startsWith("/") ? "" : "/"}${path}`
+        try {
+          envRef.current.updateFile(normalizedPath, content)
+        } catch {
+          // If file doesn't exist, create it
+          envRef.current.createFile(normalizedPath, content)
+        }
+      })
+    }
+  }, [files])
+
+  useEffect(() => {
+    if (!editorRef.current) return
+
+    const fsMap = new Map(fsMapRef.current)
 
     loadDefaultLibMap().then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
@@ -195,6 +218,8 @@ export const CodeEditor = ({
       target: tsModule.ScriptTarget.ES2022,
       resolveJsonModule: true,
     })
+
+    envRef.current = env
 
     // Add alias for tscircuit -> @tscircuit/core
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`

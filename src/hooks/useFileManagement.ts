@@ -265,7 +265,10 @@ export function useFileManagement({
         fileRenamed: false,
       }
     }
-    if (!isValidFileName(newFilename)) {
+
+    // Extract just the filename from the path for validation
+    const fileNameOnly = newFilename.split("/").pop() || ""
+    if (!isValidFileName(fileNameOnly)) {
       onError(new Error("Invalid file name"))
       return {
         fileRenamed: false,
