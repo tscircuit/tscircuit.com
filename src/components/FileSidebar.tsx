@@ -7,6 +7,7 @@ import {
   PanelRightOpen,
   Plus,
   Trash2,
+  Pencil,
 } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
@@ -23,6 +24,8 @@ import type {
   ICreateFileResult,
   IDeleteFileProps,
   IDeleteFileResult,
+  IRenameFileProps,
+  IRenameFileResult,
 } from "@/hooks/useFileManagement"
 import { useToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -37,6 +40,7 @@ interface FileSidebarProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  handleRenameFile: (props: IRenameFileProps) => IRenameFileResult
   isCreatingFile: boolean
   setIsCreatingFile: React.Dispatch<React.SetStateAction<boolean>>
   pkg?: Package
@@ -50,6 +54,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   fileSidebarState,
   handleCreateFile,
   handleDeleteFile,
+  handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
   pkg,
@@ -57,12 +62,16 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
+  const [renamingFile, setRenamingFile] = useState<string | null>(null)
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
-  const isLoggedIn = Boolean(session)
-  const canDeleteFiles =
-    isLoggedIn &&
-    (!pkg || pkg.owner_github_username === session?.github_username)
+  const canModifyFiles = (() => {
+    if (pkg) {
+      return pkg.owner_github_username === session?.github_username
+    } else {
+      return true
+    }
+  })()
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -98,13 +107,33 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         ) {
           currentNode[segment] = {
             id: itemId,
-            name: isLeafNode ? segment : segment,
+            name: segment,
+            isRenaming: renamingFile === itemId,
+            onRename: (newFilename: string) => {
+              const { fileRenamed } = handleRenameFile({
+                oldFilename: itemId,
+                newFilename: newFilename,
+                onError: (error) => {
+                  toast({
+                    title: `Error renaming file`,
+                    description: error.message,
+                    variant: "destructive",
+                  })
+                },
+              })
+              if (fileRenamed) {
+                setRenamingFile(null)
+              }
+            },
+            onCancelRename: () => {
+              setRenamingFile(null)
+            },
             icon: isLeafNode ? File : Folder,
             onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
             draggable: false,
             droppable: !isLeafNode,
             children: isLeafNode ? undefined : {},
-            actions: canDeleteFiles ? (
+            actions: canModifyFiles ? (
               <>
                 <DropdownMenu key={itemId}>
                   <DropdownMenuTrigger asChild>
@@ -122,6 +151,15 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
                     }}
                   >
                     <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setRenamingFile(itemId)
+                        }}
+                        className="flex items-center px-4 py-1 text-xs text-gray-600 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <Pencil className="mr-2 h-3 w-3" />
+                        Rename
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
                           const { fileDeleted } = handleDeleteFile({
@@ -172,7 +210,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   }
 
   const treeData = transformFilesToTreeData(files)
-  // console.log("treeData", files)
+
   const handleCreateFileInline = () => {
     const { newFileCreated } = handleCreateFile({
       newFileName,

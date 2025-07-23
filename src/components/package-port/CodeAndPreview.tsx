@@ -77,6 +77,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     setLocalFiles,
     localFiles,
     initialFiles,
+    renameFile,
   } = useFileManagement({
     templateCode: templateFromUrl?.code,
     currentPackage: pkg,
@@ -210,6 +211,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             isSaving={isSaving}
             handleCreateFile={createFile}
             handleDeleteFile={deleteFile}
+            handleRenameFile={renameFile}
             pkg={pkg}
             currentFile={currentFile}
             onFileSelect={onFileSelect}

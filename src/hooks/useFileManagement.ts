@@ -37,6 +37,16 @@ export interface IDeleteFileProps {
   onError: (error: Error) => void
 }
 
+export interface IRenameFileProps {
+  oldFilename: string
+  newFilename: string
+  onError: (error: Error) => void
+}
+
+export interface IRenameFileResult {
+  fileRenamed: boolean
+}
+
 export function useFileManagement({
   templateCode,
   currentPackage,
@@ -243,6 +253,58 @@ export function useFileManagement({
     }
   }
 
+  const renameFile = ({
+    oldFilename,
+    newFilename,
+    onError,
+  }: IRenameFileProps): IRenameFileResult => {
+    newFilename = newFilename.trim()
+    if (!newFilename) {
+      onError(new Error("File name cannot be empty"))
+      return {
+        fileRenamed: false,
+      }
+    }
+    if (!isValidFileName(newFilename)) {
+      onError(new Error("Invalid file name"))
+      return {
+        fileRenamed: false,
+      }
+    }
+
+    const oldFileExists = localFiles?.some((file) => file.path === oldFilename)
+    if (!oldFileExists) {
+      onError(new Error("File does not exist"))
+      return {
+        fileRenamed: false,
+      }
+    }
+
+    const newFileExists = localFiles?.some((file) => file.path === newFilename)
+    if (newFileExists) {
+      onError(new Error("A file with this name already exists"))
+      return {
+        fileRenamed: false,
+      }
+    }
+
+    const updatedFiles = localFiles.map((file) => {
+      if (file.path === oldFilename) {
+        return { ...file, path: newFilename }
+      }
+      return file
+    })
+
+    setLocalFiles(updatedFiles)
+    if (currentFile === oldFilename) {
+      setCurrentFile(newFilename)
+    }
+
+    return {
+      fileRenamed: true,
+    }
+  }
+
   const savePackage = async (isPrivate: boolean) => {
     if (!isLoggedIn) {
       toast({
@@ -357,6 +419,7 @@ export function useFileManagement({
     fsMap,
     createFile,
     deleteFile,
+    renameFile,
     saveFiles,
     localFiles,
     initialFiles,
