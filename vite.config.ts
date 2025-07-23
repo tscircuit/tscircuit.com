@@ -1,3 +1,4 @@
+import "dotenv/config"
 import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
