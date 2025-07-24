@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import {
   Edit,
   FileText,
@@ -9,12 +9,12 @@ import {
   CopyCheck,
   Loader2,
   RefreshCcwIcon,
+  SparklesIcon,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
+import { usePackageFile } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
-import { SparklesIcon } from "lucide-react"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -39,6 +39,15 @@ interface ImportantFilesViewProps {
   onLicenseFileRequested?: boolean
 }
 
+type TabType = "ai" | "ai-review" | "file"
+
+interface TabInfo {
+  type: TabType
+  filePath?: string | null
+  label: string
+  icon: React.ReactNode
+}
+
 export default function ImportantFilesView({
   importantFiles = [],
   aiDescription,
@@ -51,103 +60,233 @@ export default function ImportantFilesView({
   packageAuthorOwner,
   onLicenseFileRequested,
 }: ImportantFilesViewProps) {
-  const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<TabInfo | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
   const { session: user } = useGlobalStore()
 
-  const handleCopy = () => {
-    if (activeTab === "ai-review" && aiReviewText) {
-      navigator.clipboard.writeText(aiReviewText || "")
-      setCopyState("copied")
-      setTimeout(() => setCopyState("copy"), 500)
-      return
-    }
-    navigator.clipboard.writeText(activeFileContent)
-    setCopyState("copied")
-    setTimeout(() => setCopyState("copy"), 500)
-  }
-  // Determine if we have AI content
-  const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
-  const hasAiReview = Boolean(aiReviewText)
+  // Memoized computed values
+  const hasAiContent = useMemo(
+    () => Boolean(aiDescription || aiUsageInstructions),
+    [aiDescription, aiUsageInstructions],
+  )
+  const hasAiReview = useMemo(() => Boolean(aiReviewText), [aiReviewText])
+  const isOwner = useMemo(
+    () => user?.github_username === packageAuthorOwner,
+    [user?.github_username, packageAuthorOwner],
+  )
 
-  useEffect(() => {
-    if (onLicenseFileRequested && importantFiles.length > 0) {
-      const licenseFile = importantFiles.find(
-        (file) =>
-          file.file_path.toLowerCase() === "license" ||
-          file.file_path.toLowerCase().endsWith("/license") ||
-          file.file_path.toLowerCase() === "license.txt" ||
-          file.file_path.toLowerCase().endsWith("/license.txt") ||
-          file.file_path.toLowerCase() === "license.md" ||
-          file.file_path.toLowerCase().endsWith("/license.md"),
-      )
-
-      if (licenseFile) {
-        setActiveFilePath(licenseFile.file_path)
-        setActiveTab("file")
-      }
-    }
-  }, [onLicenseFileRequested, importantFiles])
-  useEffect(() => {
-    if (activeTab !== null) return
-    if (isLoading) return
-
-    // First priority: README file if it exists
-    const readmeFile = importantFiles.find(
-      (file) =>
-        file.file_path.toLowerCase().endsWith("readme.md") ||
-        file.file_path.toLowerCase().endsWith("readme"),
+  // File type utilities
+  const isLicenseFile = useCallback((filePath: string) => {
+    const lowerPath = filePath.toLowerCase()
+    return (
+      lowerPath === "license" ||
+      lowerPath.endsWith("/license") ||
+      lowerPath === "license.txt" ||
+      lowerPath.endsWith("/license.txt") ||
+      lowerPath === "license.md" ||
+      lowerPath.endsWith("/license.md")
     )
+  }, [])
 
-    if (readmeFile) {
-      setActiveFilePath(readmeFile.file_path)
-      setActiveTab("file")
-    } else if (hasAiContent) {
-      // Second priority: AI content if available
-      setActiveTab("ai")
-      setActiveFilePath(null)
-    } else if (hasAiReview) {
-      setActiveTab("ai-review")
-      setActiveFilePath(null)
-    } else if (importantFiles.length > 0) {
-      // Third priority: First important file
-      setActiveFilePath(importantFiles[0].file_path)
-      setActiveTab("file")
-    }
-  }, [
-    aiDescription,
-    aiUsageInstructions,
-    aiReviewText,
-    hasAiContent,
-    hasAiReview,
-    importantFiles,
-    activeTab,
-    isLoading,
-  ])
+  const isReadmeFile = useCallback((filePath: string) => {
+    const lowerPath = filePath.toLowerCase()
+    return lowerPath.endsWith("readme.md") || lowerPath.endsWith("readme")
+  }, [])
 
-  // Get file name from path
-  const getFileName = (path: string) => {
+  const isCodeFile = useCallback((filePath: string) => {
+    return (
+      filePath.endsWith(".js") ||
+      filePath.endsWith(".jsx") ||
+      filePath.endsWith(".ts") ||
+      filePath.endsWith(".tsx")
+    )
+  }, [])
+
+  const isMarkdownFile = useCallback(
+    (filePath: string) => {
+      return filePath.endsWith(".md") || isReadmeFile(filePath)
+    },
+    [isReadmeFile],
+  )
+
+  const getFileName = useCallback((path: string) => {
     const parts = path.split("/")
     return parts[parts.length - 1]
-  }
+  }, [])
 
-  // Get file icon based on extension
-  const getFileIcon = (path: string) => {
-    if (
-      path.endsWith(".js") ||
-      path.endsWith(".jsx") ||
-      path.endsWith(".ts") ||
-      path.endsWith(".tsx")
-    ) {
-      return <Code className="h-3.5 w-3.5 mr-1.5" />
+  const getFileIcon = useCallback(
+    (path: string) => {
+      return isCodeFile(path) ? (
+        <Code className="h-3.5 w-3.5 mr-1.5" />
+      ) : (
+        <FileText className="h-3.5 w-3.5 mr-1.5" />
+      )
+    },
+    [isCodeFile],
+  )
+
+  // Available tabs computation
+  const availableTabs = useMemo((): TabInfo[] => {
+    const tabs: TabInfo[] = []
+
+    if (hasAiContent) {
+      tabs.push({
+        type: "ai",
+        filePath: null,
+        label: "Description",
+        icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
+      })
     }
-    return <FileText className="h-3.5 w-3.5 mr-1.5" />
-  }
 
-  // Render AI content
-  const renderAiContent = () => {
-    return (
+    tabs.push({
+      type: "ai-review",
+      filePath: null,
+      label: "AI Review",
+      icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
+    })
+
+    importantFiles.forEach((file) => {
+      tabs.push({
+        type: "file",
+        filePath: file.file_path,
+        label: getFileName(file.file_path),
+        icon: getFileIcon(file.file_path),
+      })
+    })
+
+    return tabs
+  }, [hasAiContent, importantFiles, getFileName, getFileIcon])
+
+  // Find default tab with fallback logic
+  const getDefaultTab = useCallback((): TabInfo | null => {
+    if (isLoading || availableTabs.length === 0) return null
+
+    // Priority 1: README file
+    const readmeTab = availableTabs.find(
+      (tab) =>
+        tab.type === "file" && tab.filePath && isReadmeFile(tab.filePath),
+    )
+    if (readmeTab) return readmeTab
+
+    // Priority 2: AI content
+    const aiTab = availableTabs.find((tab) => tab.type === "ai")
+    if (aiTab) return aiTab
+
+    // Priority 3: AI review
+    const aiReviewTab = availableTabs.find((tab) => tab.type === "ai-review")
+    if (aiReviewTab) return aiReviewTab
+
+    // Priority 4: First file
+    const firstFileTab = availableTabs.find((tab) => tab.type === "file")
+    if (firstFileTab) return firstFileTab
+
+    return null
+  }, [isLoading, availableTabs, isReadmeFile])
+
+  // Handle copy functionality
+  const handleCopy = useCallback(() => {
+    let textToCopy = ""
+
+    if (activeTab?.type === "ai-review" && aiReviewText) {
+      textToCopy = aiReviewText
+    } else if (activeTab?.type === "file" && activeFileContent) {
+      textToCopy = activeFileContent
+    }
+
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy)
+      setCopyState("copied")
+      setTimeout(() => setCopyState("copy"), 500)
+    }
+  }, [activeTab, aiReviewText])
+
+  // Handle tab selection with validation
+  const selectTab = useCallback(
+    (tab: TabInfo) => {
+      // Validate that the tab still exists (for file tabs)
+      if (tab.type === "file" && tab.filePath) {
+        const fileExists = importantFiles.some(
+          (file) => file.file_path === tab.filePath,
+        )
+        if (!fileExists) {
+          // File was deleted, fallback to default tab
+          const defaultTab = getDefaultTab()
+          setActiveTab(defaultTab)
+          return
+        }
+      }
+      setActiveTab(tab)
+    },
+    [importantFiles, getDefaultTab],
+  )
+
+  // Handle license file request
+  useEffect(() => {
+    if (onLicenseFileRequested && importantFiles.length > 0) {
+      const licenseTab = availableTabs.find(
+        (tab) =>
+          tab.type === "file" && tab.filePath && isLicenseFile(tab.filePath),
+      )
+
+      if (licenseTab) {
+        setActiveTab(licenseTab)
+      } else {
+        // License file not found, fallback to default
+        const defaultTab = getDefaultTab()
+        setActiveTab(defaultTab)
+      }
+    }
+  }, [
+    onLicenseFileRequested,
+    importantFiles,
+    availableTabs,
+    isLicenseFile,
+    getDefaultTab,
+  ])
+
+  // Set default tab when no tab is active
+  useEffect(() => {
+    if (activeTab === null && !isLoading) {
+      const defaultTab = getDefaultTab()
+      setActiveTab(defaultTab)
+    }
+  }, [activeTab, isLoading, getDefaultTab])
+
+  // Validate active tab still exists (handles file deletion)
+  useEffect(() => {
+    if (activeTab?.type === "file" && activeTab.filePath) {
+      const fileExists = importantFiles.some(
+        (file) => file.file_path === activeTab.filePath,
+      )
+      if (!fileExists) {
+        // Active file was deleted, fallback to default
+        const defaultTab = getDefaultTab()
+        setActiveTab(defaultTab)
+      }
+    }
+  }, [activeTab, importantFiles, getDefaultTab])
+
+  // Get active file content
+  const partialActiveFile = useMemo(() => {
+    if (activeTab?.type !== "file" || !activeTab.filePath) return null
+    return importantFiles.find((file) => file.file_path === activeTab.filePath)
+  }, [activeTab, importantFiles])
+
+  const { data: activeFileFull } = usePackageFile(
+    partialActiveFile
+      ? {
+          file_path: partialActiveFile.file_path,
+          package_release_id: partialActiveFile.package_release_id,
+        }
+      : null,
+    { keepPreviousData: true },
+  )
+
+  const activeFileContent = activeFileFull?.content_text || ""
+
+  // Render content based on active tab
+  const renderAiContent = useCallback(
+    () => (
       <div className="markdown-content">
         {aiDescription && (
           <div className="mb-6">
@@ -162,12 +301,11 @@ export default function ImportantFilesView({
           </div>
         )}
       </div>
-    )
-  }
+    ),
+    [aiDescription, aiUsageInstructions],
+  )
 
-  const renderAiReviewContent = () => {
-    const isOwner = user?.github_username === packageAuthorOwner
-
+  const renderAiReviewContent = useCallback(() => {
     if (!aiReviewText && !aiReviewRequested) {
       return (
         <div className="flex flex-col items-center justify-center py-8 px-4">
@@ -223,22 +361,61 @@ export default function ImportantFilesView({
     }
 
     return <MarkdownViewer markdownContent={aiReviewText || ""} />
-  }
+  }, [aiReviewText, aiReviewRequested, isOwner, onRequestAiReview])
 
-  // Get active file content
-  const partialActiveFile = importantFiles.find(
-    (file) => file.file_path === activeFilePath,
+  const renderFileContent = useCallback(() => {
+    if (!activeTab?.filePath || !activeFileContent) {
+      return <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
+    }
+
+    if (isMarkdownFile(activeTab.filePath)) {
+      return <MarkdownViewer markdownContent={activeFileContent} />
+    }
+
+    if (isCodeFile(activeTab.filePath)) {
+      return (
+        <div className="overflow-x-auto">
+          <ShikiCodeViewer
+            code={activeFileContent}
+            filePath={activeTab.filePath}
+          />
+        </div>
+      )
+    }
+
+    return <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
+  }, [activeTab, activeFileContent, isMarkdownFile, isCodeFile])
+
+  const renderTabContent = useCallback(() => {
+    if (!activeTab) return null
+
+    switch (activeTab.type) {
+      case "ai":
+        return renderAiContent()
+      case "ai-review":
+        return renderAiReviewContent()
+      case "file":
+        return renderFileContent()
+      default:
+        return null
+    }
+  }, [activeTab, renderAiContent, renderAiReviewContent, renderFileContent])
+
+  // Tab styling helper
+  const getTabClassName = useCallback(
+    (tab: TabInfo) => {
+      const isActive =
+        activeTab?.type === tab.type &&
+        (tab.type !== "file" || activeTab?.filePath === tab.filePath)
+
+      return `flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
+        isActive
+          ? "bg-gray-200 dark:bg-[#30363d] font-medium"
+          : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
+      }`
+    },
+    [activeTab],
   )
-  const { data: activeFileFull } = usePackageFile(
-    partialActiveFile
-      ? {
-          file_path: partialActiveFile.file_path,
-          package_release_id: partialActiveFile.package_release_id,
-        }
-      : null,
-    { keepPreviousData: true },
-  )
-  const activeFileContent = activeFileFull?.content_text || ""
 
   if (isLoading) {
     return (
@@ -266,7 +443,7 @@ export default function ImportantFilesView({
     )
   }
 
-  if (importantFiles.length === 0) {
+  if (importantFiles.length === 0 && !hasAiContent && !hasAiReview) {
     return (
       <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
         <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
@@ -285,68 +462,24 @@ export default function ImportantFilesView({
     )
   }
 
-  const isOwner = user?.github_username === packageAuthorOwner
-
   return (
     <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
       <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
         <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar flex-1 min-w-0">
-          {/* AI Description Tab */}
-          {hasAiContent && (
+          {availableTabs.map((tab, index) => (
             <button
-              className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
-                activeTab === "ai"
-                  ? "bg-gray-200 dark:bg-[#30363d] font-medium"
-                  : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
-              }`}
-              onClick={() => {
-                setActiveTab("ai")
-                setActiveFilePath(null)
-              }}
+              key={`${tab.type}-${tab.filePath || index}`}
+              className={getTabClassName(tab)}
+              onClick={() => selectTab(tab)}
             >
-              <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />
-              <span>Description</span>
-            </button>
-          )}
-
-          {/* AI Review Tab */}
-          <button
-            className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
-              activeTab === "ai-review"
-                ? "bg-gray-200 dark:bg-[#30363d] font-medium"
-                : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
-            }`}
-            onClick={() => {
-              setActiveTab("ai-review")
-              setActiveFilePath(null)
-            }}
-          >
-            <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />
-            <span>AI Review</span>
-          </button>
-
-          {/* File Tabs */}
-          {importantFiles.map((file) => (
-            <button
-              key={file.package_file_id}
-              className={`flex items-center px-3 py-1.5 rounded-md text-xs flex-shrink-0 whitespace-nowrap ${
-                activeTab === "file" && activeFilePath === file.file_path
-                  ? "bg-gray-200 dark:bg-[#30363d] font-medium"
-                  : "text-gray-500 dark:text-[#8b949e] hover:bg-gray-200 dark:hover:bg-[#30363d]"
-              }`}
-              onClick={() => {
-                setActiveTab("file")
-                setActiveFilePath(file.file_path)
-              }}
-            >
-              {getFileIcon(file.file_path)}
-              <span>{getFileName(file.file_path)}</span>
+              {tab.icon}
+              <span>{tab.label}</span>
             </button>
           ))}
         </div>
         <div className="ml-auto flex items-center">
-          {((activeTab === "file" && activeFileContent) ||
-            (activeTab === "ai-review" && aiReviewText)) && (
+          {((activeTab?.type === "file" && activeFileContent) ||
+            (activeTab?.type === "ai-review" && aiReviewText)) && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
               onClick={handleCopy}
@@ -359,7 +492,7 @@ export default function ImportantFilesView({
               <span className="sr-only">Copy</span>
             </button>
           )}
-          {activeTab === "ai-review" && aiReviewText && isOwner && (
+          {activeTab?.type === "ai-review" && aiReviewText && isOwner && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
               onClick={onRequestAiReview}
@@ -369,10 +502,10 @@ export default function ImportantFilesView({
               <span className="sr-only">Re-request AI Review</span>
             </button>
           )}
-          {activeTab === "file" && (
+          {activeTab?.type === "file" && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
-              onClick={() => onEditClicked?.(activeFilePath)}
+              onClick={() => onEditClicked?.(activeTab.filePath)}
             >
               <Edit className="h-4 w-4" />
               <span className="sr-only">Edit</span>
@@ -380,30 +513,7 @@ export default function ImportantFilesView({
           )}
         </div>
       </div>
-      <div className="p-4 bg-white dark:bg-[#0d1117]">
-        {activeTab === "ai" ? (
-          renderAiContent()
-        ) : activeTab === "ai-review" ? (
-          renderAiReviewContent()
-        ) : activeFilePath &&
-          (activeFilePath.endsWith(".md") ||
-            activeFilePath?.toLowerCase().endsWith("readme")) ? (
-          <MarkdownViewer markdownContent={activeFileContent} />
-        ) : activeFilePath &&
-          (activeFilePath.endsWith(".js") ||
-            activeFilePath.endsWith(".jsx") ||
-            activeFilePath.endsWith(".ts") ||
-            activeFilePath.endsWith(".tsx")) ? (
-          <div className="overflow-x-auto">
-            <ShikiCodeViewer
-              code={activeFileContent}
-              filePath={activeFilePath}
-            />
-          </div>
-        ) : (
-          <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
-        )}
-      </div>
+      <div className="p-4 bg-white dark:bg-[#0d1117]">{renderTabContent()}</div>
     </div>
   )
 }
