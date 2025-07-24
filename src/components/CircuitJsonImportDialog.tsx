@@ -15,7 +15,6 @@ import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
-import { generateRandomPackageName } from "@/lib/utils/package-utils"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
 import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
 
@@ -67,10 +66,17 @@ export function CircuitJsonImportDialog({
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
-    if (selectedFile && selectedFile.type === "application/json") {
-      setFile(selectedFile)
+    if (selectedFile) {
+      try {
+        const fileText = await selectedFile.text()
+        JSON.parse(fileText)
+        setFile(selectedFile)
+        setError(null)
+      } catch (e) {
+        setError("Please select a valid JSON file that can be parsed.")
+      }
     } else {
-      setError("Please select a valid JSON file.")
+      setError("Please select a file.")
     }
   }
 
@@ -124,7 +130,6 @@ export function CircuitJsonImportDialog({
 
       await createPackageMutation.mutateAsync(
         {
-          name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
           description: "Imported from Circuit JSON",
         },
         {
