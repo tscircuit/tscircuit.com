@@ -83,7 +83,7 @@
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.11.194",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
-    "@tscircuit/runframe": "0.0.715",
+    "@tscircuit/runframe": "0.0.725",
     "@tscircuit/schematic-viewer": "^2.0.21",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
@@ -105,9 +105,10 @@
     "autoprefixer": "^10.4.20",
     "change-case": "^5.4.4",
     "circuit-json-to-bom-csv": "^0.0.7",
-    "circuit-json-to-gerber": "^0.0.25",
+    "circuit-json-to-gerber": "^0.0.29",
     "circuit-json-to-pnp-csv": "^0.0.7",
     "circuit-json-to-readable-netlist": "^0.0.13",
+    "circuit-json-to-spice": "^0.0.6",
     "circuit-json-to-tscircuit": "^0.0.4",
     "circuit-to-svg": "^0.0.167",
     "class-variance-authority": "^0.7.1",
@@ -138,6 +139,7 @@
     "ky": "^1.7.5",
     "lucide-react": "^0.488.0",
     "lz-string": "^1.5.0",
+    "marked": "^16.1.1",
     "md5": "^2.3.0",
     "ms": "^2.1.3",
     "next-themes": "^0.3.0",
@@ -150,6 +152,7 @@
     "react-cookie-consent": "^9.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^18.3.1",
+    "react-error-boundary": "^6.0.0",
     "react-helmet": "^6.1.0",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.53.0",
@@ -187,7 +190,6 @@
     "wouter": "^3.3.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
-    "zustand-hoist": "^2.0.1",
-    "circuit-json-to-spice": "^0.0.6"
+    "zustand-hoist": "^2.0.1"
   }
 }
