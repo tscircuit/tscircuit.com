@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { usePackageFile } from "@/hooks/use-package-files"
+import { usePackageFile, usePackageFileByPath } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import { SparklesIcon } from "lucide-react"
 import MarkdownViewer from "./markdown-viewer"
@@ -69,8 +69,13 @@ export default function ImportantFilesView({
   const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
   const hasAiReview = Boolean(aiReviewText)
 
-  // Reusable function to select the best available tab
-  const selectBestAvailableTab = () => {
+  // Select the appropriate tab/file when content changes. Once the user has
+  // interacted with the tabs we keep their selection and only run this logic
+  // if no tab has been chosen yet.
+  useEffect(() => {
+    if (activeTab !== null) return
+    if (isLoading) return
+
     // First priority: README file if it exists
     const readmeFile = importantFiles.find(
       (file) =>
@@ -92,32 +97,6 @@ export default function ImportantFilesView({
       // Third priority: First important file
       setActiveFilePath(importantFiles[0].file_path)
       setActiveTab("file")
-    } else {
-      // No files available, reset to null
-      setActiveTab(null)
-      setActiveFilePath(null)
-    }
-  }
-
-  // Handle tab selection and fallback when files are deleted
-  useEffect(() => {
-    if (isLoading) return
-
-    // Initial tab selection when no tab is chosen
-    if (activeTab === null) {
-      selectBestAvailableTab()
-      return
-    }
-
-    // Handle fallback when the currently selected file is deleted from cache
-    if (activeTab === "file" && activeFilePath) {
-      const currentFileExists = importantFiles.some(
-        (file) => file.file_path === activeFilePath,
-      )
-
-      if (!currentFileExists) {
-        selectBestAvailableTab()
-      }
     }
   }, [
     aiDescription,
@@ -127,7 +106,6 @@ export default function ImportantFilesView({
     hasAiReview,
     importantFiles,
     activeTab,
-    activeFilePath,
     isLoading,
   ])
 
