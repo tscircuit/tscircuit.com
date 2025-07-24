@@ -377,7 +377,7 @@ export const EditPackageDetailsDialog = ({
                 className="mt-2 rounded-md"
                 onToggle={(e) => setDangerOpen(e.currentTarget.open)}
               >
-                <summary className="cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
+                <summary className="select-none cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
                   Danger Zone
                   <ChevronDown
                     className={`w-4 h-4 mr-1 transition-transform ${dangerOpen ? "rotate-180" : ""}`}
@@ -406,7 +406,7 @@ export const EditPackageDetailsDialog = ({
           </div>
 
           <DialogFooter className="mt-auto">
-            <div className="lg:px-2 flex flex-col sm:flex-row justify-end gap-2">
+            <div className="lg:px-2 select-none flex flex-col sm:flex-row justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => onOpenChange(false)}
