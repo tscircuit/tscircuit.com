@@ -3,6 +3,8 @@ import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
 import React from "react"
+import { ReloadIcon } from "@radix-ui/react-icons"
+import { Loader2 } from "lucide-react"
 
 const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -163,10 +165,64 @@ class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.reloading) {
-      return <div>There was a problem loading this page. Reloading…</div>
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+          <div className="max-w-md w-full text-center">
+            <div className="mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+                <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Reloading Page
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                We encountered an issue and are refreshing the page for you.
+              </p>
+            </div>
+          </div>
+        </div>
+      )
     }
     if (this.state.hasError) {
-      return <div>Something went wrong loading the page.</div>
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+          <div className="max-w-lg w-full text-center">
+            <div className="mb-8">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 dark:bg-red-900 rounded-full mb-6">
+                <svg
+                  className="w-10 h-10 text-red-600 dark:text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                Oops! Something went wrong
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                We're experiencing technical difficulties. The page will
+                automatically reload when you return to this tab.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <button
+                onClick={this.performReload}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2 border border-transparent text-base font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+              >
+                <ReloadIcon className="w-4 h-4 mr-2" />
+                Reload Now
+              </button>
+            </div>
+          </div>
+        </div>
+      )
     }
     return this.props.children
   }
