@@ -36,6 +36,7 @@ interface ImportantFilesViewProps {
   aiReviewText?: string | null
   aiReviewRequested?: boolean
   onRequestAiReview?: () => void
+  onLicenseFileRequested?: boolean
 }
 
 export default function ImportantFilesView({
@@ -48,6 +49,7 @@ export default function ImportantFilesView({
   isLoading = false,
   onEditClicked,
   packageAuthorOwner,
+  onLicenseFileRequested,
 }: ImportantFilesViewProps) {
   const [activeFilePath, setActiveFilePath] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string | null>(null)
@@ -69,9 +71,24 @@ export default function ImportantFilesView({
   const hasAiContent = Boolean(aiDescription || aiUsageInstructions)
   const hasAiReview = Boolean(aiReviewText)
 
-  // Select the appropriate tab/file when content changes. Once the user has
-  // interacted with the tabs we keep their selection and only run this logic
-  // if no tab has been chosen yet.
+  useEffect(() => {
+    if (onLicenseFileRequested && importantFiles.length > 0) {
+      const licenseFile = importantFiles.find(
+        (file) =>
+          file.file_path.toLowerCase() === "license" ||
+          file.file_path.toLowerCase().endsWith("/license") ||
+          file.file_path.toLowerCase() === "license.txt" ||
+          file.file_path.toLowerCase().endsWith("/license.txt") ||
+          file.file_path.toLowerCase() === "license.md" ||
+          file.file_path.toLowerCase().endsWith("/license.md"),
+      )
+
+      if (licenseFile) {
+        setActiveFilePath(licenseFile.file_path)
+        setActiveTab("file")
+      }
+    }
+  }, [onLicenseFileRequested, importantFiles])
   useEffect(() => {
     if (activeTab !== null) return
     if (isLoading) return

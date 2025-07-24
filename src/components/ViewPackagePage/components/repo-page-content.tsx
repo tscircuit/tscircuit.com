@@ -57,6 +57,8 @@ export default function RepoPageContent({
   const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
     null,
   )
+  const [licenseFileRequested, setLicenseFileRequested] =
+    useState<boolean>(false)
   const queryClient = useQueryClient()
   const { data: aiReview } = useAiReview(pendingAiReviewId, {
     refetchInterval: (data) => (data && !data.ai_review_text ? 2000 : false),
@@ -81,6 +83,11 @@ export default function RepoPageContent({
     Boolean(packageRelease?.ai_review_requested) ||
     Boolean(pendingAiReviewId) ||
     isRequestingAiReview
+
+  const handleLicenseFileRequest = () => {
+    setLicenseFileRequested(true)
+    setTimeout(() => setLicenseFileRequested(false), 100)
+  }
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
@@ -222,6 +229,7 @@ export default function RepoPageContent({
                   })
                 }
               }}
+              onLicenseFileRequested={licenseFileRequested}
             />
           </div>
 
@@ -235,6 +243,7 @@ export default function RepoPageContent({
                 // Update URL hash when view changes
                 window.location.hash = view
               }}
+              onLicenseClick={handleLicenseFileRequest}
             />
           </div>
           {/* Releases section - Only visible on small screens */}
