@@ -186,6 +186,7 @@ export const EditPackageDetailsDialog = ({
         "packageFile",
         { package_release_id: packageReleaseId },
       ])
+      qc.invalidateQueries(["packageFiles", packageReleaseId])
       toast({
         title: "Package details updated",
         description: "Successfully updated package details",
