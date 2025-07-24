@@ -34,7 +34,7 @@ export default withRouteSpec({
     })
   }
 
-  let unscoped_name = name?.split("/")[1]
+  let unscoped_name = name?.includes("/") ? name?.split("/")[1] : name
   if (!unscoped_name) {
     const state = ctx.db.getState()
     const count = state.packages.filter(
@@ -45,7 +45,9 @@ export default withRouteSpec({
   }
 
   const newPackage = ctx.db.addPackage({
-    name: `${ctx.auth.github_username}/${String(unscoped_name)}`,
+    name: name?.includes("/")
+      ? name
+      : `${ctx.auth.github_username}/${String(unscoped_name)}`,
     description: description ?? null,
     creator_account_id: ctx.auth.account_id,
     owner_org_id: ctx.auth.personal_org_id,
