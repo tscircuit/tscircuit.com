@@ -105,7 +105,7 @@ export default function MainContentHeader({
             <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
               <a
                 href={`/editor?package_id=${packageInfo?.package_id}`}
-                className="cursor-pointer p-2 py-4"
+                className="cursor-pointer px-2 py-3"
               >
                 <Pencil className="h-4 w-4 mx-3" />
                 Edit Online
@@ -115,7 +115,7 @@ export default function MainContentHeader({
             <DropdownMenuItem
               disabled={!Boolean(packageInfo)}
               onClick={handleDownloadZip}
-              className="cursor-pointer p-2 py-4"
+              className="cursor-pointer px-2 py-3"
             >
               <Package2 className="h-4 w-4 mx-3" />
               Download ZIP
