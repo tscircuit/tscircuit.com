@@ -115,7 +115,7 @@ export default function MainContentHeader({
             <DropdownMenuItem
               disabled={!Boolean(packageInfo)}
               onClick={handleDownloadZip}
-              className="cursor-pointer pX-2 py-3"
+              className="cursor-pointer px-2 py-3"
             >
               <Package2 className="h-4 w-4 mx-3" />
               Download ZIP
