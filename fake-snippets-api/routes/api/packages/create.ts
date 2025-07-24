@@ -13,7 +13,8 @@ export default withRouteSpec({
         /^[@a-zA-Z0-9-_\/]+$/,
         "Package name can only contain letters, numbers, hyphens, underscores, and forward slashes",
       )
-      .transform((name) => name.replace(/^@/, "")),
+      .transform((name) => name.replace(/^@/, ""))
+      .optional(),
     description: z.string().optional(),
     is_private: z.boolean().optional().default(false),
     is_unlisted: z.boolean().optional().default(false),
@@ -33,10 +34,20 @@ export default withRouteSpec({
     })
   }
 
-  const unscoped_name = name.split("/")[1]
+  let unscoped_name = name?.includes("/") ? name?.split("/")[1] : name
+  if (!unscoped_name) {
+    const state = ctx.db.getState()
+    const count = state.packages.filter(
+      (pkg) => pkg.creator_account_id === ctx.auth.account_id,
+    ).length
+
+    unscoped_name = `untitled-package-${count}`
+  }
 
   const newPackage = ctx.db.addPackage({
-    name,
+    name: name?.includes("/")
+      ? name
+      : `${ctx.auth.github_username}/${String(unscoped_name)}`,
     description: description ?? null,
     creator_account_id: ctx.auth.account_id,
     owner_org_id: ctx.auth.personal_org_id,

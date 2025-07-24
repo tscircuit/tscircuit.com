@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { isValidFileName } from "@/lib/utils/isValidFileName"
 import { PackageFile } from "@/types/package"
-import {
-  DEFAULT_CODE,
-  generateRandomPackageName,
-} from "@/lib/utils/package-utils"
+import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "./use-package-files"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
@@ -318,7 +315,6 @@ export function useFileManagement({
     }
 
     await createPackageMutation.mutateAsync({
-      name: `${loggedInUser?.github_username}/${generateRandomPackageName()}`,
       is_private: isPrivate,
     })
   }

@@ -17,7 +17,7 @@ export const useCreatePackageMutation = ({
       is_private,
       is_unlisted,
     }: {
-      name: string
+      name?: string
       description?: string
       is_private?: boolean
       is_unlisted?: boolean

@@ -5,6 +5,3 @@ export default () => (
   </board>
 )
 `.trim()
-
-export const generateRandomPackageName = () =>
-  `untitled-package-${Math.floor(Math.random() * 900) + 100}`
