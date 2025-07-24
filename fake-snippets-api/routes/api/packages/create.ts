@@ -34,7 +34,7 @@ export default withRouteSpec({
     })
   }
 
-  let unscoped_name = name
+  let unscoped_name = name?.split("/")[1]
   if (!unscoped_name) {
     const state = ctx.db.getState()
     const count = state.packages.filter(
