@@ -17,6 +17,7 @@ import { usePackageFile } from "@/hooks/use-package-files"
 import { ShikiCodeViewer } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 
 interface PackageFile {
   package_file_id: string
@@ -266,6 +267,8 @@ export default function ImportantFilesView({
     }
   }, [activeTab, importantFiles, getDefaultTab])
 
+  const { circuitJson } = useCurrentPackageCircuitJson()
+
   // Get active file content
   const partialActiveFile = useMemo(() => {
     if (activeTab?.type !== "file" || !activeTab.filePath) return null
@@ -321,7 +324,15 @@ export default function ImportantFilesView({
                 from our AI assistant.
               </p>
             </div>
-            {isOwner ? (
+            {!isOwner ? (
+              <p className="text-sm text-gray-500">
+                Only the package owner can generate an AI review
+              </p>
+            ) : !Boolean(circuitJson) ? (
+              <p className="text-sm text-gray-500">
+                Circuit JSON is required for AI review.
+              </p>
+            ) : (
               <Button
                 onClick={onRequestAiReview}
                 size="sm"
@@ -330,10 +341,6 @@ export default function ImportantFilesView({
                 <SparklesIcon className="h-4 w-4 mr-2" />
                 Request AI Review
               </Button>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Only the package owner can generate an AI review
-              </p>
             )}
           </div>
         </div>
