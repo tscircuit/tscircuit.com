@@ -162,7 +162,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       if (!session?.token) {
         throw new Error("You need to be logged in to import jlcpcb component")
       }
-      console.log(component)
       const jlcpcbComponent = await fetchEasyEDAComponent(component.name, {
         fetch: ((url, options: any) => {
           return fetch(`${API_BASE}/proxy`, {
