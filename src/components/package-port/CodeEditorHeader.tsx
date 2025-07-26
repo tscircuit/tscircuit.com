@@ -163,12 +163,8 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         throw new Error("You need to be logged in to import jlcpcb component")
       }
 
-      if (!component.partNumber) {
-        throw new Error("JLCPCB component part number is required")
-      }
-
       const jlcpcbComponent = await fetchEasyEDAComponent(
-        component.partNumber,
+        component.partNumber ?? component.name,
         {
           fetch: ((url, options: any) => {
             return fetch(`${API_BASE}/proxy`, {
