@@ -162,22 +162,26 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       if (!session?.token) {
         throw new Error("You need to be logged in to import jlcpcb component")
       }
-      const jlcpcbComponent = await fetchEasyEDAComponent(component.name, {
-        fetch: ((url, options: any) => {
-          return fetch(`${API_BASE}/proxy`, {
-            body: options.body,
-            method: options.method,
-            headers: {
-              authority: options.headers.authority,
-              Authorization: `Bearer ${session?.token}`,
-              "X-Target-Url": url.toString(),
-              "X-Sender-Host": options.headers.origin,
-              "X-Sender-Origin": options.headers.origin,
-              "content-type": options.headers["content-type"],
-            },
-          })
-        }) as typeof fetch,
-      })
+
+      const jlcpcbComponent = await fetchEasyEDAComponent(
+        component.partNumber ?? component.name,
+        {
+          fetch: ((url, options: any) => {
+            return fetch(`${API_BASE}/proxy`, {
+              body: options.body,
+              method: options.method,
+              headers: {
+                authority: options.headers.authority,
+                Authorization: `Bearer ${session?.token}`,
+                "X-Target-Url": url.toString(),
+                "X-Sender-Host": options.headers.origin,
+                "X-Sender-Origin": options.headers.origin,
+                "content-type": options.headers["content-type"],
+              },
+            })
+          }) as typeof fetch,
+        },
+      )
       const tsxComponent = await convertRawEasyToTsx(jlcpcbComponent)
       let componentName = component.name.replace(/ /g, "-")
       if (files[`${componentName}.tsx`] || files[`./${componentName}.tsx`]) {
