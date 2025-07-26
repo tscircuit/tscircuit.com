@@ -240,7 +240,9 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         >
           <SuspenseRunFrame
             showRunButton
-            forceLatestEvalVersion
+            // TEMPORARY FIX FOR EVAL VERSION (Remove this once eval is fixed)
+            // forceLatestEvalVersion
+            evalVersion="0.0.264"
             onRenderStarted={() =>
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }
