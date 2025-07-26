@@ -140,17 +140,22 @@ export const applyPcbEditEvents = ({
 const ensureValidState = (manualEditsFileContent?: string): ManualEditState => {
   if (!manualEditsFileContent) return createInitialManualEditState()
 
-  const manualEditState = JSON.parse(manualEditsFileContent)
+  try {
+    const manualEditState = JSON.parse(manualEditsFileContent)
 
-  return {
-    pcb_placements: Array.isArray(manualEditState.pcb_placements)
-      ? manualEditState.pcb_placements
-      : [],
-    edit_events: Array.isArray(manualEditState.edit_events)
-      ? manualEditState.edit_events
-      : [],
-    manual_trace_hints: Array.isArray(manualEditState.manual_trace_hints)
-      ? manualEditState.manual_trace_hints
-      : [],
+    return {
+      pcb_placements: Array.isArray(manualEditState.pcb_placements)
+        ? manualEditState.pcb_placements
+        : [],
+      edit_events: Array.isArray(manualEditState.edit_events)
+        ? manualEditState.edit_events
+        : [],
+      manual_trace_hints: Array.isArray(manualEditState.manual_trace_hints)
+        ? manualEditState.manual_trace_hints
+        : [],
+    }
+  } catch (error) {
+    console.error("Failed to parse manual edits file content:", error)
+    return createInitialManualEditState()
   }
 }

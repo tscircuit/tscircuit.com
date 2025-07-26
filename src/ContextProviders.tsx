@@ -28,16 +28,6 @@ function PostHogIdentifier() {
   const session = useGlobalStore((s) => s.session)
 
   useEffect(() => {
-    if (!posthog.__loaded) {
-      const checkInterval = setInterval(() => {
-        if (posthog.__loaded) {
-          clearInterval(checkInterval)
-          identifyUser()
-        }
-      }, 100)
-      return () => clearInterval(checkInterval)
-    }
-
     const identifyUser = async () => {
       try {
         const githubUsername = session?.github_username
@@ -48,11 +38,24 @@ function PostHogIdentifier() {
           })
         }
       } catch (error) {
-        // Error handling silently fails
+        console.error("Failed to identify PostHog user:", error)
       }
     }
 
-    identifyUser()
+    if (!posthog.__loaded) {
+      const checkInterval = setInterval(() => {
+        if (posthog.__loaded) {
+          clearInterval(checkInterval)
+          identifyUser()
+        }
+      }, 100)
+      
+      // Cleanup function to prevent memory leak
+      return () => clearInterval(checkInterval)
+    } else {
+      // PostHog is already loaded, identify immediately
+      identifyUser()
+    }
   }, [session])
 
   return null
