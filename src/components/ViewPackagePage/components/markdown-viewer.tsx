@@ -42,9 +42,9 @@ export default function MarkdownViewer({
                 className?.includes("language-") || /\n/.test(String(children))
               const codeString = children?.toString() || ""
 
-              const dom = document.createElement("div")
+              let highlightedHtml = ""
               if (highlighter) {
-                dom.innerHTML = highlighter.codeToHtml(codeString, {
+                highlightedHtml = highlighter.codeToHtml(codeString, {
                   lang: "tsx",
                   themes: {
                     light: "github-light",
@@ -56,7 +56,7 @@ export default function MarkdownViewer({
               return isCodeBlock ? (
                 <div className="flex border rounded-lg relative">
                   <div
-                    dangerouslySetInnerHTML={{ __html: dom.innerHTML }}
+                    dangerouslySetInnerHTML={{ __html: highlightedHtml }}
                     className="flex-1 overflow-auto"
                   ></div>
                   {copiedCode === codeString ? (
