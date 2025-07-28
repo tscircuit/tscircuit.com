@@ -169,9 +169,11 @@ export default function ImportantFilesView({
     )
     if (readmeTab) return readmeTab
 
-    // Priority 2: AI content
-    const aiTab = availableTabs.find((tab) => tab.type === "ai")
-    if (aiTab) return aiTab
+    // Priority 2: Description once available
+    if (hasAiContent) {
+      const aiTab = availableTabs.find((tab) => tab.type === "ai")
+      if (aiTab) return aiTab
+    }
 
     // Priority 3: AI review
     const aiReviewTab = availableTabs.find((tab) => tab.type === "ai-review")
@@ -182,7 +184,7 @@ export default function ImportantFilesView({
     if (firstFileTab) return firstFileTab
 
     return null
-  }, [isLoading, availableTabs, isReadmeFile])
+  }, [isLoading, availableTabs, isReadmeFile, hasAiContent])
 
   // Handle copy functionality
   const handleCopy = useCallback(() => {
