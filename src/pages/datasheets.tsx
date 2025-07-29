@@ -123,11 +123,6 @@ export const DatasheetsPage: React.FC = () => {
                     {ds.summary}
                   </p>
                 )}
-                {ds.description && !ds.summary && (
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                    {ds.description}
-                  </p>
-                )}
               </Link>
             ))}
           </div>
