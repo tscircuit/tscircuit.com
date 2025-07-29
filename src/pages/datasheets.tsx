@@ -11,6 +11,9 @@ import { Link, useLocation } from "wouter"
 interface DatasheetSummary {
   datasheet_id: string
   chip_name: string
+  chip_type?: string | null
+  summary?: string | null
+  description?: string | null
 }
 
 export const DatasheetsPage: React.FC = () => {
@@ -107,7 +110,24 @@ export const DatasheetsPage: React.FC = () => {
                 href={`/datasheets/${ds.chip_name}`}
                 className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
               >
-                <h3 className="font-semibold text-gray-900">{ds.chip_name}</h3>
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-semibold text-gray-900">{ds.chip_name}</h3>
+                  {ds.chip_type && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                      {ds.chip_type}
+                    </span>
+                  )}
+                </div>
+                {ds.summary && (
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {ds.summary}
+                  </p>
+                )}
+                {ds.description && !ds.summary && (
+                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                    {ds.description}
+                  </p>
+                )}
               </Link>
             ))}
           </div>

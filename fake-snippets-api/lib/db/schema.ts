@@ -150,6 +150,77 @@ export const aiReviewSchema = z.object({
 })
 export type AiReview = z.infer<typeof aiReviewSchema>
 
+const GENERIC_CHIP_TYPES = [
+  "microcontroller",
+  "power_management",
+  "sensors",
+  "amplifiers",
+  "logic",
+  "memory",
+  "communication",
+  "audio",
+  "display",
+  "motor_control",
+  "interface",
+  "clock",
+  "protection",
+  "converter",
+  "reference",
+  "oscillator",
+  "other",
+] as const
+
+export const ChipTypeSchema = z.enum(GENERIC_CHIP_TYPES)
+export type ChipType = z.infer<typeof ChipTypeSchema>
+
+export const FootprintInformationSchema = z.object({
+  package_type: z.string(),
+  dimensions: z.object({
+    length_mm: z.number(),
+    width_mm: z.number(),
+    height_mm: z.number(),
+  }),
+  pin_count: z.number(),
+  pin_spacing_mm: z.number(),
+  package_material: z.string(),
+  mounting_type: z.string(),
+})
+
+export const PinInformationItemSchema = z.object({
+  pin_number: z.string(),
+  name: z.array(z.string()),
+  description: z.string(),
+  capabilities: z.array(z.string()),
+})
+
+export const MetadataSchema = z.object({
+  manufacturer: z.string().optional(),
+  part_number: z.string().optional(),
+  package_family: z.string().optional(),
+  operating_voltage: z.string().optional(),
+  operating_temperature: z.string().optional(),
+  datasheet_revision: z.string().optional(),
+  release_date: z.string().optional(),
+  lifecycle_status: z.string().optional(),
+})
+
+export const ExtractionMetadataSchema = z.object({
+  chip_type_confidence_score: z.number().min(0).max(1),
+  raw_detected_chip_type: z.string().optional(),
+})
+
+export const ExtractedInformationSchema = z.object({
+  chip_type: ChipTypeSchema,
+  footprint_information: FootprintInformationSchema,
+  pin_information: z.array(PinInformationItemSchema),
+  summary: z.string(),
+  description: z.string(),
+  metadata: MetadataSchema,
+  extraction_metadata: ExtractionMetadataSchema,
+})
+
+export type ExtractedInformation = z.infer<typeof ExtractedInformationSchema>
+
 export const datasheetPinInformationSchema = z.object({
   pin_number: z.string(),
   name: z.string(),
@@ -158,12 +229,16 @@ export const datasheetPinInformationSchema = z.object({
 })
 
 export const datasheetSchema = z.object({
-  datasheet_id: z.string(),
+  datasheet_id: z.string().uuid(),
   chip_name: z.string(),
-  created_at: z.string(),
-  pin_information: datasheetPinInformationSchema.array().nullable(),
-  datasheet_pdf_urls: z.array(z.string()).nullable(),
-  ai_description: z.string().nullable(),
+  datasheet_pdf_urls: z.array(z.string()).nullable().optional(),
+  pin_information: z.any().nullable().optional(),
+  footprint_information: z.any().nullable().optional(),
+  chip_type: z.string().nullable().optional(),
+  extracted_information: z.any().nullable().optional(),
+  summary: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  metadata: z.any().nullable().optional(),
 })
 export type Datasheet = z.infer<typeof datasheetSchema>
 

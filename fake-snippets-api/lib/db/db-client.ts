@@ -1384,10 +1384,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const newDatasheet = datasheetSchema.parse({
       datasheet_id: crypto.randomUUID(),
       chip_name,
-      created_at: new Date().toISOString(),
-      pin_information: null,
       datasheet_pdf_urls: null,
-      ai_description: null,
+      pin_information: null,
+      footprint_information: null,
+      chip_type: null,
+      extracted_information: null,
+      summary: null,
+      description: null,
+      metadata: null,
     })
     set((state) => ({
       datasheets: [...state.datasheets, newDatasheet],
