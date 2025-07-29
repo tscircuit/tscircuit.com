@@ -219,6 +219,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     },
     resolve: {
       alias: {
+        "three": path.resolve(__dirname, "node_modules/three"),
         "@": path.resolve(__dirname, "./src"),
       },
     },

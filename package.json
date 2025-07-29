@@ -74,8 +74,10 @@
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@react-three/drei": "^10.6.1",
+    "@react-three/fiber": "^9.3.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@tscircuit/3d-viewer": "^0.0.303",
+    "@tscircuit/3d-viewer": "^0.0.311",
     "@tscircuit/assembly-viewer": "^0.0.1",
     "@tscircuit/create-snippet-url": "^0.0.8",
     "@tscircuit/eval": "^0.0.244",
@@ -191,5 +193,9 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
+  },
+  "dependencies": {
+    "@tscircuit/circuit-json-flex": "^0.0.2",
+    "openapi3-ts": "^4.5.0"
   }
 }
