@@ -130,14 +130,12 @@ export default function ImportantFilesView({
   const availableTabs = useMemo((): TabInfo[] => {
     const tabs: TabInfo[] = []
 
-    if (hasAiContent) {
-      tabs.push({
-        type: "ai",
-        filePath: null,
-        label: "Description",
-        icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
-      })
-    }
+    tabs.push({
+      type: "ai",
+      filePath: null,
+      label: "Description",
+      icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
+    })
 
     tabs.push({
       type: "ai-review",
