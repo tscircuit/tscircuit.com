@@ -16,6 +16,7 @@ import {
   Sparkles,
   Clock,
   ArrowRight,
+  Star,
 } from "lucide-react"
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
@@ -362,7 +363,11 @@ const CmdKMenu = () => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs">{data.star_count ?? 0}</span>
+                </div>
                 <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                   package
                 </span>
