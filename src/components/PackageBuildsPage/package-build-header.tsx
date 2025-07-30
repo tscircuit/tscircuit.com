@@ -4,9 +4,11 @@ import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-re
 import { Github, RefreshCw } from "lucide-react"
 import { useParams } from "wouter"
 import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
+  const session = useGlobalStore((s) => s.session)
   const { packageRelease } = useCurrentPackageRelease({
     include_logs: true,
   })
@@ -44,21 +46,23 @@ export function PackageBuildHeader() {
               <span className="xs:hidden">Report</span>
             </a>
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
-            disabled={isLoading || !packageRelease}
-            onClick={() =>
-              packageRelease &&
-              rebuildPackage({
-                package_release_id: packageRelease.package_release_id,
-              })
-            }
-          >
-            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            {isLoading ? "Rebuilding..." : "Rebuild"}
-          </Button>
+          {session?.github_username == author && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-300 bg-white hover:bg-gray-50 text-xs sm:text-sm"
+              disabled={isLoading || !packageRelease}
+              onClick={() =>
+                packageRelease &&
+                rebuildPackage({
+                  package_release_id: packageRelease.package_release_id,
+                })
+              }
+            >
+              <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              {isLoading ? "Rebuilding..." : "Rebuild"}
+            </Button>
+          )}
           <DownloadButtonAndMenu unscopedName={packageName} author={author} />
         </div>
       </div>
