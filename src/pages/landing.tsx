@@ -73,7 +73,7 @@ export function LandingPage() {
                       </Button>
                     </a>
                     <PrefetchPageLink
-                      href="/seveibar/usb-c-flashlight#3d"
+                      href="/seveibar/led-water-accelerometer#3d"
                       className="w-[70vw] min-[500px]:w-auto"
                     >
                       <Button
