@@ -208,36 +208,34 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
       />
       {state.showPreview ? (
         <>
-          {/* Mobile layout: show preview only */}
-          <div className="flex md:hidden">
-            <div
-              className={cn(
-                "flex p-0 flex-col min-h-[640px] w-full",
-                state.fullScreen &&
-                  "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
-              )}
-            >
-              <SuspenseRunFrame
-                showRunButton
-                forceLatestEvalVersion
-                onRenderStarted={() =>
-                  setState((prev) => ({
-                    ...prev,
-                    lastRunCode: currentFileCode,
-                  }))
-                }
-                onRenderFinished={({ circuitJson }) => {
-                  setState((prev) => ({ ...prev, circuitJson }))
-                  toastManualEditConflicts(circuitJson, toast)
-                }}
-                mainComponentPath={mainComponentPath}
-                onEditEvent={(event) => {
-                  handleEditEvent(event)
-                }}
-                fsMap={fsMap ?? {}}
-                projectUrl={projectUrl}
-              />
-            </div>
+          {/* Mobile preview only */}
+          <div
+            className={cn(
+              "flex p-0 flex-col min-h-[640px] w-full md:hidden",
+              state.fullScreen &&
+                "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
+            )}
+          >
+            <SuspenseRunFrame
+              showRunButton
+              forceLatestEvalVersion
+              onRenderStarted={() =>
+                setState((prev) => ({
+                  ...prev,
+                  lastRunCode: currentFileCode,
+                }))
+              }
+              onRenderFinished={({ circuitJson }) => {
+                setState((prev) => ({ ...prev, circuitJson }))
+                toastManualEditConflicts(circuitJson, toast)
+              }}
+              mainComponentPath={mainComponentPath}
+              onEditEvent={(event) => {
+                handleEditEvent(event)
+              }}
+              fsMap={fsMap ?? {}}
+              projectUrl={projectUrl}
+            />
           </div>
           {/* Desktop layout with resizable panels */}
           <ResizablePanelGroup
@@ -305,7 +303,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           </ResizablePanelGroup>
         </>
       ) : (
-        <div className="flex">
+        <div className="hidden md:flex w-full">
           <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
             <CodeEditor
               isSaving={isSaving}
