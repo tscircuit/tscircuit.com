@@ -9,7 +9,7 @@ import {
 import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
-import { EditorState, Prec } from "@codemirror/state"
+import { EditorState, Prec, Compartment } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
@@ -90,6 +90,11 @@ export const CodeEditor = ({
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const readOnlyCompartmentRef = useRef(new Compartment())
+  const prevReadOnlySavingRef = useRef({
+    readOnly,
+    isSaving,
+  })
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = usePackagesBaseApiUrl()
@@ -102,6 +107,19 @@ export const CodeEditor = ({
   const highlightTimeoutRef = useRef<number | null>(null)
 
   const { highlighter } = useShikiHighlighter()
+
+  if (
+    viewRef.current &&
+    (prevReadOnlySavingRef.current.readOnly !== readOnly ||
+      prevReadOnlySavingRef.current.isSaving !== isSaving)
+  ) {
+    viewRef.current.dispatch({
+      effects: readOnlyCompartmentRef.current.reconfigure(
+        EditorState.readOnly.of(readOnly || isSaving),
+      ),
+    })
+    prevReadOnlySavingRef.current = { readOnly, isSaving }
+  }
 
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
@@ -303,7 +321,9 @@ export const CodeEditor = ({
         ]),
       ),
       keymap.of([indentWithTab]),
-      EditorState.readOnly.of(readOnly || isSaving),
+      readOnlyCompartmentRef.current.of(
+        EditorState.readOnly.of(readOnly || isSaving),
+      ),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newContent = update.state.doc.toString()
@@ -662,7 +682,6 @@ export const CodeEditor = ({
     currentFile,
     code !== "",
     Boolean(highlighter),
-    isSaving,
     fontSize,
     aiAutocompleteEnabled,
     highlightedLine,
