@@ -64,6 +64,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [errorMessage, setErrorMessage] = useState("")
   const [renamingFile, setRenamingFile] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<TreeDataItem | undefined>()
+  const [newFileParent, setNewFileParent] = useState<string | undefined>()
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
   const canModifyFiles = true
@@ -250,39 +251,37 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     if (!isCreatingFile) return treeData
     const inputNode: TreeDataItem = {
       id: "__new_file__",
-      name: (
-        <Input
-          autoFocus
-          value={newFileName}
-          spellCheck={false}
-          onChange={(e) => setNewFileName(e.target.value)}
-          onBlur={handleCreateFileBlur}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleCreateFileInline()
-            } else if (e.key === "Escape") {
-              setIsCreatingFile(false)
-              setNewFileName("")
-              setErrorMessage("")
-            }
-          }}
-          placeholder="Enter file name"
-          className="h-6 px-2 py-0 text-sm flex-1 mr-8 bg-white border-blue-500 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-        />
-      ),
+      name: newFileName || "new file",
       icon: File,
+      isRenaming: true,
+      onRename: (name: string) => {
+        setNewFileName(name)
+        handleCreateFileInline(name)
+      },
+      onCancelRename: () => {
+        setIsCreatingFile(false)
+        setNewFileName("")
+        setErrorMessage("")
+      },
     }
-    if (selectedItem && !selectedItem.onClick) {
-      return addInputNode(treeData, selectedItem.id, inputNode)
+    if (newFileParent) {
+      return addInputNode(treeData, newFileParent, inputNode)
     }
     return [...treeData, inputNode]
-  }, [isCreatingFile, selectedItem, newFileName, treeData])
+  }, [isCreatingFile, newFileParent, newFileName, treeData])
 
-  const handleCreateFileInline = () => {
-    let fullPath = newFileName.trim()
-    if (selectedItem && !selectedItem.onClick) {
-      const base = selectedItem.id.replace(/\/$/, "")
-      fullPath = base ? `${base}/${fullPath}` : fullPath
+  const handleCreateFileInline = (name?: string) => {
+    const finalName = (name ?? newFileName).trim()
+    if (!finalName) {
+      setIsCreatingFile(false)
+      setNewFileName("")
+      setErrorMessage("")
+      return
+    }
+    let fullPath = finalName
+    if (newFileParent) {
+      const base = newFileParent.replace(/\/$/, "")
+      fullPath = base ? `${base}/${finalName}` : finalName
     }
     const { newFileCreated } = handleCreateFile({
       newFileName: fullPath,
@@ -293,25 +292,15 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     if (newFileCreated) {
       setIsCreatingFile(false)
       setNewFileName("")
+      setNewFileParent(undefined)
       setErrorMessage("")
     }
-  }
-
-  const handleCreateFileBlur = () => {
-    if (newFileName.trim() === "") {
-      setIsCreatingFile(false)
-      setNewFileName("")
-      setErrorMessage("")
-      return
-    }
-    handleCreateFileInline()
   }
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
     setErrorMessage("")
     setIsCreatingFile(false)
-    setNewFileName("")
   }
 
   return (
@@ -331,7 +320,12 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         <PanelRightOpen />
       </button>
       <button
-        onClick={() => setIsCreatingFile(true)}
+        onClick={() => {
+          setNewFileParent(
+            selectedItem && !selectedItem.onClick ? selectedItem.id : undefined,
+          )
+          setIsCreatingFile(true)
+        }}
         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
         aria-label="Create new file"
       >
