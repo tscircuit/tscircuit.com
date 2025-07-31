@@ -1019,6 +1019,38 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     return matchingPackages
   },
+  searchAccounts: (query: string, limit?: number): Account[] => {
+    const state = get()
+    const lowercaseQuery = query.toLowerCase()
+
+    const accountsWithPublicPackages = new Set<string>()
+    state.packages
+      .filter((pkg) => pkg.is_public === true)
+      .forEach((pkg) => {
+        if (pkg.creator_account_id) {
+          accountsWithPublicPackages.add(pkg.creator_account_id)
+        }
+        if (pkg.owner_github_username) {
+          const account = state.accounts.find(
+            (acc) => acc.github_username === pkg.owner_github_username,
+          )
+          if (account) {
+            accountsWithPublicPackages.add(account.account_id)
+          }
+        }
+      })
+
+    const matchingAccounts = state.accounts
+      .filter((account) => {
+        if (!accountsWithPublicPackages.has(account.account_id)) {
+          return false
+        }
+        return account.github_username.toLowerCase().includes(lowercaseQuery)
+      })
+      .slice(0, limit || 50)
+
+    return matchingAccounts
+  },
   deleteSnippet: (snippetId: string): boolean => {
     let deleted = false
     set((state) => {

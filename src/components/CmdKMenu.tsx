@@ -5,7 +5,7 @@ import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { Command } from "cmdk"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Package, Account } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
 import {
@@ -17,6 +17,7 @@ import {
   Clock,
   ArrowRight,
   Star,
+  User,
 } from "lucide-react"
 import { DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
@@ -37,6 +38,11 @@ interface ImportOption {
 }
 
 interface ScoredPackage extends Package {
+  score: number
+  matches: number[]
+}
+
+interface ScoredAccount extends Account {
   score: number
   matches: number[]
 }
@@ -114,13 +120,42 @@ const CmdKMenu = () => {
     ["packageSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
-      const { data } = await axios.post("/packages/search", {
-        query: searchQuery,
-      })
-      return data.packages || []
+      try {
+        const { data } = await axios.post("/packages/search", {
+          query: searchQuery,
+        })
+        return data.packages || []
+      } catch (error) {
+        console.warn("Failed to fetch packages:", error)
+        return []
+      }
     },
     {
       enabled: Boolean(searchQuery),
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  )
+
+  const { data: allAccounts = [], isLoading: isSearchingAccounts } = useQuery(
+    ["accountSearch", searchQuery],
+    async () => {
+      if (!searchQuery) return []
+      try {
+        const { data } = await axios.post("/accounts/search", {
+          query: searchQuery,
+          limit: 5,
+        })
+        return data.accounts || []
+      } catch (error) {
+        console.warn("Failed to fetch accounts:", error)
+        return []
+      }
+    },
+    {
+      enabled: Boolean(searchQuery) && Boolean(currentUser),
+      retry: false,
+      refetchOnWindowFocus: false,
     },
   )
 
@@ -134,20 +169,43 @@ const CmdKMenu = () => {
       })
       .filter((pkg: ScoredPackage) => pkg.score >= 0)
       .sort((a: ScoredPackage, b: ScoredPackage) => b.score - a.score)
-      .slice(0, 8)
+      .slice(0, 6)
   }, [allPackages, searchQuery])
+
+  const accountSearchResults = useMemo((): ScoredAccount[] => {
+    if (!searchQuery || !allAccounts.length) return []
+
+    return allAccounts
+      .map((account: Account) => {
+        const { score, matches } = fuzzyMatch(
+          searchQuery,
+          account.github_username,
+        )
+        return { ...account, score, matches }
+      })
+      .filter((account: ScoredAccount) => account.score >= 0)
+      .sort((a: ScoredAccount, b: ScoredAccount) => b.score - a.score)
+      .slice(0, 5)
+  }, [allAccounts, searchQuery])
 
   const { data: recentPackages = [] } = useQuery<Package[]>(
     ["userPackages", currentUser],
     async () => {
       if (!currentUser) return []
-      const response = await axios.post(`/packages/list`, {
-        owner_github_username: currentUser,
-      })
-      return response.data.packages || []
+      try {
+        const response = await axios.post(`/packages/list`, {
+          owner_github_username: currentUser,
+        })
+        return response.data.packages || []
+      } catch (error) {
+        console.warn("Failed to fetch recent packages:", error)
+        return []
+      }
     },
     {
       enabled: !!currentUser && !searchQuery,
+      retry: false,
+      refetchOnWindowFocus: false,
     },
   )
 
@@ -196,7 +254,7 @@ const CmdKMenu = () => {
 
   const allItems = useMemo(() => {
     const items: Array<{
-      type: "package" | "recent" | "template" | "blank" | "import"
+      type: "package" | "account" | "recent" | "template" | "blank" | "import"
       item: any
       disabled?: boolean
     }> = []
@@ -204,6 +262,12 @@ const CmdKMenu = () => {
     if (searchQuery && searchResults.length > 0) {
       searchResults.forEach((pkg) => {
         items.push({ type: "package", item: pkg })
+      })
+    }
+
+    if (searchQuery && accountSearchResults.length > 0) {
+      accountSearchResults.forEach((account) => {
+        items.push({ type: "account", item: account })
       })
     }
 
@@ -226,7 +290,13 @@ const CmdKMenu = () => {
     })
 
     return items
-  }, [searchQuery, searchResults, recentPackages, filteredStaticOptions])
+  }, [
+    searchQuery,
+    searchResults,
+    accountSearchResults,
+    recentPackages,
+    filteredStaticOptions,
+  ])
 
   useHotkeyCombo("cmd+k", () => {
     setOpen((prev) => !prev)
@@ -284,6 +354,10 @@ const CmdKMenu = () => {
         case "package":
         case "recent":
           window.location.href = `/${item.owner_github_username}/${item.unscoped_name}`
+          setOpen(false)
+          break
+        case "account":
+          window.location.href = `/${item.github_username}`
           setOpen(false)
           break
         case "blank":
@@ -370,6 +444,41 @@ const CmdKMenu = () => {
                 </div>
                 <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                   package
+                </span>
+                {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
+              </div>
+            </div>
+          )
+
+        case "account":
+          return (
+            <div
+              key={`account-${data.account_id}`}
+              ref={isSelected ? selectedItemRef : null}
+              className={baseClasses}
+              onClick={() => !disabled && handleItemSelect(item)}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <img
+                  src={`https://github.com/${data.github_username}.png`}
+                  alt={`${data.github_username} avatar`}
+                  className="w-6 h-6 rounded-full flex-shrink-0"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.style.display = "none"
+                    target.nextElementSibling?.classList.remove("hidden")
+                  }}
+                />
+                <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium text-gray-900 truncate">
+                    {renderHighlighted(data, data.github_username)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                  user
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
               </div>
@@ -469,7 +578,7 @@ const CmdKMenu = () => {
         </div>
 
         <Command.List className="max-h-80 overflow-y-auto p-2 space-y-4">
-          {isSearching ? (
+          {isSearching || isSearchingAccounts ? (
             <Command.Loading className="p-6 text-center text-gray-500">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -481,7 +590,7 @@ const CmdKMenu = () => {
               {searchQuery && searchResults.length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Search Results
+                    Packages
                   </h3>
                   <div className="space-y-1">
                     {searchResults.slice(0, 8).map((pkg, localIndex) => {
@@ -491,6 +600,25 @@ const CmdKMenu = () => {
                         globalIndex,
                       )
                     })}
+                  </div>
+                </div>
+              )}
+
+              {searchQuery && accountSearchResults.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                    Users
+                  </h3>
+                  <div className="space-y-1">
+                    {accountSearchResults
+                      .slice(0, 5)
+                      .map((account, localIndex) => {
+                        const globalIndex = searchResults.length + localIndex
+                        return renderItem(
+                          { type: "account", item: account },
+                          globalIndex,
+                        )
+                      })}
                   </div>
                 </div>
               )}
@@ -523,7 +651,7 @@ const CmdKMenu = () => {
                       (template, localIndex) => {
                         const globalIndex =
                           (searchQuery
-                            ? searchResults.length
+                            ? searchResults.length + accountSearchResults.length
                             : recentPackages.length) + localIndex
                         return renderItem(
                           {
@@ -549,7 +677,7 @@ const CmdKMenu = () => {
                       (template, localIndex) => {
                         const globalIndex =
                           (searchQuery
-                            ? searchResults.length
+                            ? searchResults.length + accountSearchResults.length
                             : recentPackages.length) +
                           filteredStaticOptions.blankTemplates.length +
                           localIndex
@@ -573,7 +701,7 @@ const CmdKMenu = () => {
                       (option, localIndex) => {
                         const globalIndex =
                           (searchQuery
-                            ? searchResults.length
+                            ? searchResults.length + accountSearchResults.length
                             : recentPackages.length) +
                           filteredStaticOptions.blankTemplates.length +
                           filteredStaticOptions.templates.length +
@@ -590,10 +718,12 @@ const CmdKMenu = () => {
 
               {searchQuery &&
                 !searchResults.length &&
+                !accountSearchResults.length &&
                 !filteredStaticOptions.blankTemplates.length &&
                 !filteredStaticOptions.templates.length &&
                 !filteredStaticOptions.importOptions.length &&
-                !isSearching && (
+                !isSearching &&
+                !isSearchingAccounts && (
                   <Command.Empty className="py-8 text-center">
                     <div className="text-gray-400 mb-1">No results found</div>
                     <div className="text-gray-500 text-xs">
