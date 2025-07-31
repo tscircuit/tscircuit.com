@@ -265,7 +265,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     // Navigate to target line if specified (with delay to ensure editor is fully rendered)
     if (targetLine && targetLine > 0) {
-      setTimeout(() => {
+      const scrollToLine = () => {
         if (viewRef.current) {
           const doc = viewRef.current.state.doc
           if (targetLine <= doc.lines) {
@@ -274,9 +274,22 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
               selection: { anchor: line.from, head: line.to },
               effects: EditorView.scrollIntoView(line.from, { y: "center" }),
             })
+
+            // Additional scroll after a short delay to ensure it sticks
+            setTimeout(() => {
+              if (viewRef.current) {
+                viewRef.current.dispatch({
+                  effects: EditorView.scrollIntoView(line.from, {
+                    y: "center",
+                  }),
+                })
+              }
+            }, 50)
           }
         }
-      }, 100)
+      }
+
+      setTimeout(scrollToLine, 100)
       setTargetLine(null) // Clear target line after navigation
     }
 

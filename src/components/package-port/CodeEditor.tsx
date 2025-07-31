@@ -553,7 +553,6 @@ export const CodeEditor = ({
                           .substring(0, definition.textSpan.start)
                           .split("\n")
                         const lineNumber = lines.length
-                        console.log(lineNumber, "here", definitionFileName)
                         openViewTsFilesDialog({
                           initialFile: definitionFileName,
                           initialLine: lineNumber,
