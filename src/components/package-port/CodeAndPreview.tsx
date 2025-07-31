@@ -306,33 +306,31 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           )}
         </>
       ) : (
-        !isMobile && (
-          <div className="hidden md:flex w-full">
-            <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
-              <CodeEditor
-                isSaving={isSaving}
-                handleCreateFile={createFile}
-                handleDeleteFile={deleteFile}
-                handleRenameFile={renameFile}
-                pkg={pkg}
-                currentFile={currentFile}
-                onFileSelect={onFileSelect}
-                files={localFiles}
-                onCodeChange={(newCode, filename) => {
-                  const targetFilename = filename ?? currentFile
-                  setLocalFiles((prev) =>
-                    prev.map((file) =>
-                      file.path === targetFilename
-                        ? { ...file, content: newCode }
-                        : file,
-                    ),
-                  )
-                }}
-                pkgFilesLoaded={!isLoading}
-              />
-            </div>
+        <div className="flex w-full">
+          <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
+            <CodeEditor
+              isSaving={isSaving}
+              handleCreateFile={createFile}
+              handleDeleteFile={deleteFile}
+              handleRenameFile={renameFile}
+              pkg={pkg}
+              currentFile={currentFile}
+              onFileSelect={onFileSelect}
+              files={localFiles}
+              onCodeChange={(newCode, filename) => {
+                const targetFilename = filename ?? currentFile
+                setLocalFiles((prev) =>
+                  prev.map((file) =>
+                    file.path === targetFilename
+                      ? { ...file, content: newCode }
+                      : file,
+                  ),
+                )
+              }}
+              pkgFilesLoaded={!isLoading}
+            />
           </div>
-        )
+        </div>
       )}
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
