@@ -660,7 +660,6 @@ export const CodeEditor = ({
   }, [
     !isStreaming,
     currentFile,
-    code !== "",
     Boolean(highlighter),
     isSaving,
     fontSize,
