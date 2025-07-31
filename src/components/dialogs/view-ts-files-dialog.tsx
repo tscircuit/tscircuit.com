@@ -201,7 +201,6 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       }),
     ]
 
-    // Add TypeScript extensions if environment is available and file is TypeScript
     if (
       tsEnv &&
       !isJson &&
@@ -263,34 +262,57 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       parent: editorRef.current,
     })
 
-    // Navigate to target line if specified (with delay to ensure editor is fully rendered)
     if (targetLine && targetLine > 0) {
       const scrollToLine = () => {
         if (viewRef.current) {
           const doc = viewRef.current.state.doc
           if (targetLine <= doc.lines) {
             const line = doc.line(targetLine)
-            viewRef.current.dispatch({
-              selection: { anchor: line.from, head: line.to },
-              effects: EditorView.scrollIntoView(line.from, { y: "center" }),
-            })
 
-            // Additional scroll after a short delay to ensure it sticks
-            setTimeout(() => {
+            const performScroll = () => {
               if (viewRef.current) {
                 viewRef.current.dispatch({
+                  selection: { anchor: line.from, head: line.to },
                   effects: EditorView.scrollIntoView(line.from, {
                     y: "center",
                   }),
                 })
+
+                setTimeout(() => {
+                  if (viewRef.current) {
+                    viewRef.current.dispatch({
+                      effects: EditorView.scrollIntoView(line.from, {
+                        y: "center",
+                      }),
+                    })
+
+                    setTimeout(() => {
+                      if (viewRef.current) {
+                        viewRef.current.dispatch({
+                          effects: EditorView.scrollIntoView(line.from, {
+                            y: "center",
+                          }),
+                        })
+                      }
+                    }, 200)
+                  }
+                }, 150)
               }
-            }, 50)
+            }
+
+            requestAnimationFrame(performScroll)
           }
         }
       }
 
-      setTimeout(scrollToLine, 100)
-      setTargetLine(null) // Clear target line after navigation
+      // Extra delay when TypeScript environment is not ready or for large line numbers
+      // This handles cases when triggered from CodeEditor.tsx with TypeScript definitions
+      const isLargeLine = targetLine > 100
+      const needsExtraDelay = !tsEnv || isLargeLine
+      const initialDelay = needsExtraDelay ? 500 : 200
+
+      setTimeout(scrollToLine, initialDelay)
+      setTargetLine(null)
     }
 
     return () => {
@@ -306,11 +328,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       setFiles(window.__DEBUG_CODE_EDITOR_FS_MAP)
 
       if (window.__DEBUG_CODE_EDITOR_FS_MAP.size > 0) {
-        // Use initialFile if provided and exists, otherwise use first file
         let fileToSelect: string
         if (initialFile && window.__DEBUG_CODE_EDITOR_FS_MAP.has(initialFile)) {
           fileToSelect = initialFile
-          // Set target line if provided
           if (initialLine) {
             setTargetLine(initialLine)
           }
@@ -336,7 +356,6 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
     }
   }, [open, initialFile, initialLine])
 
-  // Set up TypeScript environment when files are loaded
   useEffect(() => {
     if (files.size > 0) {
       const setupTsEnv = async () => {
