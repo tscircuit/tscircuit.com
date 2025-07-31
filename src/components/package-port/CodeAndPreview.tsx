@@ -22,6 +22,7 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useIsMobile } from "../ViewPackagePage/hooks/use-mobile"
 
 interface Props {
   pkg?: Package
@@ -46,6 +47,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
+  const isMobile = useIsMobile()
 
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -237,16 +239,76 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
               projectUrl={projectUrl}
             />
           </div>
-          {/* Desktop layout with resizable panels */}
-          <ResizablePanelGroup
-            direction="horizontal"
-            className="hidden md:flex w-full min-h-[640px]"
-          >
-            <ResizablePanel
-              defaultSize={50}
-              minSize={20}
-              className="flex flex-col border-r border-gray-200 bg-gray-50"
+          {!isMobile && (
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="hidden md:flex w-full min-h-[640px]"
             >
+              <ResizablePanel
+                defaultSize={50}
+                minSize={20}
+                className="flex flex-col border-r border-gray-200 bg-gray-50"
+              >
+                <CodeEditor
+                  isSaving={isSaving}
+                  handleCreateFile={createFile}
+                  handleDeleteFile={deleteFile}
+                  handleRenameFile={renameFile}
+                  pkg={pkg}
+                  currentFile={currentFile}
+                  onFileSelect={onFileSelect}
+                  files={localFiles}
+                  onCodeChange={(newCode, filename) => {
+                    const targetFilename = filename ?? currentFile
+                    setLocalFiles((prev) =>
+                      prev.map((file) =>
+                        file.path === targetFilename
+                          ? { ...file, content: newCode }
+                          : file,
+                      ),
+                    )
+                  }}
+                  pkgFilesLoaded={!isLoading}
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle className="bg-gray-200" />
+              <ResizablePanel
+                defaultSize={50}
+                minSize={20}
+                className={cn(
+                  "flex p-0 flex-col",
+                  state.fullScreen &&
+                    "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
+                )}
+              >
+                <SuspenseRunFrame
+                  showRunButton
+                  forceLatestEvalVersion
+                  onRenderStarted={() =>
+                    setState((prev) => ({
+                      ...prev,
+                      lastRunCode: currentFileCode,
+                    }))
+                  }
+                  onRenderFinished={({ circuitJson }) => {
+                    setState((prev) => ({ ...prev, circuitJson }))
+                    toastManualEditConflicts(circuitJson, toast)
+                  }}
+                  mainComponentPath={mainComponentPath}
+                  onEditEvent={(event) => {
+                    handleEditEvent(event)
+                  }}
+                  fsMap={fsMap ?? {}}
+                  projectUrl={projectUrl}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          )}
+        </>
+      ) : (
+        !isMobile && (
+          <div className="hidden md:flex w-full">
+            <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
               <CodeEditor
                 isSaving={isSaving}
                 handleCreateFile={createFile}
@@ -268,66 +330,9 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
                 }}
                 pkgFilesLoaded={!isLoading}
               />
-            </ResizablePanel>
-            <ResizableHandle withHandle className="bg-gray-200" />
-            <ResizablePanel
-              defaultSize={50}
-              minSize={20}
-              className={cn(
-                "flex p-0 flex-col",
-                state.fullScreen &&
-                  "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
-              )}
-            >
-              <SuspenseRunFrame
-                showRunButton
-                forceLatestEvalVersion
-                onRenderStarted={() =>
-                  setState((prev) => ({
-                    ...prev,
-                    lastRunCode: currentFileCode,
-                  }))
-                }
-                onRenderFinished={({ circuitJson }) => {
-                  setState((prev) => ({ ...prev, circuitJson }))
-                  toastManualEditConflicts(circuitJson, toast)
-                }}
-                mainComponentPath={mainComponentPath}
-                onEditEvent={(event) => {
-                  handleEditEvent(event)
-                }}
-                fsMap={fsMap ?? {}}
-                projectUrl={projectUrl}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </>
-      ) : (
-        <div className="hidden md:flex w-full">
-          <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
-            <CodeEditor
-              isSaving={isSaving}
-              handleCreateFile={createFile}
-              handleDeleteFile={deleteFile}
-              handleRenameFile={renameFile}
-              pkg={pkg}
-              currentFile={currentFile}
-              onFileSelect={onFileSelect}
-              files={localFiles}
-              onCodeChange={(newCode, filename) => {
-                const targetFilename = filename ?? currentFile
-                setLocalFiles((prev) =>
-                  prev.map((file) =>
-                    file.path === targetFilename
-                      ? { ...file, content: newCode }
-                      : file,
-                  ),
-                )
-              }}
-              pkgFilesLoaded={!isLoading}
-            />
+            </div>
           </div>
-        </div>
+        )
       )}
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
