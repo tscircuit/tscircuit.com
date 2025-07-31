@@ -644,6 +644,12 @@ export const CodeEditor = ({
     })
 
     viewRef.current = view
+    // Ensure the editor retains focus after reinitialization so that undo
+    // shortcuts like Cmd+Z work even when the document becomes empty.
+    view.focus()
+    if (view.state.doc.length === 0) {
+      view.dispatch({ selection: { anchor: 0 } })
+    }
 
     if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
