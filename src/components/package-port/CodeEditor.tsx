@@ -50,6 +50,7 @@ import {
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { resolveRelativePath } from "@/lib/utils/resolveRelativePath"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -108,6 +109,8 @@ export const CodeEditor = ({
   const filePathFromUrl = urlParams.get("file_path")
   const lineNumberFromUrl = urlParams.get("line")
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+  const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
+    useViewTsFilesDialog()
 
   const entryPointFileName = useMemo(() => {
     const entryPointFile = findTargetFile(files, null)
@@ -519,42 +522,48 @@ export const CodeEditor = ({
                     }
                   }
                 }
+                // TypeScript "Go to Definition" functionality
+                const facet = view.state.facet(tsFacet)
+                if (facet) {
+                  const { env, path } = facet
+                  const definitions =
+                    env.languageService.getDefinitionAtPosition(path, pos)
+                  if (definitions && definitions.length > 0) {
+                    const definition = definitions[0]
+                    const definitionFileName = definition.fileName
+                    if (definitionFileName) {
+                      const localFilePath = definitionFileName.startsWith("/")
+                        ? definitionFileName.replace("/", "")
+                        : definitionFileName
+                      if (fileMap[localFilePath]) {
+                        const definitionContent = fileMap[localFilePath]
+                        const lines = definitionContent
+                          ?.substring(0, definition.textSpan.start)
+                          .split("\n")
+                        const lineNumber = lines?.length
 
-                // Check for local file imports
-                const localFileMatches = Array.from(
-                  lineText.matchAll(LOCAL_FILE_IMPORT_PATTERN),
-                )
-                for (const match of localFileMatches) {
-                  if (match.index !== undefined) {
-                    const start = lineStart + match.index
-                    const end = start + match[0].length
-                    if (pos >= start && pos <= end) {
-                      const relativePath = match[0]
-                      const resolvedPath = resolveRelativePath(
-                        relativePath,
-                        currentFile || "",
-                      )
-
-                      // Add common extensions if not present
-                      let targetPath = resolvedPath
-                      if (!targetPath.includes(".")) {
-                        const extensions = [".tsx", ".ts", ".js", ".jsx"]
-                        for (const ext of extensions) {
-                          if (fileMap[`${targetPath}${ext}`]) {
-                            targetPath = `${targetPath}${ext}`
-                            break
-                          }
-                        }
-                      }
-
-                      if (fileMap[targetPath]) {
-                        onFileSelect(targetPath)
+                        onFileSelect(localFilePath, lineNumber)
+                        return true
+                      } else {
+                        const definitionContent =
+                          env
+                            .getSourceFile(definitionFileName)
+                            ?.getFullText() || ""
+                        const lines = definitionContent
+                          .substring(0, definition.textSpan.start)
+                          .split("\n")
+                        const lineNumber = lines.length
+                        console.log(lineNumber, "here", definitionFileName)
+                        openViewTsFilesDialog({
+                          initialFile: definitionFileName,
+                          initialLine: lineNumber,
+                        })
                         return true
                       }
-                      return !!fileMap[targetPath]
                     }
                   }
                 }
+
                 return false
               },
               keydown: (event) => {
@@ -867,6 +876,7 @@ export const CodeEditor = ({
           onClose={() => setShowGlobalFindReplace(false)}
         />
       )}
+      <ViewTsFilesDialog />
     </div>
   )
 }

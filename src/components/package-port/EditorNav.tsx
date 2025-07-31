@@ -363,22 +363,23 @@ export default function EditorNav({
             <Eye className="mr-1 h-3 w-3" />
             Public
           </Button> */}
-          {pkg && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden md:flex">
-                  <MoreVertical className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  className="text-xs"
-                  onClick={() => openViewTsFilesDialog()}
-                >
-                  <File className="mr-2 h-3 w-3" />
-                  View Files
-                </DropdownMenuItem>
-                {session?.github_username === pkg.owner_github_username && (
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                <MoreVertical className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => openViewTsFilesDialog()}
+              >
+                <File className="mr-2 h-3 w-3" />
+                View Files
+              </DropdownMenuItem>
+              {pkg &&
+                session?.github_username === pkg?.owner_github_username && (
                   <>
                     <DropdownMenuItem
                       className="text-xs"
@@ -436,21 +437,21 @@ export default function EditorNav({
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
+                    <DropdownMenuItem
+                      className="text-xs text-red-600"
+                      onClick={() => openDeleteDialog()}
+                    >
+                      <Trash2 className="mr-2 h-3 w-3" />
+                      Delete Package
+                    </DropdownMenuItem>
                   </>
                 )}
-                <DropdownMenuItem
-                  className="text-xs text-red-600"
-                  onClick={() => openDeleteDialog()}
-                >
-                  <Trash2 className="mr-2 h-3 w-3" />
-                  Delete Package
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-xs text-gray-500" disabled>
-                  @tscircuit/core@{tscircuitCorePkg.version}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+              <DropdownMenuItem className="text-xs text-gray-500" disabled>
+                @tscircuit/core@{tscircuitCorePkg.version}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             variant="ghost"
             size="icon"

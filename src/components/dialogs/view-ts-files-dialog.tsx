@@ -21,13 +21,23 @@ import JSZip from "jszip"
 import { saveAs } from "file-saver"
 import { EditorView } from "codemirror"
 import { EditorState } from "@codemirror/state"
+import { autocompletion } from "@codemirror/autocomplete"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import tsModule from "typescript"
 
 interface ViewTsFilesDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  initialFile?: string
+  initialLine?: number
 }
 
 interface FileNode {
@@ -41,6 +51,8 @@ interface FileNode {
 export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
   open,
   onOpenChange,
+  initialFile,
+  initialLine,
 }) => {
   const [files, setFiles] = useState<Map<string, string>>(new Map())
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
@@ -48,8 +60,12 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
   const [copiedFile, setCopiedFile] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [targetLine, setTargetLine] = useState<number | null>(null)
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
+  const [tsEnv, setTsEnv] = useState<ReturnType<
+    typeof createVirtualTypeScriptEnvironment
+  > | null>(null)
 
   const fileTree = useMemo(() => {
     const tree: FileNode[] = []
@@ -159,33 +175,87 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       viewRef.current.destroy()
     }
 
-    const state = EditorState.create({
-      doc: content,
-      extensions: [
-        basicSetup,
-        isJson ? json() : javascript({ typescript: true, jsx: true }),
-        EditorState.readOnly.of(true),
-        EditorView.theme({
-          "&": {
-            height: "100%",
-            fontSize: "14px",
-          },
-          ".cm-content": {
-            padding: "16px",
-            minHeight: "100%",
-          },
-          ".cm-focused": {
-            outline: "none",
-          },
-          ".cm-editor": {
-            height: "100%",
-          },
-          ".cm-scroller": {
-            fontFamily:
-              "ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace",
+    const extensions = [
+      basicSetup,
+      isJson ? json() : javascript({ typescript: true, jsx: true }),
+      EditorState.readOnly.of(true),
+      EditorView.theme({
+        "&": {
+          height: "100%",
+          fontSize: "14px",
+        },
+        ".cm-content": {
+          padding: "16px",
+          minHeight: "100%",
+        },
+        ".cm-focused": {
+          outline: "none",
+        },
+        ".cm-editor": {
+          height: "100%",
+        },
+        ".cm-scroller": {
+          fontFamily:
+            "ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace",
+        },
+      }),
+    ]
+
+    // Add TypeScript extensions if environment is available and file is TypeScript
+    if (
+      tsEnv &&
+      !isJson &&
+      (selectedFile.endsWith(".ts") || selectedFile.endsWith(".tsx"))
+    ) {
+      extensions.push(
+        tsFacet.of({
+          env: tsEnv,
+          path: selectedFile.startsWith("/")
+            ? selectedFile.slice(1)
+            : selectedFile,
+        }),
+        tsSync(),
+        autocompletion({ override: [tsAutocomplete()] }),
+        EditorView.domEventHandlers({
+          click: (event, view) => {
+            if (event.ctrlKey || event.metaKey) {
+              const pos = view.posAtCoords({
+                x: event.clientX,
+                y: event.clientY,
+              })
+              if (pos !== null) {
+                const path = selectedFile.startsWith("/")
+                  ? selectedFile.slice(1)
+                  : selectedFile
+                const definitions =
+                  tsEnv.languageService.getDefinitionAtPosition(path, pos)
+                if (definitions && definitions.length > 0) {
+                  const definition = definitions[0]
+                  const definitionFileName = definition.fileName
+                  if (definitionFileName && files.has(definitionFileName)) {
+                    const definitionContent =
+                      files.get(definitionFileName) || ""
+                    const lines = definitionContent
+                      .substring(0, definition.textSpan.start)
+                      .split("\n")
+                    const lineNumber = lines.length
+
+                    setSelectedFile(definitionFileName)
+                    setTargetLine(lineNumber)
+                    return true
+                  }
+                }
+              }
+            }
+            return false
           },
         }),
-      ],
+      )
+    }
+
+    const state = EditorState.create({
+      doc: content,
+      extensions,
     })
 
     viewRef.current = new EditorView({
@@ -193,25 +263,51 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       parent: editorRef.current,
     })
 
+    // Navigate to target line if specified (with delay to ensure editor is fully rendered)
+    if (targetLine && targetLine > 0) {
+      setTimeout(() => {
+        if (viewRef.current) {
+          const doc = viewRef.current.state.doc
+          if (targetLine <= doc.lines) {
+            const line = doc.line(targetLine)
+            viewRef.current.dispatch({
+              selection: { anchor: line.from, head: line.to },
+              effects: EditorView.scrollIntoView(line.from, { y: "center" }),
+            })
+          }
+        }
+      }, 100)
+      setTargetLine(null) // Clear target line after navigation
+    }
+
     return () => {
       if (viewRef.current) {
         viewRef.current.destroy()
         viewRef.current = null
       }
     }
-  }, [selectedFile, files])
+  }, [selectedFile, files, targetLine, tsEnv])
 
   useEffect(() => {
     if (open && window.__DEBUG_CODE_EDITOR_FS_MAP) {
       setFiles(window.__DEBUG_CODE_EDITOR_FS_MAP)
 
       if (window.__DEBUG_CODE_EDITOR_FS_MAP.size > 0) {
-        const firstFile = Array.from(
-          window.__DEBUG_CODE_EDITOR_FS_MAP.keys(),
-        )[0]
-        setSelectedFile(firstFile)
+        // Use initialFile if provided and exists, otherwise use first file
+        let fileToSelect: string
+        if (initialFile && window.__DEBUG_CODE_EDITOR_FS_MAP.has(initialFile)) {
+          fileToSelect = initialFile
+          // Set target line if provided
+          if (initialLine) {
+            setTargetLine(initialLine)
+          }
+        } else {
+          fileToSelect = Array.from(window.__DEBUG_CODE_EDITOR_FS_MAP.keys())[0]
+        }
 
-        let normalizedPath = firstFile
+        setSelectedFile(fileToSelect)
+
+        let normalizedPath = fileToSelect
         if (normalizedPath.startsWith("/")) {
           normalizedPath = normalizedPath.slice(1)
         }
@@ -225,7 +321,24 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
         setExpandedFolders(foldersToExpand)
       }
     }
-  }, [open])
+  }, [open, initialFile, initialLine])
+
+  // Set up TypeScript environment when files are loaded
+  useEffect(() => {
+    if (files.size > 0) {
+      const setupTsEnv = async () => {
+        try {
+          const libMap = await loadDefaultLibMap()
+          const system = createSystem(new Map([...libMap, ...files]))
+          const env = createVirtualTypeScriptEnvironment(system, [], tsModule)
+          setTsEnv(env)
+        } catch (error) {
+          console.error("Failed to setup TypeScript environment:", error)
+        }
+      }
+      setupTsEnv()
+    }
+  }, [files])
 
   useEffect(() => {
     const handleResize = () => {
@@ -367,7 +480,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mr-4">
             <Button
               variant="outline"
               size="sm"

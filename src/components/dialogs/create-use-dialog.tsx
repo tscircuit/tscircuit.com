@@ -5,14 +5,19 @@ export const createUseDialog = <DialogType extends React.ComponentType<any>>(
 ) => {
   return () => {
     const [open, setOpen] = useState(false)
+    const [dialogProps, setDialogProps] = useState<any>({})
 
     return useMemo(
       () => ({
-        openDialog: () => {
+        openDialog: (props?: any) => {
+          if (props) {
+            setDialogProps(props)
+          }
           setOpen(true)
         },
         closeDialog: () => {
           setOpen(false)
+          setDialogProps({})
         },
         Dialog: (
           props: Omit<
@@ -22,13 +27,14 @@ export const createUseDialog = <DialogType extends React.ComponentType<any>>(
         ) => (
           <DialogComponent
             {...(props as any)}
+            {...dialogProps}
             open={open}
             onOpenChange={setOpen}
           />
         ),
         open,
       }),
-      [open],
+      [open, dialogProps],
     )
   }
 }
