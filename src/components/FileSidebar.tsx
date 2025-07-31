@@ -63,6 +63,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [newFileName, setNewFileName] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [renamingFile, setRenamingFile] = useState<string | null>(null)
+  const [selectedItem, setSelectedItem] = useState<TreeDataItem | undefined>()
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
   const canModifyFiles = true
@@ -224,11 +225,67 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     })
   }
 
+  const addInputNode = (
+    items: TreeDataItem[],
+    folderId: string,
+    node: TreeDataItem,
+  ): TreeDataItem[] => {
+    return items.map((item) => {
+      if (item.id === folderId) {
+        const children = item.children ? [...item.children, node] : [node]
+        return { ...item, children }
+      }
+      if (item.children) {
+        return {
+          ...item,
+          children: addInputNode(item.children, folderId, node),
+        }
+      }
+      return item
+    })
+  }
+
   const treeData = transformFilesToTreeData(files)
+  const treeDataWithInput = React.useMemo(() => {
+    if (!isCreatingFile) return treeData
+    const inputNode: TreeDataItem = {
+      id: "__new_file__",
+      name: (
+        <Input
+          autoFocus
+          value={newFileName}
+          spellCheck={false}
+          onChange={(e) => setNewFileName(e.target.value)}
+          onBlur={handleCreateFileBlur}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleCreateFileInline()
+            } else if (e.key === "Escape") {
+              setIsCreatingFile(false)
+              setNewFileName("")
+              setErrorMessage("")
+            }
+          }}
+          placeholder="Enter file name"
+          className="h-6 px-2 py-0 text-sm flex-1 mr-8 bg-white border-blue-500 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+        />
+      ),
+      icon: File,
+    }
+    if (selectedItem && !selectedItem.onClick) {
+      return addInputNode(treeData, selectedItem.id, inputNode)
+    }
+    return [...treeData, inputNode]
+  }, [isCreatingFile, selectedItem, newFileName, treeData])
 
   const handleCreateFileInline = () => {
+    let fullPath = newFileName.trim()
+    if (selectedItem && !selectedItem.onClick) {
+      const base = selectedItem.id.replace(/\/$/, "")
+      fullPath = base ? `${base}/${fullPath}` : fullPath
+    }
     const { newFileCreated } = handleCreateFile({
-      newFileName,
+      newFileName: fullPath,
       onError: (error) => {
         setErrorMessage(error.message)
       },
@@ -280,34 +337,14 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       >
         <Plus className="w-5 h-5" />
       </button>
-      {isCreatingFile && (
-        <div className="p-2">
-          <Input
-            autoFocus
-            value={newFileName}
-            spellCheck={false}
-            onChange={(e) => setNewFileName(e.target.value)}
-            onBlur={handleCreateFileBlur}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleCreateFileInline()
-              } else if (e.key === "Escape") {
-                setIsCreatingFile(false)
-                setNewFileName("")
-                setErrorMessage("")
-              }
-            }}
-            placeholder="Enter file name"
-          />
-          {errorMessage && (
-            <div className="text-red-500 mt-1">{errorMessage}</div>
-          )}
-        </div>
+      {errorMessage && isCreatingFile && (
+        <div className="text-red-500 mt-1 px-2">{errorMessage}</div>
       )}
       <TreeView
-        data={treeData}
+        data={treeDataWithInput}
         initialSelectedItemId={currentFile || ""}
         onSelectChange={(item) => {
+          setSelectedItem(item)
           if (item?.onClick) {
             item.onClick()
           }
