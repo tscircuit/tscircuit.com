@@ -169,7 +169,7 @@ const CmdKMenu = () => {
       })
       .filter((pkg: ScoredPackage) => pkg.score >= 0)
       .sort((a: ScoredPackage, b: ScoredPackage) => b.score - a.score)
-      .slice(0, 8)
+      .slice(0, 5)
   }, [allPackages, searchQuery])
 
   const accountSearchResults = useMemo((): ScoredAccount[] => {
