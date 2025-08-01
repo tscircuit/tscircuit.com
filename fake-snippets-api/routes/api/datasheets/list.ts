@@ -13,6 +13,9 @@ export default withRouteSpec({
       z.object({
         datasheet_id: z.string().uuid(),
         chip_name: z.string(),
+        chip_type: z.string().nullable().optional(),
+        summary: z.string().nullable().optional(),
+        description: z.string().nullable().optional(),
       }),
     ),
   }),
@@ -23,6 +26,9 @@ export default withRouteSpec({
     .map((ds) => ({
       datasheet_id: ds.datasheet_id,
       chip_name: ds.chip_name,
+      chip_type: ds.chip_type,
+      summary: ds.summary,
+      description: ds.description,
     }))
 
   return ctx.json({ datasheets })

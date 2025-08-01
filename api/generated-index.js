@@ -302,14 +302,8 @@ export default async function handler(req, res) {
     res.status(200).send(htmlContent)
     return
   }
-  try {
-    await handleCustomPackageHtml(req, res)
-    return
-  } catch (e) {
-    console.warn(e)
-  }
-
   const pathParts = req.url.split("?")[0].split("/")
+
   if (pathParts[1] === "datasheets" && pathParts[2]) {
     try {
       await handleDatasheetPage(req, res)
@@ -317,6 +311,13 @@ export default async function handler(req, res) {
     } catch (e) {
       console.warn(e)
     }
+  }
+
+  try {
+    await handleCustomPackageHtml(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
   }
 
   try {

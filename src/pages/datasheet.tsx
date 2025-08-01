@@ -67,7 +67,8 @@ export const DatasheetPage = () => {
           <>
             {!(
               datasheetQuery.data.pin_information ||
-              datasheetQuery.data.datasheet_pdf_urls
+              datasheetQuery.data.datasheet_pdf_urls ||
+              datasheetQuery.data.description
             ) && (
               <SectionCard title="Processing">
                 <div className="flex items-center gap-3 text-yellow-700">
@@ -77,10 +78,28 @@ export const DatasheetPage = () => {
               </SectionCard>
             )}
 
+            {datasheetQuery.data.chip_type && (
+              <SectionCard title="Chip Type">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+                    {datasheetQuery.data.chip_type}
+                  </span>
+                </div>
+              </SectionCard>
+            )}
+
+            <SectionCard title="Summary">
+              {datasheetQuery.data.summary ? (
+                <p className="text-gray-700">{datasheetQuery.data.summary}</p>
+              ) : (
+                <p className="text-gray-500">No summary available.</p>
+              )}
+            </SectionCard>
+
             <SectionCard title="Description">
-              {datasheetQuery.data.ai_description ? (
+              {datasheetQuery.data.description ? (
                 <div className="flex items-center gap-3 text-gray-500">
-                  <span>{datasheetQuery.data.ai_description}</span>
+                  <span>{datasheetQuery.data.description}</span>
                 </div>
               ) : (
                 <p className="text-gray-500">No description available.</p>
@@ -109,6 +128,70 @@ export const DatasheetPage = () => {
               )}
             </SectionCard>
 
+            {datasheetQuery.data.footprint_information && (
+              <SectionCard title="Footprint Information">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Package Details</h4>
+                    <dl className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Package Type:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.package_type}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Pin Count:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.pin_count}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Pin Spacing:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.pin_spacing_mm}mm</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Material:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.package_material}</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Mounting:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.mounting_type}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Dimensions</h4>
+                    <dl className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Length:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.dimensions.length_mm}mm</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Width:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.dimensions.width_mm}mm</dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-gray-600">Height:</dt>
+                        <dd className="font-medium">{datasheetQuery.data.footprint_information.dimensions.height_mm}mm</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              </SectionCard>
+            )}
+
+            {datasheetQuery.data.metadata && (
+              <SectionCard title="Metadata">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(datasheetQuery.data.metadata as Record<string, any>).map(([key, value]) => (
+                    value && (
+                      <div key={key} className="flex justify-between">
+                        <dt className="text-gray-600 capitalize">{key.replace(/_/g, " ")}:</dt>
+                        <dd className="font-medium">{String(value)}</dd>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </SectionCard>
+            )}
+
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (
@@ -131,12 +214,14 @@ export const DatasheetPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {datasheetQuery.data.pin_information.map((pin) => (
+                      {datasheetQuery.data.pin_information.map((pin: any) => (
                         <tr key={pin.pin_number} className="hover:bg-gray-50">
                           <td className="border-b px-3 py-2 font-mono">
                             {pin.pin_number}
                           </td>
-                          <td className="border-b px-3 py-2">{pin.name}</td>
+                          <td className="border-b px-3 py-2">
+                            {Array.isArray(pin.name) ? pin.name.join(", ") : pin.name}
+                          </td>
                           <td className="border-b px-3 py-2">
                             {pin.description}
                           </td>

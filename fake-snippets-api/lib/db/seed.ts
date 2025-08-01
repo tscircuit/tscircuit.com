@@ -1599,4 +1599,852 @@ export const SquareWaveModule = () => (
     started_at: null,
     completed_at: null,
   })
+
+  // Add sample datasheets for common electronic components
+  db.addDatasheet({
+    chip_name: "NE555",
+  })
+  db.updateDatasheet(db.getDatasheetByChipName("NE555")!.datasheet_id, {
+    chip_name: "NE555",
+    datasheet_pdf_urls: [
+      "https://www.ti.com/lit/ds/symlink/ne555.pdf",
+      "https://www.st.com/resource/en/datasheet/cd00000479.pdf"
+    ],
+    pin_information: [
+      {
+        pin_number: "1",
+        name: "GND",
+        description: "Ground reference",
+        capabilities: ["ground", "power"]
+      },
+      {
+        pin_number: "2",
+        name: "TRIG",
+        description: "Trigger input - initiates timing cycle when voltage falls below 1/3 VCC",
+        capabilities: ["input", "analog", "digital"]
+      },
+      {
+        pin_number: "3",
+        name: "OUT",
+        description: "Output - goes high during timing cycle",
+        capabilities: ["output", "digital"]
+      },
+      {
+        pin_number: "4",
+        name: "RESET",
+        description: "Reset input - active low, forces output low when asserted",
+        capabilities: ["input", "digital"]
+      },
+      {
+        pin_number: "5",
+        name: "CTRL",
+        description: "Control voltage - allows access to internal voltage divider",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "6",
+        name: "THRES",
+        description: "Threshold input - ends timing cycle when voltage exceeds 2/3 VCC",
+        capabilities: ["input", "analog", "digital"]
+      },
+      {
+        pin_number: "7",
+        name: "DISCH",
+        description: "Discharge - open collector output for timing capacitor",
+        capabilities: ["output", "open_collector"]
+      },
+      {
+        pin_number: "8",
+        name: "VCC",
+        description: "Positive power supply",
+        capabilities: ["power", "input"]
+      }
+    ],
+    footprint_information: {
+      package_type: "DIP",
+      dimensions: {
+        length_mm: 9.81,
+        width_mm: 6.35,
+        height_mm: 3.3
+      },
+      pin_count: 8,
+      pin_spacing_mm: 2.54,
+      package_material: "plastic",
+      mounting_type: "through_hole"
+    },
+    chip_type: "timer",
+    summary: "Precision timing circuit with 8-pin DIP package",
+    description: "The NE555 is a highly stable device for generating accurate time delays or oscillation. Additional terminals are provided for triggering or resetting if desired. In the time delay mode of operation, the time is precisely controlled by one external resistor and capacitor. For astable operation as an oscillator, the free running frequency and duty cycle are both accurately controlled with two external resistors and one capacitor.",
+    metadata: {
+      manufacturer: "Texas Instruments",
+      part_number: "NE555",
+      package_family: "DIP-8",
+      operating_voltage: "4.5V to 16V",
+      operating_temperature: "-40°C to +85°C",
+      datasheet_revision: "Rev. F",
+      release_date: "2015-01-01",
+      lifecycle_status: "Active"
+    },
+    extracted_information: {
+      chip_type: "timer",
+      footprint_information: {
+        package_type: "DIP",
+        dimensions: {
+          length_mm: 9.81,
+          width_mm: 6.35,
+          height_mm: 3.3
+        },
+        pin_count: 8,
+        pin_spacing_mm: 2.54,
+        package_material: "plastic",
+        mounting_type: "through_hole"
+      },
+      pin_information: [
+        {
+          pin_number: "1",
+          name: "GND",
+          description: "Ground reference",
+          capabilities: ["ground", "power"]
+        },
+        {
+          pin_number: "2",
+          name: "TRIG",
+          description: "Trigger input - initiates timing cycle when voltage falls below 1/3 VCC",
+          capabilities: ["input", "analog", "digital"]
+        },
+        {
+          pin_number: "3",
+          name: "OUT",
+          description: "Output - goes high during timing cycle",
+          capabilities: ["output", "digital"]
+        },
+        {
+          pin_number: "4",
+          name: "RESET",
+          description: "Reset input - active low, forces output low when asserted",
+          capabilities: ["input", "digital"]
+        },
+        {
+          pin_number: "5",
+          name: "CTRL",
+          description: "Control voltage - allows access to internal voltage divider",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "6",
+          name: "THRES",
+          description: "Threshold input - ends timing cycle when voltage exceeds 2/3 VCC",
+          capabilities: ["input", "analog", "digital"]
+        },
+        {
+          pin_number: "7",
+          name: "DISCH",
+          description: "Discharge - open collector output for timing capacitor",
+          capabilities: ["output", "open_collector"]
+        },
+        {
+          pin_number: "8",
+          name: "VCC",
+          description: "Positive power supply",
+          capabilities: ["power", "input"]
+        }
+      ],
+      summary: "Precision timing circuit with 8-pin DIP package",
+      description: "The NE555 is a highly stable device for generating accurate time delays or oscillation. Additional terminals are provided for triggering or resetting if desired. In the time delay mode of operation, the time is precisely controlled by one external resistor and capacitor. For astable operation as an oscillator, the free running frequency and duty cycle are both accurately controlled with two external resistors and one capacitor.",
+      metadata: {
+        manufacturer: "Texas Instruments",
+        part_number: "NE555",
+        package_family: "DIP-8",
+        operating_voltage: "4.5V to 16V",
+        operating_temperature: "-40°C to +85°C",
+        datasheet_revision: "Rev. F",
+        release_date: "2015-01-01",
+        lifecycle_status: "Active"
+      },
+      extraction_metadata: {
+        chip_type_confidence_score: 0.95,
+        raw_detected_chip_type: "timer"
+      }
+    }
+  })
+
+  db.addDatasheet({
+    chip_name: "LM358",
+  })
+  db.updateDatasheet(db.getDatasheetByChipName("LM358")!.datasheet_id, {
+    chip_name: "LM358",
+    datasheet_pdf_urls: [
+      "https://www.ti.com/lit/ds/symlink/lm358.pdf",
+      "https://www.st.com/resource/en/datasheet/lm358.pdf"
+    ],
+    pin_information: [
+      {
+        pin_number: "1",
+        name: "OUT1",
+        description: "Output of operational amplifier 1",
+        capabilities: ["output", "analog"]
+      },
+      {
+        pin_number: "2",
+        name: "IN1-",
+        description: "Inverting input of operational amplifier 1",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "3",
+        name: "IN1+",
+        description: "Non-inverting input of operational amplifier 1",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "4",
+        name: "VCC-",
+        description: "Negative power supply",
+        capabilities: ["power", "input"]
+      },
+      {
+        pin_number: "5",
+        name: "IN2+",
+        description: "Non-inverting input of operational amplifier 2",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "6",
+        name: "IN2-",
+        description: "Inverting input of operational amplifier 2",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "7",
+        name: "OUT2",
+        description: "Output of operational amplifier 2",
+        capabilities: ["output", "analog"]
+      },
+      {
+        pin_number: "8",
+        name: "VCC+",
+        description: "Positive power supply",
+        capabilities: ["power", "input"]
+      }
+    ],
+    footprint_information: {
+      package_type: "DIP",
+      dimensions: {
+        length_mm: 9.81,
+        width_mm: 6.35,
+        height_mm: 3.3
+      },
+      pin_count: 8,
+      pin_spacing_mm: 2.54,
+      package_material: "plastic",
+      mounting_type: "through_hole"
+    },
+    chip_type: "operational_amplifier",
+    summary: "Dual operational amplifier with low power consumption",
+    description: "The LM358 consists of two independent, high gain, internally frequency compensated operational amplifiers which were designed specifically to operate from a single power supply over a wide range of voltages. Operation from split power supplies is also possible and the low power supply current drain is independent of the magnitude of the power supply voltage.",
+    metadata: {
+      manufacturer: "Texas Instruments",
+      part_number: "LM358",
+      package_family: "DIP-8",
+      operating_voltage: "3V to 32V",
+      operating_temperature: "0°C to +70°C",
+      datasheet_revision: "Rev. H",
+      release_date: "2015-01-01",
+      lifecycle_status: "Active"
+    },
+    extracted_information: {
+      chip_type: "operational_amplifier",
+      footprint_information: {
+        package_type: "DIP",
+        dimensions: {
+          length_mm: 9.81,
+          width_mm: 6.35,
+          height_mm: 3.3
+        },
+        pin_count: 8,
+        pin_spacing_mm: 2.54,
+        package_material: "plastic",
+        mounting_type: "through_hole"
+      },
+      pin_information: [
+        {
+          pin_number: "1",
+          name: "OUT1",
+          description: "Output of operational amplifier 1",
+          capabilities: ["output", "analog"]
+        },
+        {
+          pin_number: "2",
+          name: "IN1-",
+          description: "Inverting input of operational amplifier 1",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "3",
+          name: "IN1+",
+          description: "Non-inverting input of operational amplifier 1",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "4",
+          name: "VCC-",
+          description: "Negative power supply",
+          capabilities: ["power", "input"]
+        },
+        {
+          pin_number: "5",
+          name: "IN2+",
+          description: "Non-inverting input of operational amplifier 2",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "6",
+          name: "IN2-",
+          description: "Inverting input of operational amplifier 2",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "7",
+          name: "OUT2",
+          description: "Output of operational amplifier 2",
+          capabilities: ["output", "analog"]
+        },
+        {
+          pin_number: "8",
+          name: "VCC+",
+          description: "Positive power supply",
+          capabilities: ["power", "input"]
+        }
+      ],
+      summary: "Dual operational amplifier with low power consumption",
+      description: "The LM358 consists of two independent, high gain, internally frequency compensated operational amplifiers which were designed specifically to operate from a single power supply over a wide range of voltages. Operation from split power supplies is also possible and the low power supply current drain is independent of the magnitude of the power supply voltage.",
+      metadata: {
+        manufacturer: "Texas Instruments",
+        part_number: "LM358",
+        package_family: "DIP-8",
+        operating_voltage: "3V to 32V",
+        operating_temperature: "0°C to +70°C",
+        datasheet_revision: "Rev. H",
+        release_date: "2015-01-01",
+        lifecycle_status: "Active"
+      },
+      extraction_metadata: {
+        chip_type_confidence_score: 0.92,
+        raw_detected_chip_type: "operational_amplifier"
+      }
+    }
+  })
+
+  db.addDatasheet({
+    chip_name: "ATmega328P",
+  })
+  db.updateDatasheet(db.getDatasheetByChipName("ATmega328P")!.datasheet_id, {
+    chip_name: "ATmega328P",
+    datasheet_pdf_urls: [
+      "https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf"
+    ],
+    pin_information: [
+      {
+        pin_number: "1",
+        name: "PC6/RESET",
+        description: "Reset input or PC6 digital I/O",
+        capabilities: ["input", "digital", "reset"]
+      },
+      {
+        pin_number: "2",
+        name: "PD0/RXD",
+        description: "USART receive data or PD0 digital I/O",
+        capabilities: ["input", "output", "digital", "uart"]
+      },
+      {
+        pin_number: "3",
+        name: "PD1/TXD",
+        description: "USART transmit data or PD1 digital I/O",
+        capabilities: ["input", "output", "digital", "uart"]
+      },
+      {
+        pin_number: "4",
+        name: "PD2/INT0",
+        description: "External interrupt 0 or PD2 digital I/O",
+        capabilities: ["input", "digital", "interrupt"]
+      },
+      {
+        pin_number: "5",
+        name: "PD3/INT1",
+        description: "External interrupt 1 or PD3 digital I/O",
+        capabilities: ["input", "digital", "interrupt"]
+      },
+      {
+        pin_number: "6",
+        name: "PD4/T0",
+        description: "Timer0 external counter input or PD4 digital I/O",
+        capabilities: ["input", "digital", "timer"]
+      },
+      {
+        pin_number: "7",
+        name: "VCC",
+        description: "Digital supply voltage",
+        capabilities: ["power", "input"]
+      },
+      {
+        pin_number: "8",
+        name: "GND",
+        description: "Ground",
+        capabilities: ["ground", "power"]
+      },
+      {
+        pin_number: "9",
+        name: "PB6/XTAL1",
+        description: "Crystal oscillator input or PB6 digital I/O",
+        capabilities: ["input", "digital", "oscillator"]
+      },
+      {
+        pin_number: "10",
+        name: "PB7/XTAL2",
+        description: "Crystal oscillator output or PB7 digital I/O",
+        capabilities: ["output", "digital", "oscillator"]
+      },
+      {
+        pin_number: "11",
+        name: "PD5/T1",
+        description: "Timer1 external counter input or PD5 digital I/O",
+        capabilities: ["input", "digital", "timer"]
+      },
+      {
+        pin_number: "12",
+        name: "PD6/AIN0",
+        description: "Analog comparator positive input or PD6 digital I/O",
+        capabilities: ["input", "digital", "analog", "comparator"]
+      },
+      {
+        pin_number: "13",
+        name: "PD7/AIN1",
+        description: "Analog comparator negative input or PD7 digital I/O",
+        capabilities: ["input", "digital", "analog", "comparator"]
+      },
+      {
+        pin_number: "14",
+        name: "PB0/ICP",
+        description: "Timer1 input capture or PB0 digital I/O",
+        capabilities: ["input", "digital", "timer"]
+      },
+      {
+        pin_number: "15",
+        name: "PB1/OC1A",
+        description: "Timer1 output compare A or PB1 digital I/O",
+        capabilities: ["output", "digital", "timer"]
+      },
+      {
+        pin_number: "16",
+        name: "PB2/SS/OC1B",
+        description: "SPI slave select or Timer1 output compare B or PB2 digital I/O",
+        capabilities: ["input", "output", "digital", "spi", "timer"]
+      },
+      {
+        pin_number: "17",
+        name: "PB3/MOSI/OC2",
+        description: "SPI master out slave in or Timer2 output compare or PB3 digital I/O",
+        capabilities: ["input", "output", "digital", "spi", "timer"]
+      },
+      {
+        pin_number: "18",
+        name: "PB4/MISO",
+        description: "SPI master in slave out or PB4 digital I/O",
+        capabilities: ["input", "output", "digital", "spi"]
+      },
+      {
+        pin_number: "19",
+        name: "PB5/SCK",
+        description: "SPI serial clock or PB5 digital I/O",
+        capabilities: ["input", "output", "digital", "spi"]
+      },
+      {
+        pin_number: "20",
+        name: "AVCC",
+        description: "Analog supply voltage",
+        capabilities: ["power", "input"]
+      },
+      {
+        pin_number: "21",
+        name: "AREF",
+        description: "Analog reference voltage",
+        capabilities: ["input", "analog"]
+      },
+      {
+        pin_number: "22",
+        name: "GND",
+        description: "Ground",
+        capabilities: ["ground", "power"]
+      },
+      {
+        pin_number: "23",
+        name: "PC0/ADC0",
+        description: "ADC input channel 0 or PC0 digital I/O",
+        capabilities: ["input", "digital", "analog", "adc"]
+      },
+      {
+        pin_number: "24",
+        name: "PC1/ADC1",
+        description: "ADC input channel 1 or PC1 digital I/O",
+        capabilities: ["input", "digital", "analog", "adc"]
+      },
+      {
+        pin_number: "25",
+        name: "PC2/ADC2",
+        description: "ADC input channel 2 or PC2 digital I/O",
+        capabilities: ["input", "digital", "analog", "adc"]
+      },
+      {
+        pin_number: "26",
+        name: "PC3/ADC3",
+        description: "ADC input channel 3 or PC3 digital I/O",
+        capabilities: ["input", "digital", "analog", "adc"]
+      },
+      {
+        pin_number: "27",
+        name: "PC4/ADC4/SDA",
+        description: "ADC input channel 4 or I2C data or PC4 digital I/O",
+        capabilities: ["input", "output", "digital", "analog", "adc", "i2c"]
+      },
+      {
+        pin_number: "28",
+        name: "PC5/ADC5/SCL",
+        description: "ADC input channel 5 or I2C clock or PC5 digital I/O",
+        capabilities: ["input", "output", "digital", "analog", "adc", "i2c"]
+      }
+    ],
+    footprint_information: {
+      package_type: "DIP",
+      dimensions: {
+        length_mm: 34.29,
+        width_mm: 7.62,
+        height_mm: 3.3
+      },
+      pin_count: 28,
+      pin_spacing_mm: 2.54,
+      package_material: "plastic",
+      mounting_type: "through_hole"
+    },
+    chip_type: "microcontroller",
+    summary: "8-bit AVR microcontroller with 32KB flash memory",
+    description: "The ATmega328P is a low-power CMOS 8-bit microcontroller based on the AVR enhanced RISC architecture. By executing powerful instructions in a single clock cycle, the ATmega328P achieves throughputs approaching 1 MIPS per MHz allowing the system designer to optimize power consumption versus processing speed.",
+    metadata: {
+      manufacturer: "Microchip Technology",
+      part_number: "ATmega328P",
+      package_family: "DIP-28",
+      operating_voltage: "1.8V to 5.5V",
+      operating_temperature: "-40°C to +85°C",
+      datasheet_revision: "Rev. 7810D",
+      release_date: "2015-01-01",
+      lifecycle_status: "Active"
+    },
+    extracted_information: {
+      chip_type: "microcontroller",
+      footprint_information: {
+        package_type: "DIP",
+        dimensions: {
+          length_mm: 34.29,
+          width_mm: 7.62,
+          height_mm: 3.3
+        },
+        pin_count: 28,
+        pin_spacing_mm: 2.54,
+        package_material: "plastic",
+        mounting_type: "through_hole"
+      },
+      pin_information: [
+        {
+          pin_number: "1",
+          name: "PC6/RESET",
+          description: "Reset input or PC6 digital I/O",
+          capabilities: ["input", "digital", "reset"]
+        },
+        {
+          pin_number: "2",
+          name: "PD0/RXD",
+          description: "USART receive data or PD0 digital I/O",
+          capabilities: ["input", "output", "digital", "uart"]
+        },
+        {
+          pin_number: "3",
+          name: "PD1/TXD",
+          description: "USART transmit data or PD1 digital I/O",
+          capabilities: ["input", "output", "digital", "uart"]
+        },
+        {
+          pin_number: "4",
+          name: "PD2/INT0",
+          description: "External interrupt 0 or PD2 digital I/O",
+          capabilities: ["input", "digital", "interrupt"]
+        },
+        {
+          pin_number: "5",
+          name: "PD3/INT1",
+          description: "External interrupt 1 or PD3 digital I/O",
+          capabilities: ["input", "digital", "interrupt"]
+        },
+        {
+          pin_number: "6",
+          name: "PD4/T0",
+          description: "Timer0 external counter input or PD4 digital I/O",
+          capabilities: ["input", "digital", "timer"]
+        },
+        {
+          pin_number: "7",
+          name: "VCC",
+          description: "Digital supply voltage",
+          capabilities: ["power", "input"]
+        },
+        {
+          pin_number: "8",
+          name: "GND",
+          description: "Ground",
+          capabilities: ["ground", "power"]
+        },
+        {
+          pin_number: "9",
+          name: "PB6/XTAL1",
+          description: "Crystal oscillator input or PB6 digital I/O",
+          capabilities: ["input", "digital", "oscillator"]
+        },
+        {
+          pin_number: "10",
+          name: "PB7/XTAL2",
+          description: "Crystal oscillator output or PB7 digital I/O",
+          capabilities: ["output", "digital", "oscillator"]
+        },
+        {
+          pin_number: "11",
+          name: "PD5/T1",
+          description: "Timer1 external counter input or PD5 digital I/O",
+          capabilities: ["input", "digital", "timer"]
+        },
+        {
+          pin_number: "12",
+          name: "PD6/AIN0",
+          description: "Analog comparator positive input or PD6 digital I/O",
+          capabilities: ["input", "digital", "analog", "comparator"]
+        },
+        {
+          pin_number: "13",
+          name: "PD7/AIN1",
+          description: "Analog comparator negative input or PD7 digital I/O",
+          capabilities: ["input", "digital", "analog", "comparator"]
+        },
+        {
+          pin_number: "14",
+          name: "PB0/ICP",
+          description: "Timer1 input capture or PB0 digital I/O",
+          capabilities: ["input", "digital", "timer"]
+        },
+        {
+          pin_number: "15",
+          name: "PB1/OC1A",
+          description: "Timer1 output compare A or PB1 digital I/O",
+          capabilities: ["output", "digital", "timer"]
+        },
+        {
+          pin_number: "16",
+          name: "PB2/SS/OC1B",
+          description: "SPI slave select or Timer1 output compare B or PB2 digital I/O",
+          capabilities: ["input", "output", "digital", "spi", "timer"]
+        },
+        {
+          pin_number: "17",
+          name: "PB3/MOSI/OC2",
+          description: "SPI master out slave in or Timer2 output compare or PB3 digital I/O",
+          capabilities: ["input", "output", "digital", "spi", "timer"]
+        },
+        {
+          pin_number: "18",
+          name: "PB4/MISO",
+          description: "SPI master in slave out or PB4 digital I/O",
+          capabilities: ["input", "output", "digital", "spi"]
+        },
+        {
+          pin_number: "19",
+          name: "PB5/SCK",
+          description: "SPI serial clock or PB5 digital I/O",
+          capabilities: ["input", "output", "digital", "spi"]
+        },
+        {
+          pin_number: "20",
+          name: "AVCC",
+          description: "Analog supply voltage",
+          capabilities: ["power", "input"]
+        },
+        {
+          pin_number: "21",
+          name: "AREF",
+          description: "Analog reference voltage",
+          capabilities: ["input", "analog"]
+        },
+        {
+          pin_number: "22",
+          name: "GND",
+          description: "Ground",
+          capabilities: ["ground", "power"]
+        },
+        {
+          pin_number: "23",
+          name: "PC0/ADC0",
+          description: "ADC input channel 0 or PC0 digital I/O",
+          capabilities: ["input", "digital", "analog", "adc"]
+        },
+        {
+          pin_number: "24",
+          name: "PC1/ADC1",
+          description: "ADC input channel 1 or PC1 digital I/O",
+          capabilities: ["input", "digital", "analog", "adc"]
+        },
+        {
+          pin_number: "25",
+          name: "PC2/ADC2",
+          description: "ADC input channel 2 or PC2 digital I/O",
+          capabilities: ["input", "digital", "analog", "adc"]
+        },
+        {
+          pin_number: "26",
+          name: "PC3/ADC3",
+          description: "ADC input channel 3 or PC3 digital I/O",
+          capabilities: ["input", "digital", "analog", "adc"]
+        },
+        {
+          pin_number: "27",
+          name: "PC4/ADC4/SDA",
+          description: "ADC input channel 4 or I2C data or PC4 digital I/O",
+          capabilities: ["input", "output", "digital", "analog", "adc", "i2c"]
+        },
+        {
+          pin_number: "28",
+          name: "PC5/ADC5/SCL",
+          description: "ADC input channel 5 or I2C clock or PC5 digital I/O",
+          capabilities: ["input", "output", "digital", "analog", "adc", "i2c"]
+        }
+      ],
+      summary: "8-bit AVR microcontroller with 32KB flash memory",
+      description: "The ATmega328P is a low-power CMOS 8-bit microcontroller based on the AVR enhanced RISC architecture. By executing powerful instructions in a single clock cycle, the ATmega328P achieves throughputs approaching 1 MIPS per MHz allowing the system designer to optimize power consumption versus processing speed.",
+      metadata: {
+        manufacturer: "Microchip Technology",
+        part_number: "ATmega328P",
+        package_family: "DIP-28",
+        operating_voltage: "1.8V to 5.5V",
+        operating_temperature: "-40°C to +85°C",
+        datasheet_revision: "Rev. 7810D",
+        release_date: "2015-01-01",
+        lifecycle_status: "Active"
+      },
+      extraction_metadata: {
+        chip_type_confidence_score: 0.98,
+        raw_detected_chip_type: "microcontroller"
+      }
+    }
+  })
+
+  db.addDatasheet({
+    chip_name: "LM7805",
+  })
+  db.updateDatasheet(db.getDatasheetByChipName("LM7805")!.datasheet_id, {
+    chip_name: "LM7805",
+    datasheet_pdf_urls: [
+      "https://www.ti.com/lit/ds/symlink/lm7805.pdf",
+      "https://www.st.com/resource/en/datasheet/l7805.pdf"
+    ],
+    pin_information: [
+      {
+        pin_number: "1",
+        name: "IN",
+        description: "Input voltage (7V to 35V)",
+        capabilities: ["input", "power"]
+      },
+      {
+        pin_number: "2",
+        name: "GND",
+        description: "Ground reference",
+        capabilities: ["ground", "power"]
+      },
+      {
+        pin_number: "3",
+        name: "OUT",
+        description: "Output voltage (5V ±2%)",
+        capabilities: ["output", "power"]
+      }
+    ],
+    footprint_information: {
+      package_type: "TO-220",
+      dimensions: {
+        length_mm: 10.16,
+        width_mm: 4.57,
+        height_mm: 9.15
+      },
+      pin_count: 3,
+      pin_spacing_mm: 2.54,
+      package_material: "plastic",
+      mounting_type: "through_hole"
+    },
+    chip_type: "voltage_regulator",
+    summary: "5V positive voltage regulator with 1A output current",
+    description: "The LM7805 is a three-terminal positive voltage regulator that employs internal current limiting, thermal shutdown and safe area compensation, making them essentially indestructible. If adequate heat sinking is provided, they can deliver over 1A output current.",
+    metadata: {
+      manufacturer: "Texas Instruments",
+      part_number: "LM7805",
+      package_family: "TO-220",
+      operating_voltage: "7V to 35V input",
+      operating_temperature: "0°C to +125°C",
+      datasheet_revision: "Rev. G",
+      release_date: "2015-01-01",
+      lifecycle_status: "Active"
+    },
+    extracted_information: {
+      chip_type: "voltage_regulator",
+      footprint_information: {
+        package_type: "TO-220",
+        dimensions: {
+          length_mm: 10.16,
+          width_mm: 4.57,
+          height_mm: 9.15
+        },
+        pin_count: 3,
+        pin_spacing_mm: 2.54,
+        package_material: "plastic",
+        mounting_type: "through_hole"
+      },
+      pin_information: [
+        {
+          pin_number: "1",
+          name: "IN",
+          description: "Input voltage (7V to 35V)",
+          capabilities: ["input", "power"]
+        },
+        {
+          pin_number: "2",
+          name: "GND",
+          description: "Ground reference",
+          capabilities: ["ground", "power"]
+        },
+        {
+          pin_number: "3",
+          name: "OUT",
+          description: "Output voltage (5V ±2%)",
+          capabilities: ["output", "power"]
+        }
+      ],
+      summary: "5V positive voltage regulator with 1A output current",
+      description: "The LM7805 is a three-terminal positive voltage regulator that employs internal current limiting, thermal shutdown and safe area compensation, making them essentially indestructible. If adequate heat sinking is provided, they can deliver over 1A output current.",
+      metadata: {
+        manufacturer: "Texas Instruments",
+        part_number: "LM7805",
+        package_family: "TO-220",
+        operating_voltage: "7V to 35V input",
+        operating_temperature: "0°C to +125°C",
+        datasheet_revision: "Rev. G",
+        release_date: "2015-01-01",
+        lifecycle_status: "Active"
+      },
+      extraction_metadata: {
+        chip_type_confidence_score: 0.94,
+        raw_detected_chip_type: "voltage_regulator"
+      }
+    }
+  })
 }
