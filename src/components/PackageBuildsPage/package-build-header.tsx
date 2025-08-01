@@ -5,6 +5,7 @@ import { Github, RefreshCw } from "lucide-react"
 import { useParams } from "wouter"
 import { DownloadButtonAndMenu } from "../DownloadButtonAndMenu"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useCurrentPackageCircuitJson } from "../ViewPackagePage/hooks/use-current-package-circuit-json"
 
 export function PackageBuildHeader() {
   const { author, packageName } = useParams()
@@ -14,6 +15,8 @@ export function PackageBuildHeader() {
   })
   const { mutate: rebuildPackage, isLoading } =
     useRebuildPackageReleaseMutation()
+
+  const { circuitJson } = useCurrentPackageCircuitJson()
 
   return (
     <div className="border-b border-gray-200 bg-white px-4 sm:px-6 py-4">
@@ -63,7 +66,12 @@ export function PackageBuildHeader() {
               {isLoading ? "Rebuilding..." : "Rebuild"}
             </Button>
           )}
-          <DownloadButtonAndMenu unscopedName={packageName} author={author} />
+          <DownloadButtonAndMenu
+            offerMultipleImageFormats
+            circuitJson={circuitJson}
+            unscopedName={packageName}
+            author={author}
+          />
         </div>
       </div>
     </div>
