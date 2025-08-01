@@ -78,6 +78,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     localFiles,
     initialFiles,
     renameFile,
+    packageFilesMeta,
   } = useFileManagement({
     templateCode: templateFromUrl?.code,
     currentPackage: pkg,
@@ -197,6 +198,8 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
         }
         previewOpen={state.showPreview}
+        files={localFiles}
+        packageFilesMeta={packageFilesMeta}
       />
       <div
         className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
