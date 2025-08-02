@@ -1,18 +1,37 @@
 import { datasheetSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
+import { randomUUID } from "crypto"
 
 export const processAllDatasheets = (ctx: any) => {
   const processed = [] as z.infer<typeof datasheetSchema>[]
   ctx.db.datasheets.forEach((ds: any) => {
-    if (!ds.pin_information || !ds.datasheet_pdf_urls || !ds.ai_description) {
+    if (!ds.variant || !ds.datasheet_pdf_urls || !ds.ai_description) {
       const updated = ctx.db.updateDatasheet(ds.datasheet_id, {
-        pin_information: [
+        variant: {
+          datasheet_variant_id: randomUUID(),
+          variant_name: "Default",
+          package_type: "DIP-8",
+          package_description: "8-pin Dual Inline Package",
+          pin_information: [
+            {
+              pin_number: "1",
+              name: "PIN1",
+              description: "Placeholder pin",
+              capabilities: ["digital"],
+            },
+          ],
+          footprint_information: null,
+          supplier_part_numbers: null,
+          is_default_variant: true,
+        },
+        available_variants: [
           {
-            pin_number: "1",
-            name: "PIN1",
-            description: "Placeholder pin",
-            capabilities: ["digital"],
+            datasheet_variant_id: randomUUID(),
+            variant_name: "Default",
+            package_type: "DIP-8",
+            package_description: "8-pin Dual Inline Package",
+            is_default_variant: true,
           },
         ],
         datasheet_pdf_urls: ["https://example.com/datasheet.pdf"],

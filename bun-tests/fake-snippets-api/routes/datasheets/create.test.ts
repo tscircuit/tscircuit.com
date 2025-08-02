@@ -10,7 +10,7 @@ test("create datasheet", async () => {
 
   expect(res.status).toBe(200)
   expect(res.data.datasheet.chip_name).toBe("TestChip")
-  expect(res.data.datasheet.pin_information).toBeNull()
+  expect(res.data.datasheet.variant).toBeNull()
   expect(res.data.datasheet.datasheet_pdf_urls).toBeNull()
   expect(res.data.datasheet.ai_description).toBeNull()
 })

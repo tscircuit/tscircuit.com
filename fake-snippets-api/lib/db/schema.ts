@@ -157,15 +157,34 @@ export const datasheetPinInformationSchema = z.object({
   capabilities: z.array(z.string()),
 })
 
+export const datasheetVariantSchema = z.object({
+  datasheet_variant_id: z.string(),
+  variant_name: z.string(),
+  package_type: z.string().nullable().optional(),
+  package_description: z.string().nullable().optional(),
+  pin_information: datasheetPinInformationSchema.array().nullable().optional(),
+  footprint_information: z.any().nullable().optional(),
+  supplier_part_numbers: z.any().nullable().optional(),
+  is_default_variant: z.boolean(),
+})
+
 export const datasheetSchema = z.object({
   datasheet_id: z.string(),
   chip_name: z.string(),
   created_at: z.string(),
-  pin_information: datasheetPinInformationSchema.array().nullable(),
   datasheet_pdf_urls: z.array(z.string()).nullable(),
   ai_description: z.string().nullable(),
+  variant: datasheetVariantSchema.nullable().optional(),
+  available_variants: z.array(datasheetVariantSchema.pick({
+    datasheet_variant_id: true,
+    variant_name: true,
+    package_type: true,
+    package_description: true,
+    is_default_variant: true,
+  })).optional(),
 })
 export type Datasheet = z.infer<typeof datasheetSchema>
+export type DatasheetVariant = z.infer<typeof datasheetVariantSchema>
 
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({

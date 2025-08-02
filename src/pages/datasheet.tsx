@@ -4,10 +4,12 @@ import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import ExpandableText from "@/components/ExpandableText"
-import type { Datasheet } from "fake-snippets-api/lib/db/schema"
+import type { Datasheet, DatasheetVariant } from "fake-snippets-api/lib/db/schema"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, AlertCircle, FileText } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, AlertCircle, FileText, Package } from "lucide-react"
+import { useState } from "react"
 
 const SectionCard = ({
   title,
@@ -25,11 +27,18 @@ export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
   const datasheetQuery = useDatasheet(chipName)
   const createDatasheet = useCreateDatasheet()
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null)
 
   const handleCreate = () => {
     if (!chipName) return
     createDatasheet.mutate({ chip_name: chipName })
   }
+
+  // Get the current variant (either selected or default)
+  const currentVariant = datasheetQuery.data?.variant
+
+  // Get pin information from the current variant
+  const pinInformation = currentVariant?.pin_information || null
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,7 +75,7 @@ export const DatasheetPage = () => {
         ) : datasheetQuery.data ? (
           <>
             {!(
-              datasheetQuery.data.pin_information ||
+              pinInformation ||
               datasheetQuery.data.datasheet_pdf_urls
             ) && (
               <SectionCard title="Processing">
@@ -86,6 +95,60 @@ export const DatasheetPage = () => {
                 <p className="text-gray-500">No description available.</p>
               )}
             </SectionCard>
+
+            {datasheetQuery.data.available_variants && datasheetQuery.data.available_variants.length > 1 && (
+              <SectionCard title="Package Variants">
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-gray-500" />
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Select a package variant to view its pin information:
+                    </p>
+                    <Select
+                      value={currentVariant?.datasheet_variant_id || ""}
+                      onValueChange={(value) => {
+                        // For now, we'll need to refetch the datasheet with the selected variant
+                        // This would require updating the API to accept a variant_id parameter
+                        console.log("Selected variant:", value)
+                      }}
+                    >
+                      <SelectTrigger className="w-full max-w-md">
+                        <SelectValue placeholder="Select a variant" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {datasheetQuery.data.available_variants.map((variant) => (
+                          <SelectItem key={variant.datasheet_variant_id} value={variant.datasheet_variant_id}>
+                            {variant.variant_name}
+                            {variant.package_type && ` (${variant.package_type})`}
+                            {variant.is_default_variant && " (Default)"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </SectionCard>
+            )}
+
+            {currentVariant && (
+              <SectionCard title="Package Information">
+                <div className="space-y-2">
+                  <div>
+                    <span className="font-medium">Variant:</span> {currentVariant.variant_name}
+                  </div>
+                  {currentVariant.package_type && (
+                    <div>
+                      <span className="font-medium">Package Type:</span> {currentVariant.package_type}
+                    </div>
+                  )}
+                  {currentVariant.package_description && (
+                    <div>
+                      <span className="font-medium">Description:</span> {currentVariant.package_description}
+                    </div>
+                  )}
+                </div>
+              </SectionCard>
+            )}
 
             <SectionCard title="PDFs">
               {datasheetQuery.data.datasheet_pdf_urls &&
@@ -110,8 +173,8 @@ export const DatasheetPage = () => {
             </SectionCard>
 
             <SectionCard title="Pin Information">
-              {datasheetQuery.data.pin_information &&
-              datasheetQuery.data.pin_information.length > 0 ? (
+              {pinInformation &&
+              pinInformation.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full border-collapse text-sm">
                     <thead>
@@ -131,7 +194,7 @@ export const DatasheetPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {datasheetQuery.data.pin_information.map((pin) => (
+                      {pinInformation.map((pin: any) => (
                         <tr key={pin.pin_number} className="hover:bg-gray-50">
                           <td className="border-b px-3 py-2 font-mono">
                             {pin.pin_number}

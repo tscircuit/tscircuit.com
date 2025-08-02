@@ -14,6 +14,7 @@ test("run async tasks processes datasheets", async () => {
   const res = await axios.get("/api/datasheets/get", {
     params: { datasheet_id: id },
   })
-  expect(res.data.datasheet.pin_information).not.toBeNull()
+  expect(res.data.datasheet.variant).not.toBeNull()
+  expect(res.data.datasheet.variant?.pin_information).not.toBeNull()
   expect(res.data.datasheet.ai_description).not.toBeNull()
 })
