@@ -196,34 +196,53 @@ export function useFileManagement({
     openFile = true,
   }: ICreateFileProps): ICreateFileResult => {
     newFileName = newFileName.trim()
+
     if (!newFileName) {
       onError(new Error("File name cannot be empty"))
       return {
         newFileCreated: false,
       }
     }
+
     if (!isValidFileName(newFileName)) {
-      onError(new Error("Invalid file name"))
+      onError(
+        new Error(
+          "Invalid file name. Avoid special characters and relative paths (. or ..)",
+        ),
+      )
       return {
         newFileCreated: false,
       }
     }
 
+    // Check if file already exists
     const fileExists = localFiles?.some((file) => file.path === newFileName)
     if (fileExists) {
-      onError(new Error("File already exists"))
+      onError(new Error(`File '${newFileName}' already exists`))
       return {
         newFileCreated: false,
       }
     }
+
+    // Ensure file name is not empty after path construction
+    const fileName = newFileName.split("/").pop() || ""
+    if (!fileName.trim()) {
+      onError(new Error("File name cannot be empty"))
+      return {
+        newFileCreated: false,
+      }
+    }
+
     const updatedFiles = [
       ...(localFiles || []),
       { path: newFileName, content: content || "" },
     ]
     setLocalFiles(updatedFiles)
+
     if (openFile) {
       setCurrentFile(newFileName)
     }
+
     return {
       newFileCreated: true,
     }

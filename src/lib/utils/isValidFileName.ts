@@ -1,5 +1,17 @@
 export const isValidFileName = (name: string) => {
-  // Basic checks for file naming conventions
-  const invalidChars = /[<>:"/\\|?*]/
-  return name.length > 0 && !invalidChars.test(name)
+  const invalidChars = /[<>:"\\|?*]/
+
+  if (name.length === 0) return false
+  if (invalidChars.test(name)) return false
+
+  const pathParts = name.split("/")
+
+  for (const part of pathParts) {
+    if (part === "") continue
+    if (part === "." || part === "..") return false
+    if (part.startsWith(" ") || part.endsWith(" ")) return false
+    if (part.includes("\\")) return false
+  }
+
+  return true
 }
