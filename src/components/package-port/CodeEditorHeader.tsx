@@ -184,11 +184,13 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       )
       const tsxComponent = await convertRawEasyToTsx(jlcpcbComponent)
       let componentName = component.name.replace(/ /g, "-")
-      if (files[`${componentName}.tsx`] || files[`./${componentName}.tsx`]) {
+      let componentPath = `imports/${componentName}.tsx`
+      if (files[componentPath] || files[`./${componentPath}`]) {
         componentName = `${componentName}-1`
+        componentPath = `imports/${componentName}.tsx`
       }
       const createFileResult = createFile({
-        newFileName: `${componentName}.tsx`,
+        newFileName: componentPath,
         content: tsxComponent,
         onError: (error) => {
           throw error
