@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
 import { useGlobalStore } from "./use-global-store"
-import { toast } from "sonner"
 import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import type { PackageFile } from "@/types/package"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useToast } from "./use-toast"
 
 interface UseCreateReleaseDialogProps {
   packageId?: string
@@ -30,6 +30,7 @@ export const useCreateReleaseDialog = ({
   currentPackage,
   packageFilesMeta = [],
 }: UseCreateReleaseDialogProps) => {
+  const { toast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
   const [version, setVersion] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -48,7 +49,14 @@ export const useCreateReleaseDialog = ({
       })()
     : undefined
 
-  const { mutateAsync: createRelease } = useCreatePackageReleaseMutation()
+  const { mutateAsync: createRelease } = useCreatePackageReleaseMutation({
+    onSuccess: () => {
+      toast({
+        title: "Package release created",
+        description: "Your package release has been created successfully.",
+      })
+    },
+  })
   const session = useGlobalStore((s) => s.session)
 
   const updatePackageFilesMutation = useUpdatePackageFilesMutation({
@@ -61,7 +69,9 @@ export const useCreateReleaseDialog = ({
   const open = () => {
     setIsOpen(true)
     setError(null)
-    setVersion("")
+    // Auto-fill with suggested next version
+    const nextVersion = suggestedNextVersion || "0.0.1"
+    setVersion(nextVersion)
   }
 
   const close = () => {
@@ -103,23 +113,19 @@ export const useCreateReleaseDialog = ({
 
       const result = await createRelease(releaseData)
 
-      // Upload files to the release if files are provided
       if (files.length > 0 && currentPackage) {
         try {
           await updatePackageFilesMutation.mutateAsync({
             package_name_with_version: `${currentPackage.name}@${version.trim()}`,
             ...currentPackage,
           })
-          toast.success(
-            `Release ${version} created and files uploaded successfully!`,
-          )
         } catch (fileError: any) {
           console.error("Error uploading files:", fileError)
-          toast.success(`Release ${version} created successfully!`)
-          toast.error("Failed to upload some files to the release")
+          toast({
+            title: "Error",
+            description: "Failed to upload some files to the release",
+          })
         }
-      } else {
-        toast.success(`Release ${version} created successfully!`)
       }
 
       onSuccess?.(result)
@@ -130,7 +136,10 @@ export const useCreateReleaseDialog = ({
         err?.message ||
         "Failed to create release"
       setError(errorMessage)
-      toast.error(errorMessage)
+      toast({
+        title: "Error",
+        description: errorMessage,
+      })
     } finally {
       setIsLoading(false)
     }

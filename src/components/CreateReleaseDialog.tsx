@@ -42,26 +42,6 @@ export function CreateReleaseDialog({
   const handleClose = () => {
     onClose()
   }
-  const suggestNextVersion = () => {
-    if (!currentVersion) return "0.0.1"
-
-    const parts = currentVersion.split(".")
-    if (parts.length === 3) {
-      const [major, minor, patch] = parts.map(Number)
-      if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
-        return null
-      }
-      return `${major}.${minor}.${patch + 1}`
-    }
-    return null
-  }
-
-  const handleSuggestedVersion = () => {
-    const suggestedVersion = suggestNextVersion()
-    if (suggestedVersion) {
-      setVersion(suggestedVersion)
-    }
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -96,28 +76,14 @@ export function CreateReleaseDialog({
             <Label htmlFor="version" className="text-sm font-medium">
               Version
             </Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="version"
-                placeholder="e.g., 1.0.0"
-                value={version}
-                onChange={(e) => setVersion(e.target.value)}
-                disabled={isLoading}
-                className="flex-1 h-10"
-              />
-              {currentVersion && suggestNextVersion() && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="default"
-                  onClick={handleSuggestedVersion}
-                  disabled={isLoading}
-                  className="whitespace-nowrap h-10 px-3 font-normal"
-                >
-                  Suggest: {suggestNextVersion()}
-                </Button>
-              )}
-            </div>
+            <Input
+              id="version"
+              placeholder="e.g., 1.0.0"
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              disabled={isLoading}
+              className="h-10"
+            />
           </div>
 
           {error && (
