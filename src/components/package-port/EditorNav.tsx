@@ -45,6 +45,9 @@ import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import tscircuitCorePkg from "@tscircuit/core/package.json"
 import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
+import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
+import { Tag } from "lucide-react"
+import { CreateReleaseDialog } from "../CreateReleaseDialog"
 
 export default function EditorNav({
   circuitJson,
@@ -58,6 +61,8 @@ export default function EditorNav({
   onDiscard,
   packageType,
   isSaving,
+  files,
+  packageFilesMeta,
 }: {
   pkg?: Package | null
   circuitJson?: AnyCircuitElement[] | null
@@ -70,6 +75,13 @@ export default function EditorNav({
   isSaving: boolean
   onSave: () => void
   onDiscard?: () => void
+  files?: { path: string; content: string }[]
+  packageFilesMeta?: {
+    created_at: string
+    file_path: string
+    package_file_id: string
+    package_release_id: string
+  }[]
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -84,6 +96,18 @@ export default function EditorNav({
     useConfirmDeletePackageDialog()
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
+  const createReleaseDialog = useCreateReleaseDialog({
+    packageId: pkg?.package_id ?? "",
+    packageName: pkg?.unscoped_name ?? "",
+    currentVersion: pkg?.latest_version || undefined,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["packages"] })
+      qc.invalidateQueries({ queryKey: ["packages", pkg?.package_id] })
+    },
+    files: files || [],
+    currentPackage: pkg || undefined,
+    packageFilesMeta: packageFilesMeta || [],
+  })
 
   const [isChangingType, setIsChangingType] = useState(false)
   const [currentType, setCurrentType] = useState(
@@ -229,14 +253,25 @@ export default function EditorNav({
                 </span>
               )}
               {pkg.owner_github_username === session?.github_username && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 ml-2"
-                  onClick={() => openRenameDialog()}
-                >
-                  <Pencil className="h-3 w-3 text-gray-700" />
-                </Button>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 ml-2"
+                    onClick={() => openRenameDialog()}
+                  >
+                    <Pencil className="h-3 w-3 text-gray-700" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 ml-2"
+                    onClick={() => createReleaseDialog.openDialog()}
+                    disabled={hasUnsavedChanges || isSaving}
+                  >
+                    <Tag className="h-3 w-3 text-gray-700" />
+                  </Button>
+                </>
               )}
               {isPrivate && (
                 <div className="relative group">
@@ -489,6 +524,17 @@ export default function EditorNav({
                   Discard Changes
                 </DropdownMenuItem>
               )}
+              {pkg &&
+                session?.github_username === pkg?.owner_github_username && (
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => createReleaseDialog.openDialog()}
+                    disabled={hasUnsavedChanges || isSaving}
+                  >
+                    <Tag className="mr-1 h-3 w-3" />
+                    Create Release
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => {
@@ -562,6 +608,16 @@ export default function EditorNav({
         packageOwner={pkg?.owner_github_username ?? ""}
       />
       <ViewTsFilesDialog />
+      <CreateReleaseDialog
+        isOpen={createReleaseDialog.isOpen}
+        onClose={createReleaseDialog.closeDialog}
+        currentVersion={createReleaseDialog.currentVersion}
+        version={createReleaseDialog.version}
+        setVersion={createReleaseDialog.setVersion}
+        isLoading={createReleaseDialog.isLoading}
+        error={createReleaseDialog.error}
+        onCreateRelease={createReleaseDialog.handleCreateRelease}
+      />
     </nav>
   )
 }

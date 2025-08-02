@@ -428,5 +428,6 @@ export function useFileManagement({
     isLoading,
     isSaving,
     savePackage,
+    packageFilesMeta,
   }
 }
