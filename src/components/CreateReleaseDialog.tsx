@@ -46,8 +46,6 @@ export function CreateReleaseDialog({
     if (!currentVersion) return "0.0.1"
 
     const parts = currentVersion.split(".")
-    console.log(parts)
-
     if (parts.length === 3) {
       const [major, minor, patch] = parts.map(Number)
       if (isNaN(major) || isNaN(minor) || isNaN(patch)) {
