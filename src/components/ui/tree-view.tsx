@@ -40,6 +40,8 @@ type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
   expandAll?: boolean
   defaultNodeIcon?: any
   defaultLeafIcon?: any
+  selectedItemId: string
+  setSelectedItemId: (id: string | undefined) => void
   onDocumentDrag?: (sourceItem: TreeDataItem, targetItem: TreeDataItem) => void
 }
 
@@ -54,14 +56,12 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
       defaultNodeIcon,
       className,
       onDocumentDrag,
+      selectedItemId,
+      setSelectedItemId,
       ...props
     },
     ref,
   ) => {
-    const [selectedItemId, setSelectedItemId] = React.useState<
-      string | undefined
-    >(initialSelectedItemId)
-
     React.useEffect(() => {
       setSelectedItemId(initialSelectedItemId)
     }, [initialSelectedItemId])
@@ -129,6 +129,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
         <TreeItem
           data={data}
           ref={ref}
+          setSelectedItemId={setSelectedItemId}
           selectedItemId={selectedItemId}
           handleSelectChange={handleSelectChange}
           expandedItemIds={expandedItemIds}
@@ -159,6 +160,7 @@ type TreeItemProps = TreeProps & {
   defaultLeafIcon?: any
   handleDragStart?: (item: TreeDataItem) => void
   handleDrop?: (item: TreeDataItem) => void
+  setSelectedItemId: (id: string | undefined) => void
   draggedItem: TreeDataItem | null
 }
 
@@ -169,6 +171,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
       data,
       selectedItemId,
       handleSelectChange,
+      setSelectedItemId,
       expandedItemIds,
       defaultNodeIcon,
       defaultLeafIcon,
@@ -182,14 +185,25 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
     if (!(data instanceof Array)) {
       data = [data]
     }
+
+    const sortedData = [...data].sort((a, b) => {
+      const aIsFolder = !!a.children
+      const bIsFolder = !!b.children
+
+      if (aIsFolder && !bIsFolder) return -1
+      if (!aIsFolder && bIsFolder) return 1
+      return 0
+    })
+
     return (
       <div ref={ref} role="tree" className={className} {...props}>
         <ul>
-          {data.map((item) => (
+          {sortedData.map((item) => (
             <li key={item.id}>
               {item.children ? (
                 <TreeNode
                   item={item}
+                  setSelectedItemId={setSelectedItemId}
                   selectedItemId={selectedItemId}
                   expandedItemIds={expandedItemIds}
                   handleSelectChange={handleSelectChange}
@@ -227,13 +241,15 @@ const TreeNode = ({
   defaultNodeIcon,
   defaultLeafIcon,
   handleDragStart,
+  setSelectedItemId,
   handleDrop,
   draggedItem,
 }: {
   item: TreeDataItem
   handleSelectChange: (item: TreeDataItem | undefined) => void
   expandedItemIds: string[]
-  selectedItemId?: string
+  selectedItemId: string
+  setSelectedItemId: (id: string | undefined) => void
   defaultNodeIcon?: any
   defaultLeafIcon?: any
   handleDragStart?: (item: TreeDataItem) => void
@@ -309,6 +325,7 @@ const TreeNode = ({
           <TreeItem
             data={item.children ? item.children : item}
             selectedItemId={selectedItemId}
+            setSelectedItemId={setSelectedItemId}
             handleSelectChange={handleSelectChange}
             expandedItemIds={expandedItemIds}
             defaultLeafIcon={defaultLeafIcon}

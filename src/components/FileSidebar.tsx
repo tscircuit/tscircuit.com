@@ -57,15 +57,23 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
-  pkg,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [renamingFile, setRenamingFile] = useState<string | null>(null)
+  const [selectedFolderForCreation, setSelectedFolderForCreation] = useState<
+    string | null
+  >(null)
+  const [selectedItemId, setSelectedItemId] = React.useState<string>(
+    currentFile || "",
+  )
   const { toast } = useToast()
-  const session = useGlobalStore((s) => s.session)
   const canModifyFiles = true
+
+  const onFolderSelect = (folderPath: string) => {
+    setSelectedFolderForCreation(folderPath)
+  }
 
   const transformFilesToTreeData = (
     files: Record<FileName, string>,
@@ -90,6 +98,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           : segment
         const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
         const itemId = absolutePath
+
         if (
           !currentNode[segment] &&
           (!isHiddenFile(relativePath) ||
@@ -104,21 +113,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             name: segment,
             isRenaming: renamingFile === itemId,
             onRename: (newFilename: string) => {
-              // Preserve the folder structure when renaming
               const oldPath = itemId
-              const pathParts = oldPath.split("/").filter((part) => part !== "") // Remove empty segments
+              const pathParts = oldPath.split("/").filter((part) => part !== "")
               let newPath: string
 
               if (pathParts.length > 1) {
-                // File is in a folder, preserve the folder structure
                 const folderPath = pathParts.slice(0, -1).join("/")
                 newPath = folderPath + "/" + newFilename
               } else {
-                // File is in root, just use the new filename
                 newPath = newFilename
               }
 
-              // Preserve leading slash if original path had one
               if (oldPath.startsWith("/") && !newPath.startsWith("/")) {
                 newPath = "/" + newPath
               }
@@ -142,7 +147,12 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
               setRenamingFile(null)
             },
             icon: isLeafNode ? File : Folder,
-            onClick: isLeafNode ? () => onFileSelect(absolutePath) : undefined,
+            onClick: isLeafNode
+              ? () => {
+                  onFileSelect(absolutePath)
+                  setSelectedFolderForCreation(null)
+                }
+              : () => onFolderSelect(absolutePath),
             draggable: false,
             droppable: !isLeafNode,
             children: isLeafNode ? undefined : {},
@@ -209,7 +219,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       })
     })
 
-    // Convert the nested object structure to array structure
     const convertToArray = (
       items: Record<string, TreeNode>,
     ): TreeDataItem[] => {
@@ -226,17 +235,70 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
 
   const treeData = transformFilesToTreeData(files)
 
+  const getCurrentFolderPath = (): string => {
+    if (selectedFolderForCreation) {
+      return selectedFolderForCreation
+    }
+
+    if (!selectedItemId || selectedItemId === "") return ""
+
+    const hasLeadingSlash = selectedItemId.startsWith("/")
+    const normalizedPath = hasLeadingSlash
+      ? selectedItemId.slice(1)
+      : selectedItemId
+    const pathParts = selectedItemId.split("/")
+
+    if (pathParts.length > 1) {
+      const folderPath = pathParts.slice(0, -1).join("/")
+      return hasLeadingSlash ? `/${folderPath}` : folderPath
+    }
+
+    return hasLeadingSlash ? "/" : ""
+  }
+
+  const constructFilePath = (fileName: string): string => {
+    const trimmedFileName = fileName.trim()
+
+    if (!trimmedFileName) {
+      return ""
+    }
+
+    const currentFolder = getCurrentFolderPath()
+
+    if (trimmedFileName.startsWith("/")) {
+      return trimmedFileName
+    }
+
+    if (!currentFolder || currentFolder === "/") {
+      const result =
+        currentFolder === "/" ? `/${trimmedFileName}` : trimmedFileName
+      return result
+    }
+
+    const result = `${currentFolder}/${trimmedFileName}`
+    return result
+  }
   const handleCreateFileInline = () => {
+    const finalFileName = constructFilePath(newFileName)
+    if (!finalFileName) {
+      setErrorMessage("File name cannot be empty")
+      return
+    }
+
     const { newFileCreated } = handleCreateFile({
-      newFileName,
+      newFileName: finalFileName,
       onError: (error) => {
         setErrorMessage(error.message)
       },
     })
+
     if (newFileCreated) {
       setIsCreatingFile(false)
       setNewFileName("")
       setErrorMessage("")
+      onFileSelect(finalFileName)
+      setSelectedItemId(finalFileName)
+      setSelectedFolderForCreation(null)
     }
   }
 
@@ -245,6 +307,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       setIsCreatingFile(false)
       setNewFileName("")
       setErrorMessage("")
+      setSelectedFolderForCreation(null)
       return
     }
     handleCreateFileInline()
@@ -255,21 +318,20 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     setErrorMessage("")
     setIsCreatingFile(false)
     setNewFileName("")
+    setSelectedFolderForCreation(null)
   }
 
   return (
     <div
       className={cn(
         "flex-shrink-0 transition-all duration-300 border-r relative",
-        !sidebarOpen ? "w-0 overflow-hidden" : "w-[14rem]",
+        !sidebarOpen ? "w-0 overflow-hidden" : "w-[34rem]",
         className,
       )}
     >
       <button
         onClick={toggleSidebar}
-        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${
-          !sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
+        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
       >
         <PanelRightOpen />
       </button>
@@ -286,33 +348,76 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
             autoFocus
             value={newFileName}
             spellCheck={false}
-            onChange={(e) => setNewFileName(e.target.value)}
-            onBlur={handleCreateFileBlur}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleCreateFileInline()
-              } else if (e.key === "Escape") {
-                setIsCreatingFile(false)
-                setNewFileName("")
+            onChange={(e) => {
+              setNewFileName(e.target.value)
+              if (errorMessage) {
                 setErrorMessage("")
               }
             }}
-            placeholder="Enter file name"
+            onBlur={handleCreateFileBlur}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault()
+                handleCreateFileInline()
+              } else if (e.key === "Escape") {
+                e.preventDefault()
+                setIsCreatingFile(false)
+                setNewFileName("")
+                setErrorMessage("")
+                setSelectedFolderForCreation(null)
+              } else if (e.key === "Tab") {
+                e.preventDefault()
+                const currentFolder = getCurrentFolderPath()
+                if (currentFolder && !newFileName.includes("/")) {
+                  const displayPath = currentFolder.startsWith("/")
+                    ? currentFolder.slice(1)
+                    : currentFolder
+                  setNewFileName(`${displayPath}/`)
+                }
+              }
+            }}
+            placeholder={(() => {
+              const currentFolder = getCurrentFolderPath()
+              if (!currentFolder || currentFolder === "/") {
+                return "Enter file name (root folder)"
+              }
+              const displayPath = currentFolder.startsWith("/")
+                ? currentFolder.slice(1)
+                : currentFolder
+              return `Enter file name (${displayPath}/)`
+            })()}
+            className={
+              errorMessage ? "border-red-500 focus:border-red-500" : ""
+            }
           />
           {errorMessage && (
-            <div className="text-red-500 mt-1">{errorMessage}</div>
+            <div className="text-red-500 text-xs mt-1 px-1">{errorMessage}</div>
           )}
+          <div className="text-gray-400 text-xs mt-1 px-1">
+            Tip: Use / for subfolders, Tab to auto-complete current folder
+          </div>
         </div>
       )}
-      <TreeView
-        data={treeData}
-        initialSelectedItemId={currentFile || ""}
-        onSelectChange={(item) => {
-          if (item?.onClick) {
-            item.onClick()
+      <div
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setSelectedFolderForCreation(null)
+            setSelectedItemId("")
           }
         }}
-      />
+        className="flex-1 border-2 border-red-800 h-full"
+      >
+        <TreeView
+          data={treeData}
+          setSelectedItemId={(value) => setSelectedItemId(value || "")}
+          selectedItemId={selectedItemId}
+          onSelectChange={(item) => {
+            if (item?.onClick) {
+              item.onClick()
+            }
+          }}
+        />
+      </div>
     </div>
   )
 }

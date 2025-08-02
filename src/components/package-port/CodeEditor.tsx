@@ -49,7 +49,6 @@ import {
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
-import { resolveRelativePath } from "@/lib/utils/resolveRelativePath"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 
 const defaultImports = `
