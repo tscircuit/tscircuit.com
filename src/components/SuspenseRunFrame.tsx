@@ -6,7 +6,7 @@ const RunFrame = lazy(async () => {
 })
 
 export const SuspenseRunFrame = (
-  props: React.ComponentProps<typeof RunFrame>,
+  props: React.ComponentProps<typeof RunFrame> & { className?: string },
 ) => {
   return (
     <Suspense
@@ -20,7 +20,7 @@ export const SuspenseRunFrame = (
         </div>
       }
     >
-      <div className="h-[98vh]">
+      <div className={`h-[98vh] ${props.className}`}>
         <RunFrame {...props} />
       </div>
     </Suspense>
