@@ -171,6 +171,7 @@ export default function SidebarAboutSection({
           unscopedPackageName={packageInfo.unscoped_name}
           packageReleaseId={packageInfo.latest_package_release_id}
           packageId={packageInfo.package_id}
+          currentGithubRepoFullName={packageInfo.github_repo_full_name}
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""
           }

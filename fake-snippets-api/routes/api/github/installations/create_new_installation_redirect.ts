@@ -1,13 +1,12 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { v4 as uuidv4 } from "uuid"
 
 export default withRouteSpec({
   methods: ["GET"],
   auth: "session",
 })(async (req, ctx) => {
   const account = ctx.db.getAccount(ctx.auth.account_id)
-  
+
   if (!account) {
     return new Response("Account not found", { status: 401 })
   }
@@ -18,7 +17,8 @@ export default withRouteSpec({
 
   // Check if user already has an active GitHub installation
   const existingInstallation = ctx.db.githubInstallations.find(
-    (installation) => installation.account_id === ctx.auth.account_id && installation.is_active
+    (installation) =>
+      installation.account_id === ctx.auth.account_id && installation.is_active,
   )
 
   if (existingInstallation) {
@@ -32,9 +32,9 @@ export default withRouteSpec({
   }
 
   // Create a new GitHub installation (simulating the user completing the GitHub App installation)
-  const githubInstallationId = uuidv4()
+  const githubInstallationId = `fake_gh_installation_${Date.now()}`
   const mockInstallationId = `${Date.now()}` // Mock GitHub App installation ID
-  
+
   const newInstallation = {
     github_installation_id: githubInstallationId,
     account_id: ctx.auth.account_id,
@@ -68,7 +68,7 @@ export default withRouteSpec({
     `,
     {
       headers: {
-        "Content-Type": "text/html",
+        "Content-Type": "text/html; charset=utf-8",
       },
     },
   )

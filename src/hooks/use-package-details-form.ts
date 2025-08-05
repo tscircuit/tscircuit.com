@@ -27,7 +27,7 @@ interface UsePackageDetailsFormProps {
   initialVisibility: string
   initialDefaultView: string
   initialUnscopedPackageName: string
-  initialGithubRepoFullName: string
+  initialGithubRepoFullName: string | null
   isDialogOpen: boolean
 }
 
