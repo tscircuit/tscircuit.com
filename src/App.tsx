@@ -79,6 +79,10 @@ const PackageEditorPage = lazyImport(async () => {
   ])
   return editorModule
 })
+const ViewConnectedRepoPage = lazyImport(
+  () => import("@/pages/view-connected-repo"),
+)
+const PreviewBuildPage = lazyImport(() => import("@/pages/preview-build"))
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -139,7 +143,7 @@ class ErrorBoundary extends React.Component<
     this.cleanup() // Clean up listeners before reload
     this.setState({ reloading: true })
     this.reloadTimeout = window.setTimeout(() => {
-      window.location.reload()
+      // window.location.reload()
     }, 500)
   }
 
@@ -253,6 +257,11 @@ function App() {
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
+            <Route path="/build/:buildId" component={ViewConnectedRepoPage} />
+            <Route
+              path="/build/:buildId/preview"
+              component={PreviewBuildPage}
+            />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
             <Route
               path="/:author/:packageName/builds"
