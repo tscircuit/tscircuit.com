@@ -205,6 +205,7 @@ const MobileSidebar = ({
           currentDescription={
             packageInfo.description || packageInfo?.ai_description || ""
           }
+          currentGithubRepoFullName={packageInfo.github_repo_full_name}
           currentLicense={currentLicense}
           currentWebsite={(packageInfo as any)?.website || ""}
           isPrivate={Boolean(packageInfo.is_private)}

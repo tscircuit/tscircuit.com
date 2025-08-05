@@ -265,6 +265,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: 0,
       created_at: currentTime,
       updated_at: currentTime,
+      github_repo_full_name: null,
       ai_description: "placeholder ai description",
       ai_usage_instructions: "placeholder ai usage instructions",
       is_snippet: true,
@@ -1225,11 +1226,15 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addPackage: (
-    _package: Omit<z.input<typeof packageSchema>, "package_id">,
+    _package: Omit<
+      z.input<typeof packageSchema>,
+      "package_id" | "github_repo_full_name"
+    >,
   ): Package => {
     const timestamp = Date.now()
     const newPackage = {
       package_id: `package_${timestamp}`,
+      github_repo_full_name: null,
       ..._package,
     }
     set((state) => ({

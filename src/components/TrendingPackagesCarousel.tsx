@@ -4,7 +4,7 @@ import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useRef, useState } from "react"
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 const CarouselItem = ({
   pkg,
@@ -36,7 +36,7 @@ export const TrendingPackagesCarousel = () => {
   const axios = useAxios()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
-  const apiBaseUrl = usePackagesBaseApiUrl()
+  const apiBaseUrl = useApiBaseUrl()
 
   const { data: trendingPackages } = useQuery<Package[]>(
     "trendingPackages",

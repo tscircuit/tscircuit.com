@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip"
 import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
 import { ComponentSearchResult } from "@tscircuit/runframe/runner"
-import { usePackagesBaseApiUrl } from "@/hooks/use-packages-base-api-url"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
 
@@ -60,7 +60,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     useImportComponentDialog()
   const { toast, toastLibrary } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const API_BASE = usePackagesBaseApiUrl()
+  const API_BASE = useApiBaseUrl()
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
   const session = useGlobalStore((s) => s.session)
 

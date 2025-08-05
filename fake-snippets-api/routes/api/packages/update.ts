@@ -18,6 +18,7 @@ export default withRouteSpec({
         .optional(),
       description: z.string().optional(),
       website: z.string().optional(),
+      github_repo_full_name: z.string().optional(),
       is_private: z.boolean().optional(),
       is_unlisted: z.boolean().optional(),
       default_view: z.enum(["files", "3d", "pcb", "schematic"]).optional(),
@@ -38,6 +39,7 @@ export default withRouteSpec({
     website,
     is_private,
     is_unlisted,
+    github_repo_full_name,
     default_view,
   } = req.jsonBody
 
@@ -81,6 +83,8 @@ export default withRouteSpec({
     description: description ?? existingPackage.description,
     unscoped_name: name ?? existingPackage.unscoped_name,
     website: website ?? existingPackage.website,
+    github_repo_full_name:
+      github_repo_full_name ?? existingPackage.github_repo_full_name,
     is_private: is_private ?? existingPackage.is_private,
     is_public:
       is_private !== undefined ? !is_private : existingPackage.is_public,

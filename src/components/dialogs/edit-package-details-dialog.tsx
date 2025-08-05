@@ -27,6 +27,7 @@ import { createUseDialog } from "./create-use-dialog"
 import { ChevronDown } from "lucide-react"
 import { useLocation } from "wouter"
 import { useDeletePackage } from "@/hooks/use-delete-package"
+import { GitHubRepositorySelector } from "./GitHubRepositorySelector"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -36,6 +37,7 @@ interface EditPackageDetailsDialogProps {
   currentWebsite: string
   currentLicense?: string | null
   currentDefaultView?: string
+  currentGithubRepoFullName?: string | null
   isPrivate?: boolean
   packageName: string
   unscopedPackageName: string
@@ -57,6 +59,7 @@ export const EditPackageDetailsDialog = ({
   currentWebsite,
   currentLicense,
   currentDefaultView = "files",
+  currentGithubRepoFullName,
   isPrivate = false,
   unscopedPackageName,
   packageReleaseId,
@@ -75,6 +78,7 @@ export const EditPackageDetailsDialog = ({
     isFormValid,
   } = usePackageDetailsForm({
     initialDescription: currentDescription,
+    initialGithubRepoFullName: currentGithubRepoFullName ?? null,
     initialWebsite: currentWebsite,
     initialLicense: currentLicense || null,
     initialDefaultView: currentDefaultView,
@@ -83,7 +87,6 @@ export const EditPackageDetailsDialog = ({
     initialVisibility: isPrivate ? "private" : "public",
   })
 
-  const [deleting, setDeleting] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
@@ -114,6 +117,7 @@ export const EditPackageDetailsDialog = ({
         website: formData.website.trim(),
         is_private: formData.visibility == "private",
         default_view: formData.defaultView,
+        github_repo_full_name: formData.githubRepoFullName,
         ...(formData.unscopedPackageName !== unscopedPackageName && {
           name: formData.unscopedPackageName.trim(),
         }),
@@ -371,6 +375,19 @@ export const EditPackageDetailsDialog = ({
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-1">
+                  <GitHubRepositorySelector
+                    value={formData.githubRepoFullName || ""}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        githubRepoFullName: value,
+                      }))
+                    }
+                    disabled={updatePackageDetailsMutation.isLoading}
+                    open={open}
+                  />
+                </div>
               </div>
 
               <details
@@ -394,10 +411,12 @@ export const EditPackageDetailsDialog = ({
                       variant="destructive"
                       size="default"
                       onClick={() => setShowConfirmDelete(true)}
-                      disabled={deleting}
+                      disabled={deletePackageMutation.isLoading}
                       className="shrink-0 lg:w-[115px] w-[70px]"
                     >
-                      {deleting ? "Deleting..." : "Delete"}
+                      {deletePackageMutation.isLoading
+                        ? "Deleting..."
+                        : "Delete"}
                     </Button>
                   </div>
                 </div>
