@@ -19,15 +19,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Settings, Github, Shield, Trash2, Save } from "lucide-react"
 
-interface DeploymentSettingsProps {
+interface ConnectedRepoSettingsProps {
   projectName?: string
   onSave?: (settings: any) => void
 }
 
-export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
+export const ConnectedRepoSettings = ({
   projectName = "tscircuit-project",
   onSave,
-}) => {
+}: ConnectedRepoSettingsProps) => {
   // MOCK
   const initialSettings = {
     general: {
@@ -37,12 +37,12 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
     git: {
       repository: "github.com/user/tscircuit-project",
       productionBranch: "main",
-      autoDeployEnabled: true,
+      autoBuildEnabled: true,
       prComment: true,
-      deployPrs: true,
+      buildPrs: true,
     },
     security: {
-      privateDeployments: false,
+      privateBuilds: false,
       requireApprovalForPrs: true,
     },
   }
@@ -70,7 +70,7 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
             Settings
           </h2>
           <p className="text-sm sm:text-base text-gray-600">
-            Configure your deployment settings
+            Configure your build settings
           </p>
         </div>
         <div className="flex justify-end">
@@ -192,17 +192,17 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="autoDeployEnabled"
-                    checked={settings.git.autoDeployEnabled}
+                    id="autoBuildEnabled"
+                    checked={settings.git.autoBuildEnabled}
                     onCheckedChange={(checked) =>
                       setSettings((prev) => ({
                         ...prev,
-                        git: { ...prev.git, autoDeployEnabled: checked },
+                        git: { ...prev.git, autoBuildEnabled: checked },
                       }))
                     }
                   />
-                  <Label htmlFor="autoDeployEnabled">
-                    Enable automatic deployments
+                  <Label htmlFor="autoBuildEnabled">
+                    Enable automatic builds
                   </Label>
                 </div>
 
@@ -218,23 +218,23 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
                     }
                   />
                   <Label htmlFor="prComment">
-                    Comment on pull requests with deployment preview
+                    Comment on pull requests with build preview
                   </Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="deployPrs"
-                    checked={settings.git.deployPrs}
+                    id="buildPrs"
+                    checked={settings.git.buildPrs}
                     onCheckedChange={(checked) =>
                       setSettings((prev) => ({
                         ...prev,
-                        git: { ...prev.git, deployPrs: checked },
+                        git: { ...prev.git, buildPrs: checked },
                       }))
                     }
                   />
-                  <Label htmlFor="deployPrs">
-                    Deploy pull requests automatically
+                  <Label htmlFor="buildPrs">
+                    Build pull requests automatically
                   </Label>
                 </div>
               </div>
@@ -253,21 +253,19 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="privateDeployments"
-                    checked={settings.security.privateDeployments}
+                    id="privateBuilds"
+                    checked={settings.security.privateBuilds}
                     onCheckedChange={(checked) =>
                       setSettings((prev) => ({
                         ...prev,
                         security: {
                           ...prev.security,
-                          privateDeployments: checked,
+                          privateBuilds: checked,
                         },
                       }))
                     }
                   />
-                  <Label htmlFor="privateDeployments">
-                    Make deployments private
-                  </Label>
+                  <Label htmlFor="privateBuilds">Make builds private</Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -285,7 +283,7 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
                     }
                   />
                   <Label htmlFor="requireApprovalForPrs">
-                    Require approval for PR deployments
+                    Require approval for PR builds
                   </Label>
                 </div>
               </div>
@@ -303,7 +301,7 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
                 <div>
                   <h4 className="font-medium text-red-600">Delete Project</h4>
                   <p className="text-sm text-gray-600">
-                    Permanently delete this project and all its deployments
+                    Permanently delete this project and all its builds
                   </p>
                 </div>
                 <AlertDialog>
@@ -323,8 +321,8 @@ export const DeploymentSettings: React.FC<DeploymentSettingsProps> = ({
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete the project and remove all deployment data from
-                        our servers.
+                        delete the project and remove all build data from our
+                        servers.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

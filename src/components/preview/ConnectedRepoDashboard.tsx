@@ -1,5 +1,4 @@
-import React, { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -13,51 +12,46 @@ import {
   Activity,
   Settings,
   List,
-  BarChart3,
   Github,
-  Globe,
-  ExternalLink,
   MoreHorizontal,
   Zap,
   Clock,
-  Users,
   GitBranch,
   Hash,
   User,
   Eye,
 } from "lucide-react"
 import { useLocation } from "wouter"
-import { DeploymentOverview } from "./DeploymentOverview"
-import { DeploymentsList } from "./DeploymentsList"
-import { DeploymentSettings } from "./DeploymentSettings"
-import { MOCK_DEPLOYMENTS } from "./DeploymentCard"
+import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
+import { BuildsList } from "./BuildsList"
+import { ConnectedRepoSettings } from "./ConnectedRepoSettings"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { getDeploymentStatus, PackageBuild } from "."
+import { getBuildStatus, PackageBuild, MOCK_DEPLOYMENTS } from "."
 
-interface DeploymentDashboardProps {
+interface ConnectedRepoDashboardProps {
   projectName?: string
-  deployments?: PackageBuild[]
-  selectedDeployment?: PackageBuild
+  builds?: PackageBuild[]
+  selectedBuild?: PackageBuild
 }
 
-export const DeploymentDashboard = ({
+export const ConnectedRepoDashboard = ({
   projectName = "tscircuit-project",
-  deployments = MOCK_DEPLOYMENTS,
-  selectedDeployment,
-}: DeploymentDashboardProps) => {
+  builds = MOCK_DEPLOYMENTS,
+  selectedBuild,
+}: ConnectedRepoDashboardProps) => {
   const [activeTab, setActiveTab] = useState("overview")
-  const [currentDeployment, setCurrentDeployment] = useState<
-    PackageBuild | undefined
-  >(selectedDeployment || deployments[0])
+  const [currentBuild, setCurrentBuild] = useState<PackageBuild | undefined>(
+    selectedBuild || builds[0],
+  )
   const [, setLocation] = useLocation()
 
-  const handleSelectDeployment = (deployment: PackageBuild) => {
-    setLocation(`/view-deployment/${deployment.package_build_id}`)
+  const handleSelectBuild = (build: PackageBuild) => {
+    setLocation(`/build/${build.package_build_id}`)
   }
 
-  const latestDeployment = deployments[0]
-  const { status, label } = getDeploymentStatus(latestDeployment)
+  const latestBuild = builds[0]
+  const { status, label } = getBuildStatus(latestBuild)
 
   return (
     <>
@@ -108,26 +102,25 @@ export const DeploymentDashboard = ({
                     <div className="flex items-center gap-1">
                       <GitBranch className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {latestDeployment.branch_name || "main"}
+                        {latestBuild.branch_name || "main"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>
-                        Last deployed{" "}
-                        {formatTimeAgo(latestDeployment.created_at)}
+                        Last deployed {formatTimeAgo(latestBuild.created_at)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <User className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {latestDeployment.commit_author || "Unknown"}
+                        {latestBuild.commit_author || "Unknown"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <span className="font-mono text-xs truncate">
-                        {latestDeployment.package_build_id?.slice(-8) || "N/A"}
+                        {latestBuild.package_build_id?.slice(-8) || "N/A"}
                       </span>
                     </div>
                   </div>
@@ -141,7 +134,7 @@ export const DeploymentDashboard = ({
                   className="flex items-center gap-2 justify-center min-w-[120px] h-9"
                   onClick={() =>
                     window.open(
-                      `https://github.com/${latestDeployment.commit_author}/${projectName}`,
+                      `https://github.com/${latestBuild.commit_author}/${projectName}`,
                       "_blank",
                     )
                   }
@@ -150,14 +143,14 @@ export const DeploymentDashboard = ({
                   <span className="hidden sm:inline">Repository</span>
                   <span className="sm:hidden">Repository</span>
                 </Button>
-                {latestDeployment.preview_url && (
+                {latestBuild.preview_url && (
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-2 justify-center min-w-[120px] h-9"
                     onClick={() =>
                       window.open(
-                        `/deployment/${latestDeployment.package_build_id}/preview`,
+                        `/build/${latestBuild.package_build_id}/preview`,
                         "_blank",
                       )
                     }
@@ -188,7 +181,7 @@ export const DeploymentDashboard = ({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <a
-                        href={`https://github.com/${latestDeployment.commit_author}`}
+                        href={`https://github.com/${latestBuild.commit_author}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -233,12 +226,9 @@ export const DeploymentDashboard = ({
                 <Activity className="w-4 h-4" />
                 Overview
               </TabsTrigger>
-              <TabsTrigger
-                value="deployments"
-                className="flex items-center gap-2"
-              >
+              <TabsTrigger value="builds" className="flex items-center gap-2">
                 <List className="w-4 h-4" />
-                Deployments
+                Builds
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
@@ -247,20 +237,15 @@ export const DeploymentDashboard = ({
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              {currentDeployment && (
-                <DeploymentOverview deployment={currentDeployment} />
-              )}
+              {currentBuild && <ConnectedRepoOverview build={currentBuild} />}
             </TabsContent>
 
-            <TabsContent value="deployments" className="space-y-6">
-              <DeploymentsList
-                deployments={deployments}
-                onSelectDeployment={handleSelectDeployment}
-              />
+            <TabsContent value="builds" className="space-y-6">
+              <BuildsList builds={builds} onSelectBuild={handleSelectBuild} />
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6">
-              <DeploymentSettings
+              <ConnectedRepoSettings
                 projectName={projectName}
                 onSave={(settings) => console.log("Settings saved:", settings)}
               />

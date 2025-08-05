@@ -25,41 +25,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getDeploymentStatus, PackageBuild } from "."
+import { getBuildStatus, PackageBuild, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 
-interface DeploymentsListProps {
-  deployments: PackageBuild[]
-  onSelectDeployment?: (deployment: PackageBuild) => void
+interface BuildsListProps {
+  builds: PackageBuild[]
+  onSelectBuild?: (build: PackageBuild) => void
 }
 
-const StatusIcon = ({ status }: { status: string }) => {
-  switch (status) {
-    case "success":
-      return <CheckCircle className="w-4 h-4 text-green-500" />
-    case "error":
-      return <AlertCircle className="w-4 h-4 text-red-500" />
-    case "building":
-      return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
-    default:
-      return <Clock className="w-4 h-4 text-gray-500" />
-  }
-}
-
-export const DeploymentsList = ({
-  deployments,
-  onSelectDeployment,
-}: DeploymentsListProps) => {
+export const BuildsList = ({ builds, onSelectBuild }: BuildsListProps) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Deployments</h2>
-          <p className="text-gray-600">Manage and monitor your deployments</p>
+          <h2 className="text-2xl font-bold text-gray-900">Builds</h2>
+          <p className="text-gray-600">Manage and monitor your builds</p>
         </div>
         <Button className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Create Deployment
+          Create Build
         </Button>
       </div>
 
@@ -82,14 +66,14 @@ export const DeploymentsList = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {deployments.map((deployment) => {
-                  const { status, label } = getDeploymentStatus(deployment)
+                {builds.map((build) => {
+                  const { status, label } = getBuildStatus(build)
 
                   return (
                     <TableRow
-                      key={deployment.package_build_id}
+                      key={build.package_build_id}
                       className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => onSelectDeployment?.(deployment)}
+                      onClick={() => onSelectBuild?.(build)}
                     >
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -110,36 +94,36 @@ export const DeploymentsList = ({
                       </TableCell>
                       <TableCell>
                         <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                          {deployment.package_build_id.slice(-8)}
+                          {build.package_build_id.slice(-8)}
                         </code>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {deployment.branch_name?.includes("/") ? (
+                          {build.branch_name?.includes("/") ? (
                             <GitBranch className="w-3 h-3 text-gray-500" />
                           ) : (
                             <GitCommit className="w-3 h-3 text-gray-500" />
                           )}
                           <Badge variant="outline" className="text-xs">
-                            {deployment.branch_name || "main"}
+                            {build.branch_name || "main"}
                           </Badge>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="max-w-xs">
                           <p className="text-sm font-medium truncate">
-                            {deployment.commit_message || "No commit message"}
+                            {build.commit_message || "No commit message"}
                           </p>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-gray-600">
-                          {deployment.commit_author || "Unknown"}
+                          {build.commit_author || "Unknown"}
                         </span>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-gray-600">
-                          {formatTimeAgo(deployment.created_at)}
+                          {formatTimeAgo(build.created_at)}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -185,9 +169,8 @@ export const DeploymentsList = ({
                 <p className="text-sm text-gray-600">Successful</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {
-                    deployments.filter(
-                      (d) => getDeploymentStatus(d).status === "success",
-                    ).length
+                    builds.filter((d) => getBuildStatus(d).status === "success")
+                      .length
                   }
                 </p>
               </div>
@@ -205,9 +188,8 @@ export const DeploymentsList = ({
                 <p className="text-sm text-gray-600">Failed</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {
-                    deployments.filter(
-                      (d) => getDeploymentStatus(d).status === "error",
-                    ).length
+                    builds.filter((d) => getBuildStatus(d).status === "error")
+                      .length
                   }
                 </p>
               </div>
@@ -225,8 +207,8 @@ export const DeploymentsList = ({
                 <p className="text-sm text-gray-600">Building</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {
-                    deployments.filter(
-                      (d) => getDeploymentStatus(d).status === "building",
+                    builds.filter(
+                      (d) => getBuildStatus(d).status === "building",
                     ).length
                   }
                 </p>
@@ -244,7 +226,7 @@ export const DeploymentsList = ({
               <div>
                 <p className="text-sm text-gray-600">Total</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {deployments.length}
+                  {builds.length}
                 </p>
               </div>
             </div>

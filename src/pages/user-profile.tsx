@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
-import { DeploymentsContent } from "@/components/deployment/DeploymentCard"
+import { ConnectedReposCards } from "@/components/preview/ConnectedReposCards"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -180,11 +180,11 @@ export const UserProfilePage = () => {
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
             {isCurrentUserProfile && (
-              <TabsTrigger value="deployments">Deployments</TabsTrigger>
+              <TabsTrigger value="repos">Connected Repositories</TabsTrigger>
             )}
           </TabsList>
         </Tabs>
-        {activeTab !== "deployments" && (
+        {activeTab !== "repos" && (
           <div className="flex gap-4 mb-4">
             <Input
               type="text"
@@ -207,8 +207,8 @@ export const UserProfilePage = () => {
             </Select>
           </div>
         )}
-        {activeTab === "deployments" ? (
-          <DeploymentsContent user={String(githubUsername)} />
+        {activeTab === "repos" ? (
+          <ConnectedReposCards user={String(githubUsername)} />
         ) : isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (

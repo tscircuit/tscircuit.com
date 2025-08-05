@@ -5,10 +5,9 @@ import Header from "@/components/Header"
 import { SuspenseRunFrame } from "@/components/SuspenseRunFrame"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { cn } from "@/lib/utils"
-import { MOCK_DEPLOYMENTS } from "@/components/deployment/DeploymentCard"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import NotFoundPage from "./404"
-import { getDeploymentStatus } from "@/components/deployment"
+import { getBuildStatus, MOCK_DEPLOYMENTS } from "@/components/preview"
 
 const MOCK_DEPLOYMENT_FILES: Record<
   string,
@@ -156,13 +155,13 @@ const MOCK_DEPLOYMENT_FILES: Record<
   ],
 }
 
-const getDeploymentFiles = (deploymentId: string | null) => {
-  if (!deploymentId) return []
-  return MOCK_DEPLOYMENT_FILES[deploymentId] || []
+const getBuildFiles = (buildId: string | null) => {
+  if (!buildId) return []
+  return MOCK_DEPLOYMENT_FILES[buildId] || []
 }
 
-const getDeploymentFsMap = (deploymentId: string | null) => {
-  const files = getDeploymentFiles(deploymentId)
+const getBuildFsMap = (buildId: string | null) => {
+  const files = getBuildFiles(buildId)
   return Object.fromEntries(files.map((f) => [f.path, f.content]))
 }
 
@@ -178,25 +177,25 @@ const StatusPill = ({ status }: { status: string }) => {
   return <span className={cn("inline-block w-2 h-2 rounded-full", color)} />
 }
 
-export default function PreviewDeploymentPage() {
-  const params = useParams<{ deploymentId: string }>()
-  const deploymentId = params?.deploymentId || null
+export default function PreviewBuildPage() {
+  const params = useParams<{ buildId: string }>()
+  const buildId = params?.buildId || null
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedFile, setSelectedFile] = useState<string | null>("index.tsx")
   const [selectedItemId, setSelectedItemId] = useState<string>("")
 
-  const deploymentFiles = getDeploymentFiles(deploymentId)
-  const deploymentFsMap = getDeploymentFsMap(deploymentId)
+  const buildFiles = getBuildFiles(buildId)
+  const buildFsMap = getBuildFsMap(buildId)
 
-  const deployment = deploymentId
-    ? MOCK_DEPLOYMENTS.find((d) => d.package_build_id === deploymentId)
+  const build = buildId
+    ? MOCK_DEPLOYMENTS.find((d) => d.package_build_id === buildId)
     : MOCK_DEPLOYMENTS[0]
 
-  if (!deployment) {
-    return <NotFoundPage heading="Deployment Not Found" />
+  if (!build) {
+    return <NotFoundPage heading="Build Not Found" />
   }
-  const { status, label } = getDeploymentStatus(deployment)
+  const { status, label } = getBuildStatus(build)
   const convertFilesToTreeData = (
     files: Array<{ path: string; content: string }>,
   ): TreeDataItem[] => {
@@ -237,7 +236,7 @@ export default function PreviewDeploymentPage() {
     return tree
   }
 
-  const treeData = convertFilesToTreeData(deploymentFiles)
+  const treeData = convertFilesToTreeData(buildFiles)
 
   return (
     <>
@@ -278,10 +277,10 @@ export default function PreviewDeploymentPage() {
                           ID
                         </span>
                         <PrefetchPageLink
-                          href={`/deployment/${deployment.package_build_id}`}
+                          href={`/build/${build.package_build_id}`}
                           className="font-mono text-sm text-gray-900 bg-gray-100 px-2 py-1 rounded"
                         >
-                          {deployment.package_build_id}
+                          {build.package_build_id}
                         </PrefetchPageLink>
                       </div>
 
@@ -290,10 +289,10 @@ export default function PreviewDeploymentPage() {
                           Commit
                         </span>
                         <PrefetchPageLink
-                          href={`https://github.com/${deployment.commit_author}/tscircuit.com/commit/${deployment.commit_message}`}
+                          href={`https://github.com/${build.commit_author}/tscircuit.com/commit/${build.commit_message}`}
                           className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded line-clamp-1"
                         >
-                          {deployment.commit_message}
+                          {build.commit_message}
                         </PrefetchPageLink>
                       </div>
 
@@ -325,8 +324,8 @@ export default function PreviewDeploymentPage() {
                       Files
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
-                      {deploymentFiles.length} file
-                      {deploymentFiles.length !== 1 ? "s" : ""}
+                      {buildFiles.length} file
+                      {buildFiles.length !== 1 ? "s" : ""}
                     </p>
                   </div>
                   <div className="px-2 py-2 overflow-y-auto select-none">
@@ -351,7 +350,7 @@ export default function PreviewDeploymentPage() {
             <div className="flex flex-col h-full overflow-h-hidden">
               {status === "success" ? (
                 <SuspenseRunFrame
-                  fsMap={deploymentFsMap}
+                  fsMap={buildFsMap}
                   mainComponentPath={selectedFile ?? "index.tsx"}
                   showRunButton={false}
                   className="[&>div]:overflow-y-hidden"
