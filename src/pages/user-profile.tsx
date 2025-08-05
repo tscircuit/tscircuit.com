@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
+import { DeploymentsContent } from "@/components/Deployment"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -178,30 +179,37 @@ export const UserProfilePage = () => {
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
+            {isCurrentUserProfile && (
+              <TabsTrigger value="deployments">Deployments</TabsTrigger>
+            )}
           </TabsList>
         </Tabs>
-        <div className="flex gap-4 mb-4">
-          <Input
-            type="text"
-            placeholder="Searching User Packages..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="mb-4"
-          />
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="most-recent">Most Recent</SelectItem>
-              <SelectItem value="least-recent">Least Recent</SelectItem>
-              <SelectItem value="most-starred">Most Starred</SelectItem>
-              <SelectItem value="a-z">A-Z</SelectItem>
-              <SelectItem value="z-a">Z-A</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {isLoading ? (
+        {activeTab !== "deployments" && (
+          <div className="flex gap-4 mb-4">
+            <Input
+              type="text"
+              placeholder="Searching User Packages..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-4"
+            />
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="most-recent">Most Recent</SelectItem>
+                <SelectItem value="least-recent">Least Recent</SelectItem>
+                <SelectItem value="most-starred">Most Starred</SelectItem>
+                <SelectItem value="a-z">A-Z</SelectItem>
+                <SelectItem value="z-a">Z-A</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {activeTab === "deployments" ? (
+          <DeploymentsContent user={String(githubUsername)} />
+        ) : isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
               <PackageCardSkeleton key={i} />
