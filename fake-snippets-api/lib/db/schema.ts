@@ -167,6 +167,19 @@ export const datasheetSchema = z.object({
 })
 export type Datasheet = z.infer<typeof datasheetSchema>
 
+export const githubInstallationSchema = z.object({
+  github_installation_id: z.string(),
+  account_id: z.string(),
+  installation_id: z.string(), // GitHub App installation ID
+  github_username: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  is_active: z.boolean().default(true),
+  access_token: z.string().nullable().optional(), // For storing GitHub access token
+  access_token_expires_at: z.string().datetime().nullable().optional(),
+})
+export type GithubInstallation = z.infer<typeof githubInstallationSchema>
+
 // TODO: Remove this schema after migration to accountPackages is complete
 export const accountSnippetSchema = z.object({
   account_id: z.string(),
@@ -345,5 +358,6 @@ export const databaseSchema = z.object({
   orderQuotes: z.array(orderQuoteSchema).default([]),
   aiReviews: z.array(aiReviewSchema).default([]),
   datasheets: z.array(datasheetSchema).default([]),
+  githubInstallations: z.array(githubInstallationSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>

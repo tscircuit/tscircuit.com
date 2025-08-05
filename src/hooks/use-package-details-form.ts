@@ -16,6 +16,7 @@ interface PackageDetailsForm {
   license: string | null
   visibility: string
   defaultView: string
+  githubRepoFullName: string | null
   unscopedPackageName: string
 }
 
@@ -26,6 +27,7 @@ interface UsePackageDetailsFormProps {
   initialVisibility: string
   initialDefaultView: string
   initialUnscopedPackageName: string
+  initialGithubRepoFullName: string
   isDialogOpen: boolean
 }
 
@@ -36,6 +38,7 @@ export const usePackageDetailsForm = ({
   initialVisibility,
   initialDefaultView,
   initialUnscopedPackageName,
+  initialGithubRepoFullName,
   isDialogOpen,
 }: UsePackageDetailsFormProps) => {
   const [formData, setFormData] = useState<PackageDetailsForm>({
@@ -44,6 +47,7 @@ export const usePackageDetailsForm = ({
     license: initialLicense || null,
     visibility: initialVisibility,
     defaultView: initialDefaultView,
+    githubRepoFullName: initialGithubRepoFullName,
     unscopedPackageName: initialUnscopedPackageName,
   })
   const [websiteError, setWebsiteError] = useState<string | null>(null)
@@ -55,6 +59,7 @@ export const usePackageDetailsForm = ({
         website: initialWebsite,
         license: initialLicense || null,
         visibility: initialVisibility,
+        githubRepoFullName: initialGithubRepoFullName,
         defaultView: initialDefaultView,
         unscopedPackageName: initialUnscopedPackageName,
       })
@@ -100,6 +105,7 @@ export const usePackageDetailsForm = ({
       formData.license !== initialLicense ||
       formData.visibility !== initialVisibility ||
       formData.defaultView !== initialDefaultView ||
+      formData.githubRepoFullName !== initialGithubRepoFullName ||
       formData.unscopedPackageName !== initialUnscopedPackageName,
     [
       formData,
@@ -108,6 +114,7 @@ export const usePackageDetailsForm = ({
       initialLicense,
       initialVisibility,
       initialDefaultView,
+      initialGithubRepoFullName,
       initialUnscopedPackageName,
     ],
   )
