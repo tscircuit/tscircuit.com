@@ -20,7 +20,7 @@ export default withRouteSpec({
   }),
 })(async (_req, ctx) => {
   const account = ctx.db.getAccount(ctx.auth.account_id)
-  
+
   if (!account) {
     return ctx.error(401, {
       error_code: "account_not_found",
@@ -32,13 +32,15 @@ export default withRouteSpec({
   if (!account.github_username) {
     return ctx.error(400, {
       error_code: "github_not_connected",
-      message: "GitHub account not connected. Please connect your GitHub account first.",
+      message:
+        "GitHub account not connected. Please connect your GitHub account first.",
     })
   }
 
   // Check if user has a GitHub installation
   const githubInstallation = ctx.db.githubInstallations.find(
-    (installation) => installation.account_id === ctx.auth.account_id && installation.is_active
+    (installation) =>
+      installation.account_id === ctx.auth.account_id && installation.is_active,
   )
 
   if (!githubInstallation) {
