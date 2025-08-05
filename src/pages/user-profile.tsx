@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
-import { DeploymentsContent } from "@/components/Deployment"
+import { DeploymentsContent } from "@/components/deployment/DeploymentCard"
 
 export const UserProfilePage = () => {
   const { username } = useParams()

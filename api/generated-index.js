@@ -31,6 +31,7 @@ const PREFETCHABLE_PAGES = new Set([
   "latest",
   "settings",
   "quickstart",
+  "view-deployment",
 ])
 
 const pageDescriptions = {
@@ -50,6 +51,8 @@ const pageDescriptions = {
     "Get started quickly with tscircuit. Create new circuit packages, import components from JLCPCB, or start from templates to begin your electronic design journey.",
   settings:
     "Manage your tscircuit account settings, shipping information, and preferences for electronic design and PCB ordering.",
+  "view-deployment":
+    "View and manage your deployment details, build logs, and deployment settings. Monitor deployment status, access build information, and configure deployment options.",
 }
 
 function getPageDescription(pageName) {
@@ -181,6 +184,9 @@ async function handleCustomPackageHtml(req, res) {
   if (author === "datasheets") {
     throw new Error("Datasheet route")
   }
+  if (author === "deployment" || unscopedPackageName === "view-deployment") {
+    throw new Error("Deployment route - not a package")
+  }
 
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
     title: "Package Not Found - tscircuit",
@@ -302,6 +308,23 @@ export default async function handler(req, res) {
     res.status(200).send(htmlContent)
     return
   }
+
+  const pathParts = req.url.split("?")[0].split("/")
+
+  if (pathParts[1] === "deployment" && pathParts[2]) {
+    const pageDescription = getPageDescription("deployment")
+    const html = getHtmlWithModifiedSeoTags({
+      title: `Deployment ${pathParts[2]} - tscircuit`,
+      description: pageDescription,
+      canonicalUrl: `${BASE_URL}/deployment/${pathParts[2]}`,
+    })
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(200).send(html)
+    return
+  }
+
   try {
     await handleCustomPackageHtml(req, res)
     return
@@ -309,7 +332,6 @@ export default async function handler(req, res) {
     console.warn(e)
   }
 
-  const pathParts = req.url.split("?")[0].split("/")
   if (pathParts[1] === "datasheets" && pathParts[2]) {
     try {
       await handleDatasheetPage(req, res)

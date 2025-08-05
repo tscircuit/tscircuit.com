@@ -1,20 +1,14 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { useParams } from "wouter"
 import { Loader2, ChevronLeft, ChevronRight, File, Folder } from "lucide-react"
 import Header from "@/components/Header"
 import { SuspenseRunFrame } from "@/components/SuspenseRunFrame"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { cn } from "@/lib/utils"
-import { MOCK_DEPLOYMENTS } from "@/components/Deployment"
-
-interface Deployment {
-  id: string
-  commitHash: string
-  status: "queued" | "building" | "success" | "failed"
-  createdAt: string
-  previewUrl?: string
-  logUrl?: string
-}
+import { MOCK_DEPLOYMENTS } from "@/components/deployment/DeploymentCard"
+import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import NotFoundPage from "./404"
+import { getDeploymentStatus } from "@/components/deployment"
 
 const MOCK_DEPLOYMENT_FILES: Record<
   string,
@@ -23,37 +17,141 @@ const MOCK_DEPLOYMENT_FILES: Record<
   pb_1a2b3c4d: [
     {
       path: "index.tsx",
-      content: `import React from 'react';\nexport default function App() {\n  return <div>Hello from Deployment 1!</div>;\n}`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
     {
       path: "components/Button.tsx",
-      content: `import React from 'react';\nexport const Button = ({ children }: { children: React.ReactNode }) => {\n  return <button className="btn">{children}</button>;\n}`,
-    },
-    {
-      path: "README.md",
-      content: `# Deployment 1\n\nThis is the first deployment.`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
   ],
   pb_9i8j7k6l: [
     {
       path: "index.tsx",
-      content: `import React from 'react';\nexport default function App() {\n  return <div>Hello from Deployment 2!</div>;\n}`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
     {
       path: "utils/helpers.ts",
-      content: `export const formatDate = (date: Date) => {\n  return date.toLocaleDateString();\n}`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
   ],
   pb_1q2w3e4r: [
     {
       path: "index.tsx",
-      content: `import React from 'react';\nexport default function App() {\n  return <div>Failed deployment</div>;\n}`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
   ],
   pb_9o8i7u6y: [
     {
       path: "index.tsx",
-      content: `import React from 'react';\nexport default function App() {\n  return <div>Initial project setup</div>;\n}`,
+      content: `export default () => (
+  <board width="10mm" height="10mm">
+    <resistor
+      resistance="1k"
+      footprint="0402"
+      name="R1"
+      schX={3}
+      pcbX={3}
+    />
+    <capacitor
+      capacitance="1000pF"
+      footprint="0402"
+      name="C1"
+      schX={-3}
+      pcbX={-3}
+    />
+    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
+  </board>
+)`,
     },
   ],
 }
@@ -68,7 +166,7 @@ const getDeploymentFsMap = (deploymentId: string | null) => {
   return Object.fromEntries(files.map((f) => [f.path, f.content]))
 }
 
-const StatusPill: React.FC<{ status: Deployment["status"] }> = ({ status }) => {
+const StatusPill = ({ status }: { status: string }) => {
   const color =
     status === "success"
       ? "bg-emerald-600"
@@ -91,39 +189,14 @@ export default function PreviewDeploymentPage() {
   const deploymentFiles = getDeploymentFiles(deploymentId)
   const deploymentFsMap = getDeploymentFsMap(deploymentId)
 
-  const deploymentData = deploymentId
+  const deployment = deploymentId
     ? MOCK_DEPLOYMENTS.find((d) => d.package_build_id === deploymentId)
     : MOCK_DEPLOYMENTS[0]
 
-  const deployment: Deployment = deploymentData
-    ? {
-        id: deploymentData.package_build_id,
-        commitHash: deploymentData.package_build_id.slice(-7),
-        status:
-          deploymentData.build_error ||
-          deploymentData.transpilation_error ||
-          deploymentData.circuit_json_build_error
-            ? "failed"
-            : deploymentData.build_in_progress ||
-                deploymentData.transpilation_in_progress ||
-                deploymentData.circuit_json_build_in_progress
-              ? "building"
-              : deploymentData.build_completed_at &&
-                  deploymentData.transpilation_completed_at
-                ? "success"
-                : "queued",
-        createdAt: deploymentData.created_at,
-        previewUrl: deploymentData.preview_url || undefined,
-        logUrl: undefined,
-      }
-    : {
-        id: "pb_1a2b3c4d",
-        commitHash: "1a2b3c4",
-        status: "success" as const,
-        createdAt: new Date().toISOString(),
-        previewUrl: "https://preview.tscircuit.com/pb_1a2b3c4d",
-      }
-
+  if (!deployment) {
+    return <NotFoundPage heading="Deployment Not Found" />
+  }
+  const { status, label } = getDeploymentStatus(deployment)
   const convertFilesToTreeData = (
     files: Array<{ path: string; content: string }>,
   ): TreeDataItem[] => {
@@ -195,7 +268,7 @@ export default function PreviewDeploymentPage() {
                     <h2 className="text-lg font-semibold text-gray-900">
                       Deployment
                     </h2>
-                    <StatusPill status={deployment.status} />
+                    <StatusPill status={status} />
                   </div>
 
                   <div className="space-y-2">
@@ -203,18 +276,24 @@ export default function PreviewDeploymentPage() {
                       <span className="text-xs text-gray-500 uppercase tracking-wide">
                         ID
                       </span>
-                      <span className="font-mono text-sm text-gray-900 bg-gray-100 px-2 py-1 rounded">
-                        {deployment.id}
-                      </span>
+                      <PrefetchPageLink
+                        href={`/deployment/${deployment.package_build_id}`}
+                        className="font-mono text-sm text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                      >
+                        {deployment.package_build_id}
+                      </PrefetchPageLink>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <span className="text-xs text-gray-500 uppercase tracking-wide">
                         Commit
                       </span>
-                      <span className="font-mono text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                        {deployment.commitHash}
-                      </span>
+                      <PrefetchPageLink
+                        href={`https://github.com/${deployment.commit_author}/tscircuit.com/commit/${deployment.commit_message}`}
+                        className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded line-clamp-1"
+                      >
+                        {deployment.commit_message}
+                      </PrefetchPageLink>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -223,16 +302,16 @@ export default function PreviewDeploymentPage() {
                       </span>
                       <span
                         className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${
-                          deployment.status === "success"
+                          status === "success"
                             ? "bg-emerald-100 text-emerald-800"
-                            : deployment.status === "failed"
+                            : status === "failed"
                               ? "bg-red-100 text-red-800"
-                              : deployment.status === "building"
+                              : status === "building"
                                 ? "bg-blue-100 text-blue-800"
                                 : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {deployment.status}
+                        {status}
                       </span>
                     </div>
                   </div>
@@ -247,7 +326,7 @@ export default function PreviewDeploymentPage() {
                     {deploymentFiles.length !== 1 ? "s" : ""}
                   </p>
                 </div>
-                <div className="px-2 py-2 overflow-y-auto">
+                <div className="px-2 py-2 overflow-y-auto select-none">
                   <TreeView
                     selectedItemId={selectedItemId || ""}
                     setSelectedItemId={(v) => setSelectedItemId(v || "")}
@@ -267,7 +346,7 @@ export default function PreviewDeploymentPage() {
 
         <main className="flex-1 overflow-y-auto">
           <div className="flex flex-col h-full">
-            {deployment.status === "success" ? (
+            {status === "success" ? (
               <SuspenseRunFrame
                 fsMap={deploymentFsMap}
                 mainComponentPath={selectedFile ?? "index.tsx"}
@@ -275,26 +354,16 @@ export default function PreviewDeploymentPage() {
               />
             ) : (
               <div className="flex-1 flex items-center justify-center">
-                {deployment.status === "building" ? (
+                {status === "building" ? (
                   <div className="flex flex-col items-center gap-3 text-gray-500">
                     <Loader2 className="w-6 h-6 animate-spin" />
                     <p>Building…</p>
                   </div>
-                ) : deployment.status === "failed" ? (
+                ) : status === "failed" ? (
                   <div className="text-center">
                     <p className="text-red-600 font-medium mb-2">
                       Build Failed
                     </p>
-                    {deployment.logUrl && (
-                      <a
-                        href={deployment.logUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        View Logs →
-                      </a>
-                    )}
                   </div>
                 ) : null}
               </div>
