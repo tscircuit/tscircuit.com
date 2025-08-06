@@ -11,24 +11,24 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const account = ctx.db.getAccount(ctx.auth.account_id)
-  
+
   if (!account) {
     return ctx.error(401, {
-      error_code: "account_not_found", 
-      message: "Account not found"
+      error_code: "account_not_found",
+      message: "Account not found",
     })
   }
 
   // Check GitHub installation
   const githubInstallation = ctx.db.githubInstallations.find(
     (installation) =>
-      installation.account_id === ctx.auth.account_id && installation.is_active
+      installation.account_id === ctx.auth.account_id && installation.is_active,
   )
 
   if (!githubInstallation) {
     return ctx.error(400, {
       error_code: "github_not_connected",
-      message: "GitHub account not connected"
+      message: "GitHub account not connected",
     })
   }
 
@@ -39,6 +39,6 @@ export default withRouteSpec({
   return ctx.json({
     success: true,
     message: "GitHub repositories refreshed successfully",
-    repos_refreshed: 3 // Mock number
+    repos_refreshed: 3, // Mock number
   })
 })
