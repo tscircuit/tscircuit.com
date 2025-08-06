@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { GitFork, Star, Settings, LinkIcon } from "lucide-react"
+import { GitFork, Star, Settings, LinkIcon, Github } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo } from "react"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
   isLoading?: boolean
@@ -163,6 +164,16 @@ export default function SidebarAboutSection({
             <GitFork className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
             <span>{(packageInfo as any)?.fork_count ?? "0"} forks</span>
           </div>
+          {packageInfo?.github_repo_full_name && (
+            <a
+              target="_blank"
+              href={`https://github.com/${packageInfo.github_repo_full_name}`}
+              className="flex items-center  hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
+            >
+              <Github className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+              <span>{packageInfo?.github_repo_full_name.split("/")[1]}</span>
+            </a>
+          )}
         </div>
       </div>
 

@@ -117,7 +117,10 @@ export const EditPackageDetailsDialog = ({
         website: formData.website.trim(),
         is_private: formData.visibility == "private",
         default_view: formData.defaultView,
-        github_repo_full_name: formData.githubRepoFullName,
+        github_repo_full_name:
+          formData.githubRepoFullName === "unlink//repo"
+            ? null
+            : formData.githubRepoFullName,
         ...(formData.unscopedPackageName !== unscopedPackageName && {
           name: formData.unscopedPackageName.trim(),
         }),
@@ -377,8 +380,8 @@ export const EditPackageDetailsDialog = ({
                 </div>
                 <div className="space-y-1">
                   <GitHubRepositorySelector
-                    value={formData.githubRepoFullName || ""}
-                    onValueChange={(value) =>
+                    selectedRepository={formData.githubRepoFullName || ""}
+                    setSelectedRepository={(value) =>
                       setFormData((prev) => ({
                         ...prev,
                         githubRepoFullName: value,
@@ -386,6 +389,13 @@ export const EditPackageDetailsDialog = ({
                     }
                     disabled={updatePackageDetailsMutation.isLoading}
                     open={open}
+                    formData={formData}
+                    addFormContent={(content) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        ...content,
+                      }))
+                    }}
                   />
                 </div>
               </div>

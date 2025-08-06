@@ -1,6 +1,5 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
-export { ConnectedRepoSettings } from "./ConnectedRepoSettings"
 export { ConnectedRepoDashboard } from "./ConnectedRepoDashboard"
 
 export const getBuildStatus = (build: PackageBuild) => {
@@ -192,6 +191,7 @@ export const MOCK_DEPLOYMENTS: PackageBuild[] = [
   },
 ]
 
+import { Package, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 export const StatusIcon = ({ status }: { status: string }) => {
   switch (status) {
@@ -203,5 +203,46 @@ export const StatusIcon = ({ status }: { status: string }) => {
       return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
     default:
       return <Clock className="w-4 h-4 text-gray-500" />
+  }
+}
+
+export const getLatestBuildForPackage = (pkg: Package): PackageBuild => {
+  return MOCK_DEPLOYMENTS[0]
+}
+export const getLatestBuildFromPackageRelease = (
+  pkg: PackageRelease,
+): PackageBuild => {
+  return MOCK_DEPLOYMENTS[0]
+}
+export const getPackageFromBuild = (build: PackageBuild): Package => {
+  return {
+    ai_description: "placeholder ai description",
+    ai_usage_instructions: "placeholder ai usage instructions",
+    created_at: "2025-08-06T14:37:05.802Z",
+    creator_account_id: "account-1234",
+    default_view: "files",
+    description: "placeholder ai description",
+    github_repo_full_name: "testuser/pcb-designs",
+    is_board: false,
+    is_footprint: false,
+    is_model: false,
+    is_package: false,
+    is_private: false,
+    is_public: true,
+    is_snippet: false,
+    is_source_from_github: false,
+    is_unlisted: false,
+    latest_package_release_fs_sha: "md5-425b47ef26be8f0863eca9e63e516dfa",
+    latest_package_release_id: "package_release_1754491026466",
+    latest_version: "0.0.1",
+    license: null,
+    name: "testuser/untitled-package-0",
+    owner_github_username: "testuser",
+    owner_org_id: "org-1234",
+    package_id: "package_1754491025802",
+    star_count: 0,
+    unscoped_name: "untitled-package-0",
+    updated_at: "2025-08-06T14:37:25.083Z",
+    website: "",
   }
 }

@@ -24,33 +24,28 @@ import {
 import { useLocation } from "wouter"
 import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 import { BuildsList } from "./BuildsList"
-import { ConnectedRepoSettings } from "./ConnectedRepoSettings"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { getBuildStatus, PackageBuild, MOCK_DEPLOYMENTS } from "."
-
-interface ConnectedRepoDashboardProps {
-  projectName?: string
-  builds?: PackageBuild[]
-  selectedBuild?: PackageBuild
-}
+import {
+  getBuildStatus,
+  PackageBuild,
+  MOCK_DEPLOYMENTS,
+  getPackageFromBuild,
+} from "."
+import { PrefetchPageLink } from "../PrefetchPageLink"
 
 export const ConnectedRepoDashboard = ({
-  projectName = "tscircuit-project",
-  builds = MOCK_DEPLOYMENTS,
-  selectedBuild,
-}: ConnectedRepoDashboardProps) => {
+  latestBuild,
+}: {
+  latestBuild: PackageBuild
+}) => {
   const [activeTab, setActiveTab] = useState("overview")
-  const [currentBuild, setCurrentBuild] = useState<PackageBuild | undefined>(
-    selectedBuild || builds[0],
-  )
   const [, setLocation] = useLocation()
-
+  const pkg = getPackageFromBuild(latestBuild)
   const handleSelectBuild = (build: PackageBuild) => {
     setLocation(`/build/${build.package_build_id}`)
+    setActiveTab("overview")
   }
-
-  const latestBuild = builds[0]
   const { status, label } = getBuildStatus(latestBuild)
 
   return (
@@ -71,9 +66,12 @@ export const ConnectedRepoDashboard = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <h1 className="text-2xl font-bold text-gray-900 truncate">
-                      {projectName}
-                    </h1>
+                    <PrefetchPageLink
+                      href={"/" + pkg.name}
+                      className="text-2xl font-bold text-gray-900 truncate"
+                    >
+                      {pkg.unscoped_name}
+                    </PrefetchPageLink>
                     <Badge
                       variant={
                         status === "success"
@@ -99,7 +97,15 @@ export const ConnectedRepoDashboard = ({
                     </Badge>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
+                    <div
+                      className="flex cursor-pointer items-center gap-1"
+                      onClick={() =>
+                        window?.open(
+                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestBuild.branch_name || "main"}`,
+                          "_blank",
+                        )
+                      }
+                    >
                       <GitBranch className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
                         {latestBuild.branch_name || "main"}
@@ -108,19 +114,9 @@ export const ConnectedRepoDashboard = ({
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>
-                        Last deployed {formatTimeAgo(latestBuild.created_at)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">
-                        {latestBuild.commit_author || "Unknown"}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Hash className="w-4 h-4 flex-shrink-0" />
-                      <span className="font-mono text-xs truncate">
-                        {latestBuild.package_build_id?.slice(-8) || "N/A"}
+                        <time dateTime={latestBuild.created_at}>
+                          Last deployed {formatTimeAgo(latestBuild.created_at)}
+                        </time>
                       </span>
                     </div>
                   </div>
@@ -134,7 +130,7 @@ export const ConnectedRepoDashboard = ({
                   className="flex items-center gap-2 justify-center min-w-[120px] h-9"
                   onClick={() =>
                     window.open(
-                      `https://github.com/${latestBuild.commit_author}/${projectName}`,
+                      `https://github.com/${pkg.github_repo_full_name}`,
                       "_blank",
                     )
                   }
@@ -181,7 +177,7 @@ export const ConnectedRepoDashboard = ({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
                       <a
-                        href={`https://github.com/${latestBuild.commit_author}`}
+                        href={`https://github.com/${pkg.github_repo_full_name}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -197,7 +193,7 @@ export const ConnectedRepoDashboard = ({
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
-                            title: projectName,
+                            title: pkg.unscoped_name,
                             url: window.location.href,
                           })
                         } else {
@@ -221,7 +217,7 @@ export const ConnectedRepoDashboard = ({
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <Activity className="w-4 h-4" />
                 Overview
@@ -230,25 +226,14 @@ export const ConnectedRepoDashboard = ({
                 <List className="w-4 h-4" />
                 Builds
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Settings
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              {currentBuild && <ConnectedRepoOverview build={currentBuild} />}
+              {latestBuild && <ConnectedRepoOverview build={latestBuild} />}
             </TabsContent>
 
             <TabsContent value="builds" className="space-y-6">
-              <BuildsList builds={builds} onSelectBuild={handleSelectBuild} />
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-6">
-              <ConnectedRepoSettings
-                projectName={projectName}
-                onSave={(settings) => console.log("Settings saved:", settings)}
-              />
+              <BuildsList pkg={pkg} onSelectBuild={handleSelectBuild} />
             </TabsContent>
           </Tabs>
         </div>
