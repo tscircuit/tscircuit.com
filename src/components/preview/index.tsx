@@ -1,6 +1,6 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
-export { PackageReleasesDashboard as ConnectedRepoDashboard } from "./PackageReleasesDashboard"
+export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
 import {
   Package,
   PackageBuild,

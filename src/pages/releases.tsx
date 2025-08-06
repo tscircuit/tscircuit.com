@@ -1,9 +1,9 @@
 import { useParams } from "wouter"
 import NotFoundPage from "./404"
-import { ConnectedRepoDashboard } from "@/components/preview"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { usePackageById } from "@/hooks/use-package-by-package-id"
+import { PackageReleasesDashboard } from "@/components/preview/PackageReleasesDashboard"
 
 export default function ViewConnectedRepoOverview() {
   const params = useParams<{ buildId: string }>()
@@ -40,10 +40,6 @@ export default function ViewConnectedRepoOverview() {
   }
 
   return (
-    <ConnectedRepoDashboard
-      latestBuild={packageBuild}
-      pkg={buildPackage}
-      packageRelease={packageRelease}
-    />
+    <PackageReleasesDashboard latestBuild={packageBuild} pkg={buildPackage} />
   )
 }
