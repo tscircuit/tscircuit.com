@@ -37,7 +37,12 @@ export const GitHubRepositorySelector = ({
   const apiBaseUrl = useApiBaseUrl()
   const initialValue = useRef(selectedRepository).current
   // Fetch available repositories
-  const { data: repositoriesData, error: repositoriesError, refetch: refetchRepositories, isLoading } = useQuery(
+  const {
+    data: repositoriesData,
+    error: repositoriesError,
+    refetch: refetchRepositories,
+    isLoading,
+  } = useQuery(
     ["github-repositories"],
     async () => {
       const response = await axios.get("/github/repos/list_available")
@@ -72,9 +77,11 @@ export const GitHubRepositorySelector = ({
       <div className="space-y-1 mb-3">
         <div className="flex items-center justify-between">
           <Label htmlFor="repository">GitHub Repository</Label>
-          {!((repositoriesError as any)?.response?.status === 400 &&
+          {!(
+            (repositoriesError as any)?.response?.status === 400 &&
             (repositoriesError as any)?.response?.data?.error_code ===
-              "github_not_connected") && (
+              "github_not_connected"
+          ) && (
             <Button
               type="button"
               variant="ghost"
@@ -83,7 +90,9 @@ export const GitHubRepositorySelector = ({
               disabled={disabled || isLoading}
               className="h-auto p-1"
             >
-              <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-3 h-3 ${isLoading ? "animate-spin" : ""}`}
+              />
             </Button>
           )}
         </div>
