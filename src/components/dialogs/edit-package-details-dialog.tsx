@@ -90,7 +90,7 @@ export const EditPackageDetailsDialog = ({
     initialVisibility: isPrivate ? "private" : "public",
     initialAllowPrPreviews: currentAllowPrPreviews,
   })
-  console.log(60, currentAllowPrPreviews)
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
