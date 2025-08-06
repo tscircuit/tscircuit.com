@@ -10,10 +10,10 @@ import {
   getBuildStatus,
   getLatestBuildForPackage,
   MOCK_DEPLOYMENTS,
-  PackageBuild,
   StatusIcon,
 } from "."
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+import { useLatestPackageBuild } from "@/hooks/use-package-builds"
 
 export const ConnectedPackageCardSkeleton = () => {
   return (
@@ -54,8 +54,18 @@ export const ConnectedPackageCard = ({
   pkg: Package
   className?: string
 }) => {
-  const latestBuildInfo: PackageBuild = getLatestBuildForPackage(pkg)
-  const { status, label } = getBuildStatus(latestBuildInfo)
+  const { data: latestBuildInfo, isLoading } = useLatestPackageBuild({
+    package_id: pkg.package_id,
+  })
+
+  if (isLoading && !latestBuildInfo) {
+    return <ConnectedPackageCardSkeleton />
+  }
+
+  const { status, label } = latestBuildInfo
+    ? getBuildStatus(latestBuildInfo)
+    : { status: "pending", label: "Pending" }
+
   return (
     <Card
       className={cn(
@@ -75,7 +85,7 @@ export const ConnectedPackageCard = ({
             href="#"
             className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
           >
-            tsc-deploy
+            {pkg.unscoped_name}
           </a>
         </div>
 
@@ -108,7 +118,7 @@ export const ConnectedPackageCard = ({
         </a>
       </div>
 
-      {latestBuildInfo.commit_message && (
+      {latestBuildInfo?.commit_message && (
         <div className="mb-6 flex-1">
           <h4
             title={latestBuildInfo.commit_message}
@@ -129,27 +139,31 @@ export const ConnectedPackageCard = ({
       )}
 
       <div className="flex gap-2 w-full mt-auto">
-        <PrefetchPageLink
-          className="w-full"
-          href={`/build/${latestBuildInfo.package_build_id}`}
-        >
-          <Button
-            size="sm"
-            className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
-          >
-            View
-          </Button>
-        </PrefetchPageLink>
-        {latestBuildInfo.preview_url && status === "success" && (
+        {latestBuildInfo?.package_build_id && (
           <PrefetchPageLink
             className="w-full"
-            href={`/build/${latestBuildInfo.package_build_id}/preview`}
+            href={`/build/${latestBuildInfo.package_build_id}`}
           >
-            <Button size="sm" variant="outline" className="px-4 py-2 w-full">
-              Preview
+            <Button
+              size="sm"
+              className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
+            >
+              View
             </Button>
           </PrefetchPageLink>
         )}
+        {latestBuildInfo?.preview_url &&
+          latestBuildInfo?.package_build_id &&
+          status === "success" && (
+            <PrefetchPageLink
+              className="w-full"
+              href={`/build/${latestBuildInfo.package_build_id}/preview`}
+            >
+              <Button size="sm" variant="outline" className="px-4 py-2 w-full">
+                Preview
+              </Button>
+            </PrefetchPageLink>
+          )}
       </div>
     </Card>
   )
@@ -158,9 +172,7 @@ export const ConnectedPackageCard = ({
 export const ConnectedPackagesList = ({
   packages,
 }: { packages: Package[] }) => {
-  const [pkgs, setpkgs] = useState(MOCK_DEPLOYMENTS)
-
-  if (pkgs.length === 0) {
+  if (packages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-black">
         <Rocket className="w-12 h-12 mb-4 text-black" />

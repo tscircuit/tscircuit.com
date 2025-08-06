@@ -185,7 +185,7 @@ async function handleCustomPackageHtml(req, res) {
     throw new Error("Datasheet route")
   }
   if (author === "build" || unscopedPackageName === "view-connected-repo") {
-    throw new Error("Deployment route - not a package")
+    throw new Error("Build  route - not a package")
   }
 
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({

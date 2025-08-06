@@ -16,6 +16,7 @@ import {
   type PackageFile,
   type PackageRelease,
   packageReleaseSchema,
+  type PackageBuild,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -241,7 +242,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     snippet: Omit<
       z.input<typeof snippetSchema>,
       "snippet_id" | "package_release_id"
-    >,
+    > & { creator_account_id?: string; github_repo_full_name?: string },
   ): Snippet => {
     const timestamp = Date.now()
     const currentTime = new Date(timestamp).toISOString()
@@ -252,7 +253,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     // Create the package that will serve as our snippet
     const newPackage = {
       package_id: `pkg_${nextId}`,
-      creator_account_id: snippet.owner_name, // Using owner_name as account_id since we don't have context
+      creator_account_id: snippet.creator_account_id ?? snippet.owner_name, // Using owner_name as account_id since we don't have context
       owner_org_id: "", // Empty string instead of null to match type
       owner_github_username: snippet.owner_name,
       is_source_from_github: false,
@@ -265,7 +266,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       star_count: 0,
       created_at: currentTime,
       updated_at: currentTime,
-      github_repo_full_name: null,
+      github_repo_full_name: snippet.github_repo_full_name || null,
       ai_description: "placeholder ai description",
       ai_usage_instructions: "placeholder ai usage instructions",
       is_snippet: true,
@@ -292,6 +293,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       updated_at: currentTime,
       has_transpiled: true,
       transpilation_error: null,
+      ...(snippet.name == "testuser/my-test-board"
+        ? { is_pr_preview: true, github_pr_number: 69 }
+        : {}),
     })
 
     // Add all the files
@@ -1472,6 +1476,50 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       datasheets[index] = { ...datasheets[index], ...updates }
       updated = datasheets[index]
       return { ...state, datasheets }
+    })
+    return updated
+  },
+  addPackageBuild: (
+    packageBuild: Omit<PackageBuild, "package_build_id">,
+  ): PackageBuild => {
+    const newPackageBuild = {
+      package_build_id: crypto.randomUUID(),
+      ...packageBuild,
+    }
+    set((state) => ({
+      packageBuilds: [...state.packageBuilds, newPackageBuild],
+    }))
+    return newPackageBuild
+  },
+  getPackageBuildById: (packageBuildId: string): PackageBuild | undefined => {
+    const state = get()
+    return state.packageBuilds.find(
+      (pb) => pb.package_build_id === packageBuildId,
+    )
+  },
+  getPackageBuildsByReleaseId: (packageReleaseId: string): PackageBuild[] => {
+    const state = get()
+    return state.packageBuilds
+      .filter((pb) => pb.package_release_id === packageReleaseId)
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+  },
+  updatePackageBuild: (
+    packageBuildId: string,
+    updates: Partial<PackageBuild>,
+  ): PackageBuild | undefined => {
+    let updated: PackageBuild | undefined
+    set((state) => {
+      const index = state.packageBuilds.findIndex(
+        (pb) => pb.package_build_id === packageBuildId,
+      )
+      if (index === -1) return state
+      const packageBuilds = [...state.packageBuilds]
+      packageBuilds[index] = { ...packageBuilds[index], ...updates }
+      updated = packageBuilds[index]
+      return { ...state, packageBuilds }
     })
     return updated
   },
