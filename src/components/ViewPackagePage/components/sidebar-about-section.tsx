@@ -193,6 +193,7 @@ export default function SidebarAboutSection({
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
           currentDefaultView={packageInfo.default_view}
+          currentAllowPrPreviews={packageInfo.allow_pr_previews}
         />
       )}
     </>

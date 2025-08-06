@@ -251,6 +251,10 @@ export const packageReleaseSchema = z.object({
   ai_review_error: z.any().optional().nullable(),
   ai_review_logs: z.array(z.any()).optional().nullable(),
   ai_review_requested: z.boolean().default(false),
+
+  // Preview
+  is_pr_preview: z.boolean().default(false),
+  github_pr_number: z.number().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -300,6 +304,7 @@ export const packageSchema = z.object({
     .enum(["files", "3d", "pcb", "schematic"])
     .default("files")
     .optional(),
+  allow_pr_previews: z.boolean().default(false).optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 

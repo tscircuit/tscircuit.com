@@ -48,7 +48,9 @@ interface EditPackageDetailsDialogProps {
     newWebsite: string,
     newLicense: string | null,
     newDefaultView: string,
+    newAllowPrPreviews?: boolean,
   ) => void
+  currentAllowPrPreviews?: boolean
 }
 
 export const EditPackageDetailsDialog = ({
@@ -64,6 +66,7 @@ export const EditPackageDetailsDialog = ({
   unscopedPackageName,
   packageReleaseId,
   packageAuthor,
+  currentAllowPrPreviews,
   onUpdate,
 }: EditPackageDetailsDialogProps) => {
   const axios = useAxios()
@@ -85,6 +88,7 @@ export const EditPackageDetailsDialog = ({
     initialUnscopedPackageName: unscopedPackageName,
     isDialogOpen: open,
     initialVisibility: isPrivate ? "private" : "public",
+    initialAllowPrPreviews: currentAllowPrPreviews,
   })
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
@@ -117,6 +121,7 @@ export const EditPackageDetailsDialog = ({
         website: formData.website.trim(),
         is_private: formData.visibility == "private",
         default_view: formData.defaultView,
+        allow_pr_previews: formData.allowPrPreviews,
         github_repo_full_name:
           formData.githubRepoFullName === "unlink//repo"
             ? null

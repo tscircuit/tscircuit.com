@@ -27,6 +27,7 @@ export const publicMapPackage = (internalPackage: {
   is_unlisted: boolean | null
   latest_package_release_fs_sha: string | null
   github_repo_full_name?: string | null
+  allow_pr_previews?: boolean
 }): zt.Package => {
   return {
     ...internalPackage,
@@ -45,5 +46,6 @@ export const publicMapPackage = (internalPackage: {
       internalPackage.is_private === true
         ? true
         : (internalPackage.is_unlisted ?? false),
+    allow_pr_previews: Boolean(internalPackage.allow_pr_previews),
   }
 }
