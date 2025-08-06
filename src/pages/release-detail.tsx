@@ -5,9 +5,10 @@ import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { useLatestPackageBuildByReleaseId } from "@/hooks/use-package-builds"
 import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, GitBranch, Hash } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, GitBranch, Hash, Copy, Check } from "lucide-react"
+import { useState } from "react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 
@@ -22,6 +23,8 @@ export default function ReleaseDetailPage() {
     params?.author && params?.packageName
       ? `${params.author}/${params.packageName}`
       : null
+
+  const [copied, setCopied] = useState(false)
 
   const {
     data: pkg,
@@ -67,10 +70,17 @@ export default function ReleaseDetailPage() {
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
               <PrefetchPageLink
+                href={`/${pkg.owner_github_username}`}
+                className="hover:text-gray-900"
+              >
+                {pkg.owner_github_username}
+              </PrefetchPageLink>
+              <span>/</span>
+              <PrefetchPageLink
                 href={`/${pkg.name}`}
                 className="hover:text-gray-900"
               >
-                {pkg.name}
+                {pkg.unscoped_name}
               </PrefetchPageLink>
               <span>/</span>
               <PrefetchPageLink
@@ -87,42 +97,22 @@ export default function ReleaseDetailPage() {
             </div>
 
             {/* Header Content */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <PrefetchPageLink href={`/${pkg.name}/releases`}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Back to Releases
-                  </Button>
-                </PrefetchPageLink>
-                <div>
-                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-                    {packageRelease.version ||
-                      `Release v${packageRelease.package_release_id.slice(-6)}`}
-                  </h1>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  {packageRelease.is_pr_preview && (
                     <div className="flex items-center gap-1">
-                      <Hash className="w-4 h-4" />
-                      <span>{packageRelease.package_release_id.slice(-8)}</span>
+                      <GitBranch className="w-4 h-4" />
+                      <Badge variant="outline" className="text-xs">
+                        PR #{packageRelease.github_pr_number}
+                      </Badge>
                     </div>
-                    {packageRelease.is_pr_preview && (
-                      <div className="flex items-center gap-1">
-                        <GitBranch className="w-4 h-4" />
-                        <Badge variant="outline" className="text-xs">
-                          PR #{packageRelease.github_pr_number}
-                        </Badge>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        Created {formatTimeAgo(packageRelease.created_at)}
-                      </span>
-                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      Created {formatTimeAgo(packageRelease.created_at)}
+                    </span>
                   </div>
                 </div>
               </div>
