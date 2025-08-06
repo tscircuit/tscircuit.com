@@ -1,6 +1,6 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
-export { ConnectedRepoDashboard } from "./ConnectedRepoDashboard"
+export { PackageReleasesDashboard as ConnectedRepoDashboard } from "./PackageReleasesDashboard"
 import {
   Package,
   PackageBuild,
@@ -28,7 +28,7 @@ export const getBuildStatus = (build: PackageBuild) => {
   return { status: "queued", label: "Queued" }
 }
 
-export const MOCK_DEPLOYMENTS: PackageBuild[] = [
+export const MOCK_PACKAGE_BUILDS: PackageBuild[] = [
   {
     package_build_id: "pb_1a2b3c4d",
     package_release_id: "pr_5e6f7g8h",
@@ -184,5 +184,5 @@ export const StatusIcon = ({ status }: { status: string }) => {
 }
 
 export const getLatestBuildForPackage = (pkg: Package): PackageBuild => {
-  return MOCK_DEPLOYMENTS[0]
+  return MOCK_PACKAGE_BUILDS[0]
 }

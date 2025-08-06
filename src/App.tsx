@@ -258,7 +258,10 @@ function App() {
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
-            <Route path="/build/:buildId" component={ViewConnectedRepoPage} />
+            <Route
+              path="/:author/:packageName/releases"
+              component={ViewConnectedRepoPage}
+            />
             <Route
               path="/build/:buildId/preview"
               component={PreviewBuildPage}

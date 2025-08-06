@@ -31,14 +31,12 @@ import {
   PackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 
-export const ConnectedRepoDashboard = ({
+export const PackageReleasesDashboard = ({
   latestBuild,
   pkg,
-  packageRelease,
 }: {
   latestBuild: PackageBuild
   pkg: Package
-  packageRelease: PackageRelease
 }) => {
   const [activeTab, setActiveTab] = useState("overview")
   const [, setLocation] = useLocation()
@@ -47,6 +45,9 @@ export const ConnectedRepoDashboard = ({
     setActiveTab("overview")
   }
   const { status, label } = getBuildStatus(latestBuild)
+  const { data: packageReleases } = usePackageReleasesByPackageId(
+    pkg.package_id,
+  )
 
   return (
     <>
