@@ -16,6 +16,7 @@ import {
   type PackageFile,
   type PackageRelease,
   packageReleaseSchema,
+  type PackageBuild,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -1472,6 +1473,50 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       datasheets[index] = { ...datasheets[index], ...updates }
       updated = datasheets[index]
       return { ...state, datasheets }
+    })
+    return updated
+  },
+  addPackageBuild: (
+    packageBuild: Omit<PackageBuild, "package_build_id">,
+  ): PackageBuild => {
+    const newPackageBuild = {
+      package_build_id: crypto.randomUUID(),
+      ...packageBuild,
+    }
+    set((state) => ({
+      packageBuilds: [...state.packageBuilds, newPackageBuild],
+    }))
+    return newPackageBuild
+  },
+  getPackageBuildById: (packageBuildId: string): PackageBuild | undefined => {
+    const state = get()
+    return state.packageBuilds.find(
+      (pb) => pb.package_build_id === packageBuildId,
+    )
+  },
+  getPackageBuildsByReleaseId: (packageReleaseId: string): PackageBuild[] => {
+    const state = get()
+    return state.packageBuilds
+      .filter((pb) => pb.package_release_id === packageReleaseId)
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+  },
+  updatePackageBuild: (
+    packageBuildId: string,
+    updates: Partial<PackageBuild>,
+  ): PackageBuild | undefined => {
+    let updated: PackageBuild | undefined
+    set((state) => {
+      const index = state.packageBuilds.findIndex(
+        (pb) => pb.package_build_id === packageBuildId,
+      )
+      if (index === -1) return state
+      const packageBuilds = [...state.packageBuilds]
+      packageBuilds[index] = { ...packageBuilds[index], ...updates }
+      updated = packageBuilds[index]
+      return { ...state, packageBuilds }
     })
     return updated
   },

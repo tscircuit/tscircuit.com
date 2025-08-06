@@ -346,6 +346,33 @@ export const jlcpcbOrderStepRunSchema = z.object({
 })
 export type JlcpcbOrderStepRun = z.infer<typeof jlcpcbOrderStepRunSchema>
 
+export const packageBuildSchema = z.object({
+  package_build_id: z.string().uuid(),
+  package_release_id: z.string(),
+  created_at: z.string().datetime(),
+  transpilation_in_progress: z.boolean().default(false),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_error: z.string().nullable().optional(),
+  circuit_json_build_in_progress: z.boolean().default(false),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_error: z.string().nullable().optional(),
+  build_in_progress: z.boolean().default(false),
+  build_started_at: z.string().datetime().nullable().optional(),
+  build_completed_at: z.string().datetime().nullable().optional(),
+  build_error: z.string().nullable().optional(),
+  build_error_last_updated_at: z.string().datetime(),
+  preview_url: z.string().nullable().optional(),
+  build_logs: z.string().nullable().optional(),
+  branch_name: z.string().nullable().optional(),
+  commit_message: z.string().nullable().optional(),
+  commit_author: z.string().nullable().optional(),
+})
+export type PackageBuild = z.infer<typeof packageBuildSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -365,5 +392,6 @@ export const databaseSchema = z.object({
   aiReviews: z.array(aiReviewSchema).default([]),
   datasheets: z.array(datasheetSchema).default([]),
   githubInstallations: z.array(githubInstallationSchema).default([]),
+  packageBuilds: z.array(packageBuildSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
