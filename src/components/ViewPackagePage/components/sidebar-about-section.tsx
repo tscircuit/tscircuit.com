@@ -10,7 +10,7 @@ import { useState, useEffect, useMemo } from "react"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
-import { GitHubLogoIcon } from "@radix-ui/react-icons"
+
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
   isLoading?: boolean
