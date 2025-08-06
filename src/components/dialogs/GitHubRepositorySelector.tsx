@@ -11,7 +11,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useQuery } from "react-query"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus, RefreshCw } from "lucide-react"
 import { Switch } from "../ui/switch"
 
 interface GitHubRepositorySelectorProps {
@@ -37,7 +37,7 @@ export const GitHubRepositorySelector = ({
   const apiBaseUrl = useApiBaseUrl()
   const initialValue = useRef(selectedRepository).current
   // Fetch available repositories
-  const { data: repositoriesData, error: repositoriesError } = useQuery(
+  const { data: repositoriesData, error: repositoriesError, refetch: refetchRepositories, isLoading } = useQuery(
     ["github-repositories"],
     async () => {
       const response = await axios.get("/github/repos/list_available")
@@ -63,10 +63,30 @@ export const GitHubRepositorySelector = ({
     }
   }
 
+  const handleRefreshRepositories = () => {
+    refetchRepositories()
+  }
+
   return (
     <>
       <div className="space-y-1 mb-3">
-        <Label htmlFor="repository">GitHub Repository</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="repository">GitHub Repository</Label>
+          {!((repositoriesError as any)?.response?.status === 400 &&
+            (repositoriesError as any)?.response?.data?.error_code ===
+              "github_not_connected") && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleRefreshRepositories}
+              disabled={disabled || isLoading}
+              className="h-auto p-1"
+            >
+              <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          )}
+        </div>
         {(repositoriesError as any)?.response?.status === 400 &&
         (repositoriesError as any)?.response?.data?.error_code ===
           "github_not_connected" ? (
