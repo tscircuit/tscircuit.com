@@ -68,8 +68,17 @@ export const GitHubRepositorySelector = ({
     }
   }
 
-  const handleRefreshRepositories = () => {
-    refetchRepositories()
+  const handleRefreshRepositories = async () => {
+    try {
+      // First call the refresh endpoint to update repositories
+      await axios.post("/github/repos/refresh")
+      // Then refetch the repositories list
+      refetchRepositories()
+    } catch (error) {
+      console.error("Failed to refresh repositories:", error)
+      // Still try to refetch in case the error is not critical
+      refetchRepositories()
+    }
   }
 
   return (
