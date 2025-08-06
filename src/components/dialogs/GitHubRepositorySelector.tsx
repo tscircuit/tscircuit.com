@@ -1,17 +1,24 @@
-import { useRef } from "react"
+import { useRef, useState, useMemo } from "react"
+import { Check, ChevronsUpDown } from "lucide-react"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 import { useAxios } from "@/hooks/use-axios"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useQuery } from "react-query"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
-import { Minus, Plus } from "lucide-react"
+import { Minus, Plus, RefreshCw } from "lucide-react"
 import { Switch } from "../ui/switch"
 
 interface GitHubRepositorySelectorProps {
@@ -36,8 +43,15 @@ export const GitHubRepositorySelector = ({
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const initialValue = useRef(selectedRepository).current
+  const [comboboxOpen, setComboboxOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
   // Fetch available repositories
-  const { data: repositoriesData, error: repositoriesError } = useQuery(
+  const {
+    data: repositoriesData,
+    error: repositoriesError,
+    refetch: refetchRepositories,
+    isLoading,
+  } = useQuery(
     ["github-repositories"],
     async () => {
       const response = await axios.get("/github/repos/list_available")
@@ -53,20 +67,103 @@ export const GitHubRepositorySelector = ({
     window.location.href = `${apiBaseUrl}/github/installations/create_new_installation_redirect?return_to_page=${window.location.pathname}`
   }
 
-  const handleValueChange = (newValue: string) => {
-    if (newValue === "connect-more") {
-      handleConnectMoreRepos()
-    } else if (newValue === "unlink//repo") {
-      setSelectedRepository?.("unlink//repo")
-    } else {
-      setSelectedRepository?.(newValue)
+  const handleRefreshRepositories = async () => {
+    try {
+      // First call the refresh endpoint to update repositories
+      await axios.post("/github/repos/refresh")
+      // Then refetch the repositories list
+      refetchRepositories()
+    } catch (error) {
+      console.error("Failed to refresh repositories:", error)
+      // Still try to refetch in case the error is not critical
+      refetchRepositories()
     }
+  }
+
+  // Create searchable options for the combobox
+  const comboboxOptions = useMemo(() => {
+    const repos = repositoriesData?.repos || []
+    const repoOptions = repos.map((repo: any) => ({
+      value: repo.full_name,
+      label: repo.unscoped_name,
+      isPrivate: repo.private,
+      type: "repo" as const,
+    }))
+
+    const specialOptions = [
+      {
+        value: "connect-more",
+        label: "Connect More Repos",
+        type: "special" as const,
+        icon: "plus" as const,
+      },
+      ...(initialValue
+        ? [
+            {
+              value: "unlink//repo",
+              label: "Unlink Repo",
+              type: "special" as const,
+              icon: "minus" as const,
+            },
+          ]
+        : []),
+    ]
+
+    return [...repoOptions, ...specialOptions]
+  }, [repositoriesData?.repos, initialValue])
+
+  // Filter options based on search
+  const filteredOptions = useMemo(() => {
+    if (!searchValue) return comboboxOptions
+    return comboboxOptions.filter(
+      (option) =>
+        option.label.toLowerCase().includes(searchValue.toLowerCase()) ||
+        option.value.toLowerCase().includes(searchValue.toLowerCase()),
+    )
+  }, [comboboxOptions, searchValue])
+
+  const handleComboboxSelect = (value: string) => {
+    if (value === "connect-more") {
+      handleConnectMoreRepos()
+    } else {
+      setSelectedRepository?.(value)
+    }
+    setComboboxOpen(false)
+    setSearchValue("")
+  }
+
+  const getDisplayValue = () => {
+    if (!selectedRepository) return "Select a repository"
+    const option = comboboxOptions.find(
+      (opt) => opt.value === selectedRepository,
+    )
+    return option?.label || selectedRepository
   }
 
   return (
     <>
       <div className="space-y-1 mb-3">
-        <Label htmlFor="repository">GitHub Repository</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="repository">GitHub Repository</Label>
+          {!(
+            (repositoriesError as any)?.response?.status === 400 &&
+            (repositoriesError as any)?.response?.data?.error_code ===
+              "github_not_connected"
+          ) && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleRefreshRepositories}
+              disabled={disabled || isLoading}
+              className="h-auto p-1"
+            >
+              <RefreshCw
+                className={`w-3 h-3 ${isLoading ? "animate-spin" : ""}`}
+              />
+            </Button>
+          )}
+        </div>
         {(repositoriesError as any)?.response?.status === 400 &&
         (repositoriesError as any)?.response?.data?.error_code ===
           "github_not_connected" ? (
@@ -93,43 +190,79 @@ export const GitHubRepositorySelector = ({
           </div>
         ) : (
           <div className="space-y-2">
-            <Select
-              value={selectedRepository}
-              onValueChange={handleValueChange}
-              disabled={disabled}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a repository" />
-              </SelectTrigger>
-              <SelectContent className="!z-[999]">
-                {repositoriesData?.repos?.map((repo: any) => (
-                  <SelectItem key={repo.full_name} value={repo.full_name}>
-                    <div className="flex items-center space-x-2">
-                      <span>{repo.unscoped_name}</span>
-                      {repo.private && (
-                        <span className="text-xs text-muted-foreground">
-                          (private)
-                        </span>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-                <SelectItem value="connect-more">
-                  <div className="flex items-center space-x-2 text-blue-600">
-                    <Plus className="w-3 h-3" />
-                    <span>Connect More Repos</span>
-                  </div>
-                </SelectItem>
-                {Boolean(initialValue) && (
-                  <SelectItem value="unlink//repo">
-                    <div className="flex items-center space-x-2 text-red-600">
-                      <Minus className="w-3 h-3" />
-                      <span>Unlink Repo</span>
-                    </div>
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboboxOpen}
+                  className="w-full justify-between"
+                  disabled={disabled}
+                >
+                  {getDisplayValue()}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 z-[999]">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    value={searchValue}
+                    onValueChange={setSearchValue}
+                    placeholder="Search repositories..."
+                  />
+                  <CommandEmpty className="text-sm text-slate-500 py-6">
+                    No repositories found.
+                  </CommandEmpty>
+                  <CommandGroup className="max-h-[400px] overflow-y-auto">
+                    {filteredOptions.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        onSelect={() => handleComboboxSelect(option.value)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center space-x-2 w-full">
+                          {option.type === "repo" ? (
+                            <>
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedRepository === option.value
+                                    ? "opacity-100"
+                                    : "opacity-0",
+                                )}
+                              />
+                              <span>{option.label}</span>
+                              {option.isPrivate && (
+                                <span className="text-xs text-muted-foreground">
+                                  (private)
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              {option.icon === "plus" ? (
+                                <Plus className="w-3 h-3 text-blue-600" />
+                              ) : (
+                                <Minus className="w-3 h-3 text-red-600" />
+                              )}
+                              <span
+                                className={
+                                  option.icon === "plus"
+                                    ? "text-blue-600"
+                                    : "text-red-600"
+                                }
+                              >
+                                {option.label}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </div>
