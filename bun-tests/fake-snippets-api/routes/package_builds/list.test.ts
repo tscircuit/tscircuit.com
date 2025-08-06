@@ -2,7 +2,7 @@ import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-ser
 import { test, expect } from "bun:test"
 import defaultAxios from "redaxios"
 
-const createTestPackage = async (axios: typeof defaultAxios) => {
+export const createTestPackage = async (axios: typeof defaultAxios) => {
   const packageRes = await axios.post("/api/packages/create", {
     json: {
       name: "test-package",
@@ -12,7 +12,7 @@ const createTestPackage = async (axios: typeof defaultAxios) => {
   return packageRes.data
 }
 
-const createTestPackageRelease = async (
+export const createTestPackageRelease = async (
   axios: typeof defaultAxios,
   packageId: string,
 ) => {
@@ -24,40 +24,26 @@ const createTestPackageRelease = async (
   return releaseRes.data
 }
 
-const createTestPackageBuild = async (
-  axios: typeof defaultAxios,
-  packageReleaseId: string,
-) => {
-  const buildData = {
-    package_release_id: packageReleaseId,
-    status: "completed",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    build_logs: "Build completed successfully",
-    build_error: null,
-  }
-}
-
-test("GET /api/builds/list - requires package_id or package_release_id", async () => {
+test("GET /api/package_builds/list - requires package_id or package_release_id", async () => {
   const { jane_axios } = await getTestServer()
-  const res = await jane_axios.get("/api/builds/list", {
+  const res = await jane_axios.get("/api/package_builds/list", {
     validateStatus: () => true,
   })
   expect(res.status).toBe(400)
 })
 
-test("GET /api/builds/list - filters by package_id", async () => {
+test("GET /api/package_builds/list - filters by package_id", async () => {
   const { jane_axios } = await getTestServer()
   const packageRes = await createTestPackage(jane_axios)
   await createTestPackageRelease(jane_axios, packageRes.package.package_id)
   const res = await jane_axios.get(
-    `/api/builds/list?package_id=${packageRes.package.package_id}`,
+    `/api/package_builds/list?package_id=${packageRes.package.package_id}`,
   )
   expect(res.status).toBe(200)
   expect(Array.isArray(res.data.package_builds)).toBe(true)
 })
 
-test("GET /api/builds/list - filters by package_release_id", async () => {
+test("GET /api/package_builds/list - filters by package_release_id", async () => {
   const { jane_axios } = await getTestServer()
   const packageRes = await createTestPackage(jane_axios)
   const { package_release } = await createTestPackageRelease(
@@ -65,43 +51,43 @@ test("GET /api/builds/list - filters by package_release_id", async () => {
     packageRes.package.package_id,
   )
   const res = await jane_axios.get(
-    `/api/builds/list?package_release_id=${package_release.package_release_id}`,
+    `/api/package_builds/list?package_release_id=${package_release.package_release_id}`,
   )
   expect(res.status).toBe(200)
   expect(Array.isArray(res.data.package_builds)).toBe(true)
 })
 
-test("GET /api/builds/list - returns 404 for non-existent package", async () => {
+test("GET /api/package_builds/list - returns 404 for non-existent package", async () => {
   const { jane_axios } = await getTestServer()
   const res = await jane_axios.get(
-    "/api/builds/list?package_id=non-existent-package",
+    "/api/package_builds/list?package_id=non-existent-package",
     { validateStatus: () => true },
   )
   expect(res.status).toBe(404)
   expect(res.data.error.error_code).toBe("package_not_found")
 })
 
-test("GET /api/builds/list - returns 404 for non-existent package release", async () => {
+test("GET /api/package_builds/list - returns 404 for non-existent package release", async () => {
   const { jane_axios } = await getTestServer()
   const res = await jane_axios.get(
-    "/api/builds/list?package_release_id=non-existent-package",
+    "/api/package_builds/list?package_release_id=non-existent-package",
     { validateStatus: () => true },
   )
   expect(res.status).toBe(404)
   expect(res.data.error.error_code).toBe("package_release_not_found")
 })
 
-test("GET /api/builds/list - returns 403 for unauthorized package access", async () => {
+test("GET /api/package_builds/list - returns 403 for unauthorized package access", async () => {
   const { jane_axios, axios } = await getTestServer()
   const packageData = await createTestPackage(jane_axios)
   const res = await axios.get(
-    `/api/builds/list?package_id=${packageData.package.package_id}`,
+    `/api/package_builds/list?package_id=${packageData.package.package_id}`,
     { validateStatus: () => true },
   )
   expect(res.status).toBe(403)
 })
 
-test("GET /api/builds/list - returns created builds", async () => {
+test("GET /api/package_builds/list - returns created builds", async () => {
   const { axios, db } = await getTestServer()
   const { package: pkg } = await createTestPackage(axios)
   const { package_release } = await createTestPackageRelease(
@@ -145,13 +131,13 @@ test("GET /api/builds/list - returns created builds", async () => {
   })
 
   const res = await axios.get(
-    `/api/builds/list?package_id=${pkg.package_id}&include_logs=true`,
+    `/api/package_builds/list?package_id=${pkg.package_id}`,
   )
   expect(res.status).toBe(200)
   expect(res.data.package_builds.length).toBe(1)
 })
 
-test("GET /api/builds/list - sorts builds by created_at descending", async () => {
+test("GET /api/package_builds/list - sorts builds by created_at descending", async () => {
   const { axios, db } = await getTestServer()
   const { package: pkg } = await createTestPackage(axios)
   const { package_release } = await createTestPackageRelease(
@@ -229,7 +215,9 @@ test("GET /api/builds/list - sorts builds by created_at descending", async () =>
     commit_author: "john.doe",
   })
 
-  const res = await axios.get(`/api/builds/list?package_id=${pkg.package_id}`)
+  const res = await axios.get(
+    `/api/package_builds/list?package_id=${pkg.package_id}`,
+  )
   expect(res.status).toBe(200)
   expect(Array.isArray(res.data.package_builds)).toBe(true)
   expect(res.data.package_builds.length).toBe(2)
@@ -242,7 +230,7 @@ test("GET /api/builds/list - sorts builds by created_at descending", async () =>
   }
 })
 
-test("GET /api/builds/list - handles both package_id and package_release_id (package_release_id takes precedence)", async () => {
+test("GET /api/package_builds/list - handles both package_id and package_release_id (package_release_id takes precedence)", async () => {
   const { jane_axios } = await getTestServer()
   const packageRes = await createTestPackage(jane_axios)
   const { package_release } = await createTestPackageRelease(
@@ -250,13 +238,13 @@ test("GET /api/builds/list - handles both package_id and package_release_id (pac
     packageRes.package.package_id,
   )
   const res = await jane_axios.get(
-    `/api/builds/list?package_id=${packageRes.package.package_id}&package_release_id=${package_release.package_release_id}`,
+    `/api/package_builds/list?package_id=${packageRes.package.package_id}&package_release_id=${package_release.package_release_id}`,
   )
   expect(res.status).toBe(200)
   expect(Array.isArray(res.data.package_builds)).toBe(true)
 })
 
-test("GET /api/builds/list - returns created builds with logs or not", async () => {
+test("GET /api/package_builds/list - returns created builds with logs or not", async () => {
   const { axios, db } = await getTestServer()
   const { package: pkg } = await createTestPackage(axios)
   const { package_release } = await createTestPackageRelease(
@@ -304,7 +292,7 @@ test("GET /api/builds/list - returns created builds with logs or not", async () 
   })
 
   const resWithoutLogs = await axios.get(
-    `/api/builds/list?package_id=${pkg.package_id}`,
+    `/api/package_builds/list?package_id=${pkg.package_id}`,
   )
   expect(resWithoutLogs.status).toBe(200)
   expect(resWithoutLogs.data.package_builds.length).toBe(1)
@@ -312,20 +300,5 @@ test("GET /api/builds/list - returns created builds with logs or not", async () 
   expect(resWithoutLogs.data.package_builds[0].transpilation_logs).toEqual([])
   expect(resWithoutLogs.data.package_builds[0].circuit_json_build_logs).toEqual(
     [],
-  )
-
-  const resWithLogs = await axios.get(
-    `/api/builds/list?package_id=${pkg.package_id}&include_logs=true`,
-  )
-  expect(resWithLogs.status).toBe(200)
-  expect(resWithLogs.data.package_builds.length).toBe(1)
-  expect(resWithLogs.data.package_builds[0].build_logs).toEqual(
-    buildLogs.join(" "),
-  )
-  expect(resWithLogs.data.package_builds[0].transpilation_logs).toEqual(
-    transpilationLogs,
-  )
-  expect(resWithLogs.data.package_builds[0].circuit_json_build_logs).toEqual(
-    circuitJsonBuildLogs,
   )
 })

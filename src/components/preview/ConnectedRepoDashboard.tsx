@@ -10,15 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   Activity,
-  Settings,
   List,
   Github,
   MoreHorizontal,
   Zap,
   Clock,
   GitBranch,
-  Hash,
-  User,
   Eye,
 } from "lucide-react"
 import { useLocation } from "wouter"
@@ -26,22 +23,25 @@ import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import {
-  getBuildStatus,
-  PackageBuild,
-  MOCK_DEPLOYMENTS,
-  getPackageFromBuild,
-} from "."
+import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
+import {
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 
 export const ConnectedRepoDashboard = ({
   latestBuild,
+  pkg,
+  packageRelease,
 }: {
   latestBuild: PackageBuild
+  pkg: Package
+  packageRelease: PackageRelease
 }) => {
   const [activeTab, setActiveTab] = useState("overview")
   const [, setLocation] = useLocation()
-  const pkg = getPackageFromBuild(latestBuild)
   const handleSelectBuild = (build: PackageBuild) => {
     setLocation(`/build/${build.package_build_id}`)
     setActiveTab("overview")
@@ -115,7 +115,7 @@ export const ConnectedRepoDashboard = ({
                       <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>
                         <time dateTime={latestBuild.created_at}>
-                          Last deployed {formatTimeAgo(latestBuild.created_at)}
+                          Last built {formatTimeAgo(latestBuild.created_at)}
                         </time>
                       </span>
                     </div>
@@ -161,8 +161,8 @@ export const ConnectedRepoDashboard = ({
                   className="flex items-center gap-2 justify-center min-w-[120px] h-9 bg-black text-white"
                 >
                   <Zap className="w-4 h-4" />
-                  <span className="hidden sm:inline">Redeploy</span>
-                  <span className="sm:hidden">Redeploy</span>
+                  <span className="hidden sm:inline">Rebuild</span>
+                  <span className="sm:hidden">Rebuild</span>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -229,7 +229,13 @@ export const ConnectedRepoDashboard = ({
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              {latestBuild && <ConnectedRepoOverview build={latestBuild} />}
+              {latestBuild && (
+                <ConnectedRepoOverview
+                  build={latestBuild}
+                  pkg={pkg}
+                  packageRelease={packageRelease}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="builds" className="space-y-6">

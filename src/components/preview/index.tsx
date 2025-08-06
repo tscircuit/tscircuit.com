@@ -1,52 +1,31 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
 export { ConnectedRepoDashboard } from "./ConnectedRepoDashboard"
-
+import {
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
+import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 export const getBuildStatus = (build: PackageBuild) => {
   if (
-    build.build_error ||
-    build.transpilation_error ||
-    build.circuit_json_build_error
+    build?.build_error ||
+    build?.transpilation_error ||
+    build?.circuit_json_build_error
   ) {
     return { status: "error", label: "Failed" }
   }
   if (
-    build.build_in_progress ||
-    build.transpilation_in_progress ||
-    build.circuit_json_build_in_progress
+    build?.build_in_progress ||
+    build?.transpilation_in_progress ||
+    build?.circuit_json_build_in_progress
   ) {
     return { status: "building", label: "Building" }
   }
-  if (build.build_completed_at && build.transpilation_completed_at) {
+  if (build?.build_completed_at && build?.transpilation_completed_at) {
     return { status: "success", label: "Ready" }
   }
   return { status: "queued", label: "Queued" }
-}
-
-export interface PackageBuild {
-  package_build_id: string
-  package_release_id: string | null
-  created_at: string
-  transpilation_in_progress: boolean
-  transpilation_started_at: string | null
-  transpilation_completed_at: string | null
-  transpilation_logs: any[]
-  transpilation_error: string | null
-  circuit_json_build_in_progress: boolean
-  circuit_json_build_started_at: string | null
-  circuit_json_build_completed_at: string | null
-  circuit_json_build_logs: any[]
-  circuit_json_build_error: string | null
-  build_in_progress: boolean
-  build_started_at: string | null
-  build_completed_at: string | null
-  build_error: string | null
-  build_error_last_updated_at: string
-  preview_url: string | null
-  build_logs: string | null
-  branch_name: string | null
-  commit_message: string | null
-  commit_author: string | null
 }
 
 export const MOCK_DEPLOYMENTS: PackageBuild[] = [
@@ -191,8 +170,6 @@ export const MOCK_DEPLOYMENTS: PackageBuild[] = [
   },
 ]
 
-import { Package, PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 export const StatusIcon = ({ status }: { status: string }) => {
   switch (status) {
     case "success":
@@ -208,41 +185,4 @@ export const StatusIcon = ({ status }: { status: string }) => {
 
 export const getLatestBuildForPackage = (pkg: Package): PackageBuild => {
   return MOCK_DEPLOYMENTS[0]
-}
-export const getLatestBuildFromPackageRelease = (
-  pkg: PackageRelease,
-): PackageBuild => {
-  return MOCK_DEPLOYMENTS[0]
-}
-export const getPackageFromBuild = (build: PackageBuild): Package => {
-  return {
-    ai_description: "placeholder ai description",
-    ai_usage_instructions: "placeholder ai usage instructions",
-    created_at: "2025-08-06T14:37:05.802Z",
-    creator_account_id: "account-1234",
-    default_view: "files",
-    description: "placeholder ai description",
-    github_repo_full_name: "testuser/pcb-designs",
-    is_board: false,
-    is_footprint: false,
-    is_model: false,
-    is_package: false,
-    is_private: false,
-    is_public: true,
-    is_snippet: false,
-    is_source_from_github: false,
-    is_unlisted: false,
-    latest_package_release_fs_sha: "md5-425b47ef26be8f0863eca9e63e516dfa",
-    latest_package_release_id: "package_release_1754491026466",
-    latest_version: "0.0.1",
-    license: null,
-    name: "testuser/untitled-package-0",
-    owner_github_username: "testuser",
-    owner_org_id: "org-1234",
-    package_id: "package_1754491025802",
-    star_count: 0,
-    unscoped_name: "untitled-package-0",
-    updated_at: "2025-08-06T14:37:25.083Z",
-    website: "",
-  }
 }

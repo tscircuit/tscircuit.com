@@ -5,12 +5,9 @@ import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { BuildStatus, BuildStep } from "./build-status"
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
-import {
-  getBuildStatus,
-  getLatestBuildFromPackageRelease,
-  StatusIcon,
-} from "@/components/preview"
+import { getBuildStatus, StatusIcon } from "@/components/preview"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { useLatestPackageBuildByReleaseId } from "@/hooks/use-package-builds"
 
 function getTranspilationStatus(
   pr?: PackageRelease | null,
@@ -45,6 +42,9 @@ export default function SidebarReleasesSection() {
   const { data: packageRelease } = usePackageReleaseById(
     packageInfo?.latest_package_release_id,
   )
+  const { data: latestBuild } = useLatestPackageBuildByReleaseId(
+    packageRelease?.package_release_id,
+  )
 
   const buildSteps: BuildStep[] = [
     {
@@ -74,8 +74,9 @@ export default function SidebarReleasesSection() {
     )
   }
 
-  const latestBuild = getLatestBuildFromPackageRelease(packageRelease)
-  const { status, label } = getBuildStatus(latestBuild)
+  const { status, label } = latestBuild
+    ? getBuildStatus(latestBuild)
+    : { status: "pending", label: "pending" }
   return (
     <div className="mb-6">
       <h2 className="text-lg font-semibold mb-2">Releases</h2>

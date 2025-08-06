@@ -8,14 +8,13 @@ export default withRouteSpec({
   queryParams: z.object({
     package_id: z.string().optional(),
     package_release_id: z.string().optional(),
-    include_logs: z.string().optional().default("false"),
   }),
   jsonResponse: z.object({
     package_builds: z.array(z.any()),
   }),
 })(async (req, ctx) => {
-  const { package_id, package_release_id, include_logs } = req.query
-
+  const { package_id, package_release_id } = req.query
+  console.log(ctx.db.packageBuilds)
   if (!package_id && !package_release_id) {
     return ctx.error(400, {
       error_code: "invalid_request",
@@ -60,7 +59,7 @@ export default withRouteSpec({
     const packageReleases = ctx.db.packageReleases.filter(
       (x) => x.package_id === package_id,
     )
-    if (!packageReleases) {
+    if (packageReleases.length === 0) {
       return ctx.error(404, {
         error_code: "package_not_found",
         message: "Package not found",
@@ -89,7 +88,7 @@ export default withRouteSpec({
 
   const publicBuilds = builds.map((build) =>
     publicMapPackageBuild(build, {
-      include_logs: include_logs === "true",
+      include_logs: false,
     }),
   )
 

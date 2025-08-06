@@ -11,22 +11,30 @@ import {
   ChevronRight,
   User,
   Hash,
+  GitCommit,
 } from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getBuildStatus, PackageBuild, StatusIcon } from "."
+import { getBuildStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-
-interface ConnectedRepoOverviewProps {
-  build: PackageBuild
-}
+import {
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 
 export const ConnectedRepoOverview = ({
   build,
-}: ConnectedRepoOverviewProps) => {
+  pkg,
+  packageRelease,
+}: {
+  build: PackageBuild
+  pkg: Package
+  packageRelease: PackageRelease
+}) => {
   const { status, label } = getBuildStatus(build)
   const [openSections, setOpenSections] = useState({
     transpilation: false,
@@ -52,9 +60,9 @@ export const ConnectedRepoOverview = ({
   }
 
   const getStepStatus = (
-    error: string | null,
-    completed: string | null,
-    inProgress: boolean,
+    error?: string | null,
+    completed?: string | null,
+    inProgress?: boolean,
   ) => {
     if (error) return "error"
     if (completed) return "success"
@@ -63,8 +71,8 @@ export const ConnectedRepoOverview = ({
   }
 
   const getStepDuration = (
-    started: string | null,
-    completed: string | null,
+    started?: string | null,
+    completed?: string | null,
   ) => {
     if (started && completed) {
       const duration = Math.floor(
@@ -85,11 +93,13 @@ export const ConnectedRepoOverview = ({
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
                   <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
-                    Deployment {label}
+                    Build {label}
                   </h1>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  Created {formatTimeAgo(build.created_at)}
+                  <time dateTime={build.created_at}>
+                    Built {formatTimeAgo(build.created_at)}
+                  </time>
                 </p>
               </div>
             </div>
@@ -101,7 +111,7 @@ export const ConnectedRepoOverview = ({
                   onClick={() => window.open(build.preview_url!, "_blank")}
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Preview Deployment
+                  Preview Build
                 </Button>
               )}
             </div>
@@ -119,7 +129,7 @@ export const ConnectedRepoOverview = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => copyToClipboard(build.package_build_id)}
-                    className="group-hover:text-blue-500 rounded  transition-colors"
+                    className="group-hover:text-blue-500 rounded text-left transition-colors"
                   >
                     {build.package_build_id}
                   </button>
@@ -128,13 +138,21 @@ export const ConnectedRepoOverview = ({
             </div>
 
             <div className="flex items-center gap-3 group">
-              <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+              {packageRelease?.is_pr_preview ? (
+                <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+              ) : (
+                <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+              )}
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Branch
+                  {packageRelease?.is_pr_preview ? "PR" : "Branch"}
                 </p>
                 <a
-                  href={`https://github.com/tscircuit/tscircuit/tree/${build.branch_name || "main"}`}
+                  href={
+                    packageRelease?.is_pr_preview
+                      ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`
+                      : `https://github.com/${pkg.github_repo_full_name}/tree/${build.branch_name || "main"}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block"
@@ -143,7 +161,9 @@ export const ConnectedRepoOverview = ({
                     variant="outline"
                     className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
                   >
-                    {build.branch_name || "main"}
+                    {packageRelease?.is_pr_preview
+                      ? `#${packageRelease.github_pr_number}`
+                      : build?.branch_name || "main"}
                   </Badge>
                 </a>
               </div>
@@ -166,22 +186,20 @@ export const ConnectedRepoOverview = ({
               </div>
             </div>
 
-            {buildDuration && (
-              <div className="flex items-center gap-3 group">
-                <Clock className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">
-                    Duration
-                  </p>
-                  <p
-                    className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                    title={`Build started at ${build.build_started_at}`}
-                  >
-                    {buildDuration}s
-                  </p>
-                </div>
+            <div className="flex items-center gap-3 group">
+              <Clock className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide">
+                  Duration
+                </p>
+                <p
+                  className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
+                  title={`Build started at ${build.build_started_at}`}
+                >
+                  {buildDuration}s
+                </p>
               </div>
-            )}
+            </div>
           </div>
 
           {build.commit_message && (

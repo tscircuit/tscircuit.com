@@ -26,10 +26,12 @@ export const seed = (db: DbClient) => {
     loadAutoloadPackages(db)
   }
 
-  db.addSnippet({
+  const { package_release_id: packageReleaseId1 } = db.addSnippet({
     name: "testuser/my-test-board",
     unscoped_name: "my-test-board",
+    github_repo_full_name: "testuser/my-test-board",
     owner_name: "testuser",
+    creator_account_id: account_id,
     code: `
 import { A555Timer } from "@tsci/seveibar.a555timer"
 
@@ -536,6 +538,42 @@ export default () => (
     ],
   })
 
+  db.addPackageBuild({
+    package_release_id: packageReleaseId1,
+    created_at: new Date(Date.now() - 15000).toISOString(), // 15 seconds ago
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 15000).toISOString(),
+    transpilation_completed_at: new Date(Date.now() - 14000).toISOString(),
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[ERROR] Failed to parse TypeScript definitions",
+      "[ERROR] Invalid syntax in component declaration",
+    ],
+    transpilation_error:
+      "TypeScript compilation failed: Syntax error in component declaration",
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: null,
+    circuit_json_build_completed_at: null,
+    circuit_json_build_logs: [],
+    circuit_json_build_error: "Build cancelled due to transpilation failure",
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 15000).toISOString(),
+    build_completed_at: new Date(Date.now() - 14000).toISOString(),
+    build_error: "Build failed: Unable to complete transpilation step",
+    build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
+    preview_url: null,
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Dependency resolution - OK\n" +
+      "3. Code compilation - FAILED\n" +
+      "Error: Invalid syntax in component declaration\n" +
+      "Build terminated with errors",
+    branch_name: "main",
+    commit_message: "Attempted build of a555timer-square-wave package",
+    commit_author: "testuser",
+  })
   // Define the @tsci/seveibar.a555timer package
   db.addSnippet({
     name: "seveibar/a555timer",
@@ -1067,10 +1105,11 @@ exports.A555Timer = A555Timer;
 
   // Add a snippet that outputs a square waveform using the a555timer
 
-  db.addSnippet({
+  const { package_release_id: packageReleaseId2 } = db.addSnippet({
     name: "testuser/a555timer-square-wave",
     unscoped_name: "a555timer-square-wave",
     owner_name: "testuser",
+    creator_account_id: account_id,
     code: `
 import { A555Timer } from "@tsci/seveibar.a555timer"
 
@@ -1084,6 +1123,7 @@ export const SquareWaveModule = () => (
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     snippet_type: "package",
+    github_repo_full_name: "testuser/test",
     description:
       "A simple package that outputs a square waveform using the a555timer",
     circuit_json: [
@@ -1577,6 +1617,89 @@ export const SquareWaveModule = () => (
         footprinter_string: "dip8",
       },
     ],
+  })
+
+  // Add failed build first
+  db.addPackageBuild({
+    package_release_id: packageReleaseId2,
+    created_at: new Date(Date.now() - 15000).toISOString(), // 15 seconds ago
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 15000).toISOString(),
+    transpilation_completed_at: new Date(Date.now() - 14000).toISOString(),
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[ERROR] Failed to parse TypeScript definitions",
+      "[ERROR] Invalid syntax in component declaration",
+    ],
+    transpilation_error:
+      "TypeScript compilation failed: Syntax error in component declaration",
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: null,
+    circuit_json_build_completed_at: null,
+    circuit_json_build_logs: [],
+    circuit_json_build_error: "Build cancelled due to transpilation failure",
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 15000).toISOString(),
+    build_completed_at: new Date(Date.now() - 14000).toISOString(),
+    build_error: "Build failed: Unable to complete transpilation step",
+    build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
+    preview_url: null,
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Dependency resolution - OK\n" +
+      "3. Code compilation - FAILED\n" +
+      "Error: Invalid syntax in component declaration\n" +
+      "Build terminated with errors",
+    branch_name: "main",
+    commit_message: "Attempted build of a555timer-square-wave package",
+    commit_author: "testuser",
+  })
+
+  // Add successful build
+  db.addPackageBuild({
+    package_release_id: packageReleaseId2,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(), // Started 5 seconds ago
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(), // Completed 3 seconds ago
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[INFO] Generating TypeScript definitions",
+      "[INFO] Compiling to JavaScript",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(), // Started after transpilation
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(), // Completed 1 second ago
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[INFO] Analyzing component structure",
+      "[INFO] Generating port configurations",
+      "[INFO] Validating circuit connections",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(), // Started 10 seconds ago
+    build_completed_at: new Date().toISOString(), // Just completed
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    preview_url: "http://localhost:3000/preview/package_build_1",
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Dependency resolution - OK\n" +
+      "3. Code compilation - OK\n" +
+      "4. Circuit validation - OK\n" +
+      "5. Package assembly - OK\n" +
+      "Build completed successfully",
+    branch_name: "main",
+    commit_message: "Initial build of a555timer-square-wave package",
+    commit_author: "testuser",
   })
 
   db.addOrder({

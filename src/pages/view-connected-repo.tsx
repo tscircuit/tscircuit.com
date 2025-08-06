@@ -1,18 +1,49 @@
 import { useParams } from "wouter"
 import NotFoundPage from "./404"
-import { ConnectedRepoDashboard, MOCK_DEPLOYMENTS } from "@/components/preview"
+import { ConnectedRepoDashboard } from "@/components/preview"
+import { usePackageBuild } from "@/hooks/use-package-builds"
+import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { usePackageById } from "@/hooks/use-package-by-package-id"
 
 export default function ViewConnectedRepoOverview() {
   const params = useParams<{ buildId: string }>()
-  const buildId = params?.buildId || null
+  const {
+    data: packageBuild,
+    isLoading: isLoadingBuild,
+    error: buildError,
+  } = usePackageBuild(params?.buildId)
+  const {
+    data: packageRelease,
+    isLoading: isLoadingRelease,
+    error: releaseError,
+  } = usePackageReleaseById(packageBuild?.package_release_id)
+  const {
+    data: buildPackage,
+    isLoading: isLoadingPackage,
+    error: packageError,
+  } = usePackageById(String(packageRelease?.package_id))
 
-  const selectedBuild = buildId
-    ? MOCK_DEPLOYMENTS.find((d) => d.package_build_id === buildId)
-    : MOCK_DEPLOYMENTS[0]
+  if (isLoadingBuild || isLoadingRelease || isLoadingPackage) {
+    return null
+  }
 
-  if (!selectedBuild) {
+  if (buildError?.status === 404 || !packageBuild) {
     return <NotFoundPage heading="Build Not Found" />
   }
 
-  return <ConnectedRepoDashboard latestBuild={selectedBuild} />
+  if (releaseError?.status === 404 || !packageRelease) {
+    return <NotFoundPage heading="Package Release Not Found" />
+  }
+
+  if (packageError?.status === 404 || !buildPackage) {
+    return <NotFoundPage heading="Package Not Found" />
+  }
+
+  return (
+    <ConnectedRepoDashboard
+      latestBuild={packageBuild}
+      pkg={buildPackage}
+      packageRelease={packageRelease}
+    />
+  )
 }
