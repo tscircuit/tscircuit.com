@@ -200,6 +200,7 @@ const MobileSidebar = ({
       </div>
       {packageInfo && (
         <EditPackageDetailsDialog
+          currentAllowPrPreviews={packageInfo.allow_pr_previews}
           packageReleaseId={packageInfo.latest_package_release_id}
           packageId={packageInfo.package_id}
           currentDescription={

@@ -18,6 +18,7 @@ interface PackageDetailsForm {
   defaultView: string
   githubRepoFullName: string | null
   unscopedPackageName: string
+  allowPrPreviews?: boolean
 }
 
 interface UsePackageDetailsFormProps {
@@ -29,6 +30,7 @@ interface UsePackageDetailsFormProps {
   initialUnscopedPackageName: string
   initialGithubRepoFullName: string | null
   isDialogOpen: boolean
+  initialAllowPrPreviews?: boolean
 }
 
 export const usePackageDetailsForm = ({
@@ -40,6 +42,7 @@ export const usePackageDetailsForm = ({
   initialUnscopedPackageName,
   initialGithubRepoFullName,
   isDialogOpen,
+  initialAllowPrPreviews,
 }: UsePackageDetailsFormProps) => {
   const [formData, setFormData] = useState<PackageDetailsForm>({
     description: initialDescription,
@@ -62,6 +65,7 @@ export const usePackageDetailsForm = ({
         githubRepoFullName: initialGithubRepoFullName,
         defaultView: initialDefaultView,
         unscopedPackageName: initialUnscopedPackageName,
+        allowPrPreviews: initialAllowPrPreviews,
       })
       setWebsiteError(null)
     }
@@ -98,6 +102,11 @@ export const usePackageDetailsForm = ({
     [formData.defaultView, initialDefaultView],
   )
 
+  const hasAllowPrPreviewsChanged = useMemo(
+    () => formData.allowPrPreviews !== initialAllowPrPreviews,
+    [formData.allowPrPreviews, initialAllowPrPreviews],
+  )
+
   const hasChanges = useMemo(
     () =>
       formData.description !== initialDescription ||
@@ -106,7 +115,8 @@ export const usePackageDetailsForm = ({
       formData.visibility !== initialVisibility ||
       formData.defaultView !== initialDefaultView ||
       formData.githubRepoFullName !== initialGithubRepoFullName ||
-      formData.unscopedPackageName !== initialUnscopedPackageName,
+      formData.unscopedPackageName !== initialUnscopedPackageName ||
+      formData.allowPrPreviews !== initialAllowPrPreviews,
     [
       formData,
       initialDescription,
@@ -116,6 +126,7 @@ export const usePackageDetailsForm = ({
       initialDefaultView,
       initialGithubRepoFullName,
       initialUnscopedPackageName,
+      initialAllowPrPreviews,
     ],
   )
 
@@ -128,6 +139,7 @@ export const usePackageDetailsForm = ({
     hasLicenseChanged,
     hasVisibilityChanged,
     hasDefaultViewChanged,
+    hasAllowPrPreviewsChanged,
     hasChanges,
     isFormValid,
   }

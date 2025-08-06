@@ -24,6 +24,8 @@ export const publicMapPackageRelease = (
     circuit_json_build_logs: options.include_logs
       ? internal_package_release.circuit_json_build_logs
       : [],
+    is_pr_preview: Boolean(internal_package_release.is_pr_preview),
+    github_pr_number: internal_package_release.github_pr_number,
   }
 
   if (options.include_ai_review && options.db) {

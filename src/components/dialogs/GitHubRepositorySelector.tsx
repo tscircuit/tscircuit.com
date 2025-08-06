@@ -19,9 +19,8 @@ interface GitHubRepositorySelectorProps {
   setSelectedRepository?: (value: string | null) => void
   disabled?: boolean
   open?: boolean
-  addFormContent?: (data: {
-    enablePrPreview?: boolean
-    privateBuild?: boolean
+  addFormContent?: (props: {
+    allowPrPreviews?: boolean
   }) => void
   formData?: any
 }
@@ -137,28 +136,6 @@ export const GitHubRepositorySelector = ({
 
       {initialValue && selectedRepository !== "unlink//repo" && (
         <div className="space-y-4 mt-4 p-4 border rounded-lg bg-gray-50">
-          <h4 className="text-sm font-medium text-gray-900">
-            Repository Settings
-          </h4>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Private Build</Label>
-              <p className="text-xs text-gray-500">
-                Keep build previews private
-              </p>
-            </div>
-            <Switch
-              checked={formData?.privateBuild}
-              onCheckedChange={(checked) =>
-                addFormContent?.({
-                  privateBuild: checked,
-                })
-              }
-              disabled={disabled}
-            />
-          </div>
-
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">Enable PR Preview</Label>
@@ -167,10 +144,10 @@ export const GitHubRepositorySelector = ({
               </p>
             </div>
             <Switch
-              checked={formData?.enablePrPreview}
+              checked={formData?.allowPrPreviews}
               onCheckedChange={(checked) =>
                 addFormContent?.({
-                  enablePrPreview: checked,
+                  allowPrPreviews: checked,
                 })
               }
               disabled={disabled}

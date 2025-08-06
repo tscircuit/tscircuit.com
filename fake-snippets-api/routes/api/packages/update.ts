@@ -22,6 +22,7 @@ export default withRouteSpec({
       is_private: z.boolean().optional(),
       is_unlisted: z.boolean().optional(),
       default_view: z.enum(["files", "3d", "pcb", "schematic"]).optional(),
+      allow_pr_previews: z.boolean().optional(),
     })
     .transform((data) => ({
       ...data,
@@ -41,6 +42,7 @@ export default withRouteSpec({
     is_unlisted,
     github_repo_full_name,
     default_view,
+    allow_pr_previews,
   } = req.jsonBody
 
   const packageIndex = ctx.db.packages.findIndex(
@@ -93,6 +95,7 @@ export default withRouteSpec({
     is_unlisted: is_unlisted ?? existingPackage.is_unlisted,
     default_view: default_view ?? existingPackage.default_view,
     updated_at: new Date().toISOString(),
+    allow_pr_previews: allow_pr_previews ?? existingPackage.allow_pr_previews,
   })
 
   if (!updatedPackage) {
