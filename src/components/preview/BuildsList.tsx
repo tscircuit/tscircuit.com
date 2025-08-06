@@ -25,15 +25,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getBuildStatus, PackageBuild, StatusIcon } from "."
+import { getBuildStatus, MOCK_DEPLOYMENTS, PackageBuild, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
-interface BuildsListProps {
-  builds: PackageBuild[]
+export const BuildsList = ({
+  pkg,
+  onSelectBuild,
+}: {
+  pkg: Package
   onSelectBuild?: (build: PackageBuild) => void
-}
-
-export const BuildsList = ({ builds, onSelectBuild }: BuildsListProps) => {
+}) => {
+  const builds = MOCK_DEPLOYMENTS
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -41,10 +44,6 @@ export const BuildsList = ({ builds, onSelectBuild }: BuildsListProps) => {
           <h2 className="text-2xl font-bold text-gray-900">Builds</h2>
           <p className="text-gray-600">Manage and monitor your builds</p>
         </div>
-        <Button className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Create Build
-        </Button>
       </div>
 
       <Card>
@@ -139,11 +138,15 @@ export const BuildsList = ({ builds, onSelectBuild }: BuildsListProps) => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>View Logs</DropdownMenuItem>
-                              <DropdownMenuItem>Redeploy</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
-                                Cancel
+                              <DropdownMenuItem
+                                onClick={() => onSelectBuild?.(build)}
+                              >
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => onSelectBuild?.(build)}
+                              >
+                                View Logs
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -201,7 +204,7 @@ export const BuildsList = ({ builds, onSelectBuild }: BuildsListProps) => {
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Loader2 className="w-5 h-5 text-blue-600" />
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Building</p>

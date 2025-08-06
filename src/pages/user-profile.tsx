@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select"
 import { Box, Star } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
-import { ConnectedReposCards } from "@/components/preview/ConnectedReposCards"
+import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesList"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
@@ -101,7 +101,6 @@ export const UserProfilePage = () => {
   if (accountError) {
     return <NotFoundPage heading="User Not Found" />
   }
-
   const packagesToShow =
     activeTab === "starred" ? starredPackages : userPackages
   const isLoading =
@@ -179,9 +178,13 @@ export const UserProfilePage = () => {
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
-            {isCurrentUserProfile && (
-              <TabsTrigger value="repos">Connected Repositories</TabsTrigger>
-            )}
+            {isCurrentUserProfile &&
+              (
+                userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
+                []
+              ).length > 0 && (
+                <TabsTrigger value="repos">Connected Repositories</TabsTrigger>
+              )}
           </TabsList>
         </Tabs>
         {activeTab !== "repos" && (
@@ -208,7 +211,12 @@ export const UserProfilePage = () => {
           </div>
         )}
         {activeTab === "repos" ? (
-          <ConnectedReposCards user={String(githubUsername)} />
+          <ConnectedPackagesList
+            packages={
+              userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
+              []
+            }
+          />
         ) : isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (

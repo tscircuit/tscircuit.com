@@ -14,11 +14,5 @@ export default function ViewConnectedRepoOverview() {
     return <NotFoundPage heading="Build Not Found" />
   }
 
-  return (
-    <ConnectedRepoDashboard
-      projectName="tscircuit-project"
-      builds={MOCK_DEPLOYMENTS}
-      selectedBuild={selectedBuild}
-    />
-  )
+  return <ConnectedRepoDashboard latestBuild={selectedBuild} />
 }
