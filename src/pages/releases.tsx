@@ -1,45 +1,39 @@
 import { useParams } from "wouter"
 import NotFoundPage from "./404"
-import { usePackageBuild } from "@/hooks/use-package-builds"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
-import { usePackageById } from "@/hooks/use-package-by-package-id"
+import { useLatestPackageBuildByPackageId } from "@/hooks/use-package-builds"
+import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { PackageReleasesDashboard } from "@/components/preview/PackageReleasesDashboard"
 
-export default function ViewConnectedRepoOverview() {
-  const params = useParams<{ buildId: string }>()
+export default function ReleasesPage() {
+  const params = useParams<{ author: string; packageName: string }>()
+  const packageName =
+    params?.author && params?.packageName
+      ? `${params.author}/${params.packageName}`
+      : null
+
   const {
-    data: packageBuild,
-    isLoading: isLoadingBuild,
-    error: buildError,
-  } = usePackageBuild(params?.buildId)
-  const {
-    data: packageRelease,
-    isLoading: isLoadingRelease,
-    error: releaseError,
-  } = usePackageReleaseById(packageBuild?.package_release_id)
-  const {
-    data: buildPackage,
+    data: pkg,
     isLoading: isLoadingPackage,
     error: packageError,
-  } = usePackageById(String(packageRelease?.package_id))
+  } = usePackageByName(packageName)
 
-  if (isLoadingBuild || isLoadingRelease || isLoadingPackage) {
+  const {
+    data: latestBuild,
+    isLoading: isLoadingBuild,
+    error: buildError,
+  } = useLatestPackageBuildByPackageId(pkg?.package_id ?? null)
+
+  if (isLoadingPackage || isLoadingBuild) {
     return null
   }
 
-  if (buildError?.status === 404 || !packageBuild) {
-    return <NotFoundPage heading="Build Not Found" />
-  }
-
-  if (releaseError?.status === 404 || !packageRelease) {
-    return <NotFoundPage heading="Package Release Not Found" />
-  }
-
-  if (packageError?.status === 404 || !buildPackage) {
+  if (packageError?.status === 404 || !pkg) {
     return <NotFoundPage heading="Package Not Found" />
   }
 
-  return (
-    <PackageReleasesDashboard latestBuild={packageBuild} pkg={buildPackage} />
-  )
+  if (buildError?.status === 404 || !latestBuild) {
+    return <NotFoundPage heading="No Builds Found" />
+  }
+
+  return <PackageReleasesDashboard latestBuild={latestBuild} pkg={pkg} />
 }

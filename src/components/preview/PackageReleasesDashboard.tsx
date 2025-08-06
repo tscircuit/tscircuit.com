@@ -11,13 +11,13 @@ import {
 import {
   Activity,
   List,
-  Github,
   MoreHorizontal,
   Zap,
   Clock,
   GitBranch,
   Eye,
 } from "lucide-react"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { useLocation } from "wouter"
 import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 import { BuildsList } from "./BuildsList"
@@ -25,11 +25,8 @@ import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
-import {
-  Package,
-  PackageBuild,
-  PackageRelease,
-} from "fake-snippets-api/lib/db/schema"
+import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+import { usePackageReleaseById } from "@/hooks/use-package-release"
 
 export const PackageReleasesDashboard = ({
   latestBuild,
@@ -45,8 +42,8 @@ export const PackageReleasesDashboard = ({
     setActiveTab("overview")
   }
   const { status, label } = getBuildStatus(latestBuild)
-  const { data: packageReleases } = usePackageReleasesByPackageId(
-    pkg.package_id,
+  const { data: packageRelease } = usePackageReleaseById(
+    latestBuild?.package_release_id,
   )
 
   return (
@@ -136,7 +133,7 @@ export const PackageReleasesDashboard = ({
                     )
                   }
                 >
-                  <Github className="w-4 h-4" />
+                  <GitHubLogoIcon className="w-4 h-4" />
                   <span className="hidden sm:inline">Repository</span>
                   <span className="sm:hidden">Repository</span>
                 </Button>
@@ -230,7 +227,7 @@ export const PackageReleasesDashboard = ({
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              {latestBuild && (
+              {latestBuild && packageRelease && (
                 <ConnectedRepoOverview
                   build={latestBuild}
                   pkg={pkg}
