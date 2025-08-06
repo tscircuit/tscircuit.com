@@ -80,6 +80,8 @@ const PackageEditorPage = lazyImport(async () => {
   return editorModule
 })
 const ReleasesPage = lazyImport(() => import("@/pages/releases"))
+const ReleaseDetailPage = lazyImport(() => import("@/pages/release-detail"))
+const ReleaseBuildsPage = lazyImport(() => import("@/pages/release-builds"))
 const PreviewBuildPage = lazyImport(() => import("@/pages/preview-build"))
 
 class ErrorBoundary extends React.Component<
@@ -256,6 +258,14 @@ function App() {
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
+            <Route
+              path="/:author/:packageName/release/:releaseId/builds"
+              component={ReleaseBuildsPage}
+            />
+            <Route
+              path="/:author/:packageName/release/:releaseId"
+              component={ReleaseDetailPage}
+            />
             <Route
               path="/:author/:packageName/releases"
               component={ReleasesPage}

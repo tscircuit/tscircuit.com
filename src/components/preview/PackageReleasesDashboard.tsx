@@ -1,32 +1,20 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Activity,
-  List,
-  MoreHorizontal,
-  Zap,
-  Clock,
-  GitBranch,
-  Eye,
-} from "lucide-react"
+import { MoreHorizontal, Clock, GitBranch, Eye } from "lucide-react"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { useLocation } from "wouter"
-import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
 import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
 
 export const PackageReleasesDashboard = ({
   latestBuild,
@@ -35,16 +23,8 @@ export const PackageReleasesDashboard = ({
   latestBuild: PackageBuild
   pkg: Package
 }) => {
-  const [activeTab, setActiveTab] = useState("overview")
   const [, setLocation] = useLocation()
-  const handleSelectBuild = (build: PackageBuild) => {
-    setLocation(`/build/${build.package_build_id}`)
-    setActiveTab("overview")
-  }
   const { status, label } = getBuildStatus(latestBuild)
-  const { data: packageRelease } = usePackageReleaseById(
-    latestBuild?.package_release_id,
-  )
 
   return (
     <>
@@ -154,14 +134,6 @@ export const PackageReleasesDashboard = ({
                     <span className="sm:hidden">Preview</span>
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 justify-center min-w-[120px] h-9 bg-black text-white"
-                >
-                  <Zap className="w-4 h-4" />
-                  <span className="hidden sm:inline">Rebuild</span>
-                  <span className="sm:hidden">Rebuild</span>
-                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -210,36 +182,12 @@ export const PackageReleasesDashboard = ({
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="builds" className="flex items-center gap-2">
-                <List className="w-4 h-4" />
-                Builds
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              {latestBuild && packageRelease && (
-                <ConnectedRepoOverview
-                  build={latestBuild}
-                  pkg={pkg}
-                  packageRelease={packageRelease}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="builds" className="space-y-6">
-              <BuildsList pkg={pkg} onSelectBuild={handleSelectBuild} />
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">Releases</h2>
+            </div>
+            <BuildsList pkg={pkg} />
+          </div>
         </div>
       </div>
     </>

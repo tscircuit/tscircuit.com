@@ -27,64 +27,48 @@ import {
 } from "@/components/ui/table"
 import { getBuildStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
-import { usePackageBuilds } from "@/hooks/use-package-builds"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { Package } from "fake-snippets-api/lib/db/schema"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 
-export const BuildsList = ({
-  pkg,
-  onSelectBuild,
-}: {
-  pkg: Package
-  onSelectBuild?: (build: PackageBuild) => void
-}) => {
-  const { data: builds, isLoading } = usePackageBuilds({
-    package_id: pkg.package_id,
-  })
+export const BuildsList = ({ pkg }: { pkg: Package }) => {
+  const { data: releases, isLoading: isLoadingReleases } =
+    usePackageReleasesByPackageId(pkg.package_id)
   const axios = useAxios()
 
-  const uniqueReleaseIds = [
-    ...new Set(
-      builds?.map((build) => build.package_release_id).filter(Boolean) || [],
-    ),
-  ]
-
-  const packageReleaseQueries = useQueries(
-    uniqueReleaseIds.map((releaseId) => ({
-      queryKey: ["packageRelease", { package_release_id: releaseId }],
+  // Get the latest build for each release to show status
+  const latestBuildQueries = useQueries(
+    (releases || []).map((release) => ({
+      queryKey: ["latestBuildByRelease", release.package_release_id],
       queryFn: async () => {
-        const { data } = await axios.post("/package_releases/get", {
-          package_release_id: releaseId,
+        const { data } = await axios.get("/package_builds/latest", {
+          params: { package_release_id: release.package_release_id },
         })
-        return data.package_release
+        return data.package_build
       },
-      enabled: Boolean(releaseId),
+      enabled: Boolean(release.package_release_id),
       retry: false,
       refetchOnWindowFocus: false,
     })),
   )
 
-  const packageReleasesMap = new Map()
-  packageReleaseQueries.forEach((query, index) => {
-    if (query.data) {
-      packageReleasesMap.set(uniqueReleaseIds[index], query.data)
+  const isLoading =
+    isLoadingReleases || latestBuildQueries.some((q) => q.isLoading)
+
+  // Create a map of release ID to latest build for easy access
+  const latestBuildsMap = new Map()
+  latestBuildQueries.forEach((query, index) => {
+    if (query.data && releases?.[index]) {
+      latestBuildsMap.set(releases[index].package_release_id, query.data)
     }
   })
   return (
     <>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Builds</h2>
-            <p className="text-gray-600">Manage and monitor your builds</p>
-          </div>
-        </div>
-
         <Card>
           <CardHeader>
-            <CardTitle>Recent Deployments</CardTitle>
+            <CardTitle>Recent Releases</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto [&>div]:no-scrollbar">
@@ -92,10 +76,10 @@ export const BuildsList = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Status</TableHead>
-                    <TableHead>Build ID</TableHead>
+                    <TableHead>Release ID</TableHead>
+                    <TableHead>Version</TableHead>
                     <TableHead>Branch/PR</TableHead>
-                    <TableHead>Commit</TableHead>
-                    <TableHead>Author</TableHead>
+                    <TableHead>Latest Build</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -127,16 +111,20 @@ export const BuildsList = ({
                           </TableCell>
                         </TableRow>
                       ))
-                    : builds?.map((build) => {
-                        const { status, label } = getBuildStatus(build)
-                        const packageRelease = packageReleasesMap.get(
-                          build.package_release_id,
+                    : releases?.map((release) => {
+                        const latestBuild = latestBuildsMap.get(
+                          release.package_release_id,
                         )
+                        const { status, label } = latestBuild
+                          ? getBuildStatus(latestBuild)
+                          : { status: "unknown", label: "No builds" }
                         return (
                           <TableRow
-                            key={build.package_build_id}
+                            key={release.package_release_id}
                             className="cursor-pointer hover:bg-gray-50 no-scrollbar"
-                            onClick={() => onSelectBuild?.(build)}
+                            onClick={() => {
+                              window.location.href = `/${pkg.name}/release/${release.package_release_id}`
+                            }}
                           >
                             <TableCell>
                               <div className="flex items-center gap-2">
@@ -157,38 +145,45 @@ export const BuildsList = ({
                             </TableCell>
                             <TableCell>
                               <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                                {build.package_build_id.slice(-8)}
+                                {release.package_release_id.slice(-8)}
                               </code>
                             </TableCell>
                             <TableCell>
+                              <span className="text-sm font-medium">
+                                {release.version ||
+                                  "v" + release.package_release_id.slice(-6)}
+                              </span>
+                            </TableCell>
+                            <TableCell>
                               <div className="flex items-center gap-2">
-                                {packageRelease?.is_pr_preview ? (
+                                {release.is_pr_preview ? (
                                   <GitBranch className="w-3 h-3 text-gray-500" />
                                 ) : (
                                   <GitCommit className="w-3 h-3 text-gray-500" />
                                 )}
                                 <Badge variant="outline" className="text-xs">
-                                  {packageRelease?.is_pr_preview
-                                    ? `#${packageRelease.github_pr_number}`
-                                    : packageRelease?.branch_name || "main"}
+                                  {release.is_pr_preview
+                                    ? `#${release.github_pr_number}`
+                                    : "main"}
                                 </Badge>
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="max-w-xs">
-                                <p className="text-sm font-medium truncate">
-                                  {build.commit_message || "No commit message"}
-                                </p>
+                                {latestBuild ? (
+                                  <p className="text-sm text-gray-600">
+                                    {formatTimeAgo(latestBuild.created_at)}
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-gray-400">
+                                    No builds
+                                  </p>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>
                               <span className="text-sm text-gray-600">
-                                {build.commit_author || "Unknown"}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-gray-600">
-                                {formatTimeAgo(build.created_at)}
+                                {formatTimeAgo(release.created_at)}
                               </span>
                             </TableCell>
                             <TableCell>
@@ -205,14 +200,18 @@ export const BuildsList = ({
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem
-                                      onClick={() => onSelectBuild?.(build)}
+                                      onClick={() => {
+                                        window.location.href = `/${pkg.name}/release/${release.package_release_id}`
+                                      }}
                                     >
-                                      View Details
+                                      View Release
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                      onClick={() => onSelectBuild?.(build)}
+                                      onClick={() => {
+                                        window.location.href = `/${pkg.name}/release/${release.package_release_id}/builds`
+                                      }}
                                     >
-                                      View Logs
+                                      View All Builds
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -240,9 +239,15 @@ export const BuildsList = ({
                     <Skeleton className="h-8 w-8" />
                   ) : (
                     <p className="text-2xl font-bold text-gray-900">
-                      {builds?.filter(
-                        (d) => getBuildStatus(d).status === "success",
-                      ).length || 0}
+                      {releases?.filter((release) => {
+                        const latestBuild = latestBuildsMap.get(
+                          release.package_release_id,
+                        )
+                        return (
+                          latestBuild &&
+                          getBuildStatus(latestBuild).status === "success"
+                        )
+                      }).length || 0}
                     </p>
                   )}
                 </div>
@@ -262,9 +267,15 @@ export const BuildsList = ({
                     <Skeleton className="h-8 w-8" />
                   ) : (
                     <p className="text-2xl font-bold text-gray-900">
-                      {builds?.filter(
-                        (d) => getBuildStatus(d).status === "error",
-                      ).length || 0}
+                      {releases?.filter((release) => {
+                        const latestBuild = latestBuildsMap.get(
+                          release.package_release_id,
+                        )
+                        return (
+                          latestBuild &&
+                          getBuildStatus(latestBuild).status === "error"
+                        )
+                      }).length || 0}
                     </p>
                   )}
                 </div>
@@ -284,9 +295,15 @@ export const BuildsList = ({
                     <Skeleton className="h-8 w-8" />
                   ) : (
                     <p className="text-2xl font-bold text-gray-900">
-                      {builds?.filter(
-                        (d) => getBuildStatus(d).status === "building",
-                      ).length || 0}
+                      {releases?.filter((release) => {
+                        const latestBuild = latestBuildsMap.get(
+                          release.package_release_id,
+                        )
+                        return (
+                          latestBuild &&
+                          getBuildStatus(latestBuild).status === "building"
+                        )
+                      }).length || 0}
                     </p>
                   )}
                 </div>
@@ -306,7 +323,7 @@ export const BuildsList = ({
                     <Skeleton className="h-8 w-8" />
                   ) : (
                     <p className="text-2xl font-bold text-gray-900">
-                      {builds?.length || 0}
+                      {releases?.length || 0}
                     </p>
                   )}
                 </div>
