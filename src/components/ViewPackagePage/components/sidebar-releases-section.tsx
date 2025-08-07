@@ -79,12 +79,22 @@ export default function SidebarReleasesSection() {
     : { status: "pending", label: "pending" }
   return (
     <div className="mb-6">
-      <h2 className="text-lg font-semibold mb-2">Releases</h2>
+      <h2 className="text-lg font-semibold mb-2">
+        <PrefetchPageLink
+          href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
+          className="hover:underline"
+        >
+          Releases
+        </PrefetchPageLink>
+      </h2>
       <div className="flex flex-col space-y-2">
-        <div className="flex items-center">
+        <PrefetchPageLink
+          href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
+          className="flex items-center hover:underline"
+        >
           <Tag className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
           <span className="text-sm font-medium">v{packageRelease.version}</span>
-        </div>
+        </PrefetchPageLink>
         <div className="flex items-center">
           <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
           <span className="text-sm text-gray-500 dark:text-[#8b949e]">
@@ -104,7 +114,7 @@ export default function SidebarReleasesSection() {
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8b949e]"
           >
             <StatusIcon status={status} />
-            <span>Package preview {label}</span>
+            <span>Package Preview {label}</span>
           </PrefetchPageLink>
         )}
       </div>

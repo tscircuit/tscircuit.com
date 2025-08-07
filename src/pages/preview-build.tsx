@@ -7,7 +7,7 @@ import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import NotFoundPage from "./404"
-import { getBuildStatus, MOCK_DEPLOYMENTS } from "@/components/preview"
+import { getBuildStatus, MOCK_PACKAGE_BUILDS } from "@/components/preview"
 
 const MOCK_DEPLOYMENT_FILES: Record<
   string,
@@ -189,8 +189,8 @@ export default function PreviewBuildPage() {
   const buildFsMap = getBuildFsMap(buildId)
 
   const build = buildId
-    ? MOCK_DEPLOYMENTS.find((d) => d.package_build_id === buildId)
-    : MOCK_DEPLOYMENTS[0]
+    ? MOCK_PACKAGE_BUILDS.find((d) => d.package_build_id === buildId)
+    : MOCK_PACKAGE_BUILDS[0]
 
   if (!build) {
     return <NotFoundPage heading="Build Not Found" />

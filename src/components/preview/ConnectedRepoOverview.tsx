@@ -111,7 +111,7 @@ export const ConnectedRepoOverview = ({
                   onClick={() => window.open(build.preview_url!, "_blank")}
                 >
                   <ExternalLink className="w-3 h-3" />
-                  Preview Build
+                  Preview
                 </Button>
               )}
             </div>
@@ -216,7 +216,17 @@ export const ConnectedRepoOverview = ({
       </div>
 
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Logs</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Latest Build Logs
+          </h2>
+          <a
+            href={`/${pkg.name.split("/")[0]}/${pkg.name.split("/")[1]}/release/${packageRelease.package_release_id}/builds`}
+            className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            (previous builds)
+          </a>
+        </div>
 
         <Collapsible
           open={openSections.transpilation}

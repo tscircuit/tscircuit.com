@@ -1,57 +1,44 @@
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Activity,
-  List,
-  Github,
-  MoreHorizontal,
-  Zap,
-  Clock,
-  GitBranch,
-  Eye,
-} from "lucide-react"
+import { MoreHorizontal, Clock, GitBranch, Eye } from "lucide-react"
+import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { useLocation } from "wouter"
-import { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
-import {
-  Package,
-  PackageBuild,
-  PackageRelease,
-} from "fake-snippets-api/lib/db/schema"
+import { PackageBreadcrumb } from "../PackageBreadcrumb"
+import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
 
-export const ConnectedRepoDashboard = ({
+export const PackageReleasesDashboard = ({
   latestBuild,
   pkg,
-  packageRelease,
 }: {
   latestBuild: PackageBuild
   pkg: Package
-  packageRelease: PackageRelease
 }) => {
-  const [activeTab, setActiveTab] = useState("overview")
   const [, setLocation] = useLocation()
-  const handleSelectBuild = (build: PackageBuild) => {
-    setLocation(`/build/${build.package_build_id}`)
-    setActiveTab("overview")
-  }
   const { status, label } = getBuildStatus(latestBuild)
 
   return (
     <>
       <Header />
       <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <PackageBreadcrumb
+            author={pkg.name.split("/")[0]}
+            packageName={pkg.name}
+            unscopedName={pkg.unscoped_name}
+            currentPage="releases"
+          />
+        </div>
         {/* Project Header */}
         <div className="bg-gray-50 border-b md:py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -70,7 +57,7 @@ export const ConnectedRepoDashboard = ({
                       href={"/" + pkg.name}
                       className="text-2xl font-bold text-gray-900 truncate"
                     >
-                      {pkg.unscoped_name}
+                      {pkg.name}
                     </PrefetchPageLink>
                     <Badge
                       variant={
@@ -135,7 +122,7 @@ export const ConnectedRepoDashboard = ({
                     )
                   }
                 >
-                  <Github className="w-4 h-4" />
+                  <GitHubLogoIcon className="w-4 h-4" />
                   <span className="hidden sm:inline">Repository</span>
                   <span className="sm:hidden">Repository</span>
                 </Button>
@@ -156,14 +143,6 @@ export const ConnectedRepoDashboard = ({
                     <span className="sm:hidden">Preview</span>
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 justify-center min-w-[120px] h-9 bg-black text-white"
-                >
-                  <Zap className="w-4 h-4" />
-                  <span className="hidden sm:inline">Rebuild</span>
-                  <span className="sm:hidden">Rebuild</span>
-                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -212,36 +191,9 @@ export const ConnectedRepoDashboard = ({
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:grid-cols-2">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="builds" className="flex items-center gap-2">
-                <List className="w-4 h-4" />
-                Builds
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              {latestBuild && (
-                <ConnectedRepoOverview
-                  build={latestBuild}
-                  pkg={pkg}
-                  packageRelease={packageRelease}
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent value="builds" className="space-y-6">
-              <BuildsList pkg={pkg} onSelectBuild={handleSelectBuild} />
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-6">
+            <BuildsList pkg={pkg} />
+          </div>
         </div>
       </div>
     </>

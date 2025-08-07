@@ -90,3 +90,35 @@ export const useLatestPackageRelease = (
 
   return usePackageRelease(query)
 }
+
+export const usePackageReleasesByPackageId = (packageId: string | null) => {
+  const axios = useAxios()
+
+  return useQuery<PackageRelease[], Error & { status: number }>(
+    ["packageReleases", packageId],
+    async () => {
+      if (!packageId) {
+        throw new Error("package_id is required")
+      }
+
+      const { data } = await axios.post<{ package_releases: PackageRelease[] }>(
+        "/package_releases/list",
+        {
+          package_id: packageId,
+        },
+      )
+
+      if (!data.package_releases) {
+        return []
+      }
+
+      return data.package_releases
+    },
+    {
+      enabled: Boolean(packageId),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+    },
+  )
+}

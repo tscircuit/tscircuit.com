@@ -31,7 +31,7 @@ const PREFETCHABLE_PAGES = new Set([
   "latest",
   "settings",
   "quickstart",
-  "view-connected-repo",
+  "releases",
 ])
 
 const pageDescriptions = {
@@ -51,8 +51,7 @@ const pageDescriptions = {
     "Get started quickly with tscircuit. Create new circuit packages, import components from JLCPCB, or start from templates to begin your electronic design journey.",
   settings:
     "Manage your tscircuit account settings, shipping information, and preferences for electronic design and PCB ordering.",
-  "view-connected-repo":
-    "View and manage your connected repositories. Monitor repository status, access build information, and configure build options.",
+  releases: "View all package releases, access build information.",
 }
 
 function getPageDescription(pageName) {

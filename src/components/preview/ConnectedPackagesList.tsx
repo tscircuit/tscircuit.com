@@ -9,7 +9,7 @@ import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   getBuildStatus,
   getLatestBuildForPackage,
-  MOCK_DEPLOYMENTS,
+  MOCK_PACKAGE_BUILDS,
   StatusIcon,
 } from "."
 import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
