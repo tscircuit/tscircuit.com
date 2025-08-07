@@ -101,8 +101,6 @@ export default function ReleaseBuildsPage() {
             {pkg && (
               <BuildsList
                 pkg={pkg}
-                onSelectBuild={handleSelectBuild}
-                releaseId={params?.releaseId}
               />
             )}
           </div>
