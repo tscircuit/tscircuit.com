@@ -27,15 +27,15 @@ import {
 } from "fake-snippets-api/lib/db/schema"
 
 export const ConnectedRepoOverview = ({
-  build,
+  packageBuild,
   pkg,
   packageRelease,
 }: {
-  build: PackageBuild
+  packageBuild?: PackageBuild | null
   pkg: Package
   packageRelease: PackageRelease
 }) => {
-  const { status, label } = getBuildStatus(build)
+  const { status, label } = getBuildStatus(packageBuild ?? null)
   const [openSections, setOpenSections] = useState({
     transpilation: false,
     circuitJson: false,
@@ -47,10 +47,10 @@ export const ConnectedRepoOverview = ({
   }
 
   const buildDuration =
-    build.build_started_at && build.build_completed_at
+    packageBuild?.build_started_at && packageBuild?.build_completed_at
       ? Math.floor(
-          (new Date(build.build_completed_at).getTime() -
-            new Date(build.build_started_at).getTime()) /
+          (new Date(packageBuild.build_completed_at).getTime() -
+            new Date(packageBuild.build_started_at).getTime()) /
             1000,
         )
       : null
@@ -97,18 +97,20 @@ export const ConnectedRepoOverview = ({
                   </h1>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  <time dateTime={build.created_at}>
-                    Built {formatTimeAgo(build.created_at)}
+                  <time dateTime={packageBuild.created_at}>
+                    Built {formatTimeAgo(packageBuild.created_at)}
                   </time>
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-              {build.preview_url && (
+              {packageBuild.preview_url && (
                 <Button
                   size="sm"
                   className="flex items-center gap-2 min-w-[80px] h-9"
-                  onClick={() => window.open(build.preview_url!, "_blank")}
+                  onClick={() =>
+                    window.open(packageBuild.preview_url!, "_blank")
+                  }
                 >
                   <ExternalLink className="w-3 h-3" />
                   Preview
@@ -128,10 +130,12 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => copyToClipboard(build.package_build_id)}
+                    onClick={() =>
+                      copyToClipboard(packageBuild.package_build_id)
+                    }
                     className="group-hover:text-blue-500 rounded text-left transition-colors"
                   >
-                    {build.package_build_id}
+                    {packageBuild.package_build_id}
                   </button>
                 </div>
               </div>
@@ -151,7 +155,7 @@ export const ConnectedRepoOverview = ({
                   href={
                     packageRelease?.is_pr_preview
                       ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`
-                      : `https://github.com/${pkg.github_repo_full_name}/tree/${build.branch_name || "main"}`
+                      : `https://github.com/${pkg.github_repo_full_name}/tree/${packageBuild.branch_name || "main"}`
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -163,7 +167,7 @@ export const ConnectedRepoOverview = ({
                   >
                     {packageRelease?.is_pr_preview
                       ? `#${packageRelease.github_pr_number}`
-                      : build?.branch_name || "main"}
+                      : packageBuild?.branch_name || "main"}
                   </Badge>
                 </a>
               </div>
@@ -176,12 +180,12 @@ export const ConnectedRepoOverview = ({
                   Author
                 </p>
                 <a
-                  href={`https://github.com/${build.commit_author}`}
+                  href={`https://github.com/${packageBuild.commit_author}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium hover:text-blue-500 transition-colors"
                 >
-                  {build.commit_author || "Unknown"}
+                  {packageBuild.commit_author || "Unknown"}
                 </a>
               </div>
             </div>
@@ -194,7 +198,7 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <p
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${build.build_started_at}`}
+                  title={`Build started at ${packageBuild.build_started_at}`}
                 >
                   {buildDuration}s
                 </p>
@@ -202,13 +206,13 @@ export const ConnectedRepoOverview = ({
             </div>
           </div>
 
-          {build.commit_message && (
+          {packageBuild.commit_message && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                 Commit Message
               </p>
               <p className="text-sm text-gray-900 group-hover:text-gray-700 transition-colors">
-                {build.commit_message}
+                {packageBuild.commit_message}
               </p>
             </div>
           )}
@@ -238,11 +242,11 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.transpilation ? "rotate-90" : ""}`}
                 />
-                {build.transpilation_error ? (
+                {packageBuild.transpilation_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : build.transpilation_completed_at ? (
+                ) : packageBuild.transpilation_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : build.transpilation_in_progress ? (
+                ) : packageBuild.transpilation_in_progress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
                 ) : (
                   <Clock className="w-5 h-5 text-gray-400" />
@@ -251,39 +255,39 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  build.transpilation_started_at,
-                  build.transpilation_completed_at,
+                  packageBuild.transpilation_started_at,
+                  packageBuild.transpilation_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      build.transpilation_started_at,
-                      build.transpilation_completed_at,
+                      packageBuild.transpilation_started_at,
+                      packageBuild.transpilation_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      build.transpilation_error,
-                      build.transpilation_completed_at,
-                      build.transpilation_in_progress,
+                      packageBuild.transpilation_error,
+                      packageBuild.transpilation_completed_at,
+                      packageBuild.transpilation_in_progress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            build.transpilation_error,
-                            build.transpilation_completed_at,
-                            build.transpilation_in_progress,
+                            packageBuild.transpilation_error,
+                            packageBuild.transpilation_completed_at,
+                            packageBuild.transpilation_in_progress,
                           ) === "error"
                         ? "destructive"
                         : "secondary"
                   }
                   className="text-xs"
                 >
-                  {build.transpilation_error
+                  {packageBuild.transpilation_error
                     ? "Failed"
-                    : build.transpilation_completed_at
+                    : packageBuild.transpilation_completed_at
                       ? "Completed"
-                      : build.transpilation_in_progress
+                      : packageBuild.transpilation_in_progress
                         ? "Running"
                         : "Queued"}
                 </Badge>
@@ -293,13 +297,13 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {build.transpilation_error ? (
+                {packageBuild.transpilation_error ? (
                   <div className="text-red-600 whitespace-pre-wrap">
-                    {build.transpilation_error}
+                    {packageBuild.transpilation_error}
                   </div>
-                ) : build.transpilation_logs &&
-                  build.transpilation_logs.length > 0 ? (
-                  build.transpilation_logs.map((log: any, i: number) => (
+                ) : packageBuild.transpilation_logs &&
+                  packageBuild.transpilation_logs.length > 0 ? (
+                  packageBuild.transpilation_logs.map((log: any, i: number) => (
                     <div key={i} className="text-gray-600 whitespace-pre-wrap">
                       {log.msg || log.message || JSON.stringify(log)}
                     </div>
@@ -322,11 +326,11 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.circuitJson ? "rotate-90" : ""}`}
                 />
-                {build.circuit_json_build_error ? (
+                {packageBuild.circuit_json_build_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : build.circuit_json_build_completed_at ? (
+                ) : packageBuild.circuit_json_build_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : build.circuit_json_build_in_progress ? (
+                ) : packageBuild.circuit_json_build_in_progress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
                 ) : (
                   <Clock className="w-5 h-5 text-gray-400" />
@@ -335,39 +339,39 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  build.circuit_json_build_started_at,
-                  build.circuit_json_build_completed_at,
+                  packageBuild.circuit_json_build_started_at,
+                  packageBuild.circuit_json_build_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      build.circuit_json_build_started_at,
-                      build.circuit_json_build_completed_at,
+                      packageBuild.circuit_json_build_started_at,
+                      packageBuild.circuit_json_build_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      build.circuit_json_build_error,
-                      build.circuit_json_build_completed_at,
-                      build.circuit_json_build_in_progress,
+                      packageBuild.circuit_json_build_error,
+                      packageBuild.circuit_json_build_completed_at,
+                      packageBuild.circuit_json_build_in_progress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            build.circuit_json_build_error,
-                            build.circuit_json_build_completed_at,
-                            build.circuit_json_build_in_progress,
+                            packageBuild.circuit_json_build_error,
+                            packageBuild.circuit_json_build_completed_at,
+                            packageBuild.circuit_json_build_in_progress,
                           ) === "error"
                         ? "destructive"
                         : "secondary"
                   }
                   className="text-xs"
                 >
-                  {build.circuit_json_build_error
+                  {packageBuild.circuit_json_build_error
                     ? "Failed"
-                    : build.circuit_json_build_completed_at
+                    : packageBuild.circuit_json_build_completed_at
                       ? "Completed"
-                      : build.circuit_json_build_in_progress
+                      : packageBuild.circuit_json_build_in_progress
                         ? "Running"
                         : "Queued"}
                 </Badge>
@@ -377,17 +381,22 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {build.circuit_json_build_error ? (
+                {packageBuild.circuit_json_build_error ? (
                   <div className="text-red-600 whitespace-pre-wrap">
-                    {build.circuit_json_build_error}
+                    {packageBuild.circuit_json_build_error}
                   </div>
-                ) : build.circuit_json_build_logs &&
-                  build.circuit_json_build_logs.length > 0 ? (
-                  build.circuit_json_build_logs.map((log: any, i: number) => (
-                    <div key={i} className="text-gray-600 whitespace-pre-wrap">
-                      {log.msg || log.message || JSON.stringify(log)}
-                    </div>
-                  ))
+                ) : packageBuild.circuit_json_build_logs &&
+                  packageBuild.circuit_json_build_logs.length > 0 ? (
+                  packageBuild.circuit_json_build_logs.map(
+                    (log: any, i: number) => (
+                      <div
+                        key={i}
+                        className="text-gray-600 whitespace-pre-wrap"
+                      >
+                        {log.msg || log.message || JSON.stringify(log)}
+                      </div>
+                    ),
+                  )
                 ) : (
                   <div className="text-gray-500">No logs available</div>
                 )}
@@ -406,11 +415,11 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.finalBuild ? "rotate-90" : ""}`}
                 />
-                {build.build_error ? (
+                {packageBuild.build_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : build.build_completed_at ? (
+                ) : packageBuild.build_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : build.build_in_progress ? (
+                ) : packageBuild.build_in_progress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
                 ) : (
                   <Clock className="w-5 h-5 text-gray-400" />
@@ -419,39 +428,39 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  build.build_started_at,
-                  build.build_completed_at,
+                  packageBuild.build_started_at,
+                  packageBuild.build_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      build.build_started_at,
-                      build.build_completed_at,
+                      packageBuild.build_started_at,
+                      packageBuild.build_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      build.build_error,
-                      build.build_completed_at,
-                      build.build_in_progress,
+                      packageBuild.build_error,
+                      packageBuild.build_completed_at,
+                      packageBuild.build_in_progress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            build.build_error,
-                            build.build_completed_at,
-                            build.build_in_progress,
+                            packageBuild.build_error,
+                            packageBuild.build_completed_at,
+                            packageBuild.build_in_progress,
                           ) === "error"
                         ? "destructive"
                         : "secondary"
                   }
                   className="text-xs"
                 >
-                  {build.build_error
+                  {packageBuild.build_error
                     ? "Failed"
-                    : build.build_completed_at
+                    : packageBuild.build_completed_at
                       ? "Completed"
-                      : build.build_in_progress
+                      : packageBuild.build_in_progress
                         ? "Running"
                         : "Queued"}
                 </Badge>
@@ -461,13 +470,13 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {build.build_error ? (
+                {packageBuild.build_error ? (
                   <div className="text-red-600 whitespace-pre-wrap">
-                    {build.build_error}
+                    {packageBuild.build_error}
                   </div>
-                ) : build.build_logs ? (
+                ) : packageBuild.build_logs ? (
                   <div className="text-gray-600 whitespace-pre-wrap">
-                    {build.build_logs}
+                    {packageBuild.build_logs}
                   </div>
                 ) : (
                   <div className="text-gray-500">No logs available</div>

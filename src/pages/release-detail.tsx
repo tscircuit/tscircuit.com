@@ -48,7 +48,7 @@ export default function ReleaseDetailPage() {
     error: buildError,
   } = usePackageBuild(packageRelease?.latest_package_build_id ?? null)
 
-  if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
+  if (isLoadingPackage || isLoadingRelease) {
     return null
   }
 
@@ -58,10 +58,6 @@ export default function ReleaseDetailPage() {
 
   if (releaseError?.status === 404 || !packageRelease) {
     return <NotFoundPage heading="Release Not Found" />
-  }
-
-  if (buildError?.status === 404 || !latestBuild) {
-    return <NotFoundPage heading="No Builds Found for Release" />
   }
 
   return (
@@ -108,7 +104,7 @@ export default function ReleaseDetailPage() {
 
         {/* Main Content */}
         <ConnectedRepoOverview
-          build={latestBuild}
+          packageBuild={latestBuild ?? null}
           pkg={pkg}
           packageRelease={packageRelease}
         />

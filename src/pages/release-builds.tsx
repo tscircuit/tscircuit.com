@@ -57,10 +57,6 @@ export default function ReleaseBuildsPage() {
     return <NotFoundPage heading="Release Not Found" />
   }
 
-  if (buildsError?.status === 404 || !builds?.length) {
-    return <NotFoundPage heading="No Builds Found for Release" />
-  }
-
   return (
     <>
       <Header />
