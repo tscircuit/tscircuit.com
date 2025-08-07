@@ -89,7 +89,10 @@ function getHtmlWithModifiedSeoTags({
   `
 
   // First replace SEO tags
-  let modifiedHtml = `${htmlContent.substring(0, seoStartIndex)}${seoTags}${htmlContent.substring(seoEndIndex)}`
+  let modifiedHtml = `${htmlContent.substring(
+    0,
+    seoStartIndex,
+  )}${seoTags}${htmlContent.substring(seoEndIndex)}`
 
   // Then handle SSR data injection
   if (ssrPackageData) {
@@ -176,21 +179,25 @@ async function handleDatasheetPage(req, res) {
 
 async function handleCustomPackageHtml(req, res) {
   // Get the author and package name
-  const [_, author, unscopedPackageName] = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, other] = req.url
+    .split("?")[0]
+    .split("/")
+  if (other == "releases" || other == "release") {
+    throw new Error("Release route")
+  }
   if (!author || !unscopedPackageName) {
     throw new Error("Invalid author/package URL")
   }
   if (author === "datasheets") {
     throw new Error("Datasheet route")
   }
-  if (author === "build" || unscopedPackageName === "view-connected-repo") {
-    throw new Error("Build  route - not a package")
-  }
 
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
     title: "Package Not Found - tscircuit",
     description: `The package ${author}/${unscopedPackageName} could not be found.`,
-    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}`,
   })
   const packageDetails = await ky
     .get(`${REGISTRY_URL}/packages/get`, {
@@ -249,19 +256,29 @@ async function handleCustomPackageHtml(req, res) {
   }
 
   const description = he.encode(
-    `${packageInfo.description || packageInfo.ai_description || "A tscircuit component created by " + author} ${packageInfo.ai_usage_instructions ?? ""}`,
+    `${
+      packageInfo.description ||
+      packageInfo.ai_description ||
+      "A tscircuit component created by " + author
+    } ${packageInfo.ai_usage_instructions ?? ""}`,
   )
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
   const defaultView = packageInfo.default_view || "pcb"
   const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "pcb"
-  const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(author)}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${packageInfo.latest_package_release_fs_sha}`
+  const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(
+    author,
+  )}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${
+    packageInfo.latest_package_release_fs_sha
+  }`
 
   const html = getHtmlWithModifiedSeoTags({
     title,
     description,
-    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(unscopedPackageName)}`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}`,
     imageUrl,
     ssrPackageData: { package: packageInfo, packageRelease, packageFiles },
   })
@@ -272,7 +289,6 @@ async function handleCustomPackageHtml(req, res) {
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
-
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
 
@@ -298,6 +314,57 @@ async function handleCustomPage(req, res) {
   res.status(200).send(html)
 }
 
+async function handleReleasePreview(req, res) {
+  const [_, author, unscopedPackageName, releaseId] = req.url
+    .split("?")[0]
+    .split("/")
+
+  if (!author || !unscopedPackageName || !releaseId) {
+    throw new Error("Invalid author/package/release URL")
+  }
+  const packageDetails = await ky
+    .get(`${REGISTRY_URL}/packages/get`, {
+      searchParams: {
+        name: `${author}/${unscopedPackageName}`,
+      },
+    })
+    .json()
+    .catch((e) => {
+      if (String(e).includes("404")) {
+        return null
+      }
+      throw e
+    })
+  const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+    title: "Package Not Found - tscircuit",
+    description: `Release for package ${author}/${unscopedPackageName} could not be found.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}`,
+  })
+  if (!packageDetails) {
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
+  }
+
+  const { package: packageInfo } = packageDetails
+  const title = he.encode(`Release preview for ${packageInfo.name} - tscircuit`)
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description: pageDescriptions["releases"],
+    ssrPackageData: { package: packageInfo },
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
   if (urlPath === "/api/generated-index") {
@@ -310,22 +377,15 @@ export default async function handler(req, res) {
 
   const pathParts = req.url.split("?")[0].split("/")
 
-  if (pathParts[1] === "build" && pathParts[2]) {
-    const pageDescription = getPageDescription("view-connected-repo")
-    const html = getHtmlWithModifiedSeoTags({
-      title: `Preview Build For ${pathParts[2]} - tscircuit`,
-      description: pageDescription,
-      canonicalUrl: `${BASE_URL}/build/${pathParts[2]}`,
-    })
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    res.setHeader("Cache-Control", cacheControlHeader)
-    res.setHeader("Vary", "Accept-Encoding")
-    res.status(200).send(html)
+  try {
+    await handleCustomPackageHtml(req, res)
     return
+  } catch (e) {
+    console.warn(e)
   }
 
   try {
-    await handleCustomPackageHtml(req, res)
+    await handleReleasePreview(req, res)
     return
   } catch (e) {
     console.warn(e)

@@ -130,14 +130,14 @@ export const PackageReleasesDashboard = ({
                   <span className="hidden sm:inline">Repository</span>
                   <span className="sm:hidden">Repository</span>
                 </Button>
-                {latestBuild?.preview_url && (
+                {latestBuild && (
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-2 justify-center min-w-[120px] h-9"
                     onClick={() =>
                       window.open(
-                        `/build/${latestBuild?.package_build_id}/preview`,
+                        `/${pkg.name}/releases/${latestBuild?.package_release_id}/preview`,
                         "_blank",
                       )
                     }
