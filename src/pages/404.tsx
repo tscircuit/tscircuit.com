@@ -5,15 +5,13 @@ import { NotFound } from "@/components/NotFound"
 
 export function NotFoundPage({
   heading = "Page Not Found",
-}: { heading?: string }) {
+  subtitle = "The page you're looking for doesn't exist.",
+}: { heading?: string; subtitle?: string }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
         <title>404 - {heading} | tscircuit</title>
-        <meta
-          name="description"
-          content="The page you're looking for doesn't exist."
-        />
+        <meta name="description" content={subtitle} />
       </Helmet>
       <Header2 />
       <NotFound heading={heading} />
