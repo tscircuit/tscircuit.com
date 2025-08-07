@@ -137,13 +137,15 @@ export default function PreviewBuildPage() {
                           <span className="text-xs text-gray-500 uppercase tracking-wide">
                             Commit
                           </span>
-                          <PrefetchPageLink
+                          <a
                             title={build?.commit_message}
-                            href={`https://github.com/${build?.commit_author}/tscircuit.com/commit/${build?.commit_message}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://github.com/${pkg?.github_repo_full_name}/commit/${build?.commit_message}`}
                             className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
                           >
                             {build?.commit_message}
-                          </PrefetchPageLink>
+                          </a>
                         </div>
                       )}
 

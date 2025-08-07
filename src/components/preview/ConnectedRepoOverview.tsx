@@ -41,7 +41,6 @@ export const ConnectedRepoOverview = ({
   const [openSections, setOpenSections] = useState({
     transpilation: false,
     circuitJson: false,
-    finalBuild: false,
   })
 
   // Gracefully handle when there is no build yet
@@ -453,87 +452,6 @@ export const ConnectedRepoOverview = ({
                       </div>
                     ),
                   )
-                ) : (
-                  <div className="text-gray-500">No logs available</div>
-                )}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible
-          open={openSections.finalBuild}
-          onOpenChange={() => toggleSection("finalBuild")}
-        >
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="flex items-center gap-3">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.finalBuild ? "rotate-90" : ""}`}
-                />
-                {packageBuild.build_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.build_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : packageBuild.build_in_progress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
-                <span className="font-medium">Build</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.build_started_at,
-                  packageBuild.build_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.build_started_at,
-                      packageBuild.build_completed_at,
-                    )}
-                  </span>
-                )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.build_error,
-                      packageBuild.build_completed_at,
-                      packageBuild.build_in_progress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.build_error,
-                            packageBuild.build_completed_at,
-                            packageBuild.build_in_progress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.build_error
-                    ? "Failed"
-                    : packageBuild.build_completed_at
-                      ? "Completed"
-                      : packageBuild.build_in_progress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
-              <div className="font-mono text-xs space-y-1">
-                {packageBuild.build_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageBuild.build_error}
-                  </div>
-                ) : packageBuild.build_logs ? (
-                  <div className="text-gray-600 whitespace-pre-wrap">
-                    {packageBuild.build_logs}
-                  </div>
                 ) : (
                   <div className="text-gray-500">No logs available</div>
                 )}
