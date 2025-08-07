@@ -143,7 +143,11 @@ class ErrorBoundary extends React.Component<
     this.cleanup() // Clean up listeners before reload
     this.setState({ reloading: true })
     this.reloadTimeout = window.setTimeout(() => {
-      if (window?.location.href.includes("localhost:")) return
+      if (
+        window?.location.href.includes("localhost:") ||
+        window?.location.href.includes("127.0.0.1:")
+      )
+        return
       window.location.reload()
     }, 500)
   }
