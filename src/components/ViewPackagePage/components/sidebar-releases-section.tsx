@@ -110,7 +110,7 @@ export default function SidebarReleasesSection() {
         ))}
         {latestBuild && (
           <PrefetchPageLink
-            href={`/build/${latestBuild.package_build_id}`}
+            href={`/${packageInfo?.name}/releases`}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8b949e]"
           >
             <StatusIcon status={status} />
