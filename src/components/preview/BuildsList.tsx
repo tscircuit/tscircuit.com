@@ -2,11 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  GitBranch,
-  MoreHorizontal,
-  GitCommit,
-} from "lucide-react"
+import { GitBranch, MoreHorizontal, GitCommit } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -221,7 +217,6 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
             </div>
           </CardContent>
         </Card>
-
       </div>
     </>
   )

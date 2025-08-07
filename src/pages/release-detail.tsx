@@ -33,8 +33,9 @@ export default function ReleaseDetailPage() {
     error: packageError,
   } = usePackageByName(packageName)
 
-  const releaseIdOrVersion = params?.releaseId ?? params?.packageReleaseId ?? null
-  
+  const releaseIdOrVersion =
+    params?.releaseId ?? params?.packageReleaseId ?? null
+
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
@@ -45,7 +46,9 @@ export default function ReleaseDetailPage() {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = useLatestPackageBuildByReleaseId(packageRelease?.package_release_id ?? null)
+  } = useLatestPackageBuildByReleaseId(
+    packageRelease?.package_release_id ?? null,
+  )
 
   if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
     return null
@@ -75,8 +78,10 @@ export default function ReleaseDetailPage() {
               author={pkg.owner_github_username || ""}
               packageName={pkg.name}
               unscopedName={pkg.unscoped_name}
-              releaseVersion={packageRelease.version ||
-                `v${packageRelease.package_release_id.slice(-6)}`}
+              releaseVersion={
+                packageRelease.version ||
+                `v${packageRelease.package_release_id.slice(-6)}`
+              }
             />
 
             {/* Header Content */}

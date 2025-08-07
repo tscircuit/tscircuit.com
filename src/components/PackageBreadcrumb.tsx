@@ -49,7 +49,9 @@ export function PackageBreadcrumb({
         </BreadcrumbSeparator>
 
         {/* Releases */}
-        {(currentPage === "releases" || releaseVersion || currentPage === "builds") && (
+        {(currentPage === "releases" ||
+          releaseVersion ||
+          currentPage === "builds") && (
           <>
             <BreadcrumbItem>
               {currentPage === "releases" ? (
@@ -74,7 +76,9 @@ export function PackageBreadcrumb({
             <BreadcrumbItem>
               {currentPage === "builds" ? (
                 <BreadcrumbLink asChild>
-                  <PrefetchPageLink href={`/${packageName}/release/${releaseVersion}`}>
+                  <PrefetchPageLink
+                    href={`/${packageName}/release/${releaseVersion}`}
+                  >
                     {releaseVersion}
                   </PrefetchPageLink>
                 </BreadcrumbLink>

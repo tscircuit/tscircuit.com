@@ -72,7 +72,10 @@ export default function ReleaseBuildsPage() {
               packageName={packageName || ""}
               unscopedName={pkg.unscoped_name}
               currentPage="builds"
-              releaseVersion={packageRelease.version || `v${packageRelease.package_release_id.slice(-6)}`}
+              releaseVersion={
+                packageRelease.version ||
+                `v${packageRelease.package_release_id.slice(-6)}`
+              }
             />
             <div className="flex items-center gap-4">
               <div>
