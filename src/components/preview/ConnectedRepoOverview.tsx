@@ -100,15 +100,36 @@ export const ConnectedRepoOverview = ({
     navigator.clipboard.writeText(text)
   }
 
-  const buildDuration =
-    packageBuild?.build_started_at && packageBuild?.build_completed_at
+  const buildDuration = (() => {
+    const transpilationDuration = packageBuild?.transpilation_started_at
       ? Math.floor(
-          (new Date(packageBuild.build_completed_at).getTime() -
-            new Date(packageBuild.build_started_at).getTime()) /
+          (new Date(
+            packageBuild.transpilation_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageBuild.transpilation_started_at).getTime()) /
             1000,
         )
-      : null
+      : 0
 
+    const circuitJsonDuration = packageBuild?.circuit_json_build_started_at
+      ? Math.floor(
+          (new Date(
+            packageBuild.circuit_json_build_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageBuild.circuit_json_build_started_at).getTime()) /
+            1000,
+        )
+      : 0
+
+    if (
+      !packageBuild?.transpilation_started_at &&
+      !packageBuild?.circuit_json_build_started_at
+    ) {
+      return null
+    }
+
+    return transpilationDuration + circuitJsonDuration
+  })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
@@ -175,7 +196,7 @@ export const ConnectedRepoOverview = ({
           </div>
         </div>
 
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 select-none">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="flex items-center gap-3 group">
               <Hash className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
@@ -188,7 +209,7 @@ export const ConnectedRepoOverview = ({
                     onClick={() =>
                       copyToClipboard(packageBuild.package_build_id)
                     }
-                    className="group-hover:text-blue-500 rounded text-left transition-colors"
+                    className="group-hover:text-blue-500 text-xs rounded text-left transition-colors"
                   >
                     {packageBuild.package_build_id}
                   </button>
@@ -235,12 +256,12 @@ export const ConnectedRepoOverview = ({
                   Author
                 </p>
                 <a
-                  href={`https://github.com/${packageBuild.commit_author}`}
+                  href={`https://github.com/${pkg.owner_github_username}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium hover:text-blue-500 transition-colors"
                 >
-                  {packageBuild.commit_author || "Unknown"}
+                  {pkg.owner_github_username || "Unknown"}
                 </a>
               </div>
             </div>
@@ -255,7 +276,7 @@ export const ConnectedRepoOverview = ({
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
                   title={`Build started at ${packageBuild.build_started_at}`}
                 >
-                  {buildDuration}s
+                  {buildDuration || 0}s
                 </p>
               </div>
             </div>
