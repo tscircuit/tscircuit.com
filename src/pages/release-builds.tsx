@@ -1,11 +1,12 @@
 import { useParams } from "wouter"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
 import { usePackageBuildsByReleaseId } from "@/hooks/use-package-builds"
 import { BuildsList } from "@/components/preview/BuildsList"
 import Header from "@/components/Header"
 import { useLocation } from "wouter"
+import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 
 export default function ReleaseBuildsPage() {
@@ -32,7 +33,7 @@ export default function ReleaseBuildsPage() {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
-  } = usePackageReleaseById(params?.releaseId ?? null)
+  } = usePackageReleaseByIdOrVersion(params?.releaseId ?? null, packageName)
 
   const {
     data: builds,
@@ -66,6 +67,13 @@ export default function ReleaseBuildsPage() {
       <div className="min-h-screen bg-white">
         <div className="bg-gray-50 border-b py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PackageBreadcrumb
+              author={params?.author || ""}
+              packageName={packageName || ""}
+              unscopedName={pkg.unscoped_name}
+              currentPage="builds"
+              releaseVersion={packageRelease.version || `v${packageRelease.package_release_id.slice(-6)}`}
+            />
             <div className="flex items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">

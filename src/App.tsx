@@ -267,6 +267,10 @@ function App() {
               component={ReleaseDetailPage}
             />
             <Route
+              path="/:author/:packageName/releases/:packageReleaseId"
+              component={ReleaseDetailPage}
+            />
+            <Route
               path="/:author/:packageName/releases"
               component={ReleasesPage}
             />

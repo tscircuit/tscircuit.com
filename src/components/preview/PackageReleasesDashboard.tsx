@@ -14,6 +14,7 @@ import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
+import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
 
 export const PackageReleasesDashboard = ({
@@ -30,6 +31,14 @@ export const PackageReleasesDashboard = ({
     <>
       <Header />
       <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <PackageBreadcrumb
+            author={pkg.name.split('/')[0]}
+            packageName={pkg.name}
+            unscopedName={pkg.unscoped_name}
+            currentPage="releases"
+          />
+        </div>
         {/* Project Header */}
         <div className="bg-gray-50 border-b md:py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

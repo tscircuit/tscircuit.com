@@ -1,7 +1,7 @@
 import { useParams } from "wouter"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
 import { useLatestPackageBuildByReleaseId } from "@/hooks/use-package-builds"
 import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Calendar, GitBranch, Hash, Copy, Check } from "lucide-react"
 import { useState } from "react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
     author: string
     packageName: string
-    releaseId: string
+    releaseId?: string
+    packageReleaseId?: string
   }>()
 
   const packageName =
@@ -32,17 +33,19 @@ export default function ReleaseDetailPage() {
     error: packageError,
   } = usePackageByName(packageName)
 
+  const releaseIdOrVersion = params?.releaseId ?? params?.packageReleaseId ?? null
+  
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
-  } = usePackageReleaseById(params?.releaseId ?? null)
+  } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName)
 
   const {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = useLatestPackageBuildByReleaseId(params?.releaseId ?? null)
+  } = useLatestPackageBuildByReleaseId(packageRelease?.package_release_id ?? null)
 
   if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
     return null
@@ -68,33 +71,13 @@ export default function ReleaseDetailPage() {
         <div className="bg-gray-50 border-b py-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-              <PrefetchPageLink
-                href={`/${pkg.owner_github_username}`}
-                className="hover:text-gray-900"
-              >
-                {pkg.owner_github_username}
-              </PrefetchPageLink>
-              <span>/</span>
-              <PrefetchPageLink
-                href={`/${pkg.name}`}
-                className="hover:text-gray-900"
-              >
-                {pkg.unscoped_name}
-              </PrefetchPageLink>
-              <span>/</span>
-              <PrefetchPageLink
-                href={`/${pkg.name}/releases`}
-                className="hover:text-gray-900"
-              >
-                releases
-              </PrefetchPageLink>
-              <span>/</span>
-              <span className="text-gray-900 font-medium">
-                {packageRelease.version ||
-                  `v${packageRelease.package_release_id.slice(-6)}`}
-              </span>
-            </div>
+            <PackageBreadcrumb
+              author={pkg.owner_github_username || ""}
+              packageName={pkg.name}
+              unscopedName={pkg.unscoped_name}
+              releaseVersion={packageRelease.version ||
+                `v${packageRelease.package_release_id.slice(-6)}`}
+            />
 
             {/* Header Content */}
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
