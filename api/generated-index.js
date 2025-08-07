@@ -143,7 +143,7 @@ export async function handleUserProfile(req, res) {
 
   const description = he.encode(`Circuits created by ${username} on tscircuit`)
 
-  const title = he.encode(`${username} 1`)
+  const title = he.encode(`${username} - tscircuit`)
 
   const html = getHtmlWithModifiedSeoTags({
     title,
@@ -337,7 +337,7 @@ async function handleReleasePreview(req, res) {
     })
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
     title: "Package Not Found - tscircuit",
-    description: `The package ${author}/${unscopedPackageName} could not be found.`,
+    description: `Release for package ${author}/${unscopedPackageName} could not be found.`,
     canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
       unscopedPackageName,
     )}`,
@@ -351,21 +351,11 @@ async function handleReleasePreview(req, res) {
   }
 
   const { package: packageInfo } = packageDetails
-  const description = he.encode(
-    `${
-      packageInfo.description ||
-      packageInfo.ai_description ||
-      "A tscircuit component created by " + author
-    } ${packageInfo.ai_usage_instructions ?? ""}`,
-  )
   const title = he.encode(`Release preview for ${packageInfo.name} - tscircuit`)
 
   const html = getHtmlWithModifiedSeoTags({
     title,
-    description,
-    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
-      unscopedPackageName,
-    )}`,
+    description: pageDescriptions["releases"],
     ssrPackageData: { package: packageInfo },
   })
 
@@ -399,7 +389,6 @@ export default async function handler(req, res) {
     return
   } catch (e) {
     console.warn(e)
-    res.status(200).send(String(e))
   }
 
   if (pathParts[1] === "datasheets" && pathParts[2]) {
