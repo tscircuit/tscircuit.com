@@ -14,7 +14,6 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { package_id, package_release_id } = req.query
-  console.log(ctx.db.packageBuilds)
   if (!package_id && !package_release_id) {
     return ctx.error(400, {
       error_code: "invalid_request",

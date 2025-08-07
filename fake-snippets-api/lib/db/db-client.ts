@@ -1488,6 +1488,15 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
     set((state) => ({
       packageBuilds: [...state.packageBuilds, newPackageBuild],
+      // Automatically update the package release to reference this as the latest build
+      packageReleases: state.packageReleases.map((release) =>
+        release.package_release_id === packageBuild.package_release_id
+          ? {
+              ...release,
+              latest_package_build_id: newPackageBuild.package_build_id,
+            }
+          : release,
+      ),
     }))
     return newPackageBuild
   },

@@ -21,7 +21,7 @@ export const PackageReleasesDashboard = ({
   latestBuild,
   pkg,
 }: {
-  latestBuild: PackageBuild
+  latestBuild: PackageBuild | null
   pkg: Package
 }) => {
   const [, setLocation] = useLocation()
@@ -88,22 +88,26 @@ export const PackageReleasesDashboard = ({
                       className="flex cursor-pointer items-center gap-1"
                       onClick={() =>
                         window?.open(
-                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestBuild.branch_name || "main"}`,
+                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestBuild?.branch_name || "main"}`,
                           "_blank",
                         )
                       }
                     >
                       <GitBranch className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {latestBuild.branch_name || "main"}
+                        {latestBuild?.branch_name || "main"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>
-                        <time dateTime={latestBuild.created_at}>
-                          Last built {formatTimeAgo(latestBuild.created_at)}
-                        </time>
+                        {latestBuild?.created_at ? (
+                          <time dateTime={latestBuild.created_at}>
+                            Last built {formatTimeAgo(latestBuild.created_at)}
+                          </time>
+                        ) : (
+                          "No builds yet"
+                        )}
                       </span>
                     </div>
                   </div>
@@ -126,14 +130,14 @@ export const PackageReleasesDashboard = ({
                   <span className="hidden sm:inline">Repository</span>
                   <span className="sm:hidden">Repository</span>
                 </Button>
-                {latestBuild.preview_url && (
+                {latestBuild?.preview_url && (
                   <Button
                     variant="outline"
                     size="sm"
                     className="flex items-center gap-2 justify-center min-w-[120px] h-9"
                     onClick={() =>
                       window.open(
-                        `/build/${latestBuild.package_build_id}/preview`,
+                        `/build/${latestBuild?.package_build_id}/preview`,
                         "_blank",
                       )
                     }

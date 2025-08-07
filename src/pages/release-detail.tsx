@@ -2,7 +2,7 @@ import { useParams } from "wouter"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
-import { useLatestPackageBuildByReleaseId } from "@/hooks/use-package-builds"
+import { usePackageBuild } from "@/hooks/use-package-builds"
 import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
 import { Badge } from "@/components/ui/badge"
@@ -46,9 +46,7 @@ export default function ReleaseDetailPage() {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = useLatestPackageBuildByReleaseId(
-    packageRelease?.package_release_id ?? null,
-  )
+  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null)
 
   if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
     return null

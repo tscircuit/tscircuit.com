@@ -7,7 +7,10 @@ import {
   PackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-export const getBuildStatus = (build: PackageBuild) => {
+export const getBuildStatus = (build: PackageBuild | null) => {
+  if (!build) {
+    return { status: "pending", label: "No builds" }
+  }
   if (
     build?.build_error ||
     build?.transpilation_error ||

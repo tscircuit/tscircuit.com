@@ -30,7 +30,8 @@
     "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle && bun run build:fake-api:schema",
     "build:fake-api:schema": "tsup-node ./fake-snippets-api/lib/db/schema.ts --format esm --dts",
     "generate-images": "bun run scripts/generate-image-sizes.ts",
-    "generate-sitemap": "bun run scripts/generate-sitemap.ts"
+    "generate-sitemap": "bun run scripts/generate-sitemap.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
