@@ -48,7 +48,7 @@ export const PackageReleasesDashboard = ({
                       href={"/" + pkg.name}
                       className="text-2xl font-bold text-gray-900 truncate"
                     >
-                      {pkg.unscoped_name}
+                      {pkg.name}
                     </PrefetchPageLink>
                     <Badge
                       variant={
@@ -183,9 +183,6 @@ export const PackageReleasesDashboard = ({
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Releases</h2>
-            </div>
             <BuildsList pkg={pkg} />
           </div>
         </div>

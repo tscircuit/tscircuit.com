@@ -3,11 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
-  Clock,
   GitBranch,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
   MoreHorizontal,
   GitCommit,
 } from "lucide-react"
@@ -226,111 +222,6 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Successful</p>
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-8" />
-                  ) : (
-                    <p className="text-2xl font-bold text-gray-900">
-                      {releases?.filter((release) => {
-                        const latestBuild = latestBuildsMap.get(
-                          release.package_release_id,
-                        )
-                        return (
-                          latestBuild &&
-                          getBuildStatus(latestBuild).status === "success"
-                        )
-                      }).length || 0}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Failed</p>
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-8" />
-                  ) : (
-                    <p className="text-2xl font-bold text-gray-900">
-                      {releases?.filter((release) => {
-                        const latestBuild = latestBuildsMap.get(
-                          release.package_release_id,
-                        )
-                        return (
-                          latestBuild &&
-                          getBuildStatus(latestBuild).status === "error"
-                        )
-                      }).length || 0}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Building</p>
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-8" />
-                  ) : (
-                    <p className="text-2xl font-bold text-gray-900">
-                      {releases?.filter((release) => {
-                        const latestBuild = latestBuildsMap.get(
-                          release.package_release_id,
-                        )
-                        return (
-                          latestBuild &&
-                          getBuildStatus(latestBuild).status === "building"
-                        )
-                      }).length || 0}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-gray-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  {isLoading ? (
-                    <Skeleton className="h-8 w-8" />
-                  ) : (
-                    <p className="text-2xl font-bold text-gray-900">
-                      {releases?.length || 0}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </>
   )
