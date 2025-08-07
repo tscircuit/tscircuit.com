@@ -8,7 +8,13 @@
     "indentStyle": "space"
   },
   "files": {
-    "ignore": ["cosmos-export", "dist", "package.json", ".vercel"]
+    "ignore": [
+      "cosmos-export",
+      "dist",
+      "package.json",
+      ".vercel",
+      "src/index.css"
+    ]
   },
   "javascript": {
     "formatter": {

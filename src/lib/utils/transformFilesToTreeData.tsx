@@ -15,7 +15,9 @@ import {
 import { useToast } from "@/hooks/use-toast"
 
 type FileName = string
-
+type TreeNode = Omit<TreeDataItem, "children"> & {
+  children?: Record<string, TreeNode>
+}
 interface TransformFilesToTreeDataProps {
   files: Record<FileName, string>
   currentFile: FileName | null
@@ -44,9 +46,6 @@ export const transformFilesToTreeData = ({
   setSelectedFolderForCreation,
 }: TransformFilesToTreeDataProps): TreeDataItem[] => {
   const { toast } = useToast()
-  type TreeNode = Omit<TreeDataItem, "children"> & {
-    children?: Record<string, TreeNode>
-  }
   const root: Record<string, TreeNode> = {}
 
   Object.keys(files).forEach((filePath) => {
