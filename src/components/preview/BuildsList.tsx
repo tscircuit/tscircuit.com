@@ -31,18 +31,21 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
 
   // Get the latest build for each release to show status
   const latestBuildQueries = useQueries(
-    (releases || []).map((release) => ({
-      queryKey: ["latestBuildByRelease", release.package_release_id],
-      queryFn: async () => {
-        const { data } = await axios.get("/package_builds/latest", {
-          params: { package_release_id: release.package_release_id },
-        })
-        return data.package_build
-      },
-      enabled: Boolean(release.package_release_id),
-      retry: false,
-      refetchOnWindowFocus: false,
-    })),
+    (releases || [])
+      .filter((release) => release.latest_package_build_id)
+      .map((release) => ({
+        queryKey: ["packageBuild", release.latest_package_build_id],
+        queryFn: async () => {
+          if (!release.latest_package_build_id) return null
+          const { data } = await axios.get("/package_builds/get", {
+            params: { package_build_id: release.latest_package_build_id },
+          })
+          return data.package_build
+        },
+        enabled: Boolean(release.latest_package_build_id),
+        retry: false,
+        refetchOnWindowFocus: false,
+      })),
   )
 
   const isLoading =

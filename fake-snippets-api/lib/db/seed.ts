@@ -538,7 +538,7 @@ export default () => (
     ],
   })
 
-  db.addPackageBuild({
+  const firstBuild = db.addPackageBuild({
     package_release_id: packageReleaseId1,
     created_at: new Date(Date.now() - 15000).toISOString(), // 15 seconds ago
     transpilation_in_progress: false,
@@ -573,6 +573,13 @@ export default () => (
     branch_name: "main",
     commit_message: "Attempted build of a555timer-square-wave package",
     commit_author: "testuser",
+  })
+
+  // Update the package release with the latest build ID
+  const release1 = db.getPackageReleaseById(packageReleaseId1)!
+  db.updatePackageRelease({
+    ...release1,
+    latest_package_build_id: firstBuild.package_build_id,
   })
   // Define the @tsci/seveibar.a555timer package
   db.addSnippet({
@@ -1620,7 +1627,7 @@ export const SquareWaveModule = () => (
   })
 
   // Add failed build first
-  db.addPackageBuild({
+  const failedBuild = db.addPackageBuild({
     package_release_id: packageReleaseId2,
     created_at: new Date(Date.now() - 15000).toISOString(), // 15 seconds ago
     transpilation_in_progress: false,
@@ -1658,7 +1665,7 @@ export const SquareWaveModule = () => (
   })
 
   // Add successful build
-  db.addPackageBuild({
+  const successfulBuild = db.addPackageBuild({
     package_release_id: packageReleaseId2,
     created_at: new Date().toISOString(),
     transpilation_in_progress: false,
@@ -1700,6 +1707,13 @@ export const SquareWaveModule = () => (
     branch_name: "main",
     commit_message: "Initial build of a555timer-square-wave package",
     commit_author: "testuser",
+  })
+
+  // Update the package release with the latest (successful) build ID
+  const release2 = db.getPackageReleaseById(packageReleaseId2)!
+  db.updatePackageRelease({
+    ...release2,
+    latest_package_build_id: successfulBuild.package_build_id,
   })
 
   db.addOrder({

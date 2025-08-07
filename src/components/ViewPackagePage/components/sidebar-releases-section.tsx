@@ -7,7 +7,7 @@ import { BuildStatus, BuildStep } from "./build-status"
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { getBuildStatus, StatusIcon } from "@/components/preview"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
-import { useLatestPackageBuildByReleaseId } from "@/hooks/use-package-builds"
+import { usePackageBuild } from "@/hooks/use-package-builds"
 
 function getTranspilationStatus(
   pr?: PackageRelease | null,
@@ -42,8 +42,8 @@ export default function SidebarReleasesSection() {
   const { data: packageRelease } = usePackageReleaseById(
     packageInfo?.latest_package_release_id,
   )
-  const { data: latestBuild } = useLatestPackageBuildByReleaseId(
-    packageRelease?.package_release_id,
+  const { data: latestBuild } = usePackageBuild(
+    packageRelease?.latest_package_build_id ?? null,
   )
 
   const buildSteps: BuildStep[] = [

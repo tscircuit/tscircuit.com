@@ -13,7 +13,8 @@ import {
   StatusIcon,
 } from "."
 import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
-import { useLatestPackageBuild } from "@/hooks/use-package-builds"
+import { usePackageBuild } from "@/hooks/use-package-builds"
+import { useLatestPackageRelease } from "@/hooks/use-package-release"
 
 export const ConnectedPackageCardSkeleton = () => {
   return (
@@ -47,6 +48,19 @@ export const ConnectedPackageCardSkeleton = () => {
   )
 }
 
+// Custom hook to get latest package build info
+const useLatestPackageBuildInfo = (packageId: string) => {
+  const { data: latestRelease, isLoading: releaseLoading } = useLatestPackageRelease(packageId)
+  const { data: latestBuild, isLoading: buildLoading } = usePackageBuild(
+    latestRelease?.latest_package_build_id || null
+  )
+
+  return {
+    data: latestBuild,
+    isLoading: releaseLoading || (latestRelease?.latest_package_build_id && buildLoading)
+  }
+}
+
 export const ConnectedPackageCard = ({
   pkg,
   className,
@@ -54,9 +68,7 @@ export const ConnectedPackageCard = ({
   pkg: Package
   className?: string
 }) => {
-  const { data: latestBuildInfo, isLoading } = useLatestPackageBuild({
-    package_id: pkg.package_id,
-  })
+  const { data: latestBuildInfo, isLoading } = useLatestPackageBuildInfo(pkg.package_id)
 
   if (isLoading && !latestBuildInfo) {
     return <ConnectedPackageCardSkeleton />

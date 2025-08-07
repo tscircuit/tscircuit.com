@@ -255,6 +255,9 @@ export const packageReleaseSchema = z.object({
   // Preview
   is_pr_preview: z.boolean().default(false),
   github_pr_number: z.number().nullable().optional(),
+
+  // Latest Build Reference
+  latest_package_build_id: z.string().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
