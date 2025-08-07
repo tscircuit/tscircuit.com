@@ -50,14 +50,17 @@ export const ConnectedPackageCardSkeleton = () => {
 
 // Custom hook to get latest package build info
 const useLatestPackageBuildInfo = (packageId: string) => {
-  const { data: latestRelease, isLoading: releaseLoading } = useLatestPackageRelease(packageId)
+  const { data: latestRelease, isLoading: releaseLoading } =
+    useLatestPackageRelease(packageId)
   const { data: latestBuild, isLoading: buildLoading } = usePackageBuild(
-    latestRelease?.latest_package_build_id || null
+    latestRelease?.latest_package_build_id || null,
   )
 
   return {
     data: latestBuild,
-    isLoading: releaseLoading || (latestRelease?.latest_package_build_id && buildLoading)
+    isLoading:
+      releaseLoading ||
+      (latestRelease?.latest_package_build_id && buildLoading),
   }
 }
 
@@ -68,7 +71,9 @@ export const ConnectedPackageCard = ({
   pkg: Package
   className?: string
 }) => {
-  const { data: latestBuildInfo, isLoading } = useLatestPackageBuildInfo(pkg.package_id)
+  const { data: latestBuildInfo, isLoading } = useLatestPackageBuildInfo(
+    pkg.package_id,
+  )
 
   if (isLoading && !latestBuildInfo) {
     return <ConnectedPackageCardSkeleton />

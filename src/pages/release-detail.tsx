@@ -46,9 +46,7 @@ export default function ReleaseDetailPage() {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = usePackageBuild(
-    packageRelease?.latest_package_build_id ?? null,
-  )
+  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null)
 
   if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
     return null
