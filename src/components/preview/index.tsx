@@ -1,11 +1,7 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
 export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
-import {
-  Package,
-  PackageBuild,
-  PackageRelease,
-} from "fake-snippets-api/lib/db/schema"
+import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 export const getBuildStatus = (build: PackageBuild | null) => {
   if (!build) {
@@ -25,12 +21,19 @@ export const getBuildStatus = (build: PackageBuild | null) => {
   ) {
     return { status: "building", label: "Building" }
   }
-  if (build?.build_completed_at && build?.transpilation_completed_at) {
+  if (
+    !build?.build_error &&
+    !build?.transpilation_error &&
+    !build?.circuit_json_build_error &&
+    !build?.build_in_progress &&
+    !build?.transpilation_in_progress &&
+    !build?.circuit_json_build_in_progress &&
+    build?.transpilation_completed_at
+  ) {
     return { status: "success", label: "Ready" }
   }
   return { status: "queued", label: "Queued" }
 }
-
 export const MOCK_PACKAGE_BUILDS: PackageBuild[] = [
   {
     package_build_id: "pb_1a2b3c4d",

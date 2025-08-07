@@ -1,17 +1,16 @@
 import { useState } from "react"
 import { useParams } from "wouter"
-import { Loader2, ChevronLeft, ChevronRight, File, Folder } from "lucide-react"
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/Header"
 import { SuspenseRunFrame } from "@/components/SuspenseRunFrame"
-import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
+import { TreeView } from "@/components/ui/tree-view"
 import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import NotFoundPage from "./404"
-import { getBuildStatus, MOCK_PACKAGE_BUILDS } from "@/components/preview"
+import { getBuildStatus } from "@/components/preview"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
 import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
-import { usePackage } from "@/hooks/use-package"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
@@ -47,6 +46,9 @@ export default function PreviewBuildPage() {
   const { data: pkg, isLoading: isLoadingPackage } = usePackageByName(
     author && packageName ? `${author}/${packageName}` : null,
   )
+  const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
+    packageRelease?.latest_package_build_id || null,
+  )
   const { data: buildFiles = [], isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
 
@@ -61,9 +63,6 @@ export default function PreviewBuildPage() {
   if (!packageRelease && !isLoadingRelease) {
     return <NotFoundPage heading="Package Release Not Found" />
   }
-  const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
-    packageRelease?.latest_package_build_id || null,
-  )
   const isLoading =
     isLoadingRelease || isLoadingPackage || isLoadingFiles || isLoadingBuild
 
@@ -133,26 +132,29 @@ export default function PreviewBuildPage() {
                           {build?.package_build_id}
                         </PrefetchPageLink>
                       </div>
-
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">
-                          Commit
-                        </span>
-                        <PrefetchPageLink
-                          title={build?.commit_message}
-                          href={`https://github.com/${build?.commit_author}/tscircuit.com/commit/${build?.commit_message}`}
-                          className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
-                        >
-                          {build?.commit_message}
-                        </PrefetchPageLink>
-                      </div>
+                      {build?.commit_message && (
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <span className="text-xs text-gray-500 uppercase tracking-wide">
+                            Commit
+                          </span>
+                          <a
+                            title={build?.commit_message}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://github.com/${pkg?.github_repo_full_name}/commit/${build?.commit_message}`}
+                            className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
+                          >
+                            {build?.commit_message}
+                          </a>
+                        </div>
+                      )}
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <span className="text-xs text-gray-500 uppercase tracking-wide">
                           Status
                         </span>
                         <span
-                          className={`text-xs font-medium px-2 py-1 rounded-full capitalize ${
+                          className={`text-xs font-medium px-2 py-1 w-fit rounded-full capitalize ${
                             status === "success"
                               ? "bg-emerald-100 text-emerald-800"
                               : status === "failed"
@@ -213,7 +215,7 @@ export default function PreviewBuildPage() {
                 <div className="flex-1 flex items-center justify-center">
                   <div className="flex flex-col items-center gap-3 text-gray-500">
                     <Loader2 className="w-6 h-6 animate-spin" />
-                    <p>Loading package data...</p>
+                    <p>Loading package contents...</p>
                   </div>
                 </div>
               ) : status === "success" && buildFiles.length > 0 ? (
@@ -245,7 +247,17 @@ export default function PreviewBuildPage() {
                         This package release doesn't have any files to preview.
                       </p>
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="text-center p-4">
+                      <p className="text-gray-600 font-medium mb-2">
+                        Build Status: {status}
+                      </p>
+                      <p className="text-sm text-gray-500 max-w-lg">
+                        Please wait while we process this build status. Try
+                        refreshing the page in a few moments.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

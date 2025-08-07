@@ -167,16 +167,14 @@ export const ConnectedPackageCard = ({
       )}
 
       <div className="flex gap-2 w-full mt-auto">
-        {latestBuildInfo?.package_build_id && (
-          <PrefetchPageLink className="w-full" href={`/${pkg.name}/releases`}>
-            <Button
-              size="sm"
-              className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
-            >
-              View
-            </Button>
-          </PrefetchPageLink>
-        )}
+        <PrefetchPageLink className="w-full" href={`/${pkg.name}/releases`}>
+          <Button
+            size="sm"
+            className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
+          >
+            View
+          </Button>
+        </PrefetchPageLink>
         {latestBuildInfo?.preview_url &&
           latestBuildInfo?.package_build_id &&
           status === "success" && (
