@@ -29,9 +29,11 @@ import {
 export const ConnectedRepoOverview = ({
   packageBuild,
   pkg,
+  isLoadingBuild,
   packageRelease,
 }: {
   packageBuild?: PackageBuild | null
+  isLoadingBuild: boolean
   pkg: Package
   packageRelease: PackageRelease
 }) => {
@@ -43,6 +45,46 @@ export const ConnectedRepoOverview = ({
   })
 
   // Gracefully handle when there is no build yet
+  if (isLoadingBuild) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div className="px-6 py-6 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-7 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="w-24 h-9 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="px-6 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array(4)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2" />
+              <div className="h-5 w-full bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!packageBuild) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -117,18 +159,19 @@ export const ConnectedRepoOverview = ({
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-              {packageBuild.preview_url && (
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 min-w-[80px] h-9"
-                  onClick={() =>
-                    window.open(packageBuild.preview_url!, "_blank")
-                  }
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Preview
-                </Button>
-              )}
+              <Button
+                size="sm"
+                className="flex items-center gap-2 min-w-[80px] h-9"
+                onClick={() =>
+                  window.open(
+                    `/${pkg.name}/releases/${packageBuild.package_build_id}/preview`,
+                    "_blank",
+                  )
+                }
+              >
+                <ExternalLink className="w-3 h-3" />
+                Preview
+              </Button>
             </div>
           </div>
         </div>

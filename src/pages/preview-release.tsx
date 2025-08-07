@@ -4,166 +4,17 @@ import { Loader2, ChevronLeft, ChevronRight, File, Folder } from "lucide-react"
 import Header from "@/components/Header"
 import { SuspenseRunFrame } from "@/components/SuspenseRunFrame"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
+import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import NotFoundPage from "./404"
 import { getBuildStatus, MOCK_PACKAGE_BUILDS } from "@/components/preview"
-
-const MOCK_DEPLOYMENT_FILES: Record<
-  string,
-  Array<{ path: string; content: string }>
-> = {
-  pb_1a2b3c4d: [
-    {
-      path: "index.tsx",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-    {
-      path: "components/Button.tsx",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-  ],
-  pb_9i8j7k6l: [
-    {
-      path: "index.tsx",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-    {
-      path: "utils/helpers.ts",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-  ],
-  pb_1q2w3e4r: [
-    {
-      path: "index.tsx",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-  ],
-  pb_9o8i7u6y: [
-    {
-      path: "index.tsx",
-      content: `export default () => (
-  <board width="10mm" height="10mm">
-    <resistor
-      resistance="1k"
-      footprint="0402"
-      name="R1"
-      schX={3}
-      pcbX={3}
-    />
-    <capacitor
-      capacitance="1000pF"
-      footprint="0402"
-      name="C1"
-      schX={-3}
-      pcbX={-3}
-    />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
-  </board>
-)`,
-    },
-  ],
-}
-
-const getBuildFiles = (buildId: string | null) => {
-  if (!buildId) return []
-  return MOCK_DEPLOYMENT_FILES[buildId] || []
-}
-
-const getBuildFsMap = (buildId: string | null) => {
-  const files = getBuildFiles(buildId)
-  return Object.fromEntries(files.map((f) => [f.path, f.content]))
-}
+import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
+import { usePackage } from "@/hooks/use-package"
+import { usePackageBuild } from "@/hooks/use-package-builds"
+import { PackageBuild } from "fake-snippets-api/lib/db/schema"
+import { usePackageByName } from "@/hooks/use-package-by-package-name"
 
 const StatusPill = ({ status }: { status: string }) => {
   const color =
@@ -178,65 +29,63 @@ const StatusPill = ({ status }: { status: string }) => {
 }
 
 export default function PreviewBuildPage() {
-  const params = useParams<{ buildId: string }>()
-  const buildId = params?.buildId || null
+  const params = useParams<{
+    packageReleaseId: string
+    author: string
+    packageName: string
+  }>()
+  const packageReleaseId = params?.packageReleaseId || null
+  const author = params?.author || null
+  const packageName = params?.packageName || null
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [selectedFile, setSelectedFile] = useState<string | null>("index.tsx")
   const [selectedItemId, setSelectedItemId] = useState<string>("")
 
-  const buildFiles = getBuildFiles(buildId)
-  const buildFsMap = getBuildFsMap(buildId)
+  const { data: packageRelease, isLoading: isLoadingRelease } =
+    usePackageReleaseById(packageReleaseId)
+  const { data: pkg, isLoading: isLoadingPackage } = usePackageByName(
+    author && packageName ? `${author}/${packageName}` : null,
+  )
+  const { data: buildFiles = [], isLoading: isLoadingFiles } =
+    usePackageFilesLoader(pkg)
 
-  const build = buildId
-    ? MOCK_PACKAGE_BUILDS.find((d) => d.package_build_id === buildId)
-    : MOCK_PACKAGE_BUILDS[0]
+  const buildFsMap = Object.fromEntries(
+    buildFiles.map((f) => [f.path, f.content]),
+  )
 
-  if (!build) {
-    return <NotFoundPage heading="Build Not Found" />
-  }
-  const { status, label } = getBuildStatus(build)
-  const convertFilesToTreeData = (
-    files: Array<{ path: string; content: string }>,
-  ): TreeDataItem[] => {
-    const tree: TreeDataItem[] = []
-    const pathMap = new Map<string, TreeDataItem>()
-
-    files.forEach((file) => {
-      const parts = file.path.split("/")
-      let currentPath = ""
-
-      parts.forEach((part, index) => {
-        const isLast = index === parts.length - 1
-        currentPath = currentPath ? `${currentPath}/${part}` : part
-
-        if (!pathMap.has(currentPath)) {
-          const item: TreeDataItem = {
-            id: currentPath,
-            name: part,
-            icon: isLast ? File : Folder,
-            children: isLast ? undefined : [],
-          }
-
-          pathMap.set(currentPath, item)
-
-          if (index === 0) {
-            tree.push(item)
-          } else {
-            const parentPath = parts.slice(0, index).join("/")
-            const parent = pathMap.get(parentPath)
-            if (parent && parent.children) {
-              parent.children.push(item)
-            }
-          }
-        }
-      })
-    })
-
-    return tree
+  if (!packageReleaseId) {
+    return <NotFoundPage heading="Package Release Not Found" />
   }
 
-  const treeData = convertFilesToTreeData(buildFiles)
+  if (!packageRelease && !isLoadingRelease) {
+    return <NotFoundPage heading="Package Release Not Found" />
+  }
+  const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
+    packageRelease?.latest_package_build_id || null,
+  )
+  const isLoading =
+    isLoadingRelease || isLoadingPackage || isLoadingFiles || isLoadingBuild
+
+  if (!build && !isLoading) {
+    return <NotFoundPage heading="Package Build Not Found" />
+  }
+
+  const { status } = getBuildStatus(build as PackageBuild)
+
+  const treeData = transformFilesToTreeData({
+    files: buildFsMap,
+    currentFile: selectedFile,
+    renamingFile: null,
+    handleRenameFile: () => ({ fileRenamed: false }),
+    handleDeleteFile: () => ({ fileDeleted: false }),
+    setRenamingFile: () => {},
+    onFileSelect: setSelectedFile,
+    onFolderSelect: () => {},
+    canModifyFiles: false,
+    setErrorMessage: () => {},
+    setSelectedFolderForCreation: () => {},
+  })
 
   return (
     <>
@@ -246,7 +95,7 @@ export default function PreviewBuildPage() {
           <aside
             className={cn(
               "relative border-r border-gray-200 rounded-r-lg z-[5] h-full transition-all duration-300 ease-in-out bg-white",
-              sidebarCollapsed ? "w-3" : "w-80",
+              sidebarCollapsed ? "w-2 md:w-3" : "w-80",
             )}
           >
             <button
@@ -277,10 +126,11 @@ export default function PreviewBuildPage() {
                           ID
                         </span>
                         <PrefetchPageLink
-                          href={`/build/${build.package_build_id}`}
-                          className="font-mono text-sm text-gray-900 bg-gray-100 px-2 py-1 rounded"
+                          href={`/${pkg?.name}/releases/${build?.package_release_id}`}
+                          title={build?.package_build_id}
+                          className="font-mono text-sm truncate text-gray-900 bg-gray-100 w-full px-2 py-1 rounded"
                         >
-                          {build.package_build_id}
+                          {build?.package_build_id}
                         </PrefetchPageLink>
                       </div>
 
@@ -289,10 +139,11 @@ export default function PreviewBuildPage() {
                           Commit
                         </span>
                         <PrefetchPageLink
-                          href={`https://github.com/${build.commit_author}/tscircuit.com/commit/${build.commit_message}`}
-                          className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded line-clamp-1"
+                          title={build?.commit_message}
+                          href={`https://github.com/${build?.commit_author}/tscircuit.com/commit/${build?.commit_message}`}
+                          className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
                         >
-                          {build.commit_message}
+                          {build?.commit_message}
                         </PrefetchPageLink>
                       </div>
 
@@ -324,22 +175,32 @@ export default function PreviewBuildPage() {
                       Files
                     </h3>
                     <p className="text-xs text-gray-500 mt-1">
-                      {buildFiles.length} file
-                      {buildFiles.length !== 1 ? "s" : ""}
+                      {isLoadingFiles
+                        ? "Loading files..."
+                        : `${treeData.length} file${treeData.length !== 1 ? "s" : ""}`}
                     </p>
                   </div>
                   <div className="px-2 py-2 overflow-y-auto select-none">
-                    <TreeView
-                      selectedItemId={selectedItemId || ""}
-                      setSelectedItemId={(v) => setSelectedItemId(v || "")}
-                      data={treeData}
-                      className="w-full"
-                      onSelectChange={(item) => {
-                        if (item && !item.children) {
-                          setSelectedFile(item.id)
-                        }
-                      }}
-                    />
+                    {isLoadingFiles ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="ml-2 text-sm text-gray-500">
+                          Loading files...
+                        </span>
+                      </div>
+                    ) : (
+                      <TreeView
+                        selectedItemId={selectedItemId || ""}
+                        setSelectedItemId={(v) => setSelectedItemId(v || "")}
+                        data={treeData}
+                        className="w-full"
+                        onSelectChange={(item) => {
+                          if (item && !item.children) {
+                            setSelectedFile(item.id)
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               </>
@@ -348,7 +209,14 @@ export default function PreviewBuildPage() {
 
           <main className="flex-1 overflow-y-auto">
             <div className="flex flex-col h-full overflow-h-hidden">
-              {status === "success" ? (
+              {isLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3 text-gray-500">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <p>Loading package data...</p>
+                  </div>
+                </div>
+              ) : status === "success" && buildFiles.length > 0 ? (
                 <SuspenseRunFrame
                   fsMap={buildFsMap}
                   mainComponentPath={selectedFile ?? "index.tsx"}
@@ -366,6 +234,15 @@ export default function PreviewBuildPage() {
                     <div className="text-center">
                       <p className="text-red-600 font-medium mb-2">
                         Build Failed
+                      </p>
+                    </div>
+                  ) : buildFiles.length === 0 ? (
+                    <div className="text-center">
+                      <p className="text-gray-600 font-medium mb-2">
+                        No files found
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        This package release doesn't have any files to preview.
                       </p>
                     </div>
                   ) : null}

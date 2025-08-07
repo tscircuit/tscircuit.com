@@ -66,7 +66,7 @@ export default function ReleaseDetailPage() {
       <div className="min-h-screen bg-white">
         {/* Page Header */}
         <div className="bg-gray-50 border-b py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl lg:flex lg:justify-between mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <PackageBreadcrumb
               author={pkg.owner_github_username || ""}
@@ -105,6 +105,7 @@ export default function ReleaseDetailPage() {
         {/* Main Content */}
         <ConnectedRepoOverview
           packageBuild={latestBuild ?? null}
+          isLoadingBuild={isLoadingBuild}
           pkg={pkg}
           packageRelease={packageRelease}
         />
