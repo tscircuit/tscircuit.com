@@ -98,11 +98,7 @@ export default function ReleaseBuildsPage() {
                 {builds?.length} build{builds?.length !== 1 ? "s" : ""} found
               </p>
             </div>
-            {pkg && (
-              <BuildsList
-                pkg={pkg}
-              />
-            )}
+            {pkg && <BuildsList pkg={pkg} />}
           </div>
         </div>
       </div>
