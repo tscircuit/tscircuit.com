@@ -42,6 +42,17 @@ export const ConnectedRepoOverview = ({
     finalBuild: false,
   })
 
+  // Gracefully handle when there is no build yet
+  if (!packageBuild) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+          <p className="text-sm text-gray-600">No build information available.</p>
+        </div>
+      </div>
+    )
+  }
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
   }
