@@ -46,6 +46,9 @@ export default function PreviewBuildPage() {
   const { data: pkg, isLoading: isLoadingPackage } = usePackageByName(
     author && packageName ? `${author}/${packageName}` : null,
   )
+  const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
+    packageRelease?.latest_package_build_id || null,
+  )
   const { data: buildFiles = [], isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
 
@@ -60,9 +63,6 @@ export default function PreviewBuildPage() {
   if (!packageRelease && !isLoadingRelease) {
     return <NotFoundPage heading="Package Release Not Found" />
   }
-  const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
-    packageRelease?.latest_package_build_id || null,
-  )
   const isLoading =
     isLoadingRelease || isLoadingPackage || isLoadingFiles || isLoadingBuild
 
