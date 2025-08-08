@@ -242,7 +242,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     snippet: Omit<
       z.input<typeof snippetSchema>,
       "snippet_id" | "package_release_id"
-    > & { creator_account_id?: string; github_repo_full_name?: string },
+    > & {
+      creator_account_id?: string
+      github_repo_full_name?: string
+      branch_name?: string
+      commit_message?: string
+      commit_author?: string
+    },
   ): Snippet => {
     const timestamp = Date.now()
     const currentTime = new Date(timestamp).toISOString()
@@ -291,6 +297,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_locked: false,
       created_at: currentTime,
       updated_at: currentTime,
+      branch_name: snippet.branch_name,
+      commit_message: snippet.commit_message,
+      commit_author: snippet.commit_author,
       has_transpiled: true,
       transpilation_error: null,
       ...(snippet.name == "testuser/my-test-board"

@@ -31,6 +31,9 @@ export const seed = (db: DbClient) => {
     unscoped_name: "my-test-board",
     github_repo_full_name: "testuser/my-test-board",
     owner_name: "testuser",
+    branch_name: "main",
+    commit_message: "Attempted build of a555timer-square-wave package",
+    commit_author: "testuser",
     creator_account_id: account_id,
     code: `
 import { A555Timer } from "@tsci/seveibar.a555timer"
@@ -570,9 +573,6 @@ export default () => (
       "3. Code compilation - FAILED\n" +
       "Error: Invalid syntax in component declaration\n" +
       "Build terminated with errors",
-    branch_name: "main",
-    commit_message: "Attempted build of a555timer-square-wave package",
-    commit_author: "testuser",
   })
 
   // Update the package release with the latest build ID
@@ -1116,6 +1116,9 @@ exports.A555Timer = A555Timer;
     name: "testuser/a555timer-square-wave",
     unscoped_name: "a555timer-square-wave",
     owner_name: "testuser",
+    branch_name: "main",
+    commit_message: "Attempted build of a555timer-square-wave package",
+    commit_author: "testuser",
     creator_account_id: account_id,
     code: `
 import { A555Timer } from "@tsci/seveibar.a555timer"
@@ -1659,9 +1662,6 @@ export const SquareWaveModule = () => (
       "3. Code compilation - FAILED\n" +
       "Error: Invalid syntax in component declaration\n" +
       "Build terminated with errors",
-    branch_name: "main",
-    commit_message: "Attempted build of a555timer-square-wave package",
-    commit_author: "testuser",
   })
 
   // Add successful build
@@ -1704,9 +1704,6 @@ export const SquareWaveModule = () => (
       "4. Circuit validation - OK\n" +
       "5. Package assembly - OK\n" +
       "Build completed successfully",
-    branch_name: "main",
-    commit_message: "Initial build of a555timer-square-wave package",
-    commit_author: "testuser",
   })
 
   // Update the package release with the latest (successful) build ID

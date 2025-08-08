@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table"
 import { getBuildStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -53,7 +53,8 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
     isLoadingReleases || latestBuildQueries.some((q) => q.isLoading)
 
   // Create a map of release ID to latest build for easy access
-  const latestBuildsMap = new Map()
+  const latestBuildsMap = new Map<string, PackageBuild>()
+
   latestBuildQueries.forEach((query, index) => {
     if (query.data && releases?.[index]) {
       latestBuildsMap.set(releases[index].package_release_id, query.data)
@@ -111,16 +112,14 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                         const latestBuild = latestBuildsMap.get(
                           release.package_release_id,
                         )
-                        const { status, label } = latestBuild
-                          ? getBuildStatus(latestBuild)
-                          : { status: "unknown", label: "No builds" }
+                        const { status, label } = getBuildStatus(latestBuild)
                         return (
                           <TableRow
                             key={release.package_release_id}
                             className="cursor-pointer hover:bg-gray-50 no-scrollbar"
                             onClick={() => {
                               setLocation(
-                                `/${pkg.name}/release/${release.package_release_id}`,
+                                `/${pkg.name}/releases/${release.package_release_id}`,
                               )
                             }}
                           >
@@ -199,14 +198,23 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem
                                       onClick={() => {
-                                        window.location.href = `/${pkg.name}/release/${release.package_release_id}`
+                                        window.location.href = `/${pkg.name}/releases/${release.package_release_id}`
                                       }}
                                     >
                                       View Release
                                     </DropdownMenuItem>
+                                    {status !== "error" && (
+                                      <DropdownMenuItem>
+                                        <a
+                                          href={`/${pkg.name}/releases/${latestBuild?.package_release_id}/preview`}
+                                        >
+                                          Preview Release
+                                        </a>
+                                      </DropdownMenuItem>
+                                    )}
                                     <DropdownMenuItem
                                       onClick={() => {
-                                        window.location.href = `/${pkg.name}/release/${release.package_release_id}/builds`
+                                        window.location.href = `/${pkg.name}/releases/${release.package_release_id}/builds`
                                       }}
                                     >
                                       View All Builds

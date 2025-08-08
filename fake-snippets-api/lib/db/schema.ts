@@ -258,6 +258,9 @@ export const packageReleaseSchema = z.object({
 
   // Latest Build Reference
   latest_package_build_id: z.string().nullable().optional(),
+  branch_name: z.string().nullable().optional(),
+  commit_message: z.string().nullable().optional(),
+  commit_author: z.string().nullable().optional(),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -370,9 +373,6 @@ export const packageBuildSchema = z.object({
   build_error_last_updated_at: z.string().datetime(),
   preview_url: z.string().nullable().optional(),
   build_logs: z.string().nullable().optional(),
-  branch_name: z.string().nullable().optional(),
-  commit_message: z.string().nullable().optional(),
-  commit_author: z.string().nullable().optional(),
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
 
