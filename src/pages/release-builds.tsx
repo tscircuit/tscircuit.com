@@ -41,10 +41,6 @@ export default function ReleaseBuildsPage() {
     error: buildsError,
   } = usePackageBuildsByReleaseId(params?.releaseId ?? null)
 
-  const handleSelectBuild = (build: PackageBuild) => {
-    setLocation(`/build/${build.package_build_id}`)
-  }
-
   if (isLoadingPackage || isLoadingRelease || isLoadingBuilds) {
     return null
   }

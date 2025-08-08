@@ -29,9 +29,11 @@ import {
 export const ConnectedRepoOverview = ({
   packageBuild,
   pkg,
+  isLoadingBuild,
   packageRelease,
 }: {
   packageBuild?: PackageBuild | null
+  isLoadingBuild: boolean
   pkg: Package
   packageRelease: PackageRelease
 }) => {
@@ -39,10 +41,49 @@ export const ConnectedRepoOverview = ({
   const [openSections, setOpenSections] = useState({
     transpilation: false,
     circuitJson: false,
-    finalBuild: false,
   })
 
   // Gracefully handle when there is no build yet
+  if (isLoadingBuild) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div className="px-6 py-6 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-7 w-32 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="w-24 h-9 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="px-6 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array(4)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+                      <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+            </div>
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2" />
+              <div className="h-5 w-full bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!packageBuild) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -59,15 +100,36 @@ export const ConnectedRepoOverview = ({
     navigator.clipboard.writeText(text)
   }
 
-  const buildDuration =
-    packageBuild?.build_started_at && packageBuild?.build_completed_at
+  const buildDuration = (() => {
+    const transpilationDuration = packageBuild?.transpilation_started_at
       ? Math.floor(
-          (new Date(packageBuild.build_completed_at).getTime() -
-            new Date(packageBuild.build_started_at).getTime()) /
+          (new Date(
+            packageBuild.transpilation_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageBuild.transpilation_started_at).getTime()) /
             1000,
         )
-      : null
+      : 0
 
+    const circuitJsonDuration = packageBuild?.circuit_json_build_started_at
+      ? Math.floor(
+          (new Date(
+            packageBuild.circuit_json_build_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageBuild.circuit_json_build_started_at).getTime()) /
+            1000,
+        )
+      : 0
+
+    if (
+      !packageBuild?.transpilation_started_at &&
+      !packageBuild?.circuit_json_build_started_at
+    ) {
+      return null
+    }
+
+    return transpilationDuration + circuitJsonDuration
+  })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
@@ -117,23 +179,24 @@ export const ConnectedRepoOverview = ({
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-              {packageBuild.preview_url && (
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 min-w-[80px] h-9"
-                  onClick={() =>
-                    window.open(packageBuild.preview_url!, "_blank")
-                  }
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Preview
-                </Button>
-              )}
+              <Button
+                size="sm"
+                className="flex items-center gap-2 min-w-[80px] h-9"
+                onClick={() =>
+                  window.open(
+                    `/${pkg.name}/releases/${packageBuild.package_build_id}/preview`,
+                    "_blank",
+                  )
+                }
+              >
+                <ExternalLink className="w-3 h-3" />
+                Preview
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 select-none">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="flex items-center gap-3 group">
               <Hash className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
@@ -146,7 +209,7 @@ export const ConnectedRepoOverview = ({
                     onClick={() =>
                       copyToClipboard(packageBuild.package_build_id)
                     }
-                    className="group-hover:text-blue-500 rounded text-left transition-colors"
+                    className="group-hover:text-blue-500 text-xs rounded text-left transition-colors"
                   >
                     {packageBuild.package_build_id}
                   </button>
@@ -193,12 +256,12 @@ export const ConnectedRepoOverview = ({
                   Author
                 </p>
                 <a
-                  href={`https://github.com/${packageBuild.commit_author}`}
+                  href={`https://github.com/${pkg.owner_github_username}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-medium hover:text-blue-500 transition-colors"
                 >
-                  {packageBuild.commit_author || "Unknown"}
+                  {pkg.owner_github_username || "Unknown"}
                 </a>
               </div>
             </div>
@@ -213,7 +276,7 @@ export const ConnectedRepoOverview = ({
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
                   title={`Build started at ${packageBuild.build_started_at}`}
                 >
-                  {buildDuration}s
+                  {buildDuration || 0}s
                 </p>
               </div>
             </div>
@@ -410,87 +473,6 @@ export const ConnectedRepoOverview = ({
                       </div>
                     ),
                   )
-                ) : (
-                  <div className="text-gray-500">No logs available</div>
-                )}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible
-          open={openSections.finalBuild}
-          onOpenChange={() => toggleSection("finalBuild")}
-        >
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="flex items-center gap-3">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.finalBuild ? "rotate-90" : ""}`}
-                />
-                {packageBuild.build_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.build_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : packageBuild.build_in_progress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
-                <span className="font-medium">Build</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.build_started_at,
-                  packageBuild.build_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.build_started_at,
-                      packageBuild.build_completed_at,
-                    )}
-                  </span>
-                )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.build_error,
-                      packageBuild.build_completed_at,
-                      packageBuild.build_in_progress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.build_error,
-                            packageBuild.build_completed_at,
-                            packageBuild.build_in_progress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.build_error
-                    ? "Failed"
-                    : packageBuild.build_completed_at
-                      ? "Completed"
-                      : packageBuild.build_in_progress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
-              <div className="font-mono text-xs space-y-1">
-                {packageBuild.build_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageBuild.build_error}
-                  </div>
-                ) : packageBuild.build_logs ? (
-                  <div className="text-gray-600 whitespace-pre-wrap">
-                    {packageBuild.build_logs}
-                  </div>
                 ) : (
                   <div className="text-gray-500">No logs available</div>
                 )}

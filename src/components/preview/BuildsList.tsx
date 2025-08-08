@@ -23,12 +23,13 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
+import { useLocation } from "wouter"
 
 export const BuildsList = ({ pkg }: { pkg: Package }) => {
   const { data: releases, isLoading: isLoadingReleases } =
     usePackageReleasesByPackageId(pkg.package_id)
   const axios = useAxios()
-
+  const [, setLocation] = useLocation()
   // Get the latest build for each release to show status
   const latestBuildQueries = useQueries(
     (releases || [])
@@ -118,7 +119,9 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                             key={release.package_release_id}
                             className="cursor-pointer hover:bg-gray-50 no-scrollbar"
                             onClick={() => {
-                              window.location.href = `/${pkg.name}/release/${release.package_release_id}`
+                              setLocation(
+                                `/${pkg.name}/release/${release.package_release_id}`,
+                              )
                             }}
                           >
                             <TableCell>

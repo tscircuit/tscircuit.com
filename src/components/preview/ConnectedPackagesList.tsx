@@ -1,49 +1,60 @@
-import { useState } from "react"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GitBranch, Rocket, Github } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "../PrefetchPageLink"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import {
-  getBuildStatus,
-  getLatestBuildForPackage,
-  MOCK_PACKAGE_BUILDS,
-  StatusIcon,
-} from "."
-import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+import { getBuildStatus, StatusIcon } from "."
+import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { useLatestPackageRelease } from "@/hooks/use-package-release"
 
 export const ConnectedPackageCardSkeleton = () => {
   return (
-    <Card className="animate-pulse">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-4 h-4 bg-gray-200 rounded" />
-            <div className="space-y-2 flex-1">
-              <div className="flex items-center gap-2">
-                <div className="w-12 h-4 bg-gray-200 rounded" />
-                <div className="w-16 h-3 bg-gray-200 rounded" />
-              </div>
-              <div className="w-20 h-3 bg-gray-200 rounded" />
-            </div>
+    <Card
+      className={cn(
+        "group relative overflow-hidden",
+        "border border-gray-200",
+        "hover:border-gray-300",
+        "bg-white shadow-none",
+        "p-6",
+        "flex flex-col",
+        "min-h-[200px]",
+        "animate-pulse",
+      )}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="h-6 w-32 bg-gray-200 rounded" />
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-16 h-5 bg-gray-200 rounded-full" />
+          <div className="w-4 h-4 bg-gray-200 rounded-full" />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-4 h-4 bg-gray-200 rounded" />
+        <div className="w-48 h-5 bg-gray-200 rounded" />
+      </div>
+
+      <div className="mb-6 flex-1">
+        <div className="h-5 w-3/4 bg-gray-200 rounded mb-2" />
+        <div className="flex items-center gap-2">
+          <div className="w-32 h-4 bg-gray-200 rounded" />
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-gray-200 rounded" />
+            <div className="w-16 h-4 bg-gray-200 rounded-full" />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="pt-0 space-y-3">
-        <div className="w-full h-4 bg-gray-200 rounded" />
-        <div className="flex gap-2">
-          <div className="w-16 h-3 bg-gray-200 rounded" />
-          <div className="w-20 h-3 bg-gray-200 rounded" />
-        </div>
-        <div className="flex gap-2 pt-2">
-          <div className="flex-1 h-8 bg-gray-200 rounded" />
-          <div className="flex-1 h-8 bg-gray-200 rounded" />
-        </div>
-      </CardContent>
+      </div>
+
+      <div className="flex gap-2 w-full mt-auto">
+        <div className="w-full h-9 bg-gray-200 rounded" />
+        <div className="w-full h-9 bg-gray-200 rounded" />
+      </div>
     </Card>
   )
 }
@@ -89,7 +100,7 @@ export const ConnectedPackageCard = ({
         "group relative overflow-hidden",
         "border border-gray-200",
         "hover:border-gray-300",
-        "bg-white",
+        "bg-white shadow-none",
         "p-6",
         "flex flex-col",
         "min-h-[200px]",
@@ -156,25 +167,20 @@ export const ConnectedPackageCard = ({
       )}
 
       <div className="flex gap-2 w-full mt-auto">
-        {latestBuildInfo?.package_build_id && (
-          <PrefetchPageLink
-            className="w-full"
-            href={`/build/${latestBuildInfo.package_build_id}`}
+        <PrefetchPageLink className="w-full" href={`/${pkg.name}/releases`}>
+          <Button
+            size="sm"
+            className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
           >
-            <Button
-              size="sm"
-              className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
-            >
-              View
-            </Button>
-          </PrefetchPageLink>
-        )}
+            View
+          </Button>
+        </PrefetchPageLink>
         {latestBuildInfo?.preview_url &&
           latestBuildInfo?.package_build_id &&
           status === "success" && (
             <PrefetchPageLink
               className="w-full"
-              href={`/build/${latestBuildInfo.package_build_id}/preview`}
+              href={`/${pkg.name}/releases/${latestBuildInfo.package_release_id}/preview`}
             >
               <Button size="sm" variant="outline" className="px-4 py-2 w-full">
                 Preview
