@@ -109,7 +109,7 @@ class ErrorBoundary extends React.Component<
       )
     ) {
       const loadedAt = window.__APP_LOADED_AT || Date.now()
-      if (Date.now() - loadedAt >= 10_000) {
+      if (Date.now() - loadedAt >= 180_000) {
         this.performReload()
       }
     }
@@ -143,6 +143,8 @@ class ErrorBoundary extends React.Component<
     this.cleanup() // Clean up listeners before reload
     this.setState({ reloading: true })
     this.reloadTimeout = window.setTimeout(() => {
+      if (window?.location.href.includes("localhost:")) return
+      if (window?.location.href.includes("127.0.0.1:")) return
       window.location.reload()
     }, 500)
   }
@@ -151,10 +153,12 @@ class ErrorBoundary extends React.Component<
     this.cleanup() // Clean up any existing handlers
 
     this.visibilityHandler = () => {
+      const loadedAt = window.__APP_LOADED_AT || Date.now()
       if (
         document.visibilityState === "visible" &&
         this.state.hasError &&
-        !this.state.reloading
+        !this.state.reloading &&
+        Date.now() - loadedAt >= 180_000
       ) {
         this.performReload()
       }
