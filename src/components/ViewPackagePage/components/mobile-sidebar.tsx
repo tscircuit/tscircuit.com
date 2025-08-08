@@ -112,7 +112,7 @@ const MobileSidebar = ({
           {localDescription ||
             packageInfo?.description ||
             packageInfo?.ai_description ||
-            "A Default 60 keyboard created with tscircuit"}
+            ""}
         </p>
         {isOwner && (
           <Button
