@@ -26,6 +26,9 @@ export const publicMapPackageRelease = (
       : [],
     is_pr_preview: Boolean(internal_package_release.is_pr_preview),
     github_pr_number: internal_package_release.github_pr_number,
+    branch_name: internal_package_release.branch_name,
+    commit_message: internal_package_release.commit_message ?? null,
+    commit_author: internal_package_release.commit_author ?? null,
   }
 
   if (options.include_ai_review && options.db) {
