@@ -176,7 +176,7 @@ export const transformFilesToTreeData = ({
         }
       }
 
-      if (!isLeafNode && currentNode[segment].children) {
+      if (!isLeafNode && currentNode[segment]?.children) {
         currentNode = currentNode[segment].children
       }
     })
