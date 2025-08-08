@@ -171,16 +171,10 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  if (urlParams.package_id && (!pkg || isLoading)) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <div className="flex flex-col items-center justify-center">
-          <div className="text-lg text-gray-500 mb-4">Loading</div>
-          <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
-        </div>
-      </div>
-    )
-  }
+  const isEditorPrimed = useMemo(
+    () => localFiles.length > 0 && Boolean(currentFile),
+    [localFiles.length, currentFile],
+  )
 
   return (
     <div className="flex flex-col min-h-[50vh]">
@@ -210,27 +204,38 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             state.showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
-          <CodeEditor
-            isSaving={isSaving}
-            handleCreateFile={createFile}
-            handleDeleteFile={deleteFile}
-            handleRenameFile={renameFile}
-            pkg={pkg}
-            currentFile={currentFile}
-            onFileSelect={onFileSelect}
-            files={localFiles}
-            onCodeChange={(newCode, filename) => {
-              const targetFilename = filename ?? currentFile
-              setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
-                ),
-              )
-            }}
-            pkgFilesLoaded={!isLoading}
-          />
+          {!isEditorPrimed ? (
+            <div className="flex items-center justify-center h-[80vh] w-full">
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-sm text-gray-500 mb-2">
+                  Loading editor…
+                </div>
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+              </div>
+            </div>
+          ) : (
+            <CodeEditor
+              isSaving={isSaving}
+              handleCreateFile={createFile}
+              handleDeleteFile={deleteFile}
+              handleRenameFile={renameFile}
+              pkg={pkg}
+              currentFile={currentFile}
+              onFileSelect={onFileSelect}
+              files={localFiles}
+              onCodeChange={(newCode, filename) => {
+                const targetFilename = filename ?? currentFile
+                setLocalFiles((prev) =>
+                  prev.map((file) =>
+                    file.path === targetFilename
+                      ? { ...file, content: newCode }
+                      : file,
+                  ),
+                )
+              }}
+              pkgFilesLoaded={!isLoading}
+            />
+          )}
         </div>
         <div
           className={cn(

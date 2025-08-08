@@ -224,10 +224,11 @@ export function useFileManagement({
         // For initialFiles, we want the server baseline even if user edited, so unsaved-diff shows correctly
         setInitialFiles((prev) => {
           const idx = prev.findIndex((f) => f.path === initialTargetFilePath)
-          if (idx === -1) return [
-            ...prev,
-            { path: initialTargetFilePath, content: String(contentText) },
-          ]
+          if (idx === -1)
+            return [
+              ...prev,
+              { path: initialTargetFilePath, content: String(contentText) },
+            ]
           const updated = [...prev]
           updated[idx] = { ...updated[idx], content: String(contentText) }
           return updated
@@ -267,7 +268,9 @@ export function useFileManagement({
         const baseline = initialMap[f.path]
         const currentLocal = localMap[f.path]
         const userEdited =
-          baseline !== undefined && currentLocal !== undefined && currentLocal !== baseline
+          baseline !== undefined &&
+          currentLocal !== undefined &&
+          currentLocal !== baseline
         mergedMap[f.path] = userEdited ? currentLocal : f.content
       }
       // Include any local-only files (newly created by user before background load)
@@ -276,7 +279,10 @@ export function useFileManagement({
           mergedMap[f.path] = f.content
         }
       }
-      return Object.entries(mergedMap).map(([path, content]) => ({ path, content }))
+      return Object.entries(mergedMap).map(([path, content]) => ({
+        path,
+        content,
+      }))
     })
 
     // Baseline becomes the server snapshot for all known files
