@@ -3,7 +3,7 @@ import { isValidFileName } from "@/lib/utils/isValidFileName"
 import { PackageFile } from "@/types/package"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { usePackageFiles } from "./use-package-files"
+import { usePackageFileByRelease, usePackageFiles } from "./use-package-files"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
 import { usePackageFilesLoader } from "./usePackageFilesLoader"
@@ -64,12 +64,29 @@ export function useFileManagement({
   const loggedInUser = useGlobalStore((s) => s.session)
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [shouldLoadAllFiles, setShouldLoadAllFiles] = useState(false)
+  const [hasPrimedEditor, setHasPrimedEditor] = useState(false)
+
+  // Lazily load all files only after initial file is shown
   const {
     data: packageFilesWithContent,
     isLoading: isLoadingPackageFilesWithContent,
-  } = usePackageFilesLoader(currentPackage)
+  } = usePackageFilesLoader(shouldLoadAllFiles ? currentPackage : undefined)
+
+  // Always okay to fetch metadata list; it's a single request and cheap.
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(currentPackage?.latest_package_release_id)
+
+  // Decide the initial target file to show ASAP
+  const initialTargetFilePath = useMemo(
+    () => fileChoosen || "index.tsx",
+    [fileChoosen],
+  )
+
+  const initialFileQuery = usePackageFileByRelease(
+    currentPackage?.latest_package_release_id ?? null,
+    currentPackage ? initialTargetFilePath : null,
+  )
   const initialCodeContent = useMemo(() => {
     return (
       (!!decodeUrlHashToText(window.location.toString()) &&
@@ -126,16 +143,15 @@ export function useFileManagement({
     },
   })
 
+  // Prime editor immediately with selected file or index.tsx without waiting for all files
   useEffect(() => {
-    if (!currentPackage || isLoadingPackageFilesWithContent) {
+    // Non-package flows (template or URL hash driven)
+    if (!currentPackage) {
       const decodedFsMap = decodeUrlHashToFsMap(window.location.toString())
 
       if (decodedFsMap && Object.keys(decodedFsMap).length > 0) {
         const filesFromUrl = Object.entries(decodedFsMap).map(
-          ([path, content]) => ({
-            path,
-            content: String(content),
-          }),
+          ([path, content]) => ({ path, content: String(content) }),
         )
         const targetFile = findTargetFile(filesFromUrl, fileChoosen)
         setLocalFiles(filesFromUrl)
@@ -153,22 +169,104 @@ export function useFileManagement({
       setInitialFiles([])
       setCurrentFile("index.tsx")
       return
-    } else {
-      const targetFile = findTargetFile(
-        packageFilesWithContent || [],
-        fileChoosen,
-      )
-      setLocalFiles(packageFilesWithContent || [])
-      setInitialFiles(packageFilesWithContent || [])
-      setCurrentFile(targetFile?.path || null)
     }
-  }, [currentPackage, isLoadingPackageFilesWithContent])
 
-  const isLoading = useMemo(() => {
-    return (
-      isLoadingPackageFilesWithContent || isLoadingPackageFiles || !localFiles
+    // Package flow: prime editor only once
+    if (currentPackage && !hasPrimedEditor) {
+      const primedContent = (initialFileQuery.data as any)?.content_text || ""
+      setLocalFiles([
+        {
+          path: initialTargetFilePath,
+          content: primedContent,
+        },
+      ])
+      setInitialFiles([
+        {
+          path: initialTargetFilePath,
+          content: primedContent,
+        },
+      ])
+      setCurrentFile(initialTargetFilePath)
+      setHasPrimedEditor(true)
+    }
+  }, [
+    currentPackage,
+    hasPrimedEditor,
+    initialCodeContent,
+    fileChoosen,
+    initialTargetFilePath,
+    initialFileQuery.data,
+  ])
+
+  // Once the initial file request resolves (success or error), begin loading the rest in background
+  useEffect(() => {
+    if (!currentPackage) return
+    if (!hasPrimedEditor) return
+
+    if (initialFileQuery.isSuccess || initialFileQuery.isError) {
+      // Ensure local content is updated if it arrived after priming
+      if (initialFileQuery.isSuccess) {
+        const contentText = (initialFileQuery.data as any)?.content_text || ""
+        setLocalFiles((prev) => {
+          const idx = prev.findIndex((f) => f.path === initialTargetFilePath)
+          if (idx === -1) return prev
+          const updated = [...prev]
+          updated[idx] = { ...updated[idx], content: String(contentText) }
+          return updated
+        })
+        setInitialFiles((prev) => {
+          const idx = prev.findIndex((f) => f.path === initialTargetFilePath)
+          if (idx === -1) return prev
+          const updated = [...prev]
+          updated[idx] = { ...updated[idx], content: String(contentText) }
+          return updated
+        })
+      }
+      setShouldLoadAllFiles(true)
+    }
+  }, [
+    currentPackage,
+    hasPrimedEditor,
+    initialFileQuery.isSuccess,
+    initialFileQuery.isError,
+    initialFileQuery.data,
+    initialTargetFilePath,
+  ])
+
+  // When the full file set has been loaded in the background, sync localFiles and initialFiles
+  useEffect(() => {
+    if (!shouldLoadAllFiles) return
+    if (!packageFilesWithContent || isLoadingPackageFilesWithContent) return
+
+    const targetFile = findTargetFile(
+      packageFilesWithContent || [],
+      fileChoosen,
     )
-  }, [isLoadingPackageFilesWithContent, localFiles, isLoadingPackageFiles])
+    setLocalFiles(packageFilesWithContent || [])
+    setInitialFiles(packageFilesWithContent || [])
+    setCurrentFile(targetFile?.path || initialTargetFilePath || null)
+  }, [
+    shouldLoadAllFiles,
+    packageFilesWithContent,
+    isLoadingPackageFilesWithContent,
+    fileChoosen,
+    initialTargetFilePath,
+  ])
+
+  // Editor can render as soon as we have primed at least one file
+  const isLoading = useMemo(() => {
+    // If we've primed the editor with at least one file, don't block UI
+    if (hasPrimedEditor) return false
+    return (
+      isLoadingPackageFiles ||
+      (shouldLoadAllFiles && isLoadingPackageFilesWithContent)
+    )
+  }, [
+    hasPrimedEditor,
+    isLoadingPackageFiles,
+    shouldLoadAllFiles,
+    isLoadingPackageFilesWithContent,
+  ])
 
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
