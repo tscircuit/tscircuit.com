@@ -204,19 +204,30 @@ export function useFileManagement({
     if (!hasPrimedEditor) return
 
     if (initialFileQuery.isSuccess || initialFileQuery.isError) {
-      // Ensure local content is updated if it arrived after priming
+      // Ensure local content is updated if it arrived after priming,
+      // but DO NOT overwrite if user has already edited the file
       if (initialFileQuery.isSuccess) {
         const contentText = (initialFileQuery.data as any)?.content_text || ""
         setLocalFiles((prev) => {
           const idx = prev.findIndex((f) => f.path === initialTargetFilePath)
           if (idx === -1) return prev
+          const prevContent = prev[idx]?.content ?? ""
+          const baseline = initialFiles.find(
+            (f) => f.path === initialTargetFilePath,
+          )?.content
+          const userEdited = baseline !== undefined && prevContent !== baseline
+          if (userEdited) return prev
           const updated = [...prev]
           updated[idx] = { ...updated[idx], content: String(contentText) }
           return updated
         })
+        // For initialFiles, we want the server baseline even if user edited, so unsaved-diff shows correctly
         setInitialFiles((prev) => {
           const idx = prev.findIndex((f) => f.path === initialTargetFilePath)
-          if (idx === -1) return prev
+          if (idx === -1) return [
+            ...prev,
+            { path: initialTargetFilePath, content: String(contentText) },
+          ]
           const updated = [...prev]
           updated[idx] = { ...updated[idx], content: String(contentText) }
           return updated
@@ -242,7 +253,33 @@ export function useFileManagement({
       packageFilesWithContent || [],
       fileChoosen,
     )
-    setLocalFiles(packageFilesWithContent || [])
+
+    // Merge: preserve any file the user has edited locally (differs from initialFiles)
+    setLocalFiles((prevLocal) => {
+      const localMap: Record<string, string> = {}
+      prevLocal.forEach((f) => (localMap[f.path] = f.content))
+      const initialMap: Record<string, string> = {}
+      initialFiles.forEach((f) => (initialMap[f.path] = f.content))
+
+      const mergedMap: Record<string, string> = {}
+      // Start with server files
+      for (const f of packageFilesWithContent) {
+        const baseline = initialMap[f.path]
+        const currentLocal = localMap[f.path]
+        const userEdited =
+          baseline !== undefined && currentLocal !== undefined && currentLocal !== baseline
+        mergedMap[f.path] = userEdited ? currentLocal : f.content
+      }
+      // Include any local-only files (newly created by user before background load)
+      for (const f of prevLocal) {
+        if (!(f.path in mergedMap)) {
+          mergedMap[f.path] = f.content
+        }
+      }
+      return Object.entries(mergedMap).map(([path, content]) => ({ path, content }))
+    })
+
+    // Baseline becomes the server snapshot for all known files
     setInitialFiles(packageFilesWithContent || [])
     setCurrentFile(targetFile?.path || initialTargetFilePath || null)
   }, [
@@ -251,6 +288,7 @@ export function useFileManagement({
     isLoadingPackageFilesWithContent,
     fileChoosen,
     initialTargetFilePath,
+    initialFiles,
   ])
 
   // Editor can render as soon as we have primed at least one file
