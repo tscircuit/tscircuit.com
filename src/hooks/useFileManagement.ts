@@ -4,6 +4,7 @@ import { PackageFile } from "@/types/package"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFileByRelease, usePackageFiles } from "./use-package-files"
+import { useAxios } from "./use-axios"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
 import { usePackageFilesLoader } from "./usePackageFilesLoader"
@@ -66,6 +67,8 @@ export function useFileManagement({
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [shouldLoadAllFiles, setShouldLoadAllFiles] = useState(false)
   const [hasPrimedEditor, setHasPrimedEditor] = useState(false)
+  const [pendingFilePath, setPendingFilePath] = useState<string | null>(null)
+  const axios = useAxios()
 
   // Lazily load all files only after initial file is shown
   const {
@@ -326,10 +329,59 @@ export function useFileManagement({
   const onFileSelect = (fileName: string) => {
     if (localFiles.some((file) => file.path === fileName)) {
       setCurrentFile(fileName)
-    } else {
-      setCurrentFile(null)
+      return
     }
+    // If we know about this file from metadata, fetch it on-demand and allow immediate switch
+    const metaHasFile = packageFilesMeta?.some((f) => f.file_path === fileName)
+    if (currentPackage && metaHasFile) {
+      setCurrentFile(fileName)
+      setLocalFiles((prev) => {
+        if (prev.some((f) => f.path === fileName)) return prev
+        return [...prev, { path: fileName, content: "" }]
+      })
+      setPendingFilePath(fileName)
+      return
+    }
+    setCurrentFile(null)
   }
+
+  // Fetch a single file on-demand when user selects it from the sidebar before background load completes
+  useEffect(() => {
+    const fetchPending = async () => {
+      if (!pendingFilePath || !currentPackage) return
+      try {
+        const res = await axios.post("/package_files/get", {
+          package_release_id: currentPackage.latest_package_release_id,
+          file_path: pendingFilePath,
+        })
+        const contentText = res.data?.package_file?.content_text ?? ""
+        setLocalFiles((prev) =>
+          prev.map((f) =>
+            f.path === pendingFilePath
+              ? { ...f, content: String(contentText) }
+              : f,
+          ),
+        )
+        setInitialFiles((prev) => {
+          const idx = prev.findIndex((f) => f.path === pendingFilePath)
+          if (idx === -1)
+            return [
+              ...prev,
+              { path: pendingFilePath, content: String(contentText) },
+            ]
+          const updated = [...prev]
+          updated[idx] = { ...updated[idx], content: String(contentText) }
+          return updated
+        })
+      } catch (err) {
+        console.warn("Failed to fetch selected file", pendingFilePath, err)
+      } finally {
+        setPendingFilePath(null)
+      }
+    }
+    fetchPending()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingFilePath])
 
   const createFile = ({
     newFileName,
