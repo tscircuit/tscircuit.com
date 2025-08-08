@@ -6,8 +6,7 @@ import { usePackageBuild } from "@/hooks/use-package-builds"
 import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, GitBranch, Hash, Copy, Check } from "lucide-react"
+import { Calendar, GitBranch } from "lucide-react"
 import { useState } from "react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
@@ -83,12 +82,18 @@ export default function ReleaseDetailPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   {packageRelease.is_pr_preview && (
-                    <div className="flex items-center gap-1">
-                      <GitBranch className="w-4 h-4" />
-                      <Badge variant="outline" className="text-xs">
-                        PR #{packageRelease.github_pr_number}
-                      </Badge>
-                    </div>
+                    <a
+                      href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <div className="flex items-center gap-1">
+                        <GitBranch className="w-4 h-4" />
+                        <Badge variant="outline" className="text-xs">
+                          PR #{packageRelease.github_pr_number}
+                        </Badge>
+                      </div>
+                    </a>
                   )}
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />

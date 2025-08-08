@@ -46,6 +46,10 @@ export default function ReleasesPage() {
   // If there's no build, we still want to show the releases page
   // The PackageReleasesDashboard will handle the case where latestBuild is null
   return (
-    <PackageReleasesDashboard latestBuild={latestBuild ?? null} pkg={pkg} />
+    <PackageReleasesDashboard
+      latestRelease={latestRelease}
+      latestBuild={latestBuild ?? null}
+      pkg={pkg}
+    />
   )
 }

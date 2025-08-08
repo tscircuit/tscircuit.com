@@ -125,9 +125,6 @@ test("GET /api/package_builds/list - returns created builds", async () => {
     ).toISOString(),
     build_logs: null,
     preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
-    branch_name: "main",
-    commit_message: "Add new LED component with improved brightness control",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(
@@ -175,9 +172,6 @@ test("GET /api/package_builds/list - sorts builds by created_at descending", asy
     ).toISOString(),
     build_logs: null,
     preview_url: "https://preview.tscircuit.com/pb_1",
-    branch_name: "main",
-    commit_message: "First build",
-    commit_author: "john.doe",
   })
 
   db.addPackageBuild({
@@ -210,9 +204,6 @@ test("GET /api/package_builds/list - sorts builds by created_at descending", asy
     ).toISOString(),
     build_logs: null,
     preview_url: "https://preview.tscircuit.com/pb_2",
-    branch_name: "main",
-    commit_message: "Second build",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(
@@ -286,9 +277,6 @@ test("GET /api/package_builds/list - returns created builds with logs or not", a
     ).toISOString(),
     build_logs: buildLogs.join(" "),
     preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
-    branch_name: "main",
-    commit_message: "Add new LED component with improved brightness control",
-    commit_author: "john.doe",
   })
 
   const resWithoutLogs = await axios.get(

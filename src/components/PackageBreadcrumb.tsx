@@ -77,7 +77,7 @@ export function PackageBreadcrumb({
               {currentPage === "builds" ? (
                 <BreadcrumbLink asChild>
                   <PrefetchPageLink
-                    href={`/${packageName}/release/${releaseVersion}`}
+                    href={`/${packageName}/releases/${releaseVersion}`}
                   >
                     {releaseVersion}
                   </PrefetchPageLink>

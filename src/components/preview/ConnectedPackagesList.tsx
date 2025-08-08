@@ -8,7 +8,10 @@ import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus, StatusIcon } from "."
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageBuild } from "@/hooks/use-package-builds"
-import { useLatestPackageRelease } from "@/hooks/use-package-release"
+import {
+  useLatestPackageRelease,
+  usePackageReleaseById,
+} from "@/hooks/use-package-release"
 
 export const ConnectedPackageCardSkeleton = () => {
   return (
@@ -86,6 +89,10 @@ export const ConnectedPackageCard = ({
     pkg.package_id,
   )
 
+  const { data: packageRelease } = usePackageReleaseById(
+    latestBuildInfo?.package_release_id,
+  )
+
   if (isLoading && !latestBuildInfo) {
     return <ConnectedPackageCardSkeleton />
   }
@@ -146,25 +153,25 @@ export const ConnectedPackageCard = ({
         </a>
       </div>
 
-      {latestBuildInfo?.commit_message && (
-        <div className="mb-6 flex-1">
+      <div className="mb-6 flex-1">
+        {packageRelease?.commit_message && (
           <h4
-            title={latestBuildInfo.commit_message}
+            title={packageRelease.commit_message}
             className="text-sm font-medium truncate text-gray-900 mb-2"
           >
-            {latestBuildInfo.commit_message}
+            {packageRelease.commit_message}
           </h4>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>{formatTimeAgo(latestBuildInfo.created_at)} on</span>
-            <div className="flex items-center gap-1">
-              <GitBranch className="w-3 h-3" />
-              <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">
-                {latestBuildInfo.branch_name || "main"}
-              </span>
-            </div>
+        )}
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <span>{formatTimeAgo(String(latestBuildInfo?.created_at))} on</span>
+          <div className="flex items-center gap-1">
+            <GitBranch className="w-3 h-3" />
+            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">
+              {packageRelease?.branch_name || "main"}
+            </span>
           </div>
         </div>
-      )}
+      </div>
 
       <div className="flex gap-2 w-full mt-auto">
         <PrefetchPageLink className="w-full" href={`/${pkg.name}/releases`}>

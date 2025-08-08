@@ -71,9 +71,6 @@ test("GET /api/package_builds/get - returns 403 for unauthorized package build a
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
     preview_url: "https://preview.tscircuit.com/pb_test",
-    branch_name: "main",
-    commit_message: "Test build",
-    commit_author: "jane.doe",
   })
 
   const res = await axios.get(
@@ -126,9 +123,6 @@ test("GET /api/package_builds/get - successfully returns package build with logs
     ).toISOString(),
     build_logs: buildLogs.join(" "),
     preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
-    branch_name: "main",
-    commit_message: "Add new LED component with improved brightness control",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(
@@ -174,9 +168,6 @@ test("GET /api/package_builds/get - returns package build without logs when incl
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: "Some build logs",
     preview_url: "https://preview.tscircuit.com/pb_test",
-    branch_name: "main",
-    commit_message: "Test build",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(
@@ -222,9 +213,6 @@ test("GET /api/package_builds/get - handles build with errors", async () => {
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
     preview_url: null,
-    branch_name: "feature/new-component",
-    commit_message: "Add broken component",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(
@@ -274,9 +262,6 @@ test("GET /api/package_builds/get - handles build in progress", async () => {
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
     preview_url: null,
-    branch_name: "main",
-    commit_message: "Building in progress",
-    commit_author: "john.doe",
   })
 
   const res = await axios.get(

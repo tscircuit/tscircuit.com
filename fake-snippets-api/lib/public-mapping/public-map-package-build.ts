@@ -32,9 +32,6 @@ export const publicMapPackageBuild = (
       internalPackageBuild.build_error_last_updated_at,
     preview_url: internalPackageBuild.preview_url,
     build_logs: options.include_logs ? internalPackageBuild.build_logs : null,
-    branch_name: internalPackageBuild.branch_name,
-    commit_message: internalPackageBuild.commit_message,
-    commit_author: internalPackageBuild.commit_author,
   }
 
   return result

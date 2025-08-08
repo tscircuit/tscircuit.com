@@ -37,7 +37,7 @@ export default function PreviewBuildPage() {
   const author = params?.author || null
   const packageName = params?.packageName || null
 
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [selectedFile, setSelectedFile] = useState<string | null>("index.tsx")
   const [selectedItemId, setSelectedItemId] = useState<string>("")
 
@@ -132,19 +132,19 @@ export default function PreviewBuildPage() {
                           {build?.package_build_id}
                         </PrefetchPageLink>
                       </div>
-                      {build?.commit_message && (
+                      {packageRelease?.commit_message && (
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                           <span className="text-xs text-gray-500 uppercase tracking-wide">
                             Commit
                           </span>
                           <a
-                            title={build?.commit_message}
+                            title={packageRelease?.commit_message}
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={`https://github.com/${pkg?.github_repo_full_name}/commit/${build?.commit_message}`}
+                            href={`https://github.com/${pkg?.github_repo_full_name}/commit/${packageRelease?.commit_message}`}
                             className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
                           >
-                            {build?.commit_message}
+                            {packageRelease?.commit_message}
                           </a>
                         </div>
                       )}
@@ -157,7 +157,7 @@ export default function PreviewBuildPage() {
                           className={`text-xs font-medium px-2 py-1 w-fit rounded-full capitalize ${
                             status === "success"
                               ? "bg-emerald-100 text-emerald-800"
-                              : status === "failed"
+                              : status === "error"
                                 ? "bg-red-100 text-red-800"
                                 : status === "building"
                                   ? "bg-blue-100 text-blue-800"
@@ -232,7 +232,7 @@ export default function PreviewBuildPage() {
                       <Loader2 className="w-6 h-6 animate-spin" />
                       <p>Building…</p>
                     </div>
-                  ) : status === "failed" ? (
+                  ) : status === "error" ? (
                     <div className="text-center">
                       <p className="text-red-600 font-medium mb-2">
                         Build Failed

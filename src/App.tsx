@@ -262,11 +262,11 @@ function App() {
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/:username" component={UserProfilePage} />
             <Route
-              path="/:author/:packageName/release/:releaseId/builds"
+              path="/:author/:packageName/releases/:releaseId/builds"
               component={ReleaseBuildsPage}
             />
             <Route
-              path="/:author/:packageName/release/:releaseId"
+              path="/:author/:packageName/releases/:releaseId"
               component={ReleaseDetailPage}
             />
             <Route

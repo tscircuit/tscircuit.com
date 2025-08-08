@@ -15,12 +15,18 @@ import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
 import { PrefetchPageLink } from "../PrefetchPageLink"
 import { PackageBreadcrumb } from "../PackageBreadcrumb"
-import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+import {
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 
 export const PackageReleasesDashboard = ({
+  latestRelease,
   latestBuild,
   pkg,
 }: {
+  latestRelease: PackageRelease
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
@@ -88,14 +94,14 @@ export const PackageReleasesDashboard = ({
                       className="flex cursor-pointer items-center gap-1"
                       onClick={() =>
                         window?.open(
-                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestBuild?.branch_name || "main"}`,
+                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestRelease?.branch_name || "main"}`,
                           "_blank",
                         )
                       }
                     >
                       <GitBranch className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {latestBuild?.branch_name || "main"}
+                        {latestRelease?.branch_name || "main"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
