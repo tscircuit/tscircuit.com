@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { GitFork, Star, Settings, LinkIcon, Github } from "lucide-react"
+import { GitFork, Star, Settings, LinkIcon, Github, Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
@@ -164,7 +164,7 @@ export default function SidebarAboutSection({
             <GitFork className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
             <span>{(packageInfo as any)?.fork_count ?? "0"} forks</span>
           </div>
-          {packageInfo?.github_repo_full_name && (
+          {packageInfo?.github_repo_full_name ? (
             <a
               target="_blank"
               href={`https://github.com/${packageInfo.github_repo_full_name}`}
@@ -173,6 +173,22 @@ export default function SidebarAboutSection({
               <Github className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
               <span>{packageInfo?.github_repo_full_name.split("/")[1]}</span>
             </a>
+          ) : (
+            <>
+              {isOwner && (
+                <div
+                  className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
+                  onClick={openEditPackageDetailsDialog}
+                  title="Connect GitHub"
+                >
+                  <div className="relative mr-2">
+                    <Github className="h-4 w-4 text-gray-500 dark:text-[#8b949e]" />
+                    <Plus className="h-2 w-2 absolute -bottom-0.5 -right-0.5 text-gray-500 dark:text-[#8b949e] bg-white dark:bg-[#0d1117] rounded-full" />
+                  </div>
+                  <span>Connect GitHub</span>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
