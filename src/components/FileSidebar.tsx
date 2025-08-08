@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
   Pencil,
+  Loader2,
 } from "lucide-react"
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
 import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
@@ -45,6 +46,8 @@ interface FileSidebarProps {
   isCreatingFile: boolean
   setIsCreatingFile: React.Dispatch<React.SetStateAction<boolean>>
   pkg?: Package
+  isLoadingFiles?: boolean
+  loadingProgress?: string | null
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -58,6 +61,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
+  isLoadingFiles = false,
+  loadingProgress = null,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
@@ -184,19 +189,31 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         className,
       )}
     >
-      <button
-        onClick={toggleSidebar}
-        className={`z-[99] mt-2 ml-2 text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-      >
-        <PanelRightOpen />
-      </button>
-      <button
-        onClick={() => setIsCreatingFile(true)}
-        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-        aria-label="Create new file"
-      >
-        <Plus className="w-5 h-5" />
-      </button>
+      <div className="flex items-center justify-between px-2 pt-2">
+        <button
+          onClick={toggleSidebar}
+          className={`text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        >
+          <PanelRightOpen />
+        </button>
+        <div className="flex items-center gap-2">
+          {isLoadingFiles && (
+            <div className="flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
+              {loadingProgress && (
+                <span className="text-xs text-gray-400">{loadingProgress}</span>
+              )}
+            </div>
+          )}
+          <button
+            onClick={() => setIsCreatingFile(true)}
+            className="text-gray-400 hover:text-gray-600"
+            aria-label="Create new file"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
       {isCreatingFile && (
         <div className="p-2">
           <Input

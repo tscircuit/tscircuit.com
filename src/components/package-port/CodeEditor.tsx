@@ -72,6 +72,9 @@ export const CodeEditor = ({
   handleCreateFile,
   handleDeleteFile,
   pkg,
+  isFullyLoaded = false,
+  totalFilesCount = 0,
+  loadedFilesCount = 0,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
@@ -87,6 +90,9 @@ export const CodeEditor = ({
   onFileContentChanged?: (path: string, content: string) => void
   currentFile: string | null
   onFileSelect: (path: string, lineNumber?: number) => void
+  isFullyLoaded?: boolean
+  totalFilesCount?: number
+  loadedFilesCount?: number
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -825,6 +831,10 @@ export const CodeEditor = ({
         isCreatingFile={isCreatingFile}
         setIsCreatingFile={setIsCreatingFile}
         pkg={pkg}
+        isLoadingFiles={!isFullyLoaded}
+        loadingProgress={
+          totalFilesCount > 0 ? `${loadedFilesCount}/${totalFilesCount}` : null
+        }
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
