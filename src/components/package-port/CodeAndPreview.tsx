@@ -11,12 +11,18 @@ import { Loader2 } from "lucide-react"
 import { useMemo, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useIsMobile } from "../ViewPackagePage/hooks/use-mobile"
 
 interface Props {
   pkg?: Package
@@ -41,6 +47,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
+  const isMobile = useIsMobile()
 
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -201,65 +208,130 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         files={localFiles}
         packageFilesMeta={packageFilesMeta}
       />
-      <div
-        className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
-      >
-        <div
-          className={cn(
-            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            state.showPreview ? "w-full md:w-1/2" : "w-full flex",
+      {state.showPreview ? (
+        <>
+          {/* Mobile preview only */}
+          <div
+            className={cn(
+              "flex p-0 flex-col min-h-[640px] w-full md:hidden",
+              state.fullScreen &&
+                "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
+            )}
+          >
+            <SuspenseRunFrame
+              showRunButton
+              forceLatestEvalVersion
+              onRenderStarted={() =>
+                setState((prev) => ({
+                  ...prev,
+                  lastRunCode: currentFileCode,
+                }))
+              }
+              onRenderFinished={({ circuitJson }) => {
+                setState((prev) => ({ ...prev, circuitJson }))
+                toastManualEditConflicts(circuitJson, toast)
+              }}
+              mainComponentPath={mainComponentPath}
+              onEditEvent={(event) => {
+                handleEditEvent(event)
+              }}
+              fsMap={fsMap ?? {}}
+              projectUrl={projectUrl}
+            />
+          </div>
+          {!isMobile && (
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="hidden md:flex w-full min-h-[640px]"
+            >
+              <ResizablePanel
+                defaultSize={50}
+                minSize={20}
+                className="flex flex-col border-r border-gray-200 bg-gray-50"
+              >
+                <CodeEditor
+                  isSaving={isSaving}
+                  handleCreateFile={createFile}
+                  handleDeleteFile={deleteFile}
+                  handleRenameFile={renameFile}
+                  pkg={pkg}
+                  currentFile={currentFile}
+                  onFileSelect={onFileSelect}
+                  files={localFiles}
+                  onCodeChange={(newCode, filename) => {
+                    const targetFilename = filename ?? currentFile
+                    setLocalFiles((prev) =>
+                      prev.map((file) =>
+                        file.path === targetFilename
+                          ? { ...file, content: newCode }
+                          : file,
+                      ),
+                    )
+                  }}
+                  pkgFilesLoaded={!isLoading}
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle className="bg-gray-200" />
+              <ResizablePanel
+                defaultSize={50}
+                minSize={20}
+                className={cn(
+                  "flex p-0 flex-col",
+                  state.fullScreen &&
+                    "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
+                )}
+              >
+                <SuspenseRunFrame
+                  showRunButton
+                  forceLatestEvalVersion
+                  onRenderStarted={() =>
+                    setState((prev) => ({
+                      ...prev,
+                      lastRunCode: currentFileCode,
+                    }))
+                  }
+                  onRenderFinished={({ circuitJson }) => {
+                    setState((prev) => ({ ...prev, circuitJson }))
+                    toastManualEditConflicts(circuitJson, toast)
+                  }}
+                  mainComponentPath={mainComponentPath}
+                  onEditEvent={(event) => {
+                    handleEditEvent(event)
+                  }}
+                  fsMap={fsMap ?? {}}
+                  projectUrl={projectUrl}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           )}
-        >
-          <CodeEditor
-            isSaving={isSaving}
-            handleCreateFile={createFile}
-            handleDeleteFile={deleteFile}
-            handleRenameFile={renameFile}
-            pkg={pkg}
-            currentFile={currentFile}
-            onFileSelect={onFileSelect}
-            files={localFiles}
-            onCodeChange={(newCode, filename) => {
-              const targetFilename = filename ?? currentFile
-              setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
-                ),
-              )
-            }}
-            pkgFilesLoaded={!isLoading}
-          />
+        </>
+      ) : (
+        <div className="flex w-full">
+          <div className="flex flex-col w-full border-r border-gray-200 bg-gray-50">
+            <CodeEditor
+              isSaving={isSaving}
+              handleCreateFile={createFile}
+              handleDeleteFile={deleteFile}
+              handleRenameFile={renameFile}
+              pkg={pkg}
+              currentFile={currentFile}
+              onFileSelect={onFileSelect}
+              files={localFiles}
+              onCodeChange={(newCode, filename) => {
+                const targetFilename = filename ?? currentFile
+                setLocalFiles((prev) =>
+                  prev.map((file) =>
+                    file.path === targetFilename
+                      ? { ...file, content: newCode }
+                      : file,
+                  ),
+                )
+              }}
+              pkgFilesLoaded={!isLoading}
+            />
+          </div>
         </div>
-        <div
-          className={cn(
-            "flex p-0 flex-col min-h-[640px] overflow-y-hidden",
-            state.fullScreen
-              ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-              : "w-full md:w-1/2",
-            !state.showPreview && "hidden",
-          )}
-        >
-          <SuspenseRunFrame
-            showRunButton
-            forceLatestEvalVersion
-            onRenderStarted={() =>
-              setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }
-            onRenderFinished={({ circuitJson }) => {
-              setState((prev) => ({ ...prev, circuitJson }))
-              toastManualEditConflicts(circuitJson, toast)
-            }}
-            mainComponentPath={mainComponentPath}
-            onEditEvent={(event) => {
-              handleEditEvent(event)
-            }}
-            fsMap={fsMap ?? {}}
-            projectUrl={projectUrl}
-          />
-        </div>
-      </div>
+      )}
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
     </div>
