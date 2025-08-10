@@ -1,26 +1,9 @@
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"
-import {
-  File,
-  Folder,
-  MoreVertical,
-  PanelRightOpen,
-  Plus,
-  Trash2,
-  Pencil,
-  Loader2,
-} from "lucide-react"
-import { TreeView, TreeDataItem } from "@/components/ui/tree-view"
-import { isHiddenFile } from "./ViewPackagePage/utils/is-hidden-file"
+import { PanelRightOpen, Plus, Loader2 } from "lucide-react"
+import { TreeView } from "@/components/ui/tree-view"
 import { Input } from "@/components/ui/input"
 import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
 import type {
   ICreateFileProps,
   ICreateFileResult,
@@ -29,8 +12,6 @@ import type {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
-import { useToast } from "@/hooks/use-toast"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 type FileName = string
 
@@ -61,7 +42,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
-  isLoadingFiles = false,
+  isLoadingFiles = true,
   loadingProgress = null,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
@@ -74,7 +55,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [selectedItemId, setSelectedItemId] = React.useState<string>(
     currentFile || "",
   )
-  const { toast } = useToast()
   const canModifyFiles = true
 
   const onFolderSelect = (folderPath: string) => {

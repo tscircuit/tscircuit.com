@@ -22,6 +22,7 @@ export interface OptimizedLoadingState {
 export function useOptimizedPackageFilesLoader(
   pkg?: Package,
   priorityFilePath?: string | null,
+  packageId?: string | null,
 ) {
   const axios = useAxios()
   const [loadedFiles, setLoadedFiles] = useState<Map<string, PackageFile>>(
@@ -50,12 +51,7 @@ export function useOptimizedPackageFilesLoader(
     const indexFile = pkgFiles.data.find((f) => f.file_path === "index.tsx")
     if (indexFile) return indexFile.file_path
 
-    const mainFile = pkgFiles.data.find(
-      (f) =>
-        f.file_path === "main.tsx" ||
-        f.file_path === "app.tsx" ||
-        f.file_path === "App.tsx",
-    )
+    const mainFile = pkgFiles.data.find((f) => f.file_path === "main.tsx")
     if (mainFile) return mainFile.file_path
 
     return pkgFiles.data[0]?.file_path || null
@@ -130,6 +126,7 @@ export function useOptimizedPackageFilesLoader(
 
   return {
     priorityFile: priorityFileQuery.data || null,
+    priorityFileFetched: priorityFileQuery.isFetched,
     allFiles,
     isPriorityLoading: priorityFileQuery.isLoading,
     areAllFilesLoading,
@@ -137,5 +134,6 @@ export function useOptimizedPackageFilesLoader(
     isMetaLoading: pkgFiles.isLoading,
     totalFilesCount: pkgFiles.data?.length || 0,
     loadedFilesCount: allFiles.length,
+    isPriorityFileFetched: priorityFileQuery.isFetched,
   }
 }

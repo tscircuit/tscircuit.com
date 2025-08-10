@@ -15,6 +15,7 @@ import { useCreatePackageMutation } from "./use-create-package-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
+import { isComponentExported } from "@/lib/utils/isComponentExported"
 
 export interface ICreateFileProps {
   newFileName: string
@@ -47,21 +48,21 @@ export interface IRenameFileResult {
 export function useFileManagement({
   templateCode,
   currentPackage,
-  fileChoosen,
   openNewPackageSaveDialog,
   updateLastUpdated,
+  urlParams,
 }: {
   templateCode?: string
   currentPackage?: Package
-  fileChoosen: string | null
   openNewPackageSaveDialog: () => void
+  urlParams: Record<string, string>
   updateLastUpdated: () => void
 }) {
+  const fileChoosen = urlParams.file_path ?? null
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const loggedInUser = useGlobalStore((s) => s.session)
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const {
@@ -71,7 +72,13 @@ export function useFileManagement({
     areAllFilesLoading: isLoadingPackageFilesWithContent,
     totalFilesCount,
     loadedFilesCount,
-  } = useOptimizedPackageFilesLoader(currentPackage, fileChoosen)
+    isPriorityFileFetched,
+  } = useOptimizedPackageFilesLoader(
+    currentPackage,
+    fileChoosen,
+    urlParams.package_id,
+  )
+
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(currentPackage?.latest_package_release_id)
   const initialCodeContent = useMemo(() => {
@@ -149,7 +156,7 @@ export function useFileManagement({
         return
       }
 
-      if (!currentPackage) {
+      if (!urlParams.package_id) {
         setLocalFiles([
           {
             path: "index.tsx",
@@ -179,11 +186,6 @@ export function useFileManagement({
         // Add new file
         return [...prev, priorityFile]
       })
-
-      // Set as current file if no file is selected yet
-      if (!currentFile || currentFile === "index.tsx") {
-        setCurrentFile(priorityFile.path)
-      }
     }
   }, [priorityFile, isPriorityLoading, currentPackage])
 
@@ -221,6 +223,7 @@ export function useFileManagement({
       },
       {} as Record<string, string>,
     )
+
     return map
   }, [localFiles, manualEditsFileContent])
 
@@ -476,13 +479,45 @@ export function useFileManagement({
     isCreatingRelease,
   ])
 
+  const currentFileCode = useMemo(
+    () =>
+      localFiles.find((x) => x.path === currentFile)?.content ?? DEFAULT_CODE,
+    [localFiles, currentFile],
+  )
+  const mainComponentPath = useMemo(() => {
+    const isComponentExportedInCurrentFile =
+      isComponentExported(currentFileCode)
+
+    const selectedComponent =
+      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) &&
+      !!localFiles.some((x) => x.path === currentFile) &&
+      isComponentExportedInCurrentFile
+        ? currentFile
+        : localFiles.find((x) => {
+            const isComponentExportedInFile = isComponentExported(x.content)
+            return (
+              x.path.endsWith(".tsx") ||
+              (x.path.endsWith(".ts") && isComponentExportedInFile)
+            )
+          })?.path || localFiles[0]?.path
+
+    return selectedComponent
+  }, [currentFile, localFiles, currentFileCode, packageFilesWithContent])
+
+  const priorityFileFetched = useMemo(() => {
+    return urlParams.package_id && isPriorityFileFetched
+  }, [localFiles, currentFile])
+
   return {
     fsMap,
     createFile,
+    priorityFileFetched,
     deleteFile,
     renameFile,
     saveFiles,
     localFiles,
+    mainComponentPath,
+    currentFileCode,
     initialFiles,
     currentFile,
     setLocalFiles,

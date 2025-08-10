@@ -7,7 +7,6 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { Loader2 } from "lucide-react"
 import { useMemo, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
@@ -16,7 +15,6 @@ import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
-import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface Props {
   pkg?: Package
@@ -39,13 +37,13 @@ export interface CodeAndPreviewState {
 
 export function CodeAndPreview({ pkg, projectUrl }: Props) {
   const { toast } = useToast()
-  const session = useGlobalStore((s) => s.session)
   const urlParams = useUrlParams()
 
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
     [urlParams.template],
   )
+
   const [state, setState] = useState<CodeAndPreviewState>({
     showPreview: true,
     fullScreen: false,
@@ -69,20 +67,26 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     isSaving,
     currentFile,
     fsMap,
+    priorityFileFetched,
     isLoading,
     createFile,
+    mainComponentPath,
     deleteFile,
+    isFullyLoaded,
     onFileSelect,
+    totalFilesCount,
     saveFiles,
     setLocalFiles,
+    loadedFilesCount,
     localFiles,
+    currentFileCode,
     initialFiles,
     renameFile,
     packageFilesMeta,
   } = useFileManagement({
     templateCode: templateFromUrl?.code,
     currentPackage: pkg,
-    fileChoosen: urlParams.file_path ?? null,
+    urlParams,
     openNewPackageSaveDialog,
     updateLastUpdated: () => {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
@@ -102,29 +106,6 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
   )
 
   useWarnUserOnPageChange({ hasUnsavedChanges })
-
-  const currentFileCode = useMemo(
-    () =>
-      localFiles.find((x) => x.path === currentFile)?.content ??
-      state.defaultComponentFile ??
-      DEFAULT_CODE,
-    [localFiles, currentFile],
-  )
-
-  const mainComponentPath = useMemo(() => {
-    const isReactComponentExported =
-      /export function\s+\w+/.test(currentFileCode) ||
-      /export const\s+\w+\s*=/.test(currentFileCode) ||
-      /export default\s+\w+/.test(currentFileCode) ||
-      /export default\s+function\s*(\w*)\s*\(/.test(currentFileCode) ||
-      /export default\s*\(\s*\)\s*=>/.test(currentFileCode)
-
-    return (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) &&
-      !!localFiles.some((x) => x.path == currentFile) &&
-      isReactComponentExported
-      ? currentFile
-      : state.defaultComponentFile
-  }, [currentFile, localFiles, currentFileCode])
 
   const handleEditEvent = (event: ManualEditEvent) => {
     const parsedManualEdits = JSON.parse(
@@ -171,17 +152,10 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  if (urlParams.package_id && (!pkg || isLoading)) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <div className="flex flex-col items-center justify-center">
-          <div className="text-lg text-gray-500 mb-4">Loading</div>
-          <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
-        </div>
-      </div>
-    )
-  }
-
+  const finalfsMap = useMemo(
+    () => (Object.keys(fsMap).length > 0 ? fsMap : {}),
+    [fsMap],
+  )
   return (
     <div className="flex flex-col min-h-[50vh]">
       <EditorNav
@@ -213,8 +187,14 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           <CodeEditor
             isSaving={isSaving}
             handleCreateFile={createFile}
+            totalFilesCount={totalFilesCount}
+            loadedFilesCount={loadedFilesCount}
+            isFullyLoaded={isFullyLoaded}
             handleDeleteFile={deleteFile}
             handleRenameFile={renameFile}
+            isPriorityFileFetched={
+              !priorityFileFetched && Boolean(urlParams.package_id)
+            }
             pkg={pkg}
             currentFile={currentFile}
             onFileSelect={onFileSelect}
@@ -255,7 +235,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             onEditEvent={(event) => {
               handleEditEvent(event)
             }}
-            fsMap={fsMap ?? {}}
+            fsMap={finalfsMap}
             projectUrl={projectUrl}
           />
         </div>
