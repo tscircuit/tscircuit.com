@@ -17,6 +17,7 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { DEFAULT_CODE } from "@/lib/utils/package-utils"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 interface Props {
   pkg?: Package
@@ -94,6 +95,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
       (!isSaving &&
         Date.now() - state.lastSavedAt > 1000 &&
         localFiles.some((file) => {
+          if (isHiddenFile(file.path)) return false
           const initialFile = initialFiles.find((x) => x.path === file.path)
           return initialFile?.content !== file.content
         })) ||
