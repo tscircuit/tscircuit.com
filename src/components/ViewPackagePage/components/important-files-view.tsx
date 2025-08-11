@@ -182,23 +182,6 @@ export default function ImportantFilesView({
     return null
   }, [isLoading, availableTabs, isReadmeFile])
 
-  // Handle copy functionality
-  const handleCopy = useCallback(() => {
-    let textToCopy = ""
-
-    if (activeTab?.type === "ai-review" && aiReviewText) {
-      textToCopy = aiReviewText
-    } else if (activeTab?.type === "file" && activeFileContent) {
-      textToCopy = activeFileContent
-    }
-
-    if (textToCopy) {
-      navigator.clipboard.writeText(textToCopy)
-      setCopyState("copied")
-      setTimeout(() => setCopyState("copy"), 500)
-    }
-  }, [activeTab, aiReviewText])
-
   // Handle tab selection with validation
   const selectTab = useCallback(
     (tab: TabInfo) => {
@@ -284,6 +267,22 @@ export default function ImportantFilesView({
   )
 
   const activeFileContent = activeFileFull?.content_text || ""
+
+  const handleCopy = () => {
+    let textToCopy = ""
+
+    if (activeTab?.type === "ai-review" && aiReviewText) {
+      textToCopy = aiReviewText
+    } else if (activeTab?.type === "file" && activeFileContent) {
+      textToCopy = activeFileContent
+    }
+
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy)
+      setCopyState("copied")
+      setTimeout(() => setCopyState("copy"), 500)
+    }
+  }
 
   // Render content based on active tab
   const renderAiContent = useCallback(
