@@ -2,6 +2,7 @@ import { useMutation } from "react-query"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useAxios } from "./use-axios"
 import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
+import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 
 interface PackageFile {
   path: string
@@ -42,6 +43,7 @@ export function useUpdatePackageFilesMutation({
       let updatedFilesCount = 0
 
       for (const file of localFiles) {
+        if (isHiddenFile(file.path)) continue
         const initialFile = initialFiles.find((x) => x.path === file.path)
         if (file.content !== initialFile?.content) {
           const updatePkgFilePayload = {
