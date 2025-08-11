@@ -506,7 +506,7 @@ export function useFileManagement({
 
   const priorityFileFetched = useMemo(() => {
     return urlParams.package_id && isPriorityFileFetched
-  }, [localFiles, currentFile])
+  }, [urlParams.package_id, isPriorityFileFetched])
 
   return {
     fsMap,
