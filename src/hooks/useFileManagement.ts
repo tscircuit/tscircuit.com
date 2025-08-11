@@ -58,7 +58,7 @@ export function useFileManagement({
   urlParams: Record<string, string>
   updateLastUpdated: () => void
 }) {
-  const fileChoosen = urlParams.file_path ?? null
+  const fileChosen = urlParams.file_path ?? null
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
@@ -75,7 +75,7 @@ export function useFileManagement({
     isPriorityFileFetched,
   } = useOptimizedPackageFilesLoader(
     currentPackage,
-    fileChoosen,
+    fileChosen,
     urlParams.package_id,
   )
 
@@ -149,7 +149,7 @@ export function useFileManagement({
             content: String(content),
           }),
         )
-        const targetFile = findTargetFile(filesFromUrl, fileChoosen)
+        const targetFile = findTargetFile(filesFromUrl, fileChosen)
         setLocalFiles(filesFromUrl)
         setInitialFiles([])
         setCurrentFile(targetFile?.path || filesFromUrl[0]?.path || null)
@@ -197,7 +197,7 @@ export function useFileManagement({
 
       // Only update current file if not already set
       if (!currentFile || currentFile === "index.tsx") {
-        const targetFile = findTargetFile(packageFilesWithContent, fileChoosen)
+        const targetFile = findTargetFile(packageFilesWithContent, fileChosen)
         if (targetFile) {
           setCurrentFile(targetFile.path)
         }
