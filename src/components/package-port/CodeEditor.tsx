@@ -50,6 +50,7 @@ import {
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
+import { Loader2 } from "lucide-react"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -59,6 +60,7 @@ import type { CommonLayoutProps } from "@tscircuit/props"
 
 export const CodeEditor = ({
   onCodeChange,
+  isPriorityFileFetched,
   readOnly = false,
   files = [],
   isSaving = false,
@@ -72,9 +74,13 @@ export const CodeEditor = ({
   handleCreateFile,
   handleDeleteFile,
   pkg,
+  isFullyLoaded = false,
+  totalFilesCount = 0,
+  loadedFilesCount = 0,
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
+  isPriorityFileFetched: boolean
   isSaving?: boolean
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
@@ -87,6 +93,9 @@ export const CodeEditor = ({
   onFileContentChanged?: (path: string, content: string) => void
   currentFile: string | null
   onFileSelect: (path: string, lineNumber?: number) => void
+  isFullyLoaded?: boolean
+  totalFilesCount?: number
+  loadedFilesCount?: number
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -117,7 +126,7 @@ export const CodeEditor = ({
     return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
   }, [files])
 
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isCreatingFile, setIsCreatingFile] = useState(false)
 
   // Set current file on component mount
@@ -825,10 +834,15 @@ export const CodeEditor = ({
         isCreatingFile={isCreatingFile}
         setIsCreatingFile={setIsCreatingFile}
         pkg={pkg}
+        isLoadingFiles={!isFullyLoaded}
+        loadingProgress={
+          totalFilesCount > 0 ? `${loadedFilesCount}/${totalFilesCount}` : null
+        }
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (
           <CodeEditorHeader
+            isLoadingFiles={!isFullyLoaded}
             entrypointFileName={entryPointFileName}
             appendNewFile={(path: string, content: string) => {
               onFileContentChanged?.(path, content)
@@ -854,7 +868,13 @@ export const CodeEditor = ({
           className={
             "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
           }
+          style={{ display: isPriorityFileFetched ? "none" : "block" }}
         />
+        {isPriorityFileFetched && (
+          <div className="grid place-items-center h-full">
+            <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+          </div>
+        )}
       </div>
       {showQuickOpen && (
         <QuickOpen

@@ -41,6 +41,7 @@ interface CodeEditorHeaderProps {
   handleFileChange: (filename: FileName) => void
   entrypointFileName?: string
   appendNewFile: (path: string, content: string) => void
+  isLoadingFiles: boolean
   createFile: (props: ICreateFileProps) => ICreateFileResult
   aiAutocompleteState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
 }
@@ -49,8 +50,8 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   currentFile,
   files,
   updateFileContent,
-  appendNewFile,
   fileSidebarState,
+  isLoadingFiles = true,
   handleFileChange,
   entrypointFileName = "index.tsx",
   createFile,
@@ -230,7 +231,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                     (filename) => !isHiddenFile(filename),
                   ).length > 0
                     ? "Select file"
-                    : "No files"
+                    : isLoadingFiles
+                      ? "Loading files..."
+                      : "No files"
                 }
               />
             </SelectTrigger>

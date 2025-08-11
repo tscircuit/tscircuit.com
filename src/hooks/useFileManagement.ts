@@ -6,7 +6,7 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "./use-package-files"
 import { decodeUrlHashToText } from "@/lib/decodeUrlHashToText"
 import { decodeUrlHashToFsMap } from "@/lib/decodeUrlHashToFsMap"
-import { usePackageFilesLoader } from "./usePackageFilesLoader"
+import { useOptimizedPackageFilesLoader } from "./useOptimizedPackageFilesLoader"
 import { useGlobalStore } from "./use-global-store"
 import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
 import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
@@ -15,6 +15,7 @@ import { useCreatePackageMutation } from "./use-create-package-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
+import { isComponentExported } from "@/lib/utils/isComponentExported"
 
 export interface ICreateFileProps {
   newFileName: string
@@ -47,27 +48,37 @@ export interface IRenameFileResult {
 export function useFileManagement({
   templateCode,
   currentPackage,
-  fileChoosen,
   openNewPackageSaveDialog,
   updateLastUpdated,
+  urlParams,
 }: {
   templateCode?: string
   currentPackage?: Package
-  fileChoosen: string | null
   openNewPackageSaveDialog: () => void
+  urlParams: Record<string, string>
   updateLastUpdated: () => void
 }) {
+  const fileChosen = urlParams.file_path ?? null
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const loggedInUser = useGlobalStore((s) => s.session)
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const {
-    data: packageFilesWithContent,
-    isLoading: isLoadingPackageFilesWithContent,
-  } = usePackageFilesLoader(currentPackage)
+    priorityFile,
+    allFiles: packageFilesWithContent,
+    isPriorityLoading,
+    areAllFilesLoading: isLoadingPackageFilesWithContent,
+    totalFilesCount,
+    loadedFilesCount,
+    isPriorityFileFetched,
+  } = useOptimizedPackageFilesLoader(
+    currentPackage,
+    fileChosen,
+    urlParams.package_id,
+  )
+
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(currentPackage?.latest_package_release_id)
   const initialCodeContent = useMemo(() => {
@@ -126,8 +137,9 @@ export function useFileManagement({
     },
   })
 
+  // Handle priority file loading - show editor as soon as first file loads
   useEffect(() => {
-    if (!currentPackage || isLoadingPackageFilesWithContent) {
+    if (!currentPackage || isPriorityLoading) {
       const decodedFsMap = decodeUrlHashToFsMap(window.location.toString())
 
       if (decodedFsMap && Object.keys(decodedFsMap).length > 0) {
@@ -137,38 +149,71 @@ export function useFileManagement({
             content: String(content),
           }),
         )
-        const targetFile = findTargetFile(filesFromUrl, fileChoosen)
+        const targetFile = findTargetFile(filesFromUrl, fileChosen)
         setLocalFiles(filesFromUrl)
         setInitialFiles([])
         setCurrentFile(targetFile?.path || filesFromUrl[0]?.path || null)
         return
       }
 
-      setLocalFiles([
-        {
-          path: "index.tsx",
-          content: initialCodeContent || "",
-        },
-      ])
-      setInitialFiles([])
-      setCurrentFile("index.tsx")
+      if (!urlParams.package_id) {
+        setLocalFiles([
+          {
+            path: "index.tsx",
+            content: initialCodeContent || "",
+          },
+        ])
+        setInitialFiles([])
+        setCurrentFile("index.tsx")
+      }
       return
-    } else {
-      const targetFile = findTargetFile(
-        packageFilesWithContent || [],
-        fileChoosen,
-      )
-      setLocalFiles(packageFilesWithContent || [])
-      setInitialFiles(packageFilesWithContent || [])
-      setCurrentFile(targetFile?.path || null)
     }
-  }, [currentPackage, isLoadingPackageFilesWithContent])
+  }, [currentPackage, isPriorityLoading])
 
+  // Load priority file immediately when available
+  useEffect(() => {
+    if (priorityFile && !isPriorityLoading && currentPackage) {
+      setLocalFiles((prev) => {
+        const existingIndex = prev.findIndex(
+          (f) => f.path === priorityFile.path,
+        )
+        if (existingIndex >= 0) {
+          // Update existing file
+          const updated = [...prev]
+          updated[existingIndex] = priorityFile
+          return updated
+        }
+        // Add new file
+        return [...prev, priorityFile]
+      })
+    }
+  }, [priorityFile, isPriorityLoading, currentPackage])
+
+  // Update with all files as they become available
+  useEffect(() => {
+    if (packageFilesWithContent.length > 0 && currentPackage) {
+      setLocalFiles(packageFilesWithContent)
+      setInitialFiles(packageFilesWithContent)
+
+      // Only update current file if not already set
+      if (!currentFile || currentFile === "index.tsx") {
+        const targetFile = findTargetFile(packageFilesWithContent, fileChosen)
+        if (targetFile) {
+          setCurrentFile(targetFile.path)
+        }
+      }
+    }
+  }, [packageFilesWithContent.length, currentPackage])
+
+  // isLoading now means "can't display editor yet" - only true while loading priority file
   const isLoading = useMemo(() => {
-    return (
-      isLoadingPackageFilesWithContent || isLoadingPackageFiles || !localFiles
-    )
-  }, [isLoadingPackageFilesWithContent, localFiles, isLoadingPackageFiles])
+    return isPriorityLoading || isLoadingPackageFiles
+  }, [isPriorityLoading, isLoadingPackageFiles])
+
+  // Track if all files are fully loaded
+  const isFullyLoaded = useMemo(() => {
+    return !isLoadingPackageFilesWithContent && !isLoadingPackageFiles
+  }, [isLoadingPackageFilesWithContent, isLoadingPackageFiles])
 
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
@@ -178,6 +223,7 @@ export function useFileManagement({
       },
       {} as Record<string, string>,
     )
+
     return map
   }, [localFiles, manualEditsFileContent])
 
@@ -433,20 +479,55 @@ export function useFileManagement({
     isCreatingRelease,
   ])
 
+  const currentFileCode = useMemo(
+    () =>
+      localFiles.find((x) => x.path === currentFile)?.content ?? DEFAULT_CODE,
+    [localFiles, currentFile],
+  )
+  const mainComponentPath = useMemo(() => {
+    const isComponentExportedInCurrentFile =
+      isComponentExported(currentFileCode)
+
+    const selectedComponent =
+      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) &&
+      !!localFiles.some((x) => x.path === currentFile) &&
+      isComponentExportedInCurrentFile
+        ? currentFile
+        : localFiles.find((x) => {
+            const isComponentExportedInFile = isComponentExported(x.content)
+            return (
+              x.path.endsWith(".tsx") ||
+              (x.path.endsWith(".ts") && isComponentExportedInFile)
+            )
+          })?.path || localFiles[0]?.path
+
+    return selectedComponent
+  }, [currentFile, localFiles, currentFileCode, packageFilesWithContent])
+
+  const priorityFileFetched = useMemo(() => {
+    return urlParams.package_id && isPriorityFileFetched
+  }, [urlParams.package_id, isPriorityFileFetched])
+
   return {
     fsMap,
     createFile,
+    priorityFileFetched,
     deleteFile,
     renameFile,
     saveFiles,
     localFiles,
+    mainComponentPath,
+    currentFileCode,
     initialFiles,
     currentFile,
     setLocalFiles,
     onFileSelect,
     isLoading,
+    isFullyLoaded,
     isSaving,
     savePackage,
     packageFilesMeta,
+    totalFilesCount,
+    loadedFilesCount,
   }
 }
