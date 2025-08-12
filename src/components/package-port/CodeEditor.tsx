@@ -126,7 +126,7 @@ export const CodeEditor = ({
     return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
   }, [files])
 
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isCreatingFile, setIsCreatingFile] = useState(false)
 
   // Set current file on component mount
