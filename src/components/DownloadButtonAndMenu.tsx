@@ -100,15 +100,11 @@ export function DownloadButtonAndMenu({
                   { format: "glb", boardTextureResolution: 2048 },
                 )
               } catch (error: any) {
-                try {
-                  await downloadGltf(unscopedName || "circuit")
-                } catch (fallbackError: any) {
                   toast({
                     title: "Error Downloading 3D Model",
-                    description: (error || fallbackError).toString(),
+                    description: (error).toString(),
                     variant: "destructive",
                   })
-                }
               }
             }}
           >
