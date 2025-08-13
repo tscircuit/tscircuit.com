@@ -32,7 +32,7 @@ export function useOptimizedPackageFilesLoader(
   const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
 
   const targetFilePath = useMemo(() => {
-    if (!pkgFiles.data) return null
+    if (!pkgFiles.data) return priorityFilePath
 
     if (priorityFilePath) {
       const exactMatch = pkgFiles.data.find(
