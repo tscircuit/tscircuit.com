@@ -186,8 +186,15 @@ export function useFileManagement({
         // Add new file
         return [...prev, priorityFile]
       })
+
+      // Set current file to priority file if it matches fileChosen or if no current file is set
+      if (fileChosen && priorityFile.path === fileChosen) {
+        setCurrentFile(priorityFile.path)
+      } else if (!currentFile) {
+        setCurrentFile(priorityFile.path)
+      }
     }
-  }, [priorityFile, isPriorityLoading, currentPackage])
+  }, [priorityFile, isPriorityLoading, currentPackage, fileChosen, currentFile])
 
   // Update with all files as they become available
   useEffect(() => {
@@ -195,15 +202,22 @@ export function useFileManagement({
       setLocalFiles(packageFilesWithContent)
       setInitialFiles(packageFilesWithContent)
 
-      // Only update current file if not already set
-      if (!currentFile || currentFile === "index.tsx") {
+      // Always prioritize fileChosen if it exists in the package files
+      if (fileChosen) {
+        const targetFile =
+          packageFilesWithContent.find((f) => f.path === fileChosen) ||
+          findTargetFile(packageFilesWithContent, fileChosen)
+        if (targetFile && targetFile.path !== currentFile) {
+          setCurrentFile(targetFile.path)
+        }
+      } else if (!currentFile || currentFile === "index.tsx") {
         const targetFile = findTargetFile(packageFilesWithContent, fileChosen)
         if (targetFile) {
           setCurrentFile(targetFile.path)
         }
       }
     }
-  }, [packageFilesWithContent.length, currentPackage])
+  }, [packageFilesWithContent.length, currentPackage, fileChosen])
 
   // isLoading now means "can't display editor yet" - only true while loading priority file
   const isLoading = useMemo(() => {
