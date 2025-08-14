@@ -382,7 +382,7 @@ export default function ImportantFilesView({
 
   const renderFileContent = useCallback(() => {
     if (!isActiveFileFetched || !activeTab?.filePath || !activeFileContent) {
-      ;<div className="text-sm p-4">
+      <div className="text-sm p-4">
         {SKELETON_WIDTHS.map((w, i) => (
           <Skeleton key={i} className={`h-4 mb-2 ${w}`} />
         ))}
