@@ -174,11 +174,13 @@ export default function ImportantFilesView({
     if (readmeTab) return readmeTab
 
     // Priority 2: AI content (only if available)
-    const aiTab = availableTabs.find((tab) => tab.type === "ai")
+    const aiTab = availableTabs.find((tab) => tab.type === "ai" && hasAiContent)
     if (aiTab) return aiTab
 
     // Priority 3: AI review
-    const aiReviewTab = availableTabs.find((tab) => tab.type === "ai-review")
+    const aiReviewTab = availableTabs.find(
+      (tab) => tab.type === "ai-review" && hasAiReview,
+    )
     if (aiReviewTab) return aiReviewTab
 
     // Priority 4: First file
