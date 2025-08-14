@@ -18,7 +18,6 @@ import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
-import { downloadGltf } from "@/lib/download-fns/download-gltf"
 import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
 import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -133,7 +132,7 @@ export function DownloadButtonAndMenu({
             }}
           >
             <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">3D Model</span>
+            <span className="flex-grow  mr-6">3D Model</span>
             <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               gltf
             </span>
@@ -345,6 +344,23 @@ export function DownloadButtonAndMenu({
               >
                 <Download className="mr-1 h-3 w-3" />
                 <span className="flex-grow mr-6">Assembly PNG</span>
+                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                  png
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() =>
+                  downloadPngImage({
+                    circuitJson,
+                    unscopedName,
+                    author,
+                    format: "3d",
+                  })
+                }
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">3D PNG</span>
                 <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
                   png
                 </span>
