@@ -19,6 +19,7 @@ import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
 import { downloadGltf } from "@/lib/download-fns/download-gltf"
+import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
 import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
 import { CubeIcon } from "@radix-ui/react-icons"
@@ -93,7 +94,11 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
-                await downloadGltf(unscopedName || "circuit")
+                await downloadGltfFromCircuitJson(
+                  circuitJson,
+                  unscopedName || "circuit",
+                  { format: "glb", boardTextureResolution: 2048 },
+                )
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",
@@ -107,6 +112,30 @@ export function DownloadButtonAndMenu({
             <span className="flex-grow  mr-6">3D Model</span>
             <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
               glb
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-xs"
+            onClick={async () => {
+              try {
+                await downloadGltfFromCircuitJson(
+                  circuitJson,
+                  unscopedName || "circuit",
+                  { format: "gltf", boardTextureResolution: 2048 },
+                )
+              } catch (error: any) {
+                toast({
+                  title: "Error Downloading 3D Model (GLTF)",
+                  description: error.toString(),
+                  variant: "destructive",
+                })
+              }
+            }}
+          >
+            <CubeIcon className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">3D Model</span>
+            <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              gltf
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem
