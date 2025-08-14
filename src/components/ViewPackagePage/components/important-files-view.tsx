@@ -12,7 +12,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { usePackageFile } from "@/hooks/use-package-files"
-import { ShikiCodeViewer } from "./ShikiCodeViewer"
+import { ShikiCodeViewer, SKELETON_WIDTHS } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
@@ -27,7 +27,7 @@ interface PackageFile {
 
 interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
-  isLoading?: boolean
+  isFetched?: boolean
   onEditClicked?: (file_path?: string | null) => void
   packageAuthorOwner?: string | null
   aiDescription?: string
@@ -54,7 +54,7 @@ export default function ImportantFilesView({
   aiReviewText,
   aiReviewRequested,
   onRequestAiReview,
-  isLoading = false,
+  isFetched = false,
   onEditClicked,
   packageAuthorOwner,
   onLicenseFileRequested,
@@ -162,7 +162,7 @@ export default function ImportantFilesView({
 
   // Find default tab with fallback logic
   const getDefaultTab = useCallback((): TabInfo | null => {
-    if (isLoading || availableTabs.length === 0) return null
+    if (!isFetched || availableTabs.length === 0) return null
 
     // Priority 1: README file
     const readmeTab = availableTabs.find(
@@ -186,7 +186,7 @@ export default function ImportantFilesView({
     if (firstFileTab) return firstFileTab
 
     return null
-  }, [isLoading, availableTabs, isReadmeFile])
+  }, [isFetched, availableTabs, isReadmeFile])
 
   // Handle tab selection with validation
   const selectTab = useCallback(
@@ -234,11 +234,11 @@ export default function ImportantFilesView({
 
   // Set default tab when no tab is active
   useEffect(() => {
-    if (activeTab === null && !isLoading) {
+    if (activeTab === null && isFetched) {
       const defaultTab = getDefaultTab()
       setActiveTab(defaultTab)
     }
-  }, [activeTab, isLoading, getDefaultTab])
+  }, [activeTab, isFetched, getDefaultTab])
 
   // Validate active tab still exists (handles file deletion)
   useEffect(() => {
@@ -262,21 +262,22 @@ export default function ImportantFilesView({
     return importantFiles.find((file) => file.file_path === activeTab.filePath)
   }, [activeTab, importantFiles])
 
-  const { data: activeFileFull } = usePackageFile(
-    partialActiveFile
-      ? {
-          file_path: partialActiveFile.file_path,
-          package_release_id: partialActiveFile.package_release_id,
-        }
-      : null,
-    {
-      keepPreviousData: true,
-      staleTime: Infinity,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  )
+  const { data: activeFileFull, isFetched: isActiveFileFetched } =
+    usePackageFile(
+      partialActiveFile
+        ? {
+            file_path: partialActiveFile.file_path,
+            package_release_id: partialActiveFile.package_release_id,
+          }
+        : null,
+      {
+        keepPreviousData: true,
+        staleTime: Infinity,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+      },
+    )
 
   const activeFileContent = activeFileFull?.content_text || ""
 
@@ -380,20 +381,24 @@ export default function ImportantFilesView({
   }, [aiReviewText, aiReviewRequested, isOwner, onRequestAiReview])
 
   const renderFileContent = useCallback(() => {
-    if (!activeTab?.filePath || !activeFileContent) {
-      return <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
+    if (!isActiveFileFetched || !activeTab?.filePath || !activeFileContent) {
+      ;<div className="text-sm p-4">
+        {SKELETON_WIDTHS.map((w, i) => (
+          <Skeleton key={i} className={`h-4 mb-2 ${w}`} />
+        ))}
+      </div>
     }
 
-    if (isMarkdownFile(activeTab.filePath)) {
+    if (isMarkdownFile(String(activeTab?.filePath))) {
       return <MarkdownViewer markdownContent={activeFileContent} />
     }
 
-    if (isCodeFile(activeTab.filePath)) {
+    if (isCodeFile(String(activeTab?.filePath))) {
       return (
         <div className="overflow-x-auto no-scrollbar">
           <ShikiCodeViewer
             code={activeFileContent}
-            filePath={activeTab.filePath}
+            filePath={String(activeTab?.filePath)}
           />
         </div>
       )
@@ -433,7 +438,7 @@ export default function ImportantFilesView({
     [activeTab],
   )
 
-  if (isLoading) {
+  if (!isFetched) {
     return (
       <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
         <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
