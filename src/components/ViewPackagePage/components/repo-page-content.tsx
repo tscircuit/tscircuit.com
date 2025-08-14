@@ -21,20 +21,19 @@ import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
-import { Package } from "fake-snippets-api/lib/db/schema"
+import type {
+  Package,
+  PackageFile as ApiPackageFile,
+} from "fake-snippets-api/lib/db/schema"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 import { useAiReview } from "@/hooks/use-ai-review"
 import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
 
-interface PackageFile {
-  package_file_id: string
-  package_release_id: string
-  file_path: string
-  file_content: string
-  content_text?: string // Keep for backward compatibility
-  created_at: string // iso-8601
+interface PackageFile extends ApiPackageFile {
+  file_content?: string
+  content_text?: string | null // Keep for backward compatibility
 }
 
 interface RepoPageContentProps {
