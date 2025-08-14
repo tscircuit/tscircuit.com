@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { ImageWithFallback } from "./ImageWithFallback"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 
 export interface PackageCardProps {

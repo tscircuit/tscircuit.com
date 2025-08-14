@@ -1,5 +1,3 @@
-"use client"
-
 import { Package } from "fake-snippets-api/lib/db/schema"
 import SidebarAboutSection from "./sidebar-about-section"
 import SidebarReleasesSection from "./sidebar-releases-section"

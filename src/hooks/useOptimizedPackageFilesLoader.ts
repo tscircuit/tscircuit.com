@@ -3,7 +3,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { usePackageFileById } from "@/hooks/use-package-files"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo } from "react"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 
 export interface PackageFile {
@@ -32,7 +32,7 @@ export function useOptimizedPackageFilesLoader(
   const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
 
   const targetFilePath = useMemo(() => {
-    if (!pkgFiles.data) return null
+    if (!pkgFiles.data) return priorityFilePath
 
     if (priorityFilePath) {
       const exactMatch = pkgFiles.data.find(

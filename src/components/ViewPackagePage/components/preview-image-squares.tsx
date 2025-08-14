@@ -1,4 +1,3 @@
-"use client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePreviewImages } from "@/hooks/use-preview-images"
 import type { Package } from "fake-snippets-api/lib/db/schema"

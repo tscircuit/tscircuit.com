@@ -137,7 +137,6 @@ export function useFileManagement({
     },
   })
 
-  // Handle priority file loading - show editor as soon as first file loads
   useEffect(() => {
     if (!currentPackage || isPriorityLoading) {
       const decodedFsMap = decodeUrlHashToFsMap(window.location.toString())
@@ -170,7 +169,6 @@ export function useFileManagement({
     }
   }, [currentPackage, isPriorityLoading])
 
-  // Load priority file immediately when available
   useEffect(() => {
     if (priorityFile && !isPriorityLoading && currentPackage) {
       setLocalFiles((prev) => {
@@ -178,39 +176,59 @@ export function useFileManagement({
           (f) => f.path === priorityFile.path,
         )
         if (existingIndex >= 0) {
-          // Update existing file
           const updated = [...prev]
           updated[existingIndex] = priorityFile
           return updated
         }
-        // Add new file
         return [...prev, priorityFile]
       })
-    }
-  }, [priorityFile, isPriorityLoading, currentPackage])
 
-  // Update with all files as they become available
+      setCurrentFile((prevCurrentFile) => {
+        if (fileChosen && priorityFile.path === fileChosen) {
+          return priorityFile.path
+        } else if (!prevCurrentFile) {
+          return priorityFile.path
+        }
+        return prevCurrentFile
+      })
+    }
+  }, [priorityFile, isPriorityLoading, currentPackage, fileChosen])
+
   useEffect(() => {
     if (packageFilesWithContent.length > 0 && currentPackage) {
       setLocalFiles(packageFilesWithContent)
       setInitialFiles(packageFilesWithContent)
 
-      // Only update current file if not already set
-      if (!currentFile || currentFile === "index.tsx") {
-        const targetFile = findTargetFile(packageFilesWithContent, fileChosen)
+      if (fileChosen) {
+        const targetFile =
+          packageFilesWithContent.find((f) => f.path === fileChosen) ||
+          findTargetFile(packageFilesWithContent, fileChosen)
         if (targetFile) {
-          setCurrentFile(targetFile.path)
+          setCurrentFile((prevCurrentFile) => {
+            return targetFile.path !== prevCurrentFile
+              ? targetFile.path
+              : prevCurrentFile
+          })
         }
+      } else {
+        setCurrentFile((prevCurrentFile) => {
+          if (!prevCurrentFile || prevCurrentFile === "index.tsx") {
+            const targetFile = findTargetFile(
+              packageFilesWithContent,
+              fileChosen,
+            )
+            return targetFile ? targetFile.path : prevCurrentFile
+          }
+          return prevCurrentFile
+        })
       }
     }
-  }, [packageFilesWithContent.length, currentPackage])
+  }, [packageFilesWithContent.length, currentPackage, fileChosen])
 
-  // isLoading now means "can't display editor yet" - only true while loading priority file
   const isLoading = useMemo(() => {
     return isPriorityLoading || isLoadingPackageFiles
   }, [isPriorityLoading, isLoadingPackageFiles])
 
-  // Track if all files are fully loaded
   const isFullyLoaded = useMemo(() => {
     return !isLoadingPackageFilesWithContent && !isLoadingPackageFiles
   }, [isLoadingPackageFilesWithContent, isLoadingPackageFiles])
@@ -261,7 +279,6 @@ export function useFileManagement({
       }
     }
 
-    // Check if file already exists
     const fileExists = localFiles?.some((file) => file.path === newFileName)
     if (fileExists) {
       onError(new Error(`File '${newFileName}' already exists`))
@@ -270,7 +287,6 @@ export function useFileManagement({
       }
     }
 
-    // Ensure file name is not empty after path construction
     const fileName = newFileName.split("/").pop() || ""
     if (!fileName.trim()) {
       onError(new Error("File name cannot be empty"))
@@ -328,7 +344,6 @@ export function useFileManagement({
       }
     }
 
-    // Extract just the filename from the path for validation
     const fileNameOnly = newFilename.split("/").pop() || ""
     if (!isValidFileName(fileNameOnly)) {
       onError(new Error("Invalid file name"))
@@ -441,7 +456,6 @@ export function useFileManagement({
 
   const saveFiles = () => {
     if (!isLoggedIn) {
-      // For non-logged-in users, trigger immediate URL save
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
       }

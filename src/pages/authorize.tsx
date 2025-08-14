@@ -1,5 +1,3 @@
-"use client"
-
 import Header from "@/components/Header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useEffect, useState } from "react"
