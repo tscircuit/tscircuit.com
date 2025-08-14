@@ -33,9 +33,8 @@ export const ViewPackagePage = () => {
     },
   )
 
-  const { data: packageFiles } = usePackageFiles(
-    packageRelease?.package_release_id,
-  )
+  const { data: packageFiles, isLoading: arePackageFilesLoading } =
+    usePackageFiles(packageRelease?.package_release_id)
 
   if (!isLoadingPackageId && packageIdError) {
     return <NotFoundPage heading="Package Not Found" />
@@ -51,7 +50,8 @@ export const ViewPackagePage = () => {
         <title>{`${author}/${packageName} - tscircuit`}</title>
       </Helmet>
       <RepoPageContent
-        packageFiles={packageFiles as any}
+        packageFiles={packageFiles ?? []}
+        arePackageFilesLoading={arePackageFilesLoading}
         packageInfo={packageInfo}
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
