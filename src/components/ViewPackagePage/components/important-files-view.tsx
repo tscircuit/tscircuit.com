@@ -263,7 +263,13 @@ export default function ImportantFilesView({
           package_release_id: partialActiveFile.package_release_id,
         }
       : null,
-    { keepPreviousData: true },
+    {
+      keepPreviousData: true,
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   )
 
   const activeFileContent = activeFileFull?.content_text || ""
@@ -378,7 +384,7 @@ export default function ImportantFilesView({
 
     if (isCodeFile(activeTab.filePath)) {
       return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto no-scrollbar">
           <ShikiCodeViewer
             code={activeFileContent}
             filePath={activeTab.filePath}
