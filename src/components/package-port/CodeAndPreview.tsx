@@ -14,8 +14,6 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
-import { DEFAULT_CODE } from "@/lib/utils/package-utils"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 
 interface Props {

@@ -232,7 +232,6 @@ export function LandingPage() {
         </section>
       </main>
       <Footer />
-      {/* <Footer2 /> */}
     </div>
   )
 }
