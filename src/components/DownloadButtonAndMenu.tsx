@@ -98,11 +98,6 @@ export function DownloadButtonAndMenu({
                   unscopedName || "circuit",
                   { format: "glb", boardTextureResolution: 2048 },
                 )
-                await downloadGltfFromCircuitJson(
-                  circuitJson,
-                  unscopedName || "circuit",
-                  { format: "glb", boardTextureResolution: 2048 },
-                )
               } catch (error: any) {
                 toast({
                   title: "Error Downloading 3D Model",
