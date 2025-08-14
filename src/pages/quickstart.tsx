@@ -31,11 +31,13 @@ export const QuickstartPage = () => {
     },
   )
 
-  const blankTemplates = [
+  const blankTemplates: Array<{
+    name: string
+    type: string
+    disabled?: boolean
+  }> = [
     { name: "Blank Circuit Board", type: "board" },
     { name: "Blank Circuit Module", type: "package" },
-    { name: "Blank 3D Model", type: "model", disabled: true },
-    { name: "Blank Footprint", type: "footprint", disabled: true },
   ]
 
   const templates = [
@@ -44,15 +46,21 @@ export const QuickstartPage = () => {
   ]
 
   return (
-    <div>
+    <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 hidden md:block">
-          <h2 className="text-xl font-semibold mb-4">Recent Packages</h2>
+      <div className="container mx-auto px-6 py-12">
+        <div className="mb-16 hidden md:block">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Recent Packages
+            </h2>
+          </div>
           {isLoading ? (
-            <div>Loading...</div>
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {myPackages
                 ?.sort(
                   (a, b) =>
@@ -65,15 +73,15 @@ export const QuickstartPage = () => {
                     key={pkg.package_id}
                     href={`/editor?package_id=${pkg.package_id}`}
                   >
-                    <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col h-full">
-                      <CardHeader className="pb-0 p-4">
-                        <CardTitle className="text-md">
+                    <Card className="hover:shadow-md border bg-white shadow-sm transition-shadow flex flex-col h-full rounded-md">
+                      <CardHeader>
+                        <CardTitle className="text-lg font-semibold text-slate-900">
                           {pkg.unscoped_name}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0 mt-auto">
-                        <p className="text-sm text-gray-500">
-                          Last edited:{" "}
+                      <CardContent className="-mt-4">
+                        <p className="text-sm text-slate-500">
+                          Last edited{" "}
                           {new Date(pkg.updated_at).toLocaleDateString()}
                         </p>
                       </CardContent>
@@ -84,9 +92,13 @@ export const QuickstartPage = () => {
           )}
         </div>
 
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Start Blank Packages</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Start Blank
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {blankTemplates.map((template, index) => (
               <PrefetchPageLink
                 key={index}
@@ -100,14 +112,18 @@ export const QuickstartPage = () => {
               >
                 <Card
                   className={cn(
-                    "hover:shadow-md transition-shadow rounded-md h-full flex flex-col",
+                    "hover:shadow-md border bg-white transition-shadow h-full flex flex-col rounded-md",
                     template.disabled && "opacity-50 cursor-not-allowed",
                   )}
                 >
-                  <CardHeader className="p-4 flex-grow flex flex-col justify-between">
-                    <CardTitle className="text-md">{template.name}</CardTitle>
-                    <div className="mt-2 flex">
-                      <TypeBadge type={template.type as any} />
+                  <CardHeader className="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-slate-900 mb-3">
+                        {template.name}
+                      </CardTitle>
+                      <div className="flex justify-between items-center">
+                        <TypeBadge type={template.type as any} />
+                      </div>
                     </div>
                   </CardHeader>
                 </Card>
@@ -116,65 +132,52 @@ export const QuickstartPage = () => {
           </div>
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-xl font-semibold mb-4">Import as Package</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {/* {[
-              { name: "KiCad Footprint", type: "footprint" },
-              { name: "KiCad Project", type: "board" },
-              { name: "KiCad Module", type: "package" },
-            ].map((template, index) => (
-              <Card
-                key={index}
-                className="hover:shadow-md transition-shadow rounded-md opacity-50 flex flex-col"
-              >
-                <CardHeader className="p-4 pb-0">
-                  <CardTitle className="text-lg flex items-center justify-between">
-                    {template.name}
-                    <TypeBadge type={template.type as any} className="ml-2" />
+        <div className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Import Components
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card className="hover:shadow-md border bg-white transition-shadow flex flex-col rounded-md">
+              <CardHeader className="p-6 pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <CardTitle className="text-lg font-semibold text-slate-900">
+                    JLCPCB Component
                   </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 mt-auto">
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      toastNotImplemented("Kicad Imports")
-                    }}
-                  >
-                    Import {template.name}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))} */}
-            <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
-              <CardHeader className="p-4 pb-0">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  JLCPCB Component
-                  <TypeBadge type="package" className="ml-2" />
-                </CardTitle>
+                  <TypeBadge type="package" />
+                </div>
+                <p className="text-sm text-slate-500">
+                  Import components from JLCPCB library
+                </p>
               </CardHeader>
-              <CardContent className="p-4 mt-auto">
+              <CardContent className="p-6 pt-0 mt-auto">
                 <Button
-                  className="w-full"
+                  className="w-full text-white"
                   onClick={() => setIsJLCPCBDialogOpen(true)}
                 >
-                  Import JLCPCB Component
+                  Import JLCPCB
                 </Button>
               </CardContent>
             </Card>
-            <Card className="hover:shadow-md transition-shadow rounded-md flex flex-col">
-              <CardHeader className="p-4 pb-0">
-                <CardTitle className="text-lg flex items-center justify-between">
-                  Circuit Json
-                  <TypeBadge type="package" className="ml-2" />
-                </CardTitle>
+            <Card className="hover:shadow-md border bg-white transition-shadow flex flex-col rounded-md">
+              <CardHeader className="p-6 pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <CardTitle className="text-lg font-semibold text-slate-900">
+                    Circuit JSON
+                  </CardTitle>
+                  <TypeBadge type="package" />
+                </div>
+                <p className="text-sm text-slate-500">
+                  Import from Circuit JSON format
+                </p>
               </CardHeader>
-              <CardContent className="p-4 mt-auto">
+              <CardContent className="p-6 pt-0 mt-auto">
                 <Button
-                  className="w-full"
+                  className="w-full text-white"
                   onClick={() => setIsCircuitJsonImportDialogOpen(true)}
                 >
-                  Import Circuit JSON
+                  Import JSON
                 </Button>
               </CardContent>
             </Card>
@@ -191,11 +194,13 @@ export const QuickstartPage = () => {
           onOpenChange={setIsCircuitJsonImportDialogOpen}
         />
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4 mt-12">
-            Start from a Template
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Popular Templates
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template, index) => (
               <PrefetchPageLink
                 key={index}
@@ -203,12 +208,14 @@ export const QuickstartPage = () => {
                   .toLowerCase()
                   .replace(/ /g, "-")}`}
               >
-                <Card className="hover:shadow-md transition-shadow rounded-md">
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-lg flex items-center justify-between">
-                      {template.name}
-                      <TypeBadge type={template.type as any} className="ml-2" />
-                    </CardTitle>
+                <Card className="hover:shadow-md border bg-white transition-shadow rounded-md">
+                  <CardHeader className="p-6">
+                    <div className="flex items-center justify-between ">
+                      <CardTitle className="text-lg font-semibold text-slate-900">
+                        {template.name}
+                      </CardTitle>
+                      <TypeBadge type={template.type as any} />
+                    </div>
                   </CardHeader>
                 </Card>
               </PrefetchPageLink>
