@@ -18,7 +18,6 @@ import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
 import { AnyCircuitElement } from "circuit-json"
 import { ChevronDown, Download, Hammer } from "lucide-react"
-import { downloadGltf } from "@/lib/download-fns/download-gltf"
 import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
 import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -94,6 +93,11 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
+                await downloadGltfFromCircuitJson(
+                  circuitJson,
+                  unscopedName || "circuit",
+                  { format: "glb", boardTextureResolution: 2048 },
+                )
                 await downloadGltfFromCircuitJson(
                   circuitJson,
                   unscopedName || "circuit",
