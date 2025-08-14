@@ -1,6 +1,5 @@
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import { useEffect, useMemo } from "react"
-import { useQuery } from "react-query"
+import { useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 // Pre-randomized array to avoid flickering on re-renders
