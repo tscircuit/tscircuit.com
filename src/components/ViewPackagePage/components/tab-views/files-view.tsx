@@ -1,5 +1,3 @@
-"use client"
-
 import { Skeleton } from "@/components/ui/skeleton"
 import { FileText, Folder } from "lucide-react"
 import { useMemo, useState } from "react"

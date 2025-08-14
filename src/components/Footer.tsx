@@ -31,7 +31,6 @@ export default function Footer() {
                   href: `/${session?.github_username}`,
                   hidden: !isLoggedIn,
                 },
-                { name: "Settings", href: "/settings" },
               ]
                 .filter((item) => !item.hidden)
                 .map((item) => (

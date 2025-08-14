@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useMemo } from "react"
 import MainContentHeader from "./main-content-header"
 import Sidebar from "./sidebar"

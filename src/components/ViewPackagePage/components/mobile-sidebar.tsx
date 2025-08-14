@@ -1,4 +1,3 @@
-"use client"
 import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"

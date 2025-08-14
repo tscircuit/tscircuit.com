@@ -1,4 +1,3 @@
-"use client"
 import toastLibrary, { Toaster, type Toast } from "react-hot-toast"
 import React from "react"
 

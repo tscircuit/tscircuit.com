@@ -64,7 +64,6 @@ const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
-const SettingsPage = lazyImport(() => import("@/pages/settings"))
 const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
@@ -252,7 +251,6 @@ function App() {
             <Route path="/quickstart" component={QuickstartPage} />
             <Route path="/dashboard" component={DashboardPage} />
             <Route path="/latest" component={LatestPage} />
-            <Route path="/settings" component={SettingsPage} />
             <Route path="/search" component={SearchPage} />
             <Route path="/trending" component={TrendingPage} />
             <Route path="/datasheets" component={DatasheetsPage} />
