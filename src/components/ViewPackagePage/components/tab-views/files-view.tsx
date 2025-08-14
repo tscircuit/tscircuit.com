@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
 import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
+import type { PackageFile as ApiPackageFile } from "fake-snippets-api/lib/db/schema"
 
 interface Directory {
   type: "directory"
@@ -19,13 +20,9 @@ interface File {
   created_at: string
 }
 
-interface PackageFile {
-  package_file_id: string
-  package_release_id: string
-  file_path: string
-  file_content: string
-  content_text?: string // Keep for backward compatibility
-  created_at: string // iso-8601
+interface PackageFile extends ApiPackageFile {
+  file_content?: string
+  content_text?: string | null // Keep for backward compatibility
 }
 
 interface FilesViewProps {
