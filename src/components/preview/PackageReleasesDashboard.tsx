@@ -91,8 +91,9 @@ export const PackageReleasesDashboard = ({
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-gray-600">
                     <div
-                      className="flex cursor-pointer items-center gap-1"
+                      className={`flex items-center gap-1 ${pkg.github_repo_full_name ? "cursor-pointer" : ""}`}
                       onClick={() =>
+                        pkg.github_repo_full_name &&
                         window?.open(
                           `https://github.com/${pkg.github_repo_full_name}/tree/${latestRelease?.branch_name || "main"}`,
                           "_blank",
@@ -121,21 +122,23 @@ export const PackageReleasesDashboard = ({
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 justify-center min-w-[120px] h-9"
-                  onClick={() =>
-                    window.open(
-                      `https://github.com/${pkg.github_repo_full_name}`,
-                      "_blank",
-                    )
-                  }
-                >
-                  <GitHubLogoIcon className="w-4 h-4" />
-                  <span className="hidden sm:inline">Repository</span>
-                  <span className="sm:hidden">Repository</span>
-                </Button>
+                {pkg.github_repo_full_name && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 justify-center min-w-[120px] h-9"
+                    onClick={() =>
+                      window.open(
+                        `https://github.com/${pkg.github_repo_full_name}`,
+                        "_blank",
+                      )
+                    }
+                  >
+                    <GitHubLogoIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">Repository</span>
+                    <span className="sm:hidden">Repository</span>
+                  </Button>
+                )}
                 {latestBuild && (
                   <Button
                     variant="outline"
@@ -164,15 +167,17 @@ export const PackageReleasesDashboard = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <a
-                        href={`https://github.com/${pkg.github_repo_full_name}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        View Source
-                      </a>
-                    </DropdownMenuItem>
+                    {pkg.github_repo_full_name && (
+                      <DropdownMenuItem asChild>
+                        <a
+                          href={`https://github.com/${pkg.github_repo_full_name}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View Source
+                        </a>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem asChild>
                       <a href="#" download>
                         Download Build
