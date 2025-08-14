@@ -349,6 +349,23 @@ export function DownloadButtonAndMenu({
                   png
                 </span>
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() =>
+                  downloadPngImage({
+                    circuitJson,
+                    unscopedName,
+                    author,
+                    format: "3d",
+                  })
+                }
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">3D PNG</span>
+                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+                  png
+                </span>
+              </DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>

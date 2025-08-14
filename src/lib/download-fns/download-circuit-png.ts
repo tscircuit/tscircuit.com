@@ -1,3 +1,4 @@
+import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
 import { AnyCircuitElement } from "circuit-json"
 import {
   convertCircuitJsonToAssemblySvg,
@@ -6,7 +7,7 @@ import {
 } from "circuit-to-svg"
 import { saveAs } from "file-saver"
 
-export type ImageFormat = "schematic" | "pcb" | "assembly"
+export type ImageFormat = "schematic" | "pcb" | "assembly" | "3d"
 
 interface DownloadCircuitPngOptions {
   format: ImageFormat
@@ -65,7 +66,7 @@ export const downloadCircuitPng = async (
     if (options.width) svgOptions.width = options.width
     if (options.height) svgOptions.height = options.height
 
-    switch (options.format) {
+    switch (options.format.toLowerCase()) {
       case "schematic":
         svg = convertCircuitJsonToSchematicSvg(circuitJson, svgOptions)
         break
@@ -76,13 +77,20 @@ export const downloadCircuitPng = async (
         svg = convertCircuitJsonToAssemblySvg(circuitJson, svgOptions)
         break
       default:
-        throw new Error(`Unsupported format: ${options.format}`)
+        svg = await convertCircuitJsonToSimple3dSvg(circuitJson, {
+          background: {
+            color: "#fff",
+            opacity: 0.0,
+          },
+          defaultZoomMultiplier: 1.1,
+        })
     }
 
     blob = await convertSvgToPng(svg)
     const downloadFileName = `${fileName}_${options.format}.png`
     saveAs(blob, downloadFileName)
   } catch (error) {
+    console.error(error)
     throw new Error(`Failed to download ${options.format} PNG: ${error}`)
   }
 }
