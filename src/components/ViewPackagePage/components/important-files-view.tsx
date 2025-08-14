@@ -130,19 +130,25 @@ export default function ImportantFilesView({
   const availableTabs = useMemo((): TabInfo[] => {
     const tabs: TabInfo[] = []
 
-    tabs.push({
-      type: "ai",
-      filePath: null,
-      label: "Description",
-      icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
-    })
+    // Only show AI description tab if there's actual AI content
+    if (hasAiContent) {
+      tabs.push({
+        type: "ai",
+        filePath: null,
+        label: "Description",
+        icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
+      })
+    }
 
-    tabs.push({
-      type: "ai-review",
-      filePath: null,
-      label: "AI Review",
-      icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
-    })
+    // Only show AI review tab if there's actual AI review content
+    if (hasAiReview || isOwner) {
+      tabs.push({
+        type: "ai-review",
+        filePath: null,
+        label: "AI Review",
+        icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
+      })
+    }
 
     importantFiles.forEach((file) => {
       tabs.push({
@@ -154,7 +160,7 @@ export default function ImportantFilesView({
     })
 
     return tabs
-  }, [hasAiContent, importantFiles, getFileName, getFileIcon])
+  }, [hasAiContent, hasAiReview, importantFiles, getFileName, getFileIcon])
 
   // Find default tab with fallback logic
   const getDefaultTab = useCallback((): TabInfo | null => {
@@ -167,7 +173,7 @@ export default function ImportantFilesView({
     )
     if (readmeTab) return readmeTab
 
-    // Priority 2: AI content
+    // Priority 2: AI content (only if available)
     const aiTab = availableTabs.find((tab) => tab.type === "ai")
     if (aiTab) return aiTab
 
