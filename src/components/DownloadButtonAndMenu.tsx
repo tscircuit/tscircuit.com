@@ -100,11 +100,11 @@ export function DownloadButtonAndMenu({
                   { format: "glb", boardTextureResolution: 2048 },
                 )
               } catch (error: any) {
-                  toast({
-                    title: "Error Downloading 3D Model",
-                    description: (error).toString(),
-                    variant: "destructive",
-                  })
+                toast({
+                  title: "Error Downloading 3D Model",
+                  description: error.toString(),
+                  variant: "destructive",
+                })
               }
             }}
           >
