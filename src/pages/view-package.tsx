@@ -33,7 +33,7 @@ export const ViewPackagePage = () => {
     },
   )
 
-  const { data: packageFiles, isLoading: arePackageFilesLoading } =
+  const { data: packageFiles, isFetched: arePackageFilesFetched } =
     usePackageFiles(packageRelease?.package_release_id)
 
   if (!isLoadingPackageId && packageIdError) {
@@ -51,7 +51,7 @@ export const ViewPackagePage = () => {
       </Helmet>
       <RepoPageContent
         packageFiles={packageFiles ?? []}
-        arePackageFilesLoading={arePackageFilesLoading}
+        arePackageFilesFetched={arePackageFilesFetched}
         packageInfo={packageInfo}
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}

@@ -27,13 +27,13 @@ interface PackageFile extends ApiPackageFile {
 
 interface FilesViewProps {
   packageFiles?: PackageFile[]
-  isLoading?: boolean
   onFileClicked?: (file: PackageFile) => void
+  arePackageFilesFetched?: boolean
 }
 
 export default function FilesView({
   packageFiles = [],
-  isLoading = false,
+  arePackageFilesFetched = false,
   onFileClicked,
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
@@ -155,7 +155,7 @@ export default function FilesView({
 
   const toggleHiddenFiles = () => setShowHiddenFiles((prev) => !prev)
 
-  if (isLoading) {
+  if (!arePackageFilesFetched) {
     return (
       <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
         <div className="flex items-center px-4 py-2 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
@@ -220,7 +220,6 @@ export default function FilesView({
           </div>
         </div>
       </div>
-
       {/* Files and Directories */}
       <div className="bg-white dark:bg-[#0d1117]">
         {items.length === 0 && !activeDir ? (

@@ -41,12 +41,12 @@ interface RepoPageContentProps {
   packageRelease?: import("fake-snippets-api/lib/db/schema").PackageRelease
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
-  arePackageFilesLoading?: boolean
+  arePackageFilesFetched?: boolean
 }
 
 export default function RepoPageContent({
   packageFiles,
-  arePackageFilesLoading = false,
+  arePackageFilesFetched = false,
   packageInfo,
   packageRelease,
   onFileClicked,
@@ -145,7 +145,7 @@ export default function RepoPageContent({
         return (
           <FilesView
             packageFiles={packageFiles}
-            isLoading={arePackageFilesLoading}
+            arePackageFilesFetched={arePackageFilesFetched}
             onFileClicked={onFileClicked}
           />
         )
@@ -161,7 +161,7 @@ export default function RepoPageContent({
         return (
           <FilesView
             packageFiles={packageFiles}
-            isLoading={arePackageFilesLoading}
+            arePackageFilesFetched={arePackageFilesFetched}
             onFileClicked={onFileClicked}
           />
         )
@@ -214,7 +214,7 @@ export default function RepoPageContent({
             {/* Important Files View - Always shown */}
             <ImportantFilesView
               importantFiles={importantFiles}
-              isLoading={arePackageFilesLoading}
+              isFetched={arePackageFilesFetched}
               onEditClicked={onEditClicked}
               packageAuthorOwner={packageInfo?.owner_github_username}
               aiDescription={packageInfo?.ai_description ?? ""}
