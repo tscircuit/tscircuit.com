@@ -14,6 +14,7 @@ import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
 
 const StatusPill = ({ status }: { status: string }) => {
   const color =
@@ -56,16 +57,14 @@ export default function PreviewBuildPage() {
     buildFiles.map((f) => [f.path, f.content]),
   )
 
-  const defaultMainFile =
-    buildFiles.find((f) => f.path === "index.ts")?.path ||
-    buildFiles.find((f) => f.path === "index.tsx")?.path ||
-    buildFiles[0]?.path
+  const targetFile = findTargetFile(buildFiles, selectedFile)
+  const mainComponentPath = targetFile?.path ?? null
 
   useEffect(() => {
-    if (!selectedFile && defaultMainFile) {
-      setSelectedFile(defaultMainFile)
+    if (!selectedFile && mainComponentPath) {
+      setSelectedFile(mainComponentPath)
     }
-  }, [defaultMainFile, selectedFile])
+  }, [mainComponentPath, selectedFile])
 
   if (!packageReleaseId) {
     return <NotFoundPage heading="Package Release Not Found" />
@@ -85,7 +84,7 @@ export default function PreviewBuildPage() {
 
   const treeData = transformFilesToTreeData({
     files: buildFsMap,
-    currentFile: selectedFile ?? defaultMainFile,
+    currentFile: selectedFile ?? mainComponentPath,
     renamingFile: null,
     handleRenameFile: () => ({ fileRenamed: false }),
     handleDeleteFile: () => ({ fileDeleted: false }),
@@ -232,9 +231,7 @@ export default function PreviewBuildPage() {
               ) : status === "success" && buildFiles.length > 0 ? (
                 <SuspenseRunFrame
                   fsMap={buildFsMap}
-                  mainComponentPath={
-                    selectedFile ?? defaultMainFile ?? "index.tsx"
-                  }
+                  mainComponentPath={mainComponentPath ?? "index.tsx"}
                   showRunButton={false}
                   className="[&>div]:overflow-y-hidden"
                 />
