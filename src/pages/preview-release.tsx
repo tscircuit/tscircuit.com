@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "wouter"
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/Header"
@@ -38,7 +38,7 @@ export default function PreviewBuildPage() {
   const packageName = params?.packageName || null
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
-  const [selectedFile, setSelectedFile] = useState<string | null>("index.tsx")
+  const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<string>("")
 
   const { data: packageRelease, isLoading: isLoadingRelease } =
@@ -55,6 +55,17 @@ export default function PreviewBuildPage() {
   const buildFsMap = Object.fromEntries(
     buildFiles.map((f) => [f.path, f.content]),
   )
+
+  const defaultMainFile =
+    buildFiles.find((f) => f.path === "index.ts")?.path ||
+    buildFiles.find((f) => f.path === "index.tsx")?.path ||
+    buildFiles[0]?.path
+
+  useEffect(() => {
+    if (!selectedFile && defaultMainFile) {
+      setSelectedFile(defaultMainFile)
+    }
+  }, [defaultMainFile, selectedFile])
 
   if (!packageReleaseId) {
     return <NotFoundPage heading="Package Release Not Found" />
@@ -74,7 +85,7 @@ export default function PreviewBuildPage() {
 
   const treeData = transformFilesToTreeData({
     files: buildFsMap,
-    currentFile: selectedFile,
+    currentFile: selectedFile ?? defaultMainFile,
     renamingFile: null,
     handleRenameFile: () => ({ fileRenamed: false }),
     handleDeleteFile: () => ({ fileDeleted: false }),
@@ -221,7 +232,9 @@ export default function PreviewBuildPage() {
               ) : status === "success" && buildFiles.length > 0 ? (
                 <SuspenseRunFrame
                   fsMap={buildFsMap}
-                  mainComponentPath={selectedFile ?? "index.tsx"}
+                  mainComponentPath={
+                    selectedFile ?? defaultMainFile ?? "index.tsx"
+                  }
                   showRunButton={false}
                   className="[&>div]:overflow-y-hidden"
                 />
