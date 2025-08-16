@@ -101,12 +101,19 @@ export default function FilesView({
   }, [packageFiles, showHiddenFiles])
   // Format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now.getTime() - date.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const parsedDate = new Date(dateString)
+    if (Number.isNaN(parsedDate.getTime())) return ""
 
-    if (diffDays < 1) return "today"
+    const now = new Date()
+    const diffMs = now.getTime() - parsedDate.getTime()
+    const oneDayMs = 1000 * 60 * 60 * 24
+
+    // Treat future dates as today
+    if (diffMs <= 0) return "today"
+
+    if (diffMs < oneDayMs) return "today"
+
+    const diffDays = Math.floor(diffMs / oneDayMs)
     if (diffDays === 1) return "yesterday"
     if (diffDays < 7) return `${diffDays} days ago`
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
