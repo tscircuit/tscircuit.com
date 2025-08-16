@@ -5,18 +5,19 @@ import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { usePackage } from "@/hooks/use-package"
+import { usePackageByName } from "@/hooks/use-package-by-package-name"
 
 export const ViewPackagePage = () => {
-  const {
-    packageId,
-    error: packageIdError,
-    isLoading: isLoadingPackageId,
-  } = useCurrentPackageId()
-  const { data: packageInfo } = usePackage(packageId)
   const { author, packageName } = useParams()
+  const packageNameFull = `${author}/${packageName}`
   const [, setLocation] = useLocation()
+
+  // Get package data directly by name - this will also cache by ID
+  const {
+    data: packageInfo,
+    error: packageError,
+    isLoading: isLoadingPackage,
+  } = usePackageByName(packageNameFull)
   const {
     data: packageRelease,
     error: packageReleaseError,
@@ -36,7 +37,7 @@ export const ViewPackagePage = () => {
   const { data: packageFiles, isFetched: arePackageFilesFetched } =
     usePackageFiles(packageRelease?.package_release_id)
 
-  if (!isLoadingPackageId && packageIdError) {
+  if (!isLoadingPackage && packageError) {
     return <NotFoundPage heading="Package Not Found" />
   }
 

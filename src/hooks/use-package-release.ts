@@ -33,17 +33,30 @@ export const usePackageRelease = (
 ) => {
   const axios = useAxios()
 
-  return useQuery<PackageRelease, Error & { status: number }>(
-    ["packageRelease", query],
-    async () => {
-      if (!query) return
+  // Normalize the query to avoid cache misses due to undefined vs explicit values
+  const normalizedQuery = query
+    ? {
+        ...query,
+        include_logs: query.include_logs ?? false,
+        include_ai_review: query.include_ai_review ?? false,
+      }
+    : null
 
-      const { data } = await axios.post("/package_releases/get", query, {
-        params: {
-          include_logs: query.include_logs,
-          include_ai_review: query.include_ai_review,
+  return useQuery<PackageRelease, Error & { status: number }>(
+    ["packageRelease", normalizedQuery],
+    async () => {
+      if (!normalizedQuery) return
+
+      const { data } = await axios.post(
+        "/package_releases/get",
+        normalizedQuery,
+        {
+          params: {
+            include_logs: normalizedQuery.include_logs,
+            include_ai_review: normalizedQuery.include_ai_review,
+          },
         },
-      })
+      )
 
       if (!data.package_release) {
         throw new Error("Package release not found")
@@ -53,7 +66,7 @@ export const usePackageRelease = (
     },
     {
       retry: false,
-      enabled: Boolean(query),
+      enabled: Boolean(normalizedQuery),
       refetchInterval: options?.refetchInterval,
       refetchOnWindowFocus: false,
     },

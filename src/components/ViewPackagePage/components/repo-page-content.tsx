@@ -23,7 +23,6 @@ import type {
   Package,
   PackageFile as ApiPackageFile,
 } from "fake-snippets-api/lib/db/schema"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 import { useAiReview } from "@/hooks/use-ai-review"
 import { useQueryClient } from "react-query"
@@ -69,8 +68,12 @@ export default function RepoPageContent({
     }
   }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
-  const { circuitJson, isLoading: isCircuitJsonLoading } =
-    useCurrentPackageCircuitJson()
+
+  // Check if circuit.json exists without downloading it
+  const circuitJsonExists = useMemo(() => {
+    return packageFiles?.some((file) => file.file_path === "dist/circuit.json")
+  }, [packageFiles])
+
   const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
     useRequestAiReviewMutation({
       onSuccess: (_packageRelease, aiReview) => {
@@ -90,13 +93,12 @@ export default function RepoPageContent({
 
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
-    if (isCircuitJsonLoading) return
     if (!packageInfo) return
     const hash = window.location.hash.slice(1)
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
     const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
 
-    const availableViews = circuitJson
+    const availableViews = circuitJsonExists
       ? validViews
       : validViews.filter((view) => !circuitDependentViews.includes(view))
 
@@ -114,7 +116,7 @@ export default function RepoPageContent({
         window.location.hash = "files"
       }
     }
-  }, [packageInfo?.default_view, circuitJson, isCircuitJsonLoading])
+  }, [packageInfo?.default_view, circuitJsonExists])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))

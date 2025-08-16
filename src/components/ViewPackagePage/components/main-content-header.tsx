@@ -21,7 +21,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
 import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "@/hooks/use-package-files"
@@ -70,8 +69,6 @@ export default function MainContentHeader({
     }
   }
 
-  const { circuitJson } = useCurrentPackageCircuitJson()
-
   return (
     <div className="flex items-center justify-between mb-4">
       <MainContentViewSelector
@@ -84,7 +81,7 @@ export default function MainContentHeader({
           unscopedName={packageInfo?.unscoped_name}
           desiredImageType={activeView}
           author={packageInfo?.owner_github_username ?? undefined}
-          circuitJson={circuitJson}
+          circuitJson={null}
         />
 
         {/* Code Dropdown */}
