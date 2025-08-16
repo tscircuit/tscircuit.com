@@ -359,7 +359,6 @@ export default function EditorNav({
       </div>
       <div className="flex items-center justify-end -space-x-1">
         <div className="flex mx-2 items-center space-x-1">
-          {pkg && <TypeBadge type={`${packageType ?? pkg.snippet_type}`} />}
           {/* <Button
             variant="ghost"
             size="sm"
