@@ -236,7 +236,7 @@ export default function RepoPageContent({
 
           {/* Sidebar - Hidden on mobile, shown on md and up */}
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
-            {/* <Sidebar
+            <Sidebar
               packageInfo={packageInfo}
               isLoading={!packageInfo}
               onViewChange={(view) => {
@@ -245,7 +245,7 @@ export default function RepoPageContent({
                 window.location.hash = view
               }}
               onLicenseClick={handleLicenseFileRequest}
-            /> */}
+            />
           </div>
           {/* Releases section - Only visible on small screens */}
           <div className="block md:hidden w-full px-5">
