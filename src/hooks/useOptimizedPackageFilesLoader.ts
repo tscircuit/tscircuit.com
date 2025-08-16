@@ -29,7 +29,18 @@ export function useOptimizedPackageFilesLoader(
     new Map(),
   )
 
-  const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
+  const pkgFilesRaw = usePackageFiles(pkg?.latest_package_release_id)
+
+  // Filter out dist/ files to avoid downloading build artifacts
+  const pkgFiles = useMemo(
+    () => ({
+      ...pkgFilesRaw,
+      data: pkgFilesRaw.data?.filter(
+        (file) => !file.file_path.startsWith("dist/"),
+      ),
+    }),
+    [pkgFilesRaw.data, pkgFilesRaw.isLoading, pkgFilesRaw.error],
+  )
 
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath
@@ -48,12 +59,11 @@ export function useOptimizedPackageFilesLoader(
       if (partialMatch) return partialMatch.file_path
     }
 
+    // Check for index.tsx first
     const indexFile = pkgFiles.data.find((f) => f.file_path === "index.tsx")
     if (indexFile) return indexFile.file_path
 
-    const mainFile = pkgFiles.data.find((f) => f.file_path === "main.tsx")
-    if (mainFile) return mainFile.file_path
-
+    // Fallback to first file
     return pkgFiles.data[0]?.file_path || null
   }, [pkgFiles.data, priorityFilePath])
 
