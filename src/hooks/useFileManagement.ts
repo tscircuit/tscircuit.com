@@ -188,6 +188,12 @@ export function useFileManagement({
           return priorityFile.path
         } else if (!prevCurrentFile) {
           return priorityFile.path
+        } else {
+          // If priority file is index.tsx, always update to it
+          const isPriorityFileBetter = priorityFile.path === "index.tsx"
+          if (isPriorityFileBetter) {
+            return priorityFile.path
+          }
         }
         return prevCurrentFile
       })
@@ -212,18 +218,36 @@ export function useFileManagement({
         }
       } else {
         setCurrentFile((prevCurrentFile) => {
-          if (!prevCurrentFile || prevCurrentFile === "index.tsx") {
+          if (!prevCurrentFile) {
+            // Wait for priority file to load before making selection to avoid flicker
+            // Only select if we have a good candidate (tsx/ts file) or priority file isn't loading
             const targetFile = findTargetFile(
               packageFilesWithContent,
               fileChosen,
             )
+            // Only consider it a "good enough" candidate if it's index.tsx
+            // Otherwise, wait for the actual priority file (index.tsx) to load
+            const isTopPriorityFile =
+              targetFile && targetFile.path === "index.tsx"
+            const shouldWaitForPriority =
+              isPriorityLoading && !isTopPriorityFile
+
+            if (shouldWaitForPriority) {
+              return prevCurrentFile // Keep null to avoid flicker
+            }
+
             return targetFile ? targetFile.path : prevCurrentFile
           }
           return prevCurrentFile
         })
       }
     }
-  }, [packageFilesWithContent.length, currentPackage, fileChosen])
+  }, [
+    packageFilesWithContent.length,
+    currentPackage,
+    fileChosen,
+    isPriorityLoading,
+  ])
 
   const isLoading = useMemo(() => {
     return isPriorityLoading || isLoadingPackageFiles

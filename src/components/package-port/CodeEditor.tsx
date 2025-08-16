@@ -129,9 +129,12 @@ export const CodeEditor = ({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isCreatingFile, setIsCreatingFile] = useState(false)
 
-  // Set current file on component mount
+  // Set current file on component mount - only when explicitly requested via URL
   useEffect(() => {
     if (files.length === 0 || !pkgFilesLoaded || currentFile) return
+
+    // Only run this if there's an explicit file_path in URL - don't auto-select files
+    if (!filePathFromUrl) return
 
     const targetFile = findTargetFile(files, filePathFromUrl)
     if (targetFile) {
