@@ -311,6 +311,7 @@ export const packageSchema = z.object({
     .default("files")
     .optional(),
   allow_pr_previews: z.boolean().default(false).optional(),
+  is_starred: z.boolean().default(false).optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 

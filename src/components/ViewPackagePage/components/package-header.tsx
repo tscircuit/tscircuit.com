@@ -12,10 +12,7 @@ import { Lock, Globe } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
-import {
-  usePackageStarMutationByName,
-  usePackageStarsByName,
-} from "@/hooks/use-package-stars"
+import { usePackageStarMutationByName } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
@@ -45,8 +42,7 @@ export default function PackageHeader({
     isLoggedIn,
     packageReleaseId: packageInfo?.latest_package_release_id ?? "",
   })
-  const { data: starData, isLoading: isStarDataLoading } =
-    usePackageStarsByName(packageInfo?.name ?? null)
+
   const { addStar, removeStar } = usePackageStarMutationByName(
     packageInfo?.name ?? "",
   )
@@ -57,7 +53,7 @@ export default function PackageHeader({
   const handleStarClick = async () => {
     if (!packageInfo?.name || !isLoggedIn) return
 
-    if (starData?.is_starred) {
+    if (packageInfo?.is_starred) {
       await removeStar.mutateAsync()
     } else {
       await addStar.mutateAsync()
@@ -69,8 +65,7 @@ export default function PackageHeader({
     await forkPackage(packageInfo.package_id)
   }
 
-  const isStarLoading =
-    isStarDataLoading || addStar.isLoading || removeStar.isLoading
+  const isStarLoading = addStar.isLoading || removeStar.isLoading
 
   useEffect(() => {
     window.TSCIRCUIT_REGISTRY_API_BASE_URL =
@@ -155,15 +150,15 @@ export default function PackageHeader({
                     >
                       <Star
                         className={`w-4 h-4 mr-2 ${
-                          starData?.is_starred
+                          packageInfo?.is_starred
                             ? "fill-yellow-500 text-yellow-500"
                             : ""
                         }`}
                       />
-                      {starData?.is_starred ? "Starred" : "Star"}
-                      {(starData?.star_count ?? 0) > 0 && (
+                      {packageInfo?.is_starred ? "Starred" : "Star"}
+                      {(packageInfo?.star_count ?? 0) > 0 && (
                         <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
-                          {starData?.star_count}
+                          {packageInfo?.star_count}
                         </span>
                       )}
                     </Button>
@@ -229,13 +224,15 @@ export default function PackageHeader({
             >
               <Star
                 className={`w-4 h-4 mr-2 ${
-                  starData?.is_starred ? "fill-yellow-500 text-yellow-500" : ""
+                  packageInfo?.is_starred
+                    ? "fill-yellow-500 text-yellow-500"
+                    : ""
                 }`}
               />
-              {starData?.is_starred ? "Starred" : "Star"}
-              {(starData?.star_count ?? 0) > 0 && (
+              {packageInfo?.is_starred ? "Starred" : "Star"}
+              {(packageInfo?.star_count ?? 0) > 0 && (
                 <span className="ml-1.5 bg-gray-100 text-gray-700 rounded-full px-1.5 py-0.5 text-xs font-medium">
-                  {starData?.star_count}
+                  {packageInfo?.star_count}
                 </span>
               )}
             </Button>
