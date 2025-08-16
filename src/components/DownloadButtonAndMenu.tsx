@@ -22,14 +22,18 @@ import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-fr
 import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
 import { CubeIcon } from "@radix-ui/react-icons"
+import { useState } from "react"
+import { useAxios } from "@/hooks/use-axios"
+import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 
 interface DownloadButtonAndMenuProps {
   className?: string
   unscopedName?: string
   author?: string
-  circuitJson?: AnyCircuitElement[] | null
+  hasCircuitJson?: boolean
   desiredImageType?: string
   offerMultipleImageFormats?: boolean
+  circuitJson?: AnyCircuitElement[] | null
 }
 
 export function DownloadButtonAndMenu({
@@ -37,14 +41,52 @@ export function DownloadButtonAndMenu({
   unscopedName,
   author,
   desiredImageType = "pcb",
-  circuitJson,
+  hasCircuitJson,
   offerMultipleImageFormats = false,
+  circuitJson,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
     usePcbDownloadDialog()
+  const axios = useAxios()
+  const { packageId } = useCurrentPackageId()
+  const [fetchedCircuitJson, setFetchedCircuitJson] = useState<
+    AnyCircuitElement[] | null
+  >(null)
+  const [isFetchingCircuitJson, setIsFetchingCircuitJson] = useState(false)
 
-  if (!circuitJson) {
+  const canDownload = Boolean(
+    hasCircuitJson || (circuitJson && circuitJson.length),
+  )
+
+  const getCircuitJson = async (): Promise<AnyCircuitElement[]> => {
+    if (circuitJson && circuitJson.length) return circuitJson
+    if (fetchedCircuitJson && fetchedCircuitJson.length)
+      return fetchedCircuitJson
+    setIsFetchingCircuitJson(true)
+    try {
+      const { data } = await axios.post("/package_files/get", {
+        package_id: packageId,
+        file_path: "dist/circuit.json",
+      })
+      const content = data?.package_file?.content_text
+      if (!content) throw new Error("Circuit JSON not found")
+      const parsed = JSON.parse(content)
+      setFetchedCircuitJson(parsed)
+      return parsed
+    } catch (error: any) {
+      toast({
+        title: "Failed to fetch Circuit JSON",
+        description: error?.message || error?.toString?.() || "Unknown error",
+        variant: "destructive",
+      })
+      throw error
+    } finally {
+      setIsFetchingCircuitJson(false)
+    }
+  }
+
+  if (!canDownload) {
     return (
       <div className={className}>
         <Button
@@ -76,11 +118,9 @@ export function DownloadButtonAndMenu({
         <DropdownMenuContent className="!z-[101]">
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadCircuitJson(
-                circuitJson,
-                unscopedName || "circuit" + ".json",
-              )
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadCircuitJson(cj, unscopedName || "circuit" + ".json")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -93,8 +133,9 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
+                const cj = await getCircuitJson()
                 await downloadGltfFromCircuitJson(
-                  circuitJson,
+                  cj,
                   unscopedName || "circuit",
                   { format: "glb", boardTextureResolution: 2048 },
                 )
@@ -117,8 +158,9 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               try {
+                const cj = await getCircuitJson()
                 await downloadGltfFromCircuitJson(
-                  circuitJson,
+                  cj,
                   unscopedName || "circuit",
                   { format: "gltf", boardTextureResolution: 2048 },
                 )
@@ -140,8 +182,9 @@ export function DownloadButtonAndMenu({
           <DropdownMenuItem
             className="text-xs"
             onClick={async () => {
+              const cj = await getCircuitJson()
               await downloadFabricationFiles({
-                circuitJson,
+                circuitJson: cj,
                 snippetUnscopedName: unscopedName || "snippet",
               }).catch((error) => {
                 console.error(error)
@@ -172,8 +215,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadKicadFiles(circuitJson, unscopedName || "kicad_project")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadKicadFiles(cj, unscopedName || "kicad_project")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -185,8 +229,9 @@ export function DownloadButtonAndMenu({
 
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadSchematicSvg(circuitJson, unscopedName || "circuit")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadSchematicSvg(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -197,8 +242,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadAssemblySvg(circuitJson, unscopedName || "circuit")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadAssemblySvg(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -209,7 +255,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              setFetchedCircuitJson(cj)
               openPcbDownloadDialog()
             }}
           >
@@ -221,8 +269,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadDsnFile(circuitJson, unscopedName || "circuit")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadDsnFile(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -233,8 +282,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onClick={() => {
-              downloadReadableNetlist(circuitJson, unscopedName || "circuit")
+            onClick={async () => {
+              const cj = await getCircuitJson()
+              downloadReadableNetlist(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -245,8 +295,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadSpiceFile(circuitJson, unscopedName || "circuit")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadSpiceFile(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -257,8 +308,9 @@ export function DownloadButtonAndMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
-            onSelect={() => {
-              downloadSimpleRouteJson(circuitJson, unscopedName || "circuit")
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadSimpleRouteJson(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -271,7 +323,7 @@ export function DownloadButtonAndMenu({
           {!offerMultipleImageFormats && (
             <DropdownMenuItem
               className="text-xs"
-              onClick={() => {
+              onClick={async () => {
                 const desiredImageFormat = [
                   "pcb",
                   "schematic",
@@ -280,8 +332,9 @@ export function DownloadButtonAndMenu({
                 ].includes(desiredImageType)
                   ? desiredImageType
                   : "pcb"
+                const cj = await getCircuitJson()
                 downloadPngImage({
-                  circuitJson,
+                  circuitJson: cj,
                   unscopedName,
                   author,
                   format: desiredImageFormat as ImageFormat,
@@ -299,9 +352,9 @@ export function DownloadButtonAndMenu({
             <>
               <DropdownMenuItem
                 className="text-xs"
-                onClick={() =>
+                onClick={async () =>
                   downloadPngImage({
-                    circuitJson,
+                    circuitJson: await getCircuitJson(),
                     unscopedName,
                     author,
                     format: "schematic",
@@ -316,9 +369,9 @@ export function DownloadButtonAndMenu({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
-                onClick={() =>
+                onClick={async () =>
                   downloadPngImage({
-                    circuitJson,
+                    circuitJson: await getCircuitJson(),
                     unscopedName,
                     author,
                     format: "pcb",
@@ -333,9 +386,9 @@ export function DownloadButtonAndMenu({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
-                onClick={() =>
+                onClick={async () =>
                   downloadPngImage({
-                    circuitJson,
+                    circuitJson: await getCircuitJson(),
                     unscopedName,
                     author,
                     format: "assembly",
@@ -350,9 +403,9 @@ export function DownloadButtonAndMenu({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
-                onClick={() =>
+                onClick={async () =>
                   downloadPngImage({
-                    circuitJson,
+                    circuitJson: await getCircuitJson(),
                     unscopedName,
                     author,
                     format: "3d",
@@ -370,7 +423,7 @@ export function DownloadButtonAndMenu({
         </DropdownMenuContent>
       </DropdownMenu>
       <PcbDownloadDialog
-        circuitJson={circuitJson}
+        circuitJson={fetchedCircuitJson || circuitJson || []}
         fileName={unscopedName || "circuit"}
       />
     </div>

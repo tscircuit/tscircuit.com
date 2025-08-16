@@ -70,7 +70,9 @@ export default function MainContentHeader({
     }
   }
 
-  const { circuitJson } = useCurrentPackageCircuitJson()
+  const hasCircuitJson = packageFiles.some(
+    (file) => file.file_path === "dist/circuit.json",
+  )
 
   return (
     <div className="flex items-center justify-between mb-4">
@@ -84,7 +86,7 @@ export default function MainContentHeader({
           unscopedName={packageInfo?.unscoped_name}
           desiredImageType={activeView}
           author={packageInfo?.owner_github_username ?? undefined}
-          circuitJson={circuitJson}
+          hasCircuitJson={hasCircuitJson}
         />
 
         {/* Code Dropdown */}
