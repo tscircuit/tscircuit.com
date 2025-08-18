@@ -19,7 +19,12 @@ import {
   Star,
   User,
 } from "lucide-react"
-import { DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 type SnippetType = "board" | "package" | "model" | "footprint"
 
@@ -401,7 +406,7 @@ const CmdKMenu = () => {
       const isSelected = index === selectedIndex
 
       const baseClasses = `
-      group flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
+      group flex items-center justify-between px-2 sm:px-3 py-2 rounded-md cursor-pointer
       transition-all duration-150 border border-transparent text-sm
       ${isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"}
       ${disabled ? "opacity-50 cursor-not-allowed" : ""}
@@ -417,9 +422,9 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <Package2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
                     {type === "package"
                       ? renderHighlighted(data, data.name)
@@ -431,18 +436,18 @@ const CmdKMenu = () => {
                     </span>
                   )}
                   {type === "recent" && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-400 hidden sm:block">
                       {new Date(data.updated_at).toLocaleDateString()}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="flex items-center gap-1 text-gray-500">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1 text-gray-500 hidden sm:flex">
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs">{data.star_count ?? 0}</span>
                 </div>
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   package
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -458,7 +463,7 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <img
                   src={`https://github.com/${data.github_username}.png`}
                   alt={`${data.github_username} avatar`}
@@ -470,14 +475,14 @@ const CmdKMenu = () => {
                   }}
                 />
                 <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
                     {renderHighlighted(data, data.github_username)}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   user
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -494,14 +499,14 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 {data.icon}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 truncate">
                   {renderHighlighted(data, data.name)}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   {data.type}
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -517,14 +522,14 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 {data.icon}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 truncate">
                   Import {renderHighlighted(data, data.name)}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   {data.type}
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -549,217 +554,214 @@ const CmdKMenu = () => {
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-        onClick={() => setOpen(false)}
-      />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-2xl md:max-w-2xl w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 p-0 top-[15%] translate-y-0">
+          <DialogTitle className="sr-only">Command Menu</DialogTitle>
+          <DialogDescription className="sr-only">
+            Use this menu to search packages and commands.
+          </DialogDescription>
+          <Command className="w-full" loop={false} onKeyDown={handleKeyDown}>
+            <div className="flex items-center border-b border-gray-200 px-4 py-3">
+              <Search className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
+              <Command.Input
+                placeholder="Search packages and commands..."
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+                className="w-full bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
+              />
+            </div>
 
-      <Command.Dialog
-        open={open}
-        onOpenChange={setOpen}
-        label="Command Menu"
-        className="fixed top-16 left-1/2 -translate-x-1/2 max-w-2xl w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 z-50"
-        loop={false}
-        onKeyDown={handleKeyDown}
-        aria-describedby="dialog-description"
-      >
-        <DialogTitle className="sr-only">Command Menu</DialogTitle>
-        <DialogDescription id="dialog-description" className="sr-only">
-          Use this menu to search packages and commands.
-        </DialogDescription>
-        <div className="flex items-center border-b border-gray-200 px-4 py-3">
-          <Search className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
-          <Command.Input
-            placeholder="Search packages and commands..."
-            value={searchQuery}
-            onValueChange={setSearchQuery}
-            className="w-full bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
-          />
-        </div>
-
-        <Command.List className="max-h-80 overflow-y-auto p-2 space-y-4">
-          {isSearching || isSearchingAccounts ? (
-            <Command.Loading className="p-6 text-center text-gray-500">
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
-                Loading...
-              </div>
-            </Command.Loading>
-          ) : (
-            <>
-              {searchQuery && searchResults.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Packages
-                  </h3>
-                  <div className="space-y-1">
-                    {searchResults.slice(0, 8).map((pkg, localIndex) => {
-                      const globalIndex = localIndex
-                      return renderItem(
-                        { type: "package", item: pkg },
-                        globalIndex,
-                      )
-                    })}
+            <Command.List className="max-h-[65vh] sm:max-h-96 overflow-y-auto p-3 space-y-4">
+              {isSearching || isSearchingAccounts ? (
+                <Command.Loading className="p-6 text-center text-gray-500">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                    Loading...
                   </div>
-                </div>
-              )}
-
-              {searchQuery && accountSearchResults.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Users
-                  </h3>
-                  <div className="space-y-1">
-                    {accountSearchResults
-                      .slice(0, 5)
-                      .map((account, localIndex) => {
-                        const globalIndex = searchResults.length + localIndex
-                        return renderItem(
-                          { type: "account", item: account },
-                          globalIndex,
-                        )
-                      })}
-                  </div>
-                </div>
-              )}
-
-              {!searchQuery && recentPackages.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Recent
-                  </h3>
-                  <div className="space-y-1">
-                    {recentPackages.slice(0, 6).map((pkg, localIndex) => {
-                      const globalIndex = localIndex
-                      return renderItem(
-                        { type: "recent", item: pkg },
-                        globalIndex,
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {filteredStaticOptions.blankTemplates.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Create
-                  </h3>
-                  <div className="space-y-1">
-                    {filteredStaticOptions.blankTemplates.map(
-                      (template, localIndex) => {
-                        const globalIndex =
-                          (searchQuery
-                            ? searchResults.length + accountSearchResults.length
-                            : recentPackages.length) + localIndex
-                        return renderItem(
-                          {
-                            type: "blank",
-                            item: template,
-                            disabled: template.disabled,
-                          },
-                          globalIndex,
-                        )
-                      },
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {filteredStaticOptions.templates.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Templates
-                  </h3>
-                  <div className="space-y-1">
-                    {filteredStaticOptions.templates.map(
-                      (template, localIndex) => {
-                        const globalIndex =
-                          (searchQuery
-                            ? searchResults.length + accountSearchResults.length
-                            : recentPackages.length) +
-                          filteredStaticOptions.blankTemplates.length +
-                          localIndex
-                        return renderItem(
-                          { type: "template", item: template },
-                          globalIndex,
-                        )
-                      },
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {filteredStaticOptions.importOptions.length > 0 && (
-                <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                    Import
-                  </h3>
-                  <div className="space-y-1">
-                    {filteredStaticOptions.importOptions.map(
-                      (option, localIndex) => {
-                        const globalIndex =
-                          (searchQuery
-                            ? searchResults.length + accountSearchResults.length
-                            : recentPackages.length) +
-                          filteredStaticOptions.blankTemplates.length +
-                          filteredStaticOptions.templates.length +
-                          localIndex
-                        return renderItem(
-                          { type: "import", item: option },
-                          globalIndex,
-                        )
-                      },
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {searchQuery &&
-                !searchResults.length &&
-                !accountSearchResults.length &&
-                !filteredStaticOptions.blankTemplates.length &&
-                !filteredStaticOptions.templates.length &&
-                !filteredStaticOptions.importOptions.length &&
-                !isSearching &&
-                !isSearchingAccounts && (
-                  <Command.Empty className="py-8 text-center">
-                    <div className="text-gray-400 mb-1">No results found</div>
-                    <div className="text-gray-500 text-xs">
-                      Try different search terms
+                </Command.Loading>
+              ) : (
+                <>
+                  {searchQuery && searchResults.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                        Packages
+                      </h3>
+                      <div className="space-y-1">
+                        {searchResults.slice(0, 8).map((pkg, localIndex) => {
+                          const globalIndex = localIndex
+                          return renderItem(
+                            { type: "package", item: pkg },
+                            globalIndex,
+                          )
+                        })}
+                      </div>
                     </div>
-                  </Command.Empty>
-                )}
-            </>
-          )}
-        </Command.List>
+                  )}
 
-        <div className="border-t border-gray-200 px-4 py-2 bg-gray-50/50 rounded-b-lg">
-          <div className="flex justify-between items-center text-xs text-gray-500">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
-                  ↑↓
-                </kbd>
-                <span>navigate</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
-                  ↵
-                </kbd>
-                <span>select</span>
+                  {searchQuery && accountSearchResults.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                        Users
+                      </h3>
+                      <div className="space-y-1">
+                        {accountSearchResults
+                          .slice(0, 5)
+                          .map((account, localIndex) => {
+                            const globalIndex =
+                              searchResults.length + localIndex
+                            return renderItem(
+                              { type: "account", item: account },
+                              globalIndex,
+                            )
+                          })}
+                      </div>
+                    </div>
+                  )}
+
+                  {!searchQuery && recentPackages.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Recent
+                      </h3>
+                      <div className="space-y-1">
+                        {recentPackages.slice(0, 6).map((pkg, localIndex) => {
+                          const globalIndex = localIndex
+                          return renderItem(
+                            { type: "recent", item: pkg },
+                            globalIndex,
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredStaticOptions.blankTemplates.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                        Create
+                      </h3>
+                      <div className="space-y-1">
+                        {filteredStaticOptions.blankTemplates.map(
+                          (template, localIndex) => {
+                            const globalIndex =
+                              (searchQuery
+                                ? searchResults.length +
+                                  accountSearchResults.length
+                                : recentPackages.length) + localIndex
+                            return renderItem(
+                              {
+                                type: "blank",
+                                item: template,
+                                disabled: template.disabled,
+                              },
+                              globalIndex,
+                            )
+                          },
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredStaticOptions.templates.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                        Templates
+                      </h3>
+                      <div className="space-y-1">
+                        {filteredStaticOptions.templates.map(
+                          (template, localIndex) => {
+                            const globalIndex =
+                              (searchQuery
+                                ? searchResults.length +
+                                  accountSearchResults.length
+                                : recentPackages.length) +
+                              filteredStaticOptions.blankTemplates.length +
+                              localIndex
+                            return renderItem(
+                              { type: "template", item: template },
+                              globalIndex,
+                            )
+                          },
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredStaticOptions.importOptions.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
+                        Import
+                      </h3>
+                      <div className="space-y-1">
+                        {filteredStaticOptions.importOptions.map(
+                          (option, localIndex) => {
+                            const globalIndex =
+                              (searchQuery
+                                ? searchResults.length +
+                                  accountSearchResults.length
+                                : recentPackages.length) +
+                              filteredStaticOptions.blankTemplates.length +
+                              filteredStaticOptions.templates.length +
+                              localIndex
+                            return renderItem(
+                              { type: "import", item: option },
+                              globalIndex,
+                            )
+                          },
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {searchQuery &&
+                    !searchResults.length &&
+                    !accountSearchResults.length &&
+                    !filteredStaticOptions.blankTemplates.length &&
+                    !filteredStaticOptions.templates.length &&
+                    !filteredStaticOptions.importOptions.length &&
+                    !isSearching &&
+                    !isSearchingAccounts && (
+                      <Command.Empty className="py-8 text-center">
+                        <div className="text-gray-400 mb-1">
+                          No results found
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          Try different search terms
+                        </div>
+                      </Command.Empty>
+                    )}
+                </>
+              )}
+            </Command.List>
+
+            <div className="border-t border-gray-200 px-2 sm:px-4 py-2 bg-gray-50/50 rounded-b-lg">
+              <div className="flex justify-between items-center text-xs text-gray-500">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                      ↑↓
+                    </kbd>
+                    <span className="hidden sm:inline">navigate</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                      ↵
+                    </kbd>
+                    <span className="hidden sm:inline">select</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                    ⌘K
+                  </kbd>
+                  <span className="hidden sm:inline">close</span>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
-                ⌘K
-              </kbd>
-              <span>close</span>
-            </div>
-          </div>
-        </div>
-      </Command.Dialog>
+          </Command>
+        </DialogContent>
+      </Dialog>
 
       <JLCPCBImportDialog
         open={isJLCPCBDialogOpen}
