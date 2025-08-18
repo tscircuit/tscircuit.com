@@ -21,6 +21,7 @@ export const QuickstartPage = () => {
     useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const isLoggedIn = Boolean(currentUser)
   const { data: myPackages, isLoading } = useQuery<Package[]>(
     "userPackages",
     async () => {
@@ -28,6 +29,9 @@ export const QuickstartPage = () => {
         owner_github_username: currentUser,
       })
       return response.data.packages
+    },
+    {
+      enabled: isLoggedIn,
     },
   )
 
@@ -49,48 +53,50 @@ export const QuickstartPage = () => {
     <div className="min-h-screen">
       <Header />
       <div className="container mx-auto px-6 py-12">
-        <div className="mb-16 hidden md:block">
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-slate-900">
-              Recent Packages
-            </h2>
+        {isLoggedIn && (
+          <div className="mb-16 hidden md:block">
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold text-slate-900">
+                Recent Packages
+              </h2>
+            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {myPackages
+                  ?.sort(
+                    (a, b) =>
+                      new Date(b.created_at).getTime() -
+                      new Date(a.created_at).getTime(),
+                  )
+                  .slice(0, 4)
+                  .map((pkg) => (
+                    <PrefetchPageLink
+                      key={pkg.package_id}
+                      href={`/editor?package_id=${pkg.package_id}`}
+                    >
+                      <Card className="hover:shadow-md border bg-white shadow-sm transition-shadow flex flex-col h-full rounded-md">
+                        <CardHeader>
+                          <CardTitle className="text-lg font-semibold text-slate-900">
+                            {pkg.unscoped_name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="-mt-4">
+                          <p className="text-sm text-slate-500">
+                            Last edited{" "}
+                            {new Date(pkg.updated_at).toLocaleDateString()}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </PrefetchPageLink>
+                  ))}
+              </div>
+            )}
           </div>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {myPackages
-                ?.sort(
-                  (a, b) =>
-                    new Date(b.created_at).getTime() -
-                    new Date(a.created_at).getTime(),
-                )
-                .slice(0, 4)
-                .map((pkg) => (
-                  <PrefetchPageLink
-                    key={pkg.package_id}
-                    href={`/editor?package_id=${pkg.package_id}`}
-                  >
-                    <Card className="hover:shadow-md border bg-white shadow-sm transition-shadow flex flex-col h-full rounded-md">
-                      <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-slate-900">
-                          {pkg.unscoped_name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="-mt-4">
-                        <p className="text-sm text-slate-500">
-                          Last edited{" "}
-                          {new Date(pkg.updated_at).toLocaleDateString()}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </PrefetchPageLink>
-                ))}
-            </div>
-          )}
-        </div>
+        )}
 
         <div className="mb-16">
           <div className="mb-8">
