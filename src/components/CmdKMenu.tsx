@@ -406,7 +406,7 @@ const CmdKMenu = () => {
       const isSelected = index === selectedIndex
 
       const baseClasses = `
-      group flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
+      group flex items-center justify-between px-2 sm:px-3 py-2 rounded-md cursor-pointer
       transition-all duration-150 border border-transparent text-sm
       ${isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"}
       ${disabled ? "opacity-50 cursor-not-allowed" : ""}
@@ -422,9 +422,9 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <Package2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
                     {type === "package"
                       ? renderHighlighted(data, data.name)
@@ -436,18 +436,18 @@ const CmdKMenu = () => {
                     </span>
                   )}
                   {type === "recent" && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-400 hidden sm:block">
                       {new Date(data.updated_at).toLocaleDateString()}
                     </span>
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="flex items-center gap-1 text-gray-500">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1 text-gray-500 hidden sm:flex">
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs">{data.star_count ?? 0}</span>
                 </div>
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   package
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -463,7 +463,7 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <img
                   src={`https://github.com/${data.github_username}.png`}
                   alt={`${data.github_username} avatar`}
@@ -475,14 +475,14 @@ const CmdKMenu = () => {
                   }}
                 />
                 <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
-                <div className="flex flex-col min-w-0">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
                     {renderHighlighted(data, data.github_username)}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   user
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -499,14 +499,14 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 {data.icon}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 truncate">
                   {renderHighlighted(data, data.name)}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   {data.type}
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -522,14 +522,14 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 {data.icon}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 truncate">
                   Import {renderHighlighted(data, data.name)}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
                   {data.type}
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
@@ -571,7 +571,7 @@ const CmdKMenu = () => {
               />
             </div>
 
-            <Command.List className="max-h-80 overflow-y-auto p-2 space-y-4">
+            <Command.List className="max-h-[65vh] sm:max-h-96 overflow-y-auto p-3 space-y-4">
               {isSearching || isSearchingAccounts ? (
                 <Command.Loading className="p-6 text-center text-gray-500">
                   <div className="flex items-center justify-center gap-2">
@@ -735,27 +735,27 @@ const CmdKMenu = () => {
               )}
             </Command.List>
 
-            <div className="border-t border-gray-200 px-4 py-2 bg-gray-50/50 rounded-b-lg">
+            <div className="border-t border-gray-200 px-2 sm:px-4 py-2 bg-gray-50/50 rounded-b-lg">
               <div className="flex justify-between items-center text-xs text-gray-500">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4">
                   <div className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
                       ↑↓
                     </kbd>
-                    <span>navigate</span>
+                    <span className="hidden sm:inline">navigate</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
                       ↵
                     </kbd>
-                    <span>select</span>
+                    <span className="hidden sm:inline">select</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                  <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
                     ⌘K
                   </kbd>
-                  <span>close</span>
+                  <span className="hidden sm:inline">close</span>
                 </div>
               </div>
             </div>
