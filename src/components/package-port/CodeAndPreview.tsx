@@ -153,10 +153,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  const finalfsMap = useMemo(
-    () => (Object.keys(fsMap).length > 0 ? fsMap : {}),
-    [fsMap],
-  )
+  const finalfsMap = useMemo(() => fsMap, [fsMap])
   return (
     <div className="flex flex-col min-h-[50vh]">
       <EditorNav
@@ -222,23 +219,37 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             !state.showPreview && "hidden",
           )}
         >
-          <SuspenseRunFrame
-            showRunButton
-            forceLatestEvalVersion
-            onRenderStarted={() =>
-              setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }
-            onRenderFinished={({ circuitJson }) => {
-              setState((prev) => ({ ...prev, circuitJson }))
-              toastManualEditConflicts(circuitJson, toast)
-            }}
-            mainComponentPath={mainComponentPath}
-            onEditEvent={(event) => {
-              handleEditEvent(event)
-            }}
-            fsMap={finalfsMap}
-            projectUrl={projectUrl}
-          />
+          {Object.keys(finalfsMap).length > 0 && (
+            <SuspenseRunFrame
+              showRunButton
+              forceLatestEvalVersion
+              onRenderStarted={() =>
+                setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
+              }
+              onRenderFinished={({ circuitJson }) => {
+                setState((prev) => ({ ...prev, circuitJson }))
+                toastManualEditConflicts(circuitJson, toast)
+              }}
+              mainComponentPath={mainComponentPath}
+              onEditEvent={(event) => {
+                handleEditEvent(event)
+              }}
+              fsMap={finalfsMap}
+              projectUrl={projectUrl}
+            />
+          )}
+          {Object.keys(finalfsMap).length === 0 && (
+            <div className="flex justify-center items-center h-full">
+              <div className="w-48">
+                <div className="loading">
+                  <div className="loading-bar"></div>
+                </div>
+                <p className="text-center mt-2 text-sm text-gray-600">
+                  Loading files...
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
