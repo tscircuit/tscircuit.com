@@ -225,6 +225,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           <SuspenseRunFrame
             showRunButton
             forceLatestEvalVersion
+            isLoadingFiles={isLoading}
             onRenderStarted={() =>
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }

@@ -250,8 +250,12 @@ export function useFileManagement({
   ])
 
   const isLoading = useMemo(() => {
-    return isPriorityLoading || isLoadingPackageFiles
-  }, [isPriorityLoading, isLoadingPackageFiles])
+    // Consider loading true until the priority file is fetched when viewing a package
+    // This avoids the initial false -> true flip when the priority query enables later
+    const waitingForPriorityFile =
+      Boolean(urlParams.package_id) && !isPriorityFileFetched
+    return isLoadingPackageFiles || waitingForPriorityFile
+  }, [isPriorityFileFetched, isLoadingPackageFiles, urlParams.package_id])
 
   const isFullyLoaded = useMemo(() => {
     return !isLoadingPackageFilesWithContent && !isLoadingPackageFiles
