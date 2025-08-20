@@ -6,6 +6,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -203,63 +204,69 @@ export const GitHubRepositorySelector = ({
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0 z-[999]">
+              <PopoverContent
+                className="w-[var(--radix-popover-trigger-width)] p-0 z-[999]"
+                align="start"
+              >
                 <Command shouldFilter={false}>
                   <CommandInput
                     value={searchValue}
                     onValueChange={setSearchValue}
                     placeholder="Search repositories..."
                   />
-                  <CommandEmpty className="text-sm text-slate-500 py-6">
-                    No repositories found.
-                  </CommandEmpty>
-                  <CommandGroup className="max-h-[400px] overflow-y-auto">
-                    {filteredOptions.map((option) => (
-                      <CommandItem
-                        key={option.value}
-                        onSelect={() => handleComboboxSelect(option.value)}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-2 w-full">
-                          {option.type === "repo" ? (
-                            <>
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedRepository === option.value
-                                    ? "opacity-100"
-                                    : "opacity-0",
+                  <CommandList className="max-h-[400px] overflow-y-auto">
+                    <CommandEmpty className="text-sm text-slate-500 py-6 pl-4">
+                      No repositories found.
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {filteredOptions.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          value={option.value}
+                          onSelect={() => handleComboboxSelect(option.value)}
+                          className="cursor-pointer hover:bg-slate-100"
+                        >
+                          <div className="flex items-center space-x-2 w-full">
+                            {option.type === "repo" ? (
+                              <>
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedRepository === option.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                                <span>{option.label}</span>
+                                {option.isPrivate && (
+                                  <span className="text-xs text-muted-foreground">
+                                    (private)
+                                  </span>
                                 )}
-                              />
-                              <span>{option.label}</span>
-                              {option.isPrivate && (
-                                <span className="text-xs text-muted-foreground">
-                                  (private)
+                              </>
+                            ) : (
+                              <>
+                                {option.icon === "plus" ? (
+                                  <Plus className="w-3 h-3 text-blue-600" />
+                                ) : (
+                                  <Minus className="w-3 h-3 text-red-600" />
+                                )}
+                                <span
+                                  className={
+                                    option.icon === "plus"
+                                      ? "text-blue-600"
+                                      : "text-red-600"
+                                  }
+                                >
+                                  {option.label}
                                 </span>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              {option.icon === "plus" ? (
-                                <Plus className="w-3 h-3 text-blue-600" />
-                              ) : (
-                                <Minus className="w-3 h-3 text-red-600" />
-                              )}
-                              <span
-                                className={
-                                  option.icon === "plus"
-                                    ? "text-blue-600"
-                                    : "text-red-600"
-                                }
-                              >
-                                {option.label}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                              </>
+                            )}
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>
