@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { usePackageFile } from "@/hooks/use-package-files"
+import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 
 interface MobileSidebarProps {
@@ -20,19 +20,25 @@ const MobileSidebar = ({
   onViewChange,
 }: MobileSidebarProps) => {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
-  const { data: licenseFileMeta } = usePackageFile({
-    package_release_id: packageInfo?.latest_package_release_id ?? "",
-    file_path: "LICENSE",
-  })
+  const { data: releaseFiles } = usePackageFiles(
+    packageInfo?.latest_package_release_id,
+  )
+  const licenseFileId = useMemo(() => {
+    return (
+      releaseFiles?.find((f) => f.file_path === "LICENSE")?.package_file_id ||
+      null
+    )
+  }, [releaseFiles])
+  const { data: licenseFileMeta } = usePackageFileById(licenseFileId)
   const currentLicense = useMemo(() => {
     if (packageInfo?.latest_license) {
       return packageInfo?.latest_license
     }
     if (licenseFileMeta?.content_text) {
-      return getLicenseFromLicenseContent(licenseFileMeta?.content_text)
+      return getLicenseFromLicenseContent(licenseFileMeta.content_text)
     }
     return undefined
-  }, [licenseFileMeta?.content_text, packageInfo?.latest_license])
+  }, [licenseFileMeta, packageInfo?.latest_license])
   const topics = useMemo(
     () => (packageInfo?.is_package ? ["Package"] : ["Board"]),
     [packageInfo?.is_package],
