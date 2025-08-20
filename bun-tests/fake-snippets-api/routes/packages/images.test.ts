@@ -41,8 +41,10 @@ test("get schematic svg of a package", async () => {
   // create fsMap by getting all the files in the package with the file_path and content_text
   const fsMap = new Map<string, string>()
   // list all the files in the package
-  const files = await axios.post("/api/package_files/list", {
-    package_release_id: pkg_release.data.package_release.package_release_id,
+  const files = await axios.get("/api/package_files/list", {
+    params: {
+      package_release_id: pkg_release.data.package_release.package_release_id,
+    },
   })
   for (const file of files.data.package_files) {
     fsMap.set(file.file_path, file.content_text)

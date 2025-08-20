@@ -32,8 +32,10 @@ export const usePackageAsSnippet = (packageId: string | null) => {
       if (!packageQuery.data?.latest_package_release_id) {
         throw new Error("No latest release ID available")
       }
-      const { data } = await axios.post("/package_files/list", {
-        package_release_id: packageQuery.data.latest_package_release_id,
+      const { data } = await axios.get("/package_files/list", {
+        params: {
+          package_release_id: packageQuery.data.latest_package_release_id,
+        },
       })
       return data.package_files
     },

@@ -4,16 +4,19 @@ import * as ZT from "fake-snippets-api/lib/db/schema"
 import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find-package-release-id"
 
 const routeSpec = {
-  methods: ["POST"],
+  methods: ["GET"],
   auth: "none",
-  jsonBody: z
+  queryParams: z
     .object({
       package_release_id: z.string(),
     })
     .or(
       z.object({
         package_name: z.string(),
-        use_latest_version: z.literal(true),
+        use_latest_version: z.preprocess(
+          (val) => (val === "true" ? true : val),
+          z.literal(true),
+        ),
       }),
     )
     .or(
@@ -28,7 +31,7 @@ const routeSpec = {
 } as const
 
 export default withRouteSpec(routeSpec)(async (req, ctx) => {
-  const packageReleaseId = await findPackageReleaseId(req.jsonBody, ctx)
+  const packageReleaseId = await findPackageReleaseId(req.query, ctx)
 
   if (!packageReleaseId) {
     return ctx.error(404, {

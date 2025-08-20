@@ -133,8 +133,10 @@ export const EditPackageDetailsDialog = ({
       if (response.status !== 200)
         throw new Error("Failed to update package details")
 
-      const filesRes = await axios.post("/package_files/list", {
-        package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+      const filesRes = await axios.get("/package_files/list", {
+        params: {
+          package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+        },
       })
       const packageFiles: string[] =
         filesRes.status === 200
