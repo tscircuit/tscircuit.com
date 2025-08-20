@@ -73,11 +73,7 @@ export function useFileManagement({
     totalFilesCount,
     loadedFilesCount,
     isPriorityFileFetched,
-  } = useOptimizedPackageFilesLoader(
-    currentPackage,
-    fileChosen,
-    urlParams.package_id,
-  )
+  } = useOptimizedPackageFilesLoader(currentPackage, fileChosen)
 
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
     usePackageFiles(currentPackage?.latest_package_release_id)
