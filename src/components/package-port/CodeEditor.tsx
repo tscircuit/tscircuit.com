@@ -188,67 +188,70 @@ export const CodeEditor = ({
   useEffect(() => {
     if (!editorRef.current) return
 
-    const fsMap = new Map<string, string>()
-    files.forEach(({ path, content }) => {
-      fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
-    })
-    ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
+    let cleanup: (() => void) | undefined
 
-    loadDefaultLibMap().then((defaultFsMap) => {
+    const setupEditor = async () => {
+      const fsMap = new Map<string, string>()
+      files.forEach(({ path, content }) => {
+        fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
+      })
+      ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
+
+      // Wait for default library files to load before creating TypeScript environment
+      const defaultFsMap = await loadDefaultLibMap()
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
       })
-    })
 
-    const system = createSystem(fsMap)
+      const system = createSystem(fsMap)
 
-    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
-      jsx: tsModule.JsxEmit.ReactJSX,
-      declaration: true,
-      allowJs: true,
-      target: tsModule.ScriptTarget.ES2022,
-      resolveJsonModule: true,
-    })
+      const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+        jsx: tsModule.JsxEmit.ReactJSX,
+        declaration: true,
+        allowJs: true,
+        target: tsModule.ScriptTarget.ES2022,
+        resolveJsonModule: true,
+      })
 
-    // Add alias for tscircuit -> @tscircuit/core
-    const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
-    env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+      // Add alias for tscircuit -> @tscircuit/core
+      const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+      env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
-    // Initialize ATA
-    const ataConfig: ATABootstrapConfig = {
-      projectName: "my-project",
-      typescript: tsModule,
-      logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const registryPrefixes = [
-          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-          "https://cdn.jsdelivr.net/npm/@tsci/",
-        ]
-        if (
-          typeof input === "string" &&
-          registryPrefixes.some((prefix) => input.startsWith(prefix))
-        ) {
-          const fullPackageName = input
-            .replace(registryPrefixes[0], "")
-            .replace(registryPrefixes[1], "")
-            .replace(registryPrefixes[2], "")
-          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
-          return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
-        }
-        return fetch(input, init)
-      }) as typeof fetch,
-      delegate: {
-        started: () => {
-          const manualEditsTypeDeclaration = `
+      // Initialize ATA
+      const ataConfig: ATABootstrapConfig = {
+        projectName: "my-project",
+        typescript: tsModule,
+        logger: console,
+        fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
+          const registryPrefixes = [
+            "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
+            "https://data.jsdelivr.com/v1/package/npm/@tsci/",
+            "https://cdn.jsdelivr.net/npm/@tsci/",
+          ]
+          if (
+            typeof input === "string" &&
+            registryPrefixes.some((prefix) => input.startsWith(prefix))
+          ) {
+            const fullPackageName = input
+              .replace(registryPrefixes[0], "")
+              .replace(registryPrefixes[1], "")
+              .replace(registryPrefixes[2], "")
+            const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
+            const pathInPackage = fullPackageName.split("/").slice(1).join("/")
+            const jsdelivrPath = `${packageName}${
+              pathInPackage ? `/${pathInPackage}` : ""
+            }`
+            return fetch(
+              `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
+                "/resolve/",
+              )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+            )
+          }
+          return fetch(input, init)
+        }) as typeof fetch,
+        delegate: {
+          started: () => {
+            const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
 				  const value: {
 					  pcb_placements?: any[],
@@ -259,423 +262,437 @@ export const CodeEditor = ({
 				  export default value;
 				}
 			`
-          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
-        },
-        receivedFile: (code: string, path: string) => {
-          fsMap.set(path, code)
-          env.createFile(path, code)
-          if (/\.tsx?$|\.d\.ts$/.test(path)) {
-            lastReceivedTsFileTimeRef.current = Date.now()
-          }
-          // Avoid dispatching a view update when ATA downloads files. Dispatching
-          // here caused the editor to reset the user's selection, which made text
-          // selection impossible while dependencies were loading.
-        },
-      },
-    }
-
-    const ata = setupTypeAcquisition(ataConfig)
-    ataRef.current = ata
-
-    const lastFilesEventContent: Record<string, string> = {}
-
-    // Set up base extensions
-    const baseExtensions = [
-      basicSetup,
-      currentFile?.endsWith(".json")
-        ? json()
-        : javascript({ typescript: true, jsx: true }),
-      Prec.high(
-        keymap.of([
-          {
-            key: "Mod-Enter",
-            run: () => true,
+            env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
           },
-          {
-            key: "Tab",
-            run: (view) => {
-              if (completionStatus(view.state) === "active") {
-                return acceptCompletion(view)
-              }
-              return indentMore(view)
-            },
+          receivedFile: (code: string, path: string) => {
+            fsMap.set(path, code)
+            env.createFile(path, code)
+            if (/\.tsx?$|\.d\.ts$/.test(path)) {
+              lastReceivedTsFileTimeRef.current = Date.now()
+            }
+            // Avoid dispatching a view update when ATA downloads files. Dispatching
+            // here caused the editor to reset the user's selection, which made text
+            // selection impossible while dependencies were loading.
           },
-          {
-            key: "Mod-p",
-            run: () => {
-              setShowQuickOpen(true)
-              return true
-            },
-          },
-          {
-            key: "Mod-Shift-f",
-            run: () => {
-              setShowGlobalFindReplace(true)
-              return true
-            },
-          },
-        ]),
-      ),
-      keymap.of([indentWithTab]),
-      EditorState.readOnly.of(readOnly || isSaving),
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          const newContent = update.state.doc.toString()
-          if (!currentFile) return
-          if (newContent === lastFilesEventContent[currentFile]) return
-          lastFilesEventContent[currentFile] = newContent
+        },
+      }
 
-          // setCode(newContent)
-          onCodeChange(newContent, currentFile)
-          onFileContentChanged?.(currentFile, newContent)
-        }
-        if (update.selectionSet) {
-          const pos = update.state.selection.main.head
-          setCursorPosition(pos)
-        }
-      }),
-      EditorView.theme({
-        ".cm-editor": {
-          fontSize: `${fontSize}px`,
-        },
-        ".cm-content": {
-          fontSize: `${fontSize}px`,
-        },
-        ".cm-line-highlight": {
-          backgroundColor: "#dbeafe !important",
-          animation: "lineHighlightFade 3s ease-in-out forwards",
-        },
-        "@keyframes lineHighlightFade": {
-          "0%": { backgroundColor: "#93c5fd" },
-          "100%": { backgroundColor: "transparent" },
-        },
-      }),
-      EditorView.domEventHandlers({
-        wheel: (event) => {
-          if (event.ctrlKey || event.metaKey) {
-            event.preventDefault()
-            const delta = event.deltaY
-            setFontSize((prev) => {
-              const newSize =
-                delta > 0 ? Math.max(8, prev - 1) : Math.min(32, prev + 1)
-              return newSize
-            })
-            return true
-          }
-          return false
-        },
-      }),
-      EditorView.decorations.of((view) => {
-        const decorations = []
-        if (highlightedLine) {
-          const doc = view.state.doc
-          if (highlightedLine >= 1 && highlightedLine <= doc.lines) {
-            const line = doc.line(highlightedLine)
-            decorations.push(
-              Decoration.line({
-                class: "cm-line-highlight",
-              }).range(line.from),
-            )
-          }
-        }
-        return Decoration.set(decorations)
-      }),
-    ]
-    if (aiAutocompleteEnabled) {
-      baseExtensions.push(
-        inlineCopilot(async (prefix, suffix) => {
-          const res = await fetch(
-            `${apiUrl}/autocomplete/create_autocomplete`,
+      const ata = setupTypeAcquisition(ataConfig)
+      ataRef.current = ata
+
+      const lastFilesEventContent: Record<string, string> = {}
+
+      // Set up base extensions
+      const baseExtensions = [
+        basicSetup,
+        currentFile?.endsWith(".json")
+          ? json()
+          : javascript({ typescript: true, jsx: true }),
+        Prec.high(
+          keymap.of([
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                prefix,
-                suffix,
-                language: "typescript",
-              }),
+              key: "Mod-Enter",
+              run: () => true,
             },
-          )
+            {
+              key: "Tab",
+              run: (view) => {
+                if (completionStatus(view.state) === "active") {
+                  return acceptCompletion(view)
+                }
+                return indentMore(view)
+              },
+            },
+            {
+              key: "Mod-p",
+              run: () => {
+                setShowQuickOpen(true)
+                return true
+              },
+            },
+            {
+              key: "Mod-Shift-f",
+              run: () => {
+                setShowGlobalFindReplace(true)
+                return true
+              },
+            },
+          ]),
+        ),
+        keymap.of([indentWithTab]),
+        EditorState.readOnly.of(readOnly || isSaving),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            const newContent = update.state.doc.toString()
+            if (!currentFile) return
+            if (newContent === lastFilesEventContent[currentFile]) return
+            lastFilesEventContent[currentFile] = newContent
 
-          const { prediction } = await res.json()
-          return prediction
+            // setCode(newContent)
+            onCodeChange(newContent, currentFile)
+            onFileContentChanged?.(currentFile, newContent)
+          }
+          if (update.selectionSet) {
+            const pos = update.state.selection.main.head
+            setCursorPosition(pos)
+          }
         }),
         EditorView.theme({
-          ".cm-ghostText, .cm-ghostText *": {
-            opacity: "0.6",
-            filter: "grayscale(20%)",
-            cursor: "pointer",
+          ".cm-editor": {
+            fontSize: `${fontSize}px`,
           },
-          ".cm-ghostText:hover": {
-            background: "#eee",
+          ".cm-content": {
+            fontSize: `${fontSize}px`,
+          },
+          ".cm-line-highlight": {
+            backgroundColor: "#dbeafe !important",
+            animation: "lineHighlightFade 3s ease-in-out forwards",
+          },
+          "@keyframes lineHighlightFade": {
+            "0%": { backgroundColor: "#93c5fd" },
+            "100%": { backgroundColor: "transparent" },
           },
         }),
-      )
-    }
-
-    // Add TypeScript-specific extensions and handlers
-    const tsExtensions =
-      currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
-        ? [
-            tsFacet.of({
-              env,
-              path: currentFile?.endsWith(".ts")
-                ? currentFile?.replace(/\.ts$/, ".tsx")
-                : currentFile,
-            }),
-            tsSync(),
-            linter(async (view) => {
-              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
-                return []
-              }
-              const config = view.state.facet(tsFacet)
-              return config
-                ? getLints({
-                    ...config,
-                    diagnosticCodesToIgnore: [],
-                  })
-                : []
-            }),
-            autocompletion({ override: [tsAutocomplete()] }),
-            hoverTooltip((view, pos) => {
-              const line = view.state.doc.lineAt(pos)
-              const lineStart = line.from
-              const lineEnd = line.to
-              const lineText = view.state.sliceDoc(lineStart, lineEnd)
-
-              // Check for TSCI package imports
-              const packageMatches = Array.from(
-                lineText.matchAll(TSCI_PACKAGE_PATTERN),
+        EditorView.domEventHandlers({
+          wheel: (event) => {
+            if (event.ctrlKey || event.metaKey) {
+              event.preventDefault()
+              const delta = event.deltaY
+              setFontSize((prev) => {
+                const newSize =
+                  delta > 0 ? Math.max(8, prev - 1) : Math.min(32, prev + 1)
+                return newSize
+              })
+              return true
+            }
+            return false
+          },
+        }),
+        EditorView.decorations.of((view) => {
+          const decorations = []
+          if (highlightedLine) {
+            const doc = view.state.doc
+            if (highlightedLine >= 1 && highlightedLine <= doc.lines) {
+              const line = doc.line(highlightedLine)
+              decorations.push(
+                Decoration.line({
+                  class: "cm-line-highlight",
+                }).range(line.from),
               )
+            }
+          }
+          return Decoration.set(decorations)
+        }),
+      ]
+      if (aiAutocompleteEnabled) {
+        baseExtensions.push(
+          inlineCopilot(async (prefix, suffix) => {
+            const res = await fetch(
+              `${apiUrl}/autocomplete/create_autocomplete`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  prefix,
+                  suffix,
+                  language: "typescript",
+                }),
+              },
+            )
 
-              for (const match of packageMatches) {
-                if (match.index !== undefined) {
-                  const start = lineStart + match.index
-                  const end = start + match[0].length
-                  if (pos >= start && pos <= end) {
-                    return {
-                      pos: start,
-                      end: end,
-                      above: true,
-                      create() {
-                        const dom = document.createElement("div")
-                        dom.textContent = "Ctrl/Cmd+Click to open package"
-                        return { dom }
-                      },
-                    }
-                  }
+            const { prediction } = await res.json()
+            return prediction
+          }),
+          EditorView.theme({
+            ".cm-ghostText, .cm-ghostText *": {
+              opacity: "0.6",
+              filter: "grayscale(20%)",
+              cursor: "pointer",
+            },
+            ".cm-ghostText:hover": {
+              background: "#eee",
+            },
+          }),
+        )
+      }
+
+      // Add TypeScript-specific extensions and handlers
+      const tsExtensions =
+        currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
+          ? [
+              tsFacet.of({
+                env,
+                path: currentFile?.endsWith(".ts")
+                  ? currentFile?.replace(/\.ts$/, ".tsx")
+                  : currentFile,
+              }),
+              tsSync(),
+              linter(async (view) => {
+                if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+                  return []
                 }
-              }
-              const facet = view.state.facet(tsFacet)
-              if (!facet) return null
-
-              const { env, path } = facet
-              const info = env.languageService.getQuickInfoAtPosition(path, pos)
-              if (!info) return null
-
-              const start = info.textSpan.start
-              const end = start + info.textSpan.length
-              const content = tsModule?.displayPartsToString(
-                info.displayParts || [],
-              )
-
-              const dom = document.createElement("div")
-              if (highlighter) {
-                dom.innerHTML = highlighter.codeToHtml(content, {
-                  lang: "tsx",
-                  themes: {
-                    light: "github-light",
-                    dark: "github-dark",
-                  },
-                })
-
-                return {
-                  pos: start,
-                  end,
-                  above: true,
-                  create: () => ({ dom }),
-                }
-              }
-              return null
-            }),
-            EditorView.domEventHandlers({
-              click: (event, view) => {
-                if (!event.ctrlKey && !event.metaKey) return false
-                const pos = view.posAtCoords({
-                  x: event.clientX,
-                  y: event.clientY,
-                })
-                if (pos === null) return false
-
+                const config = view.state.facet(tsFacet)
+                return config
+                  ? getLints({
+                      ...config,
+                      diagnosticCodesToIgnore: [],
+                    })
+                  : []
+              }),
+              autocompletion({ override: [tsAutocomplete()] }),
+              hoverTooltip((view, pos) => {
                 const line = view.state.doc.lineAt(pos)
                 const lineStart = line.from
                 const lineEnd = line.to
                 const lineText = view.state.sliceDoc(lineStart, lineEnd)
 
-                // Check for TSCI package imports first
+                // Check for TSCI package imports
                 const packageMatches = Array.from(
                   lineText.matchAll(TSCI_PACKAGE_PATTERN),
                 )
+
                 for (const match of packageMatches) {
                   if (match.index !== undefined) {
                     const start = lineStart + match.index
                     const end = start + match[0].length
                     if (pos >= start && pos <= end) {
-                      const importName = match[0]
-                      // Handle potential dots and dashes in package names
-                      const [owner, name] = importName
-                        .replace("@tsci/", "")
-                        .split(".")
-                      window.open(`/${owner}/${name}`, "_blank")
-                      return true
-                    }
-                  }
-                }
-                // TypeScript "Go to Definition" functionality
-                const facet = view.state.facet(tsFacet)
-                if (facet) {
-                  const { env, path } = facet
-                  const definitions =
-                    env.languageService.getDefinitionAtPosition(path, pos)
-                  if (definitions && definitions.length > 0) {
-                    const definition = definitions[0]
-                    const definitionFileName = definition.fileName
-                    if (definitionFileName) {
-                      const localFilePath = definitionFileName.startsWith("/")
-                        ? definitionFileName.replace("/", "")
-                        : definitionFileName
-                      if (fileMap[localFilePath]) {
-                        const definitionContent = fileMap[localFilePath]
-                        const lines = definitionContent
-                          ?.substring(0, definition.textSpan.start)
-                          .split("\n")
-                        const lineNumber = lines?.length
-
-                        onFileSelect(localFilePath, lineNumber)
-                        return true
-                      } else {
-                        const definitionContent =
-                          env
-                            .getSourceFile(definitionFileName)
-                            ?.getFullText() || ""
-                        const lines = definitionContent
-                          .substring(0, definition.textSpan.start)
-                          .split("\n")
-                        const lineNumber = lines.length
-                        openViewTsFilesDialog({
-                          initialFile: definitionFileName,
-                          initialLine: lineNumber,
-                        })
-                        return true
+                      return {
+                        pos: start,
+                        end: end,
+                        above: true,
+                        create() {
+                          const dom = document.createElement("div")
+                          dom.textContent = "Ctrl/Cmd+Click to open package"
+                          return { dom }
+                        },
                       }
                     }
                   }
                 }
+                const facet = view.state.facet(tsFacet)
+                if (!facet) return null
 
-                return false
-              },
-              keydown: (event) => {
-                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                  event.preventDefault()
-                  return true
+                const { env, path } = facet
+                const info = env.languageService.getQuickInfoAtPosition(
+                  path,
+                  pos,
+                )
+                if (!info) return null
+
+                const start = info.textSpan.start
+                const end = start + info.textSpan.length
+                const content = tsModule?.displayPartsToString(
+                  info.displayParts || [],
+                )
+
+                const dom = document.createElement("div")
+                if (highlighter) {
+                  dom.innerHTML = highlighter.codeToHtml(content, {
+                    lang: "tsx",
+                    themes: {
+                      light: "github-light",
+                      dark: "github-dark",
+                    },
+                  })
+
+                  return {
+                    pos: start,
+                    end,
+                    above: true,
+                    create: () => ({ dom }),
+                  }
                 }
-                return false
-              },
-            }),
-            EditorView.theme({
-              ".cm-tooltip-hover": {
-                maxWidth: "600px",
-                padding: "12px",
-                maxHeight: "400px",
-                borderRadius: "0.5rem",
-                backgroundColor: "#fff",
-                color: "#0f172a",
-                border: "1px solid #e2e8f0",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                fontSize: "14px",
-                fontFamily: "monospace",
-                whiteSpace: "pre-wrap",
-                lineHeight: "1.6",
-                overflow: "auto",
-                zIndex: "9999",
-              },
-              ".cm-import:hover": {
-                textDecoration: "underline",
-                textDecorationColor: "#aa1111",
-                textUnderlineOffset: "1px",
-                filter: "brightness(0.7)",
-              },
-            }),
-            EditorView.decorations.of((view) => {
-              const decorations = []
-              for (const { from, to } of view.visibleRanges) {
-                for (let pos = from; pos < to; ) {
-                  const line = view.state.doc.lineAt(pos)
-                  const lineText = line.text
+                return null
+              }),
+              EditorView.domEventHandlers({
+                click: (event, view) => {
+                  if (!event.ctrlKey && !event.metaKey) return false
+                  const pos = view.posAtCoords({
+                    x: event.clientX,
+                    y: event.clientY,
+                  })
+                  if (pos === null) return false
 
-                  // Add decorations for TSCI package imports
-                  const packageMatches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
+                  const line = view.state.doc.lineAt(pos)
+                  const lineStart = line.from
+                  const lineEnd = line.to
+                  const lineText = view.state.sliceDoc(lineStart, lineEnd)
+
+                  // Check for TSCI package imports first
+                  const packageMatches = Array.from(
+                    lineText.matchAll(TSCI_PACKAGE_PATTERN),
+                  )
                   for (const match of packageMatches) {
                     if (match.index !== undefined) {
-                      const start = line.from + match.index
+                      const start = lineStart + match.index
                       const end = start + match[0].length
-                      decorations.push(
-                        Decoration.mark({
-                          class: "cm-import cursor-pointer",
-                        }).range(start, end),
-                      )
+                      if (pos >= start && pos <= end) {
+                        const importName = match[0]
+                        // Handle potential dots and dashes in package names
+                        const [owner, name] = importName
+                          .replace("@tsci/", "")
+                          .split(".")
+                        window.open(`/${owner}/${name}`, "_blank")
+                        return true
+                      }
+                    }
+                  }
+                  // TypeScript "Go to Definition" functionality
+                  const facet = view.state.facet(tsFacet)
+                  if (facet) {
+                    const { env, path } = facet
+                    const definitions =
+                      env.languageService.getDefinitionAtPosition(path, pos)
+                    if (definitions && definitions.length > 0) {
+                      const definition = definitions[0]
+                      const definitionFileName = definition.fileName
+                      if (definitionFileName) {
+                        const localFilePath = definitionFileName.startsWith("/")
+                          ? definitionFileName.replace("/", "")
+                          : definitionFileName
+                        if (fileMap[localFilePath]) {
+                          const definitionContent = fileMap[localFilePath]
+                          const lines = definitionContent
+                            ?.substring(0, definition.textSpan.start)
+                            .split("\n")
+                          const lineNumber = lines?.length
+
+                          onFileSelect(localFilePath, lineNumber)
+                          return true
+                        } else {
+                          const definitionContent =
+                            env
+                              .getSourceFile(definitionFileName)
+                              ?.getFullText() || ""
+                          const lines = definitionContent
+                            .substring(0, definition.textSpan.start)
+                            .split("\n")
+                          const lineNumber = lines.length
+                          openViewTsFilesDialog({
+                            initialFile: definitionFileName,
+                            initialLine: lineNumber,
+                          })
+                          return true
+                        }
+                      }
                     }
                   }
 
-                  // Add decorations for local file imports
-                  const localFileMatches = lineText.matchAll(
-                    LOCAL_FILE_IMPORT_PATTERN,
-                  )
-                  for (const match of localFileMatches) {
-                    if (match.index !== undefined) {
-                      const start = line.from + match.index
-                      const end = start + match[0].length
-                      decorations.push(
-                        Decoration.mark({
-                          class: "cm-import cursor-pointer",
-                        }).range(start, end),
-                      )
-                    }
+                  return false
+                },
+                keydown: (event) => {
+                  if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key === "Enter"
+                  ) {
+                    event.preventDefault()
+                    return true
                   }
-                  pos = line.to + 1
+                  return false
+                },
+              }),
+              EditorView.theme({
+                ".cm-tooltip-hover": {
+                  maxWidth: "600px",
+                  padding: "12px",
+                  maxHeight: "400px",
+                  borderRadius: "0.5rem",
+                  backgroundColor: "#fff",
+                  color: "#0f172a",
+                  border: "1px solid #e2e8f0",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                  fontSize: "14px",
+                  fontFamily: "monospace",
+                  whiteSpace: "pre-wrap",
+                  lineHeight: "1.6",
+                  overflow: "auto",
+                  zIndex: "9999",
+                },
+                ".cm-import:hover": {
+                  textDecoration: "underline",
+                  textDecorationColor: "#aa1111",
+                  textUnderlineOffset: "1px",
+                  filter: "brightness(0.7)",
+                },
+              }),
+              EditorView.decorations.of((view) => {
+                const decorations = []
+                for (const { from, to } of view.visibleRanges) {
+                  for (let pos = from; pos < to; ) {
+                    const line = view.state.doc.lineAt(pos)
+                    const lineText = line.text
+
+                    // Add decorations for TSCI package imports
+                    const packageMatches =
+                      lineText.matchAll(TSCI_PACKAGE_PATTERN)
+                    for (const match of packageMatches) {
+                      if (match.index !== undefined) {
+                        const start = line.from + match.index
+                        const end = start + match[0].length
+                        decorations.push(
+                          Decoration.mark({
+                            class: "cm-import cursor-pointer",
+                          }).range(start, end),
+                        )
+                      }
+                    }
+
+                    // Add decorations for local file imports
+                    const localFileMatches = lineText.matchAll(
+                      LOCAL_FILE_IMPORT_PATTERN,
+                    )
+                    for (const match of localFileMatches) {
+                      if (match.index !== undefined) {
+                        const start = line.from + match.index
+                        const end = start + match[0].length
+                        decorations.push(
+                          Decoration.mark({
+                            class: "cm-import cursor-pointer",
+                          }).range(start, end),
+                        )
+                      }
+                    }
+                    pos = line.to + 1
+                  }
                 }
-              }
-              return Decoration.set(decorations)
-            }),
-          ]
-        : []
+                return Decoration.set(decorations)
+              }),
+            ]
+          : []
 
-    const state = EditorState.create({
-      doc: fileMap[currentFile || ""] || "",
-      extensions: [...baseExtensions, ...tsExtensions],
-    })
+      const state = EditorState.create({
+        doc: fileMap[currentFile || ""] || "",
+        extensions: [...baseExtensions, ...tsExtensions],
+      })
 
-    const view = new EditorView({
-      state,
-      parent: editorRef.current,
-    })
+      if (!editorRef.current) return
 
-    viewRef.current = view
+      const view = new EditorView({
+        state,
+        parent: editorRef.current,
+      })
 
-    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
-    }
+      viewRef.current = view
 
-    return () => {
-      view.destroy()
-      // Clean up any pending highlight timeout
-      if (highlightTimeoutRef.current) {
-        window.clearTimeout(highlightTimeoutRef.current)
-        highlightTimeoutRef.current = null
+      if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
+        ata(`${defaultImports}${code}`)
+      }
+
+      cleanup = () => {
+        view.destroy()
+        // Clean up any pending highlight timeout
+        if (highlightTimeoutRef.current) {
+          window.clearTimeout(highlightTimeoutRef.current)
+          highlightTimeoutRef.current = null
+        }
       }
     }
+
+    setupEditor()
+
+    return () => cleanup?.()
   }, [
     !isStreaming,
     currentFile,
