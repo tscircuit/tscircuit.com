@@ -21,12 +21,13 @@ export const useCurrentPackageRelease = (options?: {
 
   let query: Parameters<typeof usePackageRelease>[0] | null = null
 
-  if (releaseId) {
+  // Prioritize package_name + is_latest for better caching consistency
+  if (author && packageName && !version && !releaseId) {
+    query = { package_name: `${author}/${packageName}`, is_latest: true }
+  } else if (releaseId) {
     query = { package_release_id: releaseId }
   } else if (version && author && packageName) {
     query = { package_name_with_version: `${author}/${packageName}@${version}` }
-  } else if (author && packageName) {
-    query = { package_name: `${author}/${packageName}`, is_latest: true }
   } else if (packageId) {
     query = { package_id: packageId, is_latest: true }
   }
