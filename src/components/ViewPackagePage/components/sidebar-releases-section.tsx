@@ -1,7 +1,7 @@
 import { Tag, Clock } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { BuildStatus, BuildStep } from "./build-status"
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
@@ -39,9 +39,9 @@ function getCircuitJsonStatus(pr?: PackageRelease | null): BuildStep["status"] {
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
-  const { data: packageRelease } = usePackageReleaseById(
-    packageInfo?.latest_package_release_id,
-  )
+  const { packageRelease } = useCurrentPackageRelease({
+    include_ai_review: true,
+  })
   const { data: latestBuild } = usePackageBuild(
     packageRelease?.latest_package_build_id ?? null,
   )

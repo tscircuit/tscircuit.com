@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { GitFork, Star, Settings, LinkIcon, Github, Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
@@ -21,9 +21,9 @@ export default function SidebarAboutSection({
   onLicenseClick,
 }: SidebarAboutSectionProps = {}) {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
-  const { data: packageRelease } = usePackageReleaseById(
-    packageInfo?.latest_package_release_id,
-  )
+  const { packageRelease } = useCurrentPackageRelease({
+    include_ai_review: true,
+  })
 
   const { data: licenseFileMeta, refetch: refetchLicense } = usePackageFile({
     package_release_id: packageInfo?.latest_package_release_id ?? "",

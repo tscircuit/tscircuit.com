@@ -1,6 +1,6 @@
 import RepoPageContent from "@/components/ViewPackagePage/components/repo-page-content"
 import { usePackageFiles } from "@/hooks/use-package-files"
-import { usePackageRelease } from "@/hooks/use-package-release"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useEffect, useState } from "react"
@@ -19,20 +19,14 @@ export const ViewPackagePage = () => {
     isLoading: isLoadingPackage,
   } = usePackageByName(packageNameFull)
   const {
-    data: packageRelease,
+    packageRelease,
     error: packageReleaseError,
     isLoading: isLoadingPackageRelease,
-  } = usePackageRelease(
-    {
-      is_latest: true,
-      package_name: `${author}/${packageName}`,
-      include_ai_review: true,
-    },
-    {
-      refetchInterval: (data) =>
-        data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
-    },
-  )
+  } = useCurrentPackageRelease({
+    include_ai_review: true,
+    refetchInterval: (data) =>
+      data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
+  })
 
   const { data: packageFiles, isFetched: arePackageFilesFetched } =
     usePackageFiles(packageRelease?.package_release_id)
