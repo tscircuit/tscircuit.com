@@ -36,7 +36,9 @@ export const usePackageFile = (
     async () => {
       if (!query) return
 
-      const { data } = await axios.post("/package_files/get", query)
+      const { data } = await axios.get("/package_files/get", {
+        params: query,
+      })
 
       if (!data.package_file) {
         throw new Error("Package file not found")

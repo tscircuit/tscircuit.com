@@ -2,7 +2,7 @@ import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-ser
 import { expect, test } from "bun:test"
 import { packageFileSchema } from "fake-snippets-api/lib/db/schema"
 
-test("POST /api/package_files/get - should return package file by package_file_id", async () => {
+test("GET /api/package_files/get - should return package file by package_file_id", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
@@ -34,8 +34,8 @@ test("POST /api/package_files/get - should return package file by package_file_i
   const addedFile = db.addPackageFile(packageFile)
 
   // Get the file by package_file_id
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: addedFile.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: addedFile.package_file_id },
   })
 
   expect(getResponse.status).toBe(200)
@@ -44,7 +44,7 @@ test("POST /api/package_files/get - should return package file by package_file_i
   expect(responseBody.package_file).toEqual(packageFileSchema.parse(addedFile))
 })
 
-test("POST /api/package_files/get - should return package file by package_release_id and file_path", async () => {
+test("GET /api/package_files/get - should return package file by package_release_id and file_path", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
@@ -77,9 +77,11 @@ test("POST /api/package_files/get - should return package file by package_releas
   db.addPackageFile(packageFile)
 
   // Get the file by package_release_id and file_path
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_release_id: createdRelease.package_release_id,
-    file_path: filePath,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: {
+      package_release_id: createdRelease.package_release_id,
+      file_path: filePath,
+    },
   })
 
   expect(getResponse.status).toBe(200)
@@ -91,7 +93,7 @@ test("POST /api/package_files/get - should return package file by package_releas
   )
 })
 
-test("POST /api/package_files/get - should return package file by package_name_with_version and file_path", async () => {
+test("GET /api/package_files/get - should return package file by package_name_with_version and file_path", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
@@ -126,9 +128,11 @@ test("POST /api/package_files/get - should return package file by package_name_w
   db.addPackageFile(packageFile)
 
   // Get the file by package_name_with_version and file_path
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_name_with_version: `${packageName}@${version}`,
-    file_path: filePath,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: {
+      package_name_with_version: `${packageName}@${version}`,
+      file_path: filePath,
+    },
   })
 
   expect(getResponse.status).toBe(200)
@@ -140,12 +144,14 @@ test("POST /api/package_files/get - should return package file by package_name_w
   )
 })
 
-test("POST /api/package_files/get - should return 404 if package file not found", async () => {
+test("GET /api/package_files/get - should return 404 if package file not found", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post("/api/package_files/get", {
-      package_file_id: "123e4567-e89b-12d3-a456-426614174000", // valid UUID format
+    await axios.get("/api/package_files/get", {
+      params: {
+        package_file_id: "123e4567-e89b-12d3-a456-426614174000", // valid UUID format
+      },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -154,14 +160,16 @@ test("POST /api/package_files/get - should return 404 if package file not found"
   }
 })
 
-test("POST /api/package_files/get - should return 404 if package not found with package_name", async () => {
+test("GET /api/package_files/get - should return 404 if package not found with package_name", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post("/api/package_files/get", {
-      package_name: "non-existent-package",
-      version: "1.0.0",
-      file_path: "/index.js",
+    await axios.get("/api/package_files/get", {
+      params: {
+        package_name: "non-existent-package",
+        version: "1.0.0",
+        file_path: "/index.js",
+      },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -170,7 +178,7 @@ test("POST /api/package_files/get - should return 404 if package not found with 
   }
 })
 
-test("POST /api/package_files/get - should return file using package_id and version", async () => {
+test("GET /api/package_files/get - should return file using package_id and version", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
@@ -204,10 +212,12 @@ test("POST /api/package_files/get - should return file using package_id and vers
   db.addPackageFile(packageFile)
 
   // Get the file by package_id and version
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_id: createdPackage.package_id,
-    version,
-    file_path: filePath,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: {
+      package_id: createdPackage.package_id,
+      version,
+      file_path: filePath,
+    },
   })
 
   expect(getResponse.status).toBe(200)

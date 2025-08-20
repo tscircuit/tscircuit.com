@@ -30,8 +30,8 @@ export function usePackageFilesLoader(pkg?: Package) {
           }
         }
 
-        const response = await axios.post(`/package_files/get`, {
-          package_file_id: file.package_file_id,
+        const response = await axios.get(`/package_files/get`, {
+          params: { package_file_id: file.package_file_id },
         })
         const content = response.data.package_file?.content_text
         return { path: file.file_path, content: content ?? "" }

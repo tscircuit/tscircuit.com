@@ -37,8 +37,8 @@ test("delete package file using package_release_id", async () => {
   expect(deleteResponse.data.ok).toBe(true)
 
   try {
-    await axios.post("/api/package_files/get", {
-      package_file_id: createdFile.package_file_id,
+    await axios.get("/api/package_files/get", {
+      params: { package_file_id: createdFile.package_file_id },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -84,8 +84,8 @@ test("delete package file using package_name_with_version", async () => {
   expect(deleteResponse.data.ok).toBe(true)
 
   try {
-    await axios.post("/api/package_files/get", {
-      package_file_id: createdFile.package_file_id,
+    await axios.get("/api/package_files/get", {
+      params: { package_file_id: createdFile.package_file_id },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {

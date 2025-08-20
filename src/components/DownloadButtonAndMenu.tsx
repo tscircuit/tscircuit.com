@@ -65,9 +65,8 @@ export function DownloadButtonAndMenu({
       return fetchedCircuitJson
     setIsFetchingCircuitJson(true)
     try {
-      const { data } = await axios.post("/package_files/get", {
-        package_id: packageId,
-        file_path: "dist/circuit.json",
+      const { data } = await axios.get("/package_files/get", {
+        params: { package_id: packageId, file_path: "dist/circuit.json" },
       })
       const content = data?.package_file?.content_text
       if (!content) throw new Error("Circuit JSON not found")
