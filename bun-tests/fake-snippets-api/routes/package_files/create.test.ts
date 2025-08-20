@@ -40,8 +40,8 @@ test("create package file with content_text", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
 
   // Verify the file can be retrieved using the get endpoint
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)
@@ -86,8 +86,8 @@ test("create package file with content_base64", async () => {
   // Content is no longer returned from the create endpoint
 
   // Verify the file can be retrieved using the get endpoint with package_name_with_version
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   // content_text is no longer returned by the get endpoint

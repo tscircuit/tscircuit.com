@@ -40,8 +40,8 @@ test("create new package file with content_text", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
   expect(responseBody.package_file.content_text).toBe(fileContent)
 
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)
@@ -101,8 +101,8 @@ test("update existing package file with content_text", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
   expect(responseBody.package_file.content_text).toBe(updatedContent)
 
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)
@@ -145,8 +145,8 @@ test("create package file with content_base64", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
   expect(responseBody.package_file.content_text).toBe(fileContent)
 
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)
@@ -475,8 +475,8 @@ test.skip("update package file with content_base64", async () => {
   )
   expect(responseBody.package_file.content_text).toBe(updatedContent)
 
-  const getResponse = await axios.post("/api/package_files/get", {
-    package_file_id: responseBody.package_file.package_file_id,
+  const getResponse = await axios.get("/api/package_files/get", {
+    params: { package_file_id: responseBody.package_file.package_file_id },
   })
   expect(getResponse.status).toBe(200)
   expect(getResponse.data.package_file.file_path).toBe(filePath)

@@ -4,9 +4,9 @@ import * as ZT from "fake-snippets-api/lib/db/schema"
 import { getPackageFileIdFromFileDescriptor } from "fake-snippets-api/lib/package_file/get-package-file-id-from-file-descriptor"
 
 const routeSpec = {
-  methods: ["POST"],
+  methods: ["GET"],
   auth: "none",
-  jsonBody: z
+  queryParams: z
     .object({
       package_file_id: z.string(),
     })
@@ -45,10 +45,7 @@ const routeSpec = {
 } as const
 
 export default withRouteSpec(routeSpec)(async (req, ctx) => {
-  const packageFileId = await getPackageFileIdFromFileDescriptor(
-    req.jsonBody,
-    ctx,
-  )
+  const packageFileId = await getPackageFileIdFromFileDescriptor(req.query, ctx)
 
   const packageFile = ctx.db.packageFiles.find(
     (pf: ZT.PackageFile) => pf.package_file_id === packageFileId,
