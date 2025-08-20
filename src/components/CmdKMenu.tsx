@@ -407,7 +407,7 @@ const CmdKMenu = () => {
 
       const baseClasses = `
       group flex items-center justify-between px-2 sm:px-3 py-2 rounded-md cursor-pointer
-      transition-all duration-150 border border-transparent text-sm
+      transition-all duration-150 border border-transparent text-sm w-full
       ${isSelected ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50"}
       ${disabled ? "opacity-50 cursor-not-allowed" : ""}
     `
@@ -422,28 +422,28 @@ const CmdKMenu = () => {
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
-              <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                 <Package2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="font-medium text-gray-900 truncate">
+                <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+                  <span className="font-medium text-gray-900 truncate max-w-full">
                     {type === "package"
                       ? renderHighlighted(data, data.name)
                       : data.name}
                   </span>
                   {data.description && (
-                    <span className="text-xs text-gray-500 truncate">
+                    <span className="text-xs text-gray-500 truncate max-w-full">
                       {data.description}
                     </span>
                   )}
                   {type === "recent" && (
-                    <span className="text-xs text-gray-400 hidden sm:block">
+                    <span className="text-xs text-gray-400 hidden sm:block truncate">
                       {new Date(data.updated_at).toLocaleDateString()}
                     </span>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                <div className="flex items-center gap-1 text-gray-500 hidden sm:flex">
+                <div className="flex items-center gap-1 text-gray-500">
                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                   <span className="text-xs">{data.star_count ?? 0}</span>
                 </div>
@@ -555,23 +555,27 @@ const CmdKMenu = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl md:max-w-2xl w-[90vw] bg-white rounded-lg shadow-xl border border-gray-200 p-0 top-[15%] translate-y-0">
+        <DialogContent className="max-w-xl lg:max-w-2xl w-[95vw] bg-white rounded-lg shadow-xl border border-gray-200 p-0 top-[10vh] translate-y-0">
           <DialogTitle className="sr-only">Command Menu</DialogTitle>
           <DialogDescription className="sr-only">
             Use this menu to search packages and commands.
           </DialogDescription>
-          <Command className="w-full" loop={false} onKeyDown={handleKeyDown}>
-            <div className="flex items-center border-b border-gray-200 px-4 py-3">
+          <Command
+            className="w-full overflow-hidden"
+            loop={false}
+            onKeyDown={handleKeyDown}
+          >
+            <div className="flex items-center border-b border-gray-200 px-3 sm:px-4 py-3">
               <Search className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />
               <Command.Input
                 placeholder="Search packages and commands..."
                 value={searchQuery}
                 onValueChange={setSearchQuery}
-                className="w-full bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
+                className="w-full bg-transparent border-none outline-none text-sm text-gray-900 placeholder-gray-500"
               />
             </div>
 
-            <Command.List className="max-h-[65vh] sm:max-h-96 overflow-y-auto p-3 space-y-4">
+            <Command.List className="max-h-[60vh] sm:max-h-[50vh] overflow-y-auto p-2 sm:p-3 space-y-3 no-scrollbar">
               {isSearching || isSearchingAccounts ? (
                 <Command.Loading className="p-6 text-center text-gray-500">
                   <div className="flex items-center justify-center gap-2">
@@ -735,24 +739,24 @@ const CmdKMenu = () => {
               )}
             </Command.List>
 
-            <div className="border-t border-gray-200 px-2 sm:px-4 py-2 bg-gray-50/50 rounded-b-lg">
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <div className="flex items-center gap-2 sm:gap-4">
+            <div className="border-t border-gray-200 px-2 py-2 bg-gray-50/50 rounded-b-lg">
+              <div className="flex justify-between items-center text-[11px] sm:text-xs text-gray-500">
+                <div className="flex items-center gap-1.5 sm:gap-3">
                   <div className="flex items-center gap-1">
-                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                    <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
                       ↑↓
                     </kbd>
                     <span className="hidden sm:inline">navigate</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                    <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
                       ↵
                     </kbd>
                     <span className="hidden sm:inline">select</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="px-1 sm:px-1.5 py-0.5 font-mono bg-white border border-gray-300 rounded text-xs">
+                  <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
                     ⌘K
                   </kbd>
                   <span className="hidden sm:inline">close</span>
