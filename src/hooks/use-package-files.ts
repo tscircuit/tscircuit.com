@@ -100,8 +100,8 @@ export const usePackageFiles = (packageReleaseId?: string | null) => {
       if (!packageReleaseId) return []
 
       try {
-        const { data } = await axios.post("/package_files/list", {
-          package_release_id: packageReleaseId,
+        const { data } = await axios.get("/package_files/list", {
+          params: { package_release_id: packageReleaseId },
         })
 
         if (!data.package_files) {

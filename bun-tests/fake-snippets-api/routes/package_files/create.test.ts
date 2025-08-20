@@ -131,8 +131,10 @@ test("create package file using package_name_with_version", async () => {
   // Content is no longer returned from the create endpoint
 
   // Verify the file can be retrieved using the list endpoint
-  const listResponse = await axios.post("/api/package_files/list", {
-    package_name_with_version: `${packageName}@${version}`,
+  const listResponse = await axios.get("/api/package_files/list", {
+    params: {
+      package_name_with_version: `${packageName}@${version}`,
+    },
   })
   expect(listResponse.status).toBe(200)
   expect(listResponse.data.ok).toBe(true)

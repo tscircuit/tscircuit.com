@@ -240,8 +240,8 @@ async function handleCustomPackageHtml(req, res) {
     if (packageRelease?.package_release_id) {
       try {
         const filesResponse = await ky
-          .post(`${REGISTRY_URL}/package_files/list`, {
-            json: {
+          .get(`${REGISTRY_URL}/package_files/list`, {
+            searchParams: {
               package_release_id: packageRelease.package_release_id,
             },
           })

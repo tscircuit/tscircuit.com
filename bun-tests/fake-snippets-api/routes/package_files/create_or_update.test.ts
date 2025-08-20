@@ -189,8 +189,10 @@ test("create package file using package_name_with_version", async () => {
   expect(responseBody.package_file.file_path).toBe(filePath)
   expect(responseBody.package_file.content_text).toBe(fileContent)
 
-  const listResponse = await axios.post("/api/package_files/list", {
-    package_name_with_version: `${packageName}@${version}`,
+  const listResponse = await axios.get("/api/package_files/list", {
+    params: {
+      package_name_with_version: `${packageName}@${version}`,
+    },
   })
   expect(listResponse.status).toBe(200)
   expect(listResponse.data.ok).toBe(true)

@@ -51,8 +51,8 @@ test("list package files by package_release_id", async () => {
   }
 
   // List files by package_release_id
-  const listResponse = await axios.post("/api/package_files/list", {
-    package_release_id: createdRelease.package_release_id,
+  const listResponse = await axios.get("/api/package_files/list", {
+    params: { package_release_id: createdRelease.package_release_id },
   })
 
   expect(listResponse.status).toBe(200)
@@ -114,9 +114,11 @@ test("list package files by package_name with latest version", async () => {
   }
 
   // List files by package_name with use_latest_version
-  const listResponse = await axios.post("/api/package_files/list", {
-    package_name: packageName.replace(/^@/, ""),
-    use_latest_version: true,
+  const listResponse = await axios.get("/api/package_files/list", {
+    params: {
+      package_name: packageName.replace(/^@/, ""),
+      use_latest_version: true,
+    },
   })
 
   expect(listResponse.status).toBe(200)
@@ -163,8 +165,10 @@ test("list package files by package_name_with_version", async () => {
   }
 
   // List files by package_name_with_version
-  const listResponse = await axios.post("/api/package_files/list", {
-    package_name_with_version: `${packageName}@${version}`,
+  const listResponse = await axios.get("/api/package_files/list", {
+    params: {
+      package_name_with_version: `${packageName}@${version}`,
+    },
   })
 
   expect(listResponse.status).toBe(200)
@@ -178,8 +182,10 @@ test("list package files - 404 for non-existent package release", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post("/api/package_files/list", {
-      package_release_id: "00000000-0000-0000-0000-000000000000",
+    await axios.get("/api/package_files/list", {
+      params: {
+        package_release_id: "00000000-0000-0000-0000-000000000000",
+      },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -192,9 +198,11 @@ test("list package files - 404 for non-existent package", async () => {
   const { axios } = await getTestServer()
 
   try {
-    await axios.post("/api/package_files/list", {
-      package_name: "non-existent-package",
-      use_latest_version: true,
+    await axios.get("/api/package_files/list", {
+      params: {
+        package_name: "non-existent-package",
+        use_latest_version: true,
+      },
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {

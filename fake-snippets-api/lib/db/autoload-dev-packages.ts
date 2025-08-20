@@ -52,8 +52,10 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
 
   let filesData
   try {
-    const response = await registryApi.post("/package_files/list", {
-      package_release_id: releaseData.package_release.package_release_id,
+    const response = await registryApi.get("/package_files/list", {
+      params: {
+        package_release_id: releaseData.package_release.package_release_id,
+      },
     })
     filesData = response.data
 
