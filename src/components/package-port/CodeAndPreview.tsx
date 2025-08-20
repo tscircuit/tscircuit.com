@@ -223,6 +223,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
           )}
         >
           <SuspenseRunFrame
+            showFileMenu={false}
             showRunButton
             forceLatestEvalVersion
             isLoadingFiles={isLoading}
