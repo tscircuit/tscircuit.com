@@ -194,12 +194,6 @@ export const CodeEditor = ({
     })
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    loadDefaultLibMap().then((defaultFsMap) => {
-      defaultFsMap.forEach((content, filename) => {
-        fsMap.set(filename, content)
-      })
-    })
-
     const system = createSystem(fsMap)
 
     const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
@@ -208,6 +202,15 @@ export const CodeEditor = ({
       allowJs: true,
       target: tsModule.ScriptTarget.ES2022,
       resolveJsonModule: true,
+    })
+
+    // Load TypeScript libraries asynchronously and update the environment when ready
+    loadDefaultLibMap().then((defaultFsMap) => {
+      defaultFsMap.forEach((content, filename) => {
+        fsMap.set(filename, content)
+        // Dynamically add library files to the existing TypeScript environment
+        env.createFile(filename, content)
+      })
     })
 
     // Add alias for tscircuit -> @tscircuit/core
