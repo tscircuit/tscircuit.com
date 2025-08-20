@@ -224,7 +224,7 @@ export const GitHubRepositorySelector = ({
                           key={option.value}
                           value={option.value}
                           onSelect={() => handleComboboxSelect(option.value)}
-                          className="cursor-pointer"
+                          className="cursor-pointer hover:bg-slate-100"
                         >
                           <div className="flex items-center space-x-2 w-full">
                             {option.type === "repo" ? (
