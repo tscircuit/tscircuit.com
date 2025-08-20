@@ -1,10 +1,8 @@
 import { useQuery, useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { usePackageFiles } from "@/hooks/use-package-files"
-import { usePackageFileById } from "@/hooks/use-package-files"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState, useMemo } from "react"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
 
 export interface PackageFile {
   path: string
@@ -22,7 +20,6 @@ export interface OptimizedLoadingState {
 export function useOptimizedPackageFilesLoader(
   pkg?: Package,
   priorityFilePath?: string | null,
-  packageId?: string | null,
 ) {
   const axios = useAxios()
   const [loadedFiles, setLoadedFiles] = useState<Map<string, PackageFile>>(
@@ -30,7 +27,6 @@ export function useOptimizedPackageFilesLoader(
   )
 
   const pkgFilesRaw = usePackageFiles(pkg?.latest_package_release_id)
-
   // Filter out dist/ files to avoid downloading build artifacts
   const pkgFiles = useMemo(
     () => ({
@@ -92,8 +88,8 @@ export function useOptimizedPackageFilesLoader(
     },
     enabled: !!priorityFileData,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    staleTime: Infinity,
+    refetchOnMount: true,
+    staleTime: 0,
     cacheTime: Infinity,
   })
 
@@ -118,14 +114,15 @@ export function useOptimizedPackageFilesLoader(
           return fileData
         },
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        staleTime: Infinity,
+        refetchOnMount: true,
+        staleTime: 0,
         cacheTime: Infinity,
       })) ?? [],
   )
 
   const allFiles = useMemo(() => {
-    return Array.from(loadedFiles.values())
+    const files = Array.from(loadedFiles.values())
+    return files
   }, [loadedFiles])
 
   const areAllFilesLoading =
