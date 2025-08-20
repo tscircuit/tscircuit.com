@@ -215,7 +215,7 @@ export const GitHubRepositorySelector = ({
                     placeholder="Search repositories..."
                   />
                   <CommandList className="max-h-[400px] overflow-y-auto">
-                    <CommandEmpty className="text-sm text-slate-500 py-6">
+                    <CommandEmpty className="text-sm text-slate-500 py-6 pl-4">
                       No repositories found.
                     </CommandEmpty>
                     <CommandGroup>
