@@ -7,7 +7,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import { useState, useEffect, useMemo } from "react"
-import { usePackageFile } from "@/hooks/use-package-files"
+import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
 
@@ -25,19 +25,25 @@ export default function SidebarAboutSection({
     include_ai_review: true,
   })
 
-  const { data: licenseFileMeta, refetch: refetchLicense } = usePackageFile({
-    package_release_id: packageInfo?.latest_package_release_id ?? "",
-    file_path: "LICENSE",
-  })
+  const { data: releaseFiles } = usePackageFiles(
+    packageInfo?.latest_package_release_id,
+  )
+  const licenseFileId = useMemo(() => {
+    return (
+      releaseFiles?.find((f) => f.file_path === "LICENSE")?.package_file_id ||
+      null
+    )
+  }, [releaseFiles])
+  const { data: licenseFileMeta } = usePackageFileById(licenseFileId)
   const currentLicense = useMemo(() => {
     if (packageInfo?.latest_license) {
       return packageInfo?.latest_license
     }
     if (licenseFileMeta?.content_text) {
-      return getLicenseFromLicenseContent(licenseFileMeta?.content_text)
+      return getLicenseFromLicenseContent(licenseFileMeta.content_text)
     }
     return null
-  }, [licenseFileMeta])
+  }, [licenseFileMeta, packageInfo?.latest_license])
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
   const isLoading = !packageInfo || !packageRelease
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))

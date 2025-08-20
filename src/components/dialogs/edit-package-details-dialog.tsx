@@ -194,10 +194,7 @@ export const EditPackageDetailsDialog = ({
     onSuccess: (data) => {
       onUpdate?.(data.description, data.website, data.license, data.defaultView)
       onOpenChange(false)
-      qc.invalidateQueries([
-        "packageFile",
-        { package_release_id: packageReleaseId },
-      ])
+      qc.invalidateQueries("packageFile")
       qc.invalidateQueries(["packageFiles", packageReleaseId])
       toast({
         title: "Package details updated",
