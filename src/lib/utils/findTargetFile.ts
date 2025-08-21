@@ -28,7 +28,7 @@ export const findMainEntrypointFileFromTscircuitConfig = (
 export const findTargetFile = (
   files: PackageFile[],
   filePathFromUrl: string | null,
-  allowAnyFile: boolean = true,
+  fallbackToAnyFile: boolean = true,
 ): PackageFile | null => {
   if (files.length === 0) {
     return null
@@ -41,7 +41,7 @@ export const findTargetFile = (
     if (
       file &&
       (!file.endsWith(".ts") || !file.endsWith(".tsx")) &&
-      allowAnyFile
+      fallbackToAnyFile
     ) {
       targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
     } else {
@@ -80,7 +80,7 @@ export const findTargetFile = (
     targetFile = files.find((file) => file.path.endsWith(".tsx")) ?? null
   }
 
-  if (!targetFile && files[0] && allowAnyFile) {
+  if (!targetFile && files[0] && fallbackToAnyFile) {
     targetFile = files[0]
   }
 
