@@ -5,7 +5,7 @@ import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
-import { Loader2, LoaderCircle, Search } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 import { Link, useLocation } from "wouter"
 
 interface DatasheetSummary {
