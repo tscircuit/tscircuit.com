@@ -13,6 +13,7 @@ import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Loader2 } from "lucide-react"
 
 export const QuickstartPage = () => {
   const axios = useAxios()
@@ -62,7 +63,7 @@ export const QuickstartPage = () => {
             </div>
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

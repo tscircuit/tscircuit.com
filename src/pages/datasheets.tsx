@@ -5,7 +5,7 @@ import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 import { Link, useLocation } from "wouter"
 
 interface DatasheetSummary {
@@ -72,9 +72,9 @@ export const DatasheetsPage: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12 px-4">
+          <div className="text-center py-20 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
-              <Search className="w-8 h-8 text-slate-400" />
+              <Loader2 className="size-8 animate-spin text-slate-400" />
             </div>
             <h3 className="text-xl font-medium text-slate-900 mb-2">
               Loading Datasheets
