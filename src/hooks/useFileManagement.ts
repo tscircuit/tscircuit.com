@@ -523,6 +523,11 @@ export function useFileManagement({
     [localFiles, currentFile],
   )
   const mainComponentPath = useMemo(() => {
+    const targetFile = findTargetFile(localFiles, fileChosen, false)?.path
+    if (targetFile && !fileChosen && !currentFile) {
+      return targetFile
+    }
+
     const isComponentExportedInCurrentFile =
       isComponentExported(currentFileCode)
 
@@ -531,16 +536,10 @@ export function useFileManagement({
       !!localFiles.some((x) => x.path === currentFile) &&
       isComponentExportedInCurrentFile
         ? currentFile
-        : localFiles.find((x) => {
-            const isComponentExportedInFile = isComponentExported(x.content)
-            return (
-              x.path.endsWith(".tsx") ||
-              (x.path.endsWith(".ts") && isComponentExportedInFile)
-            )
-          })?.path || localFiles[0]?.path
+        : targetFile
 
     return selectedComponent
-  }, [currentFile, localFiles, currentFileCode, packageFilesWithContent])
+  }, [currentFile, localFiles, currentFileCode])
 
   const priorityFileFetched = useMemo(() => {
     return urlParams.package_id && isPriorityFileFetched

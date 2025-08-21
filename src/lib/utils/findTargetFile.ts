@@ -1,4 +1,5 @@
 import { PackageFile } from "@/types/package"
+import { isComponentExported } from "./isComponentExported"
 
 export const findMainEntrypointFileFromTscircuitConfig = (
   files: PackageFile[],
@@ -27,34 +28,59 @@ export const findMainEntrypointFileFromTscircuitConfig = (
 export const findTargetFile = (
   files: PackageFile[],
   filePathFromUrl: string | null,
+  allowAnyFile: boolean = true,
 ): PackageFile | null => {
   if (files.length === 0) {
     return null
   }
 
-  let targetFile: PackageFile | null = null
+  let targetFile: PackageFile | undefined | null = null
 
   if (filePathFromUrl) {
-    targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
+    const file = files.find((file) => file.path === filePathFromUrl)?.path
+    if (
+      file &&
+      (!file.endsWith(".ts") || !file.endsWith(".tsx")) &&
+      allowAnyFile
+    ) {
+      targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
+    } else {
+      const _isComponentExported = isComponentExported(
+        files.find((file) => file.path === filePathFromUrl)?.content || "",
+      )
+      if (_isComponentExported) {
+        targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
+      }
+    }
   }
 
   if (!targetFile) {
     targetFile = findMainEntrypointFileFromTscircuitConfig(files)
   }
+  if (!targetFile) {
+    targetFile =
+      files.find(
+        (file) => file.path === "index.tsx" || file.path === "index.ts",
+      ) ?? null
+  }
 
   if (!targetFile) {
-    targetFile = files.find((file) => file.path === "index.tsx") ?? null
+    targetFile =
+      files.find((file) => file.path.endsWith(".circuit.tsx")) ?? null
+  }
+
+  if (!targetFile) {
+    targetFile =
+      files.find(
+        (file) => file.path === "main.tsx" || file.path === "main.ts",
+      ) ?? null
   }
 
   if (!targetFile) {
     targetFile = files.find((file) => file.path.endsWith(".tsx")) ?? null
   }
 
-  if (!targetFile) {
-    targetFile = files.find((file) => file.path === "index.ts") ?? null
-  }
-
-  if (!targetFile && files[0]) {
+  if (!targetFile && files[0] && allowAnyFile) {
     targetFile = files[0]
   }
 
