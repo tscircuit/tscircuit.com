@@ -23,11 +23,7 @@ export const QuickstartPage = () => {
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = Boolean(currentUser)
-  const {
-    data: myPackages,
-    isLoading,
-    isFetched,
-  } = useQuery<Package[]>(
+  const { data: myPackages, isLoading } = useQuery<Package[]>(
     "userPackages",
     async () => {
       const response = await axios.post(`/packages/list`, {
@@ -58,7 +54,7 @@ export const QuickstartPage = () => {
     <div className="min-h-screen">
       <Header />
       <div className="container mx-auto px-6 py-12">
-        {isLoggedIn && myPackages && myPackages.length > 0 && (
+        {isLoggedIn && (
           <div className="mb-16 hidden md:block">
             <div className="mb-8">
               <h2 className="text-2xl font-semibold text-slate-900">
