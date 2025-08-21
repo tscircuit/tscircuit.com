@@ -16,7 +16,7 @@ const extractTsciDependencies = (
 }
 
 const registryApi = axios.create({
-  baseURL: "https://registry-api.tscircuit.com",
+  baseURL: "https://api.tscircuit.com",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -25,7 +25,7 @@ const registryApi = axios.create({
 
 const fetchPackageFromRegistry = async (owner: string, name: string) => {
   const fullName = `${owner}/${name}`
-  console.log(`Fetching package ${fullName}...`)
+  console.log(`[autoload-dev-pkgs] 📦 Fetching package ${fullName}...`)
 
   let packageData
   try {
@@ -46,39 +46,42 @@ const fetchPackageFromRegistry = async (owner: string, name: string) => {
     })
     releaseData = response.data
   } catch (e) {
-    console.error(`Failed to fetch release data for ${fullName}:`, e)
+    console.error(
+      `[autoload-dev-pkgs] ❌ Failed to fetch release data for ${fullName}:`,
+      e,
+    )
     throw e
   }
 
   let filesData
   try {
-    const response = await registryApi.get("/package_files/list", {
-      params: {
-        package_release_id: releaseData.package_release.package_release_id,
-      },
-    })
+    const response = await registryApi.post(
+      `package_files/list?package_release_id=${releaseData.package_release.package_release_id}`,
+      {},
+    )
     filesData = response.data
 
     // Fetch content_text for each file individually
     for (const file of filesData.package_files) {
       try {
-        const fileResponse = await registryApi.get("/package_files/get", {
-          params: {
-            package_release_id: releaseData.package_release.package_release_id,
-            file_path: file.file_path,
-          },
-        })
+        const fileResponse = await registryApi.post(
+          `/package_files/get?package_file_id=${file.package_file_id}`,
+          {},
+        )
         file.content_text = fileResponse.data.package_file.content_text
       } catch (e) {
         console.error(
-          `Failed to fetch content for file ${file.file_path} in package ${fullName}:`,
+          `[autoload-dev-pkgs] ❌ Failed to fetch content for file ${file.file_path} in package ${fullName}:`,
           e,
         )
         throw e
       }
     }
   } catch (e) {
-    console.error(`Failed to fetch files data for ${fullName}:`, e)
+    console.error(
+      `[autoload-dev-pkgs] ❌ Failed to fetch files data for ${fullName}:`,
+      e,
+    )
     throw e
   }
 
@@ -104,7 +107,7 @@ const loadPackageWithDependencies = async (
   try {
     result = await fetchPackageFromRegistry(owner, name)
   } catch (e) {
-    console.error(`✗ Failed to load ${packageKey}`)
+    console.error(`[autoload-dev-pkgs] ❌ Failed to load ${packageKey}`)
     return false
   }
 
@@ -112,7 +115,7 @@ const loadPackageWithDependencies = async (
 
   // Check if package already exists
   if (db.getPackageById(pkg.package_id)) {
-    console.log(`✓ Package ${packageKey} already exists`)
+    console.log(`[autoload-dev-pkgs] ⚡ Package ${packageKey} already exists`)
     return true
   }
 
@@ -146,7 +149,7 @@ const loadPackageWithDependencies = async (
   }
 
   loadedPackages.add(packageKey)
-  console.log(`✓ Loaded ${packageKey}`)
+  console.log(`[autoload-dev-pkgs] 📦 Loaded ${packageKey}`)
 
   // Load dependencies
   const mainFile = files.find(
@@ -169,7 +172,7 @@ const loadPackageWithDependencies = async (
     if (!depLoaded) {
       allDepsLoaded = false
       console.warn(
-        `⚠️ Failed to load dependency ${dep.owner}/${dep.name} for ${packageKey}`,
+        `[autoload-dev-pkgs] ⚠️ Failed to load dependency ${dep.owner}/${dep.name} for ${packageKey}`,
       )
     }
   }
@@ -184,7 +187,7 @@ export const loadAutoloadPackages = async (db: DbClient) => {
     "autoload-packages.json",
   )
   if (!fs.existsSync(autoloadPath)) {
-    console.error("No autoload-packages.json found")
+    console.error("[autoload-dev-pkgs] ❌ No autoload-packages.json found")
     return
   }
 
@@ -207,9 +210,13 @@ export const loadAutoloadPackages = async (db: DbClient) => {
     }
   }
 
-  console.log(`\nPackage loading complete:`)
-  console.log(`✓ Successfully loaded: ${successCount} packages`)
+  console.log(`\n[autoload-dev-pkgs] 📋 Package loading complete:`)
+  console.log(
+    `[autoload-dev-pkgs] ✅ Successfully loaded: ${successCount} packages`,
+  )
   if (failureCount > 0) {
-    console.log(`✗ Failed to load: ${failureCount} packages`)
+    console.log(
+      `[autoload-dev-pkgs] ❌ Failed to load: ${failureCount} packages`,
+    )
   }
 }
