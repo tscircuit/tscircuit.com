@@ -48,7 +48,7 @@ export const findTargetFile = ({
     const file = files.find((file) => file.path === filePathFromUrl)?.path
     if (
       file &&
-      (!file.endsWith(".ts") || !file.endsWith(".tsx")) &&
+      (!file.endsWith(".ts") && !file.endsWith(".tsx")) &&
       fallbackToAnyFile
     ) {
       targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
