@@ -2,8 +2,8 @@ import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useNow } from "@/hooks/use-now"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { Clock, GitBranch, GitCommit, Globe } from "lucide-react"
-import { useParams } from "wouter"
+import { Clock, GitBranch, GitCommit, Globe, User } from "lucide-react"
+import { useParams, Link } from "wouter"
 
 const capitalCase = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -81,10 +81,13 @@ export function PackageBuildDetailsPanel() {
       <div>
         <h3 className="text-sm font-medium text-gray-600 mb-2">Created</h3>
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
-            I
-          </div>
-          <span className="text-sm truncate">{author}</span>
+          <Link
+            href={`/${author}`}
+            className="flex items-center gap-2 hover:underline min-w-0"
+          >
+            <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
+            <span className="text-sm truncate">{author}</span>
+          </Link>
           <span className="text-sm text-gray-500 flex-shrink-0">
             {timeAgo(created_at, "")}
           </span>

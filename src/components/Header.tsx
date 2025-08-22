@@ -61,7 +61,7 @@ export default function Header() {
       <div className="flex items-center">
         <PrefetchPageLink
           href="/"
-          className="text-lg font-semibold whitespace-nowrap"
+          className="text-lg font-semibold whitespace-nowrap select-none"
         >
           <span className="bg-blue-500 px-2 py-1 rounded-md text-white">
             tscircuit
