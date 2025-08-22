@@ -25,11 +25,15 @@ export const findMainEntrypointFileFromTscircuitConfig = (
   return null
 }
 
-export const findTargetFile = (
-  files: PackageFile[],
-  filePathFromUrl: string | null,
-  fallbackToAnyFile: boolean = true,
-): PackageFile | null => {
+export const findTargetFile = ({
+  files,
+  filePathFromUrl,
+  fallbackToAnyFile = true,
+}: {
+  files: PackageFile[]
+  filePathFromUrl: string | null
+  fallbackToAnyFile?: boolean
+}): PackageFile | null => {
   if (files.length === 0) {
     return null
   }

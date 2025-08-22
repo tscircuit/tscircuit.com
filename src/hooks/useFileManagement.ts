@@ -144,7 +144,10 @@ export function useFileManagement({
             content: String(content),
           }),
         )
-        const targetFile = findTargetFile(filesFromUrl, fileChosen)
+        const targetFile = findTargetFile({
+          files: filesFromUrl,
+          filePathFromUrl: fileChosen,
+        })
         setLocalFiles(filesFromUrl)
         setInitialFiles([])
         setCurrentFile(targetFile?.path || filesFromUrl[0]?.path || null)
@@ -204,7 +207,10 @@ export function useFileManagement({
       if (fileChosen) {
         const targetFile =
           packageFilesWithContent.find((f) => f.path === fileChosen) ||
-          findTargetFile(packageFilesWithContent, fileChosen)
+          findTargetFile({
+            files: packageFilesWithContent,
+            filePathFromUrl: fileChosen,
+          })
         if (targetFile) {
           setCurrentFile((prevCurrentFile) => {
             return targetFile.path !== prevCurrentFile
@@ -217,10 +223,10 @@ export function useFileManagement({
           if (!prevCurrentFile) {
             // Wait for priority file to load before making selection to avoid flicker
             // Only select if we have a good candidate (tsx/ts file) or priority file isn't loading
-            const targetFile = findTargetFile(
-              packageFilesWithContent,
-              fileChosen,
-            )
+            const targetFile = findTargetFile({
+              files: packageFilesWithContent,
+              filePathFromUrl: fileChosen,
+            })
             // Only consider it a "good enough" candidate if it's index.tsx
             // Otherwise, wait for the actual priority file (index.tsx) to load
             const isTopPriorityFile =
@@ -523,7 +529,11 @@ export function useFileManagement({
     [localFiles, currentFile],
   )
   const mainComponentPath = useMemo(() => {
-    const targetFile = findTargetFile(localFiles, fileChosen, false)?.path
+    const targetFile = findTargetFile({
+      files: localFiles,
+      filePathFromUrl: fileChosen,
+      fallbackToAnyFile: false,
+    })?.path
     if (targetFile && !fileChosen && !currentFile) {
       return targetFile
     }

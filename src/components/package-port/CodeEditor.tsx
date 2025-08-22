@@ -121,7 +121,7 @@ export const CodeEditor = ({
     useViewTsFilesDialog()
 
   const entryPointFileName = useMemo(() => {
-    const entryPointFile = findTargetFile(files, null)
+    const entryPointFile = findTargetFile({ files, filePathFromUrl: null })
     if (entryPointFile?.path) return entryPointFile.path
     return files.find((x) => x.path === "index.tsx")?.path || "index.tsx"
   }, [files])
@@ -136,7 +136,7 @@ export const CodeEditor = ({
     // Only run this if there's an explicit file_path in URL - don't auto-select files
     if (!filePathFromUrl) return
 
-    const targetFile = findTargetFile(files, filePathFromUrl)
+    const targetFile = findTargetFile({ files, filePathFromUrl })
     if (targetFile) {
       const lineNumber = lineNumberFromUrl
         ? parseInt(lineNumberFromUrl, 10)
