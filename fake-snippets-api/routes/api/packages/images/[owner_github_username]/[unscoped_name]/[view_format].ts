@@ -4,8 +4,10 @@ import {
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToSchematicSvg,
 } from "circuit-to-svg"
+import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
+import { renderAsync } from "@resvg/resvg-js"
 
 // Define the view types and extensions
 const VIEW_TYPES = ["schematic", "pcb", "assembly", "3d"] as const
@@ -68,7 +70,8 @@ export default withRouteSpec({
   const circuit_json_file = ctx.db.packageFiles.find(
     (pf) =>
       pf.package_release_id === pkg_release.package_release_id &&
-      pf.file_path === "circuit.json",
+      (pf.file_path === "circuit.json" ||
+        pf.file_path === "/dist/circuit.json"),
   )
 
   if (!circuit_json_file?.content_text) {
@@ -82,7 +85,6 @@ export default withRouteSpec({
 
   // Convert circuit json to svg
   let svg = ""
-
   if (outputType === "schematic") {
     svg = convertCircuitJsonToSchematicSvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "pcb") {
@@ -90,13 +92,14 @@ export default withRouteSpec({
   } else if (outputType === "assembly") {
     svg = convertCircuitJsonToAssemblySvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "3d") {
-    // For 3D view, we'll return a simple SVG placeholder
-    svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#f0f0f0"/>
-      <text x="50%" y="50%" text-anchor="middle" fill="#666">3D Preview</text>
-    </svg>`
+    svg = await convertCircuitJsonToSimple3dSvg(circuit_json, {
+      background: {
+        color: "#fff",
+        opacity: 0.0,
+      },
+      defaultZoomMultiplier: 1.1,
+    })
   }
-
   if (format === "svg") {
     return new Response(svg, {
       headers: {
@@ -106,9 +109,8 @@ export default withRouteSpec({
     })
   }
 
-  // For PNG format, we'll return the SVG as PNG
-  // In a real implementation, this would use @resvg/resvg-js
-  return new Response(svg, {
+  const pngBuffer = await renderAsync(svg)
+  return new Response(pngBuffer.asPng(), {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=86400, s-maxage=86400",

@@ -2,12 +2,14 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useState } from "react"
 import { CircuitBoard } from "lucide-react"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 export function BuildPreviewContent() {
   const { packageRelease } = useCurrentPackageRelease({ refetchInterval: 2000 })
   const { packageInfo } = useCurrentPackageInfo()
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
+  const apiBaseUrl = useApiBaseUrl()
 
   if (!packageRelease) {
     return (
@@ -39,7 +41,7 @@ export function BuildPreviewContent() {
               </div>
             )}
             <img
-              src={`https://api.tscircuit.com/packages/images/${packageInfo?.name}/pcb.png`}
+              src={`${apiBaseUrl}/packages/images/${packageInfo?.name}/pcb.png?fs_sha=${packageRelease.fs_sha}`}
               alt="Package build preview"
               className={`object-contain rounded w-full h-auto max-h-[240px] sm:max-h-[300px] lg:max-h-[360px] ${imageLoading ? "hidden" : "block"}`}
               onLoad={() => setImageLoading(false)}
