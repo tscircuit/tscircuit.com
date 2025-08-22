@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { PanelRightOpen, Plus, Loader2 } from "lucide-react"
 import { TreeView } from "@/components/ui/tree-view"
@@ -54,9 +54,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [selectedFolderForCreation, setSelectedFolderForCreation] = useState<
     string | null
   >(null)
-  const [selectedItemId, setSelectedItemId] = React.useState<string>(
-    currentFile || "",
-  )
+  const selectedItemId = useMemo(() => currentFile || "", [currentFile])
   const session = useGlobalStore((s) => s.session)
   const canModifyFiles =
     !pkg || pkg.owner_github_username === session?.github_username
@@ -141,7 +139,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       setNewFileName("")
       setErrorMessage("")
       onFileSelect(finalFileName)
-      setSelectedItemId(finalFileName)
+      onFileSelect(finalFileName)
       setSelectedFolderForCreation(null)
     }
   }
@@ -258,14 +256,18 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         onClick={(e) => {
           if (e.target === e.currentTarget) {
             setSelectedFolderForCreation(null)
-            setSelectedItemId("")
+            onFileSelect("")
           }
         }}
         className="flex-1 border-2 h-full"
       >
         <TreeView
           data={treeData}
-          setSelectedItemId={(value) => setSelectedItemId(value || "")}
+          setSelectedItemId={(value) => {
+            if (value && files[value]) {
+              onFileSelect(value)
+            }
+          }}
           selectedItemId={selectedItemId}
           onSelectChange={(item) => {
             if (item?.onClick) {
