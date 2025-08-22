@@ -1,3 +1,4 @@
+import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { PackageFile } from "@/types/package"
 
 export const findMainEntrypointFileFromTscircuitConfig = (
@@ -30,6 +31,10 @@ export const findTargetFile = (
 ): PackageFile | null => {
   if (files.length === 0) {
     return null
+  }
+
+  if (!filePathFromUrl) {
+    files = files.filter((x) => !isHiddenFile(x.path))
   }
 
   let targetFile: PackageFile | null = null

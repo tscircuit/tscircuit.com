@@ -26,17 +26,7 @@ export function useOptimizedPackageFilesLoader(
     new Map(),
   )
 
-  const pkgFilesRaw = usePackageFiles(pkg?.latest_package_release_id)
-  // Filter out dist/ files to avoid downloading build artifacts
-  const pkgFiles = useMemo(
-    () => ({
-      ...pkgFilesRaw,
-      data: pkgFilesRaw.data?.filter(
-        (file) => !file.file_path.startsWith("dist/"),
-      ),
-    }),
-    [pkgFilesRaw.data, pkgFilesRaw.isLoading, pkgFilesRaw.error],
-  )
+  const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
 
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath
