@@ -40,7 +40,6 @@ export const findTargetFile = (
   let targetFile: PackageFile | null = null
 
   if (filePathFromUrl) {
-    console.log("taregt", filePathFromUrl, files)
     targetFile = files.find((file) => file.path === filePathFromUrl) ?? null
   }
 
