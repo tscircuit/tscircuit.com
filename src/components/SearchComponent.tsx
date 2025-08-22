@@ -60,7 +60,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location, setLocation] = useLocation()
-  const snippetsBaseApiUrl = useApiBaseUrl()
+  const apiBaseUrl = useApiBaseUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["packageSearch", searchQuery],
@@ -137,10 +137,13 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       <Input
         autoComplete="off"
         spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
         ref={inputRef}
         type="search"
+        aria-autocomplete="none"
         placeholder="Search"
-        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm"
+        className="pl-4 focus:border-blue-500 placeholder-gray-400 text-sm select-none"
         value={searchQuery}
         onChange={(e) => {
           setSearchQuery(e.target.value)
@@ -198,7 +201,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           className="absolute top-full md:left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-50 w-80 max-h-screen overflow-y-auto overflow-x-visible"
         >
           {searchResults.length > 0 ? (
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-200 no-scrollbar">
               {searchResults.map((pkg: any, index: number) => (
                 <li
                   key={pkg.package_id}
@@ -222,8 +225,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
-                        src={`${snippetsBaseApiUrl}/snippets/images/${pkg.name}/pcb.svg`}
+                        src={`${apiBaseUrl}/packages/images/${pkg.name}/pcb.svg`}
                         alt={`PCB preview for ${pkg.name}`}
+                        draggable={false}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
                         onError={(e) => {
                           e.currentTarget.style.display = "none"

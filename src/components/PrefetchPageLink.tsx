@@ -101,7 +101,13 @@ export const PrefetchPageLink = ({
   }, [inView, href])
 
   return (
-    <Link {...props} href={href} className={className} ref={ref}>
+    <Link
+      {...props}
+      href={href}
+      className={className}
+      draggable={false}
+      ref={ref}
+    >
       {children}
     </Link>
   )

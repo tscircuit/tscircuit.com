@@ -21,7 +21,7 @@ export function BuildPreviewContent() {
     <div className="flex items-center justify-center w-full h-full">
       <div className="rounded overflow-hidden w-full max-w-full">
         {imageError ? (
-          <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-300 rounded-lg p-8 sm:p-12 lg:p-16 min-h-[240px] sm:min-h-[300px] lg:min-h-[360px]">
+          <div className="flex flex-col select-none items-center justify-center bg-gray-50 border border-gray-300 rounded-lg p-8 sm:p-12 lg:p-16 min-h-[240px] sm:min-h-[300px] lg:min-h-[360px]">
             <CircuitBoard className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-gray-400 mb-4" />
             <h3 className="text-lg sm:text-xl font-medium text-gray-600 mb-2">
               Preview Not Available
