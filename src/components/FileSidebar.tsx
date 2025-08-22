@@ -139,7 +139,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       setNewFileName("")
       setErrorMessage("")
       onFileSelect(finalFileName)
-      onFileSelect(finalFileName)
       setSelectedFolderForCreation(null)
     }
   }
