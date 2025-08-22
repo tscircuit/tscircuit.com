@@ -1,3 +1,4 @@
+import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { PackageFile } from "@/types/package"
 import { isComponentExported } from "./isComponentExported"
 
@@ -39,6 +40,9 @@ export const findTargetFile = ({
   }
 
   let targetFile: PackageFile | undefined | null = null
+  if (!filePathFromUrl) {
+    files = files.filter((x) => !isHiddenFile(x.path))
+  }
 
   if (filePathFromUrl) {
     const file = files.find((file) => file.path === filePathFromUrl)?.path

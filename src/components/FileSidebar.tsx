@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
 import { PanelRightOpen, Plus, Loader2 } from "lucide-react"
 import { TreeView } from "@/components/ui/tree-view"
 import { Input } from "@/components/ui/input"
 import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import type {
   ICreateFileProps,
   ICreateFileResult,
@@ -42,6 +43,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
+  pkg,
   isLoadingFiles = true,
   loadingProgress = null,
 }) => {
@@ -52,10 +54,10 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [selectedFolderForCreation, setSelectedFolderForCreation] = useState<
     string | null
   >(null)
-  const [selectedItemId, setSelectedItemId] = React.useState<string>(
-    currentFile || "",
-  )
-  const canModifyFiles = true
+  const selectedItemId = useMemo(() => currentFile || "", [currentFile])
+  const session = useGlobalStore((s) => s.session)
+  const canModifyFiles =
+    !pkg || pkg.owner_github_username === session?.github_username
 
   const onFolderSelect = (folderPath: string) => {
     setSelectedFolderForCreation(folderPath)
@@ -137,7 +139,6 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       setNewFileName("")
       setErrorMessage("")
       onFileSelect(finalFileName)
-      setSelectedItemId(finalFileName)
       setSelectedFolderForCreation(null)
     }
   }
@@ -254,14 +255,18 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         onClick={(e) => {
           if (e.target === e.currentTarget) {
             setSelectedFolderForCreation(null)
-            setSelectedItemId("")
+            onFileSelect("")
           }
         }}
         className="flex-1 border-2 h-full"
       >
         <TreeView
           data={treeData}
-          setSelectedItemId={(value) => setSelectedItemId(value || "")}
+          setSelectedItemId={(value) => {
+            if (value && files[value]) {
+              onFileSelect(value)
+            }
+          }}
           selectedItemId={selectedItemId}
           onSelectChange={(item) => {
             if (item?.onClick) {

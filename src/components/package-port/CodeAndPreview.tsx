@@ -153,10 +153,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  const finalfsMap = useMemo(
-    () => (Object.keys(fsMap).length > 0 ? fsMap : {}),
-    [fsMap],
-  )
+  const finalfsMap = fsMap
   return (
     <div className="flex flex-col min-h-[50vh]">
       <EditorNav
