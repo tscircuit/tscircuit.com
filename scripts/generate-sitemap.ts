@@ -20,7 +20,7 @@ const staticRoutes = [
 async function fetchTrendingSnippets() {
   try {
     const response = await fetch(
-      "https://registry-api.tscircuit.com/snippets/list_trending",
+      "https://api.tscircuit.com/snippets/list_trending",
       {
         headers: {
           Accept: "application/json",
