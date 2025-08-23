@@ -1,15 +1,14 @@
 import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
-import { usePackage } from "@/hooks/use-package"
 import { Helmet } from "react-helmet-async"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { NotFound } from "@/components/NotFound"
 import { ErrorOutline } from "@/components/ErrorOutline"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 
 export const EditorPage = () => {
-  const { packageId } = useCurrentPackageId()
-  const { data: pkg, error } = usePackage(packageId)
+  const { packageInfo: pkg, error } = useCurrentPackageInfo()
+
   const uuid4RegExp = new RegExp(
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
   )
@@ -39,7 +38,7 @@ export const EditorPage = () => {
       <Header />
       {!error && <CodeAndPreview pkg={pkg} />}
       {error &&
-        (error.status === 404 || !uuid4RegExp.test(packageId ?? "")) && (
+        (error.status === 404 || !uuid4RegExp.test(pkg?.package_id ?? "")) && (
           <NotFound heading="Package not found" />
         )}
       {error && error.status !== 404 && (

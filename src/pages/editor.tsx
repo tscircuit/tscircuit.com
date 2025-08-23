@@ -2,12 +2,10 @@ import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { Helmet } from "react-helmet-async"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { usePackage } from "@/hooks/use-package"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 
 export const EditorPage = () => {
-  const { packageId } = useCurrentPackageId()
-  const { data: pkg, isLoading, error } = usePackage(packageId)
+  const { packageInfo: pkg, error } = useCurrentPackageInfo()
 
   const projectUrl = pkg
     ? `https://tscircuit.com/${pkg.owner_github_username}/${pkg.unscoped_name}`
