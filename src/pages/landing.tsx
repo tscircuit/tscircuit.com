@@ -53,7 +53,7 @@ export function LandingPage() {
                       AI codes electronics with tscircuit
                     </h1>
                     <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      Build electronics with code, AI, and drag'n'drop tools.
+                      Build electronics with code and AI tools.
                       <br />
                       Render code into schematics, PCBs, 3D, fabrication files,
                       and more.
