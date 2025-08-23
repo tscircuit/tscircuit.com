@@ -35,8 +35,8 @@ export function LandingPage() {
         <link rel="preconnect" href="https://tscircuit.com" />
         <link rel="dns-prefetch" href="https://tscircuit.com" />
 
-        <link rel="preconnect" href="https://registry-api.tscircuit.com" />
-        <link rel="dns-prefetch" href="https://registry-api.tscircuit.com" />
+        <link rel="preconnect" href="https://api.tscircuit.com" />
+        <link rel="dns-prefetch" href="https://api.tscircuit.com" />
       </Helmet>
       <Header2 />
       <main className="flex-1">
