@@ -36,7 +36,7 @@ const PREFETCHABLE_PAGES = new Set([
 
 const pageDescriptions = {
   landing:
-    "Build electronics with code, AI, and drag'n'drop tools. Render code into schematics, PCBs, 3D, fabrication files, and more. Open-source MIT licensed electronic design automation tool.",
+    "Build electronics with code and AI tools. Render code into schematics, PCBs, 3D, fabrication files, and more. Open-source MIT licensed electronic design automation tool.",
   dashboard:
     "Your tscircuit dashboard - manage your electronic circuit packages, view trending and latest packages, and access your recent designs.",
   search:
