@@ -4,6 +4,7 @@ export const isComponentExported = (code: string) => {
     /export const\s+\w+\s*=/.test(code) ||
     /export default\s+\w+/.test(code) ||
     /export default\s+function\s*(\w*)\s*\(/.test(code) ||
-    /export default\s*\(\s*\)\s*=>/.test(code)
+    /export default\s*\(\s*\)\s*=>/.test(code) ||
+    /export default\s*\(.*?\)\s*=>/.test(code)
   )
 }

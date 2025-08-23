@@ -5,10 +5,10 @@ export const checkIfManualEditsImported = (
   file: string = "index.tsx",
 ) => {
   if (!files[file]) return false
-  const targetFile = findTargetFile(
-    Object.keys(files).map((f) => ({ path: f, content: files[f] })),
-    null,
-  )
+  const targetFile = findTargetFile({
+    files: Object.keys(files).map((f) => ({ path: f, content: files[f] })),
+    filePathFromUrl: null,
+  })
   if (targetFile && file !== targetFile.path) {
     return false
   }

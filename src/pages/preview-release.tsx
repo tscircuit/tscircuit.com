@@ -57,7 +57,10 @@ export default function PreviewBuildPage() {
     buildFiles.map((f) => [f.path, f.content]),
   )
 
-  const targetFile = findTargetFile(buildFiles, selectedFile)
+  const targetFile = findTargetFile({
+    files: buildFiles,
+    filePathFromUrl: selectedFile,
+  })
   const mainComponentPath = targetFile?.path ?? null
 
   useEffect(() => {
