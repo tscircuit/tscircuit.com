@@ -2,8 +2,6 @@ import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
 import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { Helmet } from "react-helmet-async"
-import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { usePackage } from "@/hooks/use-package"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 
 export const EditorPage = () => {
