@@ -38,7 +38,7 @@ export const EditorPage = () => {
       <Header />
       {!error && <CodeAndPreview pkg={pkg} />}
       {error &&
-        (error.status === 404 || !uuid4RegExp.test(packageId ?? "")) && (
+        (error.status === 404 || !uuid4RegExp.test(pkg?.package_id ?? "")) && (
           <NotFound heading="Package not found" />
         )}
       {error && error.status !== 404 && (
