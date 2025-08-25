@@ -177,7 +177,11 @@ export const UserProfilePage = () => {
             </Button>
           </a>
         </div>
-        <Tabs defaultValue="all" onValueChange={setActiveTab} className="mb-4">
+        <Tabs
+          defaultValue="all"
+          onValueChange={setActiveTab}
+          className="mb-4 select-none"
+        >
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>

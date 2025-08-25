@@ -198,7 +198,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full md:left-0 right-0 mt-2 bg-white shadow-lg rounded-md z-50 w-80 max-h-screen overflow-y-auto overflow-x-visible"
+          className="absolute top-full md:left-0 right-0 no-scrollbar mt-2 bg-white shadow-lg rounded-md z-50 w-80 max-h-screen overflow-y-auto overflow-x-visible"
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200 no-scrollbar">
