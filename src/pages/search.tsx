@@ -28,7 +28,7 @@ interface ScoredPackage extends Package {
   matches: number[]
 }
 
-interface ScoredAccount extends Account {
+interface ScoredAccount extends Omit<Account, "account_id"> {
   score: number
   matches: number[]
 }
@@ -110,21 +110,6 @@ export const SearchPage = () => {
       .sort((a: ScoredPackage, b: ScoredPackage) => b.score - a.score)
   }, [packages, searchQuery])
 
-  const accountSearchResults = useMemo((): ScoredAccount[] => {
-    if (!searchQuery || !allAccounts.length) return []
-
-    return allAccounts
-      .map((account: Account) => {
-        const { score, matches } = fuzzyMatch(
-          searchQuery,
-          account.github_username,
-        )
-        return { ...account, score, matches }
-      })
-      .filter((account: ScoredAccount) => account.score >= 0)
-      .sort((a: ScoredAccount, b: ScoredAccount) => b.score - a.score)
-  }, [allAccounts, searchQuery])
-
   const filteredPackages = searchResults?.sort((a: Package, b: Package) => {
     if (sortBy === "stars") {
       return (b.star_count || 0) - (a.star_count || 0)
@@ -135,6 +120,44 @@ export const SearchPage = () => {
     }
     return 0
   })
+
+  const accountSearchResults = useMemo((): ScoredAccount[] => {
+    if (!searchQuery) return []
+
+    // First, get scored accounts from API
+    const apiAccounts = allAccounts
+      .map((account: Account) => {
+        const { score, matches } = fuzzyMatch(
+          searchQuery,
+          account.github_username,
+        )
+        return { ...account, score, matches }
+      })
+      .filter((account: ScoredAccount) => account.score >= 0)
+
+    // Then, extract unique package owners not already in API accounts
+    const packageOwners: ScoredAccount[] = []
+    const existingUsernames = new Set(
+      apiAccounts.map((acc: Account) => acc.github_username),
+    )
+
+    filteredPackages.forEach((pkg) => {
+      if (
+        pkg.owner_github_username &&
+        !existingUsernames.has(pkg.owner_github_username)
+      ) {
+        packageOwners.push({
+          github_username: pkg.owner_github_username,
+          score: 1,
+          matches: [],
+        })
+        existingUsernames.add(pkg.owner_github_username)
+      }
+    })
+    return [...apiAccounts, ...packageOwners].sort(
+      (a: ScoredAccount, b: ScoredAccount) => b.score - a.score,
+    )
+  }, [allAccounts, searchQuery, filteredPackages])
 
   useEffect(() => {
     if (accountSearchResults.length == 0 && !isLoadingAccounts) {
@@ -224,12 +247,8 @@ export const SearchPage = () => {
                   </div>
                 ) : accountSearchResults.length > 0 ? (
                   <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                    {accountSearchResults.map((account) => (
-                      <UserCard
-                        key={account.account_id}
-                        account={account}
-                        className="w-full"
-                      />
+                    {accountSearchResults.map((account, i) => (
+                      <UserCard key={i} account={account} className="w-full" />
                     ))}
                   </div>
                 ) : (

@@ -1,17 +1,17 @@
 import React from "react"
 import { Link } from "wouter"
 import { Account } from "fake-snippets-api/lib/db/schema"
-import { User, ArrowRight } from "lucide-react"
+import { User } from "lucide-react"
 
 export interface UserCardProps {
   /** The account data to display */
-  account: Account
+  account: Account | Omit<Account, "account_id">
   /** Whether to render the card with a link to the user profile page */
   withLink?: boolean
   /** Custom class name for the card container */
   className?: string
   /** Custom onClick handler */
-  onClick?: (account: Account) => void
+  onClick?: (account: Account | Omit<Account, "account_id">) => void
 }
 
 export const UserCard: React.FC<UserCardProps> = ({
@@ -67,7 +67,7 @@ export const UserCard: React.FC<UserCardProps> = ({
   if (withLink) {
     return (
       <Link
-        key={account.account_id}
+        key={account.github_username}
         href={`/${account.github_username}`}
         onClick={onClick ? () => onClick(account) : undefined}
       >
