@@ -39,13 +39,17 @@ export default function ReleaseDetailPage() {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
-  } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName)
+  } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName, {
+    include_logs: true,
+  })
 
   const {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null)
+  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
+    include_logs: true,
+  })
 
   if (isLoadingPackage || isLoadingRelease) {
     return null

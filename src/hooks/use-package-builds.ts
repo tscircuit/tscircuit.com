@@ -56,11 +56,14 @@ export const usePackageBuildsByReleaseId = (releaseId?: string | null) => {
   return usePackageBuilds(releaseId ? { package_release_id: releaseId } : null)
 }
 
-export const usePackageBuild = (packageBuildId: string | null) => {
+export const usePackageBuild = (
+  packageBuildId: string | null,
+  options?: { include_logs?: boolean },
+) => {
   const axios = useAxios()
 
   return useQuery<PackageBuild, Error & { status: number }>(
-    ["packageBuild", packageBuildId],
+    ["packageBuild", packageBuildId, options?.include_logs],
     async () => {
       if (!packageBuildId) {
         throw new Error("package_build_id is required")
@@ -69,6 +72,7 @@ export const usePackageBuild = (packageBuildId: string | null) => {
       const { data } = await axios.get("/package_builds/get", {
         params: {
           package_build_id: packageBuildId,
+          include_logs: options?.include_logs,
         },
       })
 
