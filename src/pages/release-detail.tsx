@@ -121,9 +121,12 @@ export default function ReleaseDetailPage() {
                   {view.isLoading ? (
                     <Skeleton className="w-full h-full" />
                   ) : (
-                    <div
-                      className="w-full h-full"
-                      dangerouslySetInnerHTML={{ __html: view.svg ?? "" }}
+                    <img
+                      src={`data:image/svg+xml,${encodeURIComponent(
+                        view.svg ?? "",
+                      )}`}
+                      alt={`${view.label} preview`}
+                      className="w-full h-full object-contain"
                     />
                   )}
                 </div>
