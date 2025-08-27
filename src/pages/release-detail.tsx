@@ -118,21 +118,13 @@ export default function ReleaseDetailPage() {
                   key={view.id}
                   className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
                 >
-                  {view.imageUrl && (
-                    <>
-                      {view.status === "loading" && (
-                        <Skeleton className="w-full h-full" />
-                      )}
-                      <img
-                        src={view.imageUrl}
-                        alt={view.label}
-                        className={`w-full h-full object-contain ${
-                          view.status === "loaded" ? "block" : "hidden"
-                        }`}
-                        onLoad={view.onLoad}
-                        onError={view.onError}
-                      />
-                    </>
+                  {view.isLoading ? (
+                    <Skeleton className="w-full h-full" />
+                  ) : (
+                    <div
+                      className="w-full h-full"
+                      dangerouslySetInnerHTML={{ __html: view.svg ?? "" }}
+                    />
                   )}
                 </div>
               ))}
