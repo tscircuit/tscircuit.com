@@ -7,9 +7,10 @@ import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOvervie
 import Header from "@/components/Header"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, GitBranch } from "lucide-react"
-import { useState } from "react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
+import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -23,8 +24,6 @@ export default function ReleaseDetailPage() {
     params?.author && params?.packageName
       ? `${params.author}/${params.packageName}`
       : null
-
-  const [copied, setCopied] = useState(false)
 
   const {
     data: pkg,
@@ -46,6 +45,10 @@ export default function ReleaseDetailPage() {
     isLoading: isLoadingBuild,
     error: buildError,
   } = usePackageBuild(packageRelease?.latest_package_build_id ?? null)
+
+  const { availableViews } = usePackageReleaseImages({
+    packageReleaseId: packageRelease?.package_release_id,
+  })
 
   if (isLoadingPackage || isLoadingRelease) {
     return null
@@ -106,6 +109,31 @@ export default function ReleaseDetailPage() {
             </div>
           </div>
         </div>
+
+        {availableViews.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {availableViews.map((view) => (
+                <div
+                  key={view.id}
+                  className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
+                >
+                  {view.isLoading ? (
+                    <Skeleton className="w-full h-full" />
+                  ) : (
+                    <img
+                      src={`data:image/svg+xml,${encodeURIComponent(
+                        view.svg ?? "",
+                      )}`}
+                      alt={`${view.label} preview`}
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <ConnectedRepoOverview
