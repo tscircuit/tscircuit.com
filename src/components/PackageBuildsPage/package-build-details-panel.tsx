@@ -55,20 +55,25 @@ export function PackageBuildDetailsPanel() {
     transpilation_error,
     transpilation_started_at,
     commit_sha,
+    image_generation_started_at,
+    image_generation_completed_at,
   } = packageRelease
 
   const buildStartedAt = (() => {
-    if (transpilation_started_at && circuit_json_build_started_at) {
-      return new Date(transpilation_started_at) <
-        new Date(circuit_json_build_started_at)
-        ? transpilation_started_at
-        : circuit_json_build_started_at
-    }
-    return transpilation_started_at || circuit_json_build_started_at || null
+    const times = [
+      transpilation_started_at,
+      circuit_json_build_started_at,
+      image_generation_started_at,
+    ].filter((t): t is string => Boolean(t))
+    if (times.length === 0) return null
+    return times.reduce((min, t) => (new Date(t) < new Date(min) ? t : min))
   })()
 
   const buildCompletedAt =
-    circuit_json_build_completed_at || transpilation_completed_at || null
+    image_generation_completed_at ||
+    circuit_json_build_completed_at ||
+    transpilation_completed_at ||
+    null
 
   const elapsedMs = buildStartedAt
     ? (buildCompletedAt ? new Date(buildCompletedAt).getTime() : now) -

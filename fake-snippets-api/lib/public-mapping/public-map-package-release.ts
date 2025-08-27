@@ -24,6 +24,23 @@ export const publicMapPackageRelease = (
     circuit_json_build_logs: options.include_logs
       ? internal_package_release.circuit_json_build_logs
       : [],
+    image_generation_logs: options.include_logs
+      ? internal_package_release.image_generation_logs
+      : null,
+    image_generation_in_progress:
+      internal_package_release.image_generation_in_progress,
+    image_generation_started_at:
+      internal_package_release.image_generation_started_at ?? null,
+    image_generation_completed_at:
+      internal_package_release.image_generation_completed_at ?? null,
+    image_generation_is_stale:
+      internal_package_release.image_generation_is_stale,
+    image_generation_error:
+      internal_package_release.image_generation_error ?? null,
+    image_generation_error_last_updated_at:
+      internal_package_release.image_generation_error_last_updated_at ?? null,
+    image_generation_display_status:
+      internal_package_release.image_generation_display_status,
     is_pr_preview: Boolean(internal_package_release.is_pr_preview),
     github_pr_number: internal_package_release.github_pr_number,
     branch_name: internal_package_release.branch_name,

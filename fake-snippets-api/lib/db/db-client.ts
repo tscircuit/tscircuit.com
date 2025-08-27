@@ -17,6 +17,7 @@ import {
   type PackageRelease,
   packageReleaseSchema,
   type PackageBuild,
+  packageBuildSchema,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -1489,12 +1490,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return updated
   },
   addPackageBuild: (
-    packageBuild: Omit<PackageBuild, "package_build_id">,
+    packageBuild: Omit<z.input<typeof packageBuildSchema>, "package_build_id">,
   ): PackageBuild => {
-    const newPackageBuild = {
+    const newPackageBuild = packageBuildSchema.parse({
       package_build_id: crypto.randomUUID(),
       ...packageBuild,
-    }
+    })
     set((state) => ({
       packageBuilds: [...state.packageBuilds, newPackageBuild],
       // Automatically update the package release to reference this as the latest build

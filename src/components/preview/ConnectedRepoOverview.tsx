@@ -41,6 +41,7 @@ export const ConnectedRepoOverview = ({
   const [openSections, setOpenSections] = useState({
     transpilation: false,
     circuitJson: false,
+    imageGeneration: false,
   })
 
   // Gracefully handle when there is no build yet
@@ -120,15 +121,25 @@ export const ConnectedRepoOverview = ({
             1000,
         )
       : 0
+    const imageGenerationDuration = packageBuild?.image_generation_started_at
+      ? Math.floor(
+          (new Date(
+            packageBuild.image_generation_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageBuild.image_generation_started_at).getTime()) /
+            1000,
+        )
+      : 0
 
     if (
       !packageBuild?.transpilation_started_at &&
-      !packageBuild?.circuit_json_build_started_at
+      !packageBuild?.circuit_json_build_started_at &&
+      !packageBuild?.image_generation_started_at
     ) {
       return null
     }
 
-    return transpilationDuration + circuitJsonDuration
+    return transpilationDuration + circuitJsonDuration + imageGenerationDuration
   })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -466,6 +477,95 @@ export const ConnectedRepoOverview = ({
                 ) : packageBuild.circuit_json_build_logs &&
                   packageBuild.circuit_json_build_logs.length > 0 ? (
                   packageBuild.circuit_json_build_logs.map(
+                    (log: any, i: number) => (
+                      <div
+                        key={i}
+                        className="text-gray-600 whitespace-pre-wrap"
+                      >
+                        {log.msg || log.message || JSON.stringify(log)}
+                      </div>
+                    ),
+                  )
+                ) : (
+                  <div className="text-gray-500">No logs available</div>
+                )}
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible
+          open={openSections.imageGeneration}
+          onOpenChange={() => toggleSection("imageGeneration")}
+        >
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <div className="flex items-center gap-3">
+                <ChevronRight
+                  className={`w-4 h-4 transition-transform ${openSections.imageGeneration ? "rotate-90" : ""}`}
+                />
+                {packageBuild.image_generation_error ? (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                ) : packageBuild.image_generation_completed_at ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : packageBuild.image_generation_in_progress ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                ) : (
+                  <Clock className="w-5 h-5 text-gray-400" />
+                )}
+                <span className="font-medium">Image Generation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {getStepDuration(
+                  packageBuild.image_generation_started_at,
+                  packageBuild.image_generation_completed_at,
+                ) && (
+                  <span className="text-sm text-gray-600">
+                    {getStepDuration(
+                      packageBuild.image_generation_started_at,
+                      packageBuild.image_generation_completed_at,
+                    )}
+                  </span>
+                )}
+                <Badge
+                  variant={
+                    getStepStatus(
+                      packageBuild.image_generation_error,
+                      packageBuild.image_generation_completed_at,
+                      packageBuild.image_generation_in_progress,
+                    ) === "success"
+                      ? "default"
+                      : getStepStatus(
+                            packageBuild.image_generation_error,
+                            packageBuild.image_generation_completed_at,
+                            packageBuild.image_generation_in_progress,
+                          ) === "error"
+                        ? "destructive"
+                        : "secondary"
+                  }
+                  className="text-xs"
+                >
+                  {packageBuild.image_generation_error
+                    ? "Failed"
+                    : packageBuild.image_generation_completed_at
+                      ? "Completed"
+                      : packageBuild.image_generation_in_progress
+                        ? "Running"
+                        : "Queued"}
+                </Badge>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
+              <div className="font-mono text-xs space-y-1">
+                {packageBuild.image_generation_error ? (
+                  <div className="text-red-600 whitespace-pre-wrap">
+                    {packageBuild.image_generation_error}
+                  </div>
+                ) : packageBuild.image_generation_logs &&
+                  packageBuild.image_generation_logs.length > 0 ? (
+                  packageBuild.image_generation_logs.map(
                     (log: any, i: number) => (
                       <div
                         key={i}
