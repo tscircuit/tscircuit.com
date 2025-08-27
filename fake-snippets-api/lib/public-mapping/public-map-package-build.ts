@@ -25,6 +25,16 @@ export const publicMapPackageBuild = (
       ? internalPackageBuild.circuit_json_build_logs
       : [],
     circuit_json_build_error: internalPackageBuild.circuit_json_build_error,
+    image_generation_in_progress:
+      internalPackageBuild.image_generation_in_progress,
+    image_generation_started_at:
+      internalPackageBuild.image_generation_started_at,
+    image_generation_completed_at:
+      internalPackageBuild.image_generation_completed_at,
+    image_generation_logs: options.include_logs
+      ? internalPackageBuild.image_generation_logs
+      : [],
+    image_generation_error: internalPackageBuild.image_generation_error,
     build_started_at: internalPackageBuild.build_started_at,
     build_completed_at: internalPackageBuild.build_completed_at,
     build_error: internalPackageBuild.build_error,

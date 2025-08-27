@@ -244,6 +244,22 @@ export const packageReleaseSchema = z.object({
   circuit_json_build_logs: z.array(z.any()).default([]),
   circuit_json_build_is_stale: z.boolean().default(false),
 
+  // Image Generation Process
+  image_generation_display_status: z
+    .enum(["pending", "building", "complete", "error"])
+    .default("pending"),
+  image_generation_in_progress: z.boolean().default(false),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_logs: z.array(z.any()).nullable().default(null),
+  image_generation_is_stale: z.boolean().default(false),
+  image_generation_error: z.string().nullable().optional(),
+  image_generation_error_last_updated_at: z
+    .string()
+    .datetime()
+    .nullable()
+    .optional(),
+
   // AI Review
   ai_review_text: z.string().nullable().default(null).optional(),
   ai_review_started_at: z.string().datetime().nullable().optional(),
@@ -367,6 +383,11 @@ export const packageBuildSchema = z.object({
   circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
   circuit_json_build_logs: z.array(z.any()).default([]),
   circuit_json_build_error: z.string().nullable().optional(),
+  image_generation_in_progress: z.boolean().default(false),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_logs: z.array(z.any()).default([]),
+  image_generation_error: z.string().nullable().optional(),
   build_in_progress: z.boolean().default(false),
   build_started_at: z.string().datetime().nullable().optional(),
   build_completed_at: z.string().datetime().nullable().optional(),

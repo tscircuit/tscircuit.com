@@ -38,6 +38,14 @@ export const PackageBuildDetailsPage = () => {
     circuit_json_build_display_status,
     transpilation_display_status,
     transpilation_error,
+    image_generation_logs,
+    image_generation_completed_at,
+    image_generation_in_progress,
+    image_generation_is_stale,
+    image_generation_started_at,
+    image_generation_error,
+    image_generation_error_last_updated_at,
+    image_generation_display_status,
   } = packageRelease ?? ({} as Partial<PackageRelease>)
 
   const toggleSection = (section: string) => {
@@ -104,6 +112,26 @@ export const PackageBuildDetailsPage = () => {
                 ]
               }
               error={circuit_json_build_error!}
+            />
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            title="Image Generation Logs"
+            duration={computeDuration(
+              image_generation_started_at,
+              image_generation_completed_at,
+            )}
+            displayStatus={image_generation_display_status}
+            isOpen={openSections.image}
+            onToggle={() => toggleSection("image")}
+          >
+            <LogContent
+              logs={
+                image_generation_logs ?? [
+                  { msg: "No Image Generation logs available" },
+                ]
+              }
+              error={image_generation_error}
             />
           </CollapsibleSection>
         </div>
