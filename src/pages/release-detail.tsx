@@ -130,7 +130,7 @@ export default function ReleaseDetailPage() {
                         view.svg ?? "",
                       )}`}
                       alt={`${view.label} preview`}
-                      className="w-full h-full object-contain"
+                      className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
                     />
                   )}
                 </div>
