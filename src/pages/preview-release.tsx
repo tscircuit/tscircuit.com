@@ -52,22 +52,23 @@ export default function PreviewBuildPage() {
   )
   const { data: buildFiles = [], isLoading: isLoadingFiles } =
     usePackageFilesLoader(pkg)
-
+  console.log("buildFiles", buildFiles)
   const buildFsMap = Object.fromEntries(
     buildFiles.map((f) => [f.path, f.content]),
   )
 
+  console.log("buildFsMap", buildFsMap)
   const targetFile = findTargetFile({
     files: buildFiles,
     filePathFromUrl: selectedFile,
   })
+  console.log("targetFile", targetFile)
   const mainComponentPath = targetFile?.path ?? null
+  console.log("mainComponentPath", mainComponentPath)
 
-  useEffect(() => {
-    if (!selectedFile && mainComponentPath) {
-      setSelectedFile(mainComponentPath)
-    }
-  }, [mainComponentPath, selectedFile])
+  if (!selectedFile && mainComponentPath && !isLoadingFiles) {
+    setSelectedFile(mainComponentPath)
+  }
 
   if (!packageReleaseId) {
     return <NotFoundPage heading="Package Release Not Found" />
