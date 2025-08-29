@@ -2,6 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
 import { usePreviewImages } from "@/hooks/use-preview-images"
 import { usePackageFiles } from "@/hooks/use-package-files"
+import { normalizeSvgForSquareTile } from "@/lib/normalize-svg-for-tile"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
 interface ViewPlaceholdersProps {
@@ -54,7 +55,7 @@ export default function PreviewImageSquares({
           {view.svg && !view.status && (
             <div
               className={`w-full h-full ${view.svg ? "block" : "hidden"} [&>svg]:w-full [&>svg]:h-full [&>svg]:block [&>svg]:max-w-full [&>svg]:max-h-full`}
-              dangerouslySetInnerHTML={{ __html: view.svg }}
+              dangerouslySetInnerHTML={{ __html: normalizeSvgForSquareTile(view.svg) }}
             />
           )}
           {view.imageUrl && (

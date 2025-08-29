@@ -7,6 +7,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
+import { normalizeSvgForSquareTile } from "@/lib/normalize-svg-for-tile"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
@@ -280,7 +281,7 @@ function PreviewButton({
       {!isLoading && !status && svg && (
         <div
           className={`w-full h-full ${svg ? "block" : "hidden"} [&>svg]:w-full [&>svg]:h-full [&>svg]:block [&>svg]:max-w-full [&>svg]:max-h-full`}
-          dangerouslySetInnerHTML={{ __html: svg }}
+          dangerouslySetInnerHTML={{ __html: normalizeSvgForSquareTile(svg) }}
         />
       )}
       {imageUrl && (
