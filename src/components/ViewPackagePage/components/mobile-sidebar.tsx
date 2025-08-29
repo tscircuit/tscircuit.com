@@ -216,7 +216,13 @@ const MobileSidebar = ({
             key={view.id}
             view={view.label}
             onClick={() => handleViewClick(view.id)}
-            isPcb={view.id === "pcb"}
+            backgroundClass={
+              view.id === "pcb"
+                ? "bg-black"
+                : view.id === "schematic"
+                  ? "bg-[#F1F5ED]"
+                  : "bg-gray-100"
+            }
             svg={view.svg}
             isLoading={view.isLoading}
             imageUrl={view.imageUrl}
@@ -254,7 +260,7 @@ export default React.memo(MobileSidebar)
 function PreviewButton({
   view,
   onClick,
-  isPcb,
+  backgroundClass,
   svg,
   isLoading,
   imageUrl,
@@ -264,7 +270,7 @@ function PreviewButton({
 }: {
   view: string
   onClick: () => void
-  isPcb?: boolean
+  backgroundClass?: string
   svg?: string | null
   isLoading?: boolean
   imageUrl?: string
@@ -279,9 +285,7 @@ function PreviewButton({
   return (
     <button
       onClick={onClick}
-      className={`aspect-square ${
-        isPcb ? "bg-black" : "bg-gray-100"
-      } dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors mt-4 overflow-hidden`}
+      className={`aspect-square ${backgroundClass ?? "bg-gray-100"} rounded-lg border border-gray-200 dark:border-[#30363d] flex items-center justify-center transition-colors mt-4 overflow-hidden`}
     >
       {(isLoading || status === "loading") && (
         <Skeleton className="w-full h-full rounded-lg" />

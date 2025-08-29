@@ -44,14 +44,20 @@ export default function PreviewImageSquares({
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")
   }
 
+  const backgroundClassById: Record<string, string> = {
+    pcb: "bg-black",
+    schematic: "bg-[#F1F5ED]",
+    "3d": "bg-gray-100",
+  }
+
   return (
     <div className="grid grid-cols-3 gap-2">
       {viewsToRender.map((view: any) => (
         <button
           key={view.id}
           className={`aspect-square ${
-            view.id === "pcb" ? "bg-black" : "bg-gray-100"
-          } dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors overflow-hidden mb-6`}
+            backgroundClassById[view.id] ?? "bg-gray-100"
+          } rounded-lg border border-gray-200 dark:border-[#30363d] flex items-center justify-center transition-colors overflow-hidden mb-6`}
           onClick={() => handleViewClick(view.id)}
         >
           {(view.isLoading || view.status === "loading") && (
