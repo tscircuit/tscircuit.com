@@ -20,9 +20,9 @@ export function usePackageReleaseImages({
   const axios = useAxios()
 
   const views: ViewConfig[] = [
-    { id: "schematic", label: "Schematic", filePath: "dist/schematic.svg" },
-    { id: "pcb", label: "PCB", filePath: "dist/pcb.svg" },
     { id: "3d", label: "3D", filePath: "dist/3d.svg" },
+    { id: "pcb", label: "PCB", filePath: "dist/pcb.svg" },
+    { id: "schematic", label: "Schematic", filePath: "dist/schematic.svg" },
   ]
 
   const queries = useQueries(

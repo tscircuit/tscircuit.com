@@ -46,7 +46,9 @@ export default function PreviewImageSquares({
       {viewsToRender.map((view: any) => (
         <button
           key={view.id}
-          className={`aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors overflow-hidden mb-6`}
+          className={`aspect-square ${
+            view.id === "pcb" ? "bg-black" : "bg-gray-100"
+          } dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors overflow-hidden mb-6`}
           onClick={() => handleViewClick(view.id)}
         >
           {(view.isLoading || view.status === "loading") && (
