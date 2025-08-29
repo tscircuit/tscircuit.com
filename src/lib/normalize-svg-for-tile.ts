@@ -40,3 +40,11 @@ export function normalizeSvgForSquareTile(svg: string): string {
     return svg
   }
 }
+
+export function svgToDataUrl(svg: string): string {
+  try {
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`
+  } catch {
+    return `data:image/svg+xml,${svg}`
+  }
+}
