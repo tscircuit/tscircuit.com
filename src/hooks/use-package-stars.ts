@@ -38,77 +38,25 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
   const axios = useAxios()
   const queryClient = useQueryClient()
 
-  const addStar = useMutation<
-    any,
-    Error,
-    void,
-    { previousStars?: PackageStarResponse }
-  >(
+  const addStar = useMutation(
     async () => {
       const { data } = await axios.post("/packages/add_star", query)
       return data
     },
     {
-      onMutate: async () => {
-        await queryClient.cancelQueries(["packageStars", query])
-        const previousStars = queryClient.getQueryData<PackageStarResponse>([
-          "packageStars",
-          query,
-        ])
-        const optimistic: PackageStarResponse = {
-          is_starred: true,
-          star_count: (previousStars?.star_count ?? 0) + 1,
-        }
-        queryClient.setQueryData(["packageStars", query], optimistic)
-        return { previousStars }
-      },
-      onError: (_error, _vars, context) => {
-        if (context?.previousStars) {
-          queryClient.setQueryData(
-            ["packageStars", query],
-            context.previousStars,
-          )
-        }
-      },
-      onSettled: () => {
+      onSuccess: () => {
         queryClient.invalidateQueries(["packageStars", query])
       },
     },
   )
 
-  const removeStar = useMutation<
-    any,
-    Error,
-    void,
-    { previousStars?: PackageStarResponse }
-  >(
+  const removeStar = useMutation(
     async () => {
       const { data } = await axios.post("/packages/remove_star", query)
       return data
     },
     {
-      onMutate: async () => {
-        await queryClient.cancelQueries(["packageStars", query])
-        const previousStars = queryClient.getQueryData<PackageStarResponse>([
-          "packageStars",
-          query,
-        ])
-        const optimistic: PackageStarResponse = {
-          is_starred: false,
-          star_count: Math.max(0, (previousStars?.star_count ?? 1) - 1),
-        }
-        queryClient.setQueryData(["packageStars", query], optimistic)
-        return { previousStars }
-      },
-      onError: (_error, _vars, context) => {
-        if (context?.previousStars) {
-          queryClient.setQueryData(
-            ["packageStars", query],
-            context.previousStars,
-          )
-        }
-      },
-      onSettled: () => {
+      onSuccess: () => {
         queryClient.invalidateQueries(["packageStars", query])
       },
     },
@@ -135,30 +83,4 @@ export const usePackageStarMutationById = (packageId: string) => {
 
 export const usePackageStarMutationByName = (packageName: string) => {
   return usePackageStarMutation({ name: packageName })
-}
-
-// High-level hook that exposes current star state and a single toggle action
-export const usePackageStarring = (query: PackageStarQuery | null) => {
-  const starsQuery = usePackageStars(query)
-  const mutations = query ? usePackageStarMutation(query) : null
-
-  const toggleStar = async () => {
-    if (!query || !mutations) return
-    const currentlyStarred = starsQuery.data?.is_starred ?? false
-    if (currentlyStarred) await mutations.removeStar.mutateAsync()
-    else await mutations.addStar.mutateAsync()
-  }
-
-  return {
-    isStarred: starsQuery.data?.is_starred ?? false,
-    starCount: starsQuery.data?.star_count ?? 0,
-    isPending: mutations
-      ? mutations.addStar.isLoading || mutations.removeStar.isLoading
-      : false,
-    toggleStar,
-  }
-}
-
-export const usePackageStarringByName = (packageName: string | null) => {
-  return usePackageStarring(packageName ? { name: packageName } : null)
 }
