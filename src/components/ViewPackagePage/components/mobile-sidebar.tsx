@@ -279,7 +279,7 @@ function PreviewButton({
       )}
       {!isLoading && !status && svg && (
         <div
-          className={`w-full h-full ${svg ? "block" : "hidden"}`}
+          className={`w-full h-full ${svg ? "block" : "hidden"} [&>svg]:w-full [&>svg]:h-full [&>svg]:block [&>svg]:max-w-full [&>svg]:max-h-full`}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
       )}

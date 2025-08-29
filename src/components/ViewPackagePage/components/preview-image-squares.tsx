@@ -53,7 +53,7 @@ export default function PreviewImageSquares({
           )}
           {view.svg && !view.status && (
             <div
-              className={`w-full h-full ${view.svg ? "block" : "hidden"}`}
+              className={`w-full h-full ${view.svg ? "block" : "hidden"} [&>svg]:w-full [&>svg]:h-full [&>svg]:block [&>svg]:max-w-full [&>svg]:max-h-full`}
               dangerouslySetInnerHTML={{ __html: view.svg }}
             />
           )}
