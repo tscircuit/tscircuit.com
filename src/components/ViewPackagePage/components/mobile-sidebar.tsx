@@ -216,13 +216,7 @@ const MobileSidebar = ({
             key={view.id}
             view={view.label}
             onClick={() => handleViewClick(view.id)}
-            backgroundClass={
-              view.id === "pcb"
-                ? "bg-black"
-                : view.id === "schematic"
-                  ? "bg-[#F1F5ED]"
-                  : "bg-gray-100"
-            }
+            backgroundClass={view.backgroundClass}
             svg={view.svg}
             isLoading={view.isLoading}
             imageUrl={view.imageUrl}

@@ -21,6 +21,7 @@ export function usePreviewImages({
     {
       id: "3d",
       label: "3D View",
+      backgroundClass: "bg-gray-100",
       imageUrl: packageName
         ? `https://api.tscircuit.com/packages/images/${packageName}/3d.png?fs_sha=${fsMapHash}`
         : undefined,
@@ -28,6 +29,7 @@ export function usePreviewImages({
     {
       id: "pcb",
       label: "PCB View",
+      backgroundClass: "bg-black",
       imageUrl: packageName
         ? `https://api.tscircuit.com/packages/images/${packageName}/pcb.png?fs_sha=${fsMapHash}`
         : undefined,
@@ -35,6 +37,7 @@ export function usePreviewImages({
     {
       id: "schematic",
       label: "Schematic View",
+      backgroundClass: "bg-[#F5F1ED]",
       imageUrl: packageName
         ? `https://api.tscircuit.com/packages/images/${packageName}/schematic.png?fs_sha=${fsMapHash}`
         : undefined,

@@ -11,6 +11,7 @@ interface ViewConfig {
   id: string
   label: string
   filePath: string
+  backgroundClass: string
 }
 
 export function usePackageReleaseImages({
@@ -20,9 +21,24 @@ export function usePackageReleaseImages({
   const axios = useAxios()
 
   const views: ViewConfig[] = [
-    { id: "3d", label: "3D", filePath: "dist/3d.svg" },
-    { id: "pcb", label: "PCB", filePath: "dist/pcb.svg" },
-    { id: "schematic", label: "Schematic", filePath: "dist/schematic.svg" },
+    {
+      id: "3d",
+      label: "3D",
+      filePath: "dist/3d.svg",
+      backgroundClass: "bg-gray-100",
+    },
+    {
+      id: "pcb",
+      label: "PCB",
+      filePath: "dist/pcb.svg",
+      backgroundClass: "bg-black",
+    },
+    {
+      id: "schematic",
+      label: "Schematic",
+      filePath: "dist/schematic.svg",
+      backgroundClass: "bg-[#F5F1ED]",
+    },
   ]
 
   const queries = useQueries(
@@ -61,6 +77,7 @@ export function usePackageReleaseImages({
           label: view.label,
           svg: queries[idx].data as string | null,
           isLoading: queries[idx].isLoading,
+          backgroundClass: view.backgroundClass,
         }))
         .filter((v) => v.isLoading || v.svg),
     [queries],
