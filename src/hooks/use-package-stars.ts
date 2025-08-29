@@ -140,10 +140,10 @@ export const usePackageStarMutationByName = (packageName: string) => {
 // High-level hook that exposes current star state and a single toggle action
 export const usePackageStarring = (query: PackageStarQuery | null) => {
   const starsQuery = usePackageStars(query)
-  const mutations = query ? usePackageStarMutation(query) : null
+  const mutations = usePackageStarMutation(query ?? { name: "" })
 
   const toggleStar = async () => {
-    if (!query || !mutations) return
+    if (!query) return
     const currentlyStarred = starsQuery.data?.is_starred ?? false
     if (currentlyStarred) await mutations.removeStar.mutateAsync()
     else await mutations.addStar.mutateAsync()
@@ -152,9 +152,7 @@ export const usePackageStarring = (query: PackageStarQuery | null) => {
   return {
     isStarred: starsQuery.data?.is_starred ?? false,
     starCount: starsQuery.data?.star_count ?? 0,
-    isPending: mutations
-      ? mutations.addStar.isLoading || mutations.removeStar.isLoading
-      : false,
+    isPending: mutations.addStar.isLoading || mutations.removeStar.isLoading,
     toggleStar,
   }
 }
