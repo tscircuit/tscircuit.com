@@ -1,6 +1,7 @@
 import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
 import { usePreviewImages } from "@/hooks/use-preview-images"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
@@ -75,10 +76,25 @@ const MobileSidebar = ({
     [refetchPackageInfo],
   )
 
-  const { availableViews } = usePreviewImages({
+  const availableFilePaths = useMemo(
+    () => releaseFiles?.map((f) => f.file_path),
+    [releaseFiles],
+  )
+  const { availableViews: svgViews } = usePackageReleaseImages({
+    packageReleaseId: packageInfo?.latest_package_release_id,
+    availableFilePaths,
+  })
+
+  const { availableViews: pngViews } = usePreviewImages({
     packageName: packageInfo?.name,
     fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
   })
+
+  const viewsToRender =
+    svgViews.length === 0 ||
+    svgViews.every((v) => !v.isLoading && !(v as any).svg)
+      ? (pngViews as any)
+      : (svgViews as any)
 
   const handleViewClick = useCallback(
     (viewId: string) => {
@@ -191,11 +207,13 @@ const MobileSidebar = ({
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        {availableViews.map((view) => (
+        {viewsToRender.map((view: any) => (
           <PreviewButton
             key={view.id}
             view={view.label}
             onClick={() => handleViewClick(view.id)}
+            svg={view.svg}
+            isLoading={view.isLoading}
             imageUrl={view.imageUrl}
             status={view.status}
             onLoad={view.onLoad}
@@ -231,6 +249,8 @@ export default React.memo(MobileSidebar)
 function PreviewButton({
   view,
   onClick,
+  svg,
+  isLoading,
   imageUrl,
   status,
   onLoad,
@@ -238,22 +258,30 @@ function PreviewButton({
 }: {
   view: string
   onClick: () => void
+  svg?: string | null
+  isLoading?: boolean
   imageUrl?: string
-  status: "loading" | "loaded" | "error"
-  onLoad: () => void
-  onError: () => void
+  status?: "loading" | "loaded" | "error"
+  onLoad?: () => void
+  onError?: () => void
 }) {
-  if (status === "error") {
+  if (!svg && !isLoading && !imageUrl) {
     return null
   }
 
   return (
     <button
       onClick={onClick}
-      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors mt-4"
+      className="aspect-square bg-gray-100 dark:bg-[#161b22] rounded-lg border border-gray-200 dark:border-[#30363d] hover:bg-gray-200 dark:hover:bg-[#21262d] flex items-center justify-center transition-colors mt-4 overflow-hidden"
     >
-      {status === "loading" && (
+      {(isLoading || status === "loading") && (
         <Skeleton className="w-full h-full rounded-lg" />
+      )}
+      {!isLoading && !status && svg && (
+        <div
+          className={`w-full h-full ${svg ? "block" : "hidden"}`}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
       )}
       {imageUrl && (
         <img
