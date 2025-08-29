@@ -19,10 +19,7 @@ export function normalizeSvgForSquareTile(svg: string): string {
     if (!hasViewBox && widthMatch && heightMatch) {
       const w = widthMatch[1]
       const h = heightMatch[1]
-      newOpenTag = newOpenTag.replace(
-        /<svg/i,
-        `<svg viewBox="0 0 ${w} ${h}"`,
-      )
+      newOpenTag = newOpenTag.replace(/<svg/i, `<svg viewBox="0 0 ${w} ${h}"`)
     }
 
     // Force preserveAspectRatio to fit within square without distortion
@@ -43,5 +40,3 @@ export function normalizeSvgForSquareTile(svg: string): string {
     return svg
   }
 }
-
-
