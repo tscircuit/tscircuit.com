@@ -233,6 +233,7 @@ export default function PreviewBuildPage() {
                 </div>
               ) : status === "success" && buildFiles.length > 0 ? (
                 <SuspenseRunFrame
+                  showFileMenu={false}
                   fsMap={buildFsMap}
                   mainComponentPath={mainComponentPath ?? "index.tsx"}
                   showRunButton={false}
