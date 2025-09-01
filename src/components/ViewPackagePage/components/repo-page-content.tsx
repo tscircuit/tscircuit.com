@@ -18,7 +18,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useLocation } from "wouter"
 import type {
   Package,
   PackageFile as ApiPackageFile,
