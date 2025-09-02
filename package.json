@@ -164,7 +164,7 @@
     "redaxios": "^0.5.1",
     "remark-gfm": "^4.0.1",
     "rollup-plugin-visualizer": "^5.12.0",
-    "schematic-symbols": "^0.0.171",
+    "schematic-symbols": "^0.0.195",
     "sharp": "^0.33.5",
     "shiki": "^3.2.1",
     "sitemap": "^8.0.0",
