@@ -130,7 +130,7 @@ export default function MainContentViewSelector({
               </svg>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
+          <DropdownMenuContent align="start" className="z-[101]">
             <TooltipProvider>
               {views.map((view) => {
                 const isDisabled = !circuitJson && view.requiresCircuitJson
