@@ -26,7 +26,7 @@ interface MainContentViewSelectorProps {
   onViewChange: (view: string) => void
 }
 
-export default function sMainContentViewSelector({
+export default function MainContentViewSelector({
   activeView,
   onViewChange,
 }: MainContentViewSelectorProps) {
@@ -130,7 +130,7 @@ export default function sMainContentViewSelector({
               </svg>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="!z-[101]">
+          <DropdownMenuContent align="start" className="z-[101]">
             <TooltipProvider>
               {views.map((view) => {
                 const isDisabled = !circuitJson && view.requiresCircuitJson
