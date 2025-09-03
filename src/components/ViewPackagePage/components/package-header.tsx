@@ -119,7 +119,12 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={open}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={open}
+              disabled={!packageInfo?.latest_package_release_id}
+            >
               <Package className="w-4 h-4 mr-2" />
               Order
             </Button>
