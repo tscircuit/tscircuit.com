@@ -24,6 +24,7 @@ import type {
 } from "fake-snippets-api/lib/db/schema"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 import { useAiReview } from "@/hooks/use-ai-review"
+import { useRefreshAiDescriptionMutation } from "@/hooks/use-refresh-ai-description-mutation"
 import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
 
@@ -80,6 +81,8 @@ export default function RepoPageContent({
       },
     })
 
+  const { mutate: refreshAiDescription, isLoading: isRefreshingAiDescription } =
+    useRefreshAiDescriptionMutation()
   const aiReviewRequested =
     Boolean(packageRelease?.ai_review_requested) ||
     Boolean(pendingAiReviewId) ||
@@ -90,9 +93,27 @@ export default function RepoPageContent({
     setTimeout(() => setLicenseFileRequested(false), 100)
   }
 
-  const handleRefreshReadme = () => {
-    // Invalidate package files cache to refresh README and other important files
+  const handleRefreshReadme = (activeTabType?: string) => {
+    // If refreshing AI description specifically, call the new endpoint
+
+    if (activeTabType === "ai" && packageInfo?.package_id) {
+      refreshAiDescription({ package_id: packageInfo.package_id })
+
+      return
+    }
+
+    // Otherwise, invalidate package files cache to refresh README and other important files
+
     if (packageRelease?.package_release_id) {
+      // Invalidate package data (includes AI description and usage instructions)
+      if (packageInfo?.package_id) {
+        queryClient.invalidateQueries(["package", packageInfo.package_id])
+      }
+      if (packageInfo?.name) {
+        queryClient.invalidateQueries(["package", packageInfo.name])
+      }
+      // Invalidate package release data (includes AI review content)
+      queryClient.invalidateQueries(["packageRelease"])
       queryClient.invalidateQueries([
         "packageFiles",
         { package_release_id: packageRelease.package_release_id },
@@ -258,6 +279,7 @@ export default function RepoPageContent({
               }}
               onRefreshReadme={handleRefreshReadme}
               onLicenseFileRequested={licenseFileRequested}
+              isRefreshingAi={isRefreshingAiDescription}
             />
           </div>
 

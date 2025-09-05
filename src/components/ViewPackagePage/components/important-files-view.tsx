@@ -35,8 +35,9 @@ interface ImportantFilesViewProps {
   aiReviewText?: string | null
   aiReviewRequested?: boolean
   onRequestAiReview?: () => void
-  onRefreshReadme?: () => void
+  onRefreshReadme?: (activeTabType?: string) => void
   onLicenseFileRequested?: boolean
+  isRefreshingAi?: boolean
 }
 
 type TabType = "ai" | "ai-review" | "file"
@@ -56,10 +57,16 @@ export default function ImportantFilesView({
   aiReviewRequested,
   onRequestAiReview,
   onRefreshReadme,
+
   isFetched = false,
+
   onEditClicked,
+
   packageAuthorOwner,
+
   onLicenseFileRequested,
+
+  isRefreshingAi,
 }: ImportantFilesViewProps) {
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
@@ -303,11 +310,16 @@ export default function ImportantFilesView({
   }
 
   const handleRefresh = () => {
-    setRefreshState("refreshing")
-    onRefreshReadme?.()
-    setTimeout(() => setRefreshState("idle"), 800)
+    onRefreshReadme?.(activeTab?.type)
+    if (activeTab?.type !== "ai") {
+      setRefreshState("refreshing")
+      setTimeout(() => setRefreshState("idle"), 800)
+    }
   }
 
+  const isActuallyRefreshing =
+    (activeTab?.type === "ai" && isRefreshingAi) ||
+    (activeTab?.type !== "ai" && refreshState === "refreshing")
   // Render content based on active tab
   const renderAiContent = useCallback(
     () => (
@@ -544,11 +556,11 @@ export default function ImportantFilesView({
                     ? "Refresh Description"
                     : "Refresh README"
                 }
-                disabled={refreshState === "refreshing"}
+                disabled={isActuallyRefreshing}
               >
                 <RefreshCcwIcon
                   className={`h-4 w-4 transition-transform duration-500 ${
-                    refreshState === "refreshing" ? "animate-spin" : ""
+                    isActuallyRefreshing ? "animate-spin" : ""
                   }`}
                 />
                 <span className="sr-only">
