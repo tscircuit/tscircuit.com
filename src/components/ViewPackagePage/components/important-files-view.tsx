@@ -35,6 +35,7 @@ interface ImportantFilesViewProps {
   aiReviewText?: string | null
   aiReviewRequested?: boolean
   onRequestAiReview?: () => void
+  onRequestAiDescriptionUpdate?: () => void
   onLicenseFileRequested?: boolean
 }
 
@@ -54,6 +55,7 @@ export default function ImportantFilesView({
   aiReviewText,
   aiReviewRequested,
   onRequestAiReview,
+  onRequestAiDescriptionUpdate,
   isFetched = false,
   onEditClicked,
   packageAuthorOwner,
@@ -286,6 +288,15 @@ export default function ImportantFilesView({
 
     if (activeTab?.type === "ai-review" && aiReviewText) {
       textToCopy = aiReviewText
+    } else if (
+      activeTab?.type === "ai" &&
+      (aiDescription || aiUsageInstructions)
+    ) {
+      const parts = []
+      if (aiDescription) parts.push(`# Description\n\n${aiDescription}`)
+      if (aiUsageInstructions)
+        parts.push(`# Instructions\n\n${aiUsageInstructions}`)
+      textToCopy = parts.join("\n\n")
     } else if (activeTab?.type === "file" && activeFileContent) {
       textToCopy = activeFileContent
     }
@@ -298,8 +309,28 @@ export default function ImportantFilesView({
   }
 
   // Render content based on active tab
-  const renderAiContent = useCallback(
-    () => (
+  const renderAiContent = useCallback(() => {
+    if (!aiDescription && !aiUsageInstructions) {
+      return (
+        <div className="flex flex-col items-center justify-center py-8 px-4">
+          <div className="text-center space-y-4 max-w-md">
+            <div className="flex justify-center">
+              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                <Loader2 className="h-6 w-6 text-gray-600 animate-spin" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">
+                Our AI is generating a description for your package. This
+                usually takes a few minutes. Please check back shortly.
+              </p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    return (
       <div className="markdown-content">
         {aiDescription && (
           <div className="mb-6">
@@ -314,9 +345,13 @@ export default function ImportantFilesView({
           </div>
         )}
       </div>
-    ),
-    [aiDescription, aiUsageInstructions],
-  )
+    )
+  }, [
+    aiDescription,
+    aiUsageInstructions,
+    isOwner,
+    onRequestAiDescriptionUpdate,
+  ])
 
   const renderAiReviewContent = useCallback(() => {
     if (!aiReviewText && !aiReviewRequested) {
@@ -382,11 +417,13 @@ export default function ImportantFilesView({
 
   const renderFileContent = useCallback(() => {
     if (!isActiveFileFetched || !activeTab?.filePath || !activeFileContent) {
-      ;<div className="text-sm p-4">
-        {SKELETON_WIDTHS.map((w, i) => (
-          <Skeleton key={i} className={`h-4 mb-2 ${w}`} />
-        ))}
-      </div>
+      return (
+        <div className="text-sm p-4">
+          {SKELETON_WIDTHS.map((w, i) => (
+            <Skeleton key={i} className={`h-4 mb-2 ${w}`} />
+          ))}
+        </div>
+      )
     }
 
     if (isMarkdownFile(String(activeTab?.filePath))) {
@@ -405,7 +442,13 @@ export default function ImportantFilesView({
     }
 
     return <pre className="whitespace-pre-wrap">{activeFileContent}</pre>
-  }, [activeTab, activeFileContent, isMarkdownFile, isCodeFile])
+  }, [
+    activeTab,
+    activeFileContent,
+    isActiveFileFetched,
+    isMarkdownFile,
+    isCodeFile,
+  ])
 
   const renderTabContent = useCallback(() => {
     if (!activeTab) return null
@@ -500,7 +543,9 @@ export default function ImportantFilesView({
         </div>
         <div className="ml-auto flex items-center">
           {((activeTab?.type === "file" && activeFileContent) ||
-            (activeTab?.type === "ai-review" && aiReviewText)) && (
+            (activeTab?.type === "ai-review" && aiReviewText) ||
+            (activeTab?.type === "ai" &&
+              (aiDescription || aiUsageInstructions))) && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
               onClick={handleCopy}
@@ -521,6 +566,16 @@ export default function ImportantFilesView({
             >
               <RefreshCcwIcon className="h-4 w-4" />
               <span className="sr-only">Re-request AI Review</span>
+            </button>
+          )}
+          {activeTab?.type === "ai" && hasAiContent && isOwner && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
+              onClick={onRequestAiDescriptionUpdate}
+              title="Regenerate AI Description"
+            >
+              <RefreshCcwIcon className="h-4 w-4" />
+              <span className="sr-only">Regenerate AI Description</span>
             </button>
           )}
           {activeTab?.type === "file" && (

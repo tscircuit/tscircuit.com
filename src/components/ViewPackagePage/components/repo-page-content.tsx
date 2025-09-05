@@ -23,6 +23,7 @@ import type {
   PackageFile as ApiPackageFile,
 } from "fake-snippets-api/lib/db/schema"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
+import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
 import { useAiReview } from "@/hooks/use-ai-review"
 import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
@@ -79,6 +80,9 @@ export default function RepoPageContent({
         setPendingAiReviewId(aiReview.ai_review_id)
       },
     })
+
+  const { mutate: updateAiDescription, isLoading: isUpdatingAiDescription } =
+    useUpdateAiDescriptionMutation()
 
   const aiReviewRequested =
     Boolean(packageRelease?.ai_review_requested) ||
@@ -226,6 +230,13 @@ export default function RepoPageContent({
                 if (packageRelease) {
                   requestAiReview({
                     package_release_id: packageRelease.package_release_id,
+                  })
+                }
+              }}
+              onRequestAiDescriptionUpdate={() => {
+                if (packageInfo) {
+                  updateAiDescription({
+                    package_id: packageInfo.package_id,
                   })
                 }
               }}
