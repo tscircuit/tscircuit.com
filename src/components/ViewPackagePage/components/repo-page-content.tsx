@@ -93,10 +93,19 @@ export default function RepoPageContent({
   const handleRefreshReadme = () => {
     // Invalidate package files cache to refresh README and other important files
     if (packageRelease?.package_release_id) {
-      queryClient.invalidateQueries(["packageFiles", { package_release_id: packageRelease.package_release_id }])
+      queryClient.invalidateQueries([
+        "packageFiles",
+        { package_release_id: packageRelease.package_release_id },
+      ])
       // Also invalidate individual file queries for important files
-      const importantFileNames = ["README.md", "readme.md", "README.txt", "LICENSE", "package.json"]
-      importantFileNames.forEach(fileName => {
+      const importantFileNames = [
+        "README.md",
+        "readme.md",
+        "README.txt",
+        "LICENSE",
+        "package.json",
+      ]
+      importantFileNames.forEach((fileName) => {
         queryClient.invalidateQueries([
           "packageFile",
           {

@@ -63,7 +63,9 @@ export default function ImportantFilesView({
 }: ImportantFilesViewProps) {
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
-  const [refreshState, setRefreshState] = useState<"idle" | "refreshing">("idle")
+  const [refreshState, setRefreshState] = useState<"idle" | "refreshing">(
+    "idle",
+  )
   const { session: user } = useGlobalStore()
 
   // Memoized computed values
@@ -532,23 +534,30 @@ export default function ImportantFilesView({
               <span className="sr-only">Re-request AI Review</span>
             </button>
           )}
-          {(activeTab?.type === "ai" || activeTab?.type === "file") && onRefreshReadme && (
-            <button
-              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1 transition-all duration-200"
-              onClick={handleRefresh}
-              title={activeTab?.type === "ai" ? "Refresh Description" : "Refresh README"}
-              disabled={refreshState === "refreshing"}
-            >
-              <RefreshCcwIcon 
-                className={`h-4 w-4 transition-transform duration-500 ${
-                  refreshState === "refreshing" ? "animate-spin" : ""
-                }`} 
-              />
-              <span className="sr-only">
-                {activeTab?.type === "ai" ? "Refresh Description" : "Refresh README"}
-              </span>
-            </button>
-          )}
+          {(activeTab?.type === "ai" || activeTab?.type === "file") &&
+            onRefreshReadme && (
+              <button
+                className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1 transition-all duration-200"
+                onClick={handleRefresh}
+                title={
+                  activeTab?.type === "ai"
+                    ? "Refresh Description"
+                    : "Refresh README"
+                }
+                disabled={refreshState === "refreshing"}
+              >
+                <RefreshCcwIcon
+                  className={`h-4 w-4 transition-transform duration-500 ${
+                    refreshState === "refreshing" ? "animate-spin" : ""
+                  }`}
+                />
+                <span className="sr-only">
+                  {activeTab?.type === "ai"
+                    ? "Refresh Description"
+                    : "Refresh README"}
+                </span>
+              </button>
+            )}
           {activeTab?.type === "file" && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
