@@ -35,6 +35,7 @@ interface ImportantFilesViewProps {
   aiReviewText?: string | null
   aiReviewRequested?: boolean
   onRequestAiReview?: () => void
+  onRefreshReadme?: () => void
   onLicenseFileRequested?: boolean
 }
 
@@ -54,6 +55,7 @@ export default function ImportantFilesView({
   aiReviewText,
   aiReviewRequested,
   onRequestAiReview,
+  onRefreshReadme,
   isFetched = false,
   onEditClicked,
   packageAuthorOwner,
@@ -61,6 +63,7 @@ export default function ImportantFilesView({
 }: ImportantFilesViewProps) {
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
+  const [refreshState, setRefreshState] = useState<"idle" | "refreshing">("idle")
   const { session: user } = useGlobalStore()
 
   // Memoized computed values
@@ -297,6 +300,12 @@ export default function ImportantFilesView({
     }
   }
 
+  const handleRefresh = () => {
+    setRefreshState("refreshing")
+    onRefreshReadme?.()
+    setTimeout(() => setRefreshState("idle"), 800)
+  }
+
   // Render content based on active tab
   const renderAiContent = useCallback(
     () => (
@@ -523,9 +532,26 @@ export default function ImportantFilesView({
               <span className="sr-only">Re-request AI Review</span>
             </button>
           )}
+          {(activeTab?.type === "ai" || activeTab?.type === "file") && onRefreshReadme && (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1 transition-all duration-200"
+              onClick={handleRefresh}
+              title={activeTab?.type === "ai" ? "Refresh Description" : "Refresh README"}
+              disabled={refreshState === "refreshing"}
+            >
+              <RefreshCcwIcon 
+                className={`h-4 w-4 transition-transform duration-500 ${
+                  refreshState === "refreshing" ? "animate-spin" : ""
+                }`} 
+              />
+              <span className="sr-only">
+                {activeTab?.type === "ai" ? "Refresh Description" : "Refresh README"}
+              </span>
+            </button>
+          )}
           {activeTab?.type === "file" && (
             <button
-              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
               onClick={() => onEditClicked?.(activeTab.filePath)}
             >
               <Edit className="h-4 w-4" />

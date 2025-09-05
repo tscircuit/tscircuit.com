@@ -90,6 +90,24 @@ export default function RepoPageContent({
     setTimeout(() => setLicenseFileRequested(false), 100)
   }
 
+  const handleRefreshReadme = () => {
+    // Invalidate package files cache to refresh README and other important files
+    if (packageRelease?.package_release_id) {
+      queryClient.invalidateQueries(["packageFiles", { package_release_id: packageRelease.package_release_id }])
+      // Also invalidate individual file queries for important files
+      const importantFileNames = ["README.md", "readme.md", "README.txt", "LICENSE", "package.json"]
+      importantFileNames.forEach(fileName => {
+        queryClient.invalidateQueries([
+          "packageFile",
+          {
+            file_path: fileName,
+            package_release_id: packageRelease.package_release_id,
+          },
+        ])
+      })
+    }
+  }
+
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
     if (!packageInfo || !arePackageFilesFetched) return
@@ -229,6 +247,7 @@ export default function RepoPageContent({
                   })
                 }
               }}
+              onRefreshReadme={handleRefreshReadme}
               onLicenseFileRequested={licenseFileRequested}
             />
           </div>
