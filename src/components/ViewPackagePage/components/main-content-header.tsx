@@ -101,7 +101,7 @@ export default function MainContentHeader({
               <ChevronDown className="h-4 w-4 ml-0.5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72">
+          <DropdownMenuContent align="end" className="w-72 relative !z-[101]">
             <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
               <a
                 href={`/editor?package_id=${packageInfo?.package_id}`}

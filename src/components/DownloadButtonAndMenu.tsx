@@ -107,7 +107,7 @@ export function DownloadButtonAndMenu({
         <DropdownMenuTrigger asChild>
           <Button
             size="sm"
-            className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2"
+            className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
           >
             <Download className="w-4 h-4 mr-2" />
             Download
