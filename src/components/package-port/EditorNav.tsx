@@ -385,7 +385,7 @@ export default function EditorNav({
                 <MoreVertical className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent class name="z-[101]">
+            <DropdownMenuContent>
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => openViewTsFilesDialog()}
@@ -485,7 +485,7 @@ export default function EditorNav({
             )}
           </Button>
         </div>
-        <div className="flex items-center ">
+        <div className="flex items-center z-[101]">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="md:hidden rounded-full p-1 hover:bg-gray-100 cursor-pointer">
