@@ -1,4 +1,4 @@
-import { useMutation } from "react-query"
+import { useMutation, useQueryClient } from "react-query"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useAxios } from "./use-axios"
 import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
@@ -29,6 +29,7 @@ export function useUpdatePackageFilesMutation({
 }: UseUpdatePackageFilesMutationProps) {
   const axios = useAxios()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (
       newPackage: Pick<Package, "package_id" | "name"> & {
@@ -94,6 +95,15 @@ export function useUpdatePackageFilesMutation({
         toast({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
+        })
+        queryClient.invalidateQueries({
+          predicate: (q) => {
+            const key = q.queryKey as any
+            return (
+              Array.isArray(key) &&
+              (key[0] === "packageFiles" || key[0] === "packageFile")
+            )
+          },
         })
       }
     },
