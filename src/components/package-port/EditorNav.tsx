@@ -385,7 +385,7 @@ export default function EditorNav({
                 <MoreVertical className="h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent class name="z-[101]">
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => openViewTsFilesDialog()}
