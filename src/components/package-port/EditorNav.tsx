@@ -485,7 +485,7 @@ export default function EditorNav({
             )}
           </Button>
         </div>
-        <div className="flex items-center z-[101]">
+        <div className="flex items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="md:hidden rounded-full p-1 hover:bg-gray-100 cursor-pointer">
@@ -494,7 +494,7 @@ export default function EditorNav({
                 </Button>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent  className="z-[101]">
               {hasUnsavedChanges && onDiscard && (
                 <DropdownMenuItem
                   className="text-xs text-red-600"
