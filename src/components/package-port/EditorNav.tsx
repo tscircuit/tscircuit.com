@@ -494,7 +494,7 @@ export default function EditorNav({
                 </Button>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent  className="z-[101]">
+            <DropdownMenuContent className="z-[101]">
               {hasUnsavedChanges && onDiscard && (
                 <DropdownMenuItem
                   className="text-xs text-red-600"
