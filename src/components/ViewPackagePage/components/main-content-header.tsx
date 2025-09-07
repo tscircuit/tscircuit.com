@@ -26,6 +26,7 @@ import { useLocation } from "wouter"
 import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useDownloadZip } from "@/hooks/use-download-zip"
+import { useToast } from "@/hooks/use-toast"
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
   activeView: string
@@ -63,10 +64,15 @@ export default function MainContentHeader({
   }
 
   const { downloadZip } = useDownloadZip()
+  const { toastLibrary } = useToast()
 
   const handleDownloadZip = () => {
     if (packageInfo && packageFiles) {
-      downloadZip(packageInfo, packageFiles)
+      toastLibrary.promise(downloadZip(packageInfo, packageFiles), {
+        loading: "Downloading ZIP...",
+        success: "ZIP downloaded successfully!",
+        error: "Failed to download ZIP",
+      })
     }
   }
 
