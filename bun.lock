@@ -3,9 +3,6 @@
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
-      "dependencies": {
-        "@sentry/react": "^10.10.0",
-      },
       "devDependencies": {
         "@anthropic-ai/sdk": "^0.27.3",
         "@babel/preset-react": "^7.25.9",
@@ -49,6 +46,7 @@
         "@radix-ui/react-toggle-group": "^1.1.0",
         "@radix-ui/react-tooltip": "^1.1.2",
         "@resvg/resvg-wasm": "^2.6.2",
+        "@sentry/react": "^10.10.0",
         "@tailwindcss/typography": "^0.5.16",
         "@tscircuit/3d-viewer": "^0.0.303",
         "@tscircuit/assembly-viewer": "^0.0.1",
