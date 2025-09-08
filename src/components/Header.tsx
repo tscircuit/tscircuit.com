@@ -81,9 +81,6 @@ export default function Header() {
                 </HeaderButton>
               </li>
               <li>
-                <HeaderButton href="/datasheets">Datasheets</HeaderButton>
-              </li>
-              <li>
                 <a href="https://chat.tscircuit.com">
                   <Button variant="ghost">AI</Button>
                 </a>
@@ -153,14 +150,6 @@ export default function Header() {
                   alsoHighlightForUrl="/editor"
                 >
                   Editor
-                </HeaderButton>
-              </li>
-              <li>
-                <HeaderButton
-                  className="w-full justify-start"
-                  href="/datasheets"
-                >
-                  Datasheets
                 </HeaderButton>
               </li>
               <li>

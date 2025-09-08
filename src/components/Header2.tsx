@@ -84,12 +84,6 @@ export const Header2 = () => {
             >
               Editor
             </PrefetchPageLink>
-            <PrefetchPageLink
-              className="text-sm font-medium hover:underline underline-offset-4"
-              href="/datasheets"
-            >
-              Datasheets
-            </PrefetchPageLink>
             <a
               className="text-sm font-medium hover:underline underline-offset-4"
               href="https://docs.tscircuit.com"
@@ -168,13 +162,6 @@ export const Header2 = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Editor
-                  </PrefetchPageLink>
-                  <PrefetchPageLink
-                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
-                    href="/datasheets"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Datasheets
                   </PrefetchPageLink>
                   <a
                     className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
