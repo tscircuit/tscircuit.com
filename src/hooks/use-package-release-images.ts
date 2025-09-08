@@ -1,92 +1,78 @@
-import { useMemo } from "react"
-import { useQueries } from "react-query"
-import { useAxios } from "./use-axios"
+import { useState } from "react"
+import { useApiBaseUrl } from "./use-packages-base-api-url"
 
 interface UsePackageReleaseImagesProps {
-  packageReleaseId?: string | null
-  availableFilePaths?: string[] | undefined
+  packageName?: string | null
+  fsSha?: string | null
 }
 
 interface ViewConfig {
   id: string
   label: string
-  filePath: string
   backgroundClass: string
+  imageUrl?: string
 }
 
+type ImageStatus = "loading" | "loaded" | "error"
+
 export function usePackageReleaseImages({
-  packageReleaseId,
-  availableFilePaths,
+  packageName,
+  fsSha,
 }: UsePackageReleaseImagesProps) {
-  const axios = useAxios()
+  const apiBaseUrl = useApiBaseUrl()
+
+  const [imageStatus, setImageStatus] = useState<Record<string, ImageStatus>>({
+    "3d": "loading",
+    pcb: "loading",
+    schematic: "loading",
+  })
 
   const views: ViewConfig[] = [
     {
       id: "3d",
       label: "3D",
-      filePath: "dist/3d.png",
       backgroundClass: "bg-gray-100",
+      imageUrl:
+        packageName && fsSha
+          ? `${apiBaseUrl}/packages/images/${packageName}/3d.png?fs_sha=${fsSha}`
+          : undefined,
     },
     {
       id: "pcb",
       label: "PCB",
-      filePath: "dist/pcb.svg",
       backgroundClass: "bg-black",
+      imageUrl:
+        packageName && fsSha
+          ? `${apiBaseUrl}/packages/images/${packageName}/pcb.svg?fs_sha=${fsSha}`
+          : undefined,
     },
     {
       id: "schematic",
       label: "Schematic",
-      filePath: "dist/schematic.svg",
       backgroundClass: "bg-[#F5F1ED]",
+      imageUrl:
+        packageName && fsSha
+          ? `${apiBaseUrl}/packages/images/${packageName}/schematic.svg?fs_sha=${fsSha}`
+          : undefined,
     },
   ]
 
-  const queries = useQueries(
-    views.map((view) => ({
-      queryKey: ["packageReleaseImage", packageReleaseId, view.filePath],
-      queryFn: async () => {
-        if (!packageReleaseId) return null
+  const handleImageLoad = (viewId: string) => {
+    setImageStatus((prev) => ({ ...prev, [viewId]: "loaded" }))
+  }
 
-        const { data } = await axios.get("/package_files/get", {
-          params: {
-            package_release_id: packageReleaseId,
-            file_path: view.filePath,
-          },
-        })
-        const content = data.package_file?.content_text
-        if (!content) return null
-        if (view.filePath.endsWith(".png")) {
-          return `data:image/png;base64,${content}`
-        }
-        return content
-      },
-      enabled:
-        Boolean(packageReleaseId) &&
-        Boolean(
-          !availableFilePaths || availableFilePaths?.includes(view.filePath),
-        ),
-      retry: false,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      staleTime: Infinity,
-      cacheTime: Infinity,
-    })),
-  )
+  const handleImageError = (viewId: string) => {
+    setImageStatus((prev) => ({ ...prev, [viewId]: "error" }))
+  }
 
-  const availableViews = useMemo(
-    () =>
-      views
-        .map((view, idx) => ({
-          id: view.id,
-          label: view.label,
-          image: queries[idx].data as string | null,
-          isLoading: queries[idx].isLoading,
-          backgroundClass: view.backgroundClass,
-        }))
-        .filter((v) => v.isLoading || v.image),
-    [queries],
-  )
+  const availableViews = views
+    .map((view) => ({
+      ...view,
+      status: imageStatus[view.id] as ImageStatus,
+      onLoad: () => handleImageLoad(view.id),
+      onError: () => handleImageError(view.id),
+    }))
+    .filter((view) => view.status !== "error" && view.imageUrl)
 
   return { availableViews }
 }

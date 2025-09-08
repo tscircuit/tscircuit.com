@@ -51,7 +51,8 @@ export default function ReleaseDetailPage() {
   })
 
   const { availableViews } = usePackageReleaseImages({
-    packageReleaseId: packageRelease?.package_release_id,
+    packageName: pkg?.name,
+    fsSha: packageRelease?.fs_sha ?? "",
   })
 
   if (isLoadingPackage || isLoadingRelease) {
@@ -120,25 +121,17 @@ export default function ReleaseDetailPage() {
               {availableViews.map((view) => (
                 <div
                   key={view.id}
-                  className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
+                  className={`flex items-center justify-center border rounded-lg overflow-hidden h-48 ${view.backgroundClass}`}
                 >
-                  {view.isLoading ? (
+                  {view.status === "loading" ? (
                     <Skeleton className="w-full h-full" />
                   ) : (
                     <img
-                      src={
-                        view.image?.startsWith("<svg")
-                          ? `data:image/svg+xml,${encodeURIComponent(view.image)}`
-                          : view.image || ""
-                      }
+                      src={view.imageUrl}
                       alt={`${view.label} preview`}
-                      className={`w-full h-full object-contain ${
-                        view.label.toLowerCase() == "pcb"
-                          ? "bg-black"
-                          : view.label.toLowerCase() == "schematic"
-                            ? "bg-[#F5F1ED]"
-                            : "bg-gray-100"
-                      }`}
+                      className="w-full h-full object-contain"
+                      onLoad={view.onLoad}
+                      onError={view.onError}
                     />
                   )}
                 </div>

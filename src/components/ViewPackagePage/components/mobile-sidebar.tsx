@@ -2,7 +2,6 @@ import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
-import { usePreviewImages } from "@/hooks/use-preview-images"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
@@ -80,25 +79,10 @@ const MobileSidebar = ({
     [refetchPackageInfo],
   )
 
-  const availableFilePaths = useMemo(
-    () => releaseFiles?.map((f) => f.file_path),
-    [releaseFiles],
-  )
-  const { availableViews: svgViews } = usePackageReleaseImages({
-    packageReleaseId: packageInfo?.latest_package_release_id,
-    availableFilePaths,
-  })
-
-  const { availableViews: pngViews } = usePreviewImages({
+  const { availableViews: viewsToRender } = usePackageReleaseImages({
     packageName: packageInfo?.name,
-    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
+    fsSha: packageInfo?.latest_package_release_fs_sha ?? "",
   })
-
-  const viewsToRender =
-    svgViews.length === 0 ||
-    svgViews.every((v) => !v.isLoading && !(v as any).image)
-      ? (pngViews as any)
-      : (svgViews as any)
 
   const handleViewClick = useCallback(
     (viewId: string) => {
@@ -217,8 +201,6 @@ const MobileSidebar = ({
             view={view.label}
             onClick={() => handleViewClick(view.id)}
             backgroundClass={view.backgroundClass}
-            image={view.image}
-            isLoading={view.isLoading}
             imageUrl={view.imageUrl}
             status={view.status}
             onLoad={view.onLoad}
