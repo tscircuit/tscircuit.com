@@ -183,6 +183,10 @@ export default defineConfig(async (): Promise<UserConfig> => {
     }
   }
 
+  if (process.env.SENTRY_DSN) {
+    process.env.VITE_SENTRY_DSN = process.env.SENTRY_DSN
+  }
+
   return {
     plugins,
     define: {

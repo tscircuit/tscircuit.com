@@ -62,6 +62,10 @@ VITE_USE_DIRECT_AI_REQUESTS=true
 VITE_ANTHROPIC_API_KEY=<your-key-here>
 ```
 
+### Error Reporting
+
+To enable Sentry error monitoring, set the `SENTRY_DSN` environment variable before running the app. The value will be exposed to the client as `VITE_SENTRY_DSN` and used to initialize Sentry.
+
 ### Building for Production
 
 To build the project for production:
