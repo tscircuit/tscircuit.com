@@ -126,11 +126,19 @@ export default function ReleaseDetailPage() {
                     <Skeleton className="w-full h-full" />
                   ) : (
                     <img
-                      src={`data:image/svg+xml,${encodeURIComponent(
-                        view.svg ?? "",
-                      )}`}
+                      src={
+                        view.image?.startsWith("<svg")
+                          ? `data:image/svg+xml,${encodeURIComponent(view.image)}`
+                          : view.image || ""
+                      }
                       alt={`${view.label} preview`}
-                      className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
+                      className={`w-full h-full object-contain ${
+                        view.label.toLowerCase() == "pcb"
+                          ? "bg-black"
+                          : view.label.toLowerCase() == "schematic"
+                            ? "bg-[#F5F1ED]"
+                            : "bg-gray-100"
+                      }`}
                     />
                   )}
                 </div>
