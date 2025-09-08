@@ -36,7 +36,7 @@ export default function PreviewImageSquares({
 
   const viewsToRender =
     svgViews.length === 0 ||
-    svgViews.every((v) => !v.isLoading && !(v as any).svg)
+    svgViews.every((v) => !v.isLoading && !(v as any).image)
       ? (pngViews as any)
       : (svgViews as any)
 
@@ -55,13 +55,21 @@ export default function PreviewImageSquares({
           {(view.isLoading || view.status === "loading") && (
             <Skeleton className="w-full h-full rounded-lg" />
           )}
-          {view.svg && !view.status && (
-            <img
-              src={svgToDataUrl(normalizeSvgForSquareTile(view.svg))}
-              alt={view.label}
-              className="w-full h-full object-contain"
-            />
-          )}
+          {view.image &&
+            !view.status &&
+            (view.image.startsWith("<svg") ? (
+              <img
+                src={svgToDataUrl(normalizeSvgForSquareTile(view.image))}
+                alt={view.label}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <img
+                src={view.image}
+                alt={view.label}
+                className="w-full h-full object-contain"
+              />
+            ))}
           {view.imageUrl && (
             <img
               src={view.imageUrl}

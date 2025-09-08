@@ -24,7 +24,7 @@ export function usePackageReleaseImages({
     {
       id: "3d",
       label: "3D",
-      filePath: "dist/3d.svg",
+      filePath: "dist/3d.png",
       backgroundClass: "bg-gray-100",
     },
     {
@@ -53,7 +53,12 @@ export function usePackageReleaseImages({
             file_path: view.filePath,
           },
         })
-        return data.package_file?.content_text ?? null
+        const content = data.package_file?.content_text
+        if (!content) return null
+        if (view.filePath.endsWith(".png")) {
+          return `data:image/png;base64,${content}`
+        }
+        return content
       },
       enabled:
         Boolean(packageReleaseId) &&
@@ -75,11 +80,11 @@ export function usePackageReleaseImages({
         .map((view, idx) => ({
           id: view.id,
           label: view.label,
-          svg: queries[idx].data as string | null,
+          image: queries[idx].data as string | null,
           isLoading: queries[idx].isLoading,
           backgroundClass: view.backgroundClass,
         }))
-        .filter((v) => v.isLoading || v.svg),
+        .filter((v) => v.isLoading || v.image),
     [queries],
   )
 

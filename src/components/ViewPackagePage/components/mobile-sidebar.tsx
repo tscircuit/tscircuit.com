@@ -96,7 +96,7 @@ const MobileSidebar = ({
 
   const viewsToRender =
     svgViews.length === 0 ||
-    svgViews.every((v) => !v.isLoading && !(v as any).svg)
+    svgViews.every((v) => !v.isLoading && !(v as any).image)
       ? (pngViews as any)
       : (svgViews as any)
 
@@ -217,7 +217,7 @@ const MobileSidebar = ({
             view={view.label}
             onClick={() => handleViewClick(view.id)}
             backgroundClass={view.backgroundClass}
-            svg={view.svg}
+            image={view.image}
             isLoading={view.isLoading}
             imageUrl={view.imageUrl}
             status={view.status}
@@ -255,7 +255,7 @@ function PreviewButton({
   view,
   onClick,
   backgroundClass,
-  svg,
+  image,
   isLoading,
   imageUrl,
   status,
@@ -265,14 +265,14 @@ function PreviewButton({
   view: string
   onClick: () => void
   backgroundClass?: string
-  svg?: string | null
+  image?: string | null
   isLoading?: boolean
   imageUrl?: string
   status?: "loading" | "loaded" | "error"
   onLoad?: () => void
   onError?: () => void
 }) {
-  if (!svg && !isLoading && !imageUrl) {
+  if (!image && !isLoading && !imageUrl) {
     return null
   }
 
@@ -284,13 +284,22 @@ function PreviewButton({
       {(isLoading || status === "loading") && (
         <Skeleton className="w-full h-full rounded-lg" />
       )}
-      {!isLoading && !status && svg && (
-        <img
-          src={svgToDataUrl(normalizeSvgForSquareTile(svg))}
-          alt={view}
-          className="w-full h-full object-contain"
-        />
-      )}
+      {!isLoading &&
+        !status &&
+        image &&
+        (image.startsWith("<svg") ? (
+          <img
+            src={svgToDataUrl(normalizeSvgForSquareTile(image))}
+            alt={view}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <img
+            src={image}
+            alt={view}
+            className="w-full h-full object-contain"
+          />
+        ))}
       {imageUrl && (
         <img
           src={imageUrl}
