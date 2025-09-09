@@ -13,7 +13,16 @@ export default withRouteSpec({
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    packages: z.array(packageSchema),
+    packages: z.array(
+      packageSchema.extend({
+        starred_at: z.string().nullable(),
+        user_permissions: z
+          .object({
+            can_manage_packages: z.boolean(),
+          })
+          .optional(),
+      }),
+    ),
   }),
 })(async (req, ctx) => {
   const { creator_account_id, owner_github_username, name, is_writable } =
@@ -65,6 +74,13 @@ export default withRouteSpec({
       ...p,
       latest_package_release_id: p.latest_package_release_id || null,
       starred_at: starTimestamps.get(p.package_id) || null,
+      ...(auth
+        ? {
+            user_permissions: {
+              can_manage_packages: p.owner_org_id === auth.personal_org_id,
+            },
+          }
+        : {}),
     })),
   })
 })

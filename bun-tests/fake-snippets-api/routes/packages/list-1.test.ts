@@ -109,3 +109,37 @@ test("list packages", async () => {
   const { data: authData } = await axios.get("/api/packages/list")
   expect(authData.packages).toHaveLength(3) // Should return all packages when authenticated
 })
+
+test("list packages includes user_permissions when session provided", async () => {
+  const { axios, jane_axios, unauthenticatedAxios } = await getTestServer()
+
+  const pkg1 = (
+    await axios.post("/api/packages/create", {
+      name: "testuser/ownerpkg",
+      description: "", // minimal
+    })
+  ).data.package
+
+  const pkg2 = (
+    await jane_axios.post("/api/packages/create", {
+      name: "jane/otherpkg",
+      description: "",
+    })
+  ).data.package
+
+  const { data: listData } = await axios.get("/api/packages/list")
+  const ownerPkg = listData.packages.find(
+    (p: any) => p.package_id === pkg1.package_id,
+  )
+  const otherPkg = listData.packages.find(
+    (p: any) => p.package_id === pkg2.package_id,
+  )
+  expect(ownerPkg.user_permissions).toEqual({ can_manage_packages: true })
+  expect(otherPkg.user_permissions).toEqual({ can_manage_packages: false })
+
+  const { data: unauthData } = await unauthenticatedAxios.get(
+    "/api/packages/list",
+    { params: { owner_github_username: "testuser" } },
+  )
+  expect(unauthData.packages[0].user_permissions).toBeUndefined()
+})

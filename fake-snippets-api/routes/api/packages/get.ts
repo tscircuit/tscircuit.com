@@ -16,6 +16,11 @@ export default withRouteSpec({
     package: packageSchema
       .extend({
         is_starred: z.boolean(),
+        user_permissions: z
+          .object({
+            can_manage_packages: z.boolean(),
+          })
+          .optional(),
       })
       .optional(),
   }),
@@ -53,6 +58,14 @@ export default withRouteSpec({
       is_starred: auth
         ? ctx.db.hasStarred(auth.account_id, foundPackage.package_id)
         : false,
+      ...(auth
+        ? {
+            user_permissions: {
+              can_manage_packages:
+                foundPackage.owner_org_id === auth.personal_org_id,
+            },
+          }
+        : {}),
     },
   })
 })
