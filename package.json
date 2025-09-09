@@ -177,7 +177,7 @@
     "tailwindcss": "^3.4.13",
     "tailwindcss-animate": "^1.0.7",
     "terser": "^5.27.0",
-    "three": "^0.177.0",
+    "three": "0.165.0",
     "three-stdlib": "^2.36.0",
     "tscircuit": "^0.0.629",
     "tsup": "^8.5.0",
