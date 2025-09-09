@@ -42,7 +42,6 @@ import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { TypeBadge } from "@/components/TypeBadge"
 import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
-import tscircuitCorePkg from "@tscircuit/core/package.json"
 import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
 import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
@@ -462,7 +461,7 @@ export default function EditorNav({
                   </>
                 )}
               <DropdownMenuItem className="text-xs text-gray-500" disabled>
-                @tscircuit/core@{tscircuitCorePkg.version}
+                @tscircuit/core
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
