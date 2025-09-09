@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
-import { buildProxyRequestHeaders, importJlcpcbAndNavigate } from "@/lib/runframe-import-helpers"
+import {
+  buildProxyRequestHeaders,
+  importJlcpcbAndNavigate,
+} from "@/lib/runframe-import-helpers"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"

@@ -5,7 +5,10 @@ import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { Command } from "cmdk"
-import { buildProxyRequestHeaders, importJlcpcbAndNavigate } from "@/lib/runframe-import-helpers"
+import {
+  buildProxyRequestHeaders,
+  importJlcpcbAndNavigate,
+} from "@/lib/runframe-import-helpers"
 import { Package, Account } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
@@ -546,11 +549,14 @@ const CmdKMenu = () => {
     [selectedIndex, handleItemSelect, renderHighlighted],
   )
 
-  const proxyHeaders = useMemo(() => buildProxyRequestHeaders(session), [session])
+  const proxyHeaders = useMemo(
+    () => buildProxyRequestHeaders(session),
+    [session],
+  )
   const onImportSelected = useCallback(
     async (component: any) => {
       try {
-        const handled = await importJlcpcbAndNavigate(axios as any, component)
+        const handled = await importJlcpcbAndNavigate(axios, component)
         if (!handled) {
           toastNotImplemented("Only JLCPCB import is supported here")
         }
