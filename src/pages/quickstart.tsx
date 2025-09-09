@@ -7,7 +7,7 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -190,10 +190,36 @@ export const QuickstartPage = () => {
             </Card>
           </div>
         </div>
-
-        <JLCPCBImportDialog
+        <ImportComponentDialog
           open={isJLCPCBDialogOpen}
           onOpenChange={setIsJLCPCBDialogOpen}
+          onComponentSelected={async (component: any) => {
+            try {
+              if (component?.source === "jlcpcb") {
+                const partNumber = component.partNumber || component.name
+                const response = await axios.post("/packages/generate_from_jlcpcb", {
+                  jlcpcb_part_number: partNumber,
+                })
+                const pkgId = response?.data?.package?.package_id
+                if (pkgId) {
+                  window.location.href = `/editor?package_id=${pkgId}`
+                }
+              }
+            } finally {
+              setIsJLCPCBDialogOpen(false)
+            }
+          }}
+          proxyRequestHeaders={(url: URL, options: any) => {
+            const session = useGlobalStore.getState().session
+            return {
+              authority: options?.headers?.authority,
+              Authorization: session?.token ? `Bearer ${session.token}` : undefined,
+              "X-Target-Url": url.toString(),
+              "X-Sender-Host": options?.headers?.origin,
+              "X-Sender-Origin": options?.headers?.origin,
+              "content-type": options?.headers?.["content-type"],
+            }
+          }}
         />
 
         <CircuitJsonImportDialog

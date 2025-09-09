@@ -8,16 +8,19 @@ export const ImportComponentDialog = ({
   open,
   onOpenChange,
   onComponentSelected,
+  proxyRequestHeaders,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => any
   onComponentSelected: (pkg: ComponentSearchResult) => any
+  proxyRequestHeaders?: any
 }) => {
   return (
     <RunframeImportComponentDialog
       isOpen={open}
       onClose={() => onOpenChange(false)}
       onImport={(data) => onComponentSelected(data)}
+      proxyRequestHeaders={proxyRequestHeaders}
     />
   )
 }

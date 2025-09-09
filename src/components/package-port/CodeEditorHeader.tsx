@@ -356,6 +356,14 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               ),
             })
           }}
+          proxyRequestHeaders={(url: URL, options: any) => ({
+            authority: options?.headers?.authority,
+            Authorization: session?.token ? `Bearer ${session.token}` : undefined,
+            "X-Target-Url": url.toString(),
+            "X-Sender-Host": options?.headers?.origin,
+            "X-Sender-Origin": options?.headers?.origin,
+            "content-type": options?.headers?.["content-type"],
+          })}
         />
       </div>
     </>

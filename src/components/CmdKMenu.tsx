@@ -1,4 +1,4 @@
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
@@ -60,6 +60,7 @@ const CmdKMenu = () => {
   const toastNotImplemented = useNotImplementedToast()
   const axios = useAxios()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const session = useGlobalStore((s) => s.session)
   const selectedItemRef = useRef<HTMLDivElement>(null)
 
   const blankTemplates = useMemo(
@@ -546,9 +547,35 @@ const CmdKMenu = () => {
 
   if (!open)
     return (
-      <JLCPCBImportDialog
+      <ImportComponentDialog
         open={isJLCPCBDialogOpen}
         onOpenChange={setIsJLCPCBDialogOpen}
+        onComponentSelected={async (component: any) => {
+          try {
+            if (component?.source === "jlcpcb") {
+              const partNumber = component.partNumber || component.name
+              const response = await axios.post("/packages/generate_from_jlcpcb", {
+                jlcpcb_part_number: partNumber,
+              })
+              const pkgId = response?.data?.package?.package_id
+              if (pkgId) {
+                window.location.href = `/editor?package_id=${pkgId}`
+              }
+            } else {
+              toastNotImplemented("Only JLCPCB import is supported here")
+            }
+          } finally {
+            setIsJLCPCBDialogOpen(false)
+          }
+        }}
+        proxyRequestHeaders={(url: URL, options: any) => ({
+          authority: options?.headers?.authority,
+          Authorization: session?.token ? `Bearer ${session.token}` : undefined,
+          "X-Target-Url": url.toString(),
+          "X-Sender-Host": options?.headers?.origin,
+          "X-Sender-Origin": options?.headers?.origin,
+          "content-type": options?.headers?.["content-type"],
+        })}
       />
     )
 
@@ -767,9 +794,35 @@ const CmdKMenu = () => {
         </DialogContent>
       </Dialog>
 
-      <JLCPCBImportDialog
+      <ImportComponentDialog
         open={isJLCPCBDialogOpen}
         onOpenChange={setIsJLCPCBDialogOpen}
+        onComponentSelected={async (component: any) => {
+          try {
+            if (component?.source === "jlcpcb") {
+              const partNumber = component.partNumber || component.name
+              const response = await axios.post("/packages/generate_from_jlcpcb", {
+                jlcpcb_part_number: partNumber,
+              })
+              const pkgId = response?.data?.package?.package_id
+              if (pkgId) {
+                window.location.href = `/editor?package_id=${pkgId}`
+              }
+            } else {
+              toastNotImplemented("Only JLCPCB import is supported here")
+            }
+          } finally {
+            setIsJLCPCBDialogOpen(false)
+          }
+        }}
+        proxyRequestHeaders={(url: URL, options: any) => ({
+          authority: options?.headers?.authority,
+          Authorization: session?.token ? `Bearer ${session.token}` : undefined,
+          "X-Target-Url": url.toString(),
+          "X-Sender-Host": options?.headers?.origin,
+          "X-Sender-Origin": options?.headers?.origin,
+          "content-type": options?.headers?.["content-type"],
+        })}
       />
     </>
   )
