@@ -77,3 +77,33 @@ test("GET /api/packages/get - should return package by name", async () => {
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package).toBeDefined()
 })
+
+test("GET /api/packages/get - returns user_permissions when authenticated", async () => {
+  const { axios, jane_axios, unauthenticatedAxios } = await getTestServer()
+
+  const createResponse = await axios.post("/api/packages/create", {
+    name: "testuser/auth-package",
+    description: "desc",
+  })
+
+  const pkg = createResponse.data.package
+
+  const ownerResponse = await axios.get("/api/packages/get", {
+    params: { package_id: pkg.package_id },
+  })
+  expect(ownerResponse.data.package.user_permissions).toEqual({
+    can_manage_packages: true,
+  })
+
+  const otherResponse = await jane_axios.get("/api/packages/get", {
+    params: { package_id: pkg.package_id },
+  })
+  expect(otherResponse.data.package.user_permissions).toEqual({
+    can_manage_packages: false,
+  })
+
+  const unauthResponse = await unauthenticatedAxios.get("/api/packages/get", {
+    params: { package_id: pkg.package_id },
+  })
+  expect(unauthResponse.data.package.user_permissions).toBeUndefined()
+})
