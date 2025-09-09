@@ -5,6 +5,7 @@ import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { Command } from "cmdk"
+import { buildProxyRequestHeaders, importJlcpcbAndNavigate } from "@/lib/runframe-import-helpers"
 import { Package, Account } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
@@ -545,39 +546,31 @@ const CmdKMenu = () => {
     [selectedIndex, handleItemSelect, renderHighlighted],
   )
 
-  if (!open)
-    return (
-      <ImportComponentDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
-        onComponentSelected={async (component: any) => {
-          try {
-            if (component?.source === "jlcpcb") {
-              const partNumber = component.partNumber || component.name
-              const response = await axios.post("/packages/generate_from_jlcpcb", {
-                jlcpcb_part_number: partNumber,
-              })
-              const pkgId = response?.data?.package?.package_id
-              if (pkgId) {
-                window.location.href = `/editor?package_id=${pkgId}`
-              }
-            } else {
-              toastNotImplemented("Only JLCPCB import is supported here")
-            }
-          } finally {
-            setIsJLCPCBDialogOpen(false)
-          }
-        }}
-        proxyRequestHeaders={(url: URL, options: any) => ({
-          authority: options?.headers?.authority,
-          Authorization: session?.token ? `Bearer ${session.token}` : undefined,
-          "X-Target-Url": url.toString(),
-          "X-Sender-Host": options?.headers?.origin,
-          "X-Sender-Origin": options?.headers?.origin,
-          "content-type": options?.headers?.["content-type"],
-        })}
-      />
-    )
+  const proxyHeaders = useMemo(() => buildProxyRequestHeaders(session), [session])
+  const onImportSelected = useCallback(
+    async (component: any) => {
+      try {
+        const handled = await importJlcpcbAndNavigate(axios as any, component)
+        if (!handled) {
+          toastNotImplemented("Only JLCPCB import is supported here")
+        }
+      } finally {
+        setIsJLCPCBDialogOpen(false)
+      }
+    },
+    [axios, toastNotImplemented],
+  )
+
+  const importDialog = (
+    <ImportComponentDialog
+      open={isJLCPCBDialogOpen}
+      onOpenChange={setIsJLCPCBDialogOpen}
+      onComponentSelected={onImportSelected}
+      proxyRequestHeaders={proxyHeaders}
+    />
+  )
+
+  if (!open) return importDialog
 
   return (
     <>
@@ -794,36 +787,7 @@ const CmdKMenu = () => {
         </DialogContent>
       </Dialog>
 
-      <ImportComponentDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
-        onComponentSelected={async (component: any) => {
-          try {
-            if (component?.source === "jlcpcb") {
-              const partNumber = component.partNumber || component.name
-              const response = await axios.post("/packages/generate_from_jlcpcb", {
-                jlcpcb_part_number: partNumber,
-              })
-              const pkgId = response?.data?.package?.package_id
-              if (pkgId) {
-                window.location.href = `/editor?package_id=${pkgId}`
-              }
-            } else {
-              toastNotImplemented("Only JLCPCB import is supported here")
-            }
-          } finally {
-            setIsJLCPCBDialogOpen(false)
-          }
-        }}
-        proxyRequestHeaders={(url: URL, options: any) => ({
-          authority: options?.headers?.authority,
-          Authorization: session?.token ? `Bearer ${session.token}` : undefined,
-          "X-Target-Url": url.toString(),
-          "X-Sender-Host": options?.headers?.origin,
-          "X-Sender-Origin": options?.headers?.origin,
-          "content-type": options?.headers?.["content-type"],
-        })}
-      />
+      {importDialog}
     </>
   )
 }

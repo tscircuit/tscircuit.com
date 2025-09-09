@@ -13,7 +13,7 @@ export const ImportComponentDialog = ({
   open: boolean
   onOpenChange: (open: boolean) => any
   onComponentSelected: (pkg: ComponentSearchResult) => any
-  proxyRequestHeaders?: any
+  proxyRequestHeaders?: Record<string, string>
 }) => {
   return (
     <RunframeImportComponentDialog

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
+import { buildProxyRequestHeaders, importJlcpcbAndNavigate } from "@/lib/runframe-import-helpers"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -22,6 +23,7 @@ export const QuickstartPage = () => {
     useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(currentUser)
   const { data: myPackages, isLoading } = useQuery<Package[]>(
     "userPackages",
@@ -195,31 +197,12 @@ export const QuickstartPage = () => {
           onOpenChange={setIsJLCPCBDialogOpen}
           onComponentSelected={async (component: any) => {
             try {
-              if (component?.source === "jlcpcb") {
-                const partNumber = component.partNumber || component.name
-                const response = await axios.post("/packages/generate_from_jlcpcb", {
-                  jlcpcb_part_number: partNumber,
-                })
-                const pkgId = response?.data?.package?.package_id
-                if (pkgId) {
-                  window.location.href = `/editor?package_id=${pkgId}`
-                }
-              }
+              await importJlcpcbAndNavigate(axios, component)
             } finally {
               setIsJLCPCBDialogOpen(false)
             }
           }}
-          proxyRequestHeaders={(url: URL, options: any) => {
-            const session = useGlobalStore.getState().session
-            return {
-              authority: options?.headers?.authority,
-              Authorization: session?.token ? `Bearer ${session.token}` : undefined,
-              "X-Target-Url": url.toString(),
-              "X-Sender-Host": options?.headers?.origin,
-              "X-Sender-Origin": options?.headers?.origin,
-              "content-type": options?.headers?.["content-type"],
-            }
-          }}
+          proxyRequestHeaders={buildProxyRequestHeaders(session)}
         />
 
         <CircuitJsonImportDialog
