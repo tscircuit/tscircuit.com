@@ -64,7 +64,8 @@ const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
-const UserProfilePage = lazyImport(() => import("@/pages/user-profile"))
+const CreateOrganizationPage = lazyImport(() => import("@/pages/create-organization"))
+const ProfileRouter = lazyImport(() => import("@/components/ProfileRouter"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const PackageBuildsPage = lazyImport(() => import("@/pages/package-builds"))
@@ -258,7 +259,14 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
-            <Route path="/:username" component={UserProfilePage} />
+
+            {/* Organization creation route */}
+            <Route path="/orgs/new" component={CreateOrganizationPage} />
+
+            {/* Profile fallback route - handles both organizations and users */}
+            <Route path="/:username" component={ProfileRouter} />
+
+            {/* Package-related routes - must come after profile fallback */}
             <Route
               path="/:author/:packageName/releases/:releaseId/builds"
               component={ReleaseBuildsPage}
@@ -284,6 +292,8 @@ function App() {
               path="/:author/:packageName/builds"
               component={PackageBuildsPage}
             />
+
+            {/* 404 fallback */}
             <Route component={lazyImport(() => import("@/pages/404"))} />
           </Switch>
         </Suspense>
