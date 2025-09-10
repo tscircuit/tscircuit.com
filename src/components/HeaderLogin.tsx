@@ -13,7 +13,7 @@ import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { useOrganizations } from "@/hooks/use-organizations"
 import { PrefetchPageLink } from "./PrefetchPageLink"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 
 type AccountContext = {
   username: string
@@ -31,6 +31,16 @@ export const HeaderLogin = () => {
     type: "personal",
     username: session?.github_username || "user",
   })
+
+  // Update currentAccount when session changes
+  useEffect(() => {
+    if (session?.github_username) {
+      setCurrentAccount({
+        type: "personal",
+        username: session.github_username,
+      })
+    }
+  }, [session?.github_username])
 
   // Build available accounts list
   const availableAccounts: AccountContext[] = useMemo(() => {
@@ -113,7 +123,7 @@ export const HeaderLogin = () => {
               >
                 <Avatar className="h-6 w-6">
                   <AvatarImage
-                    src={`https://github.com/${currentAccount.username}.png`}
+                    src={`https://github.com/${account.username}.png`}
                     alt={`${account.username} avatar`}
                   />
                   <AvatarFallback className="text-xs">
@@ -166,11 +176,6 @@ export const HeaderLogin = () => {
             Dashboard
           </a>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <a href="/settings" className="cursor-pointer">
-            Settings
-          </a>
-        </DropdownMenuItem>
         {isLoggedIn && (
           <>
             <DropdownMenuItem className="flex items-center cursor-pointer">
@@ -180,6 +185,11 @@ export const HeaderLogin = () => {
             </DropdownMenuItem>
           </>
         )}
+        <DropdownMenuItem asChild>
+          <a href="/settings" className="cursor-pointer">
+            Settings
+          </a>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild onClick={() => setSession(null)}>
