@@ -23,15 +23,15 @@ export const mockOrganizations: Organization[] = [
 export const mockMembers: Account[] = [
   {
     account_id: "member_1",
-    github_username: "john-doe",
+    github_username: "github",
   },
   {
     account_id: "member_2",
-    github_username: "jane-smith",
+    github_username: "ghost",
   },
   {
     account_id: "member_3",
-    github_username: "bob-wilson",
+    github_username: "arnavk-09",
   },
 ]
 

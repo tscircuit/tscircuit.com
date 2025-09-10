@@ -159,7 +159,7 @@ export const OrganizationProfilePageContent = ({
                       ))
                     ) : (
                       <div className="col-span-full flex justify-center">
-                        <div className="flex flex-col items-center py-12 text-gray-500">
+                        <div className="flex flex-col items-center py-20 text-gray-500">
                           <Box className="mb-2" size={24} />
                           <span className="text-lg font-medium">
                             {searchQuery.trim()

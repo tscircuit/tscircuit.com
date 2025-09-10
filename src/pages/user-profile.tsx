@@ -278,7 +278,7 @@ export const UserProfilePage = () => {
               ))
             ) : (
               <div className="col-span-full flex justify-center">
-                <div className="flex flex-col items-center py-12 text-gray-500">
+                <div className="flex flex-col items-center py-20 text-gray-500">
                   {activeTab === "starred" ? (
                     <>
                       <Star className="mb-2" size={24} />
