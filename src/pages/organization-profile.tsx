@@ -19,10 +19,7 @@ import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Box } from "lucide-react"
-import type {
-  Organization,
-  Package,
-} from "fake-snippets-api/lib/db/schema"
+import type { Organization, Package } from "fake-snippets-api/lib/db/schema"
 import { NotFound } from "@/components/NotFound"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -40,12 +37,12 @@ export const OrganizationProfilePageContent = ({
   const [showAllMembers, setShowAllMembers] = useState(false)
 
   const organization = org
-  const isCurrentUserOrganization = session?.account_id === organization.owner_account_id
+  const isCurrentUserOrganization =
+    session?.account_id === organization.owner_account_id
 
-  const {
-    data: userPackages,
-    isLoading: isLoadingUserPackages,
-  } = useQuery<Package[]>(
+  const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
+    Package[]
+  >(
     ["userPackages", organization.github_handle],
     async () => {
       const response = await axios.post(`/packages/list`, {
