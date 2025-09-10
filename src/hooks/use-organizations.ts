@@ -6,17 +6,10 @@ import { useGlobalStore } from "./use-global-store"
 export const mockOrganizations: Organization[] = [
   {
     org_id: "org_1",
-    github_handle: "acme-corp",
-    owner_account_id: "acc_1",
+    github_handle: "tscircuit",
+    owner_account_id: "account-1234",
     is_personal_org: false,
     created_at: "2024-01-15T10:00:00Z",
-  },
-  {
-    org_id: "org_2",
-    github_handle: "circuit-labs",
-    owner_account_id: "acc_2",
-    is_personal_org: false,
-    created_at: "2024-02-01T09:00:00Z",
   },
 ]
 // Mock members data

@@ -53,13 +53,14 @@ export const HeaderLogin = () => {
         username: session.github_username,
       })
     }
-
     // Mock orgs
     organizations.forEach((org) => {
-      accounts.push({
-        type: "organization",
-        username: org.github_handle,
-      })
+      if (org.owner_account_id == session?.account_id) {
+        accounts.push({
+          type: "organization",
+          username: org.github_handle,
+        })
+      }
     })
 
     return accounts

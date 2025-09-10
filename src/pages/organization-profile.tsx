@@ -176,11 +176,7 @@ export const OrganizationProfilePageContent = ({
 
             {activeTab === "members" && (
               <div>
-                <OrganizationMembers
-                  members={mockMembers}
-                  showAll={showAllMembers}
-                  onToggleShowAll={() => setShowAllMembers(!showAllMembers)}
-                />
+                <OrganizationMembers members={mockMembers} />
               </div>
             )}
           </div>
