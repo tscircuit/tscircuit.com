@@ -64,7 +64,9 @@ const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
-const CreateOrganizationPage = lazyImport(() => import("@/pages/create-organization"))
+const CreateOrganizationPage = lazyImport(
+  () => import("@/pages/create-organization"),
+)
 const ProfileRouter = lazyImport(() => import("@/components/ProfileRouter"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))

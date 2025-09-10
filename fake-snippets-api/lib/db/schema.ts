@@ -80,7 +80,7 @@ export const organizationSchema = z.object({
   github_handle: z.string(),
   owner_account_id: z.string(),
   is_personal_org: z.boolean(),
-  created_at: z.string()
+  created_at: z.string(),
 })
 export type Organization = z.infer<typeof organizationSchema>
 
