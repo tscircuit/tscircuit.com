@@ -1,7 +1,6 @@
 import React from "react"
 import { useParams } from "wouter"
 import { useOrganizations } from "@/hooks/use-organizations"
-import { validateRouteParam } from "@/lib/navigation"
 import { OrganizationProfilePageContent } from "@/pages/organization-profile"
 import { UserProfilePage } from "@/pages/user-profile"
 import NotFoundPage from "@/pages/404"
