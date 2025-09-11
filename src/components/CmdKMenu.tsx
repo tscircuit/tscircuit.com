@@ -1,10 +1,14 @@
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { Command } from "cmdk"
+import {
+  buildProxyRequestHeaders,
+  importJlcpcbAndNavigate,
+} from "@/lib/runframe-import-helpers"
 import { Package, Account } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { useQuery } from "react-query"
@@ -60,6 +64,7 @@ const CmdKMenu = () => {
   const toastNotImplemented = useNotImplementedToast()
   const axios = useAxios()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const session = useGlobalStore((s) => s.session)
   const selectedItemRef = useRef<HTMLDivElement>(null)
 
   const blankTemplates = useMemo(
@@ -544,13 +549,34 @@ const CmdKMenu = () => {
     [selectedIndex, handleItemSelect, renderHighlighted],
   )
 
-  if (!open)
-    return (
-      <JLCPCBImportDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
-      />
-    )
+  const proxyHeaders = useMemo(
+    () => buildProxyRequestHeaders(session),
+    [session],
+  )
+  const onImportSelected = useCallback(
+    async (component: any) => {
+      try {
+        const handled = await importJlcpcbAndNavigate(axios, component)
+        if (!handled) {
+          toastNotImplemented("Only JLCPCB import is supported here")
+        }
+      } finally {
+        setIsJLCPCBDialogOpen(false)
+      }
+    },
+    [axios, toastNotImplemented],
+  )
+
+  const importDialog = (
+    <ImportComponentDialog
+      open={isJLCPCBDialogOpen}
+      onOpenChange={setIsJLCPCBDialogOpen}
+      onComponentSelected={onImportSelected}
+      proxyRequestHeaders={proxyHeaders}
+    />
+  )
+
+  if (!open) return importDialog
 
   return (
     <>
@@ -767,10 +793,7 @@ const CmdKMenu = () => {
         </DialogContent>
       </Dialog>
 
-      <JLCPCBImportDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
-      />
+      {importDialog}
     </>
   )
 }

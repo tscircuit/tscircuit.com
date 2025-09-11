@@ -7,7 +7,11 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
+import { ImportComponentDialog } from "@/components/dialogs/import-component-dialog"
+import {
+  buildProxyRequestHeaders,
+  importJlcpcbAndNavigate,
+} from "@/lib/runframe-import-helpers"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -22,6 +26,7 @@ export const QuickstartPage = () => {
     useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(currentUser)
   const { data: myPackages, isLoading } = useQuery<Package[]>(
     "userPackages",
@@ -190,10 +195,17 @@ export const QuickstartPage = () => {
             </Card>
           </div>
         </div>
-
-        <JLCPCBImportDialog
+        <ImportComponentDialog
           open={isJLCPCBDialogOpen}
           onOpenChange={setIsJLCPCBDialogOpen}
+          onComponentSelected={async (component: any) => {
+            try {
+              await importJlcpcbAndNavigate(axios, component)
+            } finally {
+              setIsJLCPCBDialogOpen(false)
+            }
+          }}
+          proxyRequestHeaders={buildProxyRequestHeaders(session)}
         />
 
         <CircuitJsonImportDialog

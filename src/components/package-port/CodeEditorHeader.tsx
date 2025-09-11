@@ -30,6 +30,7 @@ import { ComponentSearchResult } from "@tscircuit/runframe/runner"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { buildProxyRequestHeaders } from "@/lib/runframe-import-helpers"
 
 export type FileName = string
 
@@ -356,6 +357,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
               ),
             })
           }}
+          proxyRequestHeaders={buildProxyRequestHeaders(session)}
         />
       </div>
     </>
