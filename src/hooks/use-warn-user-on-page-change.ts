@@ -8,7 +8,7 @@ export default function useWarnUserOnPageChange({
   const originalTitleRef = useRef<string>("")
 
   useEffect(() => {
-    if (!originalTitleRef.current) {
+    if (!hasUnsavedChanges || !originalTitleRef.current) {
       originalTitleRef.current = document.title.replace(/^⚠️\s*/, "")
     }
 
@@ -76,10 +76,6 @@ export default function useWarnUserOnPageChange({
     document.addEventListener("visibilitychange", handleVisibilityChange)
     window.addEventListener("popstate", handlePopState)
     document.addEventListener("click", handleLinkClick, true)
-
-    if (hasUnsavedChanges) {
-      window.history.pushState(null, "", window.location.href)
-    }
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
