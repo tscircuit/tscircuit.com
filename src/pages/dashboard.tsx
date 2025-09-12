@@ -3,7 +3,7 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Package, Snippet } from "fake-snippets-api/lib/db/schema"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,9 +16,12 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { PackageCard } from "@/components/PackageCard"
+import { useOrganizations } from "@/hooks/use-organizations"
+import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
 export const DashboardPage = () => {
   const axios = useAxios()
+  const { organizations } = useOrganizations()
 
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = Boolean(currentUser)
@@ -99,7 +102,9 @@ export const DashboardPage = () => {
       </Helmet>
       <Header />
       <div className="container mx-auto px-4 py-8 min-h-[80vh]">
-        <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+        </div>
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
             {!isLoggedIn ? (
@@ -187,6 +192,35 @@ export const DashboardPage = () => {
                   >
                     View all packages
                   </Link>
+                )}
+
+                {/* Organizations Section */}
+                {organizations.length > 0 && (
+                  <div className="mt-8">
+                    <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
+                      Your Organizations
+                    </h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {organizations.slice(0, 4).map((org, i) => (
+                        <OrganizationCard
+                          key={i}
+                          organization={org}
+                          withLink={true}
+                          showStats={true}
+                          showMembers={true}
+                          isCurrentUserOrganization={true}
+                        />
+                      ))}
+                    </div>
+                    {organizations.length > 4 && (
+                      <Link
+                        href="/organizations"
+                        className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+                      >
+                        View all organizations
+                      </Link>
+                    )}
+                  </div>
                 )}
               </>
             )}
