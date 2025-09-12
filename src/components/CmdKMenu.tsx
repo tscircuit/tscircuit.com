@@ -6,7 +6,7 @@ import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { Command } from "cmdk"
 import { Package, Account } from "fake-snippets-api/lib/db/schema"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import {
   Search,
@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
+import { CircuitJsonImportDialog } from "./CircuitJsonImportDialog"
 
 type SnippetType = "board" | "package" | "model" | "footprint"
 
@@ -53,10 +54,12 @@ interface ScoredAccount extends Account {
 }
 
 const CmdKMenu = () => {
-  const [open, setOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = React.useState(false)
-  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
+  const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
+    useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const toastNotImplemented = useNotImplementedToast()
   const axios = useAxios()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
@@ -97,19 +100,10 @@ const CmdKMenu = () => {
   const importOptions = useMemo(
     (): ImportOption[] => [
       {
-        name: "KiCad Footprint",
-        type: "footprint",
-        icon: <Download className="w-4 h-4 text-gray-500" />,
-      },
-      {
-        name: "KiCad Project",
-        type: "board",
-        icon: <Download className="w-4 h-4 text-gray-500" />,
-      },
-      {
-        name: "KiCad Module",
+        name: "Circuit JSON",
         type: "package",
-        icon: <Download className="w-4 h-4 text-gray-500" />,
+        special: true,
+        icon: <Download className="w-4 h-4 text-red-500" />,
       },
       {
         name: "JLCPCB Component",
@@ -374,8 +368,16 @@ const CmdKMenu = () => {
           break
         case "import":
           if (item.special) {
-            setOpen(false)
-            setIsJLCPCBDialogOpen(true)
+            switch (item.name) {
+              case "Circuit JSON":
+                setOpen(false)
+                setIsCircuitJsonImportDialogOpen(true)
+                break
+              case "JLCPCB Component":
+                setOpen(false)
+                setIsJLCPCBDialogOpen(true)
+                break
+            }
           } else {
             setOpen(false)
             toastNotImplemented(`${item.name} Import`)
@@ -546,10 +548,17 @@ const CmdKMenu = () => {
 
   if (!open)
     return (
-      <JLCPCBImportDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
-      />
+      <>
+        {" "}
+        <JLCPCBImportDialog
+          open={isJLCPCBDialogOpen}
+          onOpenChange={setIsJLCPCBDialogOpen}
+        />
+        <CircuitJsonImportDialog
+          open={isCircuitJsonImportDialogOpen}
+          onOpenChange={setIsCircuitJsonImportDialogOpen}
+        />
+      </>
     )
 
   return (
