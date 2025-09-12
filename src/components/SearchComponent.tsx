@@ -84,14 +84,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      if (location === "/editor") {
-        const shouldLeave = window.confirm(
-          "Are you sure you want to leave this page?",
-        )
-        if (!shouldLeave) {
-          return
-        }
-      }
       setLocation(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
