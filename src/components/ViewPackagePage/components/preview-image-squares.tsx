@@ -24,9 +24,8 @@ export default function PreviewImageSquares({
     packageInfo?.latest_package_release_id,
   )
   const availableFilePaths = releaseFiles?.map((f) => f.file_path)
-  const { availableViews: svgViews } = usePackageReleaseImages({
+  const { availableViews: imageViews } = usePackageReleaseImages({
     packageReleaseId: packageInfo?.latest_package_release_id,
-    availableFilePaths,
   })
 
   const { availableViews: pngViews } = usePreviewImages({
@@ -35,10 +34,10 @@ export default function PreviewImageSquares({
   })
 
   const viewsToRender =
-    svgViews.length === 0 ||
-    svgViews.every((v) => !v.isLoading && !(v as any).svg)
+    imageViews.length === 0 ||
+    imageViews.every((v) => !v.isLoading && !v.imageUrl)
       ? (pngViews as any)
-      : (svgViews as any)
+      : imageViews
 
   const handleViewClick = (viewId: string) => {
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")
@@ -62,13 +61,11 @@ export default function PreviewImageSquares({
               className="w-full h-full object-contain"
             />
           )}
-          {view.imageUrl && (
+          {view.imageUrl && !view.isLoading && (
             <img
               src={view.imageUrl}
               alt={view.label}
-              className={`w-full h-full object-cover rounded-lg ${
-                view.status === "loaded" ? "block" : "hidden"
-              }`}
+              className="w-full h-full object-cover rounded-lg"
               onLoad={view.onLoad}
               onError={view.onError}
             />

@@ -55,7 +55,37 @@ export default function ReleaseDetailPage() {
   })
 
   if (isLoadingPackage || isLoadingRelease) {
-    return null
+    return (
+      <>
+        <Header />
+        <div className="min-h-screen bg-white">
+          {/* Page Header Skeleton */}
+          <div className="bg-gray-50 border-b py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <Skeleton className="h-6 w-64 mb-4" />
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+
+          {/* Images Skeleton */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-48 rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </div>
+      </>
+    )
   }
 
   if (packageError?.status === 404 || !pkg) {
@@ -114,30 +144,31 @@ export default function ReleaseDetailPage() {
           </div>
         </div>
 
-        {availableViews.length > 0 && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {availableViews.map((view) => (
-                <div
-                  key={view.id}
-                  className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
-                >
-                  {view.isLoading ? (
-                    <Skeleton className="w-full h-full" />
-                  ) : (
-                    <img
-                      src={`data:image/svg+xml,${encodeURIComponent(
-                        view.svg ?? "",
-                      )}`}
-                      alt={`${view.label} preview`}
-                      className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
+        {/* Images Section - Always show with skeletons while loading */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {availableViews.length > 0
+              ? availableViews.map((view) => (
+                  <div
+                    key={view.id}
+                    className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
+                  >
+                    {view.isLoading ? (
+                      <Skeleton className="w-full h-full" />
+                    ) : (
+                      <img
+                        src={view.imageUrl}
+                        alt={`${view.label} preview`}
+                        className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
+                      />
+                    )}
+                  </div>
+                ))
+              : [1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-48 rounded-lg" />
+                ))}
           </div>
-        )}
+        </div>
 
         {/* Main Content */}
         <ConnectedRepoOverview
