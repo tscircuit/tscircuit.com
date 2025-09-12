@@ -108,5 +108,11 @@ const seedDatabase = (db: DbClient) => {
     transpilation_error: null,
   })
 
-  return { account, account2, order, packageRelease }
+  // Seed a organization
+  const organization = db.addOrganization({
+    name: "jane",
+    owner_account_id: account2.account_id,
+  })
+
+  return { account, account2, order, packageRelease, organization }
 }

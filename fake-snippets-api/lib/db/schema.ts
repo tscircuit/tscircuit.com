@@ -72,6 +72,7 @@ export const accountSchema = z.object({
   account_id: z.string(),
   github_username: z.string(),
   shippingInfo: shippingInfoSchema.optional(),
+  personal_org_id: z.string().optional(),
 })
 export type Account = z.infer<typeof accountSchema>
 
@@ -398,6 +399,28 @@ export const packageBuildSchema = z.object({
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
 
+export const orgSchema = z.object({
+  org_id: z.string(),
+  github_handle: z.string(),
+  owner_account_id: z.string(),
+  is_personal_org: z.boolean(),
+  created_at: z.string().datetime(),
+})
+export type Organization = z.infer<typeof orgSchema>
+
+export const publicOrgSchema = z.object({
+  org_id: z.string(), //.uuid(),
+  owner_account_id: z.string(), //.uuid(),
+  name: z.string().nullable(),
+  member_count: z.number(),
+  package_count: z.number(),
+  created_at: z.string(),
+  user_permissions: z
+    .object({ can_manage_org: z.boolean().optional() })
+    .optional(),
+})
+export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -408,6 +431,7 @@ export const databaseSchema = z.object({
   accounts: z.array(accountSchema).default([]),
   packages: z.array(packageSchema).default([]),
   orders: z.array(orderSchema).default([]),
+  organizations: z.array(orgSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
   accountPackages: z.array(accountPackageSchema).default([]),
