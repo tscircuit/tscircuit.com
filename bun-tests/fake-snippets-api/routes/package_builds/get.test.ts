@@ -24,7 +24,7 @@ export const createTestPackageRelease = async (
   return releaseRes.data
 }
 
-test("GET /api/package_builds/get - requires package_build_id 69", async () => {
+test("GET /api/package_builds/get - requires package_build_id", async () => {
   const { jane_axios } = await getTestServer()
   const res = await jane_axios.get("/api/package_builds/get", {
     validateStatus: () => true,
