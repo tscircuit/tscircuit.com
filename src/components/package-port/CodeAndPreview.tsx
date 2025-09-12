@@ -106,8 +106,6 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     [localFiles, initialFiles, isSaving, state.lastSavedAt],
   )
 
-  useWarnUserOnPageChange({ hasUnsavedChanges })
-
   const handleEditEvent = (event: ManualEditEvent) => {
     const parsedManualEdits = JSON.parse(
       localFiles.find((x) => x.path === "manual-edits.json")?.content || "{}",
@@ -153,7 +151,8 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  const finalfsMap = fsMap
+  useWarnUserOnPageChange({ hasUnsavedChanges: Boolean(hasUnsavedChanges) })
+
   return (
     <div className="flex flex-col min-h-[50vh]">
       <EditorNav
@@ -235,7 +234,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             onEditEvent={(event) => {
               handleEditEvent(event)
             }}
-            fsMap={finalfsMap}
+            fsMap={fsMap}
             projectUrl={projectUrl}
           />
         </div>
