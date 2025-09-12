@@ -549,7 +549,6 @@ const CmdKMenu = () => {
   if (!open)
     return (
       <>
-        {" "}
         <JLCPCBImportDialog
           open={isJLCPCBDialogOpen}
           onOpenChange={setIsJLCPCBDialogOpen}
