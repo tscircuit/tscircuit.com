@@ -37,20 +37,9 @@ export default withRouteSpec({
     })
   }
 
-  const personalOrgId = ctx.db.organizations.find(
-    (org) =>
-      org.owner_account_id === account.account_id &&
-      org.is_personal_org == true,
-  )
-
-  if (!personalOrgId) {
-    return ctx.error(404, {
-      error_code: "personal_org_not_found",
-      message: "Could not find the user's personal organization",
-    })
-  }
-  ctx.db.updateAccount(account.account_id, {
-    personal_org_id: personalOrgId.org_id,
+  ctx.db.removeOrganizationAccount({
+    org_id,
+    account_id,
   })
 
   return ctx.json({})

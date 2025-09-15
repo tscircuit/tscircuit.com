@@ -408,6 +408,15 @@ export const orgSchema = z.object({
 })
 export type Organization = z.infer<typeof orgSchema>
 
+export const orgAccountSchema = z.object({
+  org_account_id: z.string(),
+  org_id: z.string(),
+  account_id: z.string(),
+  is_owner: z.boolean().default(false),
+  created_at: z.string().datetime(),
+})
+export type OrgAccount = z.infer<typeof orgAccountSchema>
+
 export const publicOrgSchema = z.object({
   org_id: z.string(), //.uuid(),
   owner_account_id: z.string(), //.uuid(),
@@ -432,6 +441,7 @@ export const databaseSchema = z.object({
   packages: z.array(packageSchema).default([]),
   orders: z.array(orderSchema).default([]),
   organizations: z.array(orgSchema).default([]),
+  orgAccounts: z.array(orgAccountSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
   accountPackages: z.array(accountPackageSchema).default([]),

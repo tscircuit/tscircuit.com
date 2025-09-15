@@ -28,6 +28,7 @@ import {
   type packageSchema,
   type snippetSchema,
   Organization,
+  OrgAccount,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1659,5 +1660,72 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       package_count,
       can_manage_org,
     }
+  },
+  addOrganizationAccount: (organizationAccount: {
+    org_id: string
+    account_id: string
+    is_owner?: boolean
+  }) => {
+    const newOrgAccount: OrgAccount = {
+      org_account_id: `org_account_${get().idCounter + 1}`,
+      org_id: organizationAccount.org_id,
+      account_id: organizationAccount.account_id,
+      is_owner: organizationAccount.is_owner || false,
+      created_at: new Date().toISOString(),
+    }
+    set((state) => ({
+      orgAccounts: [...state.orgAccounts, newOrgAccount],
+      idCounter: state.idCounter + 1,
+    }))
+    return newOrgAccount
+  },
+  getOrganizationAccount: (filters: {
+    org_id?: string
+    account_id?: string
+  }): OrgAccount | undefined => {
+    const state = get()
+    return state.orgAccounts.find((orgAccount) => {
+      if (filters.org_id && orgAccount.org_id !== filters.org_id) {
+        return false
+      }
+      if (filters.account_id && orgAccount.account_id !== filters.account_id) {
+        return false
+      }
+      return true
+    })
+  },
+  getOrganizationAccounts: (filters?: {
+    org_id?: string
+    account_id?: string
+  }): OrgAccount[] => {
+    const state = get()
+    return state.orgAccounts.filter((orgAccount) => {
+      if (filters?.org_id && orgAccount.org_id !== filters.org_id) {
+        return false
+      }
+      if (filters?.account_id && orgAccount.account_id !== filters.account_id) {
+        return false
+      }
+      return true
+    })
+  },
+  removeOrganizationAccount: (filters: {
+    org_id: string
+    account_id: string
+  }): boolean => {
+    let removed = false
+    set((state) => {
+      const index = state.orgAccounts.findIndex(
+        (orgAccount) =>
+          orgAccount.org_id === filters.org_id &&
+          orgAccount.account_id === filters.account_id,
+      )
+      if (index !== -1) {
+        state.orgAccounts.splice(index, 1)
+        removed = true
+      }
+      return state
+    })
+    return removed
   },
 }))

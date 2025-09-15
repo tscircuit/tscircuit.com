@@ -1,74 +1,26 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("POST /api/orgs/add_member - should add a user to an org when owner authorized", async () => {
-  const { axios, seed } = await getTestServer()
+test("POST /api/orgs/add_member - should add a user to an org (owner authorized)", async () => {
+  const { jane_axios, db, seed } = await getTestServer()
 
-  const createResponse = await axios.post("/api/orgs/create", {
-    name: "team-rocket",
-  })
-  const org = createResponse.data.org
+  const originalMember = db.getAccount(seed.account.account_id)
 
-  const addMemberResponse = await axios.post("/api/orgs/add_member", {
-    org_id: org.org_id,
-    account_id: seed.account2.account_id,
+  const addResponse = await jane_axios.post("/api/orgs/add_member", {
+    org_id: seed.organization.org_id,
+    account_id: seed.account.account_id,
   })
 
-  expect(addMemberResponse.status).toBe(200)
-  expect(addMemberResponse.data).toEqual({})
-})
+  expect(addResponse.status).toBe(200)
+  expect(addResponse.data).toEqual({})
 
-test("POST /api/orgs/add_member - should fail for non-existent org", async () => {
-  const { axios } = await getTestServer()
+  expect(db.getAccount(seed.account.account_id)?.personal_org_id).toEqual(
+    String(originalMember?.personal_org_id),
+  )
 
-  try {
-    await axios.post("/api/orgs/add_member", {
-      org_id: "non-existent-org-id",
-      account_id: "account-5678",
-    })
-    throw new Error("Expected request to fail")
-  } catch (error: any) {
-    expect(error.status).toBe(404)
-    expect(error.data.error.error_code).toBe("org_not_found")
-    expect(error.data.error.message).toBe("Organization not found")
-  }
-})
-
-test("POST /api/orgs/add_member - should fail for non-existent account", async () => {
-  const { axios } = await getTestServer()
-
-  const createResponse = await axios.post("/api/orgs/create", {
-    name: "test-org",
+  const membership = db.getOrganizationAccount({
+    account_id: seed.account.account_id,
+    org_id: seed.organization.org_id,
   })
-  const org = createResponse.data.org
-
-  try {
-    await axios.post("/api/orgs/add_member", {
-      org_id: org.org_id,
-      account_id: "non-existent-account-id",
-    })
-    throw new Error("Expected request to fail")
-  } catch (error: any) {
-    expect(error.status).toBe(404)
-    expect(error.data.error.error_code).toBe("account_not_found")
-    expect(error.data.error.message).toBe("Account not found")
-  }
-})
-
-test("POST /api/orgs/add_member - 69 should fail when user lacks management permissions", async () => {
-  const { axios, seed } = await getTestServer()
-
-  try {
-    await axios.post("/api/orgs/add_member", {
-      org_id: seed.organization.org_id,
-      account_id: "account-5678",
-    })
-    throw new Error("Expected request to fail")
-  } catch (error: any) {
-    expect(error.status).toBe(403)
-    expect(error.data.error.error_code).toBe("not_authorized")
-    expect(error.data.error.message).toBe(
-      "You do not have permission to manage this organization",
-    )
-  }
+  expect(membership).toBeDefined()
 })

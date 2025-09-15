@@ -42,11 +42,16 @@ export default withRouteSpec({
     })
   }
 
-  const members = ctx.db.accounts.filter(
-    (acc) => acc.account_id === org.owner_account_id,
-  )
+  const members = ctx.db.orgAccounts
+    .map((m) => {
+      if (m.org_id == org.org_id) return ctx.db.getAccount(m.account_id)
+      return undefined
+    })
+    .filter(
+      (member): member is NonNullable<typeof member> => member !== undefined,
+    )
 
-  const hasOwner = members.some((m) => m.account_id === org.owner_account_id)
+  const hasOwner = members.some((m) => m?.account_id === org.owner_account_id)
   let fullMembers = members
 
   if (!hasOwner) {

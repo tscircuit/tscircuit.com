@@ -37,8 +37,9 @@ export default withRouteSpec({
     })
   }
 
-  ctx.db.updateAccount(account.account_id, {
-    personal_org_id: org.org_id,
+  ctx.db.addOrganizationAccount({
+    org_id,
+    account_id,
   })
 
   return ctx.json({})
