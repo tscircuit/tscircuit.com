@@ -22,7 +22,7 @@ const ProfileRouter: React.FC = () => {
     return <FullPageLoader />
   }
 
-  if (organization && !error) {
+  if (organization && !organization.is_personal_org && !error) {
     return <OrganizationProfilePageContent org={organization} />
   }
 
