@@ -48,7 +48,7 @@ test("POST /api/orgs/remove_member - should fail for non-owner (403)", async () 
   }
 })
 
-test("POST /api/orgs/remove_member -  69 should remove a user from an org and reset to personal org", async () => {
+test("POST /api/orgs/remove_member - should remove a user from an org and reset to personal org", async () => {
   const { jane_axios, db, seed } = await getTestServer()
   const originalMember = db.getAccount(seed.account.account_id)
 

@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("GET /api/orgs/list - 69 should return user's organizations when authenticated", async () => {
+test("GET /api/orgs/list - should return user's organizations when authenticated", async () => {
   const { jane_axios } = await getTestServer()
 
   const listResponse = await jane_axios.get("/api/orgs/list")

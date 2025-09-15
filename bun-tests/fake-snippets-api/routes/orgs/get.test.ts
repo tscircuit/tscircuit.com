@@ -22,7 +22,7 @@ test("GET /api/orgs/get - should return org by org_id", async () => {
   expect(responseBody2.org.user_permissions?.can_manage_org).not.toBe(true)
 })
 
-test("GET /api/orgs/get - 69 should return org by github_handle", async () => {
+test("GET /api/orgs/get - should return org by github_handle", async () => {
   const { axios } = await getTestServer()
 
   const getResponse = await axios.get("/api/orgs/get", {

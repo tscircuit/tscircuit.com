@@ -72,7 +72,7 @@ test("POST /api/orgs/update - should fail when user lacks management permissions
   }
 })
 
-test("POST /api/orgs/update - 69 should reject duplicate name", async () => {
+test("POST /api/orgs/update - should reject duplicate name", async () => {
   const { axios } = await getTestServer()
 
   await axios.post("/api/orgs/create", {

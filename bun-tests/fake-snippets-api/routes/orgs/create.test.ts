@@ -20,7 +20,7 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
 })
 
-test("POST /api/orgs/create - 69 should reject duplicate org names", async () => {
+test("POST /api/orgs/create - should reject duplicate org names", async () => {
   const { axios, seed } = await getTestServer()
   try {
     const orgResponse = await axios.post("/api/orgs/create", {
