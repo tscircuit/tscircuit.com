@@ -76,15 +76,6 @@ export const accountSchema = z.object({
 })
 export type Account = z.infer<typeof accountSchema>
 
-export const organizationSchema = z.object({
-  org_id: z.string(),
-  github_handle: z.string(),
-  owner_account_id: z.string(),
-  is_personal_org: z.boolean(),
-  created_at: z.string(),
-})
-export type Organization = z.infer<typeof organizationSchema>
-
 export const orderSchema = z.object({
   order_id: z.string(),
   account_id: z.string().nullable(),
