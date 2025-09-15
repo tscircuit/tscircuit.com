@@ -58,7 +58,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
       onClick(organization)
     }
   }
-  organization.member_count
+
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
