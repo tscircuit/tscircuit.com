@@ -112,7 +112,7 @@ export const CreateOrganizationPage = () => {
                 htmlFor="org-name"
                 className="text-sm font-semibold text-gray-900"
               >
-                Organization Github Handle{" "}
+                Organization Name
                 <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -133,7 +133,7 @@ export const CreateOrganizationPage = () => {
                 <p className="text-sm text-red-600">{errors.name}</p>
               )}
               <p className="text-xs text-gray-500">
-                This will be the name of your account on tscircuit.
+                This will be the name of your organization on tscircuit.
                 <br />
                 Your URL will be:{" "}
                 <span className="font-mono text-gray-700">
