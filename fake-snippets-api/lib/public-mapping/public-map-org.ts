@@ -14,6 +14,7 @@ export const publicMapOrg = (
     member_count,
     package_count,
     created_at,
+    is_personal_org,
     ...org
   } = internal_org
   return {
@@ -22,6 +23,7 @@ export const publicMapOrg = (
     name: github_handle,
     member_count: Number(member_count) || 0,
     package_count: Number(package_count) || 0,
+    is_personal_org: Boolean(is_personal_org),
     created_at: String(created_at),
     ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),
   }

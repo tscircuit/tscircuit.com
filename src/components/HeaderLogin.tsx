@@ -66,6 +66,11 @@ export const HeaderLogin = () => {
             Settings
           </a>
         </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <a href="/orgs/new" className="cursor-pointer">
+            Create Organization
+          </a>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild onClick={() => setSession(null)}>
           <a href="/" className="cursor-pointer">
             Sign Out

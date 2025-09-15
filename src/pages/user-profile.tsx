@@ -23,16 +23,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Box, Star } from "lucide-react"
+import { Box, Star, Building2 } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesList"
+import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
+import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
+  const { data: organizations } = useListUserOrgs()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
-  const [filter, setFilter] = useState("most-recent") // Changed default from "newest" to "most-recent"
+  const [filter, setFilter] = useState("most-recent")
   const session = useGlobalStore((s) => s.session)
   const {
     data: account,
@@ -186,6 +189,11 @@ export const UserProfilePage = () => {
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
             {isCurrentUserProfile &&
+              organizations &&
+              organizations.length > 0 && (
+                <TabsTrigger value="organizations">Organizations</TabsTrigger>
+              )}
+            {isCurrentUserProfile &&
               (
                 userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
                 []
@@ -224,6 +232,31 @@ export const UserProfilePage = () => {
               []
             }
           />
+        ) : activeTab === "organizations" ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {organizations && organizations.length > 0 ? (
+              organizations?.map((org: any) => (
+                <OrganizationCard
+                  key={org.org_id}
+                  organization={org}
+                  withLink={true}
+                  showStats={true}
+                  showMembers={true}
+                  className="p-3"
+                />
+              ))
+            ) : (
+              <div className="col-span-full flex justify-center">
+                <div className="flex flex-col items-center py-12 text-gray-500">
+                  <Building2 className="mb-2" size={24} />
+                  <span className="text-lg font-medium">No organizations</span>
+                  <span className="text-sm">
+                    You're not a member of any organizations yet.
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         ) : isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
@@ -247,7 +280,7 @@ export const UserProfilePage = () => {
               ))
             ) : (
               <div className="col-span-full flex justify-center">
-                <div className="flex flex-col items-center py-12 text-gray-500">
+                <div className="flex flex-col items-center py-20 text-gray-500">
                   {activeTab === "starred" ? (
                     <>
                       <Star className="mb-2" size={24} />
