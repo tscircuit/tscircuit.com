@@ -27,6 +27,8 @@ import {
   databaseSchema,
   type packageSchema,
   type snippetSchema,
+  Organization,
+  OrgAccount,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1541,5 +1543,189 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return { ...state, packageBuilds }
     })
     return updated
+  },
+  addOrganization: (organization: {
+    name: string
+    org_id?: string
+    is_personal_org?: boolean
+    owner_account_id: string
+  }) => {
+    const newOrganization: Organization = {
+      org_id: organization.org_id || `org_${get().idCounter + 1}`,
+      github_handle: organization.name,
+      is_personal_org: organization.is_personal_org || false,
+      created_at: new Date().toISOString(),
+      ...organization,
+    }
+    set((state) => ({
+      idCounter: state.idCounter + 1,
+      organizations: [...state.organizations, newOrganization as Organization],
+      // Add the creator as a member of the new org by setting their personal_org_id
+      accounts: state.accounts.map((account) =>
+        account.account_id === organization.owner_account_id
+          ? { ...account, personal_org_id: newOrganization.org_id }
+          : account,
+      ),
+    }))
+    return newOrganization
+  },
+  getOrgs: (
+    filters?: {
+      owner_account_id?: string
+      github_handle?: string
+      name?: string
+    },
+    auth?: { account_id?: string },
+  ) => {
+    let orgs = get().organizations
+
+    if (filters?.owner_account_id) {
+      orgs = orgs.filter(
+        (org) => org.owner_account_id === filters.owner_account_id,
+      )
+    }
+    if (filters?.github_handle) {
+      orgs = orgs.filter((org) => org.github_handle === filters.github_handle)
+    }
+    if (filters?.name) {
+      orgs = orgs.filter((org) => org.github_handle === filters.name)
+    }
+
+    return orgs.map((org) => {
+      const member_count = get().accounts.filter(
+        (account) => account.personal_org_id === org.org_id,
+      ).length
+
+      const package_count = get().packages.filter(
+        (pkg) => pkg.owner_org_id === org.org_id,
+      ).length
+
+      const can_manage_org = auth
+        ? org.owner_account_id === auth.account_id
+        : false
+
+      return {
+        ...org,
+        member_count,
+        package_count,
+        can_manage_org,
+      }
+    })
+  },
+  getOrg: (
+    filters: {
+      org_id?: string
+      org_name?: string
+      github_handle?: string
+    },
+    auth?: { account_id: string },
+  ) => {
+    let orgs = get().organizations
+
+    if (filters?.org_id) {
+      orgs = orgs.filter((org) => org.org_id === filters.org_id)
+    }
+    if (filters?.org_name) {
+      orgs = orgs.filter((org) => org.github_handle === filters.org_name)
+    }
+    // if (filters?.org_name && auth?.account_id) {
+    //   const account = get().accounts.find(x => x.account_id == auth?.account_id)
+    //   orgs = orgs.filter((org) => org.github_handle === account?.github_username)
+    // }
+    if (filters?.github_handle) {
+      orgs = orgs.filter((org) => org.github_handle === filters.github_handle)
+    }
+
+    if (orgs.length === 0) {
+      return null
+    }
+
+    const org = orgs[0]
+
+    const member_count = get().accounts.filter(
+      (account) => account.personal_org_id === org.org_id,
+    ).length
+
+    const package_count = get().packages.filter(
+      (pkg) => pkg.owner_org_id === org.org_id,
+    ).length
+
+    const can_manage_org = auth
+      ? org.owner_account_id === auth.account_id
+      : false
+
+    return {
+      ...org,
+      member_count,
+      package_count,
+      can_manage_org,
+    }
+  },
+  addOrganizationAccount: (organizationAccount: {
+    org_id: string
+    account_id: string
+    is_owner?: boolean
+  }) => {
+    const newOrgAccount: OrgAccount = {
+      org_account_id: `org_account_${get().idCounter + 1}`,
+      org_id: organizationAccount.org_id,
+      account_id: organizationAccount.account_id,
+      is_owner: organizationAccount.is_owner || false,
+      created_at: new Date().toISOString(),
+    }
+    set((state) => ({
+      orgAccounts: [...state.orgAccounts, newOrgAccount],
+      idCounter: state.idCounter + 1,
+    }))
+    return newOrgAccount
+  },
+  getOrganizationAccount: (filters: {
+    org_id?: string
+    account_id?: string
+  }): OrgAccount | undefined => {
+    const state = get()
+    return state.orgAccounts.find((orgAccount) => {
+      if (filters.org_id && orgAccount.org_id !== filters.org_id) {
+        return false
+      }
+      if (filters.account_id && orgAccount.account_id !== filters.account_id) {
+        return false
+      }
+      return true
+    })
+  },
+  getOrganizationAccounts: (filters?: {
+    org_id?: string
+    account_id?: string
+  }): OrgAccount[] => {
+    const state = get()
+    return state.orgAccounts.filter((orgAccount) => {
+      if (filters?.org_id && orgAccount.org_id !== filters.org_id) {
+        return false
+      }
+      if (filters?.account_id && orgAccount.account_id !== filters.account_id) {
+        return false
+      }
+      return true
+    })
+  },
+  removeOrganizationAccount: (filters: {
+    org_id: string
+    account_id: string
+  }): boolean => {
+    let removed = false
+    set((state) => {
+      const index = state.orgAccounts.findIndex(
+        (orgAccount) =>
+          orgAccount.org_id === filters.org_id &&
+          orgAccount.account_id === filters.account_id,
+      )
+      if (index !== -1) {
+        state.orgAccounts.splice(index, 1)
+        removed = true
+      }
+      return state
+    })
+    return removed
   },
 }))

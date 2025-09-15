@@ -80,13 +80,8 @@ const MobileSidebar = ({
     [refetchPackageInfo],
   )
 
-  const availableFilePaths = useMemo(
-    () => releaseFiles?.map((f) => f.file_path),
-    [releaseFiles],
-  )
-  const { availableViews: svgViews } = usePackageReleaseImages({
+  const { availableViews: imageViews } = usePackageReleaseImages({
     packageReleaseId: packageInfo?.latest_package_release_id,
-    availableFilePaths,
   })
 
   const { availableViews: pngViews } = usePreviewImages({
@@ -95,10 +90,10 @@ const MobileSidebar = ({
   })
 
   const viewsToRender =
-    svgViews.length === 0 ||
-    svgViews.every((v) => !v.isLoading && !(v as any).svg)
+    imageViews.length === 0 ||
+    imageViews.every((v) => !v.isLoading && !v.imageUrl)
       ? (pngViews as any)
-      : (svgViews as any)
+      : imageViews
 
   const handleViewClick = useCallback(
     (viewId: string) => {
@@ -291,13 +286,11 @@ function PreviewButton({
           className="w-full h-full object-contain"
         />
       )}
-      {imageUrl && (
+      {imageUrl && !isLoading && (
         <img
           src={imageUrl}
           alt={view}
-          className={`w-full h-full object-cover rounded-lg ${
-            status === "loaded" ? "block" : "hidden"
-          }`}
+          className="w-full h-full object-cover rounded-lg"
           onLoad={onLoad}
           onError={onError}
         />
