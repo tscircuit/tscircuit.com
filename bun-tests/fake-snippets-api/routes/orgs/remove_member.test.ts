@@ -75,7 +75,7 @@ test("POST /api/orgs/remove_member - should remove a user from an org and reset 
 
   const membershipAfter = db.getOrganizationAccount({
     org_id: seed.organization.org_id,
-    account_id: seed.account2.account_id,
+    account_id: seed.account.account_id,
   })
   expect(membershipAfter).toBeUndefined()
 })
