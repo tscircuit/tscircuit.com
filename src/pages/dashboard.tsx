@@ -16,12 +16,12 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { PackageCard } from "@/components/PackageCard"
-import { useOrganizations } from "@/hooks/use-organizations"
+import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
 export const DashboardPage = () => {
   const axios = useAxios()
-  const { organizations } = useOrganizations()
+  const { data: organizations } = useListUserOrgs()
 
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = Boolean(currentUser)
@@ -195,13 +195,13 @@ export const DashboardPage = () => {
                 )}
 
                 {/* Organizations Section */}
-                {organizations.length > 0 && (
+                {organizations && organizations.length > 0 && (
                   <div className="mt-8">
                     <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
                       Your Organizations
                     </h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      {organizations.slice(0, 4).map((org, i) => (
+                      {organizations?.slice(0, 4).map((org: any, i: number) => (
                         <OrganizationCard
                           key={i}
                           organization={org}
@@ -212,7 +212,7 @@ export const DashboardPage = () => {
                         />
                       ))}
                     </div>
-                    {organizations.length > 4 && (
+                    {organizations && organizations.length > 4 && (
                       <Link
                         href="/organizations"
                         className="text-sm text-blue-600 hover:underline mt-2 inline-block"

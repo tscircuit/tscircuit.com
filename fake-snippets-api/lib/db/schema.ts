@@ -422,6 +422,7 @@ export const publicOrgSchema = z.object({
   owner_account_id: z.string(), //.uuid(),
   name: z.string().nullable(),
   member_count: z.number(),
+  is_personal_org: z.boolean(),
   package_count: z.number(),
   created_at: z.string(),
   user_permissions: z

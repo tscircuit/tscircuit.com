@@ -14,19 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { mockMembers, useOrganizations } from "@/hooks/use-organizations"
+import { useListOrgMembers } from "@/hooks/use-list-org-members"
+import { useOrgByGithubHandle } from "@/hooks/use-org-by-github-handle"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Box } from "lucide-react"
-import type { Organization, Package } from "fake-snippets-api/lib/db/schema"
+import type { PublicOrgSchema, Package } from "fake-snippets-api/lib/db/schema"
 import { NotFound } from "@/components/NotFound"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 
 export const OrganizationProfilePageContent = ({
   org,
-}: { org: Organization }) => {
+}: { org: PublicOrgSchema }) => {
   const baseUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
   const axios = useAxios()
@@ -36,22 +37,20 @@ export const OrganizationProfilePageContent = ({
   const [filter, setFilter] = useState("most-recent")
   const [showAllMembers, setShowAllMembers] = useState(false)
 
-  const organization = org
-  const isCurrentUserOrganization =
-    session?.account_id === organization.owner_account_id
+  const isCurrentUserOrganization = session?.account_id === org.owner_account_id
 
   const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
     Package[]
   >(
-    ["userPackages", organization.github_handle],
+    ["userPackages", org.name],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: organization.github_handle,
+        owner_github_username: org.name,
       })
       return response.data.packages
     },
     {
-      enabled: Boolean(organization.github_handle),
+      enabled: Boolean(org.name),
       refetchOnWindowFocus: false,
     },
   )
@@ -87,7 +86,7 @@ export const OrganizationProfilePageContent = ({
       <Header />
 
       <OrganizationHeader
-        organization={organization}
+        organization={org}
         isCurrentUserOrganization={isCurrentUserOrganization}
       />
 
@@ -176,7 +175,7 @@ export const OrganizationProfilePageContent = ({
 
             {activeTab === "members" && (
               <div>
-                <OrganizationMembers members={mockMembers} />
+                <OrganizationMembers orgId={org.org_id} />
               </div>
             )}
           </div>
@@ -190,11 +189,7 @@ export const OrganizationProfilePageContent = ({
 
 export const OrganizationProfilePage = () => {
   const { username } = useParams()
-  const { getOrganizationByGithubHandle } = useOrganizations()
-
-  const organization = username
-    ? getOrganizationByGithubHandle(username)
-    : undefined
+  const { data: organization } = useOrgByGithubHandle(username || null)
 
   if (!organization) {
     return <NotFound />

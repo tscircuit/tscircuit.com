@@ -19,17 +19,17 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import { Organization } from "fake-snippets-api/lib/db/schema"
+import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export interface OrganizationCardProps {
   /** The organization data to display */
-  organization: Organization
+  organization: PublicOrgSchema
   /** Whether to show member count */
   showMembers?: boolean
   /** Whether to show statistics (packages, members) */
   showStats?: boolean
   /** Callback when the card is clicked */
-  onClick?: (org: Organization) => void
+  onClick?: (org: PublicOrgSchema) => void
   /** Whether this is the current user's organization (enables management options) */
   isCurrentUserOrganization?: boolean
   /** Custom class name for the card container */
@@ -37,7 +37,7 @@ export interface OrganizationCardProps {
   /** Whether to render the card with a link to the organization page */
   withLink?: boolean
   /** Custom render function for actions */
-  renderActions?: (org: Organization) => React.ReactNode
+  renderActions?: (org: PublicOrgSchema) => React.ReactNode
 }
 
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({
@@ -58,11 +58,11 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
       onClick(organization)
     }
   }
-
+  organization.member_count
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const shareUrl = `${window.location.origin}/${organization.github_handle}`
+    const shareUrl = `${window.location.origin}/${organization.name}`
     copyToClipboard(shareUrl)
   }
 
@@ -70,10 +70,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
     e.preventDefault()
     e.stopPropagation()
     // TODO: Navigate to organization settings
-    console.log(
-      "Navigate to organization settings:",
-      organization.github_handle,
-    )
+    console.log("Navigate to organization settings:", organization.name)
   }
 
   const cardContent = (
@@ -86,12 +83,12 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
         <div className="flex-shrink-0">
           <Avatar className="h-16 w-16 border-2 border-gray-100">
             <AvatarImage
-              src={`https://github.com/${organization.github_handle}.png`}
-              alt={`${organization.github_handle} avatar`}
+              src={`https://github.com/${organization.name}.png`}
+              alt={`${organization.name} avatar`}
               className="object-cover"
             />
             <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold text-lg">
-              {organization.github_handle
+              {organization.name
                 ?.split(" ")
                 .map((word) => word[0])
                 .join("")
@@ -106,7 +103,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
           <div className="flex justify-between items-start mb-1">
             <div className="min-w-0 flex-1">
               <h2 className="text-md font-semibold text-gray-900 truncate pr-8">
-                {organization.github_handle}
+                {organization.name}
               </h2>
             </div>
 
@@ -193,7 +190,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
     return (
       <Link
         key={organization.org_id}
-        href={`/${organization.github_handle}`}
+        href={`/${organization.name}`}
         className="block"
       >
         {cardContent}

@@ -26,16 +26,16 @@ import {
 import { Box, Star, Building2 } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesList"
-import { useOrganizations } from "@/hooks/use-organizations"
+import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
-  const { organizations } = useOrganizations()
+  const { data: organizations } = useListUserOrgs()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
-  const [filter, setFilter] = useState("most-recent") // Changed default from "newest" to "most-recent"
+  const [filter, setFilter] = useState("most-recent")
   const session = useGlobalStore((s) => s.session)
   const {
     data: account,
@@ -188,9 +188,11 @@ export const UserProfilePage = () => {
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
-            {isCurrentUserProfile && organizations.length > 0 && (
-              <TabsTrigger value="organizations">Organizations</TabsTrigger>
-            )}
+            {isCurrentUserProfile &&
+              organizations &&
+              organizations.length > 0 && (
+                <TabsTrigger value="organizations">Organizations</TabsTrigger>
+              )}
             {isCurrentUserProfile &&
               (
                 userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
@@ -231,15 +233,15 @@ export const UserProfilePage = () => {
             }
           />
         ) : activeTab === "organizations" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {organizations.length > 0 ? (
-              organizations.map((org) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {organizations && organizations.length > 0 ? (
+              organizations?.map((org: any) => (
                 <OrganizationCard
                   key={org.org_id}
                   organization={org}
                   withLink={true}
-                  showStats={false}
-                  showMembers={false}
+                  showStats={true}
+                  showMembers={true}
                   className="p-3"
                 />
               ))

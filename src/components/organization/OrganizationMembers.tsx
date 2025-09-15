@@ -7,9 +7,10 @@ import { Users, Crown, Shield, User } from "lucide-react"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { cn } from "@/lib/utils"
 import { Account } from "fake-snippets-api/lib/db/schema"
+import { useListOrgMembers } from "@/hooks/use-list-org-members"
 
 interface OrganizationMembersProps {
-  members: Account[]
+  orgId: string
   className?: string
 }
 type MemberRole = "owner" | "admin" | "member" //todo
@@ -40,9 +41,32 @@ const getRoleColor = (role: MemberRole) => {
 }
 
 export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
-  members,
+  orgId,
   className,
 }) => {
+  const { data: members = [], isLoading } = useListOrgMembers({ orgId })
+
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "bg-white rounded-lg border border-gray-200 p-4 sm:p-6",
+          className,
+        )}
+      >
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Members
+          </h2>
+        </div>
+        <div className="text-center py-6 sm:py-8 text-gray-500">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-2 text-sm">Loading members...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div
       className={cn(

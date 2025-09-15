@@ -2,10 +2,10 @@ import React from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Building2, Users, Package, Lock, Globe2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Organization } from "fake-snippets-api/lib/db/schema"
+import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 interface OrganizationHeaderProps {
-  organization: Organization
+  organization: PublicOrgSchema
   isCurrentUserOrganization?: boolean
   className?: string
 }
@@ -22,12 +22,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
           <div className="flex-shrink-0 self-center md:self-start">
             <Avatar className="border-4 border-gray-100 shadow-sm size-16 md:size-20 lg:size-24">
               <AvatarImage
-                src={`https://github.com/${organization.github_handle}.png`}
-                alt={`${organization.github_handle} avatar`}
+                src={`https://github.com/${organization.name}.png`}
+                alt={`${organization.name} avatar`}
                 className="object-cover"
               />
               <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xl md:text-2xl lg:text-3xl">
-                {organization.github_handle
+                {(organization.name || "")
                   .split(" ")
                   .map((word) => word[0])
                   .join("")
@@ -44,7 +44,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 {/* Name */}
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-3 mb-2 text-center md:text-left">
                   <h1 className="font-bold text-gray-900 text-xl md:text-2xl lg:text-3xl truncate">
-                    {organization.github_handle}
+                    {organization.name}
                   </h1>
                 </div>
 

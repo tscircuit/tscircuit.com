@@ -6,7 +6,7 @@ import React from "react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { Loader2 } from "lucide-react"
 
-const FullPageLoader = () => (
+export const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
     <div className="w-48">
       <div className="loading">

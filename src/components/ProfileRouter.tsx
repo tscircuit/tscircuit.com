@@ -1,22 +1,31 @@
 import React from "react"
 import { useParams } from "wouter"
-import { useOrganizations } from "@/hooks/use-organizations"
+import { useOrgByGithubHandle } from "@/hooks/use-org-by-github-handle"
 import { OrganizationProfilePageContent } from "@/pages/organization-profile"
 import { UserProfilePage } from "@/pages/user-profile"
 import NotFoundPage from "@/pages/404"
+import { FullPageLoader } from "@/App"
 
 const ProfileRouter: React.FC = () => {
   const { username } = useParams()
-  const { getOrganizationByGithubHandle } = useOrganizations()
+  const {
+    data: organization,
+    isLoading,
+    error,
+  } = useOrgByGithubHandle(username || null)
 
   if (!username) {
     return <NotFoundPage heading="Username Not Provided" />
   }
 
-  const organization = getOrganizationByGithubHandle(username)
-  if (organization) {
+  if (isLoading) {
+    return <FullPageLoader />
+  }
+
+  if (organization && !error) {
     return <OrganizationProfilePageContent org={organization} />
   }
+
   return <UserProfilePage />
 }
 
