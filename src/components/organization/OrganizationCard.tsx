@@ -166,12 +166,12 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 {showMembers && (
                   <div className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    <span>2 members</span>
+                    <span>{organization.member_count} members</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1">
                   <Package className="h-3 w-3" />
-                  <span>2 packages</span>
+                  <span>{organization.package_count} packages</span>
                 </div>
               </>
             )}
