@@ -73,7 +73,11 @@ export const SearchPage = () => {
       })
       return response.data.packages
     },
-    { enabled: Boolean(searchQuery), keepPreviousData: true },
+    {
+      enabled: Boolean(searchQuery),
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+    },
   )
 
   const { data: allAccounts = [], isLoading: isLoadingAccounts } = useQuery(

@@ -49,7 +49,7 @@ const TrendingPage: React.FC = () => {
     async () => {
       const params = new URLSearchParams()
       if (category !== "all") params.append("tag", category)
-      params.append("time_period", time_period)
+      if (time_period !== "all") params.append("time_period", time_period)
 
       const response = await axios.get(
         `/packages/list_trending?${params.toString()}`,
@@ -57,34 +57,47 @@ const TrendingPage: React.FC = () => {
       return response.data.packages
     },
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      staleTime: 5 * 60 * 1000,
     },
   )
 
-  const filteredPackages = packages
-    ?.filter((pkg) => {
+  const filteredAndSortedPackages = React.useMemo(() => {
+    if (!packages) return []
+
+    let filtered = packages.filter((pkg) => {
       if (!searchQuery) return true
 
       const query = searchQuery.toLowerCase().trim()
+      if (!query) return true
+
       const searchableFields = [
-        pkg.unscoped_name.toLowerCase(),
-        (pkg.owner_github_username || "").toLowerCase(),
-        (pkg.description || "").toLowerCase(),
-        pkg.description?.toLowerCase(),
-      ]
+        pkg.unscoped_name?.toLowerCase() || "",
+        pkg.owner_github_username?.toLowerCase() || "",
+        pkg.description?.toLowerCase() || "",
+      ].filter(Boolean)
+
+      const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
 
       return searchableFields.some((field) => {
-        const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
         if (!field) return false
         return queryWords.every((word) => field.includes(word))
       })
     })
-    ?.sort((a, b) => {
-      if (sortBy === "stars") {
-        return (b.star_count || 0) - (a.star_count || 0)
+
+    return filtered.sort((a, b) => {
+      if (sortBy === "recent") {
+        const dateA = new Date(a.updated_at).getTime()
+        const dateB = new Date(b.updated_at).getTime()
+        return dateB - dateA
       }
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      const starsA = a.star_count || 0
+      const starsB = b.star_count || 0
+      return starsB - starsA
     })
+  }, [packages, searchQuery, sortBy])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -107,11 +120,7 @@ const TrendingPage: React.FC = () => {
                 <SelectItem value="recent">Most Recent</SelectItem>
               </SelectContent>
             </Select>
-            <Select
-              value={time_period}
-              onValueChange={setTimePeriod}
-              disabled={sortBy === "recent"}
-            >
+            <Select value={time_period} onValueChange={setTimePeriod}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Time Period" />
               </SelectTrigger>
@@ -173,7 +182,7 @@ const TrendingPage: React.FC = () => {
         <PackageSearchResults
           isLoading={isLoading}
           error={error}
-          filteredPackages={filteredPackages}
+          filteredPackages={filteredAndSortedPackages}
           apiBaseUrl={apiBaseUrl}
           emptyStateMessage={
             searchQuery

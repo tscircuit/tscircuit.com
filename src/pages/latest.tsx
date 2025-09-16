@@ -35,6 +35,9 @@ const LatestPage: React.FC = () => {
     },
     {
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     },
   )
 
