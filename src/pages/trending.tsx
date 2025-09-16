@@ -45,12 +45,11 @@ const TrendingPage: React.FC = () => {
     isLoading,
     error,
   } = useQuery<Package[]>(
-    ["trendingPackages", category, time_period, sortBy],
+    ["trendingPackages", category, time_period],
     async () => {
       const params = new URLSearchParams()
       if (category !== "all") params.append("tag", category)
       if (time_period !== "all") params.append("time_period", time_period)
-      if (sortBy !== "stars") params.append("sort", sortBy)
 
       const response = await axios.get(
         `/packages/list_trending?${params.toString()}`,
@@ -60,12 +59,15 @@ const TrendingPage: React.FC = () => {
     {
       keepPreviousData: false,
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
+      refetchOnMount: true,
+      staleTime: 5 * 60 * 1000,
     },
   )
 
-  const filteredPackages = packages
-    ?.filter((pkg) => {
+  const filteredAndSortedPackages = React.useMemo(() => {
+    if (!packages) return []
+
+    let filtered = packages.filter((pkg) => {
       if (!searchQuery) return true
 
       const query = searchQuery.toLowerCase().trim()
@@ -84,14 +86,18 @@ const TrendingPage: React.FC = () => {
         return queryWords.every((word) => field.includes(word))
       })
     })
-    ?.sort((a, b) => {
+
+    return filtered.sort((a, b) => {
       if (sortBy === "recent") {
-        return (
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        )
+        const dateA = new Date(a.updated_at).getTime()
+        const dateB = new Date(b.updated_at).getTime()
+        return dateB - dateA
       }
-      return (b.star_count || 0) - (a.star_count || 0)
+      const starsA = a.star_count || 0
+      const starsB = b.star_count || 0
+      return starsB - starsA
     })
+  }, [packages, searchQuery, sortBy])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -176,7 +182,7 @@ const TrendingPage: React.FC = () => {
         <PackageSearchResults
           isLoading={isLoading}
           error={error}
-          filteredPackages={filteredPackages}
+          filteredPackages={filteredAndSortedPackages}
           apiBaseUrl={apiBaseUrl}
           emptyStateMessage={
             searchQuery
