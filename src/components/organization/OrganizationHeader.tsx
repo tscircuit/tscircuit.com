@@ -106,10 +106,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 <h1 className="font-bold text-gray-900 text-2xl md:text-3xl truncate">
                   {organization.name}
                 </h1>
-                <Button variant="outline">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Button>
+                {organization.owner_account_id === session?.account_id && (
+                  <Button variant="outline">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Button>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
