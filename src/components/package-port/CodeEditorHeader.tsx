@@ -201,6 +201,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         throw new Error("Failed to create component file")
       }
     }
+    if (component.source == "kicad") {
+      await navigator.clipboard.writeText(component.id)
+    }
   }
 
   return (
