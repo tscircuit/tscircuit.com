@@ -114,7 +114,7 @@
     "circuit-json-to-readable-netlist": "^0.0.13",
     "circuit-json-to-simple-3d": "^0.0.7",
     "circuit-json-to-spice": "^0.0.6",
-    "circuit-json-to-tscircuit": "^0.0.4",
+    "circuit-json-to-tscircuit": "^0.0.9",
     "circuit-to-svg": "^0.0.182",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
