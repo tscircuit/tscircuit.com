@@ -58,6 +58,8 @@ const TrendingPage: React.FC = () => {
     },
     {
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
     },
   )
 
