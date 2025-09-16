@@ -153,9 +153,10 @@ export default function ReleaseDetailPage() {
                   className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
                   disabled={isRebuildLoading || !packageRelease}
                   onClick={() =>
-                    packageRelease && {
+                    packageRelease &&
+                    rebuildPackage({
                       package_release_id: packageRelease.package_release_id,
-                    }
+                    })
                   }
                 >
                   <RefreshCw
