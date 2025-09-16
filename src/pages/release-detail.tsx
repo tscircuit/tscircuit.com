@@ -6,11 +6,14 @@ import { usePackageBuild } from "@/hooks/use-package-builds"
 import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, GitBranch } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, GitBranch, RefreshCw } from "lucide-react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -53,6 +56,10 @@ export default function ReleaseDetailPage() {
   const { availableViews } = usePackageReleaseImages({
     packageReleaseId: packageRelease?.package_release_id,
   })
+
+  const session = useGlobalStore((s) => s.session)
+  const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
+    useRebuildPackageReleaseMutation()
 
   if (isLoadingPackage || isLoadingRelease) {
     return (
@@ -102,7 +109,7 @@ export default function ReleaseDetailPage() {
       <div className="min-h-screen bg-white">
         {/* Page Header */}
         <div className="bg-gray-50 border-b py-6">
-          <div className="max-w-7xl lg:flex lg:justify-between mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <PackageBreadcrumb
               author={pkg.owner_github_username || ""}
@@ -115,31 +122,49 @@ export default function ReleaseDetailPage() {
             />
 
             {/* Header Content */}
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-2">
-              <div className="flex-1">
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  {packageRelease.is_pr_preview && (
-                    <a
-                      href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <div className="flex items-center gap-1">
-                        <GitBranch className="w-4 h-4" />
-                        <Badge variant="outline" className="text-xs">
-                          PR #{packageRelease.github_pr_number}
-                        </Badge>
-                      </div>
-                    </a>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      Created {formatTimeAgo(packageRelease.created_at)}
-                    </span>
-                  </div>
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                {packageRelease.is_pr_preview && (
+                  <a
+                    href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-gray-800 transition-colors"
+                  >
+                    <GitBranch className="w-4 h-4" />
+                    <Badge variant="outline" className="text-xs">
+                      PR #{packageRelease.github_pr_number}
+                    </Badge>
+                  </a>
+                )}
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>
+                    Created {formatTimeAgo(packageRelease.created_at)}
+                  </span>
                 </div>
               </div>
+
+              {/* Rebuild Button */}
+              {session?.github_username === pkg.owner_github_username && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
+                  disabled={isRebuildLoading || !packageRelease}
+                  onClick={() =>
+                    packageRelease &&
+                    rebuildPackage({
+                      package_release_id: packageRelease.package_release_id,
+                    })
+                  }
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
+                  />
+                  {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
