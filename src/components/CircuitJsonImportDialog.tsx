@@ -123,7 +123,7 @@ export function CircuitJsonImportDialog({
       const tscircuitComponentContent = convertCircuitJsonToTscircuit(
         importedCircuitJson as any,
         {
-          componentName: "circuit",
+          componentName: "Component",
         },
       )
       console.info(tscircuitComponentContent)
