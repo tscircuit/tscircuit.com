@@ -3,7 +3,6 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
-import type { Package } from "fake-snippets-api/lib/db/schema"
 import { createUseDialog } from "./create-use-dialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
@@ -27,7 +26,7 @@ export const RenamePackageDialog = ({
   const qc = useQueryClient()
 
   const renamePackageMutation = useMutation({
-    mutationFn: async (): Promise<Package> => {
+    mutationFn: async () => {
       const response = await axios.post("/packages/update", {
         package_id: packageId,
         name: newName,
@@ -35,27 +34,16 @@ export const RenamePackageDialog = ({
       if (response.status !== 200) {
         throw new Error("Failed to rename package")
       }
-      const updatedPackage = response.data?.package as Package | undefined
-      if (!updatedPackage) {
-        throw new Error("Failed to rename package")
-      }
-      return updatedPackage
+      return response.data
     },
-    onSuccess: (updatedPackage) => {
-      const updatedName = updatedPackage?.unscoped_name ?? newName
-      onRename?.(updatedName)
-      setNewName(updatedName)
+    onSuccess: () => {
+      onRename?.(newName)
       onOpenChange(false)
       toast({
         title: "Package renamed",
-        description: `Successfully renamed to "${updatedName}"`,
+        description: `Successfully renamed to "${newName}"`,
       })
-      qc.setQueryData(["package", packageId], updatedPackage)
-      qc.setQueryData(["packages", packageId], updatedPackage)
-      if (updatedPackage?.name) {
-        qc.setQueryData(["package", updatedPackage.name], updatedPackage)
-      }
-      qc.invalidateQueries({ queryKey: ["packages"] })
+      qc.invalidateQueries({ queryKey: ["packages", packageId] })
     },
     onError: (error) => {
       console.error("Error renaming package:", error)
