@@ -577,6 +577,9 @@ export default function EditorNav({
       <RenameDialog
         packageId={pkg?.package_id ?? ""}
         currentName={pkg?.unscoped_name ?? ""}
+        onRename={() => {
+          qc.invalidateQueries({ queryKey: ["package", pkg?.package_id] })
+        }}
       />
       <DeleteDialog
         packageId={pkg?.package_id ?? ""}
