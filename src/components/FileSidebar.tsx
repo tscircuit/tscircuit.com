@@ -251,15 +251,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           </div>
         </div>
       )}
-      <div
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setSelectedFolderForCreation(null)
-            onFileSelect("")
-          }
-        }}
-        className="flex-1 border-2 h-full"
-      >
+      <div className="flex-1 border-2 h-full">
         <TreeView
           data={treeData}
           setSelectedItemId={(value) => {
