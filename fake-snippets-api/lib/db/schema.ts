@@ -403,8 +403,9 @@ export const orgSchema = z.object({
   org_id: z.string(),
   github_handle: z.string(),
   owner_account_id: z.string(),
-  is_personal_org: z.boolean(),
+  is_personal_org: z.boolean().default(false),
   created_at: z.string().datetime(),
+  org_display_name: z.string().optional(),
 })
 export type Organization = z.infer<typeof orgSchema>
 
@@ -423,6 +424,7 @@ export const publicOrgSchema = z.object({
   name: z.string().nullable(),
   member_count: z.number(),
   is_personal_org: z.boolean(),
+  display_name: z.string().optional(),
   package_count: z.number(),
   created_at: z.string(),
   user_permissions: z
