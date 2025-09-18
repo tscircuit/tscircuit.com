@@ -12,6 +12,7 @@ export default withRouteSpec({
     .and(
       z.object({
         name: z.string().optional(),
+        display_name: z.string().optional(),
       }),
     ),
   auth: "session",
@@ -19,7 +20,11 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name } = req.commonParams as { org_id: string; name?: string }
+  const { org_id, name, display_name } = req.commonParams as {
+    org_id: string
+    name?: string
+    display_name?: string
+  }
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -37,27 +42,52 @@ export default withRouteSpec({
     })
   }
 
-  if (!name) {
+  // No changes provided
+  if (!name && display_name === undefined) {
     return ctx.json({ org: publicMapOrg(org) })
   }
 
-  const duplicate = ctx.db.organizations.find(
-    (org) => org.github_handle === name && org.org_id !== org_id,
-  )
+  if (name && name !== org.github_handle) {
+    // Validate duplicate name
+    const duplicate = ctx.db.getOrg({ github_handle: name })
 
-  if (duplicate) {
-    return ctx.error(400, {
-      error_code: "org_already_exists",
-      message: "An organization with this name already exists",
+    if (duplicate && duplicate.org_id !== org_id) {
+      return ctx.error(400, {
+        error_code: "org_already_exists",
+        message: "An organization with this name already exists",
+      })
+    }
+  }
+
+  const updates: {
+    github_handle?: string
+    org_display_name?: string
+  } = {}
+
+  if (name) {
+    updates.github_handle = name
+  }
+
+  if (display_name !== undefined) {
+    const trimmedDisplayName = display_name.trim()
+    const fallbackDisplayName =
+      name ?? org.org_display_name ?? org.github_handle ?? ""
+    updates.org_display_name =
+      trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
+  }
+
+  const updated = ctx.db.updateOrganization(org_id, updates)
+
+  if (!updated) {
+    return ctx.error(500, {
+      error_code: "update_failed",
+      message: "Failed to update organization",
     })
   }
 
-  const updatedOrg = {
-    ...org,
-    github_handle: name,
-  }
+  const updatedOrgWithPermissions = ctx.db.getOrg({ org_id }, ctx.auth)
 
   return ctx.json({
-    org: publicMapOrg({ ...updatedOrg, can_manage_org: true }),
+    org: publicMapOrg(updatedOrgWithPermissions!),
   })
 })

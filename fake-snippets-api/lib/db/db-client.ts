@@ -1728,4 +1728,24 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return removed
   },
+  updateOrganization: (
+    orgId: string,
+    updates: Partial<Organization>,
+  ): Organization | undefined => {
+    let updatedOrg: Organization | undefined
+    set((state) => {
+      const orgIndex = state.organizations.findIndex(
+        (org) => org.org_id === orgId,
+      )
+      if (orgIndex === -1) return state
+      const updatedOrganizations = [...state.organizations]
+      updatedOrganizations[orgIndex] = {
+        ...updatedOrganizations[orgIndex],
+        ...updates,
+      }
+      updatedOrg = updatedOrganizations[orgIndex]
+      return { ...state, organizations: updatedOrganizations }
+    })
+    return updatedOrg
+  },
 }))
