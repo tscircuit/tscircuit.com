@@ -21,6 +21,7 @@ export const useListOrgMembers = ({
       enabled: Boolean(orgId || orgName),
       retry: false,
       refetchOnWindowFocus: false,
+      keepPreviousData: true,
     },
   )
 }

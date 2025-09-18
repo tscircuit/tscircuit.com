@@ -4,20 +4,38 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const useAddOrgMemberMutation = ({
   onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+  onError,
+}: { onSuccess?: () => void; onError?: (error: any) => void } = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const queryClient = useQueryClient()
 
   return useMutation(
     ["addOrgMember"],
-    async ({ orgId, accountId }: { orgId: string; accountId: string }) => {
+    async ({
+      orgId,
+      accountId,
+      githubUsername,
+    }: {
+      orgId: string
+      accountId?: string
+      githubUsername?: string
+    }) => {
       if (!session) throw new Error("No session")
 
-      await axios.post("/orgs/add_member", {
+      const payload: any = {
         org_id: orgId,
-        account_id: accountId,
-      })
+      }
+
+      if (accountId) {
+        payload.account_id = accountId
+      }
+
+      if (githubUsername) {
+        payload.github_username = githubUsername
+      }
+
+      await axios.post("/orgs/add_member", payload)
     },
     {
       onSuccess: () => {
@@ -26,6 +44,7 @@ export const useAddOrgMemberMutation = ({
       },
       onError: (error: any) => {
         console.error("Error adding organization member:", error)
+        onError?.(error)
       },
     },
   )

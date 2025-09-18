@@ -5,12 +5,13 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z.object({
     org_id: z.string(),
-    account_id: z.string(),
+    account_id: z.string().optional(),
+    github_username: z.string().optional(),
   }),
   auth: "session",
   jsonResponse: z.object({}),
 })(async (req, ctx) => {
-  const { org_id, account_id } = req.commonParams
+  const { org_id, account_id, github_username } = req.commonParams
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -28,7 +29,12 @@ export default withRouteSpec({
     })
   }
 
-  const account = ctx.db.accounts.find((acc) => acc.account_id === account_id)
+  let account = ctx.db.accounts.find((acc) => acc.account_id === account_id)
+  if (!account) {
+    account = ctx.db.accounts.find(
+      (acc) => acc.github_username === github_username,
+    )
+  }
 
   if (!account) {
     return ctx.error(404, {
@@ -39,7 +45,7 @@ export default withRouteSpec({
 
   ctx.db.addOrganizationAccount({
     org_id,
-    account_id,
+    account_id: account.account_id,
   })
 
   return ctx.json({})
