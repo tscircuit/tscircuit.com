@@ -3,7 +3,7 @@ import { Link } from "wouter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Users, Crown, Shield, User } from "lucide-react"
+import { Users, Crown, Shield, User, Loader2 } from "lucide-react"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { cn } from "@/lib/utils"
 import { Account } from "fake-snippets-api/lib/db/schema"
@@ -56,13 +56,12 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
       >
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Users className="h-5 w-5" />
             Members
           </h2>
         </div>
-        <div className="text-center py-6 sm:py-8 text-gray-500">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-sm">Loading members...</p>
+        <div className="text-center py-20 text-gray-500 grid place-items-center">
+          <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
+          <p className="mt-2 text-sm select-none">Loading members...</p>
         </div>
       </div>
     )
@@ -70,20 +69,23 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg border border-gray-200 p-4 sm:p-6",
+        "bg-white rounded-lg border border-gray-200 p-4 py-20 sm:p-6",
         className,
       )}
     >
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <Users className="h-5 w-5" />
           Members ({members.length})
         </h2>
       </div>
 
       <div className="space-y-2 sm:space-y-3">
-        {members.map((member, i) => (
-          <Link key={i} href={`/${member.github_username}`} className="block">
+        {members.map((member) => (
+          <Link
+            key={member.account_id || member.github_username}
+            href={`/${member.github_username}`}
+            className="block"
+          >
             <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">

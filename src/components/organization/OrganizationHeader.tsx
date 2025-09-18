@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Building2, Users, Package, Lock, Globe2, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useLocation } from "wouter"
 
 interface OrganizationHeaderProps {
   organization: PublicOrgSchema
@@ -17,6 +18,14 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   className,
 }) => {
   const session = useGlobalStore((s) => s.session)
+  const [, navigate] = useLocation()
+  const canManageOrg =
+    organization.user_permissions?.can_manage_org ||
+    organization.owner_account_id === session?.account_id
+
+  const handleSettingsClick = () => {
+    navigate(`/${organization.name}/settings`)
+  }
   return (
     <div className={cn("bg-white border-b border-gray-200", className)}>
       <div className="container mx-auto px-6 py-6">
@@ -40,17 +49,21 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             </Avatar>
 
             <div>
-              {organization.owner_account_id === session?.account_id && (
-                <div className="flex flex-col items-center gap-3 mb-3">
-                  <h1 className="font-bold text-gray-900 text-xl">
-                    {organization.name}
-                  </h1>
-                  <Button variant="outline" size="sm">
+              <div className="flex flex-col items-center gap-3 mb-3">
+                <h1 className="font-bold text-gray-900 text-xl">
+                  {organization.name}
+                </h1>
+                {canManageOrg && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSettingsClick}
+                  >
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Button>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="grid grid-cols-2 md:flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-1.5 text-gray-600">
@@ -62,20 +75,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                   <Package className="h-3.5 w-3.5" />
                   <span className="font-medium">2</span>
                   <span>packages</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span>Organization</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  {organization.is_personal_org ? (
-                    <Lock className="h-3.5 w-3.5" />
-                  ) : (
-                    <Globe2 className="h-3.5 w-3.5" />
-                  )}
-                  <span>
-                    {organization.is_personal_org ? "Personal" : "Public"}
-                  </span>
                 </div>
               </div>
             </div>
@@ -106,8 +105,8 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 <h1 className="font-bold text-gray-900 text-2xl md:text-3xl truncate">
                   {organization.name}
                 </h1>
-                {organization.owner_account_id === session?.account_id && (
-                  <Button variant="outline">
+                {canManageOrg && (
+                  <Button variant="outline" onClick={handleSettingsClick}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Button>
@@ -128,16 +127,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
                   <span>Organization</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {organization.is_personal_org ? (
-                    <Lock className="h-4 w-4" />
-                  ) : (
-                    <Globe2 className="h-4 w-4" />
-                  )}
-                  <span>
-                    {organization.is_personal_org ? "Personal" : "Public"}
-                  </span>
                 </div>
               </div>
             </div>

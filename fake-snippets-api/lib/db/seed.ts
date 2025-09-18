@@ -1733,4 +1733,9 @@ export const SquareWaveModule = () => (
     started_at: null,
     completed_at: null,
   })
+
+  db.addOrganization({
+    name: "test-organization",
+    owner_account_id: account_id,
+  })
 }

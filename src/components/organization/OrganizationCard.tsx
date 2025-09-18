@@ -69,8 +69,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    // TODO: Navigate to organization settings
-    console.log("Navigate to organization settings:", organization.name)
+    window.location.href = `/${organization.name}/settings`
   }
 
   const cardContent = (
