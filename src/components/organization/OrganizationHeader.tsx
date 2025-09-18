@@ -11,11 +11,13 @@ interface OrganizationHeaderProps {
   organization: PublicOrgSchema
   isCurrentUserOrganization?: boolean
   className?: string
+  showActions?: boolean
 }
 
 export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   organization,
   className,
+  showActions = true,
 }) => {
   const session = useGlobalStore((s) => s.session)
   const [, navigate] = useLocation()
@@ -53,7 +55,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 <h1 className="font-bold text-gray-900 text-xl">
                   {organization.name}
                 </h1>
-                {canManageOrg && (
+                {canManageOrg && showActions && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -105,7 +107,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                 <h1 className="font-bold text-gray-900 text-2xl md:text-3xl truncate">
                   {organization.name}
                 </h1>
-                {canManageOrg && (
+                {canManageOrg && showActions && (
                   <Button variant="outline" onClick={handleSettingsClick}>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings

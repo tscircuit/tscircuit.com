@@ -48,6 +48,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
+import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
 
 const organizationSettingsSchema = z.object({
   name: z
@@ -268,42 +269,7 @@ export default function OrganizationSettingsPage() {
       <Header />
 
       <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        {/* Page Header */}
-        <div className="py-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 border border-gray-200">
-                <AvatarImage
-                  src={`https://github.com/${organization.name}.png`}
-                  alt={`${organization.name} avatar`}
-                />
-                <AvatarFallback className="bg-gray-50 text-gray-600 text-lg font-medium">
-                  <Building2 className="h-8 w-8" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-2xl font-semibold text-gray-900">
-                    {organization.name}
-                  </h1>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {organization.member_count} members •{" "}
-                  {organization.package_count} packages
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/${orgname}`)}
-              className="self-start sm:self-center"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to organization
-            </Button>
-          </div>
-        </div>
+        <OrganizationHeader organization={organization} showActions={false} />
 
         <div className="py-8">
           {/* Main Content */}
