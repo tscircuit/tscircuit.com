@@ -44,7 +44,7 @@ export default withRouteSpec({
 
   const members = ctx.db.orgAccounts
     .map((m) => {
-      if (m.org_id == org.org_id) return
+      if (m.org_id == org.org_id) return ctx.db.getAccount(m.account_id)
       return undefined
     })
     .filter(
