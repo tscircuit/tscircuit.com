@@ -101,7 +101,9 @@ export function useUpdatePackageFilesMutation({
             const key = q.queryKey as any
             return (
               Array.isArray(key) &&
-              (key[0] === "packageFiles" || key[0] === "packageFile")
+              (key[0] === "packageFiles" ||
+                key[0] === "packageFile" ||
+                key[0] === "priorityPackageFile")
             )
           },
         })
