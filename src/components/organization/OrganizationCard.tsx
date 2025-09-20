@@ -128,7 +128,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                     onClick={handleShareClick}
                   >
                     <Share2 className="mr-2 h-3 w-3" />
-                    Share Organization {String(canManageOrg)}
+                    Share Organization
                   </DropdownMenuItem>
                   {canManageOrg && (
                     <DropdownMenuItem
