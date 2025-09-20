@@ -2,19 +2,16 @@ import { useEffect, useState } from "react"
 import { useParams } from "wouter"
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/Header"
-import { SuspenseRunFrame } from "@/components/SuspenseRunFrame"
-import { TreeView } from "@/components/ui/tree-view"
-import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
 import { cn } from "@/lib/utils"
 import { PrefetchPageLink } from "@/components/PrefetchPageLink"
 import NotFoundPage from "./404"
 import { getBuildStatus } from "@/components/preview"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
-import { usePackageFilesLoader } from "@/hooks/usePackageFilesLoader"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
+import { RunFrameStaticBuildViewer } from "@tscircuit/runframe/runner"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 const StatusPill = ({ status }: { status: string }) => {
   const color =
@@ -28,6 +25,17 @@ const StatusPill = ({ status }: { status: string }) => {
   return <span className={cn("inline-block w-2 h-2 rounded-full", color)} />
 }
 
+const fetchCircuitJson = async (fileRef: {
+  filePath: string
+  fileStaticAssetUrl: string
+}): Promise<object> => {
+  const res = await fetch(String(fileRef.fileStaticAssetUrl))
+  const resJson = await res.json()
+  const circuitJson = JSON.parse(resJson.package_file.content_text)
+  console.log(circuitJson)
+  return circuitJson
+}
+
 export default function PreviewBuildPage() {
   const params = useParams<{
     packageReleaseId: string
@@ -39,9 +47,8 @@ export default function PreviewBuildPage() {
   const packageName = params?.packageName || null
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
-  const [selectedItemId, setSelectedItemId] = useState<string>("")
 
+  const apiUrl = useApiBaseUrl()
   const { data: packageRelease, isLoading: isLoadingRelease } =
     usePackageReleaseById(packageReleaseId)
   const { data: pkg, isLoading: isLoadingPackage } = usePackageByName(
@@ -50,24 +57,8 @@ export default function PreviewBuildPage() {
   const { data: build, isLoading: isLoadingBuild } = usePackageBuild(
     packageRelease?.latest_package_build_id || null,
   )
-  const { data: buildFiles = [], isLoading: isLoadingFiles } =
-    usePackageFilesLoader(pkg)
 
-  const buildFsMap = Object.fromEntries(
-    buildFiles.map((f) => [f.path, f.content]),
-  )
-
-  const targetFile = findTargetFile({
-    files: buildFiles,
-    filePathFromUrl: selectedFile,
-  })
-  const mainComponentPath = targetFile?.path ?? null
-
-  useEffect(() => {
-    if (!selectedFile && mainComponentPath) {
-      setSelectedFile(mainComponentPath)
-    }
-  }, [mainComponentPath, selectedFile])
+  const isLoading = isLoadingRelease || isLoadingPackage || isLoadingBuild
 
   if (!packageReleaseId) {
     return <NotFoundPage heading="Package Release Not Found" />
@@ -76,28 +67,7 @@ export default function PreviewBuildPage() {
   if (!packageRelease && !isLoadingRelease) {
     return <NotFoundPage heading="Package Release Not Found" />
   }
-  const isLoading =
-    isLoadingRelease || isLoadingPackage || isLoadingFiles || isLoadingBuild
-
-  if (!build && !isLoading) {
-    return <NotFoundPage heading="Package Build Not Found" />
-  }
-
   const { status } = getBuildStatus(build as PackageBuild)
-
-  const treeData = transformFilesToTreeData({
-    files: buildFsMap,
-    currentFile: selectedFile ?? mainComponentPath,
-    renamingFile: null,
-    handleRenameFile: () => ({ fileRenamed: false }),
-    handleDeleteFile: () => ({ fileDeleted: false }),
-    setRenamingFile: () => {},
-    onFileSelect: setSelectedFile,
-    onFolderSelect: () => {},
-    canModifyFiles: false,
-    setErrorMessage: () => {},
-    setSelectedFolderForCreation: () => {},
-  })
 
   return (
     <>
@@ -122,103 +92,66 @@ export default function PreviewBuildPage() {
             </button>
 
             {!sidebarCollapsed && (
-              <>
-                <div className="p-4 border-b border-gray-200">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        Deployment
-                      </h2>
-                      <StatusPill status={status} />
-                    </div>
+              <div className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Deployment
+                    </h2>
+                    <StatusPill status={status} />
+                  </div>
 
-                    <div className="space-y-2">
+                  <div className="space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">
+                        ID
+                      </span>
+                      <PrefetchPageLink
+                        href={`/${pkg?.name}/releases/${build?.package_release_id}`}
+                        title={build?.package_build_id}
+                        className="font-mono text-sm truncate text-gray-900 bg-gray-100 w-full px-2 py-1 rounded"
+                      >
+                        {build?.package_build_id}
+                      </PrefetchPageLink>
+                    </div>
+                    {packageRelease?.commit_message && (
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <span className="text-xs text-gray-500 uppercase tracking-wide">
-                          ID
+                          Commit
                         </span>
-                        <PrefetchPageLink
-                          href={`/${pkg?.name}/releases/${build?.package_release_id}`}
-                          title={build?.package_build_id}
-                          className="font-mono text-sm truncate text-gray-900 bg-gray-100 w-full px-2 py-1 rounded"
+                        <a
+                          title={packageRelease?.commit_message}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://github.com/${pkg?.github_repo_full_name}/commit/${packageRelease?.commit_message}`}
+                          className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
                         >
-                          {build?.package_build_id}
-                        </PrefetchPageLink>
+                          {packageRelease?.commit_message}
+                        </a>
                       </div>
-                      {packageRelease?.commit_message && (
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <span className="text-xs text-gray-500 uppercase tracking-wide">
-                            Commit
-                          </span>
-                          <a
-                            title={packageRelease?.commit_message}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={`https://github.com/${pkg?.github_repo_full_name}/commit/${packageRelease?.commit_message}`}
-                            className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
-                          >
-                            {packageRelease?.commit_message}
-                          </a>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">
-                          Status
-                        </span>
-                        <span
-                          className={`text-xs font-medium px-2 py-1 w-fit rounded-full capitalize ${
-                            status === "success"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : status === "error"
-                                ? "bg-red-100 text-red-800"
-                                : status === "building"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {status}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900">
-                      Files
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {isLoadingFiles
-                        ? "Loading files..."
-                        : `${treeData.length} file${treeData.length !== 1 ? "s" : ""}`}
-                    </p>
-                  </div>
-                  <div className="px-2 py-2 overflow-y-auto select-none">
-                    {isLoadingFiles ? (
-                      <div className="flex items-center justify-center py-8">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span className="ml-2 text-sm text-gray-500">
-                          Loading files...
-                        </span>
-                      </div>
-                    ) : (
-                      <TreeView
-                        selectedItemId={selectedItemId || ""}
-                        setSelectedItemId={(v) => setSelectedItemId(v || "")}
-                        data={treeData}
-                        className="w-full"
-                        onSelectChange={(item) => {
-                          if (item && !item.children) {
-                            setSelectedFile(item.id)
-                          }
-                        }}
-                      />
                     )}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <span className="text-xs text-gray-500 uppercase tracking-wide">
+                        Status
+                      </span>
+                      <span
+                        className={`text-xs font-medium px-2 py-1 w-fit rounded-full capitalize ${
+                          status === "success"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : status === "error"
+                              ? "bg-red-100 text-red-800"
+                              : status === "building"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {status}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </aside>
 
@@ -231,12 +164,15 @@ export default function PreviewBuildPage() {
                     <p>Loading package contents...</p>
                   </div>
                 </div>
-              ) : status === "success" && buildFiles.length > 0 ? (
-                <SuspenseRunFrame
-                  fsMap={buildFsMap}
-                  mainComponentPath={mainComponentPath ?? "index.tsx"}
-                  showRunButton={false}
-                  className="[&>div]:overflow-y-hidden"
+              ) : status === "success" ? (
+                <RunFrameStaticBuildViewer
+                  files={[
+                    {
+                      filePath: "dist/circuit.json",
+                      fileStaticAssetUrl: `${apiUrl}/package_files/get?file_path=dist/circuit.json&package_release_id=${build?.package_release_id}`,
+                    },
+                  ]}
+                  onFetchFile={fetchCircuitJson as any}
                 />
               ) : (
                 <div className="flex-1 flex items-center justify-center">
@@ -249,15 +185,6 @@ export default function PreviewBuildPage() {
                     <div className="text-center">
                       <p className="text-red-600 font-medium mb-2">
                         Build Failed
-                      </p>
-                    </div>
-                  ) : buildFiles.length === 0 ? (
-                    <div className="text-center">
-                      <p className="text-gray-600 font-medium mb-2">
-                        No files found
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        This package release doesn't have any files to preview.
                       </p>
                     </div>
                   ) : (
