@@ -10,7 +10,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import type { Package } from "fake-snippets-api/lib/db/schema"
+import type { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
@@ -188,11 +188,9 @@ export const UserProfilePage = () => {
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
-            {isCurrentUserProfile &&
-              organizations &&
-              organizations.length > 0 && (
-                <TabsTrigger value="organizations">Organizations</TabsTrigger>
-              )}
+            {organizations && organizations.length > 0 && (
+              <TabsTrigger value="organizations">Organizations</TabsTrigger>
+            )}
             {isCurrentUserProfile &&
               (
                 userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
@@ -235,16 +233,24 @@ export const UserProfilePage = () => {
         ) : activeTab === "organizations" ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {organizations && organizations.length > 0 ? (
-              organizations?.map((org: any) => (
-                <OrganizationCard
-                  key={org.org_id}
-                  organization={org}
-                  withLink={true}
-                  showStats={true}
-                  showMembers={true}
-                  className="p-3"
-                />
-              ))
+              organizations
+                ?.filter((o) => {
+                  if (!isCurrentUserProfile && o.is_personal_org) {
+                    return false
+                  } else {
+                    return true
+                  }
+                })
+                .map((org: PublicOrgSchema) => (
+                  <OrganizationCard
+                    key={org.org_id}
+                    organization={org}
+                    withLink={true}
+                    showStats={true}
+                    showMembers={true}
+                    className="p-3"
+                  />
+                ))
             ) : (
               <div className="col-span-full flex justify-center">
                 <div className="flex flex-col items-center py-12 text-gray-500">
