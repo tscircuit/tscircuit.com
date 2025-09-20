@@ -40,8 +40,8 @@ export const usePackageRelease = (
 
       const { data } = await axios.post("/package_releases/get", query, {
         params: {
-          include_logs: query.include_logs,
-          include_ai_review: query.include_ai_review,
+          include_logs: Boolean(query.include_logs),
+          include_ai_review: Boolean(query.include_ai_review),
         },
       })
 
