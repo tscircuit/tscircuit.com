@@ -147,7 +147,7 @@ export default function OrganizationSettingsPage() {
   }, [organization, form])
 
   if (!orgname) {
-    return <NotFoundPage heading="Organization Not Found" />
+    return <NotFoundPage />
   }
 
   if (isLoadingOrg) {

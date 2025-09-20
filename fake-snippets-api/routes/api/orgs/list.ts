@@ -6,14 +6,19 @@ import { z } from "zod"
 export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "optional_session",
+  commonParams: z.object({
+    github_handle: z.string(),
+  }),
   jsonResponse: z.object({
     ok: z.boolean(),
     orgs: z.array(publicOrgSchema),
   }),
 })(async (req, ctx) => {
+  const { github_handle } = req.commonParams
   const orgs = ctx.db.getOrgs(
     {
       owner_account_id: ctx.auth?.account_id,
+      github_handle,
     },
     {
       account_id: ctx.auth?.account_id,
