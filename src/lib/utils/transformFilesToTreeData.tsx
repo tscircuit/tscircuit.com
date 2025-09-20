@@ -126,15 +126,9 @@ export const transformFilesToTreeData = ({
                   <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-fit bg-white shadow-lg rounded-md border-4 z-[100] border-white"
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: "0",
-                    marginTop: "0.5rem",
-                    width: "8rem",
-                    padding: "0.01rem",
-                  }}
+                  align="start"
+                  side="bottom"
+                  className="w-32 bg-white shadow-lg rounded-md border border-white p-0"
                 >
                   <DropdownMenuGroup>
                     {isLeafNode && (
