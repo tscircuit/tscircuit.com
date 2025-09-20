@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export interface OrganizationCardProps {
   /** The organization data to display */
@@ -30,8 +31,6 @@ export interface OrganizationCardProps {
   showStats?: boolean
   /** Callback when the card is clicked */
   onClick?: (org: PublicOrgSchema) => void
-  /** Whether this is the current user's organization (enables management options) */
-  isCurrentUserOrganization?: boolean
   /** Custom class name for the card container */
   className?: string
   /** Whether to render the card with a link to the organization page */
@@ -45,12 +44,16 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   showMembers = true,
   showStats = true,
   onClick,
-  isCurrentUserOrganization = false,
   className = "",
   withLink = true,
   renderActions,
 }) => {
   const { copyToClipboard } = useCopyToClipboard()
+  const { session } = useGlobalStore()
+
+  const canManageOrg =
+    organization.owner_account_id === session?.account_id ||
+    organization.user_permissions?.can_manage_org
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (onClick && !withLink) {
@@ -127,7 +130,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                     <Share2 className="mr-2 h-3 w-3" />
                     Share Organization
                   </DropdownMenuItem>
-                  {isCurrentUserOrganization && (
+                  {canManageOrg && (
                     <DropdownMenuItem
                       className="text-xs cursor-pointer"
                       onClick={handleSettingsClick}
@@ -154,7 +157,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
               ) : (
                 <>
                   <Lock className="h-3 w-3" />
-                  <span>Private</span>
+                  <span>Personal</span>
                 </>
               )}
             </div>
@@ -162,7 +165,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             {/* Statistics */}
             {showStats && (
               <>
-                {showMembers && (
+                {showMembers && !organization.is_personal_org && (
                   <div className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     <span>{organization.member_count} members</span>
