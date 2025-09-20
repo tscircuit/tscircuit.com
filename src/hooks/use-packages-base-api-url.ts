@@ -1,3 +1,3 @@
 export const useApiBaseUrl = () => {
-  return "https://api.tscircuit.com"
+  return import.meta.env.VITE_SNIPPETS_API_URL ?? "/api"
 }
