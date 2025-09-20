@@ -7,7 +7,7 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "optional_session",
   commonParams: z.object({
-    github_handle: z.string(),
+    github_handle: z.string().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
