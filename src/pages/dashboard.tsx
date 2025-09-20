@@ -208,7 +208,6 @@ export const DashboardPage = () => {
                           withLink={true}
                           showStats={true}
                           showMembers={true}
-                          isCurrentUserOrganization={true}
                         />
                       ))}
                     </div>
