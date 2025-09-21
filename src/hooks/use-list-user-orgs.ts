@@ -3,19 +3,23 @@ import { useAxios } from "@/hooks/use-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "./use-global-store"
 
-export const useListUserOrgs = () => {
+export const useListUserOrgs = (githubHandle?: string) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
+  const github_handle = githubHandle || session?.github_username
+
   return useQuery<PublicOrgSchema[], Error & { status: number }>(
-    ["orgs", "list"],
+    ["orgs", "list", github_handle],
     async () => {
-      const { data } = await axios.get("/orgs/list")
+      const { data } = await axios.get("/orgs/list", {
+        ...(github_handle && { params: { github_handle } }),
+      })
       return data.orgs
     },
     {
       retry: false,
       refetchOnWindowFocus: false,
-      enabled: Boolean(session),
+      enabled: Boolean(github_handle),
     },
   )
 }
