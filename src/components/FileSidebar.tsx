@@ -251,7 +251,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           </div>
         </div>
       )}
-      <div className="flex-1 border-t-2 h-full">
+      <div className="flex-1 border-t h-full">
         <TreeView
           data={treeData}
           setSelectedItemId={(value) => {
