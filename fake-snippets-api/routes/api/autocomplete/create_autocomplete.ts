@@ -7,7 +7,7 @@ let openai: OpenAI | null = null
 let cachedReadme: string | null = null
 
 function getOpenAIClient() {
-  const apiKey = process.env.VITE_OPENROUTER_API_KEY
+  const apiKey = process.env.OPENROUTER_API_KEY
   if (!apiKey) {
     throw new Error("Missing Api Key in env")
   }
