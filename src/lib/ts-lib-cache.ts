@@ -53,36 +53,43 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
  */
 function getPackageCacheKey(url: string): string {
   // Create a hash-like key from the URL for better organization
-  const urlHash = btoa(url).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32)
+  const urlHash = btoa(url)
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, 32)
   return `${PACKAGE_CACHE_PREFIX}${CACHE_VERSION}-${urlHash}`
 }
 
 /**
  * Cache a package dependency
  */
-export async function cachePackageDependency(url: string, content: string): Promise<void> {
+export async function cachePackageDependency(
+  url: string,
+  content: string,
+): Promise<void> {
   try {
     const cacheKey = getPackageCacheKey(url)
     const compressed = compressToUTF16(content)
     await set(cacheKey, compressed)
   } catch (error) {
-    console.warn('Failed to cache package dependency:', error)
+    console.warn("Failed to cache package dependency:", error)
   }
 }
 
 /**
  * Retrieve a cached package dependency
  */
-export async function getCachedPackageDependency(url: string): Promise<string | null> {
+export async function getCachedPackageDependency(
+  url: string,
+): Promise<string | null> {
   try {
     const cacheKey = getPackageCacheKey(url)
     const compressed = await get(cacheKey)
-    if (compressed && typeof compressed === 'string') {
+    if (compressed && typeof compressed === "string") {
       return decompressFromUTF16(compressed)
     }
     return null
   } catch (error) {
-    console.warn('Failed to retrieve cached package dependency:', error)
+    console.warn("Failed to retrieve cached package dependency:", error)
     return null
   }
 }
@@ -90,28 +97,36 @@ export async function getCachedPackageDependency(url: string): Promise<string | 
 /**
  * Create a caching fetch wrapper for ATA
  */
-export function createCachingFetcher(originalFetch: typeof fetch = fetch): typeof fetch {
-  const cachingFetcher = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url = typeof input === 'string' ? input : input.toString()
+export function createCachingFetcher(
+  originalFetch: typeof fetch = fetch,
+): typeof fetch {
+  const cachingFetcher = async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    const url = typeof input === "string" ? input : input.toString()
 
     // Only cache package dependencies, not all requests
     const isPackageDependency =
-      url.includes('data.jsdelivr.com') ||
-      url.includes('cdn.jsdelivr.net') ||
-      url.includes('unpkg.com') ||
-      url.includes('@types/') ||
-      url.includes('@tsci/')
+      url.includes("data.jsdelivr.com") ||
+      url.includes("cdn.jsdelivr.net") ||
+      url.includes("unpkg.com") ||
+      url.includes("@types/") ||
+      url.includes("@tsci/")
 
-    if (isPackageDependency && (!init || init.method === 'GET' || !init.method)) {
+    if (
+      isPackageDependency &&
+      (!init || init.method === "GET" || !init.method)
+    ) {
       // Try to get from cache first
       const cached = await getCachedPackageDependency(url)
       if (cached) {
         console.log(`📦 Cache hit for ${url}`)
         return new Response(cached, {
           status: 200,
-          statusText: 'OK (cached)',
+          statusText: "OK (cached)",
           headers: {
-            'Content-Type': 'application/javascript',
+            "Content-Type": "application/javascript",
           },
         })
       }
@@ -134,7 +149,7 @@ export function createCachingFetcher(originalFetch: typeof fetch = fetch): typeo
           headers: response.headers,
         })
       } catch (error) {
-        console.warn('Failed to cache response:', error)
+        console.warn("Failed to cache response:", error)
         // Return the original response if caching fails
         return response
       }

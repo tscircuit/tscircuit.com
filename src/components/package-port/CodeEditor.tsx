@@ -219,7 +219,10 @@ export const CodeEditor = ({
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
     // Create custom fetcher for registry API redirects
-    const registryFetcher = async (input: RequestInfo | URL, init?: RequestInit) => {
+    const registryFetcher = async (
+      input: RequestInfo | URL,
+      init?: RequestInit,
+    ) => {
       const registryPrefixes = [
         "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
         "https://data.jsdelivr.com/v1/package/npm/@tsci/",
@@ -759,11 +762,11 @@ export const CodeEditor = ({
 
       // Only run ATA if we haven't processed these imports before
       if (!processedImportsRef.current.has(importsHash)) {
-        console.log('🔄 Processing new imports:', codeImports)
+        console.log("🔄 Processing new imports:", codeImports)
         processedImportsRef.current.add(importsHash)
         ataRef.current(fullCode)
       } else {
-        console.log('⚡ Skipping ATA - imports already processed:', codeImports)
+        console.log("⚡ Skipping ATA - imports already processed:", codeImports)
       }
     }
   }, [codeImports])
