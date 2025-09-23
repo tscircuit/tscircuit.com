@@ -9,7 +9,12 @@ import ts from "typescript"
 const TS_LIB_VERSION = "5.6.3"
 const CACHE_PREFIX = `ts-lib-${TS_LIB_VERSION}-`
 const PACKAGE_CACHE_PREFIX = `ts-pkg-dep-`
-const CACHE_VERSION = "1.0.0"
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+
+interface CachedData {
+  content: string
+  timestamp: number
+}
 
 export async function loadDefaultLibMap(): Promise<Map<string, string>> {
   const fsMap = new Map<string, string>()
@@ -54,10 +59,11 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
 function getPackageCacheKey(url: string): string {
   // Create a hash-like key from the URL for better organization
   // Use encodeURIComponent to handle non-Latin1 characters safely
+  // 32 chars provides good collision resistance while keeping keys manageable
   const urlHash = btoa(encodeURIComponent(url))
     .replace(/[^a-zA-Z0-9]/g, "")
     .slice(0, 32)
-  return `${PACKAGE_CACHE_PREFIX}${CACHE_VERSION}-${urlHash}`
+  return `${PACKAGE_CACHE_PREFIX}${urlHash}`
 }
 
 /**
@@ -69,8 +75,11 @@ export async function cachePackageDependency(
 ): Promise<void> {
   try {
     const cacheKey = getPackageCacheKey(url)
-    const compressed = compressToUTF16(content)
-    await set(cacheKey, compressed)
+    const cachedData: CachedData = {
+      content: compressToUTF16(content),
+      timestamp: Date.now(),
+    }
+    await set(cacheKey, cachedData)
   } catch (error) {
     console.warn("Failed to cache package dependency:", error)
   }
@@ -84,11 +93,21 @@ export async function getCachedPackageDependency(
 ): Promise<string | null> {
   try {
     const cacheKey = getPackageCacheKey(url)
-    const compressed = await get(cacheKey)
-    if (compressed && typeof compressed === "string") {
-      return decompressFromUTF16(compressed)
+    const cachedData = (await get(cacheKey)) as CachedData | undefined
+
+    if (!cachedData) {
+      return null
     }
-    return null
+
+    // Check if cache has expired
+    const isExpired = Date.now() - cachedData.timestamp > CACHE_TTL_MS
+    if (isExpired) {
+      // Clean up expired cache entry
+      await set(cacheKey, undefined)
+      return null
+    }
+
+    return decompressFromUTF16(cachedData.content)
   } catch (error) {
     console.warn("Failed to retrieve cached package dependency:", error)
     return null
@@ -162,9 +181,6 @@ export function createCachingFetcher(
     return response
   }
 
-  // Copy over all properties from the original fetch to maintain compatibility
-  Object.setPrototypeOf(cachingFetcher, originalFetch)
-  Object.assign(cachingFetcher, originalFetch)
-
+  // Use proper TypeScript casting instead of runtime property copying
   return cachingFetcher as typeof fetch
 }
