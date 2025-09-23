@@ -53,7 +53,8 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
  */
 function getPackageCacheKey(url: string): string {
   // Create a hash-like key from the URL for better organization
-  const urlHash = btoa(url)
+  // Use encodeURIComponent to handle non-Latin1 characters safely
+  const urlHash = btoa(encodeURIComponent(url))
     .replace(/[^a-zA-Z0-9]/g, "")
     .slice(0, 32)
   return `${PACKAGE_CACHE_PREFIX}${CACHE_VERSION}-${urlHash}`
@@ -137,6 +138,9 @@ export function createCachingFetcher(
 
     // Cache successful package dependency responses
     if (isPackageDependency && response.ok && response.status === 200) {
+      // Clone the response before consuming it to handle caching failures
+      const responseClone = response.clone()
+
       try {
         const content = await response.text()
         await cachePackageDependency(url, content)
@@ -150,8 +154,8 @@ export function createCachingFetcher(
         })
       } catch (error) {
         console.warn("Failed to cache response:", error)
-        // Return the original response if caching fails
-        return response
+        // Return the cloned response since the original was consumed
+        return responseClone
       }
     }
 
