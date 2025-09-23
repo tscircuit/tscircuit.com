@@ -58,6 +58,39 @@ import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
 
+/**
+ * Custom fetcher for registry API redirects
+ */
+function createRegistryFetcher(apiUrl: string) {
+  return async (input: RequestInfo | URL, init?: RequestInit) => {
+    const registryPrefixes = [
+      "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
+      "https://data.jsdelivr.com/v1/package/npm/@tsci/",
+      "https://cdn.jsdelivr.net/npm/@tsci/",
+    ]
+    if (
+      typeof input === "string" &&
+      registryPrefixes.some((prefix) => input.startsWith(prefix))
+    ) {
+      const fullPackageName = input
+        .replace(registryPrefixes[0], "")
+        .replace(registryPrefixes[1], "")
+        .replace(registryPrefixes[2], "")
+      const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
+      const pathInPackage = fullPackageName.split("/").slice(1).join("/")
+      const jsdelivrPath = `${packageName}${
+        pathInPackage ? `/${pathInPackage}` : ""
+      }`
+      return fetch(
+        `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
+          "/resolve/",
+        )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+      )
+    }
+    return fetch(input, init)
+  }
+}
+
 export const CodeEditor = ({
   onCodeChange,
   isPriorityFileFetched,
@@ -101,7 +134,6 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
-  const processedImportsRef = useRef<Set<string>>(new Set())
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -189,9 +221,6 @@ export const CodeEditor = ({
   useEffect(() => {
     if (!editorRef.current) return
 
-    // Clear processed imports cache when reinitializing
-    processedImportsRef.current.clear()
-
     const fsMap = new Map<string, string>()
     files.forEach(({ path, content }) => {
       fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
@@ -218,40 +247,10 @@ export const CodeEditor = ({
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
-    // Create custom fetcher for registry API redirects
-    const registryFetcher = async (
-      input: RequestInfo | URL,
-      init?: RequestInit,
-    ) => {
-      const registryPrefixes = [
-        "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-        "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-        "https://cdn.jsdelivr.net/npm/@tsci/",
-      ]
-      if (
-        typeof input === "string" &&
-        registryPrefixes.some((prefix) => input.startsWith(prefix))
-      ) {
-        const fullPackageName = input
-          .replace(registryPrefixes[0], "")
-          .replace(registryPrefixes[1], "")
-          .replace(registryPrefixes[2], "")
-        const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-        const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-        const jsdelivrPath = `${packageName}${
-          pathInPackage ? `/${pathInPackage}` : ""
-        }`
-        return fetch(
-          `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-            "/resolve/",
-          )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-        )
-      }
-      return fetch(input, init)
-    }
-
     // Apply caching wrapper to the registry fetcher
-    const cachingFetcher = createCachingFetcher(registryFetcher as typeof fetch)
+    const cachingFetcher = createCachingFetcher(
+      createRegistryFetcher(apiUrl) as typeof fetch,
+    )
 
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
@@ -750,26 +749,15 @@ export const CodeEditor = ({
     updateCurrentEditorContent(currentContent)
   }
 
-  const codeImports = getImportsFromCode(code)
-
   useEffect(() => {
     if (
       ataRef.current &&
       (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
       const fullCode = `${defaultImports}${code}`
-      const importsHash = JSON.stringify(codeImports.sort())
-
-      // Only run ATA if we haven't processed these imports before
-      if (!processedImportsRef.current.has(importsHash)) {
-        console.log("🔄 Processing new imports:", codeImports)
-        processedImportsRef.current.add(importsHash)
-        ataRef.current(fullCode)
-      } else {
-        console.log("⚡ Skipping ATA - imports already processed:", codeImports)
-      }
+      ataRef.current(fullCode)
     }
-  }, [codeImports])
+  }, [code])
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)

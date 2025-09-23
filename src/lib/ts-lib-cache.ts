@@ -54,15 +54,25 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
 }
 
 /**
+ * djb2 hash algorithm - fast and effective for string hashing
+ * Generates unique cache keys from URLs to prevent collisions
+ */
+function djb2Hash(str: string): string {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36)
+}
+
+/**
  * Cache key generator for package dependencies
  */
 function getPackageCacheKey(url: string): string {
-  // Create a hash-like key from the URL for better organization
-  // Use encodeURIComponent to handle non-Latin1 characters safely
-  // 32 chars provides good collision resistance while keeping keys manageable
-  const urlHash = btoa(encodeURIComponent(url))
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(0, 32)
+  // Use proper hashing to avoid collision issues with URL prefixes
+  const urlHash = djb2Hash(url)
   return `${PACKAGE_CACHE_PREFIX}${urlHash}`
 }
 
