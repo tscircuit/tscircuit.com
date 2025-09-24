@@ -78,7 +78,7 @@
     "@resvg/resvg-wasm": "^2.6.2",
     "@sentry/react": "^10.10.0",
     "@tailwindcss/typography": "^0.5.16",
-    "@tscircuit/3d-viewer": "^0.0.391",
+    "@tscircuit/3d-viewer": "v0.0.402",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
     "@tscircuit/eval": "^0.0.325",
