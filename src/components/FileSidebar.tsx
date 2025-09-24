@@ -170,7 +170,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         className,
       )}
     >
-      <div className="flex items-center justify-between px-2 pt-2">
+      <div className="flex items-center justify-between px-2 py-1">
         <button
           onClick={toggleSidebar}
           className={`text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
