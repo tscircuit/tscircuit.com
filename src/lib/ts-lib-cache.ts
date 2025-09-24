@@ -65,13 +65,36 @@ function djb2Hash(str: string): string {
 export async function fetchWithPackageCaching(
   input: RequestInfo | URL,
   init?: RequestInit,
+  apiUrl?: string,
 ): Promise<Response> {
+  let finalInput = input
+
+  // Handle @tsci registry redirects
+  if (typeof input === "string" && input.includes("@tsci/") && apiUrl) {
+    const registryPrefixes = [
+      "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
+      "https://data.jsdelivr.com/v1/package/npm/@tsci/",
+      "https://cdn.jsdelivr.net/npm/@tsci/",
+    ]
+    const matchedPrefix = registryPrefixes.find((prefix) =>
+      input.startsWith(prefix),
+    )
+    if (matchedPrefix) {
+      const packagePath = input.replace(matchedPrefix, "")
+      const [packageName, ...pathParts] = packagePath.split("/")
+      const jsdelivrPath = [packageName.replace(/\./g, "/"), ...pathParts].join(
+        "/",
+      )
+      finalInput = `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`
+    }
+  }
+
   const url =
-    typeof input === "string"
-      ? input
-      : input instanceof URL
-        ? input.toString()
-        : (input as Request).url
+    typeof finalInput === "string"
+      ? finalInput
+      : finalInput instanceof URL
+        ? finalInput.toString()
+        : (finalInput as Request).url
 
   const isPackageDependency =
     url.includes("data.jsdelivr.com") ||
@@ -93,7 +116,7 @@ export async function fetchWithPackageCaching(
     }
   }
 
-  const response = await fetch(input, init)
+  const response = await fetch(finalInput, init)
 
   if (isPackageDependency && response.ok && response.status === 200) {
     const responseClone = response.clone()

@@ -57,38 +57,6 @@ import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
 
-async function fetchWithRegistryAndCaching(
-  apiUrl: string,
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<Response> {
-  let finalInput = input
-
-  // Handle @tsci registry redirects
-  if (typeof input === "string" && input.includes("@tsci/")) {
-    const registryPrefixes = [
-      "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-      "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-      "https://cdn.jsdelivr.net/npm/@tsci/",
-    ]
-
-    const matchedPrefix = registryPrefixes.find((prefix) =>
-      input.startsWith(prefix),
-    )
-    if (matchedPrefix) {
-      const packagePath = input.replace(matchedPrefix, "")
-      const [packageName, ...pathParts] = packagePath.split("/")
-      const jsdelivrPath = [packageName.replace(/\./g, "/"), ...pathParts].join(
-        "/",
-      )
-
-      finalInput = `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`
-    }
-  }
-
-  return fetchWithPackageCaching(finalInput, init)
-}
-
 export const CodeEditor = ({
   onCodeChange,
   isPriorityFileFetched,
@@ -250,7 +218,7 @@ export const CodeEditor = ({
       typescript: tsModule,
       logger: console,
       fetcher: ((input, init) =>
-        fetchWithRegistryAndCaching(apiUrl, input, init)) as typeof fetch,
+        fetchWithPackageCaching(input, init, apiUrl)) as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
