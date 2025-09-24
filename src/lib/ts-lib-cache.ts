@@ -102,9 +102,16 @@ export async function fetchWithPackageCaching(
     }
 
     if (packagePath) {
+      // Convert dots to slashes in the package name part (like original logic)
+      const parts = packagePath.split("/")
+      if (parts.length > 0) {
+        parts[0] = parts[0].replace(/\./g, "/")
+      }
+      const transformedPackagePath = parts.join("/")
+
       const apiUrl = import.meta.env.VITE_SNIPPETS_API_URL ?? "/api"
       const isResolve = url.includes("/resolve/")
-      fetchUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${isResolve}&jsdelivr_path=${encodeURIComponent(packagePath)}`
+      fetchUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${isResolve}&jsdelivr_path=${encodeURIComponent(transformedPackagePath)}`
     }
   }
 
