@@ -57,9 +57,6 @@ import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
 
-/**
- * Combined fetch for registry redirects and caching
- */
 async function fetchWithRegistryAndCaching(
   apiUrl: string,
   input: RequestInfo | URL,

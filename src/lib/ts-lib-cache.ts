@@ -53,80 +53,15 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
   return fsMap
 }
 
-/**
- * djb2 hash algorithm - fast and effective for string hashing
- * Generates unique cache keys from URLs to prevent collisions
- */
 function djb2Hash(str: string): string {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32-bit integer
+    hash = hash & hash
   }
   return Math.abs(hash).toString(36)
 }
-
-/**
- * Cache key generator for package dependencies
- */
-function getPackageCacheKey(url: string): string {
-  // Use proper hashing to avoid collision issues with URL prefixes
-  const urlHash = djb2Hash(url)
-  return `${PACKAGE_CACHE_PREFIX}${urlHash}`
-}
-
-/**
- * Cache a package dependency
- */
-export async function cachePackageDependency(
-  url: string,
-  content: string,
-): Promise<void> {
-  try {
-    const cacheKey = getPackageCacheKey(url)
-    const cachedData: CachedData = {
-      content: compressToUTF16(content),
-      timestamp: Date.now(),
-    }
-    await set(cacheKey, cachedData)
-  } catch (error) {
-    console.warn("Failed to cache package dependency:", error)
-  }
-}
-
-/**
- * Retrieve a cached package dependency
- */
-export async function getCachedPackageDependency(
-  url: string,
-): Promise<string | null> {
-  try {
-    const cacheKey = getPackageCacheKey(url)
-    const cachedData = (await get(cacheKey)) as CachedData | undefined
-
-    if (!cachedData) {
-      return null
-    }
-
-    // Check if cache has expired
-    const isExpired = Date.now() - cachedData.timestamp > CACHE_TTL_MS
-    if (isExpired) {
-      // Clean up expired cache entry
-      await set(cacheKey, undefined)
-      return null
-    }
-
-    return decompressFromUTF16(cachedData.content)
-  } catch (error) {
-    console.warn("Failed to retrieve cached package dependency:", error)
-    return null
-  }
-}
-
-/**
- * Fetch with automatic package dependency caching
- */
 export async function fetchWithPackageCaching(
   input: RequestInfo | URL,
   init?: RequestInit,
@@ -138,7 +73,6 @@ export async function fetchWithPackageCaching(
         ? input.toString()
         : (input as Request).url
 
-  // Only cache package dependencies, not all requests
   const isPackageDependency =
     url.includes("data.jsdelivr.com") ||
     url.includes("cdn.jsdelivr.net") ||
@@ -147,40 +81,35 @@ export async function fetchWithPackageCaching(
     url.includes("@tsci/")
 
   if (isPackageDependency && (!init || init.method === "GET" || !init.method)) {
-    // Try to get from cache first
-    const cached = await getCachedPackageDependency(url)
-    if (cached) {
-      return new Response(cached, {
+    const cacheKey = `${PACKAGE_CACHE_PREFIX}${djb2Hash(url)}`
+    const cachedData = (await get(cacheKey)) as CachedData | undefined
+
+    if (cachedData && Date.now() - cachedData.timestamp <= CACHE_TTL_MS) {
+      return new Response(decompressFromUTF16(cachedData.content), {
         status: 200,
         statusText: "OK (cached)",
-        headers: {
-          "Content-Type": "application/javascript",
-        },
+        headers: { "Content-Type": "application/javascript" },
       })
     }
   }
 
-  // If not cached or not a package dependency, fetch normally
   const response = await fetch(input, init)
 
-  // Cache successful package dependency responses
   if (isPackageDependency && response.ok && response.status === 200) {
-    // Clone the response before consuming it to handle caching failures
     const responseClone = response.clone()
-
     try {
       const content = await response.text()
-      await cachePackageDependency(url, content)
-
-      // Return a new response with the content since we consumed the original
+      const cacheKey = `${PACKAGE_CACHE_PREFIX}${djb2Hash(url)}`
+      await set(cacheKey, {
+        content: compressToUTF16(content),
+        timestamp: Date.now(),
+      })
       return new Response(content, {
         status: response.status,
         statusText: response.statusText,
         headers: response.headers,
       })
-    } catch (error) {
-      console.warn("Failed to cache response:", error)
-      // Return the cloned response since the original was consumed
+    } catch {
       return responseClone
     }
   }
