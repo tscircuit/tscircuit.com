@@ -123,7 +123,7 @@ export async function fetchWithPackageCaching(
       // Convert dots to slashes in the package name part (like original logic)
       const parts = packagePath.split("/")
       if (parts.length > 0) {
-        parts[0] = parts[0].replace(/\./g, "/")
+        parts[0] = parts[0].replace(/\./, "/")
       }
       const transformedPackagePath = parts.join("/")
 
