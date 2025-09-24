@@ -1,3 +1,4 @@
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { basicSetup } from "@/lib/codemirror/basic-setup"
 import {
@@ -100,6 +101,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
+  const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
