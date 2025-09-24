@@ -141,7 +141,11 @@ export async function fetchWithPackageCaching(
     await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(
       () => {},
     )
-    return new Response(text, response)
+    return new Response(text, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    })
   }
 
   return response
