@@ -45,7 +45,10 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
   return fsMap
 }
 
-export async function fetchWithPackageCaching(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+export async function fetchWithPackageCaching(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
   const url = typeof input === "string" ? input : input.toString()
 
   // Only cache GET requests for packages
@@ -54,10 +57,11 @@ export async function fetchWithPackageCaching(input: RequestInfo | URL, init?: R
   }
 
   // Check if this should be cached
-  const shouldCache = url.includes("jsdelivr.net") ||
-                     url.includes("unpkg.com") ||
-                     url.includes("@types/") ||
-                     url.includes("@tsci/")
+  const shouldCache =
+    url.includes("jsdelivr.net") ||
+    url.includes("unpkg.com") ||
+    url.includes("@types/") ||
+    url.includes("@tsci/")
 
   if (!shouldCache) {
     return fetch(input, init)
@@ -72,7 +76,7 @@ export async function fetchWithPackageCaching(input: RequestInfo | URL, init?: R
     if (Date.now() - timestamp < CACHE_TTL) {
       return new Response(decompressFromUTF16(data), {
         status: 200,
-        statusText: "OK"
+        statusText: "OK",
       })
     }
   }
@@ -90,7 +94,9 @@ export async function fetchWithPackageCaching(input: RequestInfo | URL, init?: R
   if (response.ok) {
     const text = await response.text()
     const compressed = compressToUTF16(text)
-    await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(() => {})
+    await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(
+      () => {},
+    )
     return new Response(text, response)
   }
 
