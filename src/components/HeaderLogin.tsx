@@ -1,3 +1,4 @@
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { User } from "lucide-react"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useAccountBalance } from "@/hooks/use-account-balance"
 import { useSignIn } from "@/hooks/use-sign-in"
 
 export const HeaderLogin = () => {
@@ -15,6 +17,7 @@ export const HeaderLogin = () => {
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
+  const { data: accountBalance } = useAccountBalance()
 
   if (!isLoggedIn) {
     return (
@@ -41,13 +44,13 @@ export const HeaderLogin = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="ml-1 mr-1 md:ml-0 md:mr-1">
-        {/* <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
+        <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
           <div>
             AI Usage $
             {accountBalance?.monthly_ai_budget_used_usd.toFixed(2) ?? "0.00"} /
             $5.00
           </div>
-        </DropdownMenuItem> */}
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <a href={`/${session?.github_username}`} className="cursor-pointer">
             My Profile
