@@ -11,7 +11,6 @@ import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState, Prec } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
 import { linter } from "@codemirror/lint"
@@ -23,7 +22,7 @@ import {
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
-import { loadDefaultLibMap, createCachingFetcher } from "@/lib/ts-lib-cache"
+import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
@@ -59,36 +58,38 @@ import type { CommonLayoutProps } from "@tscircuit/props"
 `
 
 /**
- * Custom fetcher for registry API redirects
+ * Combined fetch for registry redirects and caching
  */
-function createRegistryFetcher(apiUrl: string) {
-  return async (input: RequestInfo | URL, init?: RequestInit) => {
+async function fetchWithRegistryAndCaching(
+  apiUrl: string,
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
+  let finalInput = input
+
+  // Handle @tsci registry redirects
+  if (typeof input === "string" && input.includes("@tsci/")) {
     const registryPrefixes = [
       "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
       "https://data.jsdelivr.com/v1/package/npm/@tsci/",
       "https://cdn.jsdelivr.net/npm/@tsci/",
     ]
-    if (
-      typeof input === "string" &&
-      registryPrefixes.some((prefix) => input.startsWith(prefix))
-    ) {
-      const fullPackageName = input
-        .replace(registryPrefixes[0], "")
-        .replace(registryPrefixes[1], "")
-        .replace(registryPrefixes[2], "")
-      const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-      const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-      const jsdelivrPath = `${packageName}${
-        pathInPackage ? `/${pathInPackage}` : ""
-      }`
-      return fetch(
-        `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-          "/resolve/",
-        )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
+
+    const matchedPrefix = registryPrefixes.find((prefix) =>
+      input.startsWith(prefix),
+    )
+    if (matchedPrefix) {
+      const packagePath = input.replace(matchedPrefix, "")
+      const [packageName, ...pathParts] = packagePath.split("/")
+      const jsdelivrPath = [packageName.replace(".", "/"), ...pathParts].join(
+        "/",
       )
+
+      finalInput = `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`
     }
-    return fetch(input, init)
   }
+
+  return fetchWithPackageCaching(finalInput, init)
 }
 
 export const CodeEditor = ({
@@ -135,7 +136,6 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useApiBaseUrl()
-  const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
@@ -247,16 +247,13 @@ export const CodeEditor = ({
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
-    // Apply caching wrapper to the registry fetcher
-    const cachingFetcher = createCachingFetcher(
-      createRegistryFetcher(apiUrl) as typeof fetch,
-    )
-
+    // Use combined fetch function for registry and caching
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: cachingFetcher,
+      fetcher: ((input, init) =>
+        fetchWithRegistryAndCaching(apiUrl, input, init)) as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
@@ -339,10 +336,6 @@ export const CodeEditor = ({
           // setCode(newContent)
           onCodeChange(newContent, currentFile)
           onFileContentChanged?.(currentFile, newContent)
-        }
-        if (update.selectionSet) {
-          const pos = update.state.selection.main.head
-          setCursorPosition(pos)
         }
       }),
       EditorView.theme({

@@ -125,72 +125,60 @@ export async function getCachedPackageDependency(
 }
 
 /**
- * Create a caching fetch wrapper for ATA
+ * Fetch with automatic package dependency caching
  */
-export function createCachingFetcher(
-  originalFetch: typeof fetch = fetch,
-): typeof fetch {
-  const cachingFetcher = async (
-    input: RequestInfo | URL,
-    init?: RequestInit,
-  ): Promise<Response> => {
-    const url = typeof input === "string" ? input : input.toString()
+export async function fetchWithPackageCaching(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
+  const url = typeof input === "string" ? input : input.toString()
 
-    // Only cache package dependencies, not all requests
-    const isPackageDependency =
-      url.includes("data.jsdelivr.com") ||
-      url.includes("cdn.jsdelivr.net") ||
-      url.includes("unpkg.com") ||
-      url.includes("@types/") ||
-      url.includes("@tsci/")
+  // Only cache package dependencies, not all requests
+  const isPackageDependency =
+    url.includes("data.jsdelivr.com") ||
+    url.includes("cdn.jsdelivr.net") ||
+    url.includes("unpkg.com") ||
+    url.includes("@types/") ||
+    url.includes("@tsci/")
 
-    if (
-      isPackageDependency &&
-      (!init || init.method === "GET" || !init.method)
-    ) {
-      // Try to get from cache first
-      const cached = await getCachedPackageDependency(url)
-      if (cached) {
-        console.log(`📦 Cache hit for ${url}`)
-        return new Response(cached, {
-          status: 200,
-          statusText: "OK (cached)",
-          headers: {
-            "Content-Type": "application/javascript",
-          },
-        })
-      }
+  if (isPackageDependency && (!init || init.method === "GET" || !init.method)) {
+    // Try to get from cache first
+    const cached = await getCachedPackageDependency(url)
+    if (cached) {
+      return new Response(cached, {
+        status: 200,
+        statusText: "OK (cached)",
+        headers: {
+          "Content-Type": "application/javascript",
+        },
+      })
     }
-
-    // If not cached or not a package dependency, fetch normally
-    const response = await originalFetch(input, init)
-
-    // Cache successful package dependency responses
-    if (isPackageDependency && response.ok && response.status === 200) {
-      // Clone the response before consuming it to handle caching failures
-      const responseClone = response.clone()
-
-      try {
-        const content = await response.text()
-        await cachePackageDependency(url, content)
-        console.log(`💾 Cached ${url}`)
-
-        // Return a new response with the content since we consumed the original
-        return new Response(content, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: response.headers,
-        })
-      } catch (error) {
-        console.warn("Failed to cache response:", error)
-        // Return the cloned response since the original was consumed
-        return responseClone
-      }
-    }
-
-    return response
   }
 
-  // Use proper TypeScript casting instead of runtime property copying
-  return cachingFetcher as typeof fetch
+  // If not cached or not a package dependency, fetch normally
+  const response = await fetch(input, init)
+
+  // Cache successful package dependency responses
+  if (isPackageDependency && response.ok && response.status === 200) {
+    // Clone the response before consuming it to handle caching failures
+    const responseClone = response.clone()
+
+    try {
+      const content = await response.text()
+      await cachePackageDependency(url, content)
+
+      // Return a new response with the content since we consumed the original
+      return new Response(content, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      })
+    } catch (error) {
+      console.warn("Failed to cache response:", error)
+      // Return the cloned response since the original was consumed
+      return responseClone
+    }
+  }
+
+  return response
 }
