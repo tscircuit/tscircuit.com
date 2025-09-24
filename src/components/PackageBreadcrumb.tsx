@@ -1,4 +1,4 @@
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -29,7 +29,7 @@ export function PackageBreadcrumb({
         {/* Author */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <PrefetchPageLink href={`/${author}`}>{author}</PrefetchPageLink>
+            <Link href={`/${author}`}>{author}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
@@ -39,9 +39,7 @@ export function PackageBreadcrumb({
         {/* Package */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <PrefetchPageLink href={`/${packageName}`}>
-              {unscopedName || packageName}
-            </PrefetchPageLink>
+            <Link href={`/${packageName}`}>{unscopedName || packageName}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
@@ -58,9 +56,7 @@ export function PackageBreadcrumb({
                 <BreadcrumbPage>releases</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <PrefetchPageLink href={`/${packageName}/releases`}>
-                    releases
-                  </PrefetchPageLink>
+                  <Link href={`/${packageName}/releases`}>releases</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>
@@ -76,11 +72,9 @@ export function PackageBreadcrumb({
             <BreadcrumbItem>
               {currentPage === "builds" ? (
                 <BreadcrumbLink asChild>
-                  <PrefetchPageLink
-                    href={`/${packageName}/releases/${releaseVersion}`}
-                  >
+                  <Link href={`/${packageName}/releases/${releaseVersion}`}>
                     {releaseVersion}
-                  </PrefetchPageLink>
+                  </Link>
                 </BreadcrumbLink>
               ) : (
                 <BreadcrumbPage>{releaseVersion}</BreadcrumbPage>

@@ -12,7 +12,7 @@ import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 import { Loader2 } from "lucide-react"
 
 export const QuickstartPage = () => {
@@ -75,7 +75,7 @@ export const QuickstartPage = () => {
                   )
                   .slice(0, 4)
                   .map((pkg) => (
-                    <PrefetchPageLink
+                    <Link
                       key={pkg.package_id}
                       href={`/editor?package_id=${pkg.package_id}`}
                     >
@@ -92,7 +92,7 @@ export const QuickstartPage = () => {
                           </p>
                         </CardContent>
                       </Card>
-                    </PrefetchPageLink>
+                    </Link>
                   ))}
               </div>
             )}
@@ -107,7 +107,7 @@ export const QuickstartPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {blankTemplates.map((template, index) => (
-              <PrefetchPageLink
+              <Link
                 key={index}
                 href={
                   template.disabled
@@ -134,7 +134,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </PrefetchPageLink>
+              </Link>
             ))}
           </div>
         </div>
@@ -209,7 +209,7 @@ export const QuickstartPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template, index) => (
-              <PrefetchPageLink
+              <Link
                 key={index}
                 href={`/editor?template=${template.name
                   .toLowerCase()
@@ -225,7 +225,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </PrefetchPageLink>
+              </Link>
             ))}
           </div>
         </div>

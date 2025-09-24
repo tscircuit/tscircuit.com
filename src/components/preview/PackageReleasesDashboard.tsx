@@ -12,7 +12,7 @@ import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus } from "."
-import { PrefetchPageLink } from "../PrefetchPageLink"
+import { Link } from "wouter"
 import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import {
   Package,
@@ -56,12 +56,12 @@ export const PackageReleasesDashboard = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    <PrefetchPageLink
+                    <Link
                       href={"/" + pkg.name}
                       className="text-2xl font-bold text-gray-900 truncate"
                     >
                       {pkg.name}
-                    </PrefetchPageLink>
+                    </Link>
                     <Badge
                       variant={
                         status === "success"

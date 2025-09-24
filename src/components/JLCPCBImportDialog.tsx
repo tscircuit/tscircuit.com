@@ -13,7 +13,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useLocation } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { PrefetchPageLink } from "./PrefetchPageLink"
+import { Link } from "wouter"
 
 interface JLCPCBImportDialogProps {
   open: boolean
@@ -255,12 +255,12 @@ export function JLCPCBImportDialog({
           {existingComponent && (
             <p className="p-2 mt-2 pre-wrap text-md text-green-600">
               This part number has already been imported to your profile.{" "}
-              <PrefetchPageLink
+              <Link
                 className="text-blue-500 hover:underline"
                 href={`/${existingComponent.username}/${existingComponent.partNumber}`}
               >
                 View it here
-              </PrefetchPageLink>
+              </Link>
             </p>
           )}
         </div>

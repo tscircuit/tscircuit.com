@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 
 export function NotFound({ heading = "Page not found" }: { heading?: string }) {
   return (
@@ -20,16 +20,16 @@ export function NotFound({ heading = "Page not found" }: { heading?: string }) {
           address.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <PrefetchPageLink href="/">
+          <Link href="/">
             <Button size="lg" className="bg-blue-500 hover:bg-blue-600">
               Return Home
             </Button>
-          </PrefetchPageLink>
-          <PrefetchPageLink href="/search">
+          </Link>
+          <Link href="/search">
             <Button size="lg" variant="outline">
               Search Packages
             </Button>
-          </PrefetchPageLink>
+          </Link>
         </div>
       </div>
     </section>

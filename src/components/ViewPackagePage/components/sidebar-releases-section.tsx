@@ -6,7 +6,7 @@ import { timeAgo } from "@/lib/utils/timeAgo"
 import { BuildStatus, BuildStep } from "./build-status"
 import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { getBuildStatus, StatusIcon } from "@/components/preview"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 
 function getTranspilationStatus(
@@ -80,21 +80,21 @@ export default function SidebarReleasesSection() {
   return (
     <div className="mb-6">
       <h2 className="text-lg font-semibold mb-2">
-        <PrefetchPageLink
+        <Link
           href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
           className="hover:underline"
         >
           Releases
-        </PrefetchPageLink>
+        </Link>
       </h2>
       <div className="flex flex-col space-y-2">
-        <PrefetchPageLink
+        <Link
           href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
           className="flex items-center hover:underline"
         >
           <Tag className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
           <span className="text-sm font-medium">v{packageRelease.version}</span>
-        </PrefetchPageLink>
+        </Link>
         <div className="flex items-center">
           <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
           <span className="text-sm text-gray-500 dark:text-[#8b949e]">
@@ -109,13 +109,13 @@ export default function SidebarReleasesSection() {
           />
         ))}
         {latestBuild && (
-          <PrefetchPageLink
+          <Link
             href={`/${packageInfo?.name}/releases`}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8b949e]"
           >
             <StatusIcon status={status} />
             <span>Package Preview {label}</span>
-          </PrefetchPageLink>
+          </Link>
         )}
       </div>
       {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
