@@ -70,7 +70,6 @@ const CreateOrganizationPage = lazyImport(
 const ProfileRouter = lazyImport(() => import("@/components/ProfileRouter"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
-const PackageBuildsPage = lazyImport(() => import("@/pages/package-builds"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
 const DatasheetsPage = lazyImport(() => import("@/pages/datasheets"))
@@ -299,11 +298,6 @@ function App() {
               component={ReleasesPage}
             />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
-            <Route
-              path="/:author/:packageName/builds"
-              component={PackageBuildsPage}
-            />
-
             {/* 404 fallback */}
             <Route component={lazyImport(() => import("@/pages/404"))} />
           </Switch>
