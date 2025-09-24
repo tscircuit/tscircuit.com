@@ -7,6 +7,7 @@ import { compressToUTF16, decompressFromUTF16 } from "lz-string"
 import ts from "typescript"
 
 const TS_LIB_VERSION = "5.6.3"
+const CACHE_PREFIX = `ts-lib-${TS_LIB_VERSION}-`
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 export async function loadDefaultLibMap(): Promise<Map<string, string>> {
@@ -18,10 +19,20 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
   const missing: string[] = []
 
   for (const lib of libs) {
-    const cacheKey = `ts-lib-${TS_LIB_VERSION}-${lib}`
+    const cacheKey = CACHE_PREFIX + lib
     const cached = await get(cacheKey)
-    if (cached) {
-      fsMap.set("/" + lib, decompressFromUTF16(cached as string))
+    if (
+      cached &&
+      typeof cached === "object" &&
+      "data" in cached &&
+      "timestamp" in cached
+    ) {
+      const { data, timestamp } = cached as { data: string; timestamp: number }
+      if (Date.now() - timestamp < CACHE_TTL) {
+        fsMap.set("/" + lib, decompressFromUTF16(data))
+      } else {
+        missing.push(lib)
+      }
     } else {
       missing.push(lib)
     }
@@ -37,8 +48,11 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
     )
     for (const [filename, content] of fetched) {
       fsMap.set(filename, content)
-      const cacheKey = `ts-lib-${TS_LIB_VERSION}-${filename.replace(/^\//, "")}`
-      await set(cacheKey, compressToUTF16(content))
+      const cacheKey = CACHE_PREFIX + filename.replace(/^\//, "")
+      const compressed = compressToUTF16(content)
+      await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(
+        () => {},
+      )
     }
   }
 
@@ -96,9 +110,13 @@ export async function fetchWithPackageCaching(
     if (url.includes("jsdelivr.net")) {
       packagePath = url.replace("https://cdn.jsdelivr.net/npm/@tsci/", "")
     } else if (url.includes("/v1/package/resolve/npm/@tsci/")) {
-      packagePath = url.replace(/.*\/v1\/package\/resolve\/npm\/@tsci\//, "")
+      const resolveIndex = url.indexOf("/v1/package/resolve/npm/@tsci/")
+      packagePath = url.substring(
+        resolveIndex + "/v1/package/resolve/npm/@tsci/".length,
+      )
     } else if (url.includes("/v1/package/npm/@tsci/")) {
-      packagePath = url.replace(/.*\/v1\/package\/npm\/@tsci\//, "")
+      const npmIndex = url.indexOf("/v1/package/npm/@tsci/")
+      packagePath = url.substring(npmIndex + "/v1/package/npm/@tsci/".length)
     }
 
     if (packagePath) {
