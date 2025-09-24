@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Clock, GitBranch, Eye } from "lucide-react"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { useLocation } from "wouter"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
@@ -30,9 +29,7 @@ export const PackageReleasesDashboard = ({
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
-  const [, setLocation] = useLocation()
   const { status, label } = getBuildStatus(latestBuild)
-
   return (
     <>
       <Header />
@@ -139,7 +136,7 @@ export const PackageReleasesDashboard = ({
                     <span className="sm:hidden">Repository</span>
                   </Button>
                 )}
-                {latestBuild && (
+                {latestBuild && status !== "error" && (
                   <Button
                     variant="outline"
                     size="sm"
