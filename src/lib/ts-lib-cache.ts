@@ -131,7 +131,12 @@ export async function fetchWithPackageCaching(
   input: RequestInfo | URL,
   init?: RequestInit,
 ): Promise<Response> {
-  const url = typeof input === "string" ? input : input.toString()
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : (input as Request).url
 
   // Only cache package dependencies, not all requests
   const isPackageDependency =
