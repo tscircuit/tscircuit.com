@@ -71,7 +71,12 @@ export async function fetchWithPackageCaching(
 
   // Check cache
   const cached = await get(cacheKey).catch(() => null)
-  if (cached && typeof cached === "object" && "data" in cached && "timestamp" in cached) {
+  if (
+    cached &&
+    typeof cached === "object" &&
+    "data" in cached &&
+    "timestamp" in cached
+  ) {
     const { data, timestamp } = cached as { data: string; timestamp: number }
     if (Date.now() - timestamp < CACHE_TTL) {
       return new Response(decompressFromUTF16(data), {
@@ -83,7 +88,10 @@ export async function fetchWithPackageCaching(
 
   // Handle @tsci packages
   let fetchUrl = url
-  if (url.includes("@tsci/") && (url.includes("jsdelivr.net") || url.includes("data.jsdelivr.com"))) {
+  if (
+    url.includes("@tsci/") &&
+    (url.includes("jsdelivr.net") || url.includes("data.jsdelivr.com"))
+  ) {
     let packagePath = ""
     if (url.includes("jsdelivr.net")) {
       packagePath = url.replace("https://cdn.jsdelivr.net/npm/@tsci/", "")
