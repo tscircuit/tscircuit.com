@@ -217,8 +217,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: ((input, init) =>
-        fetchWithPackageCaching(input, init, apiUrl)) as typeof fetch,
+      fetcher: fetchWithPackageCaching as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
