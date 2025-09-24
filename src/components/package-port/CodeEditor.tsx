@@ -81,7 +81,7 @@ async function fetchWithRegistryAndCaching(
     if (matchedPrefix) {
       const packagePath = input.replace(matchedPrefix, "")
       const [packageName, ...pathParts] = packagePath.split("/")
-      const jsdelivrPath = [packageName.replace(".", "/"), ...pathParts].join(
+      const jsdelivrPath = [packageName.replace(/\./g, "/"), ...pathParts].join(
         "/",
       )
 
