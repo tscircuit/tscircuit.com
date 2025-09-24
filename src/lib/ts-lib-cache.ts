@@ -71,7 +71,7 @@ export async function fetchWithPackageCaching(
 
   // Check cache
   const cached = await get(cacheKey).catch(() => null)
-  if (cached) {
+  if (cached && typeof cached === "object" && "data" in cached && "timestamp" in cached) {
     const { data, timestamp } = cached as { data: string; timestamp: number }
     if (Date.now() - timestamp < CACHE_TTL) {
       return new Response(decompressFromUTF16(data), {
@@ -83,10 +83,21 @@ export async function fetchWithPackageCaching(
 
   // Handle @tsci packages
   let fetchUrl = url
-  if (url.includes("@tsci/") && url.includes("jsdelivr.net")) {
-    const packagePath = url.replace("https://cdn.jsdelivr.net/npm/@tsci/", "")
-    const apiUrl = import.meta.env.VITE_SNIPPETS_API_URL ?? "/api"
-    fetchUrl = `${apiUrl}/snippets/download?jsdelivr_path=${encodeURIComponent(packagePath)}`
+  if (url.includes("@tsci/") && (url.includes("jsdelivr.net") || url.includes("data.jsdelivr.com"))) {
+    let packagePath = ""
+    if (url.includes("jsdelivr.net")) {
+      packagePath = url.replace("https://cdn.jsdelivr.net/npm/@tsci/", "")
+    } else if (url.includes("/v1/package/resolve/npm/@tsci/")) {
+      packagePath = url.replace(/.*\/v1\/package\/resolve\/npm\/@tsci\//, "")
+    } else if (url.includes("/v1/package/npm/@tsci/")) {
+      packagePath = url.replace(/.*\/v1\/package\/npm\/@tsci\//, "")
+    }
+
+    if (packagePath) {
+      const apiUrl = import.meta.env.VITE_SNIPPETS_API_URL ?? "/api"
+      const isResolve = url.includes("/resolve/")
+      fetchUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${isResolve}&jsdelivr_path=${encodeURIComponent(packagePath)}`
+    }
   }
 
   // Fetch and cache
