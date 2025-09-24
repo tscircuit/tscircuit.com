@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { PrefetchPageLink } from "./PrefetchPageLink"
+import { Link } from "wouter"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -42,9 +42,9 @@ const LinkWithNewTabHandling = ({
     )
   }
   return (
-    <PrefetchPageLink onClick={onClick} className={className} href={href}>
+    <Link onClick={onClick} className={className} href={href}>
       {children}
-    </PrefetchPageLink>
+    </Link>
   )
 }
 

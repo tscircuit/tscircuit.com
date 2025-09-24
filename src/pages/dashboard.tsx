@@ -4,11 +4,10 @@ import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { Link } from "wouter"
 import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
@@ -134,7 +133,7 @@ export const DashboardPage = () => {
                       {myPackages &&
                         myPackages.slice(0, 3).map((pkg) => (
                           <div key={pkg.package_id}>
-                            <PrefetchPageLink
+                            <Link
                               href={`/editor?package_id=${pkg.package_id}`}
                               className="text-blue-600 hover:underline"
                             >
@@ -146,7 +145,7 @@ export const DashboardPage = () => {
                                 {pkg.unscoped_name}
                                 <Edit2 className="w-3 h-3 ml-2" />
                               </Button>
-                            </PrefetchPageLink>
+                            </Link>
                           </div>
                         ))}
                     </div>

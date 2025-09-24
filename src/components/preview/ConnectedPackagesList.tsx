@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GitBranch, Rocket, Github } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { PrefetchPageLink } from "../PrefetchPageLink"
+import { Link } from "wouter"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { getBuildStatus, StatusIcon } from "."
 import { Package } from "fake-snippets-api/lib/db/schema"
@@ -174,25 +174,25 @@ export const ConnectedPackageCard = ({
       </div>
 
       <div className="flex gap-2 w-full mt-auto">
-        <PrefetchPageLink className="w-full" href={`/${pkg.name}/releases`}>
+        <Link className="w-full" href={`/${pkg.name}/releases`}>
           <Button
             size="sm"
             className="bg-blue-600 w-full hover:bg-blue-700 text-white px-4 py-2"
           >
             View
           </Button>
-        </PrefetchPageLink>
+        </Link>
         {latestBuildInfo?.preview_url &&
           latestBuildInfo?.package_build_id &&
           status === "success" && (
-            <PrefetchPageLink
+            <Link
               className="w-full"
               href={`/${pkg.name}/releases/${latestBuildInfo.package_release_id}/preview`}
             >
               <Button size="sm" variant="outline" className="px-4 py-2 w-full">
                 Preview
               </Button>
-            </PrefetchPageLink>
+            </Link>
           )}
       </div>
     </Card>

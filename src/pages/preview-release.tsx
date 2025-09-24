@@ -3,7 +3,7 @@ import { useParams } from "wouter"
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/Header"
 import { cn } from "@/lib/utils"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 import NotFoundPage from "./404"
 import { getBuildStatus } from "@/components/preview"
 import { usePackageReleaseById } from "@/hooks/use-package-release"
@@ -106,13 +106,13 @@ export default function PreviewBuildPage() {
                       <span className="text-xs text-gray-500 uppercase tracking-wide">
                         ID
                       </span>
-                      <PrefetchPageLink
+                      <Link
                         href={`/${pkg?.name}/releases/${build?.package_release_id}`}
                         title={build?.package_build_id}
                         className="font-mono text-sm truncate text-gray-900 bg-gray-100 w-full px-2 py-1 rounded"
                       >
                         {build?.package_build_id}
-                      </PrefetchPageLink>
+                      </Link>
                     </div>
                     {packageRelease?.commit_message && (
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">

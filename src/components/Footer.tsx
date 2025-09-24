@@ -1,7 +1,6 @@
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { CircuitBoard } from "lucide-react"
 import { Link } from "wouter"
-import { PrefetchPageLink } from "./PrefetchPageLink"
 
 export default function Footer() {
   const session = useGlobalStore((s) => s.session)
@@ -34,13 +33,13 @@ export default function Footer() {
               ]
                 .filter((item) => !item.hidden)
                 .map((item) => (
-                  <PrefetchPageLink
+                  <Link
                     key={item.name}
                     href={item.href}
                     className="hover:underline"
                   >
                     {item.name}
-                  </PrefetchPageLink>
+                  </Link>
                 ))}
               <a
                 href="https://chat.tscircuit.com"
@@ -55,15 +54,15 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Explore</h3>
             <footer className="flex flex-col space-y-2">
-              <PrefetchPageLink href="/latest" className="hover:underline">
+              <Link href="/latest" className="hover:underline">
                 Latest Packages
-              </PrefetchPageLink>
-              <PrefetchPageLink href="/trending" className="hover:underline">
+              </Link>
+              <Link href="/trending" className="hover:underline">
                 Trending Packages
-              </PrefetchPageLink>
-              <PrefetchPageLink href="/search" className="hover:underline">
+              </Link>
+              <Link href="/search" className="hover:underline">
                 Search Packages
-              </PrefetchPageLink>
+              </Link>
               <a href="https://docs.tscircuit.com" className="hover:underline">
                 Docs
               </a>

@@ -18,7 +18,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
 import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
-import { PrefetchPageLink } from "@/components/PrefetchPageLink"
+import { Link } from "wouter"
 
 export function LandingPage() {
   const signIn = useSignIn()
@@ -72,7 +72,7 @@ export function LandingPage() {
                         Get Started
                       </Button>
                     </a>
-                    <PrefetchPageLink
+                    <Link
                       href="/seveibar/led-water-accelerometer#3d"
                       className="w-[70vw] min-[500px]:w-auto"
                     >
@@ -84,7 +84,7 @@ export function LandingPage() {
                       >
                         Open Online Example
                       </Button>
-                    </PrefetchPageLink>
+                    </Link>
                     <a
                       href="https://github.com/tscircuit/tscircuit"
                       target="_blank"
