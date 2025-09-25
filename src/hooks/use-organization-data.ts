@@ -1,53 +1,37 @@
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
-import { useListOrgMembers } from "@/hooks/use-list-org-members"
-
-interface Package {
-  package_id: string
-  name: string
-  owner_github_username: string
-  starred_at: string | null
-  user_permissions?: {
-    can_manage_packages: boolean
-  }
-}
-
-export const useOrganizationPackages = ({ orgName }: { orgName?: string }) => {
-  const axios = useAxios()
-  return useQuery<Package[], Error & { status: number }>(
-    ["orgs", "packages", orgName],
-    async () => {
-      if (!orgName) {
-        throw new Error("Organization name is required")
-      }
-      const { data } = await axios.get("/packages/list", {
-        params: { owner_github_username: orgName },
-      })
-      return data.packages
-    },
-    {
-      enabled: Boolean(orgName),
-      retry: false,
-      refetchOnWindowFocus: false,
-      keepPreviousData: true,
-    },
-  )
-}
+import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useOrganization = ({
   orgId,
   orgName,
 }: { orgId?: string; orgName?: string }) => {
-  const membersQuery = useListOrgMembers({ orgId, orgName })
-  const packagesQuery = useOrganizationPackages({ orgName })
+  const axios = useAxios()
+
+  const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(
+    ["orgs", "get", orgId || orgName],
+    async () => {
+      if (!orgId && !orgName) {
+        throw new Error("Organization ID or name is required")
+      }
+      const params = orgId ? { org_id: orgId } : { org_name: orgName }
+      const { data } = await axios.get("/orgs/get", { params })
+      return data.org
+    },
+    {
+      enabled: Boolean(orgId || orgName),
+      retry: false,
+      refetchOnWindowFocus: false,
+      keepPreviousData: true,
+    },
+  )
 
   return {
-    members: membersQuery.data || [],
-    packages: packagesQuery.data || [],
-    membersCount: membersQuery.data?.length || 0,
-    packagesCount: packagesQuery.data?.length || 0,
-    isLoading: membersQuery.isLoading || packagesQuery.isLoading,
-    isError: membersQuery.isError || packagesQuery.isError,
-    error: membersQuery.error || packagesQuery.error,
+    organization: orgQuery.data,
+    membersCount: orgQuery.data?.member_count || 0,
+    packagesCount: orgQuery.data?.package_count || 0,
+    isLoading: orgQuery.isLoading,
+    isError: orgQuery.isError,
+    error: orgQuery.error,
   }
 }
