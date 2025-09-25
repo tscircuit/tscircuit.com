@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
+import { useOrganization } from "@/hooks/use-organization-data"
 
 interface OrganizationHeaderProps {
   organization: PublicOrgSchema
@@ -24,6 +25,11 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   const canManageOrg =
     organization.user_permissions?.can_manage_org ||
     organization.owner_account_id === session?.account_id
+
+  const { membersCount, packagesCount, isLoading } = useOrganization({
+    orgId: organization.org_id,
+    orgName: organization.name!,
+  })
 
   const handleSettingsClick = () => {
     navigate(`/${organization.name}/settings`)
@@ -70,12 +76,16 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               <div className="grid grid-cols-2 md:flex flex-wrap justify-center gap-4 text-sm">
                 <div className="flex items-center gap-1.5 text-gray-600">
                   <Users className="h-3.5 w-3.5" />
-                  <span className="font-medium">2</span>
+                  <span className="font-medium">
+                    {isLoading ? "..." : membersCount}
+                  </span>
                   <span>members</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-gray-600">
                   <Package className="h-3.5 w-3.5" />
-                  <span className="font-medium">2</span>
+                  <span className="font-medium">
+                    {isLoading ? "..." : packagesCount}
+                  </span>
                   <span>packages</span>
                 </div>
               </div>
@@ -118,12 +128,16 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
-                  <span className="font-medium text-gray-900">2</span>
+                  <span className="font-medium text-gray-900">
+                    {isLoading ? "..." : membersCount}
+                  </span>
                   <span>members</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
-                  <span className="font-medium text-gray-900">2</span>
+                  <span className="font-medium text-gray-900">
+                    {isLoading ? "..." : packagesCount}
+                  </span>
                   <span>packages</span>
                 </div>
                 <div className="flex items-center gap-2">
