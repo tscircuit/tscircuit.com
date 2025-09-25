@@ -1578,14 +1578,19 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     auth?: { account_id?: string },
   ) => {
     let orgs = get().organizations
-
+    console.log(orgs)
     if (filters?.owner_account_id) {
       orgs = orgs.filter(
         (org) => org.owner_account_id === filters.owner_account_id,
       )
     }
     if (filters?.github_handle) {
-      orgs = orgs.filter((org) => org.github_handle === filters.github_handle)
+      orgs = orgs.filter((org) => {
+        const account = get().accounts.find(
+          (account) => account.account_id === org.owner_account_id,
+        )
+        return account?.github_username === filters.github_handle
+      })
     }
     if (filters?.name) {
       orgs = orgs.filter((org) => org.github_handle === filters.name)
