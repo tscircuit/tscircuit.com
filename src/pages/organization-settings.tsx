@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { Helmet } from "react-helmet-async"
 import { useParams, useLocation, Link, Redirect } from "wouter"
 import {
   Form,
@@ -266,6 +267,13 @@ export default function OrganizationSettingsPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>Settings - {organization.name} | tscircuit</title>
+        <meta
+          name="description"
+          content={`Manage settings for ${organization.name} organization`}
+        />
+      </Helmet>
       <Header />
 
       <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
