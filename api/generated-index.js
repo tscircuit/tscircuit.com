@@ -182,6 +182,9 @@ async function handleCustomPackageHtml(req, res) {
   const [_, author, unscopedPackageName, other] = req.url
     .split("?")[0]
     .split("/")
+  if (unscopedPackageName === "settings") {
+    throw new Error("Organization settings route")
+  }
   if (other == "releases" || other == "release") {
     throw new Error("Release route")
   }
@@ -286,6 +289,30 @@ async function handleCustomPackageHtml(req, res) {
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
   // Add ETag support for better caching
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
+async function handleOrganizationSettings(req, res) {
+  const [_, orgSlug, settings] = req.url.split("?")[0].split("/")
+  if (!orgSlug || settings !== "settings") {
+    throw new Error("Not an organization settings route")
+  }
+
+  const encodedSlugForUrl = encodeURIComponent(orgSlug)
+  const title = he.encode(`${orgSlug} Settings - tscircuit`)
+  const description = he.encode(
+    `Manage the ${orgSlug} organization settings on tscircuit.`,
+  )
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: he.encode(`${BASE_URL}/${encodedSlugForUrl}/settings`),
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
@@ -398,6 +425,13 @@ export default async function handler(req, res) {
     } catch (e) {
       console.warn(e)
     }
+  }
+
+  try {
+    await handleOrganizationSettings(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
   }
 
   try {
