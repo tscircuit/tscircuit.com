@@ -14,7 +14,7 @@ export interface BuildStatusProps {
 
 export const BuildStatus = ({ step, packageReleaseId }: BuildStatusProps) => {
   const { author, packageName } = useParams()
-  const href = `/${author}/${packageName}/builds?package_release_id=${packageReleaseId}`
+  const href = `/${author}/${packageName}/releases/${packageReleaseId}`
 
   return (
     <Link href={href} className="flex items-center gap-2">

@@ -13,7 +13,8 @@
       "dist",
       "package.json",
       ".vercel",
-      "src/index.css"
+      "src/index.css",
+      "renovate.json"
     ]
   },
   "javascript": {
