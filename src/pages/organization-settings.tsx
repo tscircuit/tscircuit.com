@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useParams, useLocation, Link, Redirect } from "wouter"
+import { Helmet } from "react-helmet-async"
 import {
   Form,
   FormControl,
@@ -158,6 +159,12 @@ export default function OrganizationSettingsPage() {
     return <NotFoundPage heading="Organization Not Found" />
   }
 
+  const pageTitle = organization?.name
+    ? `${organization.name} Settings - tscircuit`
+    : orgname
+      ? `${orgname} Settings - tscircuit`
+      : "Organization Settings - tscircuit"
+
   const canManageOrg =
     organization.user_permissions?.can_manage_org ||
     organization.owner_account_id === session?.account_id
@@ -165,6 +172,9 @@ export default function OrganizationSettingsPage() {
   if (!canManageOrg) {
     return (
       <div className="min-h-screen bg-white">
+        <Helmet>
+          <title>{pageTitle}</title>
+        </Helmet>
         <Header />
         <Redirect to="/dashboard" />
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -266,6 +276,9 @@ export default function OrganizationSettingsPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <title>{pageTitle}</title>
+      </Helmet>
       <Header />
 
       <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
