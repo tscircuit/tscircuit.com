@@ -101,6 +101,8 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
+  const saveBlockTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [ataSuppressed, setAtaSuppressed] = useState(false)
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -220,6 +222,15 @@ export const CodeEditor = ({
       typescript: tsModule,
       logger: console,
       fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
+        // Block ALL ATA requests during save operations AND extended blocking period
+        if (isSaving || ataSuppressed) {
+          // Return empty response to prevent network requests during save
+          return new Response('{}', { 
+            status: 200, 
+            headers: { 'Content-Type': 'application/json' } 
+          })
+        }
+        
         const registryPrefixes = [
           "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
           "https://data.jsdelivr.com/v1/package/npm/@tsci/",
@@ -737,16 +748,51 @@ export const CodeEditor = ({
     updateCurrentEditorContent(currentContent)
   }
 
+  // Monitor save state changes to extend blocking period
+  useEffect(() => {
+    if (isSaving) {
+      // Start suppressing ATA immediately when save begins
+      setAtaSuppressed(true)
+      
+      // Clear any existing timeout
+      if (saveBlockTimeoutRef.current) {
+        clearTimeout(saveBlockTimeoutRef.current)
+      }
+    } else if (ataSuppressed) {
+      // When save completes, continue suppressing for additional 2 seconds
+      // to block queued/cached requests
+      saveBlockTimeoutRef.current = setTimeout(() => {
+        setAtaSuppressed(false)
+      }, 2000)
+    }
+
+    return () => {
+      if (saveBlockTimeoutRef.current) {
+        clearTimeout(saveBlockTimeoutRef.current)
+      }
+    }
+  }, [isSaving, ataSuppressed])
+
   const codeImports = getImportsFromCode(code)
 
   useEffect(() => {
+    // Skip ATA entirely during save operations and extended blocking period
+    if (isSaving || ataSuppressed) return
+    
     if (
       ataRef.current &&
       (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
-      ataRef.current(`${defaultImports}${code}`)
+      // Add debouncing to prevent excessive calls
+      const timeoutId = setTimeout(() => {
+        if (ataRef.current && !isSaving && !ataSuppressed) {
+          ataRef.current(`${defaultImports}${code}`)
+        }
+      }, 500)
+
+      return () => clearTimeout(timeoutId)
     }
-  }, [codeImports])
+  }, [codeImports, isSaving, ataSuppressed])
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)
