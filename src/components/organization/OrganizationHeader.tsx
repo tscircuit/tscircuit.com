@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
-import { useOrganization } from "@/hooks/use-organization-data"
+import { useOrganization } from "@/hooks/use-organization"
 
 interface OrganizationHeaderProps {
   organization: PublicOrgSchema
