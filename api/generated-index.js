@@ -134,6 +134,57 @@ function getHtmlWithModifiedSeoTags({
   return modifiedHtml
 }
 
+async function handleOrganizationSettings(req, res) {
+  const pathParts = req.url.split("?")[0].split("/")
+
+  // Check if this is an organization settings page: /{orgname}/settings
+  if (pathParts.length !== 3 || pathParts[2] !== "settings") {
+    throw new Error("Not an organization settings page")
+  }
+
+  const orgName = pathParts[1]
+
+  if (!orgName) {
+    throw new Error("Organization name not provided")
+  }
+
+  // Try to fetch organization details to ensure it exists
+  let orgExists = true
+  try {
+    await ky
+      .get(`${REGISTRY_URL}/orgs/get`, {
+        searchParams: {
+          org_name: orgName,
+        },
+      })
+      .json()
+  } catch (e) {
+    if (String(e).includes("404")) {
+      orgExists = false
+    } else {
+      throw e
+    }
+  }
+
+  if (!orgExists) {
+    throw new Error("Organization not found")
+  }
+
+  const title = he.encode(`Settings - ${orgName}`)
+  const description = he.encode(`Manage settings for ${orgName} organization`)
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: `${BASE_URL}/${he.encode(orgName)}/settings`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 export async function handleUserProfile(req, res) {
   const username = req.url.split("/")[req.url.split("/").length - 1]
 
@@ -376,6 +427,13 @@ export default async function handler(req, res) {
   }
 
   const pathParts = req.url.split("?")[0].split("/")
+
+  try {
+    await handleOrganizationSettings(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
 
   try {
     await handleCustomPackageHtml(req, res)

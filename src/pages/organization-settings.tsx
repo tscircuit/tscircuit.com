@@ -268,7 +268,7 @@ export default function OrganizationSettingsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>Settings - {organization.name} | tscircuit</title>
+        <title>Settings - {organization.name}</title>
         <meta
           name="description"
           content={`Manage settings for ${organization.name} organization`}
