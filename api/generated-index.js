@@ -191,6 +191,14 @@ async function handleCustomPackageHtml(req, res) {
   if (author === "datasheets") {
     throw new Error("Datasheet route")
   }
+
+  const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+    title: "Package Not Found - tscircuit",
+    description: `The package ${author}/${unscopedPackageName} could not be found.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}`,
+  })
   const packageDetails = await ky
     .get(`${REGISTRY_URL}/packages/get`, {
       searchParams: {
@@ -206,7 +214,11 @@ async function handleCustomPackageHtml(req, res) {
     })
 
   if (!packageDetails) {
-    throw new Error("Package not found")
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
   }
 
   const { package: packageInfo } = packageDetails
@@ -401,6 +413,7 @@ export default async function handler(req, res) {
   } catch (e) {
     console.warn(e)
   }
+
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
   // Add ETag support for better caching
