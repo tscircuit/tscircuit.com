@@ -1,10 +1,16 @@
-import { QueryClient, QueryClientProvider } from "react-query"
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "react-query"
 import { HelmetProvider } from "react-helmet-async"
 import { useEffect } from "react"
 import { useGlobalStore } from "./hooks/use-global-store"
 import { posthog } from "./lib/posthog"
 import { Toaster } from "react-hot-toast"
 import { populateQueryCacheWithSSRData } from "./lib/populate-query-cache-with-ssr-data"
+import { trackReactQueryApiFailure } from "./lib/react-query-api-failure-tracking"
 
 const staffGithubUsernames = [
   "imrishabh18",
@@ -13,7 +19,24 @@ const staffGithubUsernames = [
   ...(import.meta.env.VITE_STAFF_GITHUB_USERNAMES?.split(",") || []),
 ]
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      trackReactQueryApiFailure(error, {
+        operationType: "query",
+        queryKey: query.queryKey,
+      })
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, _variables, _context, mutation) => {
+      trackReactQueryApiFailure(error, {
+        operationType: "mutation",
+        mutationKey: mutation.options?.mutationKey,
+      })
+    },
+  }),
+})
 populateQueryCacheWithSSRData(queryClient)
 
 const isInternalGithubUser = (githubUsername?: string | null) => {
