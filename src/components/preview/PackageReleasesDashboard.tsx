@@ -19,6 +19,9 @@ import {
   PackageBuild,
   PackageRelease,
 } from "fake-snippets-api/lib/db/schema"
+import { useDownloadZip } from "@/hooks/use-download-zip"
+import { useToast } from "@/hooks/use-toast"
+import { usePackageFiles } from "@/hooks/use-package-files"
 
 export const PackageReleasesDashboard = ({
   latestRelease,
@@ -30,6 +33,20 @@ export const PackageReleasesDashboard = ({
   pkg: Package
 }) => {
   const { status, label } = getBuildStatus(latestBuild)
+  const { toastLibrary } = useToast()
+  const { downloadZip } = useDownloadZip()
+  const { data: packageFiles } = usePackageFiles(
+    latestRelease.package_release_id,
+  )
+  const handleDownloadZip = () => {
+    if (pkg && packageFiles) {
+      toastLibrary.promise(downloadZip(pkg, packageFiles ?? []), {
+        loading: "Downloading ZIP...",
+        success: "ZIP downloaded successfully!",
+        error: "Failed to download ZIP",
+      })
+    }
+  }
   return (
     <>
       <Header />
@@ -175,10 +192,8 @@ export const PackageReleasesDashboard = ({
                         </a>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem asChild>
-                      <a href="#" download>
-                        Download Build
-                      </a>
+                    <DropdownMenuItem asChild onClick={handleDownloadZip}>
+                      <span>Download Zip</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
