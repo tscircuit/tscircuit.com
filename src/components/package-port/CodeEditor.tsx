@@ -47,7 +47,7 @@ import {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
-import { AtaSaveBlocker } from "@/lib/ata-fetcher"
+import { useAtaFetcher, useAtaManager } from "@/lib/ata-fetcher"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
@@ -102,8 +102,8 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
-  const saveBlocker = useMemo(() => new AtaSaveBlocker(), [])
   const apiUrl = useApiBaseUrl()
+  const ataFetcher = useAtaFetcher(apiUrl)
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
@@ -221,7 +221,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: saveBlocker.createFetcher(apiUrl) as typeof fetch,
+      fetcher: ataFetcher as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
@@ -640,9 +640,10 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
-    }
+    // Don't call ATA directly here - let useAtaManager handle it
+    // if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
+    //   ata(`${defaultImports}${code}`)
+    // }
 
     return () => {
       view.destroy()
@@ -715,19 +716,8 @@ export const CodeEditor = ({
 
   const codeImports = getImportsFromCode(code)
 
-  // Sync save state with fetcher blocker
-  useEffect(() => {
-    saveBlocker.setSaving(isSaving)
-  }, [isSaving, saveBlocker])
-
-  useEffect(() => {
-    if (
-      ataRef.current &&
-      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
-    ) {
-      ataRef.current(`${defaultImports}${code}`)
-    }
-  }, [codeImports])
+  // Use hook to manage ATA calls and prevent excessive requests during save
+  useAtaManager(ataRef, code, defaultImports, currentFile, isSaving)
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)
