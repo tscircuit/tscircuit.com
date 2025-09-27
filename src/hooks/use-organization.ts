@@ -5,16 +5,21 @@ import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 export const useOrganization = ({
   orgId,
   orgName,
-}: { orgId?: string; orgName?: string }) => {
+  github_handle,
+}: { orgId?: string; orgName?: string; github_handle?: string }) => {
   const axios = useAxios()
 
   const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(
     ["orgs", "get", orgId || orgName],
     async () => {
-      if (!orgId && !orgName) {
-        throw new Error("Organization ID or name is required")
+      if (!orgId && !orgName && !github_handle) {
+        throw new Error("Organization ID, name, or GitHub handle is required")
       }
-      const params = orgId ? { org_id: orgId } : { org_name: orgName }
+      const params = orgId
+        ? { org_id: orgId }
+        : orgName
+          ? { org_name: orgName }
+          : { github_handle }
       const { data } = await axios.get("/orgs/get", { params })
       return data.org
     },

@@ -16,6 +16,8 @@ import { ShikiCodeViewer, SKELETON_WIDTHS } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import { useOrganization } from "@/hooks/use-organization"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 interface PackageFile {
   package_file_id: string
@@ -29,14 +31,12 @@ interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
   isFetched?: boolean
   onEditClicked?: (file_path?: string | null) => void
-  packageAuthorOwner?: string | null
-  aiDescription?: string
-  aiUsageInstructions?: string
   aiReviewText?: string | null
   aiReviewRequested?: boolean
   onRequestAiReview?: () => void
   onRequestAiDescriptionUpdate?: () => void
   onLicenseFileRequested?: boolean
+  pkg?: Package
 }
 
 type TabType = "ai" | "ai-review" | "file"
@@ -50,31 +50,39 @@ interface TabInfo {
 
 export default function ImportantFilesView({
   importantFiles = [],
-  aiDescription,
-  aiUsageInstructions,
   aiReviewText,
   aiReviewRequested,
   onRequestAiReview,
   onRequestAiDescriptionUpdate,
   isFetched = false,
   onEditClicked,
-  packageAuthorOwner,
   onLicenseFileRequested,
+  pkg,
 }: ImportantFilesViewProps) {
   const [activeTab, setActiveTab] = useState<TabInfo | null>(null)
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
   const { session: user } = useGlobalStore()
+  const { organization } = useOrganization({
+    orgId: String(pkg?.owner_org_id),
+  })
 
   // Memoized computed values
   const hasAiContent = useMemo(
-    () => Boolean(aiDescription || aiUsageInstructions),
-    [aiDescription, aiUsageInstructions],
+    () => Boolean(pkg?.ai_description || pkg?.ai_usage_instructions),
+    [pkg?.ai_description, pkg?.ai_usage_instructions],
   )
   const hasAiReview = useMemo(() => Boolean(aiReviewText), [aiReviewText])
   const isOwner = useMemo(
-    () => user?.github_username === packageAuthorOwner,
-    [user?.github_username, packageAuthorOwner],
+    () => user?.github_username === pkg?.owner_github_username,
+    [user?.github_username, pkg?.owner_github_username],
   )
+  const canManagePackage = useMemo(() => {
+    if (organization && organization.user_permissions?.can_manage_org) {
+      return true
+    } else {
+      return isOwner
+    }
+  }, [isOwner, organization])
 
   // File type utilities
   const isLicenseFile = useCallback((filePath: string) => {
@@ -141,7 +149,7 @@ export default function ImportantFilesView({
     }
 
     // Only show AI review tab if there's actual AI review content
-    if (hasAiReview || isOwner) {
+    if (hasAiReview || canManagePackage) {
       tabs.push({
         type: "ai-review",
         filePath: null,
@@ -290,12 +298,13 @@ export default function ImportantFilesView({
       textToCopy = aiReviewText
     } else if (
       activeTab?.type === "ai" &&
-      (aiDescription || aiUsageInstructions)
+      (pkg?.ai_description || pkg?.ai_usage_instructions)
     ) {
       const parts = []
-      if (aiDescription) parts.push(`# Description\n\n${aiDescription}`)
-      if (aiUsageInstructions)
-        parts.push(`# Instructions\n\n${aiUsageInstructions}`)
+      if (pkg?.ai_description)
+        parts.push(`# Description\n\n${pkg?.ai_description}`)
+      if (pkg?.ai_usage_instructions)
+        parts.push(`# Instructions\n\n${pkg?.ai_usage_instructions}`)
       textToCopy = parts.join("\n\n")
     } else if (activeTab?.type === "file" && activeFileContent) {
       textToCopy = activeFileContent
@@ -310,7 +319,7 @@ export default function ImportantFilesView({
 
   // Render content based on active tab
   const renderAiContent = useCallback(() => {
-    if (!aiDescription && !aiUsageInstructions) {
+    if (!pkg?.ai_description && !pkg?.ai_usage_instructions) {
       return (
         <div className="flex flex-col items-center justify-center py-8 px-4">
           <div className="text-center space-y-4 max-w-md">
@@ -332,24 +341,24 @@ export default function ImportantFilesView({
 
     return (
       <div className="markdown-content">
-        {aiDescription && (
+        {pkg?.ai_description && (
           <div className="mb-6">
             <h3 className="font-semibold text-lg mb-2">Description</h3>
-            <MarkdownViewer markdownContent={aiDescription} />
+            <MarkdownViewer markdownContent={pkg?.ai_description} />
           </div>
         )}
-        {aiUsageInstructions && (
+        {pkg?.ai_usage_instructions && (
           <div>
             <h3 className="font-semibold text-lg mb-2">Instructions</h3>
-            <MarkdownViewer markdownContent={aiUsageInstructions} />
+            <MarkdownViewer markdownContent={pkg?.ai_usage_instructions} />
           </div>
         )}
       </div>
     )
   }, [
-    aiDescription,
-    aiUsageInstructions,
-    isOwner,
+    pkg?.ai_description,
+    pkg?.ai_usage_instructions,
+    canManagePackage,
     onRequestAiDescriptionUpdate,
   ])
 
@@ -369,7 +378,7 @@ export default function ImportantFilesView({
                 from our AI assistant.
               </p>
             </div>
-            {!isOwner ? (
+            {!canManagePackage ? (
               <p className="text-sm text-gray-500">
                 Only the package owner can generate an AI review
               </p>
@@ -413,7 +422,7 @@ export default function ImportantFilesView({
     }
 
     return <MarkdownViewer markdownContent={aiReviewText || ""} />
-  }, [aiReviewText, aiReviewRequested, isOwner, onRequestAiReview])
+  }, [aiReviewText, aiReviewRequested, canManagePackage, onRequestAiReview])
 
   const renderFileContent = useCallback(() => {
     if (!isActiveFileFetched || !activeTab?.filePath || !activeFileContent) {
@@ -545,7 +554,7 @@ export default function ImportantFilesView({
           {((activeTab?.type === "file" && activeFileContent) ||
             (activeTab?.type === "ai-review" && aiReviewText) ||
             (activeTab?.type === "ai" &&
-              (aiDescription || aiUsageInstructions))) && (
+              (pkg?.ai_description || pkg?.ai_usage_instructions))) && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
               onClick={handleCopy}
@@ -558,17 +567,19 @@ export default function ImportantFilesView({
               <span className="sr-only">Copy</span>
             </button>
           )}
-          {activeTab?.type === "ai-review" && aiReviewText && isOwner && (
-            <button
-              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
-              onClick={onRequestAiReview}
-              title="Re-request AI Review"
-            >
-              <RefreshCcwIcon className="h-4 w-4" />
-              <span className="sr-only">Re-request AI Review</span>
-            </button>
-          )}
-          {activeTab?.type === "ai" && hasAiContent && isOwner && (
+          {activeTab?.type === "ai-review" &&
+            aiReviewText &&
+            canManagePackage && (
+              <button
+                className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
+                onClick={onRequestAiReview}
+                title="Re-request AI Review"
+              >
+                <RefreshCcwIcon className="h-4 w-4" />
+                <span className="sr-only">Re-request AI Review</span>
+              </button>
+            )}
+          {activeTab?.type === "ai" && hasAiContent && canManagePackage && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
               onClick={onRequestAiDescriptionUpdate}
@@ -578,7 +589,7 @@ export default function ImportantFilesView({
               <span className="sr-only">Regenerate AI Description</span>
             </button>
           )}
-          {activeTab?.type === "file" && isOwner && (
+          {activeTab?.type === "file" && canManagePackage && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
               onClick={() => onEditClicked?.(activeTab.filePath)}
