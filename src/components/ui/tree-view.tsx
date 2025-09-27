@@ -317,12 +317,9 @@ const TreeNode = ({
             default={defaultNodeIcon}
           />
           <span className="text-sm truncate">{item.name}</span>
-          <div
-            className="flex items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <TreeActions isSelected={true}>{item.actions}</TreeActions>
-          </div>
+          <TreeActions isSelected={selectedItemId === item.id}>
+            {item.actions}
+          </TreeActions>
         </AccordionTrigger>
         <AccordionContent className="ml-4 pl-1 border-l">
           <TreeItem
