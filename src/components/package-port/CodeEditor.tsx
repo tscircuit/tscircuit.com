@@ -640,11 +640,6 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    // Don't call ATA directly here - let useAtaManager handle it
-    // if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-    //   ata(`${defaultImports}${code}`)
-    // }
-
     return () => {
       view.destroy()
       // Clean up any pending highlight timeout
@@ -717,7 +712,13 @@ export const CodeEditor = ({
   const codeImports = getImportsFromCode(code)
 
   // Use hook to manage ATA calls and prevent excessive requests during save
-  useAtaManager(ataRef, code, defaultImports, currentFile, isSaving)
+  useAtaManager({
+    ataRef,
+    code,
+    defaultImports,
+    currentFile,
+    isSaving,
+  })
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)

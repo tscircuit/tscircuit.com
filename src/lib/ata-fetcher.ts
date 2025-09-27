@@ -36,29 +36,25 @@ export function useAtaFetcher(apiUrl: string) {
 }
 
 /**
- * Hook that manages ATA calls and prevents excessive requests during save operations
+ * Hook that manages ATA calls with debouncing and memoization
  */
-export function useAtaManager(
-  ataRef: React.RefObject<((code: string) => void) | null>,
-  code: string,
-  defaultImports: string,
-  currentFile: string | null,
-  isSaving: boolean,
-) {
+export function useAtaManager({
+  ataRef,
+  code,
+  defaultImports,
+  currentFile,
+  isSaving,
+}: {
+  ataRef: React.RefObject<((code: string) => void) | null>
+  code: string
+  defaultImports: string
+  currentFile: string | null
+  isSaving: boolean
+}) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastCodeRef = useRef<string>("")
 
   useEffect(() => {
-    // Don't trigger ATA during save operations
-    if (isSaving) {
-      // Clear any pending ATA calls
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-      return
-    }
-
     // Only trigger ATA for TypeScript files
     if (
       !ataRef.current ||
@@ -81,7 +77,7 @@ export function useAtaManager(
 
     // Debounce ATA calls
     timeoutRef.current = setTimeout(() => {
-      if (ataRef.current && !isSaving) {
+      if (ataRef.current) {
         lastCodeRef.current = fullCode
         ataRef.current(fullCode)
       }
@@ -92,5 +88,5 @@ export function useAtaManager(
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [ataRef, code, defaultImports, currentFile, isSaving])
+  }, [ataRef, code, defaultImports, currentFile])
 }
