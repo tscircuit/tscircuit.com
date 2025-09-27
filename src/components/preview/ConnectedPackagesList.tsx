@@ -116,12 +116,12 @@ export const ConnectedPackageCard = ({
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <a
-            href="#"
+          <Link
+            href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}
             className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
           >
             {pkg.unscoped_name}
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center justify-center gap-2">
