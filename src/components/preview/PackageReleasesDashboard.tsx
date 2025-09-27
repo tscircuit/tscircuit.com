@@ -38,7 +38,7 @@ export const PackageReleasesDashboard = ({
   const { data: packageFiles } = usePackageFiles(
     latestRelease.package_release_id,
   )
-  const handleDownloadBuild = () => {
+  const handleDownloadZip = () => {
     if (pkg && packageFiles) {
       toastLibrary.promise(downloadZip(pkg, packageFiles ?? []), {
         loading: "Downloading ZIP...",
@@ -192,8 +192,8 @@ export const PackageReleasesDashboard = ({
                         </a>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem asChild onClick={handleDownloadBuild}>
-                      <span>Download Build</span>
+                    <DropdownMenuItem asChild onClick={handleDownloadZip}>
+                      <span>Download Zip</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
