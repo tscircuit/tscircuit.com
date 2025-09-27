@@ -47,6 +47,7 @@ import {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
+import { AtaSaveBlocker } from "@/lib/ata-fetcher"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
@@ -101,8 +102,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
-  const pendingRequestsRef = useRef<Map<string, Promise<Response>>>(new Map())
-  const requestCacheRef = useRef<Map<string, Response>>(new Map())
+  const saveBlocker = useMemo(() => new AtaSaveBlocker(), [])
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -221,86 +221,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url = typeof input === "string" ? input : input.toString()
-        
-        // Check if we have a cached response
-        if (requestCacheRef.current.has(url)) {
-          const cachedResponse = requestCacheRef.current.get(url)!
-          return cachedResponse.clone()
-        }
-        
-        // Check if there's already a pending request for this URL
-        if (pendingRequestsRef.current.has(url)) {
-          const response = await pendingRequestsRef.current.get(url)!
-          return response.clone()
-        }
-        
-        // During save operations, defer requests by returning a promise that resolves after save
-        if (isSaving) {
-          return new Promise<Response>((resolve) => {
-            const checkSaveComplete = () => {
-              if (!isSaving) {
-                // Execute the actual request after save completes
-                const requestPromise = actualFetch(url, init)
-                pendingRequestsRef.current.set(url, requestPromise)
-                requestPromise.then(response => {
-                  pendingRequestsRef.current.delete(url)
-                  requestCacheRef.current.set(url, response.clone())
-                  resolve(response.clone())
-                }).catch(() => {
-                  pendingRequestsRef.current.delete(url)
-                  resolve(new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } }))
-                })
-              } else {
-                setTimeout(checkSaveComplete, 100)
-              }
-            }
-            checkSaveComplete()
-          })
-        }
-        
-        // Normal request processing
-        const requestPromise = actualFetch(url, init)
-        pendingRequestsRef.current.set(url, requestPromise)
-        
-        try {
-          const response = await requestPromise
-          pendingRequestsRef.current.delete(url)
-          requestCacheRef.current.set(url, response.clone())
-          return response
-        } catch (error) {
-          pendingRequestsRef.current.delete(url)
-          throw error
-        }
-        
-        async function actualFetch(url: string, init?: RequestInit): Promise<Response> {
-          const registryPrefixes = [
-            "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-            "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-            "https://cdn.jsdelivr.net/npm/@tsci/",
-          ]
-          if (
-            registryPrefixes.some((prefix) => url.startsWith(prefix))
-          ) {
-            const fullPackageName = url
-              .replace(registryPrefixes[0], "")
-              .replace(registryPrefixes[1], "")
-              .replace(registryPrefixes[2], "")
-            const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-            const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-            const jsdelivrPath = `${packageName}${
-              pathInPackage ? `/${pathInPackage}` : ""
-            }`
-            return fetch(
-              `${apiUrl}/snippets/download?jsdelivr_resolve=${url.includes(
-                "/resolve/",
-              )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-            )
-          }
-          return fetch(url, init)
-        }
-      }) as typeof fetch,
+      fetcher: saveBlocker.createFetcher(apiUrl) as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
@@ -794,19 +715,17 @@ export const CodeEditor = ({
 
   const codeImports = getImportsFromCode(code)
 
+  // Sync save state with fetcher blocker
+  useEffect(() => {
+    saveBlocker.setSaving(isSaving)
+  }, [isSaving, saveBlocker])
+
   useEffect(() => {
     if (
       ataRef.current &&
       (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
-      // Add debouncing to prevent excessive calls
-      const timeoutId = setTimeout(() => {
-        if (ataRef.current) {
-          ataRef.current(`${defaultImports}${code}`)
-        }
-      }, 500)
-
-      return () => clearTimeout(timeoutId)
+      ataRef.current(`${defaultImports}${code}`)
     }
   }, [codeImports])
 
