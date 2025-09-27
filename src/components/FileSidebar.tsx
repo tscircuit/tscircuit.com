@@ -4,7 +4,6 @@ import { PanelRightOpen, Plus, Loader2 } from "lucide-react"
 import { TreeView } from "@/components/ui/tree-view"
 import { Input } from "@/components/ui/input"
 import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import type {
   ICreateFileProps,
   ICreateFileResult,
@@ -55,9 +54,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     string | null
   >(null)
   const selectedItemId = useMemo(() => currentFile || "", [currentFile])
-  const session = useGlobalStore((s) => s.session)
-  const canModifyFiles =
-    !pkg || pkg.owner_github_username === session?.github_username
+  const canModifyFiles = Boolean(pkg) && !isLoadingFiles
 
   const onFolderSelect = (folderPath: string) => {
     setSelectedFolderForCreation(folderPath)
