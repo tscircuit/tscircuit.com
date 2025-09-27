@@ -96,6 +96,7 @@ export function useUpdatePackageFilesMutation({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
+        console.log("INVALIDATING")
         queryClient.invalidateQueries({
           predicate: (q) => {
             const key = q.queryKey as any
