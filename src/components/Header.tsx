@@ -93,7 +93,7 @@ export default function Header() {
             </ul>
           </nav>
         </div>
-        <div className="flex-grow"></div>{" "}
+        <div className="flex-grow"></div>
         <a
           href="https://tscircuit.com/join"
           target="_blank"
