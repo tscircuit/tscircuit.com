@@ -214,6 +214,9 @@ export const CodeEditor = ({
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
+    const CACHE_PREFIX = "ata-cache:"
+    const CACHE_TTL = 1000 * 60 * 60 * 24
+
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
@@ -225,54 +228,87 @@ export const CodeEditor = ({
           "https://data.jsdelivr.com/v1/package/npm/@tsci/",
           "https://cdn.jsdelivr.net/npm/@tsci/",
         ]
-        if (
-          typeof input === "string" &&
-          registryPrefixes.some((prefix) => input.startsWith(prefix))
-        ) {
-          const fullPackageName = input
+
+        const url = typeof input === "string" ? input : input.toString()
+        const cacheKey = `${CACHE_PREFIX}${url}`
+
+        try {
+          const cached = localStorage.getItem(cacheKey)
+          if (cached) {
+            const { timestamp, body, status, headers } = JSON.parse(cached)
+            if (Date.now() - timestamp < CACHE_TTL) {
+            return new Response(body, { status, headers })
+            } else {
+             localStorage.removeItem(cacheKey) // expired
+            }
+          }
+        } catch (err) {
+          console.warn("ATA cache read failed", err)
+        }
+
+      let finalUrl = url
+        if (registryPrefixes.some((prefix) => url.startsWith(prefix))) {
+          const fullPackageName = url
             .replace(registryPrefixes[0], "")
             .replace(registryPrefixes[1], "")
             .replace(registryPrefixes[2], "")
           const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
           const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
-          return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
+          const jsdelivrPath = `${packageName}${pathInPackage ? `/${pathInPackage}` : ""}`
+          finalUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${url.includes("/resolve/")}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`
+       }
+
+        const res = await fetch(finalUrl, init)
+        const text = await res.clone().text()
+
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), body: text }))
+        } catch (err) {
+          console.warn("ATA cache write failed", err)
         }
-        return fetch(input, init)
+        return res
       }) as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
-				  declare module "manual-edits.json" {
-				  const value: {
-					  pcb_placements?: any[],
-            schematic_placements?: any[],
-					  edit_events?: any[],
-					  manual_trace_hints?: any[],
-				  } | undefined;
-				  export default value;
-				}
-			`
-          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
-        },
-        receivedFile: (code: string, path: string) => {
-          fsMap.set(path, code)
-          env.createFile(path, code)
-          if (/\.tsx?$|\.d\.ts$/.test(path)) {
-            lastReceivedTsFileTimeRef.current = Date.now()
+          declare module "manual-edits.json" {
+          const value: {
+          pcb_placements?: any[],
+          schematic_placements?: any[],
+          edit_events?: any[],
+          manual_trace_hints?: any[],
+        } | undefined
+          export default value
+        }
+        `
+      env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("ata-tsdep:")) {
+          try {
+            const { path, code } = JSON.parse(localStorage.getItem(key)!)
+            if (!fsMap.has(path)) {
+              fsMap.set(path, code)
+              env.createFile(path, code)
+            }
+          } catch (err) {
+            console.warn(err)
           }
-          // Avoid dispatching a view update when ATA downloads files. Dispatching
-          // here caused the editor to reset the user's selection, which made text
-          // selection impossible while dependencies were loading.
-        },
-      },
-    }
+        }
+      })
+    },
+    receivedFile: (code: string, path: string) => {
+      fsMap.set(path, code)
+      env.createFile(path, code)
+      if (/\.tsx?$|\.d\.ts$/.test(path)) {
+        localStorage.setItem(`ata-tsdep:${path}`, JSON.stringify({ path, code }))
+        lastReceivedTsFileTimeRef.current = Date.now()
+      }
+      // Avoid dispatching a view update when ATA downloads files. Dispatching
+      // here caused the editor to reset the user's selection, which made text
+      // selection impossible while dependencies were loading.
+    },
+    },
+  }
 
     const ata = setupTypeAcquisition(ataConfig)
     ataRef.current = ata
