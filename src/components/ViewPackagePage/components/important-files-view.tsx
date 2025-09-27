@@ -77,8 +77,8 @@ export default function ImportantFilesView({
     [user?.github_username, pkg?.owner_github_username],
   )
   const canManagePackage = useMemo(() => {
-    if (organization && organization.user_permissions?.can_manage_org) {
-      return true
+    if (organization) {
+      return organization.user_permissions?.can_manage_org
     } else {
       return isOwner
     }
