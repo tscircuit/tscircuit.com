@@ -55,7 +55,9 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     string | null
   >(null)
   const selectedItemId = useMemo(() => currentFile || "", [currentFile])
-  const canModifyFiles = Boolean(pkg) && !isLoadingFiles
+  const session = useGlobalStore((s) => s.session)
+  const canModifyFiles =
+    !pkg || pkg.owner_github_username === session?.github_username
 
   const onFolderSelect = (folderPath: string) => {
     setSelectedFolderForCreation(folderPath)
