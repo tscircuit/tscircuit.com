@@ -215,15 +215,12 @@ export default function RepoPageContent({
 
             {/* Dynamic Content based on active view */}
             {renderContent()}
-
             {/* Important Files View - Always shown */}
             <ImportantFilesView
               importantFiles={importantFiles}
               isFetched={arePackageFilesFetched}
+              pkg={packageInfo}
               onEditClicked={onEditClicked}
-              packageAuthorOwner={packageInfo?.owner_github_username}
-              aiDescription={packageInfo?.ai_description ?? ""}
-              aiUsageInstructions={packageInfo?.ai_usage_instructions ?? ""}
               aiReviewText={packageRelease?.ai_review_text ?? null}
               aiReviewRequested={aiReviewRequested}
               onRequestAiReview={() => {
