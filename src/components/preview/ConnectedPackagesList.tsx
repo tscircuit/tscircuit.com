@@ -145,12 +145,12 @@ export const ConnectedPackageCard = ({
 
       <div className="flex items-center gap-2 mb-4">
         <Github className="w-4 h-4 text-gray-600" />
-        <Link
+        <a
           href={`https://github.com/${pkg.github_repo_full_name}`}
           className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
         >
           {pkg.github_repo_full_name}
-        </Link>
+        </a>
       </div>
 
       <div className="mb-6 flex-1">
