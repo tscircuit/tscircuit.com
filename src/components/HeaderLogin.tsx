@@ -9,6 +9,7 @@ import {
 import { User } from "lucide-react"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
+import { Link } from "wouter"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
@@ -49,29 +50,32 @@ export const HeaderLogin = () => {
           </div>
         </DropdownMenuItem> */}
         <DropdownMenuItem asChild>
-          <a href={`/${session?.github_username}`} className="cursor-pointer">
+          <Link
+            href={`/${session?.github_username}`}
+            className="cursor-pointer"
+          >
             My Profile
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <a href="/dashboard" className="cursor-pointer">
+          <Link href="/dashboard" className="cursor-pointer">
             Dashboard
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <a href="/settings" className="cursor-pointer">
+          <Link href="/settings" className="cursor-pointer">
             Settings
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <a href="/orgs/new" className="cursor-pointer">
+          <Link href="/orgs/new" className="cursor-pointer">
             Create Organization
-          </a>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild onClick={() => setSession(null)}>
-          <a href="/" className="cursor-pointer">
+          <Link href="/" className="cursor-pointer">
             Sign Out
-          </a>
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

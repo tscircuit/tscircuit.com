@@ -7,6 +7,7 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { createUseDialog } from "./create-use-dialog"
+import { Link } from "wouter"
 
 export const ImportPackageDialog = ({
   open,
@@ -55,13 +56,13 @@ export const ImportPackageDialog = ({
                   className="flex flex-col sm:flex-row items-start sm:items-center my-2 text-sm w-full"
                   key={pkg.package_id}
                 >
-                  <a
+                  <Link
                     href={`/${pkg.name}`}
                     target="_blank"
                     className="text-blue-500 hover:underline cursor-pointer flex-shrink-0 mb-1 sm:mb-0 sm:mr-2"
                   >
                     {pkg.name}
-                  </a>
+                  </Link>
                   <div className="text-gray-500 flex-grow overflow-hidden text-ellipsis whitespace-nowrap mb-1 sm:mb-0">
                     {pkg.description}
                   </div>

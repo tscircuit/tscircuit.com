@@ -51,7 +51,7 @@ export default function HeaderDropdown() {
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
-            <a
+            <Link
               href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
               className={cn(
                 "flex items-center cursor-pointer",
@@ -62,7 +62,7 @@ export default function HeaderDropdown() {
                 className={`w-2 h-2 rounded-full mr-2 ${template.badgeColor}`}
               />
               {template.name}
-            </a>
+            </Link>
           </DropdownMenuItem>
         ))}
         <DropdownMenuItem asChild>
