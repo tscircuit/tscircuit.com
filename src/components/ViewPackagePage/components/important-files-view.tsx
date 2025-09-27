@@ -64,7 +64,11 @@ export default function ImportantFilesView({
   const { session: user } = useGlobalStore()
 
   const { organization } = useOrganization(
-    pkg?.owner_org_id ? { orgId: String(pkg.owner_org_id) } : {},
+    pkg?.owner_org_id
+      ? { orgId: String(pkg.owner_org_id) }
+      : pkg?.owner_github_username
+        ? { github_handle: pkg.owner_github_username }
+        : {},
   )
 
   // Memoized computed values
