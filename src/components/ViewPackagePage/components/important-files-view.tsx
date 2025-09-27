@@ -63,10 +63,9 @@ export default function ImportantFilesView({
   const [copyState, setCopyState] = useState<"copy" | "copied">("copy")
   const { session: user } = useGlobalStore()
 
-const { organization } = useOrganization(
-  pkg?.owner_org_id ? { orgId: String(pkg.owner_org_id) } : {}
-)
-
+  const { organization } = useOrganization(
+    pkg?.owner_org_id ? { orgId: String(pkg.owner_org_id) } : {},
+  )
 
   // Memoized computed values
   const hasAiContent = useMemo(
