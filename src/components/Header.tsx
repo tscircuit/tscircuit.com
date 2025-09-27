@@ -90,28 +90,26 @@ export default function Header() {
                   <Button variant="ghost">Docs</Button>
                 </a>
               </li>
-              <li>
-                <a
-                  href="https://tscircuit.com/join"
-                  target="_blank"
-                  className="mr-2"
-                >
-                  <Button variant="ghost">
-                    <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors w-4 h-4" />
-                  </Button>
-                </a>
-              </li>
             </ul>
           </nav>
         </div>
         <div className="flex-grow"></div>
         <a
+          href="https://tscircuit.com/join"
+          target="_blank"
+          className="lg:mr-2"
+        >
+          <Button variant="ghost">
+            <DiscordLogoIcon className="text-gray-400 hidden lg:block hover:text-gray-600 transition-colors w-4 h-4" />
+          </Button>
+        </a>
+        <a
           href="https://github.com/tscircuit/tscircuit"
           target="_blank"
-          className="mr-4"
+          className="lg:mr-4"
           aria-label="View TSCircuit on GitHub"
         >
-          <GitHubLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
+          <GitHubLogoIcon className="hidden lg:block text-gray-400 hover:text-gray-600 transition-colors" />
         </a>
         {/* <a href="https://tscircuit.com/join" target="_blank" className="mr-2">
           <DiscordLogoIcon className="text-gray-400 hover:text-gray-600 transition-colors" />
