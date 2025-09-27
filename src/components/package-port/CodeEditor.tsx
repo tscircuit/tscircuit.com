@@ -23,7 +23,7 @@ import {
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
-import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
@@ -219,33 +219,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const registryPrefixes = [
-          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-          "https://cdn.jsdelivr.net/npm/@tsci/",
-        ]
-        if (
-          typeof input === "string" &&
-          registryPrefixes.some((prefix) => input.startsWith(prefix))
-        ) {
-          const fullPackageName = input
-            .replace(registryPrefixes[0], "")
-            .replace(registryPrefixes[1], "")
-            .replace(registryPrefixes[2], "")
-          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
-          return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
-        }
-        return fetch(input, init)
-      }) as typeof fetch,
+      fetcher: fetchWithPackageCaching as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
