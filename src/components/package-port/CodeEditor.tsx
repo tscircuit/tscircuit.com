@@ -47,6 +47,7 @@ import {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
+import { useAtaFetcher, useAtaManager } from "@/lib/ata-fetcher"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
@@ -102,6 +103,7 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useApiBaseUrl()
+  const ataFetcher = useAtaFetcher(apiUrl)
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
@@ -219,33 +221,7 @@ export const CodeEditor = ({
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const registryPrefixes = [
-          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-          "https://cdn.jsdelivr.net/npm/@tsci/",
-        ]
-        if (
-          typeof input === "string" &&
-          registryPrefixes.some((prefix) => input.startsWith(prefix))
-        ) {
-          const fullPackageName = input
-            .replace(registryPrefixes[0], "")
-            .replace(registryPrefixes[1], "")
-            .replace(registryPrefixes[2], "")
-          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
-          return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
-        }
-        return fetch(input, init)
-      }) as typeof fetch,
+      fetcher: ataFetcher as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
@@ -664,10 +640,6 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
-    }
-
     return () => {
       view.destroy()
       // Clean up any pending highlight timeout
@@ -739,14 +711,14 @@ export const CodeEditor = ({
 
   const codeImports = getImportsFromCode(code)
 
-  useEffect(() => {
-    if (
-      ataRef.current &&
-      (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
-    ) {
-      ataRef.current(`${defaultImports}${code}`)
-    }
-  }, [codeImports])
+  // Use hook to manage ATA calls and prevent excessive requests during save
+  useAtaManager({
+    ataRef,
+    code,
+    defaultImports,
+    currentFile,
+    isSaving,
+  })
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)
