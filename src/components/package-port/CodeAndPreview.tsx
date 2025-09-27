@@ -1,5 +1,4 @@
 import { CodeEditor } from "@/components/package-port/CodeEditor"
-import { usePackageVisibilitySettingsDialog } from "@/components/dialogs/package-visibility-settings-dialog"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -15,6 +14,7 @@ import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 
 interface Props {
   pkg?: Package
@@ -57,7 +57,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     pkg?.snippet_type ?? templateFromUrl?.type ?? urlParams.snippet_type
 
   const { Dialog: NewPackageSaveDialog, openDialog: openNewPackageSaveDialog } =
-    usePackageVisibilitySettingsDialog()
+    useNewPackageSavePromptDialog()
 
   const { Dialog: DiscardChangesDialog, openDialog: openDiscardChangesDialog } =
     useConfirmDiscardChangesDialog()
