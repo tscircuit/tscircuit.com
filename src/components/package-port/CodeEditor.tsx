@@ -11,7 +11,6 @@ import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { EditorState, Prec } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
 import { linter } from "@codemirror/lint"
@@ -23,7 +22,7 @@ import {
   createSystem,
   createVirtualTypeScriptEnvironment,
 } from "@typescript/vfs"
-import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
@@ -102,7 +101,6 @@ export const CodeEditor = ({
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useApiBaseUrl()
-  const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
   const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
@@ -214,38 +212,12 @@ export const CodeEditor = ({
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
-    // Initialize ATA
+    // Use combined fetch function for registry and caching
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
       typescript: tsModule,
       logger: console,
-      fetcher: (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const registryPrefixes = [
-          "https://data.jsdelivr.com/v1/package/resolve/npm/@tsci/",
-          "https://data.jsdelivr.com/v1/package/npm/@tsci/",
-          "https://cdn.jsdelivr.net/npm/@tsci/",
-        ]
-        if (
-          typeof input === "string" &&
-          registryPrefixes.some((prefix) => input.startsWith(prefix))
-        ) {
-          const fullPackageName = input
-            .replace(registryPrefixes[0], "")
-            .replace(registryPrefixes[1], "")
-            .replace(registryPrefixes[2], "")
-          const packageName = fullPackageName.split("/")[0].replace(/\./, "/")
-          const pathInPackage = fullPackageName.split("/").slice(1).join("/")
-          const jsdelivrPath = `${packageName}${
-            pathInPackage ? `/${pathInPackage}` : ""
-          }`
-          return fetch(
-            `${apiUrl}/snippets/download?jsdelivr_resolve=${input.includes(
-              "/resolve/",
-            )}&jsdelivr_path=${encodeURIComponent(jsdelivrPath)}`,
-          )
-        }
-        return fetch(input, init)
-      }) as typeof fetch,
+      fetcher: fetchWithPackageCaching as typeof fetch,
       delegate: {
         started: () => {
           const manualEditsTypeDeclaration = `
@@ -328,10 +300,6 @@ export const CodeEditor = ({
           // setCode(newContent)
           onCodeChange(newContent, currentFile)
           onFileContentChanged?.(currentFile, newContent)
-        }
-        if (update.selectionSet) {
-          const pos = update.state.selection.main.head
-          setCursorPosition(pos)
         }
       }),
       EditorView.theme({
@@ -665,7 +633,8 @@ export const CodeEditor = ({
     viewRef.current = view
 
     if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
+      const fullCode = `${defaultImports}${code}`
+      ata(fullCode)
     }
 
     return () => {
@@ -737,16 +706,15 @@ export const CodeEditor = ({
     updateCurrentEditorContent(currentContent)
   }
 
-  const codeImports = getImportsFromCode(code)
-
   useEffect(() => {
     if (
       ataRef.current &&
       (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
-      ataRef.current(`${defaultImports}${code}`)
+      const fullCode = `${defaultImports}${code}`
+      ataRef.current(fullCode)
     }
-  }, [codeImports])
+  }, [code])
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)
