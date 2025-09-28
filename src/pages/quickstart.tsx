@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { useQuery } from "react-query"
+import React, { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -17,14 +17,18 @@ import { Loader2 } from "lucide-react"
 
 export const QuickstartPage = () => {
   const axios = useAxios()
+  const queryClient = useQueryClient()
   const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
   const toastNotImplemented = useNotImplementedToast()
   const currentUser = useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = Boolean(currentUser)
+  useEffect(() => {
+    queryClient.removeQueries("userPackages")
+  }, [queryClient])
   const { data: myPackages, isLoading } = useQuery<Package[]>(
-    "userPackages",
+    ["userPackages", currentUser],
     async () => {
       const response = await axios.post(`/packages/list`, {
         owner_github_username: currentUser,
