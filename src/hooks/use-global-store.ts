@@ -28,7 +28,9 @@ export const useGlobalStore = create<Store>()(
   ),
 )
 
-useGlobalStore.subscribe((state) => {
-  ;(window as any).globalStore = state
-  window.TSCIRCUIT_REGISTRY_TOKEN = state.session?.token ?? null
-})
+if (typeof window !== "undefined") {
+  useGlobalStore.subscribe((state) => {
+    ;(window as any).globalStore = state
+    window.TSCIRCUIT_REGISTRY_TOKEN = state.session?.token ?? null
+  })
+}
