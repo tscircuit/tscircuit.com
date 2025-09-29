@@ -1,4 +1,3 @@
-import { afterEach } from "bun:test"
 import defaultAxios from "redaxios"
 import { startServer } from "./start-server"
 import { DbClient } from "fake-snippets-api/lib/db/db-client"
@@ -40,7 +39,8 @@ export const getTestServer = async (): Promise<TestFixture> => {
     baseURL: url,
   })
 
-  afterEach(async () => {
+  globalThis.deferredCleanupFns.push(async () => {
+    console.log("here")
     if (server && typeof server.stop === "function") {
       await server.stop()
     }
