@@ -6,10 +6,14 @@ export const publicMapOrg = (
     member_count: number
     package_count: number
     can_manage_org: boolean
+    can_read_package: boolean
+    can_manage_package: boolean
   },
 ): z.infer<typeof ZT.publicOrgSchema> => {
   const {
     can_manage_org,
+    can_read_package,
+    can_manage_package,
     github_handle,
     member_count,
     package_count,
@@ -27,6 +31,10 @@ export const publicMapOrg = (
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),
     created_at: String(created_at),
-    ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),
+    user_permissions: {
+      can_manage_org: can_manage_org || false,
+      can_read_package: can_read_package || false,
+      can_manage_package: can_manage_package || false,
+    },
   }
 }

@@ -59,7 +59,8 @@ export default withRouteSpec({
   const existingPackage = ctx.db.packages[packageIndex]
 
   // Check if user has permission to update the package
-  if (existingPackage.owner_github_username !== ctx.auth.github_username) {
+  const permissions = ctx.db.getPackagePermissions(package_id, ctx.auth)
+  if (!permissions.can_manage_package) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to update this package",

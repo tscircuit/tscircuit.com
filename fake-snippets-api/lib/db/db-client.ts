@@ -29,6 +29,7 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
+  UserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1604,8 +1605,26 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         (pkg) => pkg.owner_org_id === org.org_id,
       ).length
 
+      const orgAccount = auth
+        ? get().orgAccounts.find(
+            (orgAccount) =>
+              orgAccount.org_id === org.org_id &&
+              orgAccount.account_id === auth.account_id,
+          )
+        : null
+
       const can_manage_org = auth
-        ? org.owner_account_id === auth.account_id
+        ? org.owner_account_id === auth.account_id ||
+          (orgAccount?.can_manage_org ?? false)
+        : false
+      const can_read_package = auth
+        ? org.owner_account_id === auth.account_id ||
+          (orgAccount?.can_read_package ?? false)
+        : false
+
+      const can_manage_package = auth
+        ? org.owner_account_id === auth.account_id ||
+          (orgAccount?.can_manage_package ?? false)
         : false
 
       return {
@@ -1613,6 +1632,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         member_count,
         package_count,
         can_manage_org,
+        can_read_package,
+        can_manage_package,
       }
     })
   },
@@ -1654,8 +1675,25 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (pkg) => pkg.owner_org_id === org.org_id,
     ).length
 
+    const orgAccount = auth
+      ? get().orgAccounts.find(
+          (orgAccount) =>
+            orgAccount.org_id === org.org_id &&
+            orgAccount.account_id === auth.account_id,
+        )
+      : null
+
+    const can_read_package = auth
+      ? org.owner_account_id === auth.account_id ||
+        (orgAccount?.can_read_package ?? false)
+      : false
     const can_manage_org = auth
-      ? org.owner_account_id === auth.account_id
+      ? org.owner_account_id === auth.account_id ||
+        (orgAccount?.can_manage_org ?? false)
+      : false
+    const can_manage_package = auth
+      ? org.owner_account_id === auth.account_id ||
+        (orgAccount?.can_manage_package ?? false)
       : false
 
     return {
@@ -1663,18 +1701,26 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       member_count,
       package_count,
       can_manage_org,
+      can_read_package,
+      can_manage_package,
     }
   },
   addOrganizationAccount: (organizationAccount: {
     org_id: string
     account_id: string
     is_owner?: boolean
+    can_manage_org?: boolean
+    can_read_package?: boolean
+    can_manage_package?: boolean
   }) => {
     const newOrgAccount: OrgAccount = {
       org_account_id: `org_account_${get().idCounter + 1}`,
       org_id: organizationAccount.org_id,
       account_id: organizationAccount.account_id,
       is_owner: organizationAccount.is_owner || false,
+      can_read_package: organizationAccount.can_read_package ?? true,
+      can_manage_package: organizationAccount.can_manage_package ?? false,
+      can_manage_org: organizationAccount.can_manage_org ?? false,
       created_at: new Date().toISOString(),
     }
     set((state) => ({
@@ -1732,6 +1778,33 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return removed
   },
+  updateOrganizationAccount: (
+    filters: {
+      org_id: string
+      account_id: string
+    },
+    updates: {
+      can_read_package?: boolean
+      can_manage_package?: boolean
+    },
+  ): OrgAccount | undefined => {
+    let updated: OrgAccount | undefined
+    set((state) => {
+      const index = state.orgAccounts.findIndex(
+        (orgAccount) =>
+          orgAccount.org_id === filters.org_id &&
+          orgAccount.account_id === filters.account_id,
+      )
+      if (index !== -1) {
+        const orgAccounts = [...state.orgAccounts]
+        orgAccounts[index] = { ...orgAccounts[index], ...updates }
+        updated = orgAccounts[index]
+        return { ...state, orgAccounts }
+      }
+      return state
+    })
+    return updated
+  },
   updateOrganization: (
     orgId: string,
     updates: Partial<Organization>,
@@ -1751,5 +1824,48 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return { ...state, organizations: updatedOrganizations }
     })
     return updatedOrg
+  },
+  getPackagePermissions: (
+    packageId: string,
+    auth?: { account_id: string },
+  ): UserPermissions => {
+    const state = get()
+    const pkg = state.packages.find((p) => p.package_id === packageId)
+
+    if (!pkg || !auth) {
+      return {
+        can_read_package: false,
+        can_manage_package: false,
+        can_manage_org: false,
+      }
+    }
+
+    const org = state.organizations.find((o) => o.org_id === pkg.owner_org_id)
+    if (!org) {
+      return {
+        can_read_package: false,
+        can_manage_package: false,
+        can_manage_org: false,
+      }
+    }
+
+    const isOwner = org.owner_account_id === auth.account_id
+    if (isOwner) {
+      return {
+        can_read_package: true,
+        can_manage_package: true,
+        can_manage_org: true,
+      }
+    }
+    const orgAccount = state.orgAccounts.find(
+      (orgAccount) =>
+        orgAccount.org_id === pkg.owner_org_id &&
+        orgAccount.account_id === auth.account_id,
+    )
+    const can_manage_org = orgAccount?.can_manage_org ?? false
+    const can_read_package = orgAccount?.can_read_package ?? false
+    const can_manage_package = orgAccount?.can_manage_package ?? false
+
+    return { can_read_package, can_manage_package, can_manage_org }
   },
 }))

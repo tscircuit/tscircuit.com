@@ -1,4 +1,7 @@
-import { packageSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  packageSchema,
+  userPermissionsSchema,
+} from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 
@@ -16,11 +19,7 @@ export default withRouteSpec({
     packages: z.array(
       packageSchema.extend({
         starred_at: z.string().nullable(),
-        user_permissions: z
-          .object({
-            can_manage_packages: z.boolean(),
-          })
-          .optional(),
+        user_permissions: userPermissionsSchema,
       }),
     ),
   }),
@@ -70,17 +69,34 @@ export default withRouteSpec({
 
   return ctx.json({
     ok: true,
-    packages: packages.map((p) => ({
-      ...p,
-      latest_package_release_id: p.latest_package_release_id || null,
-      starred_at: starTimestamps.get(p.package_id) || null,
-      ...(auth
-        ? {
-            user_permissions: {
-              can_manage_packages: p.owner_org_id === auth.personal_org_id,
-            },
-          }
-        : {}),
-    })),
+    packages: packages
+      .filter((p) => {
+        if (!auth) return !p.is_private
+        const permissions = ctx.db.getPackagePermissions(p.package_id, auth)
+        if (p.is_private) {
+          return permissions.can_read_package
+        } else {
+          return true
+        }
+      })
+      .map((p) => {
+        const permissions = auth
+          ? ctx.db.getPackagePermissions(p.package_id, auth)
+          : {
+              can_read_package: false,
+              can_manage_package: false,
+              can_manage_org: false,
+            }
+        return {
+          ...p,
+          latest_package_release_id: p.latest_package_release_id || null,
+          starred_at: starTimestamps.get(p.package_id) || null,
+          user_permissions: {
+            can_read_package: permissions.can_read_package,
+            can_manage_package: permissions.can_manage_package,
+            can_manage_org: permissions.can_manage_org,
+          },
+        }
+      }),
   })
 })

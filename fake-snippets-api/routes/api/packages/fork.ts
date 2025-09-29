@@ -48,6 +48,18 @@ export default withRouteSpec({
     })
   }
 
+  // Check if user can read the source package
+  const permissions = ctx.db.getPackagePermissions(
+    sourcePackage.package_id,
+    ctx.auth,
+  )
+  if (sourcePackage.is_private && !permissions.can_read_package) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: "The package to fork was not found",
+    })
+  }
+
   if (sourcePackage.creator_account_id === ctx.auth.account_id) {
     return ctx.error(400, {
       error_code: "cannot_fork_own_package",

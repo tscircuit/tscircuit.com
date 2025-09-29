@@ -21,10 +21,12 @@ export default withRouteSpec({
     })
   }
 
-  if (package_info.owner_github_username !== ctx.auth.github_username) {
+  const permissions = ctx.db.getPackagePermissions(package_id, ctx.auth)
+  if (!permissions.can_manage_package) {
     return ctx.error(403, {
       error_code: "unauthorized",
-      message: "Only the package owner can update AI description",
+      message:
+        "You don't have permission to update AI description for this package",
     })
   }
 

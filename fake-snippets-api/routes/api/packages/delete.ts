@@ -26,7 +26,8 @@ export default withRouteSpec({
 
   const pkg = ctx.db.packages[packageIndex]
 
-  if (pkg.owner_github_username !== ctx.auth.github_username) {
+  const permissions = ctx.db.getPackagePermissions(package_id, ctx.auth)
+  if (!permissions.can_manage_package) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to delete this package",

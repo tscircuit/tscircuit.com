@@ -409,11 +409,21 @@ export const orgSchema = z.object({
 })
 export type Organization = z.infer<typeof orgSchema>
 
+export const userPermissionsSchema = z.object({
+  can_manage_org: z.boolean().default(false),
+  can_read_package: z.boolean().default(true),
+  can_manage_package: z.boolean().default(false),
+})
+export type UserPermissions = z.infer<typeof userPermissionsSchema>
+
 export const orgAccountSchema = z.object({
   org_account_id: z.string(),
   org_id: z.string(),
   account_id: z.string(),
   is_owner: z.boolean().default(false),
+  can_read_package: z.boolean().default(true),
+  can_manage_package: z.boolean().default(false),
+  can_manage_org: z.boolean().default(false),
   created_at: z.string().datetime(),
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
@@ -427,9 +437,7 @@ export const publicOrgSchema = z.object({
   display_name: z.string().optional(),
   package_count: z.number(),
   created_at: z.string(),
-  user_permissions: z
-    .object({ can_manage_org: z.boolean().optional() })
-    .optional(),
+  user_permissions: userPermissionsSchema.optional(),
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
 

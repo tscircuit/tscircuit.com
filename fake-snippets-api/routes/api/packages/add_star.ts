@@ -44,6 +44,15 @@ export default withRouteSpec({
     })
   }
 
+  // Check if user can read the package
+  const permissions = ctx.db.getPackagePermissions(packageId, ctx.auth)
+  if (pkg.is_private && !permissions.can_read_package) {
+    return ctx.error(404, {
+      error_code: "package_not_found",
+      message: "Package not found",
+    })
+  }
+
   // Check if already starred
   const existing = ctx.db.accountPackages.find(
     (ap) =>

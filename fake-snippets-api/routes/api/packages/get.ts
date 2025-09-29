@@ -18,7 +18,8 @@ export default withRouteSpec({
         is_starred: z.boolean(),
         user_permissions: z
           .object({
-            can_manage_packages: z.boolean(),
+            can_read_package: z.boolean(),
+            can_manage_package: z.boolean(),
           })
           .optional(),
       })
@@ -39,10 +40,11 @@ export default withRouteSpec({
     })
   }
 
-  if (
-    foundPackage.is_private &&
-    auth?.github_username !== foundPackage.owner_github_username
-  ) {
+  const permissions = auth
+    ? ctx.db.getPackagePermissions(foundPackage.package_id, auth)
+    : { can_read_package: false, can_manage_package: false }
+
+  if (foundPackage.is_private && !permissions.can_read_package) {
     return ctx.error(404, {
       error_code: "package_not_found",
       message: `Package not found (searched using ${JSON.stringify(
@@ -60,10 +62,7 @@ export default withRouteSpec({
         : false,
       ...(auth
         ? {
-            user_permissions: {
-              can_manage_packages:
-                foundPackage.owner_org_id === auth.personal_org_id,
-            },
+            user_permissions: permissions,
           }
         : {}),
     },
