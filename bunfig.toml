@@ -1,2 +1,3 @@
 [test]
 root = "./bun-tests"
+preload = ["./bun-tests/fake-snippets-api/fixtures/preload.ts"]
