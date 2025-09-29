@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
 import { Link } from "wouter"
 
 export default function HeaderDropdown() {
+  const [open, setOpen] = useState(false)
   const blankTemplates = [
     { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
     {
@@ -32,7 +34,7 @@ export default function HeaderDropdown() {
   ]
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
@@ -44,7 +46,11 @@ export default function HeaderDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-fit">
         <DropdownMenuItem asChild>
-          <Link href="/quickstart" className="flex items-center cursor-pointer">
+          <Link
+            href="/quickstart"
+            className="flex items-center cursor-pointer"
+            onClick={() => setOpen(false)}
+          >
             <Zap className="mr-2 h-3 w-3" />
             Quickstart Templates
           </Link>
@@ -57,6 +63,7 @@ export default function HeaderDropdown() {
                 "flex items-center cursor-pointer",
                 template.disabled && "opacity-50 cursor-not-allowed",
               )}
+              onClick={() => !template.disabled && setOpen(false)}
             >
               <span
                 className={`w-2 h-2 rounded-full mr-2 ${template.badgeColor}`}
@@ -66,7 +73,11 @@ export default function HeaderDropdown() {
           </DropdownMenuItem>
         ))}
         <DropdownMenuItem asChild>
-          <Link href="/quickstart" className="flex items-center cursor-pointer">
+          <Link
+            href="/quickstart"
+            className="flex items-center cursor-pointer"
+            onClick={() => setOpen(false)}
+          >
             <Upload className="mr-2 h-3 w-3" />
             Import Part
           </Link>
