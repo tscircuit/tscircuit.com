@@ -16,7 +16,7 @@ export const useCreatePackageMutation = ({
       description,
       is_private,
       is_unlisted,
-      org_id
+      org_id,
     }: {
       name?: string
       description?: string
@@ -33,7 +33,7 @@ export const useCreatePackageMutation = ({
         description,
         is_private,
         is_unlisted,
-        org_id
+        org_id,
       })
 
       if (!newPackage) {

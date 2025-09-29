@@ -18,7 +18,7 @@ export default withRouteSpec({
     description: z.string().optional(),
     is_private: z.boolean().optional().default(false),
     is_unlisted: z.boolean().optional().default(false),
-    org_id: z.string().optional()
+    org_id: z.string().optional(),
   }),
   jsonResponse: z.object({
     package: packageSchema.optional(),
@@ -31,7 +31,7 @@ export default withRouteSpec({
 
   if (org_id) {
     targetOrg = ctx.db.getOrg({ org_id }, ctx.auth)
-    
+
     if (!targetOrg) {
       throw ctx.error(404, {
         error_code: "org_not_found",
@@ -42,7 +42,8 @@ export default withRouteSpec({
     if (!targetOrg.can_manage_org) {
       throw ctx.error(403, {
         error_code: "not_authorized",
-        message: "You do not have permission to create packages in this organization",
+        message:
+          "You do not have permission to create packages in this organization",
       })
     }
 

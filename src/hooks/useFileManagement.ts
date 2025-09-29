@@ -436,7 +436,7 @@ export function useFileManagement({
 
     await createPackageMutation.mutateAsync({
       is_private: isPrivate,
-      org_id: orgId
+      org_id: orgId,
     })
   }
 
