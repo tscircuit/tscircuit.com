@@ -1,4 +1,4 @@
-import { userPermissionsSchema } from "fake-snippets-api/lib/db/schema"
+import { orgUserPermissionsSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 
@@ -7,12 +7,20 @@ export default withRouteSpec({
   commonParams: z.object({
     org_id: z.string(),
     account_id: z.string(),
-    user_permissions: userPermissionsSchema,
+    can_read_package: z.boolean().optional(),
+    can_manage_package: z.boolean().optional(),
+    can_manage_org: z.boolean().optional(),
   }),
   auth: "session",
   jsonResponse: z.object({}),
 })(async (req, ctx) => {
-  const { org_id, account_id, user_permissions } = req.commonParams
+  const {
+    org_id,
+    account_id,
+    can_read_package,
+    can_manage_package,
+    can_manage_org,
+  } = req.commonParams
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -47,12 +55,11 @@ export default withRouteSpec({
     can_manage_package?: boolean
     can_manage_org?: boolean
   } = {}
-  if (user_permissions.can_read_package !== undefined)
-    updates.can_read_package = user_permissions.can_read_package
-  if (user_permissions.can_manage_package !== undefined)
-    updates.can_manage_package = user_permissions.can_manage_package
-  if (user_permissions.can_manage_org !== undefined)
-    updates.can_manage_org = user_permissions.can_manage_org
+  if (can_read_package !== undefined)
+    updates.can_read_package = can_read_package
+  if (can_manage_package !== undefined)
+    updates.can_manage_package = can_manage_package
+  if (can_manage_org !== undefined) updates.can_manage_org = can_manage_org
 
   ctx.db.updateOrganizationAccount({ org_id, account_id }, updates)
 

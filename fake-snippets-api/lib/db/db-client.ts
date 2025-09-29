@@ -29,7 +29,8 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
-  UserPermissions,
+  OrgUserPermissions,
+  PackageUserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1828,7 +1829,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getPackagePermissions: (
     packageId: string,
     auth?: { account_id: string },
-  ): UserPermissions => {
+  ): PackageUserPermissions => {
     const state = get()
     const pkg = state.packages.find((p) => p.package_id === packageId)
 
@@ -1836,7 +1837,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return {
         can_read_package: false,
         can_manage_package: false,
-        can_manage_org: false,
       }
     }
 
@@ -1845,27 +1845,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return {
         can_read_package: false,
         can_manage_package: false,
-        can_manage_org: false,
       }
     }
 
-    const isOwner = org.owner_account_id === auth.account_id
-    if (isOwner) {
-      return {
-        can_read_package: true,
-        can_manage_package: true,
-        can_manage_org: true,
-      }
-    }
+    const can_manage_org = org.owner_account_id === auth.account_id
     const orgAccount = state.orgAccounts.find(
-      (orgAccount) =>
-        orgAccount.org_id === pkg.owner_org_id &&
-        orgAccount.account_id === auth.account_id,
+      (oa) =>
+        oa.org_id === pkg.owner_org_id && oa.account_id === auth.account_id,
     )
-    const can_manage_org = orgAccount?.can_manage_org ?? false
-    const can_read_package = orgAccount?.can_read_package ?? false
-    const can_manage_package = orgAccount?.can_manage_package ?? false
 
-    return { can_read_package, can_manage_package, can_manage_org }
+    if (!pkg.is_private) {
+      const can_read_package = true
+      const can_manage_package =
+        can_manage_org || (orgAccount?.can_manage_package ?? false)
+      return { can_read_package, can_manage_package }
+    }
+
+    const can_read_package =
+      can_manage_org || (orgAccount?.can_read_package ?? false)
+    const can_manage_package =
+      can_manage_org || (orgAccount?.can_manage_package ?? false)
+
+    return { can_read_package, can_manage_package }
   },
 }))

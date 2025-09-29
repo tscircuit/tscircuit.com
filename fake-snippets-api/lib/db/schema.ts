@@ -409,12 +409,20 @@ export const orgSchema = z.object({
 })
 export type Organization = z.infer<typeof orgSchema>
 
-export const userPermissionsSchema = z.object({
-  can_manage_org: z.boolean().default(false),
-  can_read_package: z.boolean().default(true),
-  can_manage_package: z.boolean().default(false),
+export const orgUserPermissionsSchema = z.object({
+  can_manage_org: z.boolean().optional(),
+  can_read_package: z.boolean().optional(),
+  can_manage_package: z.boolean().optional(),
 })
-export type UserPermissions = z.infer<typeof userPermissionsSchema>
+export type OrgUserPermissions = z.infer<typeof orgUserPermissionsSchema>
+
+export const packageUserPermissionsSchema = z.object({
+  can_read_package: z.boolean().optional(),
+  can_manage_package: z.boolean().optional(),
+})
+export type PackageUserPermissions = z.infer<
+  typeof packageUserPermissionsSchema
+>
 
 export const orgAccountSchema = z.object({
   org_account_id: z.string(),
@@ -437,7 +445,7 @@ export const publicOrgSchema = z.object({
   display_name: z.string().optional(),
   package_count: z.number(),
   created_at: z.string(),
-  user_permissions: userPermissionsSchema.optional(),
+  user_permissions: orgUserPermissionsSchema.optional(),
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
 

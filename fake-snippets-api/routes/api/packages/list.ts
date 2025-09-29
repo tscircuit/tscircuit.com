@@ -1,6 +1,6 @@
 import {
   packageSchema,
-  userPermissionsSchema,
+  packageUserPermissionsSchema,
 } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
@@ -19,7 +19,7 @@ export default withRouteSpec({
     packages: z.array(
       packageSchema.extend({
         starred_at: z.string().nullable(),
-        user_permissions: userPermissionsSchema,
+        user_permissions: packageUserPermissionsSchema.optional(),
       }),
     ),
   }),
@@ -85,17 +85,19 @@ export default withRouteSpec({
           : {
               can_read_package: false,
               can_manage_package: false,
-              can_manage_org: false,
             }
         return {
           ...p,
           latest_package_release_id: p.latest_package_release_id || null,
           starred_at: starTimestamps.get(p.package_id) || null,
-          user_permissions: {
-            can_read_package: permissions.can_read_package,
-            can_manage_package: permissions.can_manage_package,
-            can_manage_org: permissions.can_manage_org,
-          },
+          ...(auth
+            ? {
+                user_permissions: {
+                  can_read_package: permissions.can_read_package,
+                  can_manage_package: permissions.can_manage_package,
+                },
+              }
+            : {}),
         }
       }),
   })

@@ -1,4 +1,4 @@
-import { userPermissionsSchema } from "fake-snippets-api/lib/db/schema"
+import { orgUserPermissionsSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 
@@ -8,13 +8,21 @@ export default withRouteSpec({
     org_id: z.string(),
     account_id: z.string().optional(),
     github_username: z.string().optional(),
-    user_permissions: userPermissionsSchema,
+    can_read_package: z.boolean().optional().default(true),
+    can_manage_package: z.boolean().optional().default(false),
+    can_manage_org: z.boolean().optional().default(false),
   }),
   auth: "session",
   jsonResponse: z.object({}),
 })(async (req, ctx) => {
-  const { org_id, account_id, github_username, user_permissions } =
-    req.commonParams
+  const {
+    org_id,
+    account_id,
+    github_username,
+    can_read_package,
+    can_manage_package,
+    can_manage_org,
+  } = req.commonParams
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -49,9 +57,9 @@ export default withRouteSpec({
   ctx.db.addOrganizationAccount({
     org_id,
     account_id: account.account_id,
-    can_read_package: user_permissions.can_read_package,
-    can_manage_package: user_permissions.can_manage_package,
-    can_manage_org: user_permissions.can_manage_org,
+    can_read_package,
+    can_manage_package,
+    can_manage_org,
   })
 
   return ctx.json({})
