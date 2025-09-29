@@ -16,11 +16,13 @@ export const useCreatePackageMutation = ({
       description,
       is_private,
       is_unlisted,
+      org_id,
     }: {
       name?: string
       description?: string
       is_private?: boolean
       is_unlisted?: boolean
+      org_id?: string
     }) => {
       if (!session) throw new Error("No session")
 
@@ -31,6 +33,7 @@ export const useCreatePackageMutation = ({
         description,
         is_private,
         is_unlisted,
+        org_id,
       })
 
       if (!newPackage) {

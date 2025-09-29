@@ -18,12 +18,38 @@ export default withRouteSpec({
     description: z.string().optional(),
     is_private: z.boolean().optional().default(false),
     is_unlisted: z.boolean().optional().default(false),
+    org_id: z.string().optional(),
   }),
   jsonResponse: z.object({
     package: packageSchema.optional(),
   }),
 })(async (req, ctx) => {
-  const { name, description, is_private, is_unlisted } = req.jsonBody
+  const { name, description, is_private, is_unlisted, org_id } = req.jsonBody
+
+  let targetOrg = null
+  let targetOrgGithubHandle =
+    name && name.includes("/") ? name.split("/")[0] : ctx.auth.github_username
+
+  if (org_id) {
+    targetOrg = ctx.db.getOrg({ org_id }, ctx.auth)
+
+    if (!targetOrg) {
+      throw ctx.error(404, {
+        error_code: "org_not_found",
+        message: "Organization not found",
+      })
+    }
+
+    if (!targetOrg.can_manage_org) {
+      throw ctx.error(403, {
+        error_code: "not_authorized",
+        message:
+          "You do not have permission to create packages in this organization",
+      })
+    }
+
+    targetOrgGithubHandle = targetOrg.github_handle
+  }
 
   const existingPackage = ctx.db.packages.find((pkg) => pkg.name === name)
 
@@ -47,11 +73,11 @@ export default withRouteSpec({
   const newPackage = ctx.db.addPackage({
     name: name?.includes("/")
       ? name
-      : `${ctx.auth.github_username}/${String(unscoped_name)}`,
+      : `${targetOrgGithubHandle}/${String(unscoped_name)}`,
     description: description ?? null,
     creator_account_id: ctx.auth.account_id,
-    owner_org_id: ctx.auth.personal_org_id,
-    owner_github_username: ctx.auth.github_username,
+    owner_org_id: targetOrg ? targetOrg.org_id : ctx.auth.personal_org_id,
+    owner_github_username: targetOrgGithubHandle,
     latest_package_release_id: null,
     latest_package_release_fs_sha: null,
     latest_version: null,

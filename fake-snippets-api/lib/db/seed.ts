@@ -1738,4 +1738,10 @@ export const SquareWaveModule = () => (
     name: "test-organization",
     owner_account_id: account_id,
   })
+
+  db.addOrganization({
+    name: "testuser",
+    owner_account_id: account_id,
+    is_personal_org: true,
+  })
 }
