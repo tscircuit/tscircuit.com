@@ -2,8 +2,10 @@ import { useEffect, useRef } from "react"
 
 export default function useWarnUserOnPageChange({
   hasUnsavedChanges,
+  isPackageThere,
 }: {
   hasUnsavedChanges: boolean
+  isPackageThere: Boolean
 }) {
   const originalTitleRef = useRef<string>("")
 
@@ -33,7 +35,7 @@ export default function useWarnUserOnPageChange({
     }
 
     const handlePopState = (event: PopStateEvent) => {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && isPackageThere) {
         const shouldLeave = window.confirm(
           "You have unsaved changes. Are you sure you want to leave this page?",
         )
