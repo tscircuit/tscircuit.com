@@ -1,12 +1,11 @@
-import { Package } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useRef } from "react"
 
 export default function useWarnUserOnPageChange({
   hasUnsavedChanges,
-  pkg,
+  isPackageThere,
 }: {
   hasUnsavedChanges: boolean
-  pkg?: Package
+  isPackageThere: Boolean
 }) {
   const originalTitleRef = useRef<string>("")
 
@@ -36,7 +35,7 @@ export default function useWarnUserOnPageChange({
     }
 
     const handlePopState = (event: PopStateEvent) => {
-      if (hasUnsavedChanges && Boolean(pkg)) {
+      if (hasUnsavedChanges && isPackageThere) {
         const shouldLeave = window.confirm(
           "You have unsaved changes. Are you sure you want to leave this page?",
         )

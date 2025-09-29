@@ -153,7 +153,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
 
   useWarnUserOnPageChange({
     hasUnsavedChanges: Boolean(hasUnsavedChanges),
-    pkg,
+    isPackageThere: Boolean(pkg),
   })
 
   return (
