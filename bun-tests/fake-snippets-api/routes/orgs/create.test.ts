@@ -18,6 +18,8 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
   expect(responseBody.org.member_count).toBe(1)
   expect(responseBody.org.package_count).toBe(0)
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
+  expect(responseBody.org.user_permissions?.can_read_package).toBe(true)
+  expect(responseBody.org.user_permissions?.can_manage_package).toBe(true)
 })
 
 test("POST /api/orgs/create - should reject duplicate org names", async () => {

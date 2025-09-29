@@ -19,7 +19,11 @@ test("GET /api/orgs/get - should return org by org_id", async () => {
   expect(responseBody.org.org_id).toBe(seed.organization.org_id)
   expect(responseBody.org.name).toBe(seed.organization.github_handle)
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
+  expect(responseBody.org.user_permissions?.can_read_package).toBe(true)
+  expect(responseBody.org.user_permissions?.can_manage_package).toBe(true)
   expect(responseBody2.org.user_permissions?.can_manage_org).not.toBe(true)
+  expect(responseBody2.org.user_permissions?.can_read_package).not.toBe(true)
+  expect(responseBody2.org.user_permissions?.can_manage_package).not.toBe(true)
 })
 
 test("GET /api/orgs/get - should return org by github_handle", async () => {
@@ -34,6 +38,8 @@ test("GET /api/orgs/get - should return org by github_handle", async () => {
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe("jane")
   expect(responseBody.org.user_permissions?.can_manage_org).not.toBe(true)
+  expect(responseBody.org.user_permissions?.can_read_package).not.toBe(true)
+  expect(responseBody.org.user_permissions?.can_manage_package).not.toBe(true)
 })
 
 test("GET /api/orgs/get - should return 404 if org not found", async () => {
@@ -49,4 +55,23 @@ test("GET /api/orgs/get - should return 404 if org not found", async () => {
     expect(error.data.error.error_code).toBe("org_not_found")
     expect(error.data.error.message).toBe("Organization not found")
   }
+})
+
+test("GET /api/orgs/get - should show member permissions for org members", async () => {
+  const { jane_axios, axios, seed } = await getTestServer()
+
+  await jane_axios.post("/api/orgs/add_member", {
+    org_id: seed.organization.org_id,
+    account_id: seed.account.account_id,
+  })
+
+  const memberResponse = await axios.get("/api/orgs/get", {
+    params: { org_id: seed.organization.org_id },
+  })
+
+  expect(memberResponse.status).toBe(200)
+  const memberBody = memberResponse.data
+  expect(memberBody.org.user_permissions?.can_manage_org).toBe(false)
+  expect(memberBody.org.user_permissions?.can_read_package).toBe(true)
+  expect(memberBody.org.user_permissions?.can_manage_package).toBe(false)
 })

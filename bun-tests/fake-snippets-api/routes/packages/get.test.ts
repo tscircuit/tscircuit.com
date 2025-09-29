@@ -92,14 +92,16 @@ test("GET /api/packages/get - returns user_permissions when authenticated", asyn
     params: { package_id: pkg.package_id },
   })
   expect(ownerResponse.data.package.user_permissions).toEqual({
-    can_manage_packages: true,
+    can_read_package: true,
+    can_manage_package: true,
   })
 
   const otherResponse = await jane_axios.get("/api/packages/get", {
     params: { package_id: pkg.package_id },
   })
   expect(otherResponse.data.package.user_permissions).toEqual({
-    can_manage_packages: false,
+    can_read_package: true,
+    can_manage_package: false,
   })
 
   const unauthResponse = await unauthenticatedAxios.get("/api/packages/get", {

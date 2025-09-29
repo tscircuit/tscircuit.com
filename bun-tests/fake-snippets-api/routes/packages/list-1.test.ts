@@ -134,8 +134,14 @@ test("list packages includes user_permissions when session provided", async () =
   const otherPkg = listData.packages.find(
     (p: any) => p.package_id === pkg2.package_id,
   )
-  expect(ownerPkg.user_permissions).toEqual({ can_manage_packages: true })
-  expect(otherPkg.user_permissions).toEqual({ can_manage_packages: false })
+  expect(ownerPkg.user_permissions).toEqual({
+    can_read_package: true,
+    can_manage_package: true,
+  })
+  expect(otherPkg.user_permissions).toEqual({
+    can_read_package: true,
+    can_manage_package: false,
+  })
 
   const { data: unauthData } = await unauthenticatedAxios.get(
     "/api/packages/list",

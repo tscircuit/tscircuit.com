@@ -19,6 +19,8 @@ test("POST /api/orgs/update - should update org name when owner", async () => {
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe("new-name")
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
+  expect(responseBody.org.user_permissions?.can_read_package).toBe(true)
+  expect(responseBody.org.user_permissions?.can_manage_package).toBe(true)
 })
 
 test("PATCH /api/orgs/update - should update org name using PATCH method", async () => {

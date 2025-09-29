@@ -14,4 +14,6 @@ test("GET /api/orgs/list - should return user's organizations when authenticated
   expect(personalOrg).toBeDefined()
   expect(personalOrg.name).toBe("jane")
   expect(personalOrg.user_permissions?.can_manage_org).toBe(true)
+  expect(personalOrg.user_permissions?.can_read_package).toBe(true)
+  expect(personalOrg.user_permissions?.can_manage_package).toBe(true)
 })
