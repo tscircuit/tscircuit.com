@@ -40,7 +40,6 @@ export const getTestServer = async (): Promise<TestFixture> => {
   })
 
   globalThis.deferredCleanupFns.push(async () => {
-    console.log("here")
     if (server && typeof server.stop === "function") {
       await server.stop()
     }
