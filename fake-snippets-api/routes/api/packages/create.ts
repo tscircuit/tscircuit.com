@@ -27,7 +27,8 @@ export default withRouteSpec({
   const { name, description, is_private, is_unlisted, org_id } = req.jsonBody
 
   let targetOrg = null
-  let targetOrgGithubHandle = ctx.auth.github_username
+  let targetOrgGithubHandle =
+    name && name.includes("/") ? name.split("/")[0] : ctx.auth.github_username
 
   if (org_id) {
     targetOrg = ctx.db.getOrg({ org_id }, ctx.auth)
