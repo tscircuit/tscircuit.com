@@ -151,7 +151,10 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
     })
   }
 
-  useWarnUserOnPageChange({ hasUnsavedChanges: Boolean(hasUnsavedChanges) })
+  useWarnUserOnPageChange({
+    hasUnsavedChanges: Boolean(hasUnsavedChanges),
+    pkg,
+  })
 
   return (
     <div className="flex flex-col min-h-[50vh]">
