@@ -294,25 +294,27 @@ export default function EditorNav({
               Not logged in, can't save
             </div>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className={"ml-1 h-6 px-2 text-xs save-button"}
-            disabled={canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn}
-            onClick={canSavePackage ? onSave : () => forkSnippet()}
-          >
-            {canSavePackage ? (
-              <>
-                <Save className="mr-1 h-3 w-3" />
-                Save
-              </>
-            ) : (
-              <>
-                <GitFork className="mr-1 h-3 w-3" />
-                Fork
-              </>
-            )}
-          </Button>
+          {(canSavePackage || (isLoggedIn && pkg)) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className={"ml-1 h-6 px-2 text-xs save-button"}
+              disabled={canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn}
+              onClick={canSavePackage ? onSave : () => forkSnippet()}
+            >
+              {canSavePackage ? (
+                <>
+                  <Save className="mr-1 h-3 w-3" />
+                  Save
+                </>
+              ) : (
+                <>
+                  <GitFork className="mr-1 h-3 w-3" />
+                  Fork
+                </>
+              )}
+            </Button>
+          )}
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
