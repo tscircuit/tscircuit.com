@@ -24,12 +24,15 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
     if (
       cached &&
       typeof cached === "object" &&
-      "data" in cached &&
+      "compressedFileContent" in cached &&
       "timestamp" in cached
     ) {
-      const { data, timestamp } = cached as { data: string; timestamp: number }
+      const { compressedFileContent, timestamp } = cached as {
+        compressedFileContent: string
+        timestamp: number
+      }
       if (Date.now() - timestamp < CACHE_TTL) {
-        fsMap.set("/" + lib, decompressFromUTF16(data))
+        fsMap.set("/" + lib, decompressFromUTF16(compressedFileContent))
       } else {
         missing.push(lib)
       }
@@ -50,9 +53,10 @@ export async function loadDefaultLibMap(): Promise<Map<string, string>> {
       fsMap.set(filename, content)
       const cacheKey = CACHE_PREFIX + filename.replace(/^\//, "")
       const compressed = compressToUTF16(content)
-      await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(
-        () => {},
-      )
+      await set(cacheKey, {
+        compressedFileContent: compressed,
+        timestamp: Date.now(),
+      }).catch(() => {})
     }
   }
 
@@ -88,12 +92,15 @@ export async function fetchWithPackageCaching(
   if (
     cached &&
     typeof cached === "object" &&
-    "data" in cached &&
+    "compressedFileContent" in cached &&
     "timestamp" in cached
   ) {
-    const { data, timestamp } = cached as { data: string; timestamp: number }
+    const { compressedFileContent, timestamp } = cached as {
+      compressedFileContent: string
+      timestamp: number
+    }
     if (Date.now() - timestamp < CACHE_TTL) {
-      return new Response(decompressFromUTF16(data), {
+      return new Response(decompressFromUTF16(compressedFileContent), {
         status: 200,
         statusText: "OK",
       })
@@ -129,7 +136,9 @@ export async function fetchWithPackageCaching(
 
       const apiUrl = import.meta.env.VITE_SNIPPETS_API_URL ?? "/api"
       const isResolve = url.includes("/resolve/")
-      fetchUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${isResolve}&jsdelivr_path=${encodeURIComponent(transformedPackagePath)}`
+      fetchUrl = `${apiUrl}/snippets/download?jsdelivr_resolve=${isResolve}&jsdelivr_path=${encodeURIComponent(
+        transformedPackagePath,
+      )}`
     }
   }
 
@@ -138,9 +147,10 @@ export async function fetchWithPackageCaching(
   if (response.ok) {
     const text = await response.text()
     const compressed = compressToUTF16(text)
-    await set(cacheKey, { data: compressed, timestamp: Date.now() }).catch(
-      () => {},
-    )
+    await set(cacheKey, {
+      compressedFileContent: compressed,
+      timestamp: Date.now(),
+    }).catch(() => {})
     return new Response(text, {
       status: response.status,
       statusText: response.statusText,
