@@ -299,7 +299,9 @@ export default function EditorNav({
               variant="outline"
               size="sm"
               className={"ml-1 h-6 px-2 text-xs save-button"}
-              disabled={canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn}
+              disabled={
+                canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn
+              }
               onClick={canSavePackage ? onSave : () => forkSnippet()}
             >
               {canSavePackage ? (
