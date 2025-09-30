@@ -1,23 +1,30 @@
 import { createUseDialog } from "./create-use-dialog"
 import {
-  ComponentSearchResult,
-  ImportComponentDialog as RunframeImportComponentDialog,
+  ImportComponentDialog2 as RunframeImportComponentDialog,
+  type ImportComponentDialog2Props,
 } from "@tscircuit/runframe/runner"
+
+export type ImportComponentDialogProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+} & Pick<
+  ImportComponentDialog2Props,
+  | "onTscircuitPackageSelected"
+  | "onJlcpcbComponentTsxLoaded"
+  | "onKicadStringSelected"
+  | "jlcpcbProxyRequestHeaders"
+>
 
 export const ImportComponentDialog = ({
   open,
   onOpenChange,
-  onComponentSelected,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => any
-  onComponentSelected: (pkg: ComponentSearchResult) => any
-}) => {
+  ...rest
+}: ImportComponentDialogProps) => {
   return (
     <RunframeImportComponentDialog
       isOpen={open}
       onClose={() => onOpenChange(false)}
-      onImport={(data) => onComponentSelected(data)}
+      {...rest}
     />
   )
 }

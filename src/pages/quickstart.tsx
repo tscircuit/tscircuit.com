@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useQuery, useQueryClient } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
@@ -7,10 +7,11 @@ import { Package } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
-import { useNotImplementedToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
+import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
+import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
 import { cn } from "@/lib/utils"
 import { Link } from "wouter"
 import { Loader2 } from "lucide-react"
@@ -18,12 +19,29 @@ import { Loader2 } from "lucide-react"
 export const QuickstartPage = () => {
   const axios = useAxios()
   const queryClient = useQueryClient()
-  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
-  const toastNotImplemented = useNotImplementedToast()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const session = useGlobalStore((s) => s.session)
+  const currentUser = session?.github_username
   const isLoggedIn = Boolean(currentUser)
+  const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
+    useImportComponentDialog()
+  const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
+  const jlcpcbProxyRequestHeaders = useMemo(
+    () =>
+      session?.token
+        ? {
+            Authorization: `Bearer ${session.token}`,
+          }
+        : undefined,
+    [session?.token],
+  )
+  const handleJlcpcbComponentSelected = useCallback(
+    async (payload: JlcpcbComponentTsxLoadedPayload) => {
+      await importJlcpcbComponent(payload)
+    },
+    [importJlcpcbComponent],
+  )
   useEffect(() => {
     queryClient.removeQueries("userPackages")
   }, [queryClient])
@@ -165,7 +183,7 @@ export const QuickstartPage = () => {
               <CardContent className="p-6 pt-0 mt-auto">
                 <Button
                   className="w-full text-white"
-                  onClick={() => setIsJLCPCBDialogOpen(true)}
+                  onClick={() => openImportDialog()}
                 >
                   Import JLCPCB
                 </Button>
@@ -195,9 +213,9 @@ export const QuickstartPage = () => {
           </div>
         </div>
 
-        <JLCPCBImportDialog
-          open={isJLCPCBDialogOpen}
-          onOpenChange={setIsJLCPCBDialogOpen}
+        <ImportComponentDialog
+          onJlcpcbComponentTsxLoaded={handleJlcpcbComponentSelected}
+          jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
         />
 
         <CircuitJsonImportDialog
