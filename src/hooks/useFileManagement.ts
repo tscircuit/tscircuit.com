@@ -425,7 +425,15 @@ export function useFileManagement({
     }
   }
 
-  const savePackage = async (isPrivate: boolean, orgId: string) => {
+  const savePackage = async ({
+    name,
+    isPrivate,
+    orgId,
+  }: {
+    name?: string
+    isPrivate: boolean
+    orgId: string
+  }) => {
     if (!isLoggedIn) {
       toast({
         title: "Not Logged In",
@@ -437,6 +445,7 @@ export function useFileManagement({
     await createPackageMutation.mutateAsync({
       is_private: isPrivate,
       org_id: orgId,
+      ...(name ? { name } : {}),
     })
   }
 

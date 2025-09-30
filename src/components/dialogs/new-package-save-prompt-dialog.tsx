@@ -7,9 +7,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../ui/dialog"
+import { Input } from "../ui/input"
 import { Label } from "../ui/label"
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select"
 import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 
@@ -17,13 +23,24 @@ export const NewPackageSavePromptDialog = ({
   open,
   onOpenChange,
   initialIsPrivate = false,
+  initialName = "",
   onSave,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   initialIsPrivate?: boolean
-  onSave: (isPrivate: boolean, orgId: string) => void
+  initialName?: string
+  onSave: ({
+    name,
+    isPrivate,
+    orgId,
+  }: {
+    name?: string
+    isPrivate: boolean
+    orgId: string
+  }) => void
 }) => {
+  const [packageName, setPackageName] = useState(initialName)
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate)
   const [selectedOrgId, setSelectedOrgId] = useState<string>("")
   const { data: organizations, isLoading: orgsLoading } = useListUserOrgs()
@@ -96,42 +113,46 @@ export const NewPackageSavePromptDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Visibility</Label>
-            <RadioGroup
-              value={isPrivate ? "private" : "public"}
-              onValueChange={(value) => setIsPrivate(value === "private")}
-            >
-              <div
-                className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer"
-                onClick={() => setIsPrivate(false)}
-              >
-                <RadioGroupItem value="public" id="public" />
-                <div className="grid gap-1.5">
-                  <Label htmlFor="public" className="font-medium">
-                    Public
-                  </Label>
-                  <p className="text-sm text-slate-500">
-                    Anyone can view and use your package. It will appear in
-                    search results.
-                  </p>
-                </div>
+            <Label className="text-sm font-medium">Package Name</Label>
+            <Input
+              value={packageName}
+              onChange={(e) => setPackageName(e.target.value)}
+              placeholder="Untitled Package"
+              className="w-full"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+              <div className="space-y-1 flex-1">
+                <Label className="text-sm font-medium">Visibility</Label>
+                <p className="text-xs text-slate-500">
+                  {isPrivate
+                    ? "Only you can view and use this package"
+                    : "Anyone can view and use your package"}
+                </p>
               </div>
-              <div
-                className="flex items-start space-x-2 px-2 py-4 rounded-md hover:bg-slate-100 cursor-pointer"
-                onClick={() => setIsPrivate(true)}
+              <Select
+                value={isPrivate ? "private" : "public"}
+                onValueChange={(value) => setIsPrivate(value === "private")}
               >
-                <RadioGroupItem value="private" id="private" />
-                <div className="grid gap-1.5">
-                  <Label htmlFor="private" className="font-medium">
-                    Private
-                  </Label>
-                  <p className="text-sm text-slate-500">
-                    Only you can view and use this package. It won't appear in
-                    search results.
-                  </p>
-                </div>
-              </div>
-            </RadioGroup>
+                <SelectTrigger className="w-full sm:w-32 sm:mt-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="!z-[999]">
+                  <SelectItem value="public" className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <span>Public</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="private" className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <span>Private</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
         <div className="flex justify-end gap-2">
@@ -140,7 +161,11 @@ export const NewPackageSavePromptDialog = ({
           </Button>
           <Button
             onClick={() => {
-              onSave(isPrivate, selectedOrgId)
+              onSave({
+                name: packageName.trim(),
+                isPrivate,
+                orgId: selectedOrgId,
+              })
               onOpenChange(false)
             }}
             disabled={!selectedOrgId || orgsLoading}
