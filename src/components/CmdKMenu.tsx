@@ -1,9 +1,10 @@
-import { JLCPCBImportDialog } from "@/components/JLCPCBImportDialog"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
+import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
+import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
 import { Command } from "cmdk"
 import { Package, Account } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -26,6 +27,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { CircuitJsonImportDialog } from "./CircuitJsonImportDialog"
+import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
 
 type SnippetType = "board" | "package" | "model" | "footprint"
 
@@ -56,13 +58,31 @@ interface ScoredAccount extends Account {
 const CmdKMenu = () => {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [isJLCPCBDialogOpen, setIsJLCPCBDialogOpen] = useState(false)
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const toastNotImplemented = useNotImplementedToast()
   const axios = useAxios()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
+    useImportComponentDialog()
+  const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
+  const session = useGlobalStore((s) => s.session)
+  const currentUser = session?.github_username
+  const jlcpcbProxyRequestHeaders = useMemo(
+    () =>
+      session?.token
+        ? {
+            Authorization: `Bearer ${session.token}`,
+          }
+        : undefined,
+    [session?.token],
+  )
+  const handleJlcpcbComponentSelected = useCallback(
+    async (payload: JlcpcbComponentTsxLoadedPayload) => {
+      await importJlcpcbComponent(payload)
+    },
+    [importJlcpcbComponent],
+  )
   const selectedItemRef = useRef<HTMLDivElement>(null)
 
   const blankTemplates = useMemo(
@@ -375,7 +395,7 @@ const CmdKMenu = () => {
                 break
               case "JLCPCB Component":
                 setOpen(false)
-                setIsJLCPCBDialogOpen(true)
+                openImportDialog()
                 break
             }
           } else {
@@ -549,9 +569,9 @@ const CmdKMenu = () => {
   if (!open)
     return (
       <>
-        <JLCPCBImportDialog
-          open={isJLCPCBDialogOpen}
-          onOpenChange={setIsJLCPCBDialogOpen}
+        <ImportComponentDialog
+          onJlcpcbComponentTsxLoaded={handleJlcpcbComponentSelected}
+          jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
         />
         <CircuitJsonImportDialog
           open={isCircuitJsonImportDialogOpen}
@@ -775,9 +795,9 @@ const CmdKMenu = () => {
         </DialogContent>
       </Dialog>
 
-      <JLCPCBImportDialog
-        open={isJLCPCBDialogOpen}
-        onOpenChange={setIsJLCPCBDialogOpen}
+      <ImportComponentDialog
+        onJlcpcbComponentTsxLoaded={handleJlcpcbComponentSelected}
+        jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
       />
     </>
   )

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
@@ -25,11 +25,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { convertRawEasyToTsx, fetchEasyEDAComponent } from "easyeda/browser"
-import { ComponentSearchResult } from "@tscircuit/runframe/runner"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import {
+  JlcpcbComponentTsxLoadedPayload,
+  KicadStringSelectedPayload,
+  TscircuitPackageSelectedPayload,
+} from "@tscircuit/runframe/runner"
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { openJlcpcbImportIssue } from "@/hooks/use-jlcpcb-component-import"
 
 export type FileName = string
 
@@ -59,11 +62,17 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 }) => {
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
-  const { toast, toastLibrary } = useToast()
+  const { toast } = useToast()
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
-  const API_BASE = useApiBaseUrl()
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
   const session = useGlobalStore((s) => s.session)
+
+  const jlcpcbProxyRequestHeaders = useMemo(() => {
+    if (!session?.token) return undefined
+    return {
+      Authorization: `Bearer ${session.token}`,
+    }
+  }, [session?.token])
 
   const handleFormatFile = useCallback(() => {
     if (!window.prettier || !window.prettierPlugins) return
@@ -154,57 +163,114 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     }
   }, [currentFile, files, toast, updateFileContent])
 
-  const handleComponentImport = async (component: ComponentSearchResult) => {
-    if (component.source == "tscircuit.com") {
-      const newContent = `import {} from "@tsci/${component.owner}.${component.name}"\n${files[currentFile || ""]}`
-      updateFileContent(currentFile, newContent)
-    }
-    if (component.source == "jlcpcb") {
-      if (!session?.token) {
-        throw new Error("You need to be logged in to import jlcpcb component")
+  const handleTscircuitPackageSelected = useCallback(
+    async ({ fullPackageName }: TscircuitPackageSelectedPayload) => {
+      if (!currentFile) {
+        const message = "Select a file before importing a component."
+        toast({
+          title: "No file selected",
+          description: message,
+          variant: "destructive",
+        })
+        throw new Error(message)
       }
 
-      const jlcpcbComponent = await fetchEasyEDAComponent(
-        component.partNumber ?? component.name,
-        {
-          fetch: ((url, options: any) => {
-            return fetch(`${API_BASE}/proxy`, {
-              body: options.body,
-              method: options.method,
-              headers: {
-                authority: options.headers.authority,
-                Authorization: `Bearer ${session?.token}`,
-                "X-Target-Url": url.toString(),
-                "X-Sender-Host": options.headers.origin,
-                "X-Sender-Origin": options.headers.origin,
-                "content-type": options.headers["content-type"],
-              },
-            })
-          }) as typeof fetch,
-        },
-      )
-      const tsxComponent = await convertRawEasyToTsx(jlcpcbComponent)
-      let componentName = component.name.replace(/ /g, "-")
-      let componentPath = `imports/${componentName}.tsx`
-      if (files[componentPath] || files[`./${componentPath}`]) {
-        componentName = `${componentName}-1`
-        componentPath = `imports/${componentName}.tsx`
-      }
-      const createFileResult = createFile({
-        newFileName: componentPath,
-        content: tsxComponent,
-        onError: (error) => {
-          throw error
-        },
+      const existingContent = files[currentFile] ?? ""
+      const newContent = `import {} from "${fullPackageName}"\n${existingContent}`
+      updateFileContent(currentFile, newContent)
+      toast({
+        title: "Component imported",
+        description: `Added ${fullPackageName} to ${currentFile}.`,
       })
-      if (!createFileResult.newFileCreated) {
-        throw new Error("Failed to create component file")
+    },
+    [currentFile, files, toast, updateFileContent],
+  )
+
+  const handleJlcpcbComponentTsxLoaded = useCallback(
+    async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
+      const partNumber = result.component.partNumber || "component"
+
+      try {
+        const sanitizedBaseName = partNumber
+          .toLowerCase()
+          .replace(/[^a-z0-9_-]/gi, "-")
+        let componentPath = `imports/${sanitizedBaseName}.tsx`
+        let suffix = 1
+        while (files[componentPath] || files[`./${componentPath}`]) {
+          componentPath = `imports/${sanitizedBaseName}-${suffix}.tsx`
+          suffix += 1
+        }
+
+        const createFileResult = createFile({
+          newFileName: componentPath,
+          content: tsx,
+          onError: (error) => {
+            throw error
+          },
+        })
+
+        if (!createFileResult.newFileCreated) {
+          throw new Error("Failed to create component file")
+        }
+
+        toast({
+          title: "Component imported",
+          description: `${partNumber} saved to ${componentPath}.`,
+        })
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to import component from JLCPCB"
+
+        toast({
+          title: "JLCPCB import failed",
+          description: (
+            <div className="space-y-2">
+              <p>{message}</p>
+              <button
+                className="text-sm text-blue-500 hover:underline"
+                onClick={(event) => {
+                  event.preventDefault()
+                  openJlcpcbImportIssue(partNumber, message)
+                }}
+              >
+                File issue on GitHub
+              </button>
+            </div>
+          ),
+          variant: "destructive",
+        })
+
+        throw new Error(message)
       }
-    }
-    if (component.source == "kicad") {
-      await navigator.clipboard.writeText(component.id)
-    }
-  }
+    },
+    [createFile, files, toast],
+  )
+
+  const handleKicadStringSelected = useCallback(
+    async ({ footprint, result }: KicadStringSelectedPayload) => {
+      try {
+        await navigator.clipboard.writeText(footprint)
+        toast({
+          title: "KiCad footprint copied",
+          description: `${result.footprint.qualifiedName} copied to clipboard.`,
+        })
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to copy KiCad footprint to clipboard"
+        toast({
+          title: "KiCad import failed",
+          description: message,
+          variant: "destructive",
+        })
+        throw new Error(message)
+      }
+    },
+    [toast],
+  )
 
   return (
     <>
@@ -348,17 +414,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           </Button>
         </div>
         <ImportComponentDialog
-          onComponentSelected={async (component) => {
-            toastLibrary.promise(handleComponentImport(component), {
-              loading: "Importing component...",
-              success: <p>Component imported successfully!</p>,
-              error: (error) => (
-                <p>
-                  Error importing component: {error.message || String(error)}
-                </p>
-              ),
-            })
-          }}
+          onTscircuitPackageSelected={handleTscircuitPackageSelected}
+          onJlcpcbComponentTsxLoaded={handleJlcpcbComponentTsxLoaded}
+          onKicadStringSelected={handleKicadStringSelected}
+          jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
         />
       </div>
     </>
