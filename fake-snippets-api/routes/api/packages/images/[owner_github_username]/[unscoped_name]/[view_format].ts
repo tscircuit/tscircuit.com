@@ -110,7 +110,7 @@ export default withRouteSpec({
   }
 
   const pngBuffer = await renderAsync(svg)
-  return new Response(pngBuffer.asPng(), {
+  return new Response(pngBuffer.asPng().buffer as ArrayBuffer, {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=86400, s-maxage=86400",

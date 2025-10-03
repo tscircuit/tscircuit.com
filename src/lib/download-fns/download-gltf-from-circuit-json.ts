@@ -27,7 +27,7 @@ export const downloadGltfFromCircuitJson = async (
     typeof (result as any).buffer === "object" &&
     (result as any).byteLength !== undefined
   ) {
-    const view = result as ArrayBufferView
+    const view = result as ArrayBuffer
     blob = new Blob([view], { type: "model/gltf-binary" })
     extension = options?.format
       ? options.format === "glb"
