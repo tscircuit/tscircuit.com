@@ -10,7 +10,7 @@ export const useOrganization = ({
   const axios = useAxios()
 
   const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(
-    ["orgs", "get", orgId || orgName],
+    ["orgs", "get", orgId || orgName || github_handle],
     async () => {
       if (!orgId && !orgName && !github_handle) {
         throw new Error("Organization ID, name, or GitHub handle is required")
