@@ -85,9 +85,8 @@ export default function ImportantFilesView({
     if(isOwner) return isOwner
     if (organization) {
       return organization.user_permissions?.can_manage_package
-    } else {
-      return isOwner
     }
+    return false
   }, [isOwner, organization])
 
   // File type utilities
