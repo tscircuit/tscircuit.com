@@ -10,12 +10,14 @@ import { User } from "lucide-react"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { Link } from "wouter"
+import { useState } from "react"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
+  const [isOpen, setIsOpen] = useState(false)
 
   if (!isLoggedIn) {
     return (
@@ -29,7 +31,7 @@ export const HeaderLogin = () => {
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Avatar className="w-8 h-8 login-avatar">
           <AvatarImage
@@ -53,27 +55,47 @@ export const HeaderLogin = () => {
           <Link
             href={`/${session?.github_username}`}
             className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
           >
             My Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/dashboard" className="cursor-pointer">
+          <Link
+            href="/dashboard"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Dashboard
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
+          <Link
+            href="/settings"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/orgs/new" className="cursor-pointer">
+          <Link
+            href="/orgs/new"
+            className="cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
             Create Organization
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild onClick={() => setSession(null)}>
-          <Link href="/" className="cursor-pointer">
+        <DropdownMenuItem asChild>
+          <Link
+            href="/"
+            className="cursor-pointer"
+            onClick={() => {
+              setSession(null)
+              setIsOpen(false)
+            }}
+          >
             Sign Out
           </Link>
         </DropdownMenuItem>
