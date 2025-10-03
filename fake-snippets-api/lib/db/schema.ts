@@ -428,7 +428,10 @@ export const publicOrgSchema = z.object({
   package_count: z.number(),
   created_at: z.string(),
   user_permissions: z
-    .object({ can_manage_org: z.boolean().optional() })
+    .object({
+      can_manage_org: z.boolean().optional(),
+      can_manage_package: z.boolean().optional(),
+    })
     .optional(),
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
