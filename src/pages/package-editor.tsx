@@ -1,5 +1,4 @@
 import { CodeAndPreview } from "@/components/package-port/CodeAndPreview"
-import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { Helmet } from "react-helmet-async"
 import { NotFound } from "@/components/NotFound"
@@ -14,7 +13,7 @@ export const EditorPage = () => {
   )
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="flex flex-col h-screen overflow-x-hidden">
       <Helmet>
         <title>{pkg ? `${pkg.name} - tscircuit` : "tscircuit editor"}</title>
         {pkg && (
@@ -36,20 +35,21 @@ export const EditorPage = () => {
         )}
       </Helmet>
       <Header />
-      {!error && <CodeAndPreview pkg={pkg} />}
-      {error &&
-        (error.status === 404 || !uuid4RegExp.test(pkg?.package_id ?? "")) && (
-          <NotFound heading="Package not found" />
+      <div className="flex-1 overflow-y-auto">
+        {!error && <CodeAndPreview pkg={pkg} />}
+        {error &&
+          (error.status === 404 || !uuid4RegExp.test(pkg?.package_id ?? "")) && (
+            <NotFound heading="Package not found" />
+          )}
+        {error && error.status !== 404 && (
+          <div className="min-h-screen grid place-items-center">
+            <ErrorOutline
+              error={error}
+              description={"There was an error loading the editor page"}
+            />
+          </div>
         )}
-      {error && error.status !== 404 && (
-        <div className="min-h-screen grid place-items-center">
-          <ErrorOutline
-            error={error}
-            description={"There was an error loading the editor page"}
-          />
-        </div>
-      )}
-      <Footer />
+      </div>
     </div>
   )
 }

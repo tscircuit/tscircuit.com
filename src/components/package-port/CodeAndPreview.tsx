@@ -157,7 +157,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
   })
 
   return (
-    <div className="flex flex-col min-h-[50vh]">
+    <div className="flex flex-col h-full">
       <EditorNav
         circuitJson={state.circuitJson}
         pkg={pkg}
@@ -176,7 +176,9 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         packageFilesMeta={packageFilesMeta}
       />
       <div
-        className={`flex ${state.showPreview ? "flex-col md:flex-row" : ""}`}
+        className={`flex flex-1 min-h-0 ${
+          state.showPreview ? "flex-col md:flex-row" : ""
+        }`}
       >
         <div
           className={cn(
@@ -214,7 +216,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
         </div>
         <div
           className={cn(
-            "flex p-0 flex-col min-h-[640px] overflow-y-hidden",
+            "flex p-0 flex-col overflow-y-hidden",
             state.fullScreen
               ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
               : "w-full md:w-1/2",
