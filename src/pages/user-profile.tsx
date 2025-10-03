@@ -183,7 +183,7 @@ export const UserProfilePage = () => {
         <Tabs
           defaultValue="all"
           onValueChange={setActiveTab}
-          className="mb-4 select-none"
+          className="mb-4 select-none overflow-x-auto no-scrollbar"
         >
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
