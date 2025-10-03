@@ -38,7 +38,8 @@ export const EditorPage = () => {
       <div className="flex-1 overflow-y-auto">
         {!error && <CodeAndPreview pkg={pkg} />}
         {error &&
-          (error.status === 404 || !uuid4RegExp.test(pkg?.package_id ?? "")) && (
+          (error.status === 404 ||
+            !uuid4RegExp.test(pkg?.package_id ?? "")) && (
             <NotFound heading="Package not found" />
           )}
         {error && error.status !== 404 && (
