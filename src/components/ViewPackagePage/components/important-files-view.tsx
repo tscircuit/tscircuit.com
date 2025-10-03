@@ -83,7 +83,7 @@ export default function ImportantFilesView({
   )
   const canManagePackage = useMemo(() => {
     if (organization) {
-      return organization.user_permissions?.can_manage_org
+      return organization.user_permissions?.can_manage_package
     } else {
       return isOwner
     }
