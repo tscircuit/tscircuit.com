@@ -41,6 +41,7 @@ export const UserProfilePage = () => {
     data: account,
     error: accountError,
     isLoading: isLoadingAccount,
+    isFetched: isFetchedAccount,
   } = useQuery<
     { account: { github_username: string } },
     Error & { status: number }
@@ -100,6 +101,10 @@ export const UserProfilePage = () => {
     )
 
   const baseUrl = useApiBaseUrl()
+
+  if (!isFetchedAccount) {
+    return null
+  }
 
   if (accountError) {
     return <NotFoundPage heading="User Not Found" />
