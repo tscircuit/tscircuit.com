@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "../ui/button"
 import {
   Dialog,
@@ -18,6 +18,7 @@ import {
 } from "../ui/select"
 import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const NewPackageSavePromptDialog = ({
   open,
@@ -41,10 +42,16 @@ export const NewPackageSavePromptDialog = ({
   }) => void
 }) => {
   const [packageName, setPackageName] = useState(initialName)
+  const session = useGlobalStore((s) => s.session)
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate)
   const [selectedOrgId, setSelectedOrgId] = useState<string>("")
   const { data: organizations, isLoading: orgsLoading } = useListUserOrgs()
-
+  const fullPackageName = useMemo(() => {
+    if (selectedOrgId) {
+      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${packageName}`
+    }
+    return `${session?.github_username}/${packageName}`
+  }, [selectedOrgId, packageName, organizations, session?.github_username])
   useEffect(() => {
     if (organizations && organizations.length > 0 && !selectedOrgId) {
       setSelectedOrgId(
@@ -162,13 +169,13 @@ export const NewPackageSavePromptDialog = ({
           <Button
             onClick={() => {
               onSave({
-                name: packageName.trim(),
+                name: fullPackageName.trim(),
                 isPrivate,
                 orgId: selectedOrgId,
               })
               onOpenChange(false)
             }}
-            disabled={!selectedOrgId || orgsLoading}
+            disabled={!selectedOrgId || orgsLoading || !session}
           >
             Save
           </Button>
