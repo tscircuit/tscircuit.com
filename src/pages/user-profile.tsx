@@ -183,36 +183,22 @@ export const UserProfilePage = () => {
         <Tabs
           defaultValue="all"
           onValueChange={setActiveTab}
-          className="mb-4 select-none"
+          className="mb-4 select-none overflow-x-auto no-scrollbar"
         >
-          <div className="overflow-x-auto">
-            <TabsList className="w-full min-w-fit flex-nowrap">
-              <TabsTrigger value="all" className="whitespace-nowrap">
-                Packages
-              </TabsTrigger>
-              <TabsTrigger value="starred" className="whitespace-nowrap">
-                Starred Packages
-              </TabsTrigger>
-              {organizations && organizations.length > 0 && (
-                <TabsTrigger
-                  value="organizations"
-                  className="whitespace-nowrap"
-                >
-                  Organizations
-                </TabsTrigger>
+          <TabsList>
+            <TabsTrigger value="all">Packages</TabsTrigger>
+            <TabsTrigger value="starred">Starred Packages</TabsTrigger>
+            {organizations && organizations.length > 0 && (
+              <TabsTrigger value="organizations">Organizations</TabsTrigger>
+            )}
+            {isCurrentUserProfile &&
+              (
+                userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
+                []
+              ).length > 0 && (
+                <TabsTrigger value="repos">Connected Repositories</TabsTrigger>
               )}
-              {isCurrentUserProfile &&
-                (
-                  userPackages?.filter((x) =>
-                    Boolean(x.github_repo_full_name),
-                  ) ?? []
-                ).length > 0 && (
-                  <TabsTrigger value="repos" className="whitespace-nowrap">
-                    Connected Repositories
-                  </TabsTrigger>
-                )}
-            </TabsList>
-          </div>
+          </TabsList>
         </Tabs>
         {activeTab !== "repos" && (
           <div className="flex gap-4 mb-4">
