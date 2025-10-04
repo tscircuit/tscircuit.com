@@ -5,7 +5,7 @@ test("delete package file using package_release_id", async () => {
   const { axios } = await getTestServer()
 
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files-delete",
+    name: "testuser/package-files-delete",
     description: "A test package for deleting files",
   })
   expect(packageResponse.status).toBe(200)
@@ -50,7 +50,7 @@ test("delete package file using package_release_id", async () => {
 test("delete package file using package_name_with_version", async () => {
   const { axios } = await getTestServer()
 
-  const packageName = "@test/package-files-delete-by-name"
+  const packageName = "testuser/package-files-delete-by-name"
   const version = "2.0.0"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,
@@ -129,7 +129,7 @@ test("delete package file - 404 for non-existent file", async () => {
   const { axios } = await getTestServer()
 
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files-delete-error",
+    name: "testuser/package-files-delete-error",
     description: "A test package for delete error cases",
   })
   expect(packageResponse.status).toBe(200)
@@ -159,7 +159,7 @@ test.skip("delete package file - 403 for unauthorized user", async () => {
   const { axios, db } = await getTestServer()
 
   const pkg = {
-    name: "@test/package-files-delete-unauthorized",
+    name: "testuser/package-files-delete-unauthorized",
     owner_org_id: "different-org",
     created_at: "2023-01-01T00:00:00Z",
     updated_at: "2023-01-01T00:00:00Z",
@@ -220,7 +220,7 @@ test("delete package file - 400 when both package_release_id and package_name_wi
   try {
     await axios.post("/api/package_files/delete", {
       package_release_id: "some-id",
-      package_name_with_version: "@test/package@1.0.0",
+      package_name_with_version: "testuser/package@1.0.0",
       file_path: "/test.js",
     })
     throw new Error("Expected request to fail")

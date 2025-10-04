@@ -59,7 +59,6 @@ export const getTestServer = async (): Promise<TestFixture> => {
 const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
-    personal_org_id: "personal-org-1",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -73,6 +72,22 @@ const seedDatabase = (db: DbClient) => {
       phone: "555-123-4567",
     },
   })
+
+  // Create personal organization for the main test account
+  const personalOrg = db.addOrganization({
+    org_id: "personal-org-1",
+    name: "testuser",
+    owner_account_id: account.account_id,
+    is_personal_org: true,
+  })
+
+  // Add the account as a member of their personal org
+  db.addOrganizationAccount({
+    org_id: personalOrg.org_id,
+    account_id: account.account_id,
+    is_owner: true,
+  })
+
   const account2 = db.addAccount({
     github_username: "jane",
   })
@@ -108,10 +123,17 @@ const seedDatabase = (db: DbClient) => {
     transpilation_error: null,
   })
 
-  // Seed a organization
+  // Seed a organization for account2
   const organization = db.addOrganization({
     name: "jane",
     owner_account_id: account2.account_id,
+  })
+
+  // Add account2 as a member of their org
+  db.addOrganizationAccount({
+    org_id: organization.org_id,
+    account_id: account2.account_id,
+    is_owner: true,
   })
 
   return { account, account2, order, packageRelease, organization }

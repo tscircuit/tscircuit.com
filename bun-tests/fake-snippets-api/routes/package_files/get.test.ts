@@ -7,7 +7,7 @@ test("GET /api/package_files/get - should return package file by package_file_id
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files",
+    name: "testuser/package-files",
     description: "A test package for files",
   })
   expect(packageResponse.status).toBe(200)
@@ -49,7 +49,7 @@ test("GET /api/package_files/get - should return package file by package_release
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files-2",
+    name: "testuser/package-files-2",
     description: "Another test package for files",
   })
   expect(packageResponse.status).toBe(200)
@@ -97,7 +97,7 @@ test("GET /api/package_files/get - should return package file by package_name_wi
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageName = "@test/package-files-3"
+  const packageName = "testuser/package-files-3"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,
     description: "Package for name_with_version test",
@@ -183,7 +183,7 @@ test("GET /api/package_files/get - should return file using package_id and versi
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files-4",
+    name: "testuser/package-files-4",
     description: "Package for package_id and version test",
   })
   expect(packageResponse.status).toBe(200)

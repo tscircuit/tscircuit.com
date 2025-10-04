@@ -51,6 +51,17 @@ export default withRouteSpec({
     })
   }
 
+  // Check if user can manage the package
+  const canManagePackage =
+    auth &&
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (org_account) =>
+          org_account.account_id === auth.account_id &&
+          org_account.org_id === foundPackage.owner_org_id,
+      )
+
   return ctx.json({
     ok: true,
     package: {
@@ -61,8 +72,7 @@ export default withRouteSpec({
       ...(auth
         ? {
             user_permissions: {
-              can_manage_packages:
-                foundPackage.owner_org_id === auth.personal_org_id,
+              can_manage_packages: canManagePackage,
             },
           }
         : {}),
