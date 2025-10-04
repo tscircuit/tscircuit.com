@@ -193,7 +193,7 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1",
-    "circuit-json-to-kicad": "^0.0.3",
+    "circuit-json-to-kicad": "^0.0.4",
     "kicadts": "^0.0.9"
   }
 }
