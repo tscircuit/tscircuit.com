@@ -136,3 +136,36 @@ test("create package release - package not found", async () => {
     )
   }
 })
+
+// test
+test("create package release under org", async () => {
+  const { axios } = await getTestServer()
+
+  const orgResponse = await axios.post("/api/orgs/create", {
+    name: "testorg",
+  })
+  expect(orgResponse.status).toBe(200)
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testorg/test-package",
+    description: "Test Description",
+  })
+  expect(packageResponse.status).toBe(200)
+  const createdPackage = packageResponse.data.package
+
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_id: createdPackage.package_id,
+    version: "1.0.0",
+    is_latest: true,
+  })
+  expect(releaseResponse.status).toBe(200)
+  expect(releaseResponse.data.ok).toBe(true)
+  expect(releaseResponse.data.package_release).toBeDefined()
+  expect(releaseResponse.data.package_release.package_id).toBe(
+    createdPackage.package_id,
+  )
+  expect(releaseResponse.data.package_release.version).toBe("1.0.0")
+  expect(releaseResponse.data.package_release.is_latest).toBe(true)
+  expect(releaseResponse.data.package_release.ai_review_requested).toBe(false)
+  expect(releaseResponse.data.package_release.ai_review_text).toBeFalsy()
+})

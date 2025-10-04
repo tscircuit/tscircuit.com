@@ -37,6 +37,17 @@ export default withRouteSpec({
     })
   }
 
+  // Helper to check if user can manage a package
+  const canManagePackage = (pkg: any) => {
+    if (!auth) return false
+    // Check if user is a member of the package's owner org
+    const state = ctx.db.getState()
+    return state.orgAccounts.some(
+      (oa) =>
+        oa.account_id === auth.account_id && oa.org_id === pkg.owner_org_id,
+    )
+  }
+
   let packages = ctx.db.packages
 
   // Apply filters
@@ -55,7 +66,7 @@ export default withRouteSpec({
   }
 
   if (is_writable && auth) {
-    packages = packages.filter((p) => p.owner_org_id === auth.personal_org_id)
+    packages = packages.filter(canManagePackage)
   }
 
   // Get star timestamps for authenticated user
@@ -77,7 +88,7 @@ export default withRouteSpec({
       ...(auth
         ? {
             user_permissions: {
-              can_manage_packages: p.owner_org_id === auth.personal_org_id,
+              can_manage_packages: canManagePackage(p),
             },
           }
         : {}),

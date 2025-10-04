@@ -1734,9 +1734,98 @@ export const SquareWaveModule = () => (
     completed_at: null,
   })
 
-  db.addOrganization({
+  const testOrg = db.addOrganization({
     name: "test-organization",
     owner_account_id: account_id,
+  })
+
+  // Add org member
+  db.addOrganizationAccount({
+    org_id: testOrg.org_id,
+    account_id: account_id,
+    is_owner: true,
+  })
+
+  const { package_release_id: orgPackageReleaseId } = db.addSnippet({
+    name: "test-organization/test-package",
+    unscoped_name: "test-package",
+    owner_name: "test-organization",
+    code: `
+export const TestComponent = ({ name }: { name: string }) => (
+  <resistor name={name} resistance="10k" />
+)
+`.trim(),
+    dts: `
+declare module "@tsci/test-organization.test-package" {
+  export const TestComponent: ({ name }: {
+    name: string;
+  }) => any;
+}
+`.trim(),
+    compiled_js: `
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.TestComponent = void 0;
+const TestComponent = ({
+  name
+}) => /*#__PURE__*/React.createElement("resistor", {
+  name: name,
+  resistance: "10k"
+});
+exports.TestComponent = TestComponent;
+    `.trim(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    snippet_type: "package",
+    description: "Test package for organization",
+    circuit_json: [
+      {
+        type: "source_component",
+        source_component_id: "source_component_0",
+        ftype: "simple_resistor",
+        name: "R1",
+        resistance: "10k",
+      },
+    ],
+  })
+
+  // Add successful build for org package
+  const orgPackageBuild = db.addPackageBuild({
+    package_release_id: orgPackageReleaseId,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(),
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(),
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(),
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(),
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(),
+    build_completed_at: new Date().toISOString(),
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    preview_url: "http://localhost:3000/preview/org_package_build",
+    build_logs: "Build completed successfully",
+  })
+
+  // Update the org package release with the build ID
+  const orgRelease = db.getPackageReleaseById(orgPackageReleaseId)!
+  db.updatePackageRelease({
+    ...orgRelease,
+    latest_package_build_id: orgPackageBuild.package_build_id,
   })
 
   db.addOrganization({

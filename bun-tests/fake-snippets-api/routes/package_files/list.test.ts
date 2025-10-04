@@ -6,7 +6,7 @@ test("list package files by package_release_id", async () => {
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-files-list",
+    name: "testuser/package-files-list",
     description: "A test package for listing files",
   })
   expect(packageResponse.status).toBe(200)
@@ -74,7 +74,7 @@ test("list package files by package_name with latest version", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageName = "@test/package-files-list-2"
+  const packageName = "testuser/package-files-list-2"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,
     description: "Another test package for listing files",
@@ -131,7 +131,7 @@ test("list package files by package_name_with_version", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageName = "@test/package-files-list-3"
+  const packageName = "testuser/package-files-list-3"
   const version = "2.0.0"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,

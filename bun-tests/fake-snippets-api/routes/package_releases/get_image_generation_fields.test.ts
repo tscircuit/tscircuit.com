@@ -7,7 +7,7 @@ test("POST /api/package_releases/get includes image generation fields", async ()
   const { axios } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "@test/image-fields",
+    name: "testuser/image-fields",
     description: "test package",
   })
 

@@ -6,7 +6,7 @@ test("download package file by package_file_id", async () => {
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-download",
+    name: "testuser/package-download",
     description: "A test package for downloading files",
   })
   expect(packageResponse.status).toBe(200)
@@ -54,7 +54,7 @@ test("download package file by package_name_with_version and file_path", async (
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageName = "@test/package-download-2"
+  const packageName = "testuser/package-download-2"
   const version = "2.0.0"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,
@@ -142,7 +142,7 @@ test("download package file - 404 for non-existent file path", async () => {
   const { axios, db } = await getTestServer()
 
   // First create a package
-  const packageName = "@test/package-download-3"
+  const packageName = "testuser/package-download-3"
   const packageResponse = await axios.post("/api/packages/create", {
     name: packageName,
     description: "Test package for non-existent file path",
@@ -206,7 +206,7 @@ test("download package file with POST method", async () => {
 
   // First create a package
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-download-post",
+    name: "testuser/package-download-post",
     description: "Test package for POST download",
   })
   expect(packageResponse.status).toBe(200)

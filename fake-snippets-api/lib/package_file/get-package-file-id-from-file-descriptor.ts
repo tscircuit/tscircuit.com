@@ -125,8 +125,8 @@ export const getPackageFileIdFromFileDescriptor = async (
 
   if ("package_name_with_version" in descriptor) {
     const { package_name_with_version, file_path } = descriptor
-    const packageName = package_name_with_version.split("@")[1]
-    const version = package_name_with_version.split("@")[2]
+    const packageName = package_name_with_version.split("@")[0]
+    const version = package_name_with_version.split("@")[1]
 
     // Find the package
     const pkg = ctx.db.packages.find((p: ZT.Package) => p.name === packageName)

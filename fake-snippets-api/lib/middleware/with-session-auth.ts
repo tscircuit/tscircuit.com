@@ -29,7 +29,7 @@ export const withSessionAuth: Middleware<
       ctx.auth = {
         type: "session",
         account_id: account.account_id,
-        personal_org_id: `org-${account.account_id}`,
+        personal_org_id: account.personal_org_id || `org-${account.account_id}`,
         github_username: account.github_username,
         session_id: `session-${account.account_id}`,
       }
