@@ -192,6 +192,9 @@ export default defineConfig(async (): Promise<UserConfig> => {
     define: {
       global: {},
     },
+    optimizeDeps: {
+      exclude: ["@resvg/resvg-js", "@resvg/resvg-js-darwin-arm64"],
+    },
     server: {
       host: "127.0.0.1",
       proxy: proxyConfig,
@@ -221,6 +224,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     ssr: {
       noExternal: ["react-dom/client"],
       target: "node",
+      external: ["@resvg/resvg-js", "@resvg/resvg-js-darwin-arm64"],
     },
     resolve: {
       alias: {

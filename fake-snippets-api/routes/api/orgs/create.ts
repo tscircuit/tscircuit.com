@@ -31,6 +31,14 @@ export default withRouteSpec({
   }
 
   const org = ctx.db.addOrganization(newOrg)
+
+  // Add the creator as a member of the organization
+  ctx.db.addOrganizationAccount({
+    org_id: org.org_id,
+    account_id: ctx.auth.account_id,
+    is_owner: true,
+  })
+
   const fullOrg = ctx.db.getOrg({ org_id: org.org_id }, ctx.auth)
   return ctx.json({
     org: publicMapOrg(fullOrg!),
