@@ -135,7 +135,7 @@ export const EditPackageDetailsDialog = ({
 
       const filesRes = await axios.get("/package_files/list", {
         params: {
-          package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+          package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}@latest`,
         },
       })
       const packageFiles: string[] =
@@ -150,13 +150,13 @@ export const EditPackageDetailsDialog = ({
       if (hasLicenseChanged) {
         if (packageFiles.includes("LICENSE") && !licenseContent) {
           await axios.post("/package_files/delete", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}@latest`,
             file_path: "LICENSE",
           })
         }
         if (licenseContent) {
           await axios.post("/package_files/create_or_update", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}@latest`,
             file_path: "LICENSE",
             content_text: licenseContent,
           })
