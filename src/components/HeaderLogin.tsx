@@ -71,7 +71,7 @@ export const HeaderLogin = () => {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
-            href="/settings"
+            href={`/${session?.github_username}/settings`}
             className="cursor-pointer"
             onClick={() => setIsOpen(false)}
           >
