@@ -72,7 +72,7 @@ export default withRouteSpec({
       ...(auth
         ? {
             user_permissions: {
-              can_manage_packages: canManagePackage,
+              can_manage_packages: canManagePackage ?? false,
             },
           }
         : {}),
