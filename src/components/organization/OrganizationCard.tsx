@@ -77,7 +77,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
 
   const cardContent = (
     <div
-      className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
+      className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 h-full ${className}`}
       onClick={handleCardClick}
     >
       <div className="flex items-start gap-4">
@@ -193,7 +193,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
       <Link
         key={organization.org_id}
         href={`/${organization.name}`}
-        className="block"
+        className="block h-full"
       >
         {cardContent}
       </Link>
