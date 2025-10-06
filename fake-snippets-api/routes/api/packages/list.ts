@@ -8,6 +8,7 @@ export default withRouteSpec({
   commonParams: z.object({
     creator_account_id: z.string().optional(),
     owner_github_username: z.string().optional(),
+    owner_org_id: z.string().optional(),
     is_writable: z.boolean().optional(),
     name: z.string().optional(),
   }),
@@ -25,8 +26,13 @@ export default withRouteSpec({
     ),
   }),
 })(async (req, ctx) => {
-  const { creator_account_id, owner_github_username, name, is_writable } =
-    req.commonParams
+  const {
+    creator_account_id,
+    owner_github_username,
+    owner_org_id,
+    name,
+    is_writable,
+  } = req.commonParams
 
   const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
 
@@ -60,6 +66,9 @@ export default withRouteSpec({
     packages = packages.filter(
       (p) => p.owner_github_username === owner_github_username,
     )
+  }
+  if (owner_org_id) {
+    packages = packages.filter((p) => p.owner_org_id === owner_org_id)
   }
   if (name) {
     packages = packages.filter((p) => p.name === name)

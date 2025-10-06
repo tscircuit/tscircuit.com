@@ -35,27 +35,30 @@ export const OrganizationProfilePageContent = ({
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("packages")
   const [filter, setFilter] = useState("most-recent")
-  const [showAllMembers, setShowAllMembers] = useState(false)
 
   const isCurrentUserOrganization = session?.account_id === org.owner_account_id
 
-  const { data: userPackages, isLoading: isLoadingUserPackages } = useQuery<
-    Package[]
-  >(
-    ["userPackages", org.name],
-    async () => {
-      const response = await axios.post(`/packages/list`, {
-        owner_github_username: org.name,
-      })
-      return response.data.packages
-    },
-    {
-      enabled: Boolean(org.name),
-      refetchOnWindowFocus: false,
-    },
-  )
+  const ownerGithubHandle = org.name || null
 
-  const filteredPackages = userPackages
+  const { data: orgPackages, isLoading: isLoadingOrgPackages } =
+    useQuery<Package[]>(
+      ["organizationPackages", org.org_id],
+      async () => {
+        const response = await axios.post(`/packages/list`, {
+          ...(ownerGithubHandle
+            ? { owner_github_username: ownerGithubHandle }
+            : {}),
+          owner_org_id: org.org_id,
+        })
+        return response.data.packages
+      },
+      {
+        enabled: Boolean(org.org_id || ownerGithubHandle),
+        refetchOnWindowFocus: false,
+      },
+    )
+
+  const filteredPackages = orgPackages
     ?.filter((pkg) => {
       return (
         !searchQuery ||
@@ -138,7 +141,7 @@ export const OrganizationProfilePageContent = ({
                   </Select>
                 </div>
 
-                {isLoadingUserPackages ? (
+                {isLoadingOrgPackages ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[...Array(6)].map((_, i) => (
                       <PackageCardSkeleton key={i} />

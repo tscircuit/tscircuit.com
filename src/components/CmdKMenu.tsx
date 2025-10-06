@@ -222,7 +222,7 @@ const CmdKMenu = () => {
       }
     },
     {
-      enabled: !!currentUser && !searchQuery,
+      enabled: open && !!currentUser && !searchQuery,
       retry: false,
       refetchOnWindowFocus: false,
     },
