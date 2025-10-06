@@ -89,10 +89,12 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
             <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                  <AvatarImage
-                    src={`https://github.com/${member.github_username}.png`}
-                    alt={`${member.github_username} avatar`}
-                  />
+                  {member.github_username && (
+                    <AvatarImage
+                      src={`https://github.com/${member.github_username}.png`}
+                      alt={`${member.github_username} avatar`}
+                    />
+                  )}
                   <AvatarFallback className="text-sm font-medium">
                     {member.github_username
                       .split(" ")

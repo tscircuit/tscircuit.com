@@ -486,17 +486,23 @@ const CmdKMenu = () => {
               onClick={() => !disabled && handleItemSelect(item)}
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <img
-                  src={`https://github.com/${data.github_username}.png`}
-                  alt={`${data.github_username} avatar`}
-                  className="w-6 h-6 rounded-full flex-shrink-0"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.style.display = "none"
-                    target.nextElementSibling?.classList.remove("hidden")
-                  }}
-                />
-                <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
+                {data.github_username ? (
+                  <>
+                    <img
+                      src={`https://github.com/${data.github_username}.png`}
+                      alt={`${data.github_username} avatar`}
+                      className="w-6 h-6 rounded-full flex-shrink-0"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = "none"
+                        target.nextElementSibling?.classList.remove("hidden")
+                      }}
+                    />
+                    <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
+                  </>
+                ) : (
+                  <User className="w-6 h-6 text-gray-400 flex-shrink-0" />
+                )}
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
                     {renderHighlighted(data, data.github_username)}

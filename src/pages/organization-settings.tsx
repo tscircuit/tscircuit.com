@@ -468,10 +468,12 @@ export default function OrganizationSettingsPage() {
                           className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
                         >
                           <Avatar className="h-12 w-12 border-2 border-gray-200 shadow-sm">
-                            <AvatarImage
-                              src={`https://github.com/${member.github_username}.png`}
-                              alt={`${member.github_username} avatar`}
-                            />
+                            {member.github_username && (
+                              <AvatarImage
+                                src={`https://github.com/${member.github_username}.png`}
+                                alt={`${member.github_username} avatar`}
+                              />
+                            )}
                             <AvatarFallback className="text-sm bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-medium">
                               {(
                                 member.github_username ||

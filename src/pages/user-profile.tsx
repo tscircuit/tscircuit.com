@@ -153,10 +153,12 @@ export const UserProfilePage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={`https://github.com/${githubUsername}.png`}
-              draggable={false}
-            />
+            {githubUsername && (
+              <AvatarImage
+                src={`https://github.com/${githubUsername}.png`}
+                draggable={false}
+              />
+            )}
             <AvatarFallback className="select-none">
               {githubUsername?.[0]?.toUpperCase()}
             </AvatarFallback>

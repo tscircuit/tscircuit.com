@@ -35,20 +35,28 @@ export const UserCard: React.FC<UserCardProps> = ({
     >
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center">
-          <img
-            src={`https://github.com/${account.github_username}.png`}
-            alt={`${account.github_username} avatar`}
-            className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.style.display = "none"
-              target.nextElementSibling?.classList.remove("hidden")
-              target.nextElementSibling?.classList.add("flex")
-            }}
-          />
-          <div className="hidden items-center justify-center h-full w-full">
-            <User className="w-6 h-6 text-gray-300" />
-          </div>
+          {account.github_username ? (
+            <>
+              <img
+                src={`https://github.com/${account.github_username}.png`}
+                alt={`${account.github_username} avatar`}
+                className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = "none"
+                  target.nextElementSibling?.classList.remove("hidden")
+                  target.nextElementSibling?.classList.add("flex")
+                }}
+              />
+              <div className="hidden items-center justify-center h-full w-full">
+                <User className="w-6 h-6 text-gray-300" />
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-full w-full">
+              <User className="w-6 h-6 text-gray-300" />
+            </div>
+          )}
         </div>
         <div className="flex-1 min-w-0 flex flex-col justify-center my-auto">
           <div className="flex justify-between items-start">

@@ -34,10 +34,12 @@ export const HeaderLogin = () => {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Avatar className="w-8 h-8 login-avatar">
-          <AvatarImage
-            src={`https://github.com/${session?.github_username}.png`}
-            alt={`${session?.github_username}'s profile picture`}
-          />
+          {session?.github_username && (
+            <AvatarImage
+              src={`https://github.com/${session?.github_username}.png`}
+              alt={`${session?.github_username}'s profile picture`}
+            />
+          )}
           <AvatarFallback aria-label="User avatar fallback">
             <User size={16} aria-hidden="true" />
           </AvatarFallback>
