@@ -18,7 +18,7 @@ export const useOrgByGithubHandle = (githubHandle: string | null) => {
       return data.org
     },
     {
-      enabled: Boolean(githubHandle && session),
+      enabled: Boolean(githubHandle),
       retry: false,
       refetchOnWindowFocus: false,
     },
