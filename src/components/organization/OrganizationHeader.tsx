@@ -41,11 +41,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         <div className="block sm:hidden">
           <div className="flex flex-col items-center text-center space-y-4">
             <Avatar className="border-4 border-gray-100 shadow-sm size-16 md:size-20 lg:size-24">
-              <AvatarImage
-                src={`https://github.com/${organization.name}.png`}
-                alt={`${organization.name} avatar`}
-                className="object-cover"
-              />
               <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xl md:text-2xl lg:text-3xl">
                 {(organization.name || "")
                   .split(" ")
@@ -97,11 +92,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         <div className="hidden sm:block">
           <div className="flex items-center gap-6">
             <Avatar className="border-4 border-gray-100 shadow-sm size-16 md:size-20 lg:size-24 flex-shrink-0">
-              <AvatarImage
-                src={`https://github.com/${organization.name}.png`}
-                alt={`${organization.name} avatar`}
-                className="object-cover"
-              />
               <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xl md:text-2xl lg:text-3xl">
                 {(organization.name || "")
                   .split(" ")
