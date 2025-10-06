@@ -1,9 +1,9 @@
 import { useQuery } from "react-query"
-import { useAxios } from "@/hooks/use-axios"
+import { usePublicAxios } from "@/hooks/use-public-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useOrgByGithubHandle = (githubHandle: string | null) => {
-  const axios = useAxios()
+  const axios = usePublicAxios()
   return useQuery<PublicOrgSchema, Error & { status: number }>(
     ["orgs", "by-github-handle", githubHandle],
     async () => {
