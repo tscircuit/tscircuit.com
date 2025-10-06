@@ -331,7 +331,9 @@ export default function OrganizationSettingsPage() {
                               <Input
                                 placeholder="Enter organization name"
                                 {...field}
-                                disabled={updateOrgMutation.isLoading || isPersonalOrg}
+                                disabled={
+                                  updateOrgMutation.isLoading || isPersonalOrg
+                                }
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               />
                             </FormControl>
@@ -345,7 +347,9 @@ export default function OrganizationSettingsPage() {
                       <Button
                         type="submit"
                         disabled={
-                          updateOrgMutation.isLoading || !form.formState.isDirty || isPersonalOrg
+                          updateOrgMutation.isLoading ||
+                          !form.formState.isDirty ||
+                          isPersonalOrg
                         }
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
                       >
