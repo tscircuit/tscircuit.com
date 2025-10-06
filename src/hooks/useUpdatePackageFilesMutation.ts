@@ -53,7 +53,7 @@ export function useUpdatePackageFilesMutation({
                 ?.package_file_id ?? null,
             content_text: file.content,
             file_path: file.path,
-            package_name_with_version: newPackage.package_name_with_version,
+            package_name_with_version: `${newPackage.name}`,
           }
           const response = await axios.post(
             "/package_files/create_or_update",
@@ -78,7 +78,7 @@ export function useUpdatePackageFilesMutation({
 
           if (fileToDelete?.package_file_id) {
             const response = await axios.post("/package_files/delete", {
-              package_name_with_version: newPackage.package_name_with_version,
+              package_name_with_version: `${newPackage.name}`,
               file_path: initialFile.path,
             })
 
