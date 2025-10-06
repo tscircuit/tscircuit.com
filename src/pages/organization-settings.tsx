@@ -206,6 +206,8 @@ export default function OrganizationSettingsPage() {
     )
   }
 
+  const isPersonalOrg = organization?.is_personal_org
+
   const onSubmit = (data: OrganizationSettingsFormData) => {
     if (!organization) return
     updateOrgMutation.mutate({
@@ -317,6 +319,11 @@ export default function OrganizationSettingsPage() {
                               This is your organization's display name and URL
                               identifier. Choose carefully as this affects your
                               organization's web address.
+                              {isPersonalOrg && (
+                                <p className="text-sm text-red-500 mt-2">
+                                  Personal organizations cannot be renamed.
+                                </p>
+                              )}
                             </FormDescription>
                           </div>
                           <div className="lg:col-span-3">
@@ -324,7 +331,7 @@ export default function OrganizationSettingsPage() {
                               <Input
                                 placeholder="Enter organization name"
                                 {...field}
-                                disabled={updateOrgMutation.isLoading}
+                                disabled={updateOrgMutation.isLoading || isPersonalOrg}
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               />
                             </FormControl>
@@ -338,7 +345,7 @@ export default function OrganizationSettingsPage() {
                       <Button
                         type="submit"
                         disabled={
-                          updateOrgMutation.isLoading || !form.formState.isDirty
+                          updateOrgMutation.isLoading || !form.formState.isDirty || isPersonalOrg
                         }
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
                       >
