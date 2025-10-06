@@ -42,18 +42,19 @@ export const OrganizationProfilePageContent = ({
 
   const { data: orgPackages, isLoading: isLoadingOrgPackages } =
     useQuery<Package[]>(
-      ["organizationPackages", org.org_id],
+      ["organizationPackages", ownerGithubHandle || org.org_id],
       async () => {
+        if (!ownerGithubHandle) {
+          return []
+        }
+
         const response = await axios.post(`/packages/list`, {
-          ...(ownerGithubHandle
-            ? { owner_github_username: ownerGithubHandle }
-            : {}),
-          owner_org_id: org.org_id,
+          owner_github_username: ownerGithubHandle,
         })
         return response.data.packages
       },
       {
-        enabled: Boolean(org.org_id || ownerGithubHandle),
+        enabled: Boolean(ownerGithubHandle),
         refetchOnWindowFocus: false,
       },
     )
