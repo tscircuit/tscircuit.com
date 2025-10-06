@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import { usePublicAxios } from "@/hooks/use-public-axios"
+import { useAxios } from "@/hooks/use-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useOrganization = ({
@@ -7,7 +7,7 @@ export const useOrganization = ({
   orgName,
   github_handle,
 }: { orgId?: string; orgName?: string; github_handle?: string }) => {
-  const publicAxios = usePublicAxios()
+  const axios = useAxios()
 
   const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(
     ["orgs", "get", orgId || orgName || github_handle],
@@ -20,11 +20,11 @@ export const useOrganization = ({
         : orgName
           ? { org_name: orgName }
           : { github_handle }
-      const { data } = await publicAxios.get("/orgs/get", { params })
+      const { data } = await axios.post("/orgs/get", params)
       return data.org
     },
     {
-      enabled: Boolean(orgId || orgName),
+      enabled: Boolean(orgId || orgName || github_handle),
       retry: false,
       refetchOnWindowFocus: false,
       keepPreviousData: true,

@@ -1,17 +1,17 @@
 import { useQuery } from "react-query"
-import { usePublicAxios } from "@/hooks/use-public-axios"
+import { useAxios } from "@/hooks/use-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useOrg = ({ orgName }: { orgName: string | null }) => {
-  const axios = usePublicAxios()
+  const axios = useAxios()
   return useQuery<PublicOrgSchema, Error & { status: number }>(
     ["orgs", orgName],
     async () => {
       if (!orgName) {
         throw new Error("Organization name is required")
       }
-      const { data } = await axios.get("/orgs/get", {
-        params: { org_name: orgName },
+      const { data } = await axios.post("/orgs/get", {
+        org_name: orgName,
       })
       return data.org
     },
