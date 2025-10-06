@@ -9,7 +9,7 @@ export default withRouteSpec({
     .object({ org_id: z.string() })
     .or(z.object({ org_name: z.string() }))
     .or(z.object({ github_handle: z.string() })),
-  auth: "session",
+  auth: "optional_session",
   jsonResponse: z.object({
     org: publicOrgSchema,
   }),

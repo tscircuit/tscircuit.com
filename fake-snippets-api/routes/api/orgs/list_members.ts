@@ -13,7 +13,7 @@ export default withRouteSpec({
         name: z.string(),
       }),
     ),
-  auth: "session",
+  auth: "optional_session",
   jsonResponse: z.object({
     members: z.array(accountSchema),
   }),
@@ -35,7 +35,9 @@ export default withRouteSpec({
     })
   }
 
-  if (!org.can_manage_org) {
+  // Allow viewing members for public organizations (non-personal orgs)
+  // Only require permission check for personal orgs or if trying to manage
+  if (org.is_personal_org && !org.can_manage_org) {
     return ctx.error(403, {
       error_code: "not_authorized",
       message: "You do not have permission to manage this organization",

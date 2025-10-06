@@ -21,3 +21,30 @@ test("GET /orgs/list_members returns members for an org when owner", async () =>
   )
   expect(membership).toBeDefined()
 })
+
+test("GET /orgs/list_members - unauthenticated users can view members of public organizations", async () => {
+  const { unauthenticatedAxios, seed } = await getTestServer()
+
+  const {
+    data: { members },
+  } = await unauthenticatedAxios.get(
+    `/api/orgs/list_members?org_id=${seed.organization.org_id}`,
+  )
+
+  expect(Array.isArray(members)).toBe(true)
+  expect(members.length).toBeGreaterThan(0)
+})
+
+test("GET /orgs/list_members - unauthenticated users cannot view members of personal organizations", async () => {
+  const { unauthenticatedAxios } = await getTestServer()
+
+  try {
+    await unauthenticatedAxios.get(
+      `/api/orgs/list_members?name=testuser`,
+    )
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(403)
+    expect(error.data.error.error_code).toBe("not_authorized")
+  }
+})

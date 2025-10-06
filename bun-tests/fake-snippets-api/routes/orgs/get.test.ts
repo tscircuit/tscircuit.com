@@ -50,3 +50,33 @@ test("GET /api/orgs/get - should return 404 if org not found", async () => {
     expect(error.data.error.message).toBe("Organization not found")
   }
 })
+
+test("GET /api/orgs/get - unauthenticated users can view public organizations", async () => {
+  const { unauthenticatedAxios, seed } = await getTestServer()
+
+  const getResponse = await unauthenticatedAxios.get("/api/orgs/get", {
+    params: { org_id: seed.organization.org_id },
+  })
+
+  expect(getResponse.status).toBe(200)
+  const responseBody = getResponse.data
+  expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.org_id).toBe(seed.organization.org_id)
+  // user_permissions is not included when user cannot manage org
+  expect(responseBody.org.user_permissions).toBeUndefined()
+})
+
+test("GET /api/orgs/get - unauthenticated users can view public organizations by github_handle", async () => {
+  const { unauthenticatedAxios } = await getTestServer()
+
+  const getResponse = await unauthenticatedAxios.get("/api/orgs/get", {
+    params: { github_handle: "jane" },
+  })
+
+  expect(getResponse.status).toBe(200)
+  const responseBody = getResponse.data
+  expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.name).toBe("jane")
+  // user_permissions is not included when user cannot manage org
+  expect(responseBody.org.user_permissions).toBeUndefined()
+})

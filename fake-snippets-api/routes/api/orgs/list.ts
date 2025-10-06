@@ -15,11 +15,17 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { github_handle } = req.commonParams
+  
+  // If github_handle is provided, fetch orgs for that user
+  // Otherwise, fetch orgs for the authenticated user (if logged in)
+  const filters = github_handle
+    ? { github_handle }
+    : ctx.auth?.account_id
+      ? { owner_account_id: ctx.auth.account_id }
+      : {}
+  
   const orgs = ctx.db.getOrgs(
-    {
-      owner_account_id: ctx.auth?.account_id,
-      github_handle,
-    },
+    filters,
     {
       account_id: ctx.auth?.account_id,
     },
