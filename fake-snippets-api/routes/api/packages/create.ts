@@ -78,7 +78,9 @@ export default withRouteSpec({
     }
 
     owner_org_id = memberOrg.org_id
-    owner_github_username = memberOrg.github_handle
+    if (memberOrg.github_handle) {
+      owner_github_username = memberOrg.github_handle
+    }
   }
 
   const existingPackage = ctx.db.packages.find((pkg) => pkg.name === final_name)
