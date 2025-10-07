@@ -13,7 +13,7 @@ export default withRouteSpec({
         name: z.string(),
       }),
     ),
-  auth: "session",
+  auth: "optional_session",
   jsonResponse: z.object({
     members: z.array(accountSchema),
   }),
