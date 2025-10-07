@@ -72,7 +72,9 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    window.location.href = `/${organization.name}/settings`
+    window.location.href = organization.is_personal_org
+      ? `/settings`
+      : `/${organization.name}/settings`
   }
 
   const cardContent = (

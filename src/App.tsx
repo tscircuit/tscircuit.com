@@ -87,9 +87,7 @@ const ReleasePreviewPage = lazyImport(() => import("@/pages/preview-release"))
 const OrganizationSettingsPage = lazyImport(
   () => import("@/pages/organization-settings"),
 )
-const SettingsRedirectPage = lazyImport(
-  () => import("@/pages/settings-redirect"),
-)
+const UserSettingsPage = lazyImport(() => import("@/pages/user-settings"))
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -270,8 +268,8 @@ function App() {
             {/* Organization creation route */}
             <Route path="/orgs/new" component={CreateOrganizationPage} />
 
-            {/* User settings redirect */}
-            <Route path="/settings" component={SettingsRedirectPage} />
+            {/* User settings */}
+            <Route path="/settings" component={UserSettingsPage} />
 
             {/* Organization settings route */}
             <Route
