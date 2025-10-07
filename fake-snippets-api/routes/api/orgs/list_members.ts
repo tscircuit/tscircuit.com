@@ -35,13 +35,6 @@ export default withRouteSpec({
     })
   }
 
-  if (!org.can_manage_org) {
-    return ctx.error(403, {
-      error_code: "not_authorized",
-      message: "You do not have permission to manage this organization",
-    })
-  }
-
   const members = ctx.db.orgAccounts
     .map((m) => {
       if (m.org_id == org.org_id) return ctx.db.getAccount(m.account_id)
