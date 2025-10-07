@@ -23,11 +23,12 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
 test("POST /api/orgs/create - should reject duplicate org names", async () => {
   const { axios, seed } = await getTestServer()
   try {
-    const orgResponse = await axios.post("/api/orgs/create", {
-      name: seed.organization.github_handle,
+    await axios.post("/api/orgs/create", {
+      name: seed.organization.org_name,
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
+    console.log("error")
     expect(error.status).toBe(400)
     expect(error.data.error.error_code).toBe("org_already_exists")
     expect(error.data.error.message).toBe(
