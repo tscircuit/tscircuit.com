@@ -41,7 +41,9 @@ test("updating a file after a package rename", async () => {
       content_text: "This should not work",
     })
     // If this doesn't throw, the test should fail
-    throw new Error("File update with old name should have failed but succeeded.")
+    throw new Error(
+      "File update with old name should have failed but succeeded.",
+    )
   } catch (error: any) {
     expect(error.status).toBe(404) // Expect 'Not Found' or similar error
     expect(error.data.error.error_code).toBe("package_release_not_found")
