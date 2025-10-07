@@ -4,7 +4,7 @@ import { Account, accountSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
-  auth: "session",
+  auth: "optional_session",
   jsonBody: z.object({
     github_username: z.string(),
   }),
@@ -21,6 +21,12 @@ export default withRouteSpec({
         acc.github_username.toLowerCase() === github_username.toLowerCase(),
     )
   } else {
+    if (!ctx.auth) {
+      return ctx.error(404, {
+        error_code: "account_not_found",
+        message: "Account not found",
+      })
+    }
     account = ctx.db.getAccount(ctx.auth.account_id)
   }
 
