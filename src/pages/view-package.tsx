@@ -3,9 +3,9 @@ import { usePackageFiles } from "@/hooks/use-package-files"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useLocation, useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
-import { useEffect, useState } from "react"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
+import { SentryNotFoundReporter } from "@/components/SentryNotFoundReporter"
 
 export const ViewPackagePage = () => {
   const { author, packageName } = useParams()
@@ -32,11 +32,31 @@ export const ViewPackagePage = () => {
     usePackageFiles(packageRelease?.package_release_id)
 
   if (!isLoadingPackage && packageError) {
-    return <NotFoundPage heading="Package Not Found" />
+    return (
+      <>
+        <SentryNotFoundReporter
+          context="package"
+          slug={packageNameFull}
+          status={(packageError as any)?.status}
+          message={packageError.message}
+        />
+        <NotFoundPage heading="Package Not Found" />
+      </>
+    )
   }
 
   if (!isLoadingPackageRelease && packageReleaseError?.status == 404) {
-    return <NotFoundPage heading="Package Not Found" />
+    return (
+      <>
+        <SentryNotFoundReporter
+          context="package_release"
+          slug={packageNameFull}
+          status={packageReleaseError.status}
+          message={packageReleaseError.message}
+        />
+        <NotFoundPage heading="Package Not Found" />
+      </>
+    )
   }
 
   return (
