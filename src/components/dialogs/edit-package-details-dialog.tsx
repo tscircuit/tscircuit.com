@@ -150,7 +150,7 @@ export const EditPackageDetailsDialog = ({
       if (hasLicenseChanged) {
         if (packageFiles.includes("LICENSE") && !licenseContent) {
           await axios.post("/package_files/delete", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}@latest`,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
             file_path: "LICENSE",
           })
         }
