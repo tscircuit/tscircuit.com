@@ -156,7 +156,7 @@ export const EditPackageDetailsDialog = ({
         }
         if (licenseContent) {
           await axios.post("/package_files/create_or_update", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}@latest`,
+            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
             file_path: "LICENSE",
             content_text: licenseContent,
           })
