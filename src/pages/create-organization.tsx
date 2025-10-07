@@ -63,6 +63,7 @@ export const CreateOrganizationPage = () => {
           console.error("Failed to create organization:", error)
           toast.error(
             error?.response?.data?.error?.message ||
+              error?.data?.error?.message ||
               "Failed to create organization. Please try again.",
           )
           setIsLoading(false)
