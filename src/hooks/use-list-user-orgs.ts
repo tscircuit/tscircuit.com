@@ -19,7 +19,9 @@ export const useListUserOrgs = (githubHandle?: string) => {
     {
       retry: false,
       refetchOnWindowFocus: false,
-      enabled: Boolean(github_handle),
+      // Allow fetching organizations even without a github_handle for logged-in users
+      // or with a github_handle for viewing other users' public organizations
+      enabled: Boolean(github_handle || session),
     },
   )
 }

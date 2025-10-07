@@ -32,7 +32,7 @@ import { OrganizationCard } from "@/components/organization/OrganizationCard"
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
-  const { data: organizations } = useListUserOrgs(username)
+  const { data: organizations, isLoading: isLoadingOrgs } = useListUserOrgs(username)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [filter, setFilter] = useState("most-recent")
@@ -193,9 +193,7 @@ export const UserProfilePage = () => {
           <TabsList>
             <TabsTrigger value="all">Packages</TabsTrigger>
             <TabsTrigger value="starred">Starred Packages</TabsTrigger>
-            {organizations && organizations.length > 0 && (
-              <TabsTrigger value="organizations">Organizations</TabsTrigger>
-            )}
+            <TabsTrigger value="organizations">Organizations</TabsTrigger>
             {isCurrentUserProfile &&
               (
                 userPackages?.filter((x) => Boolean(x.github_repo_full_name)) ??
@@ -237,7 +235,13 @@ export const UserProfilePage = () => {
           />
         ) : activeTab === "organizations" ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {organizations && organizations.length > 0 ? (
+            {isLoadingOrgs ? (
+              <>
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-32 bg-gray-100 animate-pulse rounded-lg" />
+                ))}
+              </>
+            ) : organizations && organizations.length > 0 ? (
               organizations
                 ?.filter((o) => {
                   if (!isCurrentUserProfile && o.is_personal_org) {
@@ -262,7 +266,9 @@ export const UserProfilePage = () => {
                   <Building2 className="mb-2" size={24} />
                   <span className="text-lg font-medium">No organizations</span>
                   <span className="text-sm">
-                    You're not a member of any organizations yet.
+                    {isCurrentUserProfile 
+                      ? "You're not a member of any organizations yet."
+                      : "This user is not a member of any public organizations."}
                   </span>
                 </div>
               </div>

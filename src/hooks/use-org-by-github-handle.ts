@@ -1,11 +1,9 @@
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
-import { useGlobalStore } from "./use-global-store"
 
 export const useOrgByGithubHandle = (githubHandle: string | null) => {
   const axios = useAxios()
-  const session = useGlobalStore((s) => s.session)
   return useQuery<PublicOrgSchema, Error & { status: number }>(
     ["orgs", "by-github-handle", githubHandle],
     async () => {
@@ -18,7 +16,7 @@ export const useOrgByGithubHandle = (githubHandle: string | null) => {
       return data.org
     },
     {
-      enabled: Boolean(githubHandle && session),
+      enabled: Boolean(githubHandle),
       retry: false,
       refetchOnWindowFocus: false,
     },
