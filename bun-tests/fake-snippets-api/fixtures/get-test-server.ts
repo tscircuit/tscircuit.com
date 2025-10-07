@@ -126,6 +126,7 @@ const seedDatabase = (db: DbClient) => {
   // Seed a organization for account2
   const organization = db.addOrganization({
     name: "jane",
+    github_handle: "jane",
     owner_account_id: account2.account_id,
   })
 

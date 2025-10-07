@@ -120,7 +120,7 @@ test("POST /api/orgs/update - should update github_handle when owner", async () 
   expect(updatedOrg?.github_handle).toBe("handle-owner")
 })
 
-test("POST /api/orgs/update - 69 should reject duplicate github_handle", async () => {
+test("POST /api/orgs/update - should reject duplicate github_handle", async () => {
   const { axios } = await getTestServer()
 
   const orgAResponse = await axios.post("/api/orgs/create", {
