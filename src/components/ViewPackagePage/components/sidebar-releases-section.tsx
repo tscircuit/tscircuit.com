@@ -81,7 +81,7 @@ export default function SidebarReleasesSection() {
     <div className="mb-6">
       <h2 className="text-lg font-semibold mb-2">
         <Link
-          href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
+          href={`/${packageInfo?.name}/releases`}
           className="hover:underline"
         >
           Releases
@@ -89,7 +89,7 @@ export default function SidebarReleasesSection() {
       </h2>
       <div className="flex flex-col space-y-2">
         <Link
-          href={`/${packageInfo?.owner_github_username}/${packageInfo?.unscoped_name}/releases`}
+          href={`/${packageInfo?.name}/releases`}
           className="flex items-center hover:underline"
         >
           <Tag className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />

@@ -372,7 +372,7 @@ const CmdKMenu = () => {
       switch (type) {
         case "package":
         case "recent":
-          window.location.href = `/${item.owner_github_username}/${item.unscoped_name}`
+          window.location.href = `/${item.name}`
           setOpen(false)
           break
         case "account":
