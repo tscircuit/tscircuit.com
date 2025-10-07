@@ -25,6 +25,7 @@ import { CubeIcon } from "@radix-ui/react-icons"
 import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { downloadStepFile } from "@/lib/download-fns/download-step"
 
 interface DownloadButtonAndMenuProps {
   className?: string
@@ -225,7 +226,19 @@ export function DownloadButtonAndMenu({
               kicad_*.zip
             </span>
           </DropdownMenuItem>
-
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={async () => {
+              const cj = await getCircuitJson()
+              downloadStepFile(cj, unscopedName || "step_file")
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Step Format</span>
+            <span className="text-[0.6rem] bg-emerald-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
+              STEP
+            </span>
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
             onSelect={async () => {

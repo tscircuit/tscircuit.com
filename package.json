@@ -110,10 +110,12 @@
     "circuit-json-to-bom-csv": "^0.0.7",
     "circuit-json-to-gerber": "^0.0.29",
     "circuit-json-to-gltf": "^0.0.14",
+    "circuit-json-to-kicad": "^0.0.9",
     "circuit-json-to-pnp-csv": "^0.0.7",
     "circuit-json-to-readable-netlist": "^0.0.13",
     "circuit-json-to-simple-3d": "^0.0.7",
     "circuit-json-to-spice": "^0.0.6",
+    "circuit-json-to-step": "^0.0.2",
     "circuit-json-to-tscircuit": "^0.0.9",
     "circuit-to-svg": "^0.0.202",
     "class-variance-authority": "^0.7.1",
@@ -139,6 +141,7 @@
     "jscad-electronics": "^0.0.25",
     "jszip": "^3.10.1",
     "kicad-converter": "^0.0.17",
+    "kicadts": "^0.0.9",
     "ky": "^1.7.5",
     "lucide-react": "^0.488.0",
     "lz-string": "^1.5.0",
@@ -172,6 +175,7 @@
     "sitemap": "^8.0.0",
     "sonner": "^1.5.0",
     "states-us": "^1.1.1",
+    "stepts": "^0.0.1",
     "svgo": "^4.0.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss": "^3.4.13",
@@ -192,8 +196,6 @@
     "wouter": "^3.3.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
-    "zustand-hoist": "^2.0.1",
-    "circuit-json-to-kicad": "^0.0.9",
-    "kicadts": "^0.0.9"
+    "zustand-hoist": "^2.0.1"
   }
 }
