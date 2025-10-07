@@ -28,7 +28,6 @@ test("POST /api/orgs/create - should reject duplicate org names", async () => {
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
-    console.log("error")
     expect(error.status).toBe(400)
     expect(error.data.error.error_code).toBe("org_already_exists")
     expect(error.data.error.message).toBe(
