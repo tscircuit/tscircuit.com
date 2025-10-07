@@ -67,12 +67,12 @@ export const shippingInfoSchema = z.object({
   country: z.string(),
   phone: z.string(),
 })
-
 export const accountSchema = z.object({
   account_id: z.string(),
   github_username: z.string(),
   shippingInfo: shippingInfoSchema.optional(),
   personal_org_id: z.string().optional(),
+  is_tscircuit_staff: z.boolean().default(false),
 })
 export type Account = z.infer<typeof accountSchema>
 
@@ -401,11 +401,12 @@ export type PackageBuild = z.infer<typeof packageBuildSchema>
 
 export const orgSchema = z.object({
   org_id: z.string(),
-  github_handle: z.string(),
+  github_handle: z.string().optional(),
   owner_account_id: z.string(),
   is_personal_org: z.boolean().default(false),
   created_at: z.string().datetime(),
   org_display_name: z.string().optional(),
+  org_name: z.string(),
 })
 export type Organization = z.infer<typeof orgSchema>
 

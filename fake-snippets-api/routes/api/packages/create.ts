@@ -66,6 +66,7 @@ export default withRouteSpec({
       .find(
         (o) =>
           o.org_display_name?.toLowerCase() === requested_owner_lower ||
+          o.org_name?.toLowerCase() === requested_owner_lower ||
           o.github_handle?.toLowerCase() === requested_owner_lower,
       )
 
@@ -78,10 +79,12 @@ export default withRouteSpec({
     }
 
     owner_org_id = memberOrg.org_id
-    owner_github_username = memberOrg.github_handle
+    owner_github_username = memberOrg.github_handle || memberOrg.org_name
   }
 
-  const existingPackage = ctx.db.packages.find((pkg) => pkg.name === final_name)
+  const existingPackage = ctx.db
+    .getState()
+    .packages.find((pkg) => pkg.name === final_name)
 
   if (existingPackage) {
     throw ctx.error(400, {

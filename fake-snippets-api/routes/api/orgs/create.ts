@@ -7,15 +7,16 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z.object({
     name: z.string(),
+    github_handle: z.string().optional(),
   }),
   auth: "session",
   jsonResponse: z.object({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { name } = req.commonParams
+  const { name, github_handle } = req.commonParams
 
-  const existing = ctx.db.getOrg({ github_handle: name })
+  const existing = ctx.db.getOrg({ org_name: name })
 
   if (existing) {
     return ctx.error(400, {
@@ -28,6 +29,7 @@ export default withRouteSpec({
     name: name,
     created_at: new Date(),
     can_manage_org: true,
+    ...(github_handle ? { github_handle } : {}),
   }
 
   const org = ctx.db.addOrganization(newOrg)

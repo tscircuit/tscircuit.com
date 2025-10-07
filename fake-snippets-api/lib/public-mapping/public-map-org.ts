@@ -16,13 +16,14 @@ export const publicMapOrg = (
     created_at,
     is_personal_org,
     org_display_name,
+    org_name,
     ...org
   } = internal_org
   return {
     org_id: org.org_id,
-    display_name: org_display_name ?? github_handle ?? "",
+    display_name: org_display_name ?? org_name,
     owner_account_id: org.owner_account_id,
-    name: github_handle,
+    name: org_name,
     member_count: Number(member_count) || 0,
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),
