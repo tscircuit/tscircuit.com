@@ -209,6 +209,8 @@ export default function OrganizationSettingsPage() {
     )
   }
 
+  const isPersonalOrg = organization?.is_personal_org
+
   const onSubmit = (data: OrganizationSettingsFormData) => {
     if (!organization) return
     updateOrgMutation.mutate({
@@ -320,6 +322,11 @@ export default function OrganizationSettingsPage() {
                               This is your organization's display name and URL
                               identifier. Choose carefully as this affects your
                               organization's web address.
+                              {isPersonalOrg && (
+                                <p className="text-sm text-red-500 mt-2">
+                                  Personal organizations cannot be renamed.
+                                </p>
+                              )}
                             </FormDescription>
                           </div>
                           <div className="lg:col-span-3">
@@ -327,7 +334,9 @@ export default function OrganizationSettingsPage() {
                               <Input
                                 placeholder="Enter organization name"
                                 {...field}
-                                disabled={updateOrgMutation.isLoading}
+                                disabled={
+                                  updateOrgMutation.isLoading || isPersonalOrg
+                                }
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                               />
                             </FormControl>
@@ -341,7 +350,9 @@ export default function OrganizationSettingsPage() {
                       <Button
                         type="submit"
                         disabled={
-                          updateOrgMutation.isLoading || !form.formState.isDirty
+                          updateOrgMutation.isLoading ||
+                          !form.formState.isDirty ||
+                          isPersonalOrg
                         }
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
                       >
@@ -354,7 +365,7 @@ export default function OrganizationSettingsPage() {
                         type="button"
                         variant="outline"
                         onClick={() => form.reset()}
-                        disabled={updateOrgMutation.isLoading}
+                        disabled={updateOrgMutation.isLoading || isPersonalOrg}
                         className="px-6 py-2.5 text-sm font-medium border-gray-300 hover:bg-gray-50"
                       >
                         Reset changes
@@ -393,6 +404,11 @@ export default function OrganizationSettingsPage() {
                   <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     Add a member
                   </h3>
+                  {isPersonalOrg && (
+                    <p className="text-sm text-red-500 mb-4">
+                      Personal organizations cannot have members.
+                    </p>
+                  )}
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
                     <div className="lg:col-span-4">
                       <Input
@@ -406,7 +422,7 @@ export default function OrganizationSettingsPage() {
                             setAddMemberError("")
                           }
                         }}
-                        disabled={addMemberMutation.isLoading}
+                        disabled={addMemberMutation.isLoading || isPersonalOrg}
                         className={`w-full h-11 text-base bg-white focus:border-blue-500 focus:ring-blue-500 ${
                           addMemberError
                             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
@@ -431,7 +447,9 @@ export default function OrganizationSettingsPage() {
                       <Button
                         onClick={handleAddMember}
                         disabled={
-                          !newMemberInput.trim() || addMemberMutation.isLoading
+                          !newMemberInput.trim() ||
+                          addMemberMutation.isLoading ||
+                          isPersonalOrg
                         }
                         className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white px-6 text-sm font-medium shadow-sm"
                       >
