@@ -8,26 +8,29 @@ test("should update package name and refetch data", async ({ page }) => {
   const releaseId = "rel_456"
 
   // Mock initial package data
-  await page.route(`**/packages/get?package_name=${author}/${initialPackageName}`, (route) => {
-    route.fulfill({
-      status: 200,
-      json: {
-        package: {
-          package_id: packageId,
-          name: `${author}/${initialPackageName}`,
-          unscoped_name: initialPackageName,
-          owner_github_username: author,
-          latest_package_release_id: releaseId,
-          description: "Initial description",
-          github_repo_full_name: null,
-          website: "",
-          is_private: false,
-          default_view: "files",
-          allow_pr_previews: false,
+  await page.route(
+    `**/packages/get?package_name=${author}/${initialPackageName}`,
+    (route) => {
+      route.fulfill({
+        status: 200,
+        json: {
+          package: {
+            package_id: packageId,
+            name: `${author}/${initialPackageName}`,
+            unscoped_name: initialPackageName,
+            owner_github_username: author,
+            latest_package_release_id: releaseId,
+            description: "Initial description",
+            github_repo_full_name: null,
+            website: "",
+            is_private: false,
+            default_view: "files",
+            allow_pr_previews: false,
+          },
         },
-      },
-    })
-  })
+      })
+    },
+  )
 
   // Mock initial release data
   await page.route("**/package_releases/get", (route) => {
@@ -50,7 +53,10 @@ test("should update package name and refetch data", async ({ page }) => {
   // Mock package update call
   await page.route("**/packages/update", (route) => {
     const requestBody = route.request().postDataJSON()
-    if (requestBody.package_id === packageId && requestBody.name === updatedPackageName) {
+    if (
+      requestBody.package_id === packageId &&
+      requestBody.name === updatedPackageName
+    ) {
       route.fulfill({
         status: 200,
         json: {
@@ -64,29 +70,35 @@ test("should update package name and refetch data", async ({ page }) => {
 
   // Mock the refetch of package data after the name change
   let packageRefetchCalled = false
-  await page.route(`**/packages/get?package_name=${author}/${updatedPackageName}`, (route) => {
-    packageRefetchCalled = true
-    route.fulfill({
-      status: 200,
-      json: {
-        package: {
-          package_id: packageId,
-          name: `${author}/${updatedPackageName}`,
-          unscoped_name: updatedPackageName,
-          owner_github_username: author,
-          latest_package_release_id: releaseId,
-          description: "Updated description",
-          // ... other fields
+  await page.route(
+    `**/packages/get?package_name=${author}/${updatedPackageName}`,
+    (route) => {
+      packageRefetchCalled = true
+      route.fulfill({
+        status: 200,
+        json: {
+          package: {
+            package_id: packageId,
+            name: `${author}/${updatedPackageName}`,
+            unscoped_name: updatedPackageName,
+            owner_github_username: author,
+            latest_package_release_id: releaseId,
+            description: "Updated description",
+            // ... other fields
+          },
         },
-      },
-    })
-  })
+      })
+    },
+  )
 
   // Mock the refetch of the release data, which will now use the new name
   let releaseRefetchCalled = false
   await page.route("**/package_releases/get", (route) => {
     const requestBody = route.request().postDataJSON()
-    if (requestBody.package_name === `${author}/${updatedPackageName}` && requestBody.is_latest) {
+    if (
+      requestBody.package_name === `${author}/${updatedPackageName}` &&
+      requestBody.is_latest
+    ) {
       releaseRefetchCalled = true
       route.fulfill({
         status: 200,
