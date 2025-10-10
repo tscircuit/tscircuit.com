@@ -422,6 +422,7 @@ export type OrgAccount = z.infer<typeof orgAccountSchema>
 export const publicOrgSchema = z.object({
   org_id: z.string(), //.uuid(),
   owner_account_id: z.string(), //.uuid(),
+  github_handle: z.string().optional(),
   name: z.string().nullable(),
   member_count: z.number(),
   is_personal_org: z.boolean(),

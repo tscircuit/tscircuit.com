@@ -146,20 +146,22 @@ export const UserProfilePage = () => {
     setPackageToDelete(pkg)
     openDeleteDialog()
   }
-
   return (
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={`https://github.com/${githubUsername}.png`}
-              draggable={false}
-            />
-            <AvatarFallback className="select-none">
-              {githubUsername?.[0]?.toUpperCase()}
-            </AvatarFallback>
+            {account?.account?.github_username ? (
+              <AvatarImage
+                src={`https://github.com/${account.account.github_username}.png`}
+                draggable={false}
+              />
+            ) : (
+              <AvatarFallback className="select-none">
+                {githubUsername?.[0]?.toUpperCase()}
+              </AvatarFallback>
+            )}
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold">

@@ -86,19 +86,23 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
         {/* Organization Avatar */}
         <div className="flex-shrink-0">
           <Avatar className="h-16 w-16 border-2 border-gray-100">
-            <AvatarImage
-              src={`https://github.com/${organization.name}.png`}
-              alt={`${organization.name} avatar`}
-              className="object-cover"
-            />
-            <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold text-lg">
-              {organization.name
-                ?.split(" ")
-                .map((word) => word[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
-            </AvatarFallback>
+            {organization.github_handle ? (
+              <AvatarImage
+                src={`https://github.com/${organization.github_handle}.png`}
+                alt={`${organization.name} GitHub avatar`}
+                className="object-cover"
+                draggable={false}
+              />
+            ) : (
+              <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold text-lg">
+                {organization.name
+                  ?.split(" ")
+                  .map((word) => word[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2)}
+              </AvatarFallback>
+            )}
           </Avatar>
         </div>
 
