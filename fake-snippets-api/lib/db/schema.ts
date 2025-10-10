@@ -427,6 +427,7 @@ export const publicOrgSchema = z.object({
   is_personal_org: z.boolean(),
   display_name: z.string().optional(),
   package_count: z.number(),
+  github_handle: z.string().optional(),
   created_at: z.string(),
   user_permissions: z
     .object({

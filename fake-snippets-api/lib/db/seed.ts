@@ -1831,6 +1831,7 @@ exports.TestComponent = TestComponent;
   db.addOrganization({
     name: "testuser",
     owner_account_id: account_id,
+    github_handle: "tscircuit",
     is_personal_org: true,
   })
 }
