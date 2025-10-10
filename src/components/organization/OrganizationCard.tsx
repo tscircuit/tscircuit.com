@@ -94,6 +94,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
             }
             fallback={organization.name}
             fallbackClassName=" font-semibold text-lg"
+            size={40}
           />
         </div>
 

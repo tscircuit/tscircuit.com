@@ -45,6 +45,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               fallback={organization.name}
               className="shadow-sm size-16 md:size-20 lg:size-24"
               fallbackClassName="font-bold text-xl md:text-2xl lg:text-3xl"
+              size={300}
             />
 
             <div>
