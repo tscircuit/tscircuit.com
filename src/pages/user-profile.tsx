@@ -154,7 +154,7 @@ export const UserProfilePage = () => {
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={`https://github.com/${githubUsername}.png`}
+              src={`https://github.com/${githubUsername}.png?size=300`}
               draggable={false}
             />
             <AvatarFallback className="select-none">
