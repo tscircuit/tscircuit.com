@@ -28,6 +28,7 @@ export const publicMapOrg = (
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),
     created_at: String(created_at),
+    ...(github_handle ? { github_handle } : {}),
     ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),
   }
 }
