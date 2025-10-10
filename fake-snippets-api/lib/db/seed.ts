@@ -1736,6 +1736,7 @@ export const SquareWaveModule = () => (
 
   const testOrg = db.addOrganization({
     name: "test-organization",
+    github_handle: "tscircuit",
     owner_account_id: account_id,
   })
 
