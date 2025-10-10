@@ -236,7 +236,7 @@ export const UserProfilePage = () => {
             }
           />
         ) : activeTab === "organizations" ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {organizations && organizations.length > 0 ? (
               organizations
                 ?.filter((o) => {

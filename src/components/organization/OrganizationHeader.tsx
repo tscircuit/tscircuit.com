@@ -1,5 +1,4 @@
-import React, { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import React from "react"
 import { Button } from "@/components/ui/button"
 import { Building2, Users, Package, Lock, Globe2, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -7,6 +6,7 @@ import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { useOrganization } from "@/hooks/use-organization"
+import { GithubAvatarWithFallback } from "../GithubAvatarWithFallback"
 
 interface OrganizationHeaderProps {
   organization: PublicOrgSchema
@@ -40,21 +40,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         {/* Mobile Layout */}
         <div className="block sm:hidden">
           <div className="flex flex-col items-center text-center space-y-4">
-            <Avatar className="border-4 border-gray-100 shadow-sm size-16 md:size-20 lg:size-24">
-              <AvatarImage
-                src={`https://github.com/${organization.name}.png`}
-                alt={`${organization.name} avatar`}
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xl md:text-2xl lg:text-3xl">
-                {(organization.name || "")
-                  .split(" ")
-                  .map((word) => word[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
+            <GithubAvatarWithFallback
+              username={organization.github_handle}
+              fallback={organization.name}
+              className="shadow-sm size-16 md:size-20 lg:size-24"
+              fallbackClassName="font-bold text-xl md:text-2xl lg:text-3xl"
+            />
 
             <div>
               <div className="flex flex-col items-center gap-3 mb-3">
@@ -96,21 +87,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         {/* Desktop Layout */}
         <div className="hidden sm:block">
           <div className="flex items-center gap-6">
-            <Avatar className="border-4 border-gray-100 shadow-sm size-16 md:size-20 lg:size-24 flex-shrink-0">
-              <AvatarImage
-                src={`https://github.com/${organization.name}.png`}
-                alt={`${organization.name} avatar`}
-                className="object-cover"
-              />
-              <AvatarFallback className="bg-blue-100 text-blue-600 font-bold text-xl md:text-2xl lg:text-3xl">
-                {(organization.name || "")
-                  .split(" ")
-                  .map((word) => word[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
+            <GithubAvatarWithFallback
+              username={organization.github_handle}
+              fallback={organization.name}
+              className="flex-shrink-0 shadow-sm size-16 md:size-20 lg:size-24"
+              fallbackClassName="font-bold text-xl md:text-2xl lg:text-3xl"
+            />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-3">

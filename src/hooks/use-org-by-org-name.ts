@@ -2,21 +2,21 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
-export const useOrgByGithubHandle = (githubHandle: string | null) => {
+export const useOrgByName = (name: string | null) => {
   const axios = useAxios()
   return useQuery<PublicOrgSchema, Error & { status: number }>(
-    ["orgs", "by-github-handle", githubHandle],
+    ["orgs", "by-org-name", name],
     async () => {
-      if (!githubHandle) {
-        throw new Error("GitHub handle is required")
+      if (!name) {
+        throw new Error("Organisation name is required")
       }
       const { data } = await axios.get("/orgs/get", {
-        params: { github_handle: githubHandle },
+        params: { org_name: name },
       })
       return data.org
     },
     {
-      enabled: Boolean(githubHandle),
+      enabled: Boolean(name),
       retry: false,
       refetchOnWindowFocus: false,
     },
