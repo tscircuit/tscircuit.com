@@ -7,7 +7,7 @@ test("list latest packages", async () => {
   // Add some test packages
   const packages = [
     {
-      name: "Package1",
+      name: "user1/Package1",
       unscoped_name: "Package1",
       owner_github_username: "user1",
       creator_account_id: "creator1",
@@ -23,7 +23,7 @@ test("list latest packages", async () => {
       is_snippet: false,
     },
     {
-      name: "Package2",
+      name: "user2/Package2",
       unscoped_name: "Package2",
       owner_github_username: "user2",
       creator_account_id: "creator2",
@@ -39,7 +39,7 @@ test("list latest packages", async () => {
       is_snippet: false,
     },
     {
-      name: "Package3",
+      name: "user3/Package3",
       unscoped_name: "Package3",
       owner_github_username: "user3",
       creator_account_id: "creator3",
@@ -56,7 +56,7 @@ test("list latest packages", async () => {
     },
     // Add a snippet to verify it's filtered out
     {
-      name: "Snippet1",
+      name: "user4/Snippet1",
       unscoped_name: "Snippet1",
       owner_github_username: "user4",
       creator_account_id: "creator4",

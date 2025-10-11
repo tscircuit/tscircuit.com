@@ -36,7 +36,7 @@ export const UserCard: React.FC<UserCardProps> = ({
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center">
           <img
-            src={`https://github.com/${account.github_username}.png`}
+            src={`https://github.com/${account.github_username}.png?size=69`}
             alt={`${account.github_username} avatar`}
             className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
             onError={(e) => {

@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("GET /api/orgs/get - should return org by org_id", async () => {
+test("GET /api/orgs/get - should return org by org_id 69", async () => {
   const { axios, jane_axios, seed } = await getTestServer()
 
   const getResponse = await jane_axios.get("/api/orgs/get", {
@@ -17,7 +17,8 @@ test("GET /api/orgs/get - should return org by org_id", async () => {
   const responseBody2 = getNotOwnerResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.org_id).toBe(seed.organization.org_id)
-  expect(responseBody.org.name).toBe(seed.organization.github_handle)
+  expect(responseBody.org.name).toBe(seed.organization.org_name)
+  expect(responseBody.org.github_handle).toBe(seed.organization.github_handle)
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
   expect(responseBody2.org.user_permissions?.can_manage_org).not.toBe(true)
 })

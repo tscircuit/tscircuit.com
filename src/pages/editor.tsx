@@ -7,9 +7,7 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 export const EditorPage = () => {
   const { packageInfo: pkg, error } = useCurrentPackageInfo()
 
-  const projectUrl = pkg
-    ? `https://tscircuit.com/${pkg.owner_github_username}/${pkg.unscoped_name}`
-    : undefined
+  const projectUrl = pkg ? `https://tscircuit.com/${pkg.name}` : undefined
 
   return (
     <div className="overflow-x-hidden">

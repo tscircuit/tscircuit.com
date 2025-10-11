@@ -21,6 +21,7 @@ import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { GithubAvatarWithFallback } from "../GithubAvatarWithFallback"
 
 export interface OrganizationCardProps {
   /** The organization data to display */
@@ -72,32 +73,29 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    window.location.href = `/${organization.name}/settings`
+    window.location.href = organization.is_personal_org
+      ? `/settings`
+      : `/${organization.name}/settings`
   }
 
   const cardContent = (
     <div
-      className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
+      className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 h-full ${className}`}
       onClick={handleCardClick}
     >
       <div className="flex items-start gap-4">
         {/* Organization Avatar */}
         <div className="flex-shrink-0">
-          <Avatar className="h-16 w-16 border-2 border-gray-100">
-            <AvatarImage
-              src={`https://github.com/${organization.name}.png`}
-              alt={`${organization.name} avatar`}
-              className="object-cover"
-            />
-            <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold text-lg">
-              {organization.name
-                ?.split(" ")
-                .map((word) => word[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
+          <GithubAvatarWithFallback
+            username={
+              organization.is_personal_org
+                ? organization.github_handle || organization.name
+                : organization.github_handle
+            }
+            fallback={organization.name}
+            fallbackClassName=" font-semibold text-lg"
+            size={40}
+          />
         </div>
 
         {/* Organization Info */}
@@ -193,7 +191,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
       <Link
         key={organization.org_id}
         href={`/${organization.name}`}
-        className="block"
+        className="block h-full"
       >
         {cardContent}
       </Link>

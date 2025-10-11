@@ -33,3 +33,22 @@ test("create package with private flag", async () => {
   expect(response.status).toBe(200)
   expect(response.data.package.is_private).toBe(true)
 })
+
+test("create package under org", async () => {
+  const { jane_axios } = await getTestServer()
+
+  const orgResponse = await jane_axios.post("/api/orgs/create", {
+    name: "testorg",
+  })
+  expect(orgResponse.status).toBe(200)
+  const orgId = orgResponse.data.org.org_id
+
+  const response = await jane_axios.post("/api/packages/create", {
+    name: "testorg/TestPackage",
+    description: "Test Description",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.package.owner_org_id).toBe(orgId)
+  expect(response.data.package.owner_github_username).toBe("testorg")
+})

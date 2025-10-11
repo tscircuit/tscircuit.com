@@ -154,7 +154,7 @@ export const UserProfilePage = () => {
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={`https://github.com/${githubUsername}.png`}
+              src={`https://github.com/${githubUsername}.png?size=300`}
               draggable={false}
             />
             <AvatarFallback className="select-none">
@@ -236,7 +236,7 @@ export const UserProfilePage = () => {
             }
           />
         ) : activeTab === "organizations" ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {organizations && organizations.length > 0 ? (
               organizations
                 ?.filter((o) => {

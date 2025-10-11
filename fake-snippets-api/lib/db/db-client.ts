@@ -178,11 +178,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.orderFiles.find((file) => file.order_file_id === orderFileId)
   },
   addAccount: (
-    account: Omit<Account, "account_id"> & Partial<Pick<Account, "account_id">>,
+    account: Omit<Account, "account_id" | "is_tscircuit_staff"> &
+      Partial<Pick<Account, "account_id" | "is_tscircuit_staff">>,
   ) => {
     const newAccount = {
       account_id: account.account_id || `account_${get().idCounter + 1}`,
       ...account,
+      is_tscircuit_staff: Boolean(account.is_tscircuit_staff),
     }
 
     set((state) => {
@@ -1549,10 +1551,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     org_id?: string
     is_personal_org?: boolean
     owner_account_id: string
+    github_handle?: string
   }) => {
     const newOrganization: Organization = {
+      org_name: organization.name,
       org_id: organization.org_id || `org_${get().idCounter + 1}`,
-      github_handle: organization.name,
+      github_handle: organization.github_handle,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
       ...organization,
@@ -1630,7 +1634,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       orgs = orgs.filter((org) => org.org_id === filters.org_id)
     }
     if (filters?.org_name) {
-      orgs = orgs.filter((org) => org.github_handle === filters.org_name)
+      orgs = orgs.filter((org) => org.org_name === filters.org_name)
     }
     // if (filters?.org_name && auth?.account_id) {
     //   const account = get().accounts.find(x => x.account_id == auth?.account_id)

@@ -11,10 +11,10 @@ const CarouselItem = ({
   apiBaseUrl,
 }: { pkg: Package; apiBaseUrl: string }) => {
   return (
-    <Link href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}>
+    <Link href={`/${pkg.name}`}>
       <div className="flex-shrink-0 w-[200px] bg-white p-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
         <div className="font-medium text-blue-600 mb-1 truncate text-sm">
-          {pkg.owner_github_username}/{pkg.unscoped_name}
+          {pkg.name}
         </div>
         <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
           <img

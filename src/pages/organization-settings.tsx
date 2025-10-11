@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   AlertDialog,
@@ -168,6 +167,10 @@ export default function OrganizationSettingsPage() {
   const canManageOrg =
     organization.user_permissions?.can_manage_org ||
     organization.owner_account_id === session?.account_id
+
+  if (organization.is_personal_org) {
+    return <Redirect to="/settings" />
+  }
 
   if (!canManageOrg) {
     return (

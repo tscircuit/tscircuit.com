@@ -7,7 +7,7 @@ test("POST /api/package_releases/get - should return package release by package_
 
   // First create a package with valid name format
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-1",
+    name: "testuser/package-1",
     description: "A test package",
   })
   expect(packageResponse.status).toBe(200)
@@ -55,7 +55,7 @@ test("POST /api/package_releases/get - should find release by package_name_with_
 
   // First create a package with valid name format
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-2",
+    name: "testuser/package-2",
     description: "Another test package",
   })
   expect(packageResponse.status).toBe(200)
@@ -92,7 +92,7 @@ test("POST /api/package_releases/get - should return circuit_json_build_error if
 
   // First create a package with valid name format
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-3",
+    name: "testuser/package-3",
     description: "Another test package",
   })
   expect(packageResponse.status).toBe(200)
@@ -122,7 +122,7 @@ test("POST /api/package_releases/get?include_logs=true - should return include_l
 
   // First create a package with valid name format
   const packageResponse = await axios.post("/api/packages/create", {
-    name: "@test/package-4",
+    name: "testuser/package-4",
     description: "Another test package",
   })
   expect(packageResponse.status).toBe(200)

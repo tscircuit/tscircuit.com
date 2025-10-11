@@ -13,6 +13,7 @@ export default withRouteSpec({
       z.object({
         name: z.string().optional(),
         display_name: z.string().optional(),
+        github_handle: z.string().trim().min(1).nullable().optional(),
       }),
     ),
   auth: "session",
@@ -20,10 +21,11 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name, display_name } = req.commonParams as {
+  const { org_id, name, display_name, github_handle } = req.commonParams as {
     org_id: string
     name?: string
     display_name?: string
+    github_handle?: string
   }
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
@@ -43,13 +45,13 @@ export default withRouteSpec({
   }
 
   // No changes provided
-  if (!name && display_name === undefined) {
+  if (!name && display_name === undefined && github_handle === null) {
     return ctx.json({ org: publicMapOrg(org) })
   }
 
-  if (name && name !== org.github_handle) {
+  if (name && name !== org.org_name) {
     // Validate duplicate name
-    const duplicate = ctx.db.getOrg({ github_handle: name })
+    const duplicate = ctx.db.getOrg({ org_name: name })
 
     if (duplicate && duplicate.org_id !== org_id) {
       return ctx.error(400, {
@@ -58,20 +60,43 @@ export default withRouteSpec({
       })
     }
   }
+  if (
+    github_handle !== undefined &&
+    github_handle !== org.github_handle &&
+    github_handle !== null
+  ) {
+    const duplicateHandle = ctx.db.getOrg({ github_handle })
+      ? ctx.db.getOrg({ github_handle })?.org_id != org_id
+      : false
 
+    if (duplicateHandle) {
+      return ctx.error(400, {
+        error_code: "org_github_handle_already_exists",
+        message: "An organization with this GitHub handle already exists",
+      })
+    }
+  }
   const updates: {
-    github_handle?: string
+    org_name?: string
     org_display_name?: string
+    github_handle?: string
   } = {}
 
   if (name) {
     updates.github_handle = name
+    updates.org_name = name
+  }
+
+  if (github_handle !== undefined) {
+    updates.github_handle = github_handle
   }
 
   if (display_name !== undefined) {
     const trimmedDisplayName = display_name.trim()
+    const handleForFallback =
+      github_handle !== undefined ? github_handle : org.github_handle
     const fallbackDisplayName =
-      name ?? org.org_display_name ?? org.github_handle ?? ""
+      name ?? org.org_display_name ?? org.org_name ?? handleForFallback ?? ""
     updates.org_display_name =
       trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
   }

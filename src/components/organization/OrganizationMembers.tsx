@@ -2,11 +2,9 @@ import React from "react"
 import { Link } from "wouter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Users, Crown, Shield, User, Loader2 } from "lucide-react"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { cn } from "@/lib/utils"
-import { Account } from "fake-snippets-api/lib/db/schema"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 
 interface OrganizationMembersProps {
@@ -69,7 +67,7 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg border border-gray-200 p-4 py-20 sm:p-6",
+        "bg-white rounded-lg border border-gray-200 p-4 sm:p-6",
         className,
       )}
     >

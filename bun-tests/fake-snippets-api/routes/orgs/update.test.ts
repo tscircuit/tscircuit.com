@@ -97,3 +97,55 @@ test("POST /api/orgs/update - should reject duplicate name", async () => {
     )
   }
 })
+
+test("POST /api/orgs/update - should update github_handle when owner", async () => {
+  const { axios, db } = await getTestServer()
+
+  const createResponse = await axios.post("/api/orgs/create", {
+    name: "handle-owner",
+  })
+  const org = createResponse.data.org
+
+  const updateResponse = await axios.post("/api/orgs/update", {
+    org_id: org.org_id,
+    github_handle: "handle-owner",
+  })
+
+  expect(updateResponse.status).toBe(200)
+
+  const state = db.getState()
+  const updatedOrg = state.organizations.find(
+    (o: any) => o.org_id === org.org_id,
+  )
+  expect(updatedOrg?.github_handle).toBe("handle-owner")
+})
+
+test("POST /api/orgs/update - should reject duplicate github_handle", async () => {
+  const { axios } = await getTestServer()
+
+  const orgAResponse = await axios.post("/api/orgs/create", {
+    name: "dup-handle-a",
+  })
+  const orgA = orgAResponse.data.org
+
+  await axios.post("/api/orgs/update", {
+    org_id: orgA.org_id,
+    github_handle: "duplicate-handle",
+  })
+
+  const orgBResponse = await axios.post("/api/orgs/create", {
+    name: "dup-handle-b",
+  })
+  const orgB = orgBResponse.data.org
+
+  try {
+    await axios.post("/api/orgs/update", {
+      org_id: orgB.org_id,
+      github_handle: "duplicate-handle",
+    })
+    throw new Error("Expected request to fail")
+  } catch (error: any) {
+    expect(error.status).toBe(400)
+    expect(error.data.error.error_code).toBe("org_github_handle_already_exists")
+  }
+})

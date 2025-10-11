@@ -50,10 +50,10 @@ export const PackagesList = ({
             <li key={pkg.package_id}>
               <div className="flex items-center">
                 <Link
-                  href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}
+                  href={`/${pkg.name}`}
                   className="text-blue-600 hover:underline text-sm"
                 >
-                  {pkg.owner_github_username}/{pkg.unscoped_name}
+                  {pkg.name}
                 </Link>
                 {pkg.star_count > 0 && (
                   <span className="ml-2 text-gray-500 text-xs flex items-center">

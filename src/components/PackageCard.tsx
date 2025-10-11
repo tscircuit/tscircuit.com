@@ -67,7 +67,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
   const handleShareClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    const shareUrl = `${window.location.origin}/${pkg.owner_github_username}/${pkg.unscoped_name}`
+    const shareUrl = `${window.location.origin}/${pkg.name}`
     copyToClipboard(shareUrl)
   }
 
@@ -178,10 +178,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
   if (withLink) {
     return (
-      <Link
-        key={pkg.package_id}
-        href={`/${pkg.owner_github_username}/${pkg.unscoped_name}`}
-      >
+      <Link key={pkg.package_id} href={`/${pkg.name}`}>
         {cardContent}
       </Link>
     )

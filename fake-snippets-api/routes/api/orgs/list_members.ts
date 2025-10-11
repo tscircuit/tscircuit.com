@@ -13,7 +13,7 @@ export default withRouteSpec({
         name: z.string(),
       }),
     ),
-  auth: "session",
+  auth: "optional_session",
   jsonResponse: z.object({
     members: z.array(accountSchema),
   }),
@@ -32,13 +32,6 @@ export default withRouteSpec({
     return ctx.error(404, {
       error_code: "org_not_found",
       message: "Organization not found",
-    })
-  }
-
-  if (!org.can_manage_org) {
-    return ctx.error(403, {
-      error_code: "not_authorized",
-      message: "You do not have permission to manage this organization",
     })
   }
 

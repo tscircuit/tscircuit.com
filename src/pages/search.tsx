@@ -28,7 +28,8 @@ interface ScoredPackage extends Package {
   matches: number[]
 }
 
-interface ScoredAccount extends Omit<Account, "account_id"> {
+interface ScoredAccount
+  extends Omit<Account, "account_id" | "is_tscircuit_staff"> {
   score: number
   matches: number[]
 }
@@ -252,7 +253,11 @@ export const SearchPage = () => {
                 ) : accountSearchResults.length > 0 ? (
                   <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
                     {accountSearchResults.map((account, i) => (
-                      <UserCard key={i} account={account} className="w-full" />
+                      <UserCard
+                        key={i}
+                        account={account as unknown as Account}
+                        className="w-full"
+                      />
                     ))}
                   </div>
                 ) : (
