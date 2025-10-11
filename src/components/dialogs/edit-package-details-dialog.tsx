@@ -165,11 +165,7 @@ export const EditPackageDetailsDialog = ({
 
       if (formData.unscopedPackageName !== unscopedPackageName) {
         // Use router for client-side navigation
-        window.history.replaceState(
-          {},
-          "",
-          `/${packageAuthor}/${formData.unscopedPackageName}`,
-        )
+        setLocation(`/${packageAuthor}/${formData.unscopedPackageName}`)
       }
 
       return {
@@ -198,6 +194,7 @@ export const EditPackageDetailsDialog = ({
       onOpenChange(false)
       qc.invalidateQueries("packageFile")
       qc.invalidateQueries(["packageFiles", packageReleaseId])
+      qc.invalidateQueries("packageRelease")
       toast({
         title: "Package details updated",
         description: "Successfully updated package details",
