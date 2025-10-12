@@ -123,11 +123,12 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
                 </div>
               </div>
 
-              <div className="text-right flex-shrink-0 hidden sm:block">
+              {/* // todo: needs backend to register when the member joined the org*/}
+              {/* <div className="text-right flex-shrink-0 hidden sm:block">
                 <p className="text-xs text-gray-500">
                   Joined {timeAgo(new Date())}
                 </p>
-              </div>
+              </div> */}
             </div>
           </Link>
         ))}
