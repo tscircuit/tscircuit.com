@@ -15,11 +15,15 @@ export const GithubAvatarWithFallback = ({
 }) => {
   return (
     <Avatar className={`border-4 border-gray-100 ${className}`}>
-      <AvatarImage
-        src={`https://github.com/${username}.png${size ? `?size=${size}` : ""}`}
-        alt={`${username || fallback} avatar`}
-        className="object-cover"
-      />
+      {username && (
+        <AvatarImage
+          src={`https://github.com/${username}.png${
+            size ? `?size=${size}` : ""
+          }`}
+          alt={`${username || fallback} avatar`}
+          className="object-cover"
+        />
+      )}
       <AvatarFallback
         className={`bg-blue-100 text-blue-600 ${fallbackClassName}`}
       >
