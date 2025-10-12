@@ -87,11 +87,8 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
         {/* Organization Avatar */}
         <div className="flex-shrink-0">
           <GithubAvatarWithFallback
-            username={
-              organization.is_personal_org
-                ? organization.github_handle || organization.name
-                : organization.github_handle
-            }
+            username={organization.github_handle}
+
             fallback={organization.name}
             fallbackClassName=" font-semibold text-lg"
             size={40}
