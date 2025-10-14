@@ -214,6 +214,7 @@ const CmdKMenu = () => {
       try {
         const response = await axios.post(`/packages/list`, {
           owner_github_username: currentUser,
+          limit: 5,
         })
         return response.data.packages || []
       } catch (error) {
