@@ -10,6 +10,7 @@ export default withRouteSpec({
     owner_github_username: z.string().optional(),
     is_writable: z.boolean().optional(),
     name: z.string().optional(),
+    limit: z.number().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -25,8 +26,13 @@ export default withRouteSpec({
     ),
   }),
 })(async (req, ctx) => {
-  const { creator_account_id, owner_github_username, name, is_writable } =
-    req.commonParams
+  const {
+    creator_account_id,
+    owner_github_username,
+    name,
+    is_writable,
+    limit,
+  } = req.commonParams
 
   const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
 
@@ -64,7 +70,9 @@ export default withRouteSpec({
   if (name) {
     packages = packages.filter((p) => p.name === name)
   }
-
+  if (limit) {
+    packages = packages.slice(0, limit)
+  }
   if (is_writable && auth) {
     packages = packages.filter(canManagePackage)
   }
