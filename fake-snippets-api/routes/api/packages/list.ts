@@ -10,7 +10,7 @@ export default withRouteSpec({
     owner_github_username: z.string().optional(),
     is_writable: z.boolean().optional(),
     name: z.string().optional(),
-    limit: z.number().optional(),
+    limit: z.number().int().min(1).optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
