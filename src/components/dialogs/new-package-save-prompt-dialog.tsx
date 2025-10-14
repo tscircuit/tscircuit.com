@@ -69,9 +69,7 @@ export const NewPackageSavePromptDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            Creating new package
-          </DialogTitle>
+          <DialogTitle>Creating new package</DialogTitle>
           <DialogDescription>
             Would you like to save this package?
           </DialogDescription>
