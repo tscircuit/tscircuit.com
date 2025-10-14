@@ -62,8 +62,8 @@ export const PackageReleasesDashboard = ({
         {/* Project Header */}
         <div className="bg-gray-50 border-b md:py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex flex-col md:justify-between md:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="w-12 hidden md:block h-12 rounded-lg overflow-hidden flex-shrink-0">
                   <img
                     src="https://github.com/tscircuit.png"
@@ -180,7 +180,7 @@ export const PackageReleasesDashboard = ({
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="ml-2">
                     {pkg.github_repo_full_name && (
                       <DropdownMenuItem asChild>
                         <a
