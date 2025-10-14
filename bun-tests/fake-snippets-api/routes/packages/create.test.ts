@@ -35,20 +35,33 @@ test("create package with private flag", async () => {
 })
 
 test("create package under org", async () => {
-  const { jane_axios } = await getTestServer()
-
-  const orgResponse = await jane_axios.post("/api/orgs/create", {
-    name: "testorg",
-  })
-  expect(orgResponse.status).toBe(200)
-  const orgId = orgResponse.data.org.org_id
+  const { jane_axios, seed } = await getTestServer()
 
   const response = await jane_axios.post("/api/packages/create", {
-    name: "testorg/TestPackage",
+    is_private: true,
+    org_id: seed.organization.org_id,
     description: "Test Description",
   })
 
   expect(response.status).toBe(200)
-  expect(response.data.package.owner_org_id).toBe(orgId)
-  expect(response.data.package.owner_github_username).toBe("testorg")
+  expect(response.data.package.owner_org_id).toBe(seed.organization.org_id)
+  expect(response.data.package.owner_github_username).toBe("jane")
+  expect(response.data.package.is_private).toBe(true)
+  expect(response.data.package.description).toBe("Test Description")
+})
+
+test("create package under non-existent org", async () => {
+  const { jane_axios, seed } = await getTestServer()
+
+  const response = await jane_axios.post(
+    "/api/packages/create",
+    {
+      org_id: "not-existent-org-id",
+    },
+    {
+      validateStatus: () => true,
+    },
+  )
+  expect(response.status).toBe(404)
+  expect(response.data.error.error_code).toBe("org_not_found")
 })

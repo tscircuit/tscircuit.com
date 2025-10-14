@@ -19,6 +19,7 @@ import {
 import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { ICreatePackageProps } from "@/hooks/useFileManagement"
 
 export const NewPackageSavePromptDialog = ({
   open,
@@ -31,27 +32,31 @@ export const NewPackageSavePromptDialog = ({
   onOpenChange: (open: boolean) => void
   initialIsPrivate?: boolean
   initialName?: string
-  onSave: ({
-    name,
-    isPrivate,
-    orgId,
-  }: {
-    name?: string
-    isPrivate: boolean
-    orgId: string
-  }) => void
+  onSave: (props: ICreatePackageProps) => void
 }) => {
   const [packageName, setPackageName] = useState(initialName)
   const session = useGlobalStore((s) => s.session)
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate)
   const [selectedOrgId, setSelectedOrgId] = useState<string>("")
   const { data: organizations, isLoading: orgsLoading } = useListUserOrgs()
+
+  const isOwnerPersonalOrg = useMemo(() => {
+    if (!selectedOrgId) return false
+    const selectedOrg = organizations?.find((x) => x.org_id === selectedOrgId)
+    return (
+      selectedOrg?.is_personal_org &&
+      selectedOrg?.owner_account_id == session?.account_id
+    )
+  }, [selectedOrgId, organizations, session?.github_username])
+
   const fullPackageName = useMemo(() => {
+    if (!Boolean(packageName)) return
     if (selectedOrgId) {
       return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${packageName}`
     }
     return `${session?.github_username}/${packageName}`
   }, [selectedOrgId, packageName, organizations, session?.github_username])
+
   useEffect(() => {
     if (organizations && organizations.length > 0 && !selectedOrgId) {
       setSelectedOrgId(
@@ -64,7 +69,9 @@ export const NewPackageSavePromptDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Creating new package</DialogTitle>
+          <DialogTitle>
+            Creating new package {String(isOwnerPersonalOrg)}
+          </DialogTitle>
           <DialogDescription>
             Would you like to save this package?
           </DialogDescription>
@@ -169,9 +176,13 @@ export const NewPackageSavePromptDialog = ({
           <Button
             onClick={() => {
               onSave({
-                name: fullPackageName.trim(),
+                name: fullPackageName,
                 isPrivate,
-                orgId: selectedOrgId,
+                ...(isOwnerPersonalOrg
+                  ? {}
+                  : {
+                      org_id: selectedOrgId,
+                    }),
               })
               onOpenChange(false)
             }}

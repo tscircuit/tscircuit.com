@@ -18,35 +18,44 @@ export default withRouteSpec({
     description: z.string().optional(),
     is_private: z.boolean().optional().default(false),
     is_unlisted: z.boolean().optional().default(false),
+    org_id: z.string().optional(),
   }),
   jsonResponse: z.object({
     package: packageSchema.optional(),
   }),
 })(async (req, ctx) => {
-  const { name, description, is_private, is_unlisted } = req.jsonBody
-
+  const { name, description, is_private, is_unlisted, org_id } = req.jsonBody
   let owner_segment = name?.split("/")[0]
   let unscoped_name = name?.split("/")[1]
 
   if (name && !unscoped_name) {
-    throw ctx.error(400, {
+    return ctx.error(400, {
       error_code: "invalid_package_name",
       message:
         "Package name must include an author segment (e.g. author/package_name)",
     })
   }
+  const org = ctx.db.getOrg({ org_id })
+  if (Boolean(org_id) && !Boolean(org))
+    return ctx.error(404, {
+      error_code: "org_not_found",
+      message: "Organization not found",
+    })
 
   if (!unscoped_name) {
     const state = ctx.db.getState()
-    const count = state.packages.filter(
-      (pkg) => pkg.creator_account_id === ctx.auth.account_id,
-    ).length
+
+    const count = org_id
+      ? state.packages.filter((pkg) => pkg.owner_org_id === org_id).length
+      : state.packages.filter(
+          (pkg) => pkg.creator_account_id === ctx.auth.account_id,
+        ).length
 
     unscoped_name = `untitled-package-${count}`
   }
 
   if (!owner_segment) {
-    owner_segment = ctx.auth.github_username
+    owner_segment = org_id ? org!.org_name : ctx.auth.github_username
   }
 
   const final_name = name ?? `${owner_segment}/${unscoped_name}`
@@ -71,7 +80,7 @@ export default withRouteSpec({
       )
 
     if (!memberOrg) {
-      throw ctx.error(403, {
+      return ctx.error(403, {
         error_code: "forbidden",
         message:
           "You must be a member of the organization to create a package under it",
@@ -87,7 +96,7 @@ export default withRouteSpec({
     .packages.find((pkg) => pkg.name === final_name)
 
   if (existingPackage) {
-    throw ctx.error(400, {
+    return ctx.error(400, {
       error_code: "package_already_exists",
       message: "A package with this name already exists",
     })
