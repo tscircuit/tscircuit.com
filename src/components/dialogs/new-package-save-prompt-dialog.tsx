@@ -70,7 +70,7 @@ export const NewPackageSavePromptDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Creating new package {String(isOwnerPersonalOrg)}
+            Creating new package
           </DialogTitle>
           <DialogDescription>
             Would you like to save this package?
