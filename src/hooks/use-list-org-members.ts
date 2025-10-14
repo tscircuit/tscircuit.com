@@ -2,12 +2,16 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import type { Account } from "fake-snippets-api/lib/db/schema"
 
+interface MemberAccount extends Account {
+  joined_at?: string
+}
+
 export const useListOrgMembers = ({
   orgId,
   orgName,
 }: { orgId?: string; orgName?: string }) => {
   const axios = useAxios()
-  return useQuery<Account[], Error & { status: number }>(
+  return useQuery<MemberAccount[], Error & { status: number }>(
     ["orgs", "members", orgId || orgName],
     async () => {
       if (!orgId && !orgName) {

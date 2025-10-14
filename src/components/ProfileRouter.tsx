@@ -4,15 +4,13 @@ import { OrganizationProfilePageContent } from "@/pages/organization-profile"
 import { UserProfilePage } from "@/pages/user-profile"
 import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
-import { useOrgByName } from "@/hooks/use-org-by-org-name"
+import { useOrganization } from "@/hooks/use-organization"
 
 const ProfileRouter: React.FC = () => {
   const { username } = useParams()
-  const {
-    data: organization,
-    isLoading,
-    error,
-  } = useOrgByName(username || null)
+  const { organization, isLoading, error } = useOrganization({
+    orgName: username,
+  })
 
   if (!username) {
     return <NotFoundPage heading="Username Not Provided" />

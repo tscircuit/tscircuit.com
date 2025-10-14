@@ -15,7 +15,7 @@ export default withRouteSpec({
     ),
   auth: "optional_session",
   jsonResponse: z.object({
-    members: z.array(accountSchema),
+    members: z.array(accountSchema.extend({ joined_at: z.string() })),
   }),
 })(async (req, ctx) => {
   const params = req.commonParams as { org_id?: string; name?: string }
@@ -37,13 +37,16 @@ export default withRouteSpec({
 
   const members = ctx.db.orgAccounts
     .map((m) => {
-      if (m.org_id == org.org_id) return ctx.db.getAccount(m.account_id)
+      if (m.org_id == org.org_id)
+        return {
+          ...ctx.db.getAccount(m.account_id),
+          joined_at: m.created_at,
+        }
       return undefined
     })
     .filter(
       (member): member is NonNullable<typeof member> => member !== undefined,
     )
-
   const hasOwner = members.some((m) => m?.account_id === org.owner_account_id)
   let fullMembers = members
 
@@ -52,7 +55,13 @@ export default withRouteSpec({
       (acc) => acc.account_id === org.owner_account_id,
     )
     if (owner) {
-      fullMembers = [...members, owner]
+      fullMembers = [
+        ...members,
+        {
+          ...owner,
+          joined_at: org.created_at,
+        },
+      ]
     }
   }
 
