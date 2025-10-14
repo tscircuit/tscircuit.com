@@ -45,6 +45,12 @@ export interface IRenameFileResult {
   fileRenamed: boolean
 }
 
+export interface ICreatePackageProps {
+  isPrivate?: boolean
+  name?: string
+  org_id?: string
+}
+
 export function useFileManagement({
   templateCode,
   currentPackage,
@@ -428,12 +434,8 @@ export function useFileManagement({
   const savePackage = async ({
     name,
     isPrivate,
-    orgId,
-  }: {
-    name?: string
-    isPrivate: boolean
-    orgId: string
-  }) => {
+    org_id,
+  }: ICreatePackageProps) => {
     if (!isLoggedIn) {
       toast({
         title: "Not Logged In",
@@ -443,9 +445,9 @@ export function useFileManagement({
     }
 
     await createPackageMutation.mutateAsync({
-      is_private: isPrivate,
-      org_id: orgId,
-      ...(name ? { name } : {}),
+      is_private: Boolean(isPrivate),
+      ...(org_id ? { org_id: org_id } : {}),
+      ...(name ? { name: name?.trim() } : {}),
     })
   }
 
