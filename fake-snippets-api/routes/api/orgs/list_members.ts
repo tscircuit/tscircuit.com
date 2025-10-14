@@ -37,12 +37,13 @@ export default withRouteSpec({
 
   const members = ctx.db.orgAccounts
     .map((m) => {
-      if (m.org_id == org.org_id)
-        return {
-          ...ctx.db.getAccount(m.account_id),
-          joined_at: m.created_at,
-        }
-      return undefined
+      if (m.org_id !== org.org_id) return undefined
+      const account = ctx.db.getAccount(m.account_id)
+      if (!account) return undefined
+      return {
+        ...account,
+        joined_at: m.created_at,
+      }
     })
     .filter(
       (member): member is NonNullable<typeof member> => member !== undefined,
