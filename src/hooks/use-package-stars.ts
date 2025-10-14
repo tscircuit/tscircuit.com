@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import { useAxios } from "./use-axios"
+import { usePackageByName } from "./use-package-by-package-name"
 
 type PackageStarQuery = { package_id: string } | { name: string }
 
@@ -9,7 +10,8 @@ interface PackageStarResponse {
 }
 
 export const usePackageStars = (query: PackageStarQuery | null) => {
-  const axios = useAxios()
+  const packageName = query && "name" in query ? query.name : null
+  const packageQuery = usePackageByName(packageName)
 
   return useQuery<PackageStarResponse, Error & { status: number }>(
     ["packageStars", query],
@@ -17,19 +19,16 @@ export const usePackageStars = (query: PackageStarQuery | null) => {
       if (!query) {
         throw new Error("Query is required")
       }
-
-      const { data } = await axios.get("/packages/get", {
-        params: query,
-      })
-
       return {
-        is_starred: data.package.is_starred ?? false,
-        star_count: data.package.star_count ?? 0,
+        is_starred: packageQuery.data?.is_starred ?? false,
+        star_count: packageQuery.data?.star_count ?? 0,
       }
     },
     {
       retry: false,
-      enabled: Boolean(query),
+      enabled:
+        Boolean(query) &&
+        (packageName ? packageQuery.isSuccess || !packageName : true),
     },
   )
 }

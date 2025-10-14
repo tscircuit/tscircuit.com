@@ -1,8 +1,11 @@
-import { useQuery } from "react-query"
+import { useQuery, UseQueryOptions } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
-export const usePackageByName = (packageName: string | null) => {
+export const usePackageByName = (
+  packageName: string | null,
+  options?: UseQueryOptions<Package, Error & { status: number }>,
+) => {
   const axios = useAxios()
   return useQuery<Package, Error & { status: number }>(
     ["package", packageName],
@@ -19,6 +22,8 @@ export const usePackageByName = (packageName: string | null) => {
       retry: false,
       enabled: Boolean(packageName),
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+      ...options,
     },
   )
 }
