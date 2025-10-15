@@ -15,7 +15,7 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
-
+import { getPlatformConfig } from "@tscircuit/eval"
 interface Props {
   pkg?: Package
   /**
@@ -241,6 +241,19 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             }}
             fsMap={fsMap}
             projectUrl={projectUrl}
+            platformConfig={{
+              ...getPlatformConfig(),
+              footprintFileParserMap: {
+                kicad_mod: {
+                  loadFromUrl: async (url: string) => {
+                    console.log("loadFromUrl", url)
+                    return {
+                      footprintCircuitJson: [],
+                    }
+                  }
+                }
+              }
+            }} 
           />
         </div>
       </div>

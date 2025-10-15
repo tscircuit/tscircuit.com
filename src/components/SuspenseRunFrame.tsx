@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react"
 
 const RunFrame = lazy(async () => {
-  const { RunFrame } = await import("@tscircuit/runframe/runner")
+  const { RunFrame } = await import("G:/Developer/Tsc/runframe/dist/runner.js")
   return { default: RunFrame }
 })
 
