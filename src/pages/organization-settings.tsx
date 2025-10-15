@@ -32,7 +32,6 @@ import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
-import { useOrgByGithubHandle } from "@/hooks/use-org-by-github-handle"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
 import {
