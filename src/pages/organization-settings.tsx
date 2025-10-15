@@ -49,6 +49,7 @@ import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
 import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
+import { useOrganization } from "@/hooks/use-organization"
 
 const organizationSettingsSchema = z.object({
   name: z
@@ -70,10 +71,12 @@ export default function OrganizationSettingsPage() {
   const session = useGlobalStore((s) => s.session)
 
   const {
-    data: organization,
+    organization,
     isLoading: isLoadingOrg,
     error: orgError,
-  } = useOrgByGithubHandle(orgname || null)
+  } = useOrganization({
+    orgName: orgname,
+  })
 
   const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState<{
     member: Account
