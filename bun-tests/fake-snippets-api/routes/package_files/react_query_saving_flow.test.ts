@@ -36,4 +36,38 @@ test("react-query save flow: changed file triggers POST and persists", async () 
     content_text: seedContent,
   })
   expect(seed.status).toBe(200)
+
+  // Fetch the seeded file (simulate editor load)
+  const initialFetch = await axios.get("/api/package_files/get", {
+    params: {
+      package_release_id: createdRelease.package_release_id,
+      file_path: "/index.tsx",
+    },
+  })
+  expect(initialFetch.status).toBe(200)
+  expect(initialFetch.data.ok).toBe(true)
+  expect(initialFetch.data.package_file.content_text).toBe(seedContent)
+
+  // Modify the content to trigger save operation
+  const modifiedContent = "export const A = 1\nexport const B = 2\n"
+
+  // Call create_or_update to save the modified content
+  const saveResponse = await axios.post("/api/package_files/create_or_update", {
+    package_release_id: createdRelease.package_release_id,
+    file_path: "/index.tsx",
+    content_text: modifiedContent,
+  })
+  expect(saveResponse.status).toBe(200)
+  expect(saveResponse.data.ok).toBe(true)
+
+  // Fetch the file again to verify persistence
+  const finalFetch = await axios.get("/api/package_files/get", {
+    params: {
+      package_release_id: createdRelease.package_release_id,
+      file_path: "/index.tsx",
+    },
+  })
+  expect(finalFetch.status).toBe(200)
+  expect(finalFetch.data.ok).toBe(true)
+  expect(finalFetch.data.package_file.content_text).toBe(modifiedContent)
 })
