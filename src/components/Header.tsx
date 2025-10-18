@@ -17,14 +17,28 @@ const HeaderButton = ({
   children,
   className,
   alsoHighlightForUrl,
+  external = false,
 }: {
   href: string
   children: React.ReactNode
   className?: string
   alsoHighlightForUrl?: string
+  external?: boolean
 }) => {
   const [location] = useLocation()
 
+  // For external links, use standard <a> tag
+  if (external) {
+    return (
+      <a className={cn("header-button", className)} href={href}>
+        <Button className={className} variant="ghost">
+          {children}
+        </Button>
+      </a>
+    )
+  }
+
+  // For internal links, use the Link Component
   if (location === href || location === alsoHighlightForUrl) {
     return (
       <Link className={cn("header-button", className)} href={href}>
@@ -154,6 +168,7 @@ export default function Header() {
                 <HeaderButton
                   className="w-full justify-start"
                   href="https://chat.tscircuit.com"
+                  external={true}
                 >
                   AI
                 </HeaderButton>
@@ -162,6 +177,7 @@ export default function Header() {
                 <HeaderButton
                   className="w-full justify-start"
                   href="https://docs.tscircuit.com"
+                  external={true}
                 >
                   Docs
                 </HeaderButton>
