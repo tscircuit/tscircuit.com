@@ -24,7 +24,7 @@ const HeaderButton = ({
   alsoHighlightForUrl?: string
 }) => {
   const [location] = useLocation()
-  const isExternal = /^https?:\/\//i.test(href)
+  const isExternal = /^(https?|mailto|tel):\/?\//i.test(href)
   if (isExternal) {
     return (
       <a
