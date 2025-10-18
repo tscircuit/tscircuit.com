@@ -174,7 +174,7 @@ export const OrganizationProfilePageContent = ({
 
             {activeTab === "members" && (
               <div>
-                <OrganizationMembers orgId={org.org_id} />
+                <OrganizationMembers organization={org} />
               </div>
             )}
           </div>

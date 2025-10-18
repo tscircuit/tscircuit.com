@@ -208,7 +208,7 @@ const CmdKMenu = () => {
   }, [allAccounts, searchQuery])
 
   const { data: recentPackages = [] } = useQuery<Package[]>(
-    ["userPackages", currentUser],
+    ["cmdKMenuPackages", currentUser],
     async () => {
       if (!currentUser) return []
       try {
@@ -226,6 +226,8 @@ const CmdKMenu = () => {
       enabled: !!currentUser && !searchQuery,
       retry: false,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      cacheTime: 24 * 60 * 60 * 1000,
     },
   )
 

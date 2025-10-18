@@ -14,6 +14,7 @@ import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { getBuildStatus } from "@/components/preview"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -60,7 +61,7 @@ export default function ReleaseDetailPage() {
   const session = useGlobalStore((s) => s.session)
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation()
-
+  const { status } = getBuildStatus(latestBuild ?? null)
   if (isLoadingPackage || isLoadingRelease) {
     return (
       <>
@@ -170,7 +171,7 @@ export default function ReleaseDetailPage() {
         </div>
 
         {/* Images Section - Always show with skeletons while loading */}
-        {Boolean(latestBuild) && (
+        {Boolean(latestBuild) && status != "error" && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {availableViews.length > 0
