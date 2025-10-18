@@ -32,7 +32,6 @@ import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
-import { useOrgByGithubHandle } from "@/hooks/use-org-by-github-handle"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
 import {
@@ -49,6 +48,7 @@ import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
 import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
+import { useOrganization } from "@/hooks/use-organization"
 
 const organizationSettingsSchema = z.object({
   name: z
@@ -70,10 +70,12 @@ export default function OrganizationSettingsPage() {
   const session = useGlobalStore((s) => s.session)
 
   const {
-    data: organization,
+    organization,
     isLoading: isLoadingOrg,
     error: orgError,
-  } = useOrgByGithubHandle(orgname || null)
+  } = useOrganization({
+    orgName: orgname,
+  })
 
   const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState<{
     member: Account
