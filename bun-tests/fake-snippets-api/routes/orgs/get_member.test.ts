@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("GET /api/orgs/get_member - should return member by org_id and member_id 69", async () => {
+test("GET /api/orgs/get_member - should return member by org_id and member_id", async () => {
   const { jane_axios, seed } = await getTestServer()
 
   await jane_axios.post("/api/orgs/add_member", {
