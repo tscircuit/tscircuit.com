@@ -121,10 +121,21 @@ export function useFileManagement({
         },
         {
           onSuccess: () => {
-            updatePackageFilesMutation.mutate({
-              package_name_with_version: `${newPackage.name}@latest`,
-              ...newPackage,
-            })
+            const filesSnapshot = [...localFiles]
+            updatePackageFilesMutation.mutate(
+              {
+                package_name_with_version: `${newPackage.name}@latest`,
+                ...newPackage,
+              },
+              {
+                onSuccess: (updatedFilesCount: number) => {
+                  if (updatedFilesCount > 0) {
+                    updateLastUpdated()
+                    setInitialFiles(filesSnapshot)
+                  }
+                },
+              },
+            )
             const url = new URL(window.location.href)
             url.searchParams.set("package_id", newPackage.package_id)
             url.searchParams.delete("template")
@@ -525,12 +536,22 @@ export function useFileManagement({
       openNewPackageSaveDialog()
       return
     }
-    updatePackageFilesMutation.mutate({
-      package_name_with_version: `${currentPackage.name}@latest`,
-      ...currentPackage,
-    })
-    updateLastUpdated()
-    setInitialFiles([...localFiles])
+    // Take a snapshot of the files at the moment of save
+    const filesSnapshot = [...localFiles]
+    updatePackageFilesMutation.mutate(
+      {
+        package_name_with_version: `${currentPackage.name}@latest`,
+        ...currentPackage,
+      },
+      {
+        onSuccess: (updatedFilesCount: number) => {
+          if (updatedFilesCount > 0) {
+            updateLastUpdated()
+            setInitialFiles(filesSnapshot)
+          }
+        },
+      },
+    )
   }
 
   const isSaving = useMemo(() => {
