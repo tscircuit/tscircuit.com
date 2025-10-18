@@ -226,6 +226,8 @@ const CmdKMenu = () => {
       enabled: !!currentUser && !searchQuery,
       retry: false,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      cacheTime: 24 * 60 * 60 * 1000,
     },
   )
 
