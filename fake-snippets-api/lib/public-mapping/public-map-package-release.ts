@@ -46,6 +46,12 @@ export const publicMapPackageRelease = (
     branch_name: internal_package_release.branch_name,
     commit_message: internal_package_release.commit_message ?? null,
     commit_author: internal_package_release.commit_author ?? null,
+    pcb_preview_image_url:
+      internal_package_release.pcb_preview_image_url ?? null,
+    sch_preview_image_url:
+      internal_package_release.sch_preview_image_url ?? null,
+    cad_preview_image_url:
+      internal_package_release.cad_preview_image_url ?? null,
   }
 
   if (options.include_ai_review && options.db) {

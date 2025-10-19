@@ -38,6 +38,9 @@ test("GET /api/packages/get - should return package by package_id", async () => 
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
   expect(responseBody.package).toBeDefined()
+  expect(responseBody.package.latest_pcb_preview_image_url).toBeDefined()
+  expect(responseBody.package.latest_sch_preview_image_url).toBeDefined()
+  expect(responseBody.package.latest_cad_preview_image_url).toBeDefined()
 })
 
 test("GET /api/packages/get - should return 404 if package not found", async () => {
