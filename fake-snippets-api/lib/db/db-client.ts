@@ -32,6 +32,9 @@ import {
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url.ts"
+
+const apiUrl = useApiBaseUrl()
 
 export const createDatabase = ({ seed }: { seed?: boolean } = {}) => {
   const db = hoist(createStore(initializer))
@@ -1255,13 +1258,13 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       github_repo_full_name: null,
       latest_pcb_preview_image_url:
         _package.latest_pcb_preview_image_url ??
-        `/api/packages/images/${_package.name}`,
+        `${apiUrl}/packages/images/${_package.name}`,
       latest_cad_preview_image_url:
         _package.latest_cad_preview_image_url ??
-        `/api/packages/images/${_package.name}`,
+        `${apiUrl}/packages/images/${_package.name}`,
       latest_sch_preview_image_url:
         _package.latest_sch_preview_image_url ??
-        `/api/packages/images/${_package.name}`,
+        `${apiUrl}/packages/images/${_package.name}`,
       ..._package,
     }
     set((state) => ({
