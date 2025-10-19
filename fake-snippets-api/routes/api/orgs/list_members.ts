@@ -19,12 +19,10 @@ export default withRouteSpec({
   auth: "optional_session",
   jsonResponse: z.object({
     members: z.array(
-      accountSchema
-        .omit({ shippingInfo: true })
-        .extend({
-          joined_at: z.string(),
-          user_permissions: userPermissionsSchema,
-        }),
+      accountSchema.omit({ shippingInfo: true }).extend({
+        joined_at: z.string(),
+        user_permissions: userPermissionsSchema,
+      }),
     ),
   }),
 })(async (req, ctx) => {
