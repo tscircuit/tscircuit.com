@@ -10,14 +10,14 @@ export default withRouteSpec({
   commonParams: z.object({
     org_id: z.string().optional(),
     org_name: z.string().optional(),
-    member_id: z.string(),
+    account_id: z.string(),
   }),
   auth: "optional_session",
   jsonResponse: z.object({
     member: orgAccountSchema.merge(userPermissionsSchema),
   }),
 })(async (req, ctx) => {
-  const { org_id, org_name, member_id } = req.commonParams
+  const { org_id, org_name, account_id } = req.commonParams
 
   const org = ctx.db.getOrg(
     {
@@ -36,7 +36,7 @@ export default withRouteSpec({
 
   const memberOrgAccount = ctx.db.getOrganizationAccount({
     org_id: org.org_id,
-    account_id: member_id,
+    account_id: account_id,
   })
 
   const memberOrg = ctx.db.getOrg(
@@ -45,7 +45,7 @@ export default withRouteSpec({
       org_name,
     },
     {
-      account_id: member_id!,
+      account_id: account_id!,
     },
   )
 

@@ -20,4 +20,5 @@ test("GET /orgs/list_members returns members for an org when owner", async () =>
   )
   expect(membership).toBeDefined()
   expect(membership.joined_at).toBeDefined()
+  expect(membership.user_permissions).toBeDefined()
 })

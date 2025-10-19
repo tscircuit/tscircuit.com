@@ -1,7 +1,7 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("GET /api/orgs/get_member - should return member by org_id and member_id", async () => {
+test("GET /api/orgs/get_member - should return member by org_id and account_id", async () => {
   const { jane_axios, seed } = await getTestServer()
 
   await jane_axios.post("/api/orgs/add_member", {
@@ -12,7 +12,7 @@ test("GET /api/orgs/get_member - should return member by org_id and member_id", 
   const getResponse = await jane_axios.get("/api/orgs/get_member", {
     params: {
       org_id: seed.organization.org_id,
-      member_id: seed.account.account_id,
+      account_id: seed.account.account_id,
     },
   })
 
@@ -25,7 +25,7 @@ test("GET /api/orgs/get_member - should return member by org_id and member_id", 
   expect(responseBody.member.can_manage_org).toBeDefined()
 })
 
-test("GET /api/orgs/get_member - should return member by org_name and member_id", async () => {
+test("GET /api/orgs/get_member - should return member by org_name and account_id", async () => {
   const { jane_axios, seed } = await getTestServer()
 
   await jane_axios.post("/api/orgs/add_member", {
@@ -36,7 +36,7 @@ test("GET /api/orgs/get_member - should return member by org_name and member_id"
   const getResponse = await jane_axios.get("/api/orgs/get_member", {
     params: {
       org_name: seed.organization.org_name,
-      member_id: seed.account.account_id,
+      account_id: seed.account.account_id,
     },
   })
 
@@ -55,7 +55,7 @@ test("GET /api/orgs/get_member - should return 404 if org not found", async () =
     await jane_axios.get("/api/orgs/get_member", {
       params: {
         org_id: "non_existent_org_id",
-        member_id: seed.account.account_id,
+        account_id: seed.account.account_id,
       },
     })
     throw new Error("Expected request to fail")
@@ -73,7 +73,7 @@ test("GET /api/orgs/get_member - should return 404 if member not found in org", 
     await jane_axios.get("/api/orgs/get_member", {
       params: {
         org_id: seed.organization.org_id,
-        member_id: "non_existent_member_id",
+        account_id: "non_existent_account_id",
       },
     })
     throw new Error("Expected request to fail")
@@ -95,7 +95,7 @@ test("GET /api/orgs/get_member - should return member with all required fields",
   const getResponse = await jane_axios.get("/api/orgs/get_member", {
     params: {
       org_id: seed.organization.org_id,
-      member_id: seed.account.account_id,
+      account_id: seed.account.account_id,
     },
   })
 
