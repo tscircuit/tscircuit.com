@@ -1253,6 +1253,15 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const newPackage = {
       package_id: `package_${timestamp}`,
       github_repo_full_name: null,
+      latest_pcb_preview_image_url:
+        _package.latest_pcb_preview_image_url ??
+        `/api/packages/images/${_package.name}`,
+      latest_cad_preview_image_url:
+        _package.latest_cad_preview_image_url ??
+        `/api/packages/images/${_package.name}`,
+      latest_sch_preview_image_url:
+        _package.latest_sch_preview_image_url ??
+        `/api/packages/images/${_package.name}`,
       ..._package,
     }
     set((state) => ({

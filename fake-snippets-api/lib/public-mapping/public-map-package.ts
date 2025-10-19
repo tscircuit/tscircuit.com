@@ -28,6 +28,9 @@ export const publicMapPackage = (internalPackage: {
   latest_package_release_fs_sha: string | null
   github_repo_full_name?: string | null
   allow_pr_previews?: boolean
+  latest_pcb_preview_image_url?: string | null
+  latest_sch_preview_image_url?: string | null
+  latest_cad_preview_image_url?: string | null
 }): zt.Package => {
   return {
     ...internalPackage,
@@ -47,5 +50,11 @@ export const publicMapPackage = (internalPackage: {
         ? true
         : (internalPackage.is_unlisted ?? false),
     allow_pr_previews: Boolean(internalPackage.allow_pr_previews),
+    latest_pcb_preview_image_url:
+      internalPackage.latest_pcb_preview_image_url ?? null,
+    latest_sch_preview_image_url:
+      internalPackage.latest_sch_preview_image_url ?? null,
+    latest_cad_preview_image_url:
+      internalPackage.latest_cad_preview_image_url ?? null,
   }
 }

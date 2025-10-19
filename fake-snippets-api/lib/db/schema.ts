@@ -278,6 +278,11 @@ export const packageReleaseSchema = z.object({
   branch_name: z.string().nullable().optional(),
   commit_message: z.string().nullable().optional(),
   commit_author: z.string().nullable().optional(),
+
+  // Preview images url
+  pcb_preview_image_url: z.string().nullable().default(null),
+  sch_preview_image_url: z.string().nullable().default(null),
+  cad_preview_image_url: z.string().nullable().default(null),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -329,6 +334,9 @@ export const packageSchema = z.object({
     .optional(),
   allow_pr_previews: z.boolean().default(false).optional(),
   is_starred: z.boolean().default(false).optional(),
+  latest_pcb_preview_image_url: z.string().nullable().optional(),
+  latest_sch_preview_image_url: z.string().nullable().optional(),
+  latest_cad_preview_image_url: z.string().nullable().optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 
