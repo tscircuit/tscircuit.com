@@ -18,11 +18,13 @@ test("GET /api/orgs/get_member - should return member by org_id and account_id",
 
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
-  expect(responseBody.member).toBeDefined()
-  expect(responseBody.member.account_id).toBe(seed.account.account_id)
-  expect(responseBody.member.org_id).toBe(seed.organization.org_id)
-  expect(responseBody.member.created_at).toBeDefined()
-  expect(responseBody.member.can_manage_org).toBeDefined()
+  expect(responseBody.org_member).toBeDefined()
+  expect(responseBody.org_member.account_id).toBe(seed.account.account_id)
+  expect(responseBody.org_member.org_id).toBe(seed.organization.org_id)
+  expect(responseBody.org_member.created_at).toBeDefined()
+  expect(
+    responseBody.org_member.org_member_permissions.can_manage_org,
+  ).toBeDefined()
 })
 
 test("GET /api/orgs/get_member - should return member by org_name and account_id", async () => {
@@ -42,10 +44,10 @@ test("GET /api/orgs/get_member - should return member by org_name and account_id
 
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
-  expect(responseBody.member).toBeDefined()
-  expect(responseBody.member.account_id).toBe(seed.account.account_id)
-  expect(responseBody.member.org_id).toBe(seed.organization.org_id)
-  expect(responseBody.member.created_at).toBeDefined()
+  expect(responseBody.org_member).toBeDefined()
+  expect(responseBody.org_member.account_id).toBe(seed.account.account_id)
+  expect(responseBody.org_member.org_id).toBe(seed.organization.org_id)
+  expect(responseBody.org_member.created_at).toBeDefined()
 })
 
 test("GET /api/orgs/get_member - should return 404 if org not found", async () => {
@@ -100,9 +102,9 @@ test("GET /api/orgs/get_member - should return member with all required fields",
   })
 
   expect(getResponse.status).toBe(200)
-  const { member } = getResponse.data
-  expect(member.account_id).toBe(seed.account.account_id)
-  expect(member.org_id).toBe(seed.organization.org_id)
-  expect(member.created_at).toBeDefined()
-  expect(typeof member.created_at).toBe("string")
+  const { org_member } = getResponse.data
+  expect(org_member.account_id).toBe(seed.account.account_id)
+  expect(org_member.org_id).toBe(seed.organization.org_id)
+  expect(org_member.created_at).toBeDefined()
+  expect(typeof org_member.created_at).toBe("string")
 })

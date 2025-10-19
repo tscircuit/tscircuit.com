@@ -14,7 +14,9 @@ export default withRouteSpec({
   }),
   auth: "optional_session",
   jsonResponse: z.object({
-    member: orgAccountSchema.merge(userPermissionsSchema),
+    org_member: orgAccountSchema.merge(
+      z.object({ org_member_permissions: userPermissionsSchema.nullable() }),
+    ),
   }),
 })(async (req, ctx) => {
   const { org_id, org_name, account_id } = req.commonParams
@@ -57,9 +59,9 @@ export default withRouteSpec({
   }
 
   return ctx.json({
-    member: {
-      ...memberOrg,
+    org_member: {
       ...memberOrgAccount,
+      org_member_permissions: memberOrg,
     },
   })
 })

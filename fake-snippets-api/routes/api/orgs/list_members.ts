@@ -18,10 +18,10 @@ export default withRouteSpec({
     ),
   auth: "optional_session",
   jsonResponse: z.object({
-    members: z.array(
+    org_members: z.array(
       accountSchema.omit({ shippingInfo: true }).extend({
         joined_at: z.string(),
-        user_permissions: userPermissionsSchema,
+        org_member_permissions: userPermissionsSchema,
       }),
     ),
   }),
@@ -95,9 +95,9 @@ export default withRouteSpec({
     }
   }
   return ctx.json({
-    members: fullMembers.map((m) => ({
+    org_members: fullMembers.map((m) => ({
       ...m,
-      user_permissions: m.user_permissions ?? {
+      org_member_permissions: m.user_permissions ?? {
         can_manage_org: false,
         can_manage_package: false,
       },
