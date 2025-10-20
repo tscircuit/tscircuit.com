@@ -51,6 +51,7 @@ import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Loader2 } from "lucide-react"
+import { useAxios } from "@/hooks/use-axios"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -111,7 +112,7 @@ export const CodeEditor = ({
   const highlightTimeoutRef = useRef<number | null>(null)
 
   const { highlighter } = useShikiHighlighter()
-
+  const axios = useAxios()
   // Get URL search params for file_path
   const urlParams = new URLSearchParams(window.location.search)
   const filePathFromUrl = urlParams.get("file_path")
@@ -358,23 +359,12 @@ export const CodeEditor = ({
     if (aiAutocompleteEnabled) {
       baseExtensions.push(
         inlineCopilot(async (prefix, suffix) => {
-          const res = await fetch(
-            `${apiUrl}/autocomplete/create_autocomplete`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                prefix,
-                suffix,
-                language: "typescript",
-              }),
-            },
-          )
-
-          const { prediction } = await res.json()
-          return prediction
+          const res = await axios.post("/autocomplete/create_autocomplete", {
+            prefix,
+            suffix,
+            language: "typescript",
+          })
+          return res.data?.prediction
         }),
         EditorView.theme({
           ".cm-ghostText, .cm-ghostText *": {

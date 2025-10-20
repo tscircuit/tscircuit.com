@@ -18,7 +18,7 @@ export const seed = (db: DbClient) => {
       phone: "555-123-4567",
     },
   })
-  db.addAccount({
+  const seveibarAcc = db.addAccount({
     github_username: "seveibar",
   })
 
@@ -1834,5 +1834,10 @@ exports.TestComponent = TestComponent;
     owner_account_id: account_id,
     github_handle: "tscircuit",
     is_personal_org: true,
+  })
+
+  db.addOrganizationAccount({
+    org_id: testOrg.org_id,
+    account_id: seveibarAcc.account_id,
   })
 }

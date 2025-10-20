@@ -278,6 +278,11 @@ export const packageReleaseSchema = z.object({
   branch_name: z.string().nullable().optional(),
   commit_message: z.string().nullable().optional(),
   commit_author: z.string().nullable().optional(),
+
+  // Preview images url
+  pcb_preview_image_url: z.string().nullable().default(null),
+  sch_preview_image_url: z.string().nullable().default(null),
+  cad_preview_image_url: z.string().nullable().default(null),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -329,6 +334,9 @@ export const packageSchema = z.object({
     .optional(),
   allow_pr_previews: z.boolean().default(false).optional(),
   is_starred: z.boolean().default(false).optional(),
+  latest_pcb_preview_image_url: z.string().nullable().optional(),
+  latest_sch_preview_image_url: z.string().nullable().optional(),
+  latest_cad_preview_image_url: z.string().nullable().optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 
@@ -419,6 +427,12 @@ export const orgAccountSchema = z.object({
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
 
+export const userPermissionsSchema = z.object({
+  can_manage_org: z.boolean().optional(),
+  can_manage_package: z.boolean().optional(),
+})
+export type UserPermissions = z.infer<typeof userPermissionsSchema>
+
 export const publicOrgSchema = z.object({
   org_id: z.string(), //.uuid(),
   owner_account_id: z.string(), //.uuid(),
@@ -429,12 +443,7 @@ export const publicOrgSchema = z.object({
   package_count: z.number(),
   github_handle: z.string().optional(),
   created_at: z.string(),
-  user_permissions: z
-    .object({
-      can_manage_org: z.boolean().optional(),
-      can_manage_package: z.boolean().optional(),
-    })
-    .optional(),
+  user_permissions: userPermissionsSchema.optional(),
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
 
