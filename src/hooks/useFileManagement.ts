@@ -105,7 +105,6 @@ export function useFileManagement({
     packageFilesMeta: packageFilesMeta || [],
     onSuccess: () => {
       updateLastUpdated()
-      setInitialFiles([...localFiles])
     },
   })
   const { mutate: createRelease, isLoading: isCreatingRelease } =

@@ -93,26 +93,23 @@ export function useUpdatePackageFilesMutation({
       }
       return updatedFilesCount
     },
-    onSuccess: (updatedFilesCount) => {
+    onSuccess: async (updatedFilesCount) => {
       if (updatedFilesCount > 0) {
         toast({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
-        queryClient.invalidateQueries(
-          {
-            predicate: (q) => {
-              const key = q.queryKey as any
-              return (
-                Array.isArray(key) &&
-                (key[0] === "packageFiles" ||
-                  key[0] === "packageFile" ||
-                  key[0] === "priorityPackageFile")
-              )
-            },
+        await queryClient.invalidateQueries({
+          predicate: (q) => {
+            const key = q.queryKey as any
+            return (
+              Array.isArray(key) &&
+              (key[0] === "packageFiles" ||
+                key[0] === "packageFile" ||
+                key[0] === "priorityPackageFile")
+            )
           },
-          { cancelRefetch: false },
-        )
+        })
       }
       onSuccess?.(updatedFilesCount)
     },
