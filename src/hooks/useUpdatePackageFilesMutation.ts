@@ -26,7 +26,10 @@ export function useUpdatePackageFilesMutation({
   localFiles,
   initialFiles,
   packageFilesMeta,
-}: UseUpdatePackageFilesMutationProps) {
+  onSuccess,
+}: UseUpdatePackageFilesMutationProps & {
+  onSuccess?: (updatedFilesCount: number) => void
+}) {
   const axios = useAxios()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -96,18 +99,22 @@ export function useUpdatePackageFilesMutation({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
-        queryClient.invalidateQueries({
-          predicate: (q) => {
-            const key = q.queryKey as any
-            return (
-              Array.isArray(key) &&
-              (key[0] === "packageFiles" ||
-                key[0] === "packageFile" ||
-                key[0] === "priorityPackageFile")
-            )
+        queryClient.invalidateQueries(
+          {
+            predicate: (q) => {
+              const key = q.queryKey as any
+              return (
+                Array.isArray(key) &&
+                (key[0] === "packageFiles" ||
+                  key[0] === "packageFile" ||
+                  key[0] === "priorityPackageFile")
+              )
+            },
           },
-        })
+          { cancelRefetch: false },
+        )
       }
+      onSuccess?.(updatedFilesCount)
     },
     onError: (error: any) => {
       toast({

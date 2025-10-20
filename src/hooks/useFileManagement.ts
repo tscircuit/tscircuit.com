@@ -103,6 +103,10 @@ export function useFileManagement({
     localFiles,
     initialFiles,
     packageFilesMeta: packageFilesMeta || [],
+    onSuccess: () => {
+      updateLastUpdated()
+      setInitialFiles([...localFiles])
+    },
   })
   const { mutate: createRelease, isLoading: isCreatingRelease } =
     useCreatePackageReleaseMutation({
@@ -529,8 +533,6 @@ export function useFileManagement({
       package_name_with_version: `${currentPackage.name}@latest`,
       ...currentPackage,
     })
-    updateLastUpdated()
-    setInitialFiles([...localFiles])
   }
 
   const isSaving = useMemo(() => {
