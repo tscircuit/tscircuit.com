@@ -99,7 +99,7 @@ export function useUpdatePackageFilesMutation({
           title: `Package's ${updatedFilesCount} files saved`,
           description: "Your changes have been saved successfully.",
         })
-        await queryClient.removeQueries({
+        await queryClient.invalidateQueries({
           predicate: (q) => {
             const key = q.queryKey as any
             return (

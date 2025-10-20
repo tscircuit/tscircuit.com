@@ -63,7 +63,10 @@ export function useOptimizedPackageFilesLoader(
       if (!priorityFileData) return null
 
       const response = await axios.get(`/package_files/get`, {
-        params: { package_file_id: priorityFileData.package_file_id },
+        params: {
+          package_file_id: priorityFileData.package_file_id,
+          bust: new Date().getTime(),
+        },
       })
       const content = response.data.package_file?.content_text
       const file = { path: priorityFileData.file_path, content: content ?? "" }
@@ -90,7 +93,10 @@ export function useOptimizedPackageFilesLoader(
         queryKey: ["packageFile", file.package_file_id],
         queryFn: async () => {
           const response = await axios.get(`/package_files/get`, {
-            params: { package_file_id: file.package_file_id },
+            params: {
+              package_file_id: file.package_file_id,
+              bust: new Date().getTime(),
+            },
           })
           const content = response.data.package_file?.content_text
           const fileData = { path: file.file_path, content: content ?? "" }
