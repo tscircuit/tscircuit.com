@@ -4,9 +4,12 @@ import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useRef, useState } from "react"
-import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
-const CarouselItem = ({ pkg }: { pkg: Package }) => {
+const CarouselItem = ({
+  pkg,
+  apiBaseUrl,
+}: { pkg: Package; apiBaseUrl: string }) => {
   return (
     <Link href={`/${pkg.name}`}>
       <div className="flex-shrink-0 w-[200px] bg-white p-3 py-2 rounded-lg shadow-sm border border-gray-200 hover:border-gray-300 transition-colors">
@@ -15,7 +18,7 @@ const CarouselItem = ({ pkg }: { pkg: Package }) => {
         </div>
         <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
           <img
-            src={getPackagePreviewImageUrl(pkg)}
+            src={`${apiBaseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.svg?fs_map=${pkg.latest_package_release_fs_sha}`}
             alt="PCB preview"
             className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
           />
@@ -33,6 +36,7 @@ export const TrendingPackagesCarousel = () => {
   const axios = useAxios()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
+  const apiBaseUrl = useApiBaseUrl()
 
   const { data: trendingPackages } = useQuery<Package[]>(
     "trendingPackages",
@@ -66,7 +70,11 @@ export const TrendingPackagesCarousel = () => {
             >
               {[...(trendingPackages ?? []), ...(trendingPackages ?? [])].map(
                 (pkg, i) => (
-                  <CarouselItem key={`${pkg.package_id}-${i}`} pkg={pkg} />
+                  <CarouselItem
+                    key={`${pkg.package_id}-${i}`}
+                    pkg={pkg}
+                    apiBaseUrl={apiBaseUrl}
+                  />
                 ),
               )}
             </div>
