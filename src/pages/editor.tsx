@@ -3,7 +3,6 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { Helmet } from "react-helmet-async"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
 
 export const EditorPage = () => {
   const { packageInfo: pkg, error } = useCurrentPackageInfo()
@@ -24,12 +23,12 @@ export const EditorPage = () => {
             />
             <meta
               property="og:image"
-              content={getPackagePreviewImageUrl(pkg)}
+              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
             <meta name="twitter:card" content="summary_large_image" />
             <meta
               name="twitter:image"
-              content={getPackagePreviewImageUrl(pkg)}
+              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
             />
           </>
         )}
