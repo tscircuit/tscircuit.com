@@ -6,6 +6,9 @@
     "type": "git",
     "url": "https://github.com/tscircuit/tscircuit.com"
   },
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
