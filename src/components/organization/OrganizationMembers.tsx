@@ -1,48 +1,26 @@
 import React from "react"
 import { Link } from "wouter"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Users, Crown, Shield, User, Loader2 } from "lucide-react"
+import { Users, Loader2 } from "lucide-react"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { cn } from "@/lib/utils"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
+import { getMemberRole } from "@/lib/utils/member-role"
+import { RoleBadge } from "@/components/ui/role-badge"
+import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 interface OrganizationMembersProps {
-  orgId: string
+  organization: PublicOrgSchema
   className?: string
-}
-type MemberRole = "owner" | "admin" | "member" //todo
-const getRoleIcon = (role: MemberRole) => {
-  switch (role) {
-    case "owner":
-      return <Crown className="h-3 w-3" />
-    case "admin":
-      return <Shield className="h-3 w-3" />
-    case "member":
-      return <User className="h-3 w-3" />
-    default:
-      return <User className="h-3 w-3" />
-  }
-}
-
-const getRoleColor = (role: MemberRole) => {
-  switch (role) {
-    case "owner":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200"
-    case "admin":
-      return "bg-purple-100 text-purple-800 border-purple-200"
-    case "member":
-      return "bg-gray-100 text-gray-800 border-gray-200"
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200"
-  }
 }
 
 export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
-  orgId,
+  organization,
   className,
 }) => {
-  const { data: members = [], isLoading } = useListOrgMembers({ orgId })
+  const { data: members = [], isLoading } = useListOrgMembers({
+    orgId: organization.org_id,
+  })
 
   if (isLoading) {
     return (
@@ -78,60 +56,54 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
       </div>
 
       <div className="space-y-2 sm:space-y-3">
-        {members.map((member) => (
-          <Link
-            key={member.account_id || member.github_username}
-            href={`/${member.github_username}`}
-            className="block"
-          >
-            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
-                  <AvatarImage
-                    src={`https://github.com/${member.github_username}.png`}
-                    alt={`${member.github_username} avatar`}
-                  />
-                  <AvatarFallback className="text-sm font-medium">
-                    {member.github_username
-                      .split(" ")
-                      .map((word) => word[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
+        {members.map((member) => {
+          const role = getMemberRole(organization, member.account_id)
+          return (
+            <Link
+              key={member.account_id || member.github_username}
+              href={`/${member.github_username}`}
+              className="block"
+            >
+              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+                    <AvatarImage
+                      src={`https://github.com/${member.github_username}.png`}
+                      alt={`${member.github_username} avatar`}
+                    />
+                    <AvatarFallback className="text-sm font-medium">
+                      {member.github_username
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {member.github_username}
-                    </h3>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-xs flex items-center gap-1 flex-shrink-0",
-                        getRoleColor("admin"),
-                      )}
-                    >
-                      {getRoleIcon("admin")}
-                      {"admin"}
-                    </Badge>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {member.github_username}
+                      </h3>
+                      <RoleBadge role={role} />
+                    </div>
+                    <p className="text-sm text-gray-500 truncate">
+                      @{member.github_username}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500 truncate">
-                    @{member.github_username}
-                  </p>
                 </div>
+                {member.joined_at && (
+                  <div className="text-right flex-shrink-0 hidden sm:block">
+                    <p className="text-xs text-gray-500">
+                      Joined {timeAgo(new Date(member.joined_at))}
+                    </p>
+                  </div>
+                )}
               </div>
-              {member.joined_at && (
-                <div className="text-right flex-shrink-0 hidden sm:block">
-                  <p className="text-xs text-gray-500">
-                    Joined {timeAgo(new Date(member.joined_at))}
-                  </p>
-                </div>
-              )}
-            </div>
-          </Link>
-        ))}
+            </Link>
+          )
+        })}
       </div>
 
       {members.length === 0 && (

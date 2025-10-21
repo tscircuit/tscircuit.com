@@ -150,7 +150,6 @@ export const OrganizationProfilePageContent = ({
                         <PackageCard
                           key={pkg.package_id}
                           pkg={pkg}
-                          baseUrl={baseUrl}
                           showOwner={false}
                           isCurrentUserPackage={isCurrentUserOrganization}
                         />
@@ -174,7 +173,7 @@ export const OrganizationProfilePageContent = ({
 
             {activeTab === "members" && (
               <div>
-                <OrganizationMembers orgId={org.org_id} />
+                <OrganizationMembers organization={org} />
               </div>
             )}
           </div>

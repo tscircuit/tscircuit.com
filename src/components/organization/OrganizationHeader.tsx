@@ -4,7 +4,7 @@ import { Building2, Users, Package, Lock, Globe2, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useLocation } from "wouter"
+import { Link, useLocation } from "wouter"
 import { useOrganization } from "@/hooks/use-organization"
 import { GithubAvatarWithFallback } from "../GithubAvatarWithFallback"
 
@@ -97,9 +97,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-3">
-                <h1 className="font-bold text-gray-900 text-2xl md:text-3xl truncate">
+                <Link
+                  href={`/${organization.name}`}
+                  className="font-bold text-gray-900 text-2xl md:text-3xl truncate"
+                >
                   {organization.name}
-                </h1>
+                </Link>
                 {canManageOrg && showActions && (
                   <Button variant="outline" onClick={handleSettingsClick}>
                     <Settings className="mr-2 h-4 w-4" />

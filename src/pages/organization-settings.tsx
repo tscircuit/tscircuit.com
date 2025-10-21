@@ -34,15 +34,17 @@ import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
+import { cn } from "@/lib/utils"
 import {
   Users,
-  Crown,
   AlertTriangle,
   Loader2,
   PlusIcon,
   ArrowLeft,
   Building2,
 } from "lucide-react"
+import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
+import { RoleBadge } from "@/components/ui/role-badge"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
@@ -463,65 +465,63 @@ export default function OrganizationSettingsPage() {
                       </p>
                     </div>
                   ) : (
-                    members.map((member) => (
-                      <div
-                        key={member.account_id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
-                      >
-                        <Link
-                          href={`/${member.github_username || member.account_id}`}
-                          className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                    members.map((member) => {
+                      const role = getMemberRole(
+                        organization,
+                        member.account_id,
+                      )
+                      return (
+                        <div
+                          key={member.account_id}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
                         >
-                          <Avatar className="h-12 w-12 border-2 border-gray-200 shadow-sm">
-                            <AvatarImage
-                              src={`https://github.com/${member.github_username}.png`}
-                              alt={`${member.github_username} avatar`}
-                            />
-                            <AvatarFallback className="text-sm bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-medium">
-                              {(
-                                member.github_username ||
-                                member.account_id ||
-                                ""
-                              )
-                                .slice(0, 2)
-                                .toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
-                                {member.github_username || member.account_id}
-                              </span>
-                              {member.account_id ===
-                                organization.owner_account_id && (
-                                <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex-shrink-0">
-                                  <Crown className="h-3 w-3" />
-                                  Owner
-                                </div>
-                              )}
+                          <Link
+                            href={`/${member.github_username || member.account_id}`}
+                            className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                          >
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage
+                                src={`https://github.com/${member.github_username}.png`}
+                                alt={`${member.github_username} avatar`}
+                              />
+                              <AvatarFallback className="text-sm font-medium">
+                                {(
+                                  member.github_username ||
+                                  member.account_id ||
+                                  ""
+                                )
+                                  .slice(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
+                                  {member.github_username || member.account_id}
+                                </span>
+                                {role !== "member" && <RoleBadge role={role} />}
+                              </div>
+                              <p className="text-sm text-gray-500 truncate">
+                                {getRoleDescription(role)}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-500 truncate">
-                              {member.account_id ===
-                              organization.owner_account_id
-                                ? "Full access to organization settings"
-                                : "Standard member access"}
-                            </p>
-                          </div>
-                        </Link>
-                        {member.account_id !== organization.owner_account_id &&
-                          member.account_id !== session?.account_id && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveMember(member)}
-                              disabled={removeMemberMutation.isLoading}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
-                            >
-                              Remove
-                            </Button>
-                          )}
-                      </div>
-                    ))
+                          </Link>
+                          {member.account_id !==
+                            organization.owner_account_id &&
+                            member.account_id !== session?.account_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveMember(member)}
+                                disabled={removeMemberMutation.isLoading}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
+                              >
+                                Remove
+                              </Button>
+                            )}
+                        </div>
+                      )
+                    })
                   )}
                 </div>
               </div>

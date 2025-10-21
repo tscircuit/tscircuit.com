@@ -20,12 +20,11 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
 
 export interface PackageCardProps {
   /** The package data to display */
   pkg: Package
-  /** Base URL for package images */
-  baseUrl: string
   /** Whether to show the owner name (useful in starred views) */
   showOwner?: boolean
   /** Whether this is the current user's package (enables edit/delete options) */
@@ -46,7 +45,6 @@ export interface PackageCardProps {
 
 export const PackageCard: React.FC<PackageCardProps> = ({
   pkg,
-  baseUrl,
   showOwner = false,
   isCurrentUserPackage = false,
   onDeleteClick,
@@ -73,6 +71,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
   const availableImages = ["pcb", "schematic", "assembly", "3d"]
 
+  const previewImageUrl = getPackagePreviewImageUrl(
+    pkg,
+    pkg.default_view as "pcb" | "schematic" | "3d",
+  )
+
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -82,7 +85,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
           <img
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
+            src={String(previewImageUrl)}
             alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
             onError={(e) => {
