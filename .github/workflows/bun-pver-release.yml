@@ -26,7 +26,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install -g pver
       - run: bun install --frozen-lockfile
-      - run: bun run build
+      - run: bun run build:fake-api
       - run: pver release --no-push-main
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
