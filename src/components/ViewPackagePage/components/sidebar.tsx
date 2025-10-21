@@ -12,7 +12,6 @@ interface SidebarProps {
 
 export default function Sidebar({
   packageInfo,
-  isLoading = false,
   onViewChange,
   onLicenseClick,
 }: SidebarProps) {

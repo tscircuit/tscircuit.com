@@ -14,6 +14,7 @@ import {
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
+import PreviewImageSquares from "./preview-image-squares"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -78,29 +79,6 @@ const MobileSidebar = ({
       refetchPackageInfo()
     },
     [refetchPackageInfo],
-  )
-
-  const { availableViews: imageViews } = usePackageReleaseImages({
-    packageReleaseId: packageInfo?.latest_package_release_id,
-  })
-
-  const { availableViews: pngViews } = usePreviewImages({
-    cadPreviewUrl: packageInfo?.latest_cad_preview_image_url,
-    pcbPreviewUrl: packageInfo?.latest_pcb_preview_image_url,
-    schematicPreviewUrl: packageInfo?.latest_sch_preview_image_url,
-  })
-
-  const viewsToRender =
-    imageViews.length === 0 ||
-    imageViews.every((v) => !v.isLoading && !v.imageUrl)
-      ? (pngViews as any)
-      : imageViews
-
-  const handleViewClick = useCallback(
-    (viewId: string) => {
-      onViewChange?.(viewId as "3d" | "pcb" | "schematic")
-    },
-    [onViewChange],
   )
 
   if (isLoading) {
@@ -205,22 +183,12 @@ const MobileSidebar = ({
           </span>
         </div>
       </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        {viewsToRender.map((view: any) => (
-          <PreviewButton
-            key={view.id}
-            view={view.label}
-            onClick={() => handleViewClick(view.id)}
-            backgroundClass={view.backgroundClass}
-            svg={view.svg}
-            isLoading={view.isLoading}
-            imageUrl={view.imageUrl}
-            status={view.status}
-            onLoad={view.onLoad}
-            onError={view.onError}
-          />
-        ))}
+      <div>
+        <PreviewImageSquares
+          large
+          packageInfo={packageInfo}
+          onViewChange={onViewChange}
+        />
       </div>
       {packageInfo && (
         <EditPackageDetailsDialog
@@ -246,56 +214,3 @@ const MobileSidebar = ({
 }
 
 export default React.memo(MobileSidebar)
-
-function PreviewButton({
-  view,
-  onClick,
-  backgroundClass,
-  svg,
-  isLoading,
-  imageUrl,
-  status,
-  onLoad,
-  onError,
-}: {
-  view: string
-  onClick: () => void
-  backgroundClass?: string
-  svg?: string | null
-  isLoading?: boolean
-  imageUrl?: string
-  status?: "loading" | "loaded" | "error"
-  onLoad?: () => void
-  onError?: () => void
-}) {
-  if (!svg && !isLoading && !imageUrl) {
-    return null
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className={`aspect-square ${backgroundClass ?? "bg-gray-100"} rounded-lg border border-gray-200 dark:border-[#30363d] flex items-center justify-center transition-colors mt-4 overflow-hidden`}
-    >
-      {(isLoading || status === "loading") && (
-        <Skeleton className="w-full h-full rounded-lg" />
-      )}
-      {!isLoading && !status && svg && (
-        <img
-          src={svgToDataUrl(normalizeSvgForSquareTile(svg))}
-          alt={view}
-          className="w-full h-full object-contain"
-        />
-      )}
-      {imageUrl && !isLoading && (
-        <img
-          src={imageUrl}
-          alt={view}
-          className="w-full h-full object-cover rounded-lg"
-          onLoad={onLoad}
-          onError={onError}
-        />
-      )}
-    </button>
-  )
-}
