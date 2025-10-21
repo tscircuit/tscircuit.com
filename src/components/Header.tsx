@@ -24,7 +24,23 @@ const HeaderButton = ({
   alsoHighlightForUrl?: string
 }) => {
   const [location] = useLocation()
+  const isExternal = /^(https?|mailto|tel):\/?\//i.test(href)
+  if (isExternal) {
+    return (
+      <a
+        className={cn("header-button", className)}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Button className={className} variant="ghost">
+          {children}
+        </Button>
+      </a>
+    )
+  }
 
+  // For internal links, use the Link Component
   if (location === href || location === alsoHighlightForUrl) {
     return (
       <Link className={cn("header-button", className)} href={href}>

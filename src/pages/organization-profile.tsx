@@ -150,7 +150,6 @@ export const OrganizationProfilePageContent = ({
                         <PackageCard
                           key={pkg.package_id}
                           pkg={pkg}
-                          baseUrl={baseUrl}
                           showOwner={false}
                           isCurrentUserPackage={isCurrentUserOrganization}
                         />
