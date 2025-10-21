@@ -187,7 +187,7 @@ const MobileSidebar = ({
         {" "}
         <PreviewImageSquares
           large
-          pkg={packageInfo}
+          packageInfo={packageInfo}
           onViewChange={onViewChange}
         />
       </div>

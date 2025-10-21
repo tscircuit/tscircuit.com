@@ -18,7 +18,7 @@ export default function Sidebar({
   return (
     <div className="h-full p-4 bg-white dark:bg-[#0d1117] overflow-y-auto">
       <SidebarAboutSection onLicenseClick={onLicenseClick} />
-      <PreviewImageSquares pkg={packageInfo} onViewChange={onViewChange} />
+      <PreviewImageSquares packageInfo={packageInfo} onViewChange={onViewChange} />
       <SidebarReleasesSection />
     </div>
   )
