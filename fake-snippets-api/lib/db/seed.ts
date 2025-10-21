@@ -630,7 +630,7 @@ export const TestComponent = ({ name }: { name: string }) => (
   })
   db.addPackageFile({
     package_release_id: test2PackageReleaseId,
-    file_path: "dist/circuit.json",
+    file_path: "/dist/circuit.json",
     content_text: `[
   {
     "type": "source_project_metadata",

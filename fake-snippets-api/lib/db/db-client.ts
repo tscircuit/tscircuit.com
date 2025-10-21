@@ -1437,10 +1437,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     packageFile: Omit<PackageFile, "package_file_id">,
   ): PackageFile => {
     const newPackageFile = {
-      package_file_id: `package_file_${Date.now()}_${Math.random()}`,
+      package_file_id: `package_file_${get().idCounter}`,
       ...packageFile,
     }
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packageFiles: [...state.packageFiles, newPackageFile],
     }))
     return newPackageFile

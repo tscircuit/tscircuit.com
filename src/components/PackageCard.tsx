@@ -84,17 +84,21 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
-          <img
-            src={previewImageUrl}
-            alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
-            className={`object-cover h-full w-full ${imageTransform}`}
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-              e.currentTarget.nextElementSibling?.classList.remove("hidden")
-              e.currentTarget.nextElementSibling?.classList.add("flex")
-            }}
-          />
-          <div className="hidden items-center justify-center h-full w-full">
+          {previewImageUrl ? (
+            <img
+              src={previewImageUrl}
+              alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
+              className={`object-cover h-full w-full ${imageTransform}`}
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                e.currentTarget.nextElementSibling?.classList.add("flex")
+              }}
+            />
+          ) : null}
+          <div
+            className={`${previewImageUrl ? "hidden" : "flex"} items-center justify-center h-full w-full`}
+          >
             <CircuitBoard className="w-6 h-6 text-gray-300" />
           </div>
         </div>

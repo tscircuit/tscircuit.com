@@ -71,8 +71,7 @@ export default withRouteSpec({
     (pf) =>
       pf.package_release_id === pkg_release.package_release_id &&
       (pf.file_path === "circuit.json" ||
-        pf.file_path === "/dist/circuit.json" ||
-        pf.file_path === "dist/circuit.json"),
+        pf.file_path === "/dist/circuit.json"),
   )
 
   if (!circuit_json_file?.content_text) {
