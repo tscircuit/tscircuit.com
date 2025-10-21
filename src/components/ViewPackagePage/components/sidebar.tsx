@@ -12,17 +12,13 @@ interface SidebarProps {
 
 export default function Sidebar({
   packageInfo,
-  isLoading = false,
   onViewChange,
   onLicenseClick,
 }: SidebarProps) {
   return (
     <div className="h-full p-4 bg-white dark:bg-[#0d1117] overflow-y-auto">
       <SidebarAboutSection onLicenseClick={onLicenseClick} />
-      <PreviewImageSquares
-        packageInfo={packageInfo}
-        onViewChange={onViewChange}
-      />
+      <PreviewImageSquares pkg={packageInfo} onViewChange={onViewChange} />
       <SidebarReleasesSection />
     </div>
   )

@@ -4,6 +4,7 @@ import { loadAutoloadPackages } from "./autoload-dev-packages"
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
     account_id: "account-1234",
+    personal_org_id: "org-1234",
     github_username: "testuser",
     shippingInfo: {
       firstName: "Test",
@@ -581,6 +582,144 @@ export default () => (
     ...release1,
     latest_package_build_id: firstBuild.package_build_id,
   })
+
+  // Test Package addition
+  const test2Package = db.addPackage({
+    name: "testuser/test2-package",
+    unscoped_name: "test2-package",
+    creator_account_id: account_id,
+    owner_org_id: "org-1234",
+    owner_github_username: "testuser",
+    description: "A test package for development",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_source_from_github: false,
+    snippet_type: "package",
+    latest_package_release_id: null,
+    latest_version: "0.0.1",
+    license: "MIT",
+    website: "https://tscircuit.com",
+    star_count: 10,
+    ai_description:
+      "A comprehensive test package designed for development and testing purposes. This package includes various components and utilities commonly used in circuit design and simulation workflows.",
+    ai_usage_instructions:
+      "Import the package using `import { TestComponent } from '@tsci/testuser.test2-package'`. Use the TestComponent in your circuit designs by providing the required props. Example: `<TestComponent name='my-test' value={42} />`",
+    default_view: "files",
+    latest_pcb_preview_image_url: `/api/packages/images/testuser/test2-package/pcb.png`,
+    latest_cad_preview_image_url: `/api/packages/images/testuser/test2-package/3d.png`,
+    latest_sch_preview_image_url: `/api/packages/images/testuser/test2-package/schematic.png`,
+  })
+  const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.1",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId,
+    file_path: "index.tsx",
+    content_text: `
+export const TestComponent = ({ name }: { name: string }) => (
+  <resistor name={name} resistance="10k" />
+)
+`.trim(),
+    created_at: new Date().toISOString(),
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId,
+    file_path: "dist/circuit.json",
+    content_text: `[
+  {
+    "type": "source_project_metadata",
+    "source_project_metadata_id": "source_project_metadata_0",
+    "software_used_string": "@tscircuit/core@0.0.813"
+  },
+  {
+    "type": "source_group",
+    "source_group_id": "source_group_0",
+    "is_subcircuit": true,
+    "was_automatically_named": true,
+    "subcircuit_id": "subcircuit_source_group_0"
+  },
+  {
+    "type": "source_board",
+    "source_board_id": "source_board_0",
+    "source_group_id": "source_group_0"
+  },
+  {
+    "type": "schematic_group",
+    "schematic_group_id": "schematic_group_0",
+    "is_subcircuit": true,
+    "subcircuit_id": "subcircuit_source_group_0",
+    "name": "unnamed_board1",
+    "center": {
+      "x": 0,
+      "y": 0
+    },
+    "width": 0,
+    "height": 0,
+    "schematic_component_ids": [],
+    "source_group_id": "source_group_0"
+  },
+  {
+    "type": "pcb_board",
+    "pcb_board_id": "pcb_board_0",
+    "center": {
+      "x": 0,
+      "y": 0
+    },
+    "thickness": 1.4,
+    "num_layers": 2,
+    "width": 10,
+    "height": 10,
+    "material": "fr4"
+  }
+]`.trim(),
+    created_at: new Date().toISOString(),
+  })
+  db.addPackageBuild({
+    package_release_id: test2PackageReleaseId,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(), // Started 5 seconds ago
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(), // Completed 3 seconds ago
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[INFO] Generating TypeScript definitions",
+      "[INFO] Compiling to JavaScript",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(), // Started after transpilation
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(), // Completed 1 second ago
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[INFO] Analyzing component structure",
+      "[INFO] Generating port configurations",
+      "[INFO] Validating circuit connections",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(), // Started 10 seconds ago
+    build_completed_at: new Date().toISOString(), // Just completed
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Dependency resolution - OK\n" +
+      "3. Code compilation - OK\n" +
+      "4. Circuit validation - OK\n" +
+      "5. Package assembly - OK\n" +
+      "Build completed successfully",
+  })
+
   // Define the @tsci/seveibar.a555timer package
   db.addSnippet({
     name: "seveibar/a555timer",
@@ -1834,6 +1973,7 @@ exports.TestComponent = TestComponent;
     owner_account_id: account_id,
     github_handle: "tscircuit",
     is_personal_org: true,
+    org_id: "org-1234",
   })
 
   db.addOrganizationAccount({

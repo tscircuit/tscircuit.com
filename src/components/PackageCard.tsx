@@ -69,7 +69,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     copyToClipboard(shareUrl)
   }
 
-  const availableImages = ["pcb", "schematic", "assembly", "3d"]
+  const availableImages = ["pcb", "schematic", "3d"]
 
   const previewImageUrl = getPackagePreviewImageUrl(
     pkg,
@@ -85,7 +85,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
           <img
-            src={String(previewImageUrl)}
+            src={previewImageUrl}
             alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
             className={`object-cover h-full w-full ${imageTransform}`}
             onError={(e) => {

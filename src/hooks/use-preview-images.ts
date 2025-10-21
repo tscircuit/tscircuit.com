@@ -1,14 +1,12 @@
+import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
+import { Package } from "fake-snippets-api/lib/db/schema"
 import { useState } from "react"
 
 interface UsePreviewImagesProps {
-  packageName?: string
-  fsMapHash?: string
+  pkg?: Package
 }
 
-export function usePreviewImages({
-  packageName,
-  fsMapHash,
-}: UsePreviewImagesProps) {
+export function usePreviewImages({ pkg }: UsePreviewImagesProps) {
   const [imageStatus, setImageStatus] = useState<
     Record<string, "loading" | "loaded" | "error">
   >({
@@ -22,25 +20,19 @@ export function usePreviewImages({
       id: "3d",
       label: "3D View",
       backgroundClass: "bg-gray-100",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/3d.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: pkg ? getPackagePreviewImageUrl(pkg, "3d") : undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
       backgroundClass: "bg-black",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/pcb.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: pkg ? getPackagePreviewImageUrl(pkg, "pcb") : undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
       backgroundClass: "bg-[#F5F1ED]",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/schematic.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: pkg ? getPackagePreviewImageUrl(pkg, "schematic") : undefined,
     },
   ]
 

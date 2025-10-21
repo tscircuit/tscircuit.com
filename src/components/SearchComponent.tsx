@@ -4,10 +4,10 @@ import { useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { Link } from "wouter"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -60,7 +60,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location, setLocation] = useLocation()
-  const apiBaseUrl = useApiBaseUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["packageSearch", searchQuery],
@@ -225,7 +224,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                   >
                     <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
                       <img
-                        src={`${apiBaseUrl}/packages/images/${pkg.name}/pcb.svg`}
+                        src={getPackagePreviewImageUrl(pkg)}
                         alt={`PCB preview for ${pkg.name}`}
                         draggable={false}
                         className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
