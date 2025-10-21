@@ -184,7 +184,6 @@ const MobileSidebar = ({
         </div>
       </div>
       <div>
-        {" "}
         <PreviewImageSquares
           large
           packageInfo={packageInfo}
