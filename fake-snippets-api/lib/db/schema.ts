@@ -103,6 +103,33 @@ export const orderFileSchema = z.object({
 })
 export type OrderFile = z.infer<typeof orderFileSchema>
 
+export const bugReportSchema = z.object({
+  bug_report_id: z.string().uuid(),
+  reporter_account_id: z.string(),
+  text: z.string().nullable(),
+  is_auto_deleted: z.boolean().default(false),
+  delete_at: z.string().datetime().nullable(),
+  created_at: z.string().datetime(),
+  file_count: z.number().int(),
+})
+export type BugReport = z.infer<typeof bugReportSchema>
+
+export const bugReportFileSchema = z.object({
+  bug_report_file_id: z.string().uuid(),
+  bug_report_id: z.string().uuid(),
+  file_path: z.string(),
+  content_mimetype: z.string(),
+  is_text: z.boolean(),
+  created_at: z.string().datetime(),
+  content_text: z.string().nullable(),
+  content_bytes: z.instanceof(Uint8Array).nullable(),
+})
+export const bugReportFileResponseSchema = bugReportFileSchema.omit({
+  content_text: true,
+  content_bytes: true,
+})
+export type BugReportFile = z.infer<typeof bugReportFileSchema>
+
 const shippingOptionSchema = z.object({
   carrier: z.string(),
   service: z.string(),
@@ -469,5 +496,7 @@ export const databaseSchema = z.object({
   datasheets: z.array(datasheetSchema).default([]),
   githubInstallations: z.array(githubInstallationSchema).default([]),
   packageBuilds: z.array(packageBuildSchema).default([]),
+  bugReports: z.array(bugReportSchema).default([]),
+  bugReportFiles: z.array(bugReportFileSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
