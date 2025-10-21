@@ -2,18 +2,25 @@ import { usePreviewImages } from "@/hooks/use-preview-images"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 
 interface ViewPlaceholdersProps {
-  pkg?: Package
-  onViewChange?: (view: "3d" | "pcb" | "schematic") => void
   large?: boolean
+  packageInfo?: Pick<
+    Package,
+    | "latest_cad_preview_image_url"
+    | "latest_pcb_preview_image_url"
+    | "latest_sch_preview_image_url"
+  >
+  onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }
 
 export default function PreviewImageSquares({
-  pkg,
+  packageInfo,
   onViewChange,
   large = false,
 }: ViewPlaceholdersProps) {
   const { availableViews } = usePreviewImages({
-    pkg: pkg,
+    cadPreviewUrl: packageInfo?.latest_cad_preview_image_url,
+    pcbPreviewUrl: packageInfo?.latest_pcb_preview_image_url,
+    schematicPreviewUrl: packageInfo?.latest_sch_preview_image_url,
   })
   const handleViewClick = (viewId: string) => {
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")
