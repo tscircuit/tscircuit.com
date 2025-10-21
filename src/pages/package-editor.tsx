@@ -12,6 +12,12 @@ export const EditorPage = () => {
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
   )
 
+  const previewImageUrl =
+    pkg?.latest_pcb_preview_image_url ??
+    pkg?.latest_sch_preview_image_url ??
+    pkg?.latest_cad_preview_image_url ??
+    undefined
+
   return (
     <div className="flex flex-col h-screen overflow-x-hidden">
       <Helmet>
@@ -22,15 +28,13 @@ export const EditorPage = () => {
               property="og:title"
               content={`${pkg.unscoped_name} - tscircuit`}
             />
-            <meta
-              property="og:image"
-              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta
-              name="twitter:image"
-              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            />
+            {previewImageUrl && (
+              <>
+                <meta property="og:image" content={previewImageUrl} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content={previewImageUrl} />
+              </>
+            )}
           </>
         )}
       </Helmet>

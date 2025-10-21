@@ -4,7 +4,9 @@ import type { Package } from "fake-snippets-api/lib/db/schema"
 interface ViewPlaceholdersProps {
   packageInfo?: Pick<
     Package,
-    "name" | "latest_package_release_fs_sha" | "latest_package_release_id"
+    | "latest_cad_preview_image_url"
+    | "latest_pcb_preview_image_url"
+    | "latest_sch_preview_image_url"
   >
   onViewChange?: (view: "3d" | "pcb" | "schematic") => void
 }
@@ -14,8 +16,9 @@ export default function PreviewImageSquares({
   onViewChange,
 }: ViewPlaceholdersProps) {
   const { availableViews } = usePreviewImages({
-    packageName: packageInfo?.name,
-    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
+    cadPreviewUrl: packageInfo?.latest_cad_preview_image_url,
+    pcbPreviewUrl: packageInfo?.latest_pcb_preview_image_url,
+    schematicPreviewUrl: packageInfo?.latest_sch_preview_image_url,
   })
   const handleViewClick = (viewId: string) => {
     onViewChange?.(viewId as "3d" | "pcb" | "schematic")

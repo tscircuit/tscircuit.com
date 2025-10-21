@@ -85,8 +85,9 @@ const MobileSidebar = ({
   })
 
   const { availableViews: pngViews } = usePreviewImages({
-    packageName: packageInfo?.name,
-    fsMapHash: packageInfo?.latest_package_release_fs_sha ?? "",
+    cadPreviewUrl: packageInfo?.latest_cad_preview_image_url,
+    pcbPreviewUrl: packageInfo?.latest_pcb_preview_image_url,
+    schematicPreviewUrl: packageInfo?.latest_sch_preview_image_url,
   })
 
   const viewsToRender =
