@@ -5,7 +5,7 @@ import { Package } from "fake-snippets-api/lib/db/schema"
  */
 export const getPackagePreviewImageUrl = (
   pkg: Package,
-  view: "pcb" | "schematic" | "3d" = "pcb",
+  view: "pcb" | "schematic" | "3d" = "3d",
 ) => {
   switch (view) {
     case "schematic":
