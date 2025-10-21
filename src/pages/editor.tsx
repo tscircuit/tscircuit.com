@@ -8,6 +8,11 @@ export const EditorPage = () => {
   const { packageInfo: pkg, error } = useCurrentPackageInfo()
 
   const projectUrl = pkg ? `https://tscircuit.com/${pkg.name}` : undefined
+  const previewImageUrl =
+    pkg?.latest_pcb_preview_image_url ??
+    pkg?.latest_sch_preview_image_url ??
+    pkg?.latest_cad_preview_image_url ??
+    undefined
 
   return (
     <div className="overflow-x-hidden">
@@ -21,15 +26,13 @@ export const EditorPage = () => {
               property="og:title"
               content={`${pkg.unscoped_name} - tscircuit`}
             />
-            <meta
-              property="og:image"
-              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta
-              name="twitter:image"
-              content={`https://api.tscircuit.com/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/pcb.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            />
+            {previewImageUrl && (
+              <>
+                <meta property="og:image" content={previewImageUrl} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content={previewImageUrl} />
+              </>
+            )}
           </>
         )}
       </Helmet>
