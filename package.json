@@ -1,11 +1,14 @@
 {
   "name": "@tscircuit/fake-snippets",
-  "version": "0.0.109",
+  "version": "0.0.122",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/tscircuit/tscircuit.com"
   },
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -81,7 +84,7 @@
     "@tscircuit/3d-viewer": "^0.0.407",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
-    "@tscircuit/eval": "^0.0.414",
+    "@tscircuit/eval": "^0.0.415",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.11.218",

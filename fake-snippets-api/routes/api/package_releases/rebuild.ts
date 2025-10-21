@@ -19,7 +19,6 @@ export default withRouteSpec({
   const { package_release_id, rebuild_transpilation, rebuild_circuit_json } =
     req.jsonBody
 
-  debug("jsonBody", req.jsonBody)
   // Get the package release info for logging
   const release = ctx.db.getPackageReleaseById(package_release_id)
 
