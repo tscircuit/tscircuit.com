@@ -1253,6 +1253,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }))
     return newSession
   },
+  deleteSession: (sessionId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.sessions.findIndex(
+        (session) => session.session_id === sessionId,
+      )
+      if (index !== -1) {
+        state.sessions.splice(index, 1)
+        deleted = true
+      }
+      return state
+    })
+    return deleted
+  },
   addStar: (accountId: string, packageId: string): AccountPackage => {
     const now = new Date().toISOString()
     const accountPackage = {
