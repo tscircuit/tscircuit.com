@@ -11,6 +11,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
 import { Link } from "wouter"
 import { useState } from "react"
+import { useAxios } from "@/hooks/use-axios"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
@@ -18,6 +19,18 @@ export const HeaderLogin = () => {
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
   const [isOpen, setIsOpen] = useState(false)
+  const axios = useAxios()
+
+  const handleSignOut = async () => {
+    try {
+      await axios.post("/sessions/delete")
+    } catch (error) {
+      console.error("Error deleting session from backend:", error)
+    } finally {
+      setSession(null)
+      setIsOpen(false)
+    }
+  }
 
   if (!isLoggedIn) {
     return (
@@ -91,9 +104,9 @@ export const HeaderLogin = () => {
           <Link
             href="/"
             className="cursor-pointer"
-            onClick={() => {
-              setSession(null)
-              setIsOpen(false)
+            onClick={(e) => {
+              e.preventDefault()
+              handleSignOut()
             }}
           >
             Sign Out
