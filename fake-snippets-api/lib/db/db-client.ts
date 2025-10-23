@@ -1849,6 +1849,31 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return removed
   },
+  updateOrganizationAccount: (
+    filters: {
+      org_id: string
+      account_id: string
+    },
+    updates: Partial<OrgAccount>,
+  ): OrgAccount | undefined => {
+    let updatedOrgAccount: OrgAccount | undefined
+    set((state) => {
+      const index = state.orgAccounts.findIndex(
+        (orgAccount) =>
+          orgAccount.org_id === filters.org_id &&
+          orgAccount.account_id === filters.account_id,
+      )
+      if (index === -1) return state
+      const updatedOrgAccounts = [...state.orgAccounts]
+      updatedOrgAccounts[index] = {
+        ...updatedOrgAccounts[index],
+        ...updates,
+      }
+      updatedOrgAccount = updatedOrgAccounts[index]
+      return { ...state, orgAccounts: updatedOrgAccounts }
+    })
+    return updatedOrgAccount
+  },
   updateOrganization: (
     orgId: string,
     updates: Partial<Organization>,
