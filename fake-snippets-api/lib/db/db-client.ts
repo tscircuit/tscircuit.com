@@ -1788,12 +1788,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     account_id: string
     is_owner?: boolean
   }) => {
+    const can_manage_org = organizationAccount.is_owner || false
     const newOrgAccount: OrgAccount = {
       org_account_id: `org_account_${get().idCounter + 1}`,
       org_id: organizationAccount.org_id,
       account_id: organizationAccount.account_id,
       is_owner: organizationAccount.is_owner || false,
       created_at: new Date().toISOString(),
+      can_manage_org,
     }
     set((state) => ({
       orgAccounts: [...state.orgAccounts, newOrgAccount],

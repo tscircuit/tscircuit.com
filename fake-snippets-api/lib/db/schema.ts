@@ -451,12 +451,12 @@ export const orgAccountSchema = z.object({
   account_id: z.string(),
   is_owner: z.boolean().default(false),
   created_at: z.string().datetime(),
+  can_manage_org: z.boolean().default(false),
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
 
 export const userPermissionsSchema = z.object({
   can_manage_org: z.boolean().optional(),
-  can_manage_package: z.boolean().optional(),
 })
 export type UserPermissions = z.infer<typeof userPermissionsSchema>
 
