@@ -125,11 +125,17 @@ const seedDatabase = (db: DbClient) => {
 
   // Seed a organization for account2
   const organization = db.addOrganization({
-    name: "janeey",
-    github_handle: "jane",
+    name: "janes-organization",
+    github_handle: "janes-organization",
     owner_account_id: account2.account_id,
   })
-
+  // Seed a personal organization for account2
+  const organization2 = db.addOrganization({
+    name: "jane",
+    github_handle: "jane",
+    is_personal_org: true,
+    owner_account_id: account2.account_id,
+  })
   // Add account2 as a member of their org
   db.addOrganizationAccount({
     org_id: organization.org_id,
@@ -137,5 +143,12 @@ const seedDatabase = (db: DbClient) => {
     is_owner: true,
   })
 
-  return { account, account2, order, packageRelease, organization }
+  return {
+    account,
+    account2,
+    order,
+    packageRelease,
+    organization,
+    organization2,
+  }
 }
