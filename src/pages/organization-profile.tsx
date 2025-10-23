@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select"
 import { useOrgByGithubHandle } from "@/hooks/use-org-by-github-handle"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Box } from "lucide-react"
 import type { PublicOrgSchema, Package } from "fake-snippets-api/lib/db/schema"
@@ -27,14 +26,12 @@ import { useAxios } from "@/hooks/use-axios"
 export const OrganizationProfilePageContent = ({
   org,
 }: { org: PublicOrgSchema }) => {
-  const baseUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
   const axios = useAxios()
 
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("packages")
   const [filter, setFilter] = useState("most-recent")
-  const [showAllMembers, setShowAllMembers] = useState(false)
 
   const isCurrentUserOrganization = session?.account_id === org.owner_account_id
 
@@ -104,12 +101,14 @@ export const OrganizationProfilePageContent = ({
                 >
                   Packages
                 </TabsTrigger>
-                <TabsTrigger
-                  value="members"
-                  className="flex items-center gap-2"
-                >
-                  Members
-                </TabsTrigger>
+                {Boolean(session?.account_id) && (
+                  <TabsTrigger
+                    value="members"
+                    className="flex items-center gap-2"
+                  >
+                    Members
+                  </TabsTrigger>
+                )}
               </TabsList>
             </Tabs>
 
