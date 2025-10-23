@@ -54,7 +54,39 @@ export const usePackageFile = (
     },
   )
 }
+export const usePackageFileViaPost = (
+  query: PackageFileQuery | null,
+  opts?: UseQueryOptions<PackageFile, Error & { status: number }>,
+) => {
+  const axios = useAxios()
 
+  return useQuery<PackageFile, Error & { status: number }>(
+    ["packageFile", query],
+    async () => {
+      if (!query) return
+
+      const { data } = await axios.post(
+        "/package_files/get",
+        {},
+        {
+          params: query,
+        },
+      )
+
+      if (!data.package_file) {
+        throw new Error("Package file not found")
+      }
+
+      return data.package_file
+    },
+    {
+      retry: false,
+      enabled: Boolean(query),
+      refetchOnWindowFocus: false,
+      ...opts,
+    },
+  )
+}
 // Convenience hooks for common use cases
 export const usePackageFileById = (packageFileId: string | null) => {
   return usePackageFile(

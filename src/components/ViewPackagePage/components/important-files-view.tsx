@@ -11,7 +11,10 @@ import {
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { usePackageFile } from "@/hooks/use-package-files"
+import {
+  usePackageFile,
+  usePackageFileViaPost,
+} from "@/hooks/use-package-files"
 import { ShikiCodeViewer, SKELETON_WIDTHS } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -278,7 +281,7 @@ export default function ImportantFilesView({
   }, [activeTab, importantFiles])
 
   const { data: activeFileFull, isFetched: isActiveFileFetched } =
-    usePackageFile(
+    usePackageFileViaPost(
       partialActiveFile
         ? {
             file_path: partialActiveFile.file_path,
@@ -287,7 +290,7 @@ export default function ImportantFilesView({
         : null,
       {
         keepPreviousData: true,
-        staleTime: Infinity,
+        staleTime: 10 * 60 * 1000, // 10 minutes
         refetchOnMount: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
