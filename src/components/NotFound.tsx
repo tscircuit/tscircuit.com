@@ -21,12 +21,12 @@ export function NotFound({ heading = "Page not found" }: { heading?: string }) {
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Link href="/">
-            <Button size="lg" className="bg-blue-500 hover:bg-blue-600">
+            <Button size="lg" className="bg-blue-500 hover:bg-blue-600 w-full">
               Return Home
             </Button>
           </Link>
           <Link href="/search">
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" className="w-full">
               Search Packages
             </Button>
           </Link>
