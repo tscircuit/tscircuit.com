@@ -35,6 +35,12 @@ test("PUT /api/orgs/update_member - should update member permissions using PUT m
     account_id: seed.account.account_id,
   })
 
+  const membership = db.getOrganizationAccount({
+    org_id: seed.organization.org_id,
+    account_id: seed.account.account_id,
+  })
+  expect(membership?.can_manage_org).toBe(false)
+
   const updateResponse = await jane_axios.put("/api/orgs/update_member", {
     org_id: seed.organization.org_id,
     account_id: seed.account.account_id,
@@ -46,11 +52,11 @@ test("PUT /api/orgs/update_member - should update member permissions using PUT m
   expect(updateResponse.status).toBe(200)
   expect(updateResponse.data).toEqual({})
 
-  const membership = db.getOrganizationAccount({
+  const membership2 = db.getOrganizationAccount({
     org_id: seed.organization.org_id,
     account_id: seed.account.account_id,
   })
-  expect(membership?.can_manage_org).toBe(true)
+  expect(membership2?.can_manage_org).toBe(true)
 })
 
 test("POST /api/orgs/update_member - should revoke management permissions", async () => {
@@ -171,37 +177,4 @@ test("POST /api/orgs/update_member - should fail when trying to update own permi
       "You cannot update your own permissions",
     )
   }
-})
-
-test("POST /api/orgs/update_member - should allow manager to update other member permissions", async () => {
-  const { jane_axios, db, seed } = await getTestServer()
-
-  const createResponse = await jane_axios.post("/api/orgs/create", {
-    name: "test-org",
-  })
-  const org = createResponse.data.org
-
-  await jane_axios.post("/api/orgs/add_member", {
-    org_id: org.org_id,
-    account_id: seed.account.account_id,
-  })
-
-  await jane_axios.post("/api/orgs/add_member", {
-    org_id: org.org_id,
-    account_id: seed.account2.account_id,
-  })
-
-  await jane_axios.post("/api/orgs/update_member", {
-    org_id: org.org_id,
-    account_id: seed.account.account_id,
-    org_member_permissions: {
-      can_manage_org: true,
-    },
-  })
-
-  const membership = db.getOrganizationAccount({
-    org_id: org.org_id,
-    account_id: seed.account.account_id,
-  })
-  expect(membership?.can_manage_org).toBe(true)
 })

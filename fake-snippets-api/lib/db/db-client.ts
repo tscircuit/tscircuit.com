@@ -1763,6 +1763,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
 
     const org = orgs[0]
+    const orgAccount = get().orgAccounts.find(
+      (oa) => oa.org_id === org.org_id && oa.account_id === auth?.account_id,
+    )
+    const isOwner = org.owner_account_id === auth?.account_id
 
     const member_count = get().accounts.filter(
       (account) => account.personal_org_id === org.org_id,
@@ -1772,9 +1776,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (pkg) => pkg.owner_org_id === org.org_id,
     ).length
 
-    const can_manage_org = auth
-      ? org.owner_account_id === auth.account_id
-      : false
+    const can_manage_org = isOwner ? true : (orgAccount?.can_manage_org || false)
 
     return {
       ...org,
