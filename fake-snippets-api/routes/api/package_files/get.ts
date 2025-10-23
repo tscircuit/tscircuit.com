@@ -4,7 +4,7 @@ import * as ZT from "fake-snippets-api/lib/db/schema"
 import { getPackageFileIdFromFileDescriptor } from "fake-snippets-api/lib/package_file/get-package-file-id-from-file-descriptor"
 
 const routeSpec = {
-  methods: ["GET"],
+  methods: ["GET", "POST"],
   auth: "none",
   queryParams: z
     .object({

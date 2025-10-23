@@ -27,7 +27,7 @@ type PackageFileQuery =
 
 export const usePackageFile = (
   query: PackageFileQuery | null,
-  opts?: UseQueryOptions,
+  opts?: UseQueryOptions<PackageFile, Error & { status: number }>,
 ) => {
   const axios = useAxios()
 
@@ -50,7 +50,7 @@ export const usePackageFile = (
       retry: false,
       enabled: Boolean(query),
       refetchOnWindowFocus: false,
-      ...(opts as any),
+      ...opts,
     },
   )
 }
