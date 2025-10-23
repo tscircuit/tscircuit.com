@@ -80,7 +80,7 @@ export function useOptimizedPackageFilesLoader(
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     staleTime: 0,
-    cacheTime: Infinity,
+    cacheTime: 0,
   })
 
   const remainingFilesQueries = useQueries(
@@ -106,7 +106,7 @@ export function useOptimizedPackageFilesLoader(
         refetchOnWindowFocus: false,
         refetchOnMount: true,
         staleTime: 0,
-        cacheTime: Infinity,
+        cacheTime: 0,
       })) ?? [],
   )
 
