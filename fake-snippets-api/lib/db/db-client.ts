@@ -1776,7 +1776,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (pkg) => pkg.owner_org_id === org.org_id,
     ).length
 
-    const can_manage_org = isOwner ? true : (orgAccount?.can_manage_org || false)
+    const can_manage_org = isOwner ? true : orgAccount?.can_manage_org || false
 
     return {
       ...org,

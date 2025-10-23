@@ -457,6 +457,7 @@ export type OrgAccount = z.infer<typeof orgAccountSchema>
 
 export const userPermissionsSchema = z.object({
   can_manage_org: z.boolean().optional(),
+  can_manage_package: z.boolean().optional(),
 })
 export type UserPermissions = z.infer<typeof userPermissionsSchema>
 
