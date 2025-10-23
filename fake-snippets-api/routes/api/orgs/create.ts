@@ -2,11 +2,12 @@ import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec
 import { z } from "zod"
 import { publicMapOrg } from "fake-snippets-api/lib/public-mapping/public-map-org"
 import { publicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import { normalizeName } from "src/lib/utils/normalizeName"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z.object({
-    name: z.string(),
+    name: z.string().min(5).max(40),
     github_handle: z.string().optional(),
   }),
   auth: "session",
@@ -14,7 +15,8 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { name, github_handle } = req.commonParams
+  const { github_handle, name } = req.commonParams
+  const normalisedName = normalizeName(name)
 
   const existing = ctx.db.getOrg({ org_name: name })
 
@@ -26,7 +28,8 @@ export default withRouteSpec({
   }
   const newOrg = {
     owner_account_id: ctx.auth.account_id,
-    name: name,
+    name: normalisedName,
+    org_display_name: name,
     created_at: new Date(),
     can_manage_org: true,
     ...(github_handle ? { github_handle } : {}),

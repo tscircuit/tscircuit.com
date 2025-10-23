@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import toast from "react-hot-toast"
 import { useCreateOrgMutation } from "@/hooks/use-create-org-mutation"
+import { normalizeName } from "@/lib/utils/normalizeName"
 
 interface FormErrors {
   name?: string
@@ -38,11 +39,10 @@ export const CreateOrganizationPage = () => {
 
     if (!formData.name) {
       newErrors.name = "Organization name is required"
-    } else if (formData.name.length > 30) {
-      newErrors.name = "Organization name must be less than 30 characters"
-    } else if (!/^[a-zA-Z0-9-_]+$/.test(formData.name)) {
-      newErrors.name =
-        "Organization name can only contain letters, numbers, hyphens, and underscores"
+    } else if (formData.name.length > 40) {
+      newErrors.name = "Organization name must be less than 40 characters"
+    } else if (formData.name.length < 5) {
+      newErrors.name = "Organization name must be at least 5 characters"
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -138,7 +138,7 @@ export const CreateOrganizationPage = () => {
                 <br />
                 Your URL will be:{" "}
                 <span className="font-mono text-gray-700">
-                  tscircuit.com/{formData.name || "orgname"}
+                  tscircuit.com/{normalizeName(formData.name) || "orgname"}
                 </span>
               </p>
             </div>

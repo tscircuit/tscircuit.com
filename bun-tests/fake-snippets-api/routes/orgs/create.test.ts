@@ -35,3 +35,16 @@ test("POST /api/orgs/create - should reject duplicate org names", async () => {
     )
   }
 })
+
+test("POST /api/orgs/create - should normalize org names with spaces to kebab-case", async () => {
+  const { axios } = await getTestServer()
+  const name = 'acme corp *()*()_+-=[]{}|\\:;"<>?,./ 69'
+  const createResponse = await axios.post("/api/orgs/create", {
+    name: name,
+  })
+  expect(createResponse.status).toBe(200)
+  const responseBody = createResponse.data
+  expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.name).toBe("acme-corp-69")
+  expect(responseBody.org.display_name).toBe(name)
+})
