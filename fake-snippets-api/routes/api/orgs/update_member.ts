@@ -1,17 +1,18 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
+import { userPermissionsSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST", "PUT"],
   commonParams: z.object({
     org_id: z.string(),
     account_id: z.string(),
-    is_owner: z.boolean(),
+    org_member_permissions: userPermissionsSchema,
   }),
   auth: "session",
   jsonResponse: z.object({}),
 })(async (req, ctx) => {
-  const { org_id, account_id, is_owner } = req.commonParams
+  const { org_id, account_id, org_member_permissions } = req.commonParams
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -50,9 +51,8 @@ export default withRouteSpec({
 
   ctx.db.updateOrganizationAccount(
     { org_id, account_id },
-    { is_owner },
+    org_member_permissions,
   )
 
   return ctx.json({})
 })
-

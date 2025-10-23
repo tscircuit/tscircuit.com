@@ -34,6 +34,7 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
+  UserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1854,7 +1855,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       org_id: string
       account_id: string
     },
-    updates: Partial<OrgAccount>,
+    updates: Partial<UserPermissions>,
   ): OrgAccount | undefined => {
     let updatedOrgAccount: OrgAccount | undefined
     set((state) => {
