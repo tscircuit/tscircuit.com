@@ -63,7 +63,7 @@ const organizationSettingsSchema = z.object({
     ),
   display_name: z
     .string()
-    .max(100, "Display name must be 100 characters or less")
+    .max(50, "Display name must be 50 characters or less")
     .optional(),
 })
 
