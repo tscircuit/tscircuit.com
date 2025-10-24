@@ -1666,6 +1666,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     is_personal_org?: boolean
     owner_account_id: string
     github_handle?: string
+    org_display_name?: string
   }) => {
     const newOrganization: Organization = {
       org_name: organization.name,
@@ -1673,6 +1674,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       github_handle: organization.github_handle,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
+      org_display_name: organization.org_display_name ?? organization.name,
       ...organization,
     }
     set((state) => ({
