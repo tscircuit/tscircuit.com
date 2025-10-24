@@ -61,6 +61,10 @@ const organizationSettingsSchema = z.object({
       /^[a-zA-Z0-9_-]+$/,
       "Organization name can only contain letters, numbers, underscores, and hyphens",
     ),
+  display_name: z
+    .string()
+    .max(100, "Display name must be 100 characters or less")
+    .optional(),
 })
 
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
@@ -90,6 +94,7 @@ export default function OrganizationSettingsPage() {
     resolver: zodResolver(organizationSettingsSchema),
     defaultValues: {
       name: "",
+      display_name: "",
     },
   })
 
@@ -105,7 +110,10 @@ export default function OrganizationSettingsPage() {
         title: "Organization updated",
         description: "Organization settings have been updated successfully.",
       })
-      form.reset({ name: updatedOrg.name || "" })
+      form.reset({
+        name: updatedOrg.name || "",
+        display_name: updatedOrg.display_name || "",
+      })
       if (updatedOrg.name !== orgname) {
         navigate(`/${updatedOrg.name}/settings`)
       }
@@ -146,7 +154,10 @@ export default function OrganizationSettingsPage() {
 
   useEffect(() => {
     if (organization) {
-      form.reset({ name: organization.name || "" })
+      form.reset({
+        name: organization.name || "",
+        display_name: organization.display_name || "",
+      })
     }
   }, [organization, form])
 
@@ -218,6 +229,7 @@ export default function OrganizationSettingsPage() {
     updateOrgMutation.mutate({
       orgId: organization.org_id,
       name: data.name,
+      display_name: data.display_name,
     })
   }
 
@@ -321,15 +333,44 @@ export default function OrganizationSettingsPage() {
                               Organization name
                             </FormLabel>
                             <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
-                              This is your organization's display name and URL
-                              identifier. Choose carefully as this affects your
-                              organization's web address.
+                              This is your organization's URL identifier. Choose
+                              carefully as this affects your organization's web
+                              address.
                             </FormDescription>
                           </div>
                           <div className="lg:col-span-3">
                             <FormControl>
                               <Input
                                 placeholder="Enter organization name"
+                                {...field}
+                                disabled={updateOrgMutation.isLoading}
+                                className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                              />
+                            </FormControl>
+                            <FormMessage className="mt-2" />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="display_name"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+                          <div className="lg:col-span-2">
+                            <FormLabel className="text-sm font-semibold text-gray-900">
+                              Display name
+                            </FormLabel>
+                            <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
+                              This is the name that will be displayed publicly.
+                              If left empty, the organization name will be used.
+                            </FormDescription>
+                          </div>
+                          <div className="lg:col-span-3">
+                            <FormControl>
+                              <Input
+                                placeholder="Enter display name"
                                 {...field}
                                 disabled={updateOrgMutation.isLoading}
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
