@@ -102,6 +102,15 @@ export const ConnectedRepoOverview = ({
     navigator.clipboard.writeText(text)
   }
 
+  const getErrorMessage = (error: any): string => {
+    if (!error) return ""
+    if (typeof error === "string") return error
+    if (typeof error === "object") {
+      return error.message || JSON.stringify(error)
+    }
+    return String(error)
+  }
+
   const buildDuration = (() => {
     const transpilationDuration = packageBuild?.transpilation_started_at
       ? Math.floor(
@@ -409,20 +418,22 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {packageBuild.transpilation_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageBuild.transpilation_error}
+                {packageBuild.transpilation_error && (
+                  <div className="text-red-600 whitespace-pre-wrap mb-4">
+                    <strong>Error:</strong>{" "}
+                    {getErrorMessage(packageBuild.transpilation_error)}
                   </div>
-                ) : packageBuild.transpilation_logs &&
-                  packageBuild.transpilation_logs.length > 0 ? (
+                )}
+                {packageBuild.transpilation_logs &&
+                packageBuild.transpilation_logs.length > 0 ? (
                   packageBuild.transpilation_logs.map((log: any, i: number) => (
                     <div key={i} className="text-gray-600 whitespace-pre-wrap">
                       {log.msg || log.message || JSON.stringify(log)}
                     </div>
                   ))
-                ) : (
+                ) : !packageBuild.transpilation_error ? (
                   <div className="text-gray-500">No logs available</div>
-                )}
+                ) : null}
               </div>
             </div>
           </CollapsibleContent>
@@ -493,40 +504,39 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-2">
-                {packageRelease.user_code_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageRelease.user_code_error}
+                {packageRelease.user_code_error && (
+                  <div className="text-red-600 whitespace-pre-wrap mb-4">
+                    <strong>Error:</strong>{" "}
+                    {getErrorMessage(packageRelease.user_code_error)}
                   </div>
-                ) : (
-                  <>
-                    {packageRelease.user_code_log_stream_url ? (
-                      <a
-                        href={packageRelease.user_code_log_stream_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 break-all"
-                      >
-                        View log stream
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    ) : null}
-                    {packageRelease.user_code_build_logs &&
-                    packageRelease.user_code_build_logs.length > 0 ? (
-                      packageRelease.user_code_build_logs.map(
-                        (log: any, i: number) => (
-                          <div
-                            key={i}
-                            className="text-gray-600 whitespace-pre-wrap"
-                          >
-                            {log.msg || log.message || JSON.stringify(log)}
-                          </div>
-                        ),
-                      )
-                    ) : !packageRelease.user_code_log_stream_url ? (
-                      <div className="text-gray-500">No logs available</div>
-                    ) : null}
-                  </>
                 )}
+                {packageRelease.user_code_log_stream_url ? (
+                  <a
+                    href={packageRelease.user_code_log_stream_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 break-all"
+                  >
+                    View log stream
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                ) : null}
+                {packageRelease.user_code_build_logs &&
+                packageRelease.user_code_build_logs.length > 0 ? (
+                  packageRelease.user_code_build_logs.map(
+                    (log: any, i: number) => (
+                      <div
+                        key={i}
+                        className="text-gray-600 whitespace-pre-wrap"
+                      >
+                        {log.msg || log.message || JSON.stringify(log)}
+                      </div>
+                    ),
+                  )
+                ) : !packageRelease.user_code_log_stream_url &&
+                  !packageRelease.user_code_error ? (
+                  <div className="text-gray-500">No logs available</div>
+                ) : null}
               </div>
             </div>
           </CollapsibleContent>
@@ -597,12 +607,14 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {packageBuild.circuit_json_build_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageBuild.circuit_json_build_error}
+                {packageBuild.circuit_json_build_error && (
+                  <div className="text-red-600 whitespace-pre-wrap mb-4">
+                    <strong>Error:</strong>{" "}
+                    {getErrorMessage(packageBuild.circuit_json_build_error)}
                   </div>
-                ) : packageBuild.circuit_json_build_logs &&
-                  packageBuild.circuit_json_build_logs.length > 0 ? (
+                )}
+                {packageBuild.circuit_json_build_logs &&
+                packageBuild.circuit_json_build_logs.length > 0 ? (
                   packageBuild.circuit_json_build_logs.map(
                     (log: any, i: number) => (
                       <div
@@ -613,9 +625,9 @@ export const ConnectedRepoOverview = ({
                       </div>
                     ),
                   )
-                ) : (
+                ) : !packageBuild.circuit_json_build_error ? (
                   <div className="text-gray-500">No logs available</div>
-                )}
+                ) : null}
               </div>
             </div>
           </CollapsibleContent>
@@ -686,12 +698,14 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-1">
-                {packageBuild.image_generation_error ? (
-                  <div className="text-red-600 whitespace-pre-wrap">
-                    {packageBuild.image_generation_error}
+                {packageBuild.image_generation_error && (
+                  <div className="text-red-600 whitespace-pre-wrap mb-4">
+                    <strong>Error:</strong>{" "}
+                    {getErrorMessage(packageBuild.image_generation_error)}
                   </div>
-                ) : packageBuild.image_generation_logs &&
-                  packageBuild.image_generation_logs.length > 0 ? (
+                )}
+                {packageBuild.image_generation_logs &&
+                packageBuild.image_generation_logs.length > 0 ? (
                   packageBuild.image_generation_logs.map(
                     (log: any, i: number) => (
                       <div
@@ -702,9 +716,9 @@ export const ConnectedRepoOverview = ({
                       </div>
                     ),
                   )
-                ) : (
+                ) : !packageBuild.image_generation_error ? (
                   <div className="text-gray-500">No logs available</div>
-                )}
+                ) : null}
               </div>
             </div>
           </CollapsibleContent>
