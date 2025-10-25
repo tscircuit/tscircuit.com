@@ -9,6 +9,7 @@ export default withRouteSpec({
     creator_account_id: z.string().optional(),
     owner_github_username: z.string().optional(),
     is_writable: z.boolean().optional(),
+    owner_org_id: z.string().optional(),
     name: z.string().optional(),
     limit: z.number().int().min(1).optional(),
   }),
@@ -31,12 +32,19 @@ export default withRouteSpec({
     owner_github_username,
     name,
     is_writable,
+    owner_org_id,
     limit,
   } = req.commonParams
 
   const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
 
-  if (!auth && !is_writable && !creator_account_id && !owner_github_username) {
+  if (
+    !auth &&
+    !is_writable &&
+    !creator_account_id &&
+    !owner_github_username &&
+    !owner_org_id
+  ) {
     return ctx.error(400, {
       error_code: "invalid_request",
       message: "You must provide some filtering parameters or be logged in",
@@ -69,6 +77,9 @@ export default withRouteSpec({
   }
   if (name) {
     packages = packages.filter((p) => p.name === name)
+  }
+  if (owner_org_id) {
+    packages = packages.filter((p) => p.owner_org_id === owner_org_id)
   }
   if (limit) {
     packages = packages.slice(0, limit)
