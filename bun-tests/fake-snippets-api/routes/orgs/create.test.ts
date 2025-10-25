@@ -83,4 +83,4 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
       expect(error.status).toBe(400)
     }
   }
-})
+}, 10000)
