@@ -99,6 +99,12 @@ export const Header2 = () => {
             >
               Contact
             </a>
+            <Link
+              className="text-sm font-medium hover:underline underline-offset-4"
+              href="/careers"
+            >
+              We&apos;re Hiring!
+            </Link>
           </nav>
 
           {/* Desktop Right Side */}
@@ -178,6 +184,13 @@ export const Header2 = () => {
                   >
                     Contact
                   </a>
+                  <Link
+                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                    href="/careers"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    We&apos;re Hiring!
+                  </Link>
                 </div>
               </nav>
               <div className="flex flex-col items-center gap-4 pt-4 border-t border-gray-200">
