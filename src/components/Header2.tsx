@@ -100,7 +100,7 @@ export const Header2 = () => {
               Contact
             </a>
             <Link
-              className="text-sm font-medium text-blue-600 hover:underline underline-offset-4"
+              className="text-sm font-medium hover:underline underline-offset-4"
               href="/careers"
             >
               We&apos;re Hiring!
@@ -185,7 +185,7 @@ export const Header2 = () => {
                     Contact
                   </a>
                   <Link
-                    className="text-sm font-medium text-blue-600 hover:underline underline-offset-4 py-2 w-full text-center"
+                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
                     href="/careers"
                     onClick={() => setMobileMenuOpen(false)}
                   >
