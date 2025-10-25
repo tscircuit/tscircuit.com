@@ -45,13 +45,12 @@ export const CreateOrganizationPage = () => {
       newErrors.name = "Organization name must be less than 40 characters"
     } else if (formData.name.length < 5) {
       newErrors.name = "Organization name must be at least 5 characters"
-    } else if (!/^[a-z0-9-]+$/.test(formData.name)) {
+    }
+
+    const normalizedName = normalizeName(formData.name)
+    if (normalizedName.length < 5) {
       newErrors.name =
-        "Name must contain only lowercase letters, numbers, and hyphens"
-    } else if (!/^[a-z0-9]/.test(formData.name)) {
-      newErrors.name = "Name must start with a letter or number"
-    } else if (!/[a-z0-9]$/.test(formData.name)) {
-      newErrors.name = "Name must end with a letter or number"
+        "Organization name must be at least 5 characters after normalization"
     }
 
     if (formData.display_name) {
@@ -73,11 +72,14 @@ export const CreateOrganizationPage = () => {
       return
     }
 
+    const normalizedName = normalizeName(formData.name)
+    const displayName = formData.display_name || formData.name
+
     setIsLoading(true)
     createOrganization(
       {
-        name: formData.name,
-        display_name: formData.display_name || undefined,
+        name: normalizedName,
+        display_name: displayName,
       },
       {
         onError: (error: any) => {
@@ -94,7 +96,7 @@ export const CreateOrganizationPage = () => {
   }
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = normalizeName(e.target.value)
+    const name = e.target.value
     setFormData((prev) => ({ ...prev, name }))
     if (errors.name) {
       setErrors((prev) => ({ ...prev, name: undefined }))
@@ -145,10 +147,10 @@ export const CreateOrganizationPage = () => {
                 spellCheck={false}
                 id="org-name"
                 type="text"
-                placeholder="tscircuit"
+                placeholder="My Organization"
                 value={formData.name}
                 onChange={handleNameChange}
-                className={`h-10 sm:h-11 font-mono ${
+                className={`h-10 sm:h-11 ${
                   errors.name
                     ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -162,7 +164,8 @@ export const CreateOrganizationPage = () => {
                 This will be your URL.
                 <br />
                 <span className="font-mono text-gray-700">
-                  tscircuit.com/{formData.name || "orgname"}
+                  tscircuit.com/
+                  {normalizeName(formData.name) || "my-organization"}
                 </span>
               </p>
             </div>
@@ -178,7 +181,7 @@ export const CreateOrganizationPage = () => {
                 spellCheck={false}
                 id="org-display-name"
                 type="text"
-                placeholder="TSCircuit (optional)"
+                placeholder="My Organization (optional)"
                 value={formData.display_name}
                 onChange={handleDisplayNameChange}
                 className={`h-10 sm:h-11 ${
@@ -192,8 +195,8 @@ export const CreateOrganizationPage = () => {
                 <p className="text-sm text-red-600">{errors.display_name}</p>
               )}
               <p className="text-xs text-gray-500">
-                Optional. The display name shown throughout the site. If not
-                provided, the organization name will be used.
+                Optional. If not provided, your organization name will be used
+                as the display name.
               </p>
             </div>
 

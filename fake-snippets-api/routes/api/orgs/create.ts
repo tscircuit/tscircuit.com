@@ -38,7 +38,7 @@ export default withRouteSpec({
   const newOrg = {
     owner_account_id: ctx.auth.account_id,
     name,
-    org_display_name: display_name || null,
+    org_display_name: display_name,
     created_at: new Date(),
     can_manage_org: true,
     ...(github_handle ? { github_handle } : {}),

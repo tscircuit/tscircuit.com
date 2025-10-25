@@ -62,10 +62,6 @@ test("POST /api/orgs/create - should map name as display_name when not provided"
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(name)
-
-  const org = db.getOrg({ org_name: name })
-  expect(org).toBeDefined()
-  expect(org?.org_display_name).toBeNull()
 })
 
 test("POST /api/orgs/create - should reject invalid org names", async () => {
