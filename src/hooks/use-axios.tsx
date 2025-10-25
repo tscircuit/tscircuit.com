@@ -2,11 +2,14 @@ import axios from "redaxios"
 import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { toast } from "./use-toast"
+import { toast, ToastContent, useToast } from "./use-toast"
+import { useSignIn } from "./use-sign-in"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
+  const { toastLibrary } = useToast()
+  const signIn = useSignIn()
   return useMemo(() => {
     const instance = axios.create({
       baseURL: snippetsBaseApiUrl,
@@ -29,11 +32,23 @@ export const useAxios = () => {
       const status = error?.response?.status ?? error?.status
 
       if (status === 401) {
-        toast({
-          title: "Unauthorized",
-          description: "You may need to sign in again.",
-          variant: "destructive",
-        })
+        toastLibrary.custom(
+          (t) => (
+            <div onClick={() => signIn()} className="cursor-pointer">
+              <ToastContent
+                title={"Unauthorized"}
+                description={
+                  "You may need to sign in again. Click here to sign in again"
+                }
+                variant={"destructive"}
+                t={t}
+              />
+            </div>
+          ),
+          {
+            position: "bottom-left",
+          },
+        )
       }
 
       throw error

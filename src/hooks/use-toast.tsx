@@ -8,7 +8,7 @@ export interface ToasterToast {
   duration?: number
 }
 
-function ToastContent({
+export function ToastContent({
   title,
   description,
   variant,
