@@ -41,7 +41,7 @@ export const OrganizationProfilePageContent = ({
     ["userPackages", org.name],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: org.name,
+        owner_org_id: org.org_id,
       })
       return response.data.packages
     },

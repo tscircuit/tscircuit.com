@@ -75,7 +75,13 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     pkg,
     pkg.default_view as "pcb" | "schematic" | "3d",
   )
-
+  const packageNameWithOwner = pkg?.name
+  const packageOwnerName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[0]
+    : pkg?.owner_github_username
+  const packageName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[1]
+    : pkg?.unscoped_name
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -108,12 +114,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               {showOwner && (
                 <>
                   <span className="text-gray-700 text-md">
-                    {pkg.owner_github_username}
+                    {packageOwnerName}
                   </span>
                   <span className="mx-1">/</span>
                 </>
               )}
-              <span className="text-gray-900">{pkg.unscoped_name}</span>
+              <span className="text-gray-900">{packageName}</span>
             </h2>
             <div className="flex items-center gap-2">
               <SnippetTypeIcon
