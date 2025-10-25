@@ -101,7 +101,7 @@ export const Header2 = () => {
             </a>
             <Link
               className="text-sm font-medium text-blue-600 hover:underline underline-offset-4"
-              href="/hiring"
+              href="/careers"
             >
               We&apos;re Hiring!
             </Link>
@@ -186,7 +186,7 @@ export const Header2 = () => {
                   </a>
                   <Link
                     className="text-sm font-medium text-blue-600 hover:underline underline-offset-4 py-2 w-full text-center"
-                    href="/hiring"
+                    href="/careers"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     We&apos;re Hiring!
