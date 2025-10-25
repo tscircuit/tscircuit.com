@@ -367,7 +367,10 @@ export default function EditorNav({
             onClick={() => {
               const url = encodeFsMapToUrlHash(fsMap, packageType)
               navigator.clipboard.writeText(url)
-              alert("URL copied to clipboard!")
+              toast({
+                title: "URL copied!",
+                description: "The URL has been copied to your clipboard.",
+              })
             }}
           >
             <Share className="mr-1 h-3 w-3" />
