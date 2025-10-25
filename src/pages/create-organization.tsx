@@ -11,6 +11,7 @@ import { normalizeName } from "@/lib/utils/normalizeName"
 
 interface FormErrors {
   name?: string
+  display_name?: string
 }
 
 export const CreateOrganizationPage = () => {
@@ -18,6 +19,7 @@ export const CreateOrganizationPage = () => {
 
   const [formData, setFormData] = useState({
     name: "",
+    display_name: "",
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
@@ -27,9 +29,9 @@ export const CreateOrganizationPage = () => {
     useCreateOrgMutation({
       onSuccess: (newOrganization) => {
         toast.success(
-          `Organization "${newOrganization.name || formData.name}" created successfully!`,
+          `Organization "${newOrganization.display_name || newOrganization.name}" created successfully!`,
         )
-        setLocation(`/${newOrganization.name || formData.name}`)
+        setLocation(`/${newOrganization.name}`)
         setIsLoading(false)
       },
     })
@@ -43,7 +45,23 @@ export const CreateOrganizationPage = () => {
       newErrors.name = "Organization name must be less than 40 characters"
     } else if (formData.name.length < 5) {
       newErrors.name = "Organization name must be at least 5 characters"
+    } else if (!/^[a-z0-9-]+$/.test(formData.name)) {
+      newErrors.name =
+        "Name must contain only lowercase letters, numbers, and hyphens"
+    } else if (!/^[a-z0-9]/.test(formData.name)) {
+      newErrors.name = "Name must start with a letter or number"
+    } else if (!/[a-z0-9]$/.test(formData.name)) {
+      newErrors.name = "Name must end with a letter or number"
     }
+
+    if (formData.display_name) {
+      if (formData.display_name.length > 40) {
+        newErrors.display_name = "Display name must be less than 40 characters"
+      } else if (formData.display_name.length < 5) {
+        newErrors.display_name = "Display name must be at least 5 characters"
+      }
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -57,7 +75,10 @@ export const CreateOrganizationPage = () => {
 
     setIsLoading(true)
     createOrganization(
-      { name: formData.name },
+      {
+        name: formData.name,
+        display_name: formData.display_name || undefined,
+      },
       {
         onError: (error: any) => {
           console.error("Failed to create organization:", error)
@@ -73,15 +94,19 @@ export const CreateOrganizationPage = () => {
   }
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value
+    const name = normalizeName(e.target.value)
     setFormData((prev) => ({ ...prev, name }))
     if (errors.name) {
-      setErrors({})
+      setErrors((prev) => ({ ...prev, name: undefined }))
     }
   }
 
-  const handleCancel = () => {
-    setLocation("/dashboard")
+  const handleDisplayNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const display_name = e.target.value
+    setFormData((prev) => ({ ...prev, display_name }))
+    if (errors.display_name) {
+      setErrors((prev) => ({ ...prev, display_name: undefined }))
+    }
   }
 
   return (
@@ -118,12 +143,12 @@ export const CreateOrganizationPage = () => {
               </Label>
               <Input
                 spellCheck={false}
-                id="org-handle"
+                id="org-name"
                 type="text"
                 placeholder="tscircuit"
                 value={formData.name}
                 onChange={handleNameChange}
-                className={`h-10 sm:h-11 ${
+                className={`h-10 sm:h-11 font-mono ${
                   errors.name
                     ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -134,12 +159,41 @@ export const CreateOrganizationPage = () => {
                 <p className="text-sm text-red-600">{errors.name}</p>
               )}
               <p className="text-xs text-gray-500">
-                This will be the name of your organization on tscircuit.
+                This will be your URL.
                 <br />
-                Your URL will be:{" "}
                 <span className="font-mono text-gray-700">
-                  tscircuit.com/{normalizeName(formData.name) || "orgname"}
+                  tscircuit.com/{formData.name || "orgname"}
                 </span>
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="org-display-name"
+                className="text-sm font-semibold text-gray-900"
+              >
+                Display Name
+              </Label>
+              <Input
+                spellCheck={false}
+                id="org-display-name"
+                type="text"
+                placeholder="TSCircuit (optional)"
+                value={formData.display_name}
+                onChange={handleDisplayNameChange}
+                className={`h-10 sm:h-11 ${
+                  errors.display_name
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                }`}
+                disabled={isLoading || isMutating}
+              />
+              {errors.display_name && (
+                <p className="text-sm text-red-600">{errors.display_name}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                Optional. The display name shown throughout the site. If not
+                provided, the organization name will be used.
               </p>
             </div>
 
