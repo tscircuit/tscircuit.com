@@ -262,6 +262,14 @@ export const packageReleaseSchema = z.object({
   transpilation_logs: z.array(z.any()).default([]),
   transpilation_is_stale: z.boolean().default(false),
 
+  // User Code Job Process
+  ext_user_code_job_id: z.string().nullable().default(null),
+  user_code_started_at: z.string().datetime().nullable().default(null),
+  user_code_completed_at: z.string().datetime().nullable().default(null),
+  user_code_build_logs: z.array(z.any()).nullable().default(null),
+  user_code_error: z.string().nullable().default(null),
+  user_code_log_stream_url: z.string().nullable().default(null),
+
   // Circuit JSON Build Process
   circuit_json_build_display_status: z
     .enum(["pending", "building", "complete", "error"])
@@ -451,6 +459,7 @@ export const orgAccountSchema = z.object({
   account_id: z.string(),
   is_owner: z.boolean().default(false),
   created_at: z.string().datetime(),
+  can_manage_org: z.boolean().default(false),
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
 

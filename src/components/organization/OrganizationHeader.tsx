@@ -51,7 +51,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             <div>
               <div className="flex flex-col items-center gap-3 mb-3">
                 <h1 className="font-bold text-gray-900 text-xl">
-                  {organization.name}
+                  {organization.display_name || organization.name}
                 </h1>
                 {canManageOrg && showActions && (
                   <Button
@@ -101,7 +101,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                   href={`/${organization.name}`}
                   className="font-bold text-gray-900 text-2xl md:text-3xl truncate"
                 >
-                  {organization.name}
+                  {organization.display_name || organization.name}
                 </Link>
                 {canManageOrg && showActions && (
                   <Button variant="outline" onClick={handleSettingsClick}>

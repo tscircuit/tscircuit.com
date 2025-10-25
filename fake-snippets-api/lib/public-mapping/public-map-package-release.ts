@@ -21,6 +21,12 @@ export const publicMapPackageRelease = (
     transpilation_logs: options.include_logs
       ? internal_package_release.transpilation_logs
       : [],
+    user_code_build_logs: options.include_logs
+      ? internal_package_release.user_code_build_logs
+      : null,
+    user_code_log_stream_url: options.include_logs
+      ? internal_package_release.user_code_log_stream_url
+      : null,
     circuit_json_build_logs: options.include_logs
       ? internal_package_release.circuit_json_build_logs
       : [],

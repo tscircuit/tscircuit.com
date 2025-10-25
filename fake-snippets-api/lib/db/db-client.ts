@@ -34,6 +34,7 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
+  UserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
 import { generateFsSha } from "../package_file/generate-fs-sha"
@@ -1665,6 +1666,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     is_personal_org?: boolean
     owner_account_id: string
     github_handle?: string
+    org_display_name?: string
   }) => {
     const newOrganization: Organization = {
       org_name: organization.name,
@@ -1672,6 +1674,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       github_handle: organization.github_handle,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
+      org_display_name: organization.org_display_name ?? organization.name,
       ...organization,
     }
     set((state) => ({
@@ -1762,6 +1765,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
 
     const org = orgs[0]
+    const orgAccount = get().orgAccounts.find(
+      (oa) => oa.org_id === org.org_id && oa.account_id === auth?.account_id,
+    )
+    const isOwner = org.owner_account_id === auth?.account_id
 
     const member_count = get().accounts.filter(
       (account) => account.personal_org_id === org.org_id,
@@ -1771,9 +1778,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (pkg) => pkg.owner_org_id === org.org_id,
     ).length
 
-    const can_manage_org = auth
-      ? org.owner_account_id === auth.account_id
-      : false
+    const can_manage_org = isOwner ? true : orgAccount?.can_manage_org || false
 
     return {
       ...org,
@@ -1787,12 +1792,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     account_id: string
     is_owner?: boolean
   }) => {
+    const can_manage_org = organizationAccount.is_owner || false
     const newOrgAccount: OrgAccount = {
       org_account_id: `org_account_${get().idCounter + 1}`,
       org_id: organizationAccount.org_id,
       account_id: organizationAccount.account_id,
       is_owner: organizationAccount.is_owner || false,
       created_at: new Date().toISOString(),
+      can_manage_org,
     }
     set((state) => ({
       orgAccounts: [...state.orgAccounts, newOrgAccount],
@@ -1848,6 +1855,31 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return state
     })
     return removed
+  },
+  updateOrganizationAccount: (
+    filters: {
+      org_id: string
+      account_id: string
+    },
+    updates: Partial<UserPermissions>,
+  ): OrgAccount | undefined => {
+    let updatedOrgAccount: OrgAccount | undefined
+    set((state) => {
+      const index = state.orgAccounts.findIndex(
+        (orgAccount) =>
+          orgAccount.org_id === filters.org_id &&
+          orgAccount.account_id === filters.account_id,
+      )
+      if (index === -1) return state
+      const updatedOrgAccounts = [...state.orgAccounts]
+      updatedOrgAccounts[index] = {
+        ...updatedOrgAccounts[index],
+        ...updates,
+      }
+      updatedOrgAccount = updatedOrgAccounts[index]
+      return { ...state, orgAccounts: updatedOrgAccounts }
+    })
+    return updatedOrgAccount
   },
   updateOrganization: (
     orgId: string,

@@ -29,8 +29,13 @@ export default function PackageHeader({
   isPrivate = false,
   isCurrentUserAuthor = false,
 }: PackageHeaderProps) {
-  const accountName = packageInfo?.owner_github_username
-  const packageName = packageInfo?.unscoped_name
+  const packageNameWithOwner = packageInfo?.name
+  const packageOwnerName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[0]
+    : packageInfo?.owner_github_username
+  const packageName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[1]
+    : packageInfo?.unscoped_name
   const sessionToken = useGlobalStore((s) => s.session?.token)
   const isOwner =
     packageInfo?.owner_github_username ===
@@ -74,18 +79,18 @@ export default function PackageHeader({
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between flex-wrap gap-y-2">
           <div className="flex items-center min-w-0 flex-wrap">
-            {accountName && packageName ? (
+            {packageOwnerName && packageName ? (
               <>
                 <h1 className="text-lg md:text-xl font-bold mr-2 break-words">
                   <Link
-                    href={`/${accountName}`}
+                    href={`/${packageOwnerName}`}
                     className="text-blue-600 hover:underline"
                   >
-                    {accountName}
+                    {packageOwnerName}
                   </Link>
                   <span className="px-1 text-gray-500">/</span>
                   <Link
-                    href={`/${accountName}/${packageName}`}
+                    href={`/${packageOwnerName}/${packageName}`}
                     className="text-blue-600 hover:underline"
                   >
                     {packageName}
