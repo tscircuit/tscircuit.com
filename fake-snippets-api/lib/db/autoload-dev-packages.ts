@@ -128,7 +128,7 @@ const loadPackageWithDependencies = async (
     star_count: Math.floor(Math.random() * 11),
   })
 
-  db.addPackageRelease({    
+  db.addPackageRelease({
     ...release,
     created_at: new Date().toISOString(),
     transpilation_logs: Array.isArray(release.transpilation_logs)
@@ -138,16 +138,7 @@ const loadPackageWithDependencies = async (
       ? release.circuit_json_build_logs
       : [],
     transpilation_display_status:
-      release.transpilation_display_status ?? "pending",    
-    user_code_error:
-      release.user_code_error == null
-        ? null
-        : typeof release.user_code_error === "string"
-        ? release.user_code_error
-        : // If it's an object, stringify sensibly (prefer message field when present).
-        release.user_code_error.message
-        ? String(release.user_code_error.message)
-        : JSON.stringify(release.user_code_error),
+      release.transpilation_display_status ?? "pending",
   })
 
   for (const file of files) {
