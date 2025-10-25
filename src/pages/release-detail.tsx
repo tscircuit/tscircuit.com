@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Calendar, GitBranch, RefreshCw } from "lucide-react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
-import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
+import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -54,8 +54,8 @@ export default function ReleaseDetailPage() {
     include_logs: true,
   })
 
-  const { availableViews } = usePackageReleaseImages({
-    packageReleaseId: packageRelease?.package_release_id,
+  const { availableViews } = usePackageReleaseDbImages({
+    packageRelease,
   })
 
   const session = useGlobalStore((s) => s.session)
