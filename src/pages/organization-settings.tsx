@@ -32,6 +32,7 @@ import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
+import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
 import { cn } from "@/lib/utils"
@@ -42,6 +43,7 @@ import {
   PlusIcon,
   ArrowLeft,
   Building2,
+  Trash2,
 } from "lucide-react"
 import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -87,6 +89,8 @@ export default function OrganizationSettingsPage() {
     member: Account
     show: boolean
   }>({ member: {} as Account, show: false })
+  const [showDeleteOrgDialog, setShowDeleteOrgDialog] = useState(false)
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const [newMemberInput, setNewMemberInput] = useState("")
   const [addMemberError, setAddMemberError] = useState("")
 
@@ -149,6 +153,25 @@ export default function OrganizationSettingsPage() {
         description: "Member has been removed from the organization.",
       })
       setShowRemoveMemberDialog({ member: {} as Account, show: false })
+    },
+  })
+
+  const deleteOrgMutation = useDeleteOrgMutation({
+    onSuccess: () => {
+      toast({
+        title: "Organization deleted",
+        description: "Organization has been permanently deleted.",
+      })
+      navigate("/dashboard")
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.data?.error?.message
+      toast({
+        title: "Failed to delete organization",
+        description:
+          errorMessage || "An error occurred while deleting the organization.",
+        variant: "destructive",
+      })
     },
   })
 
@@ -291,6 +314,19 @@ export default function OrganizationSettingsPage() {
       orgId: organization.org_id,
       accountId: showRemoveMemberDialog.member.account_id,
     })
+  }
+
+  const handleDeleteOrg = () => {
+    setShowDeleteOrgDialog(true)
+  }
+
+  const confirmDeleteOrg = () => {
+    if (!organization) return
+    deleteOrgMutation.mutate({
+      orgId: organization.org_id,
+    })
+    setShowDeleteOrgDialog(false)
+    setIsConfirmingDelete(false)
   }
 
   return (
@@ -567,6 +603,46 @@ export default function OrganizationSettingsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Danger Zone */}
+            <div className="bg-white border border-red-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-red-200 bg-red-50">
+                <h2 className="text-xl font-semibold text-red-900">
+                  Danger Zone
+                </h2>
+                <p className="text-sm text-red-600 mt-2">
+                  Irreversible and destructive actions for this organization.
+                </p>
+              </div>
+
+              <div className="p-6 lg:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      Delete Organization
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Permanently delete this organization and all associated
+                      data. This action cannot be undone and will remove all
+                      packages, snippets, and organization information.
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteOrg}
+                      disabled={
+                        organization.owner_account_id !== session?.account_id
+                      }
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm w-full lg:w-auto"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Organization
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
@@ -604,6 +680,55 @@ export default function OrganizationSettingsPage() {
               )}
               Remove member
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={showDeleteOrgDialog}
+        onOpenChange={(open) => {
+          setShowDeleteOrgDialog(open)
+          if (!open) {
+            setIsConfirmingDelete(false)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Organization
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you absolutely sure you want to delete{" "}
+              <strong>{organization?.name}</strong>? This action is permanent
+              and cannot be undone. All packages, snippets, and organization
+              data will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            {!isConfirmingDelete ? (
+              <Button
+                variant="destructive"
+                onClick={() => setIsConfirmingDelete(true)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete Organization
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                onClick={confirmDeleteOrg}
+                disabled={deleteOrgMutation.isLoading}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {deleteOrgMutation.isLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Yes, Delete Organization
+              </Button>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
