@@ -47,6 +47,12 @@ import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-des
 import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
 import { Tag } from "lucide-react"
 import { CreateReleaseDialog } from "../CreateReleaseDialog"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export default function EditorNav({
   circuitJson,
@@ -253,23 +259,41 @@ export default function EditorNav({
               )}
               {pkg.owner_github_username === session?.github_username && (
                 <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 ml-2"
-                    onClick={() => openRenameDialog()}
-                  >
-                    <Pencil className="h-3 w-3 text-gray-700" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 ml-2"
-                    onClick={() => createReleaseDialog.openDialog()}
-                    disabled={hasUnsavedChanges || isSaving}
-                  >
-                    <Tag className="h-3 w-3 text-gray-700" />
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 ml-2"
+                          onClick={() => openRenameDialog()}
+                        >
+                          <Pencil className="h-3 w-3 text-gray-700" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Rename package</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 ml-2"
+                          onClick={() => createReleaseDialog.openDialog()}
+                          disabled={hasUnsavedChanges || isSaving}
+                        >
+                          <Tag className="h-3 w-3 text-gray-700" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Create release</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </>
               )}
               {isPrivate && (
@@ -280,11 +304,20 @@ export default function EditorNav({
                   </span>
                 </div>
               )}
-              <Link href={`/${pkg.name}`}>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
-                </Button>
-              </Link>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link target="_blank" href={`/${pkg.name}`}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View package</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </>
           )}
         </div>
