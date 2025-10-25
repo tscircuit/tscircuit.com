@@ -56,7 +56,7 @@
         "@tscircuit/mm": "^0.0.8",
         "@tscircuit/pcb-viewer": "^1.11.218",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
-        "@tscircuit/runframe": "^0.0.1150",
+        "@tscircuit/runframe": "^0.0.1160",
         "@tscircuit/schematic-viewer": "^2.0.39",
         "@tscircuit/simple-3d-svg": "^0.0.41",
         "@types/babel__standalone": "^7.1.7",
@@ -791,7 +791,7 @@
 
     "@tscircuit/props": ["@tscircuit/props@0.0.327", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-/a3i3SP1/lp2Gw/znEr86Mlgj0ei0/VTrmVm59C8AqAWe5yMcCt77ExCw5OwfOj1WXVp2UO6IhwVo2t+o7+XwQ=="],
 
-    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.1150", "", {}, "sha512-NK9lH7GXVo1uJA1v0fOUHMEmWK1LYnbbNqJiDVpwwM+VdO7RcQkwmD6piVViALfdSMzJu168XnUTx7+NzlSceQ=="],
+    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.1160", "", {}, "sha512-nCoz7aoHy6GlM3vvVlSY2GDvWE6bVU/7yh4BkLVjFu2e5TAvXuy3jn8/bzA+11tSFk5215bnUWxEFSIbZp4N+Q=="],
 
     "@tscircuit/schematic-autolayout": ["@tscircuit/schematic-autolayout@0.0.6", "", { "dependencies": { "@tscircuit/soup-util": "^0.0.38", "transformation-matrix": "^2.16.1" } }, "sha512-34cQxtlSylBKyHkzaMBCynaWJgN9c/mWm7cz63StTYIafKmfFs383K8Xoc4QX8HXCvVrHYl1aK15onZua9MxeA=="],
 
@@ -2540,6 +2540,8 @@
     "tscircuit/@tscircuit/footprinter": ["@tscircuit/footprinter@0.0.236", "", { "dependencies": { "@tscircuit/mm": "^0.0.8", "zod": "^3.23.8" }, "peerDependencies": { "circuit-json": "*" } }, "sha512-SE03ZCNp9FxzSa3LdbQOMBHjT16Q86ZwN6iLu+RPsAbFrdE1RwtM7dv5lOb6lkh78mL3e7yyuyay+QrERiLcYQ=="],
 
     "tscircuit/@tscircuit/props": ["@tscircuit/props@0.0.378", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-ZPSqBrfCa3uwFKxke0Oq99HvSrU6v0Xffqfkhser72OFY7nCjq2WxrXrahV9FUssl/0WDyW7jD51XZhbf5h8Gg=="],
+
+    "tscircuit/@tscircuit/runframe": ["@tscircuit/runframe@0.0.1150", "", {}, "sha512-NK9lH7GXVo1uJA1v0fOUHMEmWK1LYnbbNqJiDVpwwM+VdO7RcQkwmD6piVViALfdSMzJu168XnUTx7+NzlSceQ=="],
 
     "tscircuit/circuit-json": ["circuit-json@0.0.288", "", {}, "sha512-a0yPttco6gCmSsLwOy23ss8N8FdpxcEflXye7trfMBeBo6CaaO8g/S6Z8VVXNOvoFe3yHcFizMffm5xbhWhtcw=="],
 
