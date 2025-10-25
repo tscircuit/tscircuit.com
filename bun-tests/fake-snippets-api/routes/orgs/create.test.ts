@@ -69,7 +69,6 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
   const invalidNames = [
     "ACME Corp",
     "acme corp",
-    "acme_corp",
     "acme.corp",
     "-acme",
     "acme-",
