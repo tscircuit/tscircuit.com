@@ -60,6 +60,7 @@ const EditorPage = lazyImport(async () => {
   return editorModule
 })
 const LandingPage = lazyImport(() => import("@/pages/landing"))
+const HiringPage = lazyImport(() => import("@/pages/hiring"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
@@ -264,6 +265,7 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/dev-login" component={DevLoginPage} />
+            <Route path="/hiring" component={HiringPage} />
 
             {/* Organization creation route */}
             <Route path="/orgs/new" component={CreateOrganizationPage} />
