@@ -40,6 +40,7 @@ export const ConnectedRepoOverview = ({
   const { status, label } = getBuildStatus(packageBuild ?? null)
   const [openSections, setOpenSections] = useState({
     transpilation: false,
+    userCode: false,
     circuitJson: false,
     imageGeneration: false,
   })
@@ -112,6 +113,16 @@ export const ConnectedRepoOverview = ({
         )
       : 0
 
+    const userCodeDuration = packageRelease?.user_code_started_at
+      ? Math.floor(
+          (new Date(
+            packageRelease.user_code_completed_at || new Date(),
+          ).getTime() -
+            new Date(packageRelease.user_code_started_at).getTime()) /
+            1000,
+        )
+      : 0
+
     const circuitJsonDuration = packageBuild?.circuit_json_build_started_at
       ? Math.floor(
           (new Date(
@@ -133,17 +144,29 @@ export const ConnectedRepoOverview = ({
 
     if (
       !packageBuild?.transpilation_started_at &&
+      !packageRelease?.user_code_started_at &&
       !packageBuild?.circuit_json_build_started_at &&
       !packageBuild?.image_generation_started_at
     ) {
       return null
     }
 
-    return transpilationDuration + circuitJsonDuration + imageGenerationDuration
+    return (
+      transpilationDuration +
+      userCodeDuration +
+      circuitJsonDuration +
+      imageGenerationDuration
+    )
   })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
+
+  const userCodeJobInProgress = Boolean(
+    packageRelease.user_code_started_at &&
+      !packageRelease.user_code_completed_at &&
+      !packageRelease.user_code_error,
+  )
 
   const getStepStatus = (
     error?: string | null,
@@ -399,6 +422,110 @@ export const ConnectedRepoOverview = ({
                   ))
                 ) : (
                   <div className="text-gray-500">No logs available</div>
+                )}
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        <Collapsible
+          open={openSections.userCode}
+          onOpenChange={() => toggleSection("userCode")}
+        >
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <div className="flex items-center gap-3">
+                <ChevronRight
+                  className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
+                />
+                {packageRelease.user_code_error ? (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                ) : packageRelease.user_code_completed_at ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : userCodeJobInProgress ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                ) : (
+                  <Clock className="w-5 h-5 text-gray-400" />
+                )}
+                <span className="font-medium">Usercode Logs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {getStepDuration(
+                  packageRelease.user_code_started_at,
+                  packageRelease.user_code_completed_at,
+                ) && (
+                  <span className="text-sm text-gray-600">
+                    {getStepDuration(
+                      packageRelease.user_code_started_at,
+                      packageRelease.user_code_completed_at,
+                    )}
+                  </span>
+                )}
+                <Badge
+                  variant={
+                    getStepStatus(
+                      packageRelease.user_code_error,
+                      packageRelease.user_code_completed_at,
+                      userCodeJobInProgress,
+                    ) === "success"
+                      ? "default"
+                      : getStepStatus(
+                            packageRelease.user_code_error,
+                            packageRelease.user_code_completed_at,
+                            userCodeJobInProgress,
+                          ) === "error"
+                        ? "destructive"
+                        : "secondary"
+                  }
+                  className="text-xs"
+                >
+                  {packageRelease.user_code_error
+                    ? "Failed"
+                    : packageRelease.user_code_completed_at
+                      ? "Completed"
+                      : userCodeJobInProgress
+                        ? "Running"
+                        : "Queued"}
+                </Badge>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
+              <div className="font-mono text-xs space-y-2">
+                {packageRelease.user_code_error ? (
+                  <div className="text-red-600 whitespace-pre-wrap">
+                    {packageRelease.user_code_error}
+                  </div>
+                ) : (
+                  <>
+                    {packageRelease.user_code_log_stream_url ? (
+                      <a
+                        href={packageRelease.user_code_log_stream_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 break-all"
+                      >
+                        View log stream
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : null}
+                    {packageRelease.user_code_build_logs &&
+                    packageRelease.user_code_build_logs.length > 0 ? (
+                      packageRelease.user_code_build_logs.map(
+                        (log: any, i: number) => (
+                          <div
+                            key={i}
+                            className="text-gray-600 whitespace-pre-wrap"
+                          >
+                            {log.msg || log.message || JSON.stringify(log)}
+                          </div>
+                        ),
+                      )
+                    ) : !packageRelease.user_code_log_stream_url ? (
+                      <div className="text-gray-500">No logs available</div>
+                    ) : null}
+                  </>
                 )}
               </div>
             </div>
