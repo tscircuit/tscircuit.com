@@ -617,6 +617,9 @@ export default () => (
     is_locked: false,
     has_transpiled: true,
     transpilation_error: null,
+    pcb_preview_image_url: `/api/packages/images/testuser/test2-package/pcb.png`,
+    cad_preview_image_url: `/api/packages/images/testuser/test2-package/3d.png`,
+    sch_preview_image_url: `/api/packages/images/testuser/test2-package/schematic.png`,
   })
   db.addPackageFile({
     package_release_id: test2PackageReleaseId,

@@ -7,7 +7,6 @@ import { BuildsList } from "@/components/preview/BuildsList"
 import Header from "@/components/Header"
 import { useLocation } from "wouter"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
-import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 
 export default function ReleaseBuildsPage() {
   const params = useParams<{
