@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +25,7 @@ import {
   PackageBuild,
   PackageRelease,
 } from "fake-snippets-api/lib/db/schema"
+import { useSSELogStream } from "@/hooks/use-sse-log-stream"
 
 export const ConnectedRepoOverview = ({
   packageBuild,
@@ -44,6 +45,31 @@ export const ConnectedRepoOverview = ({
     circuitJson: false,
     imageGeneration: false,
   })
+  const logsEndRef = useRef<HTMLDivElement | null>(null)
+
+  const userCodeJobInProgress = Boolean(
+    packageRelease.user_code_started_at &&
+      !packageRelease.user_code_completed_at &&
+      !packageRelease.user_code_error,
+  )
+
+  // Use custom hook to manage SSE log streaming
+  const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
+    packageRelease.user_code_log_stream_url,
+    userCodeJobInProgress,
+    packageRelease.package_release_id,
+  )
+
+  // Auto-scroll to bottom when new logs arrive
+  useEffect(() => {
+    if (
+      logsEndRef.current &&
+      userCodeJobInProgress &&
+      usercodeStreamedLogs.length > 0
+    ) {
+      logsEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [usercodeStreamedLogs, userCodeJobInProgress])
 
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
@@ -170,12 +196,6 @@ export const ConnectedRepoOverview = ({
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
-
-  const userCodeJobInProgress = Boolean(
-    packageRelease.user_code_started_at &&
-      !packageRelease.user_code_completed_at &&
-      !packageRelease.user_code_error,
-  )
 
   const getStepStatus = (
     error?: string | null,
@@ -510,33 +530,63 @@ export const ConnectedRepoOverview = ({
                     {getErrorMessage(packageRelease.user_code_error)}
                   </div>
                 )}
-                {packageRelease.user_code_log_stream_url ? (
-                  <a
-                    href={packageRelease.user_code_log_stream_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 break-all"
-                  >
-                    View log stream
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : null}
+                {userCodeJobInProgress &&
+                  packageRelease.user_code_log_stream_url && (
+                    <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="text-xs font-medium">
+                        Streaming logs in real-time...
+                      </span>
+                    </div>
+                  )}
                 {packageRelease.user_code_build_logs &&
-                packageRelease.user_code_build_logs.length > 0 ? (
-                  packageRelease.user_code_build_logs.map(
-                    (log: any, i: number) => (
+                  packageRelease.user_code_build_logs.length > 0 && (
+                    <>
+                      {packageRelease.user_code_build_logs.map(
+                        (log: any, i: number) => (
+                          <div
+                            key={`build-log-${i}`}
+                            className="text-gray-600 whitespace-pre-wrap"
+                          >
+                            {log.msg || log.message || JSON.stringify(log)}
+                          </div>
+                        ),
+                      )}
+                    </>
+                  )}
+                {usercodeStreamedLogs.length > 0 && (
+                  <>
+                    {usercodeStreamedLogs.map((log: string, i: number) => (
                       <div
-                        key={i}
+                        key={`streamed-log-${i}`}
                         className="text-gray-600 whitespace-pre-wrap"
                       >
-                        {log.msg || log.message || JSON.stringify(log)}
+                        {log}
                       </div>
-                    ),
-                  )
-                ) : !packageRelease.user_code_log_stream_url &&
-                  !packageRelease.user_code_error ? (
-                  <div className="text-gray-500">No logs available</div>
-                ) : null}
+                    ))}
+                    <div ref={logsEndRef} />
+                  </>
+                )}
+                {packageRelease.user_code_build_logs?.length === 0 &&
+                  usercodeStreamedLogs.length === 0 &&
+                  !packageRelease.user_code_error &&
+                  !userCodeJobInProgress && (
+                    <div className="text-gray-500">No logs available</div>
+                  )}
+                {packageRelease.user_code_log_stream_url &&
+                  !userCodeJobInProgress && (
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <a
+                        href={packageRelease.user_code_log_stream_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
+                      >
+                        View raw log stream
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
               </div>
             </div>
           </CollapsibleContent>
