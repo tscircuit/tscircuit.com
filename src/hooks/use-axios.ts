@@ -25,7 +25,7 @@ export const useAxios = () => {
         if (status === 401) {
           toast({
             title: "Unauthorized",
-            description: "Please sign in again.",
+            description: "You may need to sign in again.",
             variant: "destructive",
           })
         }
