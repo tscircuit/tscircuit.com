@@ -115,9 +115,7 @@ export default function Header() {
           target="_blank"
           className="lg:mr-2"
         >
-          <Button variant="ghost">
-            <DiscordLogoIcon className="text-gray-400 hidden lg:block hover:text-gray-600 transition-colors w-4 h-4" />
-          </Button>
+          <DiscordLogoIcon className="text-gray-400 hidden lg:block hover:text-gray-600 transition-colors w-4 h-4" />
         </a>
         <a
           href="https://github.com/tscircuit/tscircuit"
