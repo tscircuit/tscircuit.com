@@ -60,16 +60,17 @@ export const ConnectedRepoOverview = ({
     packageRelease.package_release_id,
   )
 
-  // Auto-scroll to bottom when new logs arrive
+  // Auto-scroll to bottom when new logs arrive (only if section is open)
   useEffect(() => {
     if (
       logsEndRef.current &&
       userCodeJobInProgress &&
-      usercodeStreamedLogs.length > 0
+      usercodeStreamedLogs.length > 0 &&
+      openSections.userCode
     ) {
       logsEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
-  }, [usercodeStreamedLogs, userCodeJobInProgress])
+  }, [usercodeStreamedLogs, userCodeJobInProgress, openSections.userCode])
 
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
