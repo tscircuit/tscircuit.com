@@ -52,7 +52,6 @@ export function useSSELogStream(
 
         // Mark this log as seen
         seenLogIds.current.add(logId)
-        console.log("Adding new log entry")
 
         try {
           // Try to parse as JSON first
