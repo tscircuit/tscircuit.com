@@ -1901,4 +1901,28 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return updatedOrg
   },
+  deleteOrganization: (orgId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const orgIndex = state.organizations.findIndex(
+        (org) => org.org_id === orgId,
+      )
+      if (orgIndex === -1) return state
+
+      const updatedOrganizations = [...state.organizations]
+      updatedOrganizations.splice(orgIndex, 1)
+
+      const updatedOrgAccounts = state.orgAccounts.filter(
+        (orgAccount) => orgAccount.org_id !== orgId,
+      )
+
+      deleted = true
+      return {
+        ...state,
+        organizations: updatedOrganizations,
+        orgAccounts: updatedOrgAccounts,
+      }
+    })
+    return deleted
+  },
 }))
