@@ -12,6 +12,7 @@ const PROXY_HEADERS = [
 
 const ALLOWED_DOMAINS: Array<{ domain: string; routes?: string[] }> = [
   { domain: "easyeda.com" },
+  { domain: "jlcpcb.com" },
 ]
 
 function isAllowedDomain(url: string) {
