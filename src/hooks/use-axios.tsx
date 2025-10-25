@@ -46,7 +46,7 @@ export const useAxios = () => {
             </div>
           ),
           {
-            position: "bottom-left",
+            position: "top-center",
           },
         )
       }
