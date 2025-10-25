@@ -122,8 +122,71 @@ function vercelSsrDevPlugin(): Plugin {
 export default defineConfig(async (): Promise<UserConfig> => {
   let proxyConfig: Record<string, any> | undefined
 
+  // Polyfill Node's `process` global for browser bundles. Some transitive
+  // dependencies (notably `typescript` via `@typescript/vfs`) reference Node
+  // APIs such as `process.platform` and `process.stdout` during module
+  // evaluation, which breaks the preview build without a shim.
+  const processPolyfillScript = `
+    (function() {
+      const g = typeof globalThis !== "undefined"
+        ? globalThis
+        : typeof self !== "undefined"
+          ? self
+          : typeof window !== "undefined"
+            ? window
+            : undefined;
+      if (!g) {
+        return;
+      }
+      if (!g.process) {
+        const stdout = {
+          write() {},
+          columns: 80,
+          isTTY: false,
+        };
+        const stderr = {
+          write() {},
+          columns: 80,
+          isTTY: false,
+        };
+        const shim = {
+          env: {},
+          argv: [],
+          platform: "browser",
+          browser: true,
+          cwd: () => "/",
+          nextTick: (cb, ...args) => queueMicrotask(() => cb(...args)),
+          hrtime: () => [0, 0],
+          uptime: () => 0,
+          stdout,
+          stderr,
+          on: () => {},
+          off: () => {},
+          addListener: () => {},
+          removeListener: () => {},
+          emit: () => false,
+        };
+        g.process = shim;
+      } else if (!g.process.env) {
+        g.process.env = {};
+      }
+    })();
+  `
+
   const plugins: PluginOption[] = [
     react(),
+    {
+      name: "process-polyfill",
+      transformIndexHtml() {
+        return [
+          {
+            tag: "script",
+            children: processPolyfillScript,
+            injectTo: "head-prepend",
+          },
+        ]
+      },
+    },
     vercel({
       prerender: false,
       buildCommand: "bun run build",
@@ -191,6 +254,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     plugins,
     define: {
       global: {},
+      "process.env": JSON.stringify({}),
     },
     optimizeDeps: {
       exclude: ["@resvg/resvg-js", "@resvg/resvg-js-darwin-arm64"],
