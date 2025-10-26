@@ -1,5 +1,5 @@
 import axios from "redaxios"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
 import { toast, ToastContent, useToast } from "./use-toast"
@@ -10,6 +10,8 @@ export const useAxios = () => {
   const session = useGlobalStore((s) => s.session)
   const { toastLibrary } = useToast()
   const signIn = useSignIn()
+  const unauthorizedToastShownRef = useRef(false)
+
   return useMemo(() => {
     const instance = axios.create({
       baseURL: snippetsBaseApiUrl,
@@ -32,23 +34,38 @@ export const useAxios = () => {
       const status = error?.response?.status ?? error?.status
 
       if (status === 401) {
-        toastLibrary.custom(
-          (t) => (
-            <div onClick={() => signIn()} className="cursor-pointer">
-              <ToastContent
-                title={"Unauthorized"}
-                description={
-                  "You may need to sign in again. Click here to sign in again"
-                }
-                variant={"destructive"}
-                t={t}
-              />
-            </div>
-          ),
-          {
-            position: "top-center",
-          },
-        )
+        if (!unauthorizedToastShownRef.current) {
+          unauthorizedToastShownRef.current = true
+          toastLibrary.custom(
+            (t) => (
+              <div
+                onClick={() => {
+                  unauthorizedToastShownRef.current = false
+                  signIn()
+                }}
+                className="cursor-pointer"
+              >
+                <ToastContent
+                  title={"Unauthorized"}
+                  description={
+                    "You may need to sign in again. Click here to sign in again"
+                  }
+                  variant={"destructive"}
+                  t={t}
+                />
+              </div>
+            ),
+            {
+              position: "top-center",
+              duration: 5000,
+            },
+          )
+
+          // Reset the flag after 5 seconds to allow showing toast again if needed
+          setTimeout(() => {
+            unauthorizedToastShownRef.current = false
+          }, 5000)
+        }
       }
 
       throw error
@@ -95,5 +112,5 @@ export const useAxios = () => {
     }) as typeof originalPatch
 
     return instance
-  }, [session?.token])
+  }, [session?.token, snippetsBaseApiUrl, toastLibrary, signIn])
 }
