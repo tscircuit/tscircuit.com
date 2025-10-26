@@ -7,6 +7,7 @@ import { Alert } from "./ui/alert"
 import { Link } from "wouter"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useDebounce } from "@/hooks/use-debounce"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -59,20 +60,21 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location, setLocation] = useLocation()
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const { data: searchResults, isLoading } = useQuery(
-    ["packageSearch", searchQuery],
+    ["packageSearch", debouncedSearchQuery],
     async () => {
-      if (!searchQuery) return []
+      if (!debouncedSearchQuery) return []
       const { data } = await axios.post("/packages/search", {
-        query: searchQuery,
+        query: debouncedSearchQuery,
       })
       if (onResultsFetched) {
         onResultsFetched(data.packages)
       }
       return data.packages
     },
-    { enabled: Boolean(searchQuery) },
+    { enabled: Boolean(debouncedSearchQuery) },
   )
 
   useEffect(() => {
