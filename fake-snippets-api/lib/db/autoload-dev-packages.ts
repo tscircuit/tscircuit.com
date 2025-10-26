@@ -15,6 +15,15 @@ const extractTsciDependencies = (
   }))
 }
 
+const normalizeError = (error: any): string | null => {
+  if (!error) return null
+  if (typeof error === "string") return error
+  if (typeof error === "object") {
+    return error.message || JSON.stringify(error)
+  }
+  return String(error)
+}
+
 const registryApi = axios.create({
   baseURL: "https://api.tscircuit.com",
   headers: {
@@ -131,6 +140,7 @@ const loadPackageWithDependencies = async (
   db.addPackageRelease({
     ...release,
     created_at: new Date().toISOString(),
+    user_code_error: normalizeError(release.user_code_error),
     transpilation_logs: Array.isArray(release.transpilation_logs)
       ? release.transpilation_logs
       : [],
