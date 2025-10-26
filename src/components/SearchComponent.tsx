@@ -185,7 +185,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         role="searchbox"
       />
       {isLoading && (
-        <div className="absolute top-full w-lg left-0 right-0 mt-1 bg-white shadow-lg rounded-lg border w-80 grid place-items-center py-4 z-50 p-3">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white shadow-lg rounded-lg border w-80 grid place-items-center py-4 z-50 p-3">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-gray-600 text-sm">Searching...</span>

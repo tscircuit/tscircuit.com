@@ -29,7 +29,7 @@ export const useAiApi = ({
             dangerouslyAllowBrowser: true,
           },
     )
-  }, [])
+  }, [sessionToken])
 
   return anthropic
 }
