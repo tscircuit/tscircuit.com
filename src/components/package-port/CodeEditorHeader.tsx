@@ -33,7 +33,7 @@ import {
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { openJlcpcbImportIssue } from "@/hooks/use-jlcpcb-component-import"
-
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -66,6 +66,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
   const session = useGlobalStore((s) => s.session)
+  const apiBaseUrl = useApiBaseUrl()
 
   const jlcpcbProxyRequestHeaders = useMemo(() => {
     if (!session?.token) return undefined
@@ -188,6 +189,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 
   const handleJlcpcbComponentTsxLoaded = useCallback(
     async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
+      console.log(232, result, tsx)
       const partNumber = result.component.partNumber || "component"
 
       try {
@@ -418,6 +420,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           onJlcpcbComponentTsxLoaded={handleJlcpcbComponentTsxLoaded}
           onKicadStringSelected={handleKicadStringSelected}
           jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
+          jlcpcbProxyApiBase={apiBaseUrl}
         />
       </div>
     </>
