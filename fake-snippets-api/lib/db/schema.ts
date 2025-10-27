@@ -267,7 +267,7 @@ export const packageReleaseSchema = z.object({
   user_code_started_at: z.string().datetime().nullable().default(null),
   user_code_completed_at: z.string().datetime().nullable().default(null),
   user_code_build_logs: z.array(z.any()).nullable().default(null),
-  user_code_error: z.string().nullable().default(null),
+  user_code_error: z.any().nullable().default(null),
   user_code_log_stream_url: z.string().nullable().default(null),
 
   // Circuit JSON Build Process
