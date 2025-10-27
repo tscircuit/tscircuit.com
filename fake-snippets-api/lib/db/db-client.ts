@@ -1925,4 +1925,18 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return deleted
   },
+  deleteAccount: (accountId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.accounts.findIndex(
+        (account) => account.account_id === accountId,
+      )
+      if (index !== -1) {
+        state.accounts.splice(index, 1)
+        deleted = true
+      }
+      return state
+    })
+    return deleted
+  },
 }))
