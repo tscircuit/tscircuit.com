@@ -74,12 +74,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                     <div className="flex items-center gap-1.5 text-gray-600">
                       <Users className="h-3.5 w-3.5" />
                       <span className="font-medium">{membersCount}</span>
-                      <span>member{membersCount > 1 ? "s" : ""}</span>
+                      <span>member{membersCount !== 1 ? "s" : ""}</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-600">
                       <Package className="h-3.5 w-3.5" />
                       <span className="font-medium">{packagesCount}</span>
-                      <span>package{packagesCount > 1 ? "s" : ""}</span>
+                      <span>package{packagesCount !== 1 ? "s" : ""}</span>
                     </div>
                   </>
                 )}
@@ -122,14 +122,14 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                       <span className="font-medium text-gray-900">
                         {membersCount}
                       </span>
-                      <span>member{membersCount > 1 ? "s" : ""}</span>
+                      <span>member{membersCount !== 1 ? "s" : ""}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4" />
                       <span className="font-medium text-gray-900">
                         {packagesCount}
                       </span>
-                      <span>package{packagesCount > 1 ? "s" : ""}</span>
+                      <span>package{packagesCount !== 1 ? "s" : ""}</span>
                     </div>
                   </>
                 )}
