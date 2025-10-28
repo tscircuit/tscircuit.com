@@ -496,13 +496,13 @@ export const ConnectedRepoOverview = ({
                 <Badge
                   variant={
                     getStepStatus(
-                      packageRelease.user_code_error,
+                      packageRelease.user_code_error?.message || null,
                       packageRelease.user_code_completed_at,
                       userCodeJobInProgress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            packageRelease.user_code_error,
+                            packageRelease.user_code_error?.message || null,
                             packageRelease.user_code_completed_at,
                             userCodeJobInProgress,
                           ) === "error"
