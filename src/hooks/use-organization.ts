@@ -38,5 +38,6 @@ export const useOrganization = ({
     isLoading: orgQuery.isLoading,
     isError: orgQuery.isError,
     error: orgQuery.error,
+    isFetched: orgQuery.isFetched,
   }
 }

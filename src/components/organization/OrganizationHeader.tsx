@@ -50,9 +50,12 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
 
             <div>
               <div className="flex flex-col items-center gap-3 mb-3">
-                <h1 className="font-bold text-gray-900 text-xl">
+                <Link
+                  href={`/${organization.name}`}
+                  className="font-bold text-gray-900 text-xl"
+                >
                   {organization.display_name || organization.name}
-                </h1>
+                </Link>
                 {canManageOrg && showActions && (
                   <Button
                     variant="outline"
@@ -66,20 +69,20 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               </div>
 
               <div className="grid grid-cols-2 md:flex flex-wrap justify-center gap-4 text-sm">
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <Users className="h-3.5 w-3.5" />
-                  <span className="font-medium">
-                    {isLoading ? "..." : membersCount}
-                  </span>
-                  <span>members</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <Package className="h-3.5 w-3.5" />
-                  <span className="font-medium">
-                    {isLoading ? "..." : packagesCount}
-                  </span>
-                  <span>packages</span>
-                </div>
+                {!isLoading && (
+                  <>
+                    <div className="flex items-center gap-1.5 text-gray-600">
+                      <Users className="h-3.5 w-3.5" />
+                      <span className="font-medium">{membersCount}</span>
+                      <span>member{membersCount !== 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-600">
+                      <Package className="h-3.5 w-3.5" />
+                      <span className="font-medium">{packagesCount}</span>
+                      <span>package{packagesCount !== 1 ? "s" : ""}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -112,20 +115,24 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               </div>
 
               <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span className="font-medium text-gray-900">
-                    {isLoading ? "..." : membersCount}
-                  </span>
-                  <span>members</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4" />
-                  <span className="font-medium text-gray-900">
-                    {isLoading ? "..." : packagesCount}
-                  </span>
-                  <span>packages</span>
-                </div>
+                {!isLoading && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span className="font-medium text-gray-900">
+                        {membersCount}
+                      </span>
+                      <span>member{membersCount !== 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      <span className="font-medium text-gray-900">
+                        {packagesCount}
+                      </span>
+                      <span>package{packagesCount !== 1 ? "s" : ""}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4" />
                   <span>Organization</span>
