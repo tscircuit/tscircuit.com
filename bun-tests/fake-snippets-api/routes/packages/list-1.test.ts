@@ -111,10 +111,10 @@ test("list packages", async () => {
 })
 
 test("list packages includes user_permissions when session provided", async () => {
-  const { axios, jane_axios, unauthenticatedAxios } = await getTestServer()
+  const { john_axios, jane_axios, unauthenticatedAxios } = await getTestServer()
 
   const pkg1 = (
-    await axios.post("/api/packages/create", {
+    await john_axios.post("/api/packages/create", {
       name: "testuser/ownerpkg",
       description: "", // minimal
     })
@@ -127,7 +127,7 @@ test("list packages includes user_permissions when session provided", async () =
     })
   ).data.package
 
-  const { data: listData } = await axios.get("/api/packages/list")
+  const { data: listData } = await john_axios.get("/api/packages/list")
   const ownerPkg = listData.packages.find(
     (p: any) => p.package_id === pkg1.package_id,
   )
