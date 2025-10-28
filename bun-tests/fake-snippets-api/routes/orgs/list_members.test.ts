@@ -10,14 +10,15 @@ test("GET /orgs/list_members returns members for an org when owner", async () =>
   })
 
   const {
-    data: { members },
+    data: { org_members },
   } = await jane_axios.get(
     `/api/orgs/list_members?org_id=${seed.organization.org_id}`,
   )
-  expect(Array.isArray(members)).toBe(true)
-  const membership = members.find(
+  expect(Array.isArray(org_members)).toBe(true)
+  const membership = org_members.find(
     (m: any) => m.account_id === seed.account.account_id,
   )
   expect(membership).toBeDefined()
   expect(membership.joined_at).toBeDefined()
+  expect(membership.org_member_permissions).toBeDefined()
 })

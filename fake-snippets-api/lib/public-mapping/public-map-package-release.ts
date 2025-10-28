@@ -21,6 +21,12 @@ export const publicMapPackageRelease = (
     transpilation_logs: options.include_logs
       ? internal_package_release.transpilation_logs
       : [],
+    user_code_build_logs: options.include_logs
+      ? internal_package_release.user_code_build_logs
+      : null,
+    user_code_log_stream_url: options.include_logs
+      ? internal_package_release.user_code_log_stream_url
+      : null,
     circuit_json_build_logs: options.include_logs
       ? internal_package_release.circuit_json_build_logs
       : [],
@@ -46,6 +52,12 @@ export const publicMapPackageRelease = (
     branch_name: internal_package_release.branch_name,
     commit_message: internal_package_release.commit_message ?? null,
     commit_author: internal_package_release.commit_author ?? null,
+    pcb_preview_image_url:
+      internal_package_release.pcb_preview_image_url ?? null,
+    sch_preview_image_url:
+      internal_package_release.sch_preview_image_url ?? null,
+    cad_preview_image_url:
+      internal_package_release.cad_preview_image_url ?? null,
   }
 
   if (options.include_ai_review && options.db) {

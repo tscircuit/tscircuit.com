@@ -1,6 +1,9 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { accountSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  accountSchema,
+  userPermissionsSchema,
+} from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
@@ -15,7 +18,12 @@ export default withRouteSpec({
     ),
   auth: "optional_session",
   jsonResponse: z.object({
-    members: z.array(accountSchema.extend({ joined_at: z.string() })),
+    org_members: z.array(
+      accountSchema.omit({ shippingInfo: true }).extend({
+        joined_at: z.string(),
+        org_member_permissions: userPermissionsSchema,
+      }),
+    ),
   }),
 })(async (req, ctx) => {
   const params = req.commonParams as { org_id?: string; name?: string }
@@ -40,8 +48,19 @@ export default withRouteSpec({
       if (m.org_id !== org.org_id) return undefined
       const account = ctx.db.getAccount(m.account_id)
       if (!account) return undefined
+      const memberOrg = ctx.db.getOrg(
+        {
+          org_id: org.org_id,
+          org_name: org.org_name,
+        },
+        {
+          account_id: account.account_id,
+        },
+      )
+
       return {
         ...account,
+        user_permissions: memberOrg,
         joined_at: m.created_at,
       }
     })
@@ -56,15 +75,32 @@ export default withRouteSpec({
       (acc) => acc.account_id === org.owner_account_id,
     )
     if (owner) {
+      const memberOrg = ctx.db.getOrg(
+        {
+          org_id: org.org_id,
+          org_name: org.org_name,
+        },
+        {
+          account_id: owner.account_id,
+        },
+      )
       fullMembers = [
         ...members,
         {
           ...owner,
+          user_permissions: memberOrg,
           joined_at: org.created_at,
         },
       ]
     }
   }
-
-  return ctx.json({ members: fullMembers })
+  return ctx.json({
+    org_members: fullMembers.map((m) => ({
+      ...m,
+      org_member_permissions: m.user_permissions ?? {
+        can_manage_org: false,
+        can_manage_package: false,
+      },
+    })),
+  })
 })

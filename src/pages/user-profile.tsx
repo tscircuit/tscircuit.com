@@ -281,7 +281,6 @@ export const UserProfilePage = () => {
                 <PackageCard
                   key={pkg.package_id}
                   pkg={pkg}
-                  baseUrl={baseUrl}
                   showOwner={activeTab === "starred"}
                   isCurrentUserPackage={
                     isCurrentUserProfile && activeTab === "all"

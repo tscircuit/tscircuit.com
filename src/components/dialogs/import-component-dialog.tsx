@@ -13,6 +13,7 @@ export type ImportComponentDialogProps = {
   | "onJlcpcbComponentTsxLoaded"
   | "onKicadStringSelected"
   | "jlcpcbProxyRequestHeaders"
+  | "jlcpcbProxyApiBase"
 >
 
 export const ImportComponentDialog = ({

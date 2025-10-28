@@ -11,8 +11,8 @@ export default withRouteSpec({
     })
     .and(
       z.object({
-        name: z.string().optional(),
-        display_name: z.string().optional(),
+        name: z.string().min(5).max(40).optional(),
+        display_name: z.string().max(50).optional(),
         github_handle: z.string().trim().min(1).nullable().optional(),
       }),
     ),
@@ -83,8 +83,7 @@ export default withRouteSpec({
   } = {}
 
   if (name) {
-    updates.github_handle = name
-    updates.org_name = name
+    updates.org_name = name // TODO NORMALISE
   }
 
   if (github_handle !== undefined) {

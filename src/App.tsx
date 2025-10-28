@@ -286,10 +286,6 @@ function App() {
               component={ReleaseBuildsPage}
             />
             <Route
-              path="/:author/:packageName/releases/:releaseId"
-              component={ReleaseDetailPage}
-            />
-            <Route
               path="/:author/:packageName/releases/:packageReleaseId/preview"
               component={ReleasePreviewPage}
             />

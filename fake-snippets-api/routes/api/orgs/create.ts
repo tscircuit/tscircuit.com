@@ -6,7 +6,17 @@ import { publicOrgSchema } from "fake-snippets-api/lib/db/schema"
 export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z.object({
-    name: z.string(),
+    name: z
+      .string()
+      .min(5)
+      .max(40)
+      .regex(
+        /^[a-z0-9_-]+$/,
+        "Name must contain only lowercase letters, numbers, underscores, and hyphens",
+      )
+      .regex(/^[a-z0-9]/, "Name must start with a letter or number")
+      .regex(/[a-z0-9]$/, "Name must end with a letter or number"),
+    display_name: z.string().min(5).max(40).optional(),
     github_handle: z.string().optional(),
   }),
   auth: "session",
@@ -14,7 +24,7 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { name, github_handle } = req.commonParams
+  const { github_handle, name, display_name } = req.commonParams
 
   const existing = ctx.db.getOrg({ org_name: name })
 
@@ -24,9 +34,11 @@ export default withRouteSpec({
       message: "An organization with this name already exists",
     })
   }
+
   const newOrg = {
     owner_account_id: ctx.auth.account_id,
-    name: name,
+    name,
+    org_display_name: display_name,
     created_at: new Date(),
     can_manage_org: true,
     ...(github_handle ? { github_handle } : {}),
@@ -34,7 +46,6 @@ export default withRouteSpec({
 
   const org = ctx.db.addOrganization(newOrg)
 
-  // Add the creator as a member of the organization
   ctx.db.addOrganizationAccount({
     org_id: org.org_id,
     account_id: ctx.auth.account_id,

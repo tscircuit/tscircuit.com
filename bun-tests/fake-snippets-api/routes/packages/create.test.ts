@@ -45,7 +45,9 @@ test("create package under org", async () => {
 
   expect(response.status).toBe(200)
   expect(response.data.package.owner_org_id).toBe(seed.organization.org_id)
-  expect(response.data.package.owner_github_username).toBe("jane")
+  expect(response.data.package.owner_github_username).toBe(
+    seed.organization.github_handle,
+  )
   expect(response.data.package.is_private).toBe(true)
   expect(response.data.package.description).toBe("Test Description")
 })

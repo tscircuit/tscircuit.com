@@ -91,7 +91,7 @@ export const NewPackageSavePromptDialog = ({
                         organizations.find(
                           (org) => org.org_id === selectedOrgId,
                         )?.name ||
-                        `Org ${selectedOrgId.slice(0, 8)}`}
+                        `Org ${selectedOrgId.slice(0, 10)}`}
                     </span>
                   ) : (
                     <span className="text-slate-500">
@@ -176,11 +176,7 @@ export const NewPackageSavePromptDialog = ({
               onSave({
                 name: fullPackageName,
                 isPrivate,
-                ...(isOwnerPersonalOrg
-                  ? {}
-                  : {
-                      org_id: selectedOrgId,
-                    }),
+                org_id: selectedOrgId,
               })
               onOpenChange(false)
             }}

@@ -1,46 +1,50 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface UsePreviewImagesProps {
-  packageName?: string
-  fsMapHash?: string
+  cadPreviewUrl?: string | null
+  pcbPreviewUrl?: string | null
+  schematicPreviewUrl?: string | null
 }
 
 export function usePreviewImages({
-  packageName,
-  fsMapHash,
+  cadPreviewUrl,
+  pcbPreviewUrl,
+  schematicPreviewUrl,
 }: UsePreviewImagesProps) {
   const [imageStatus, setImageStatus] = useState<
     Record<string, "loading" | "loaded" | "error">
   >({
-    "3d": "loading",
-    pcb: "loading",
-    schematic: "loading",
+    "3d": cadPreviewUrl ? "loading" : "error",
+    pcb: pcbPreviewUrl ? "loading" : "error",
+    schematic: schematicPreviewUrl ? "loading" : "error",
   })
+
+  useEffect(() => {
+    setImageStatus({
+      "3d": cadPreviewUrl ? "loading" : "error",
+      pcb: pcbPreviewUrl ? "loading" : "error",
+      schematic: schematicPreviewUrl ? "loading" : "error",
+    })
+  }, [cadPreviewUrl, pcbPreviewUrl, schematicPreviewUrl])
 
   const views = [
     {
       id: "3d",
       label: "3D View",
       backgroundClass: "bg-gray-100",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/3d.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: cadPreviewUrl ?? undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
       backgroundClass: "bg-black",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/pcb.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: pcbPreviewUrl ?? undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
       backgroundClass: "bg-[#F5F1ED]",
-      imageUrl: packageName
-        ? `https://api.tscircuit.com/packages/images/${packageName}/schematic.png?fs_sha=${fsMapHash}`
-        : undefined,
+      imageUrl: schematicPreviewUrl ?? undefined,
     },
   ]
 
@@ -59,6 +63,7 @@ export function usePreviewImages({
   }
 
   const availableViews = views
+    .filter((view) => Boolean(view.imageUrl))
     .map((view) => ({
       ...view,
       status: imageStatus[view.id],

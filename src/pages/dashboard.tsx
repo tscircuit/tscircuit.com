@@ -168,7 +168,6 @@ export const DashboardPage = () => {
                       <PackageCard
                         key={pkg.package_id}
                         pkg={pkg}
-                        baseUrl={baseUrl}
                         isCurrentUserPackage={
                           pkg.owner_github_username === currentUser
                         }

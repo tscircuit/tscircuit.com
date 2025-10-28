@@ -20,12 +20,11 @@ import {
 import { SnippetType, SnippetTypeIcon } from "./SnippetTypeIcon"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { getPackagePreviewImageUrl } from "@/lib/utils/getPackagePreviewImageUrl"
 
 export interface PackageCardProps {
   /** The package data to display */
   pkg: Package
-  /** Base URL for package images */
-  baseUrl: string
   /** Whether to show the owner name (useful in starred views) */
   showOwner?: boolean
   /** Whether this is the current user's package (enables edit/delete options) */
@@ -46,7 +45,6 @@ export interface PackageCardProps {
 
 export const PackageCard: React.FC<PackageCardProps> = ({
   pkg,
-  baseUrl,
   showOwner = false,
   isCurrentUserPackage = false,
   onDeleteClick,
@@ -71,8 +69,19 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     copyToClipboard(shareUrl)
   }
 
-  const availableImages = ["pcb", "schematic", "assembly", "3d"]
+  const availableImages = ["pcb", "schematic", "3d"]
 
+  const previewImageUrl = getPackagePreviewImageUrl(
+    pkg,
+    pkg.default_view as "pcb" | "schematic" | "3d",
+  )
+  const packageNameWithOwner = pkg?.name
+  const packageOwnerName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[0]
+    : pkg?.owner_github_username
+  const packageName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[1]
+    : pkg?.unscoped_name
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
@@ -81,17 +90,21 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div
           className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
-          <img
-            src={`${baseUrl}/packages/images/${pkg.owner_github_username}/${pkg.unscoped_name}/${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3d"}.png?fs_sha=${pkg.latest_package_release_fs_sha}`}
-            alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
-            className={`object-cover h-full w-full ${imageTransform}`}
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-              e.currentTarget.nextElementSibling?.classList.remove("hidden")
-              e.currentTarget.nextElementSibling?.classList.add("flex")
-            }}
-          />
-          <div className="hidden items-center justify-center h-full w-full">
+          {previewImageUrl ? (
+            <img
+              src={previewImageUrl}
+              alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
+              className={`object-cover h-full w-full ${imageTransform}`}
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                e.currentTarget.nextElementSibling?.classList.add("flex")
+              }}
+            />
+          ) : null}
+          <div
+            className={`${previewImageUrl ? "hidden" : "flex"} items-center justify-center h-full w-full`}
+          >
             <CircuitBoard className="w-6 h-6 text-gray-300" />
           </div>
         </div>
@@ -101,12 +114,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               {showOwner && (
                 <>
                   <span className="text-gray-700 text-md">
-                    {pkg.owner_github_username}
+                    {packageOwnerName}
                   </span>
                   <span className="mx-1">/</span>
                 </>
               )}
-              <span className="text-gray-900">{pkg.unscoped_name}</span>
+              <span className="text-gray-900">{packageName}</span>
             </h2>
             <div className="flex items-center gap-2">
               <SnippetTypeIcon

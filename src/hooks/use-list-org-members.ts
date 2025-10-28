@@ -19,7 +19,7 @@ export const useListOrgMembers = ({
       }
       const params = orgId ? { org_id: orgId } : { name: orgName }
       const { data } = await axios.get("/orgs/list_members", { params })
-      return data.members
+      return data.org_members
     },
     {
       enabled: Boolean(orgId || orgName),

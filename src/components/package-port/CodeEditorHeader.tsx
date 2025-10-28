@@ -33,7 +33,7 @@ import {
 import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { openJlcpcbImportIssue } from "@/hooks/use-jlcpcb-component-import"
-
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -66,6 +66,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = aiAutocompleteState
   const session = useGlobalStore((s) => s.session)
+  const apiBaseUrl = useApiBaseUrl()
 
   const jlcpcbProxyRequestHeaders = useMemo(() => {
     if (!session?.token) return undefined
@@ -188,6 +189,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 
   const handleJlcpcbComponentTsxLoaded = useCallback(
     async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
+      console.log(232, result, tsx)
       const partNumber = result.component.partNumber || "component"
 
       try {
@@ -390,12 +392,12 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   onClick={() => {
                     setAiAutocompleteEnabled((prev) => !prev)
                   }}
-                  className={`relative group bg-transparent ${aiAutocompleteEnabled ? "text-gray-600 bg-gray-50" : "text-gray-400"}`}
+                  className={`relative group bg-transparent ${aiAutocompleteEnabled ? "text-black bg-white" : "text-gray-500 group-hover:text-black"}`}
                 >
                   <Bot className="h-4 w-4" />
                   {!aiAutocompleteEnabled && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-5 h-0.5 group-hover:bg-slate-900 bg-gray-400 rotate-45 rounded-full" />
+                      <div className="w-5 h-0.5 group-hover:bg-black bg-gray-500 rotate-45 rounded-full" />
                     </div>
                   )}
                 </Button>
@@ -418,6 +420,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           onJlcpcbComponentTsxLoaded={handleJlcpcbComponentTsxLoaded}
           onKicadStringSelected={handleKicadStringSelected}
           jlcpcbProxyRequestHeaders={jlcpcbProxyRequestHeaders}
+          jlcpcbProxyApiBase={apiBaseUrl}
         />
       </div>
     </>

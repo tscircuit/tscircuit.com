@@ -287,7 +287,7 @@ export default function ImportantFilesView({
         : null,
       {
         keepPreviousData: true,
-        staleTime: Infinity,
+        staleTime: 5 * 60 * 1000, // 5 minutes
         refetchOnMount: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,

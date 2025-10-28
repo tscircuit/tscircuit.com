@@ -10,7 +10,9 @@ test("GET /api/orgs/list - should return user's organizations when authenticated
   const responseBody = listResponse.data
   expect(responseBody.ok).toBe(true)
   expect(Array.isArray(responseBody.orgs)).toBe(true)
-  const personalOrg = responseBody.orgs[0]
+  const personalOrg = responseBody.orgs.find(
+    (x: { is_personal_org: boolean }) => x.is_personal_org,
+  )
   expect(personalOrg).toBeDefined()
   expect(personalOrg.name).toBe("jane")
   expect(personalOrg.user_permissions?.can_manage_org).toBe(true)

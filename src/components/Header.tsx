@@ -24,7 +24,23 @@ const HeaderButton = ({
   alsoHighlightForUrl?: string
 }) => {
   const [location] = useLocation()
+  const isExternal = /^(https?|mailto|tel):\/?\//i.test(href)
+  if (isExternal) {
+    return (
+      <a
+        className={cn("header-button", className)}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Button className={className} variant="ghost">
+          {children}
+        </Button>
+      </a>
+    )
+  }
 
+  // For internal links, use the Link Component
   if (location === href || location === alsoHighlightForUrl) {
     return (
       <Link className={cn("header-button", className)} href={href}>
@@ -97,11 +113,9 @@ export default function Header() {
         <a
           href="https://tscircuit.com/join"
           target="_blank"
-          className="lg:mr-2"
+          className="lg:mr-4"
         >
-          <Button variant="ghost">
-            <DiscordLogoIcon className="text-gray-400 hidden lg:block hover:text-gray-600 transition-colors w-4 h-4" />
-          </Button>
+          <DiscordLogoIcon className="text-gray-400 hidden lg:block hover:text-gray-600 transition-colors w-4 h-4" />
         </a>
         <a
           href="https://github.com/tscircuit/tscircuit"

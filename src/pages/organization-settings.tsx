@@ -32,17 +32,21 @@ import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
+import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
+import { cn } from "@/lib/utils"
 import {
   Users,
-  Crown,
   AlertTriangle,
   Loader2,
   PlusIcon,
   ArrowLeft,
   Building2,
+  Trash2,
 } from "lucide-react"
+import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
+import { RoleBadge } from "@/components/ui/role-badge"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
@@ -59,6 +63,10 @@ const organizationSettingsSchema = z.object({
       /^[a-zA-Z0-9_-]+$/,
       "Organization name can only contain letters, numbers, underscores, and hyphens",
     ),
+  display_name: z
+    .string()
+    .max(50, "Display name must be 50 characters or less")
+    .optional(),
 })
 
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
@@ -81,6 +89,8 @@ export default function OrganizationSettingsPage() {
     member: Account
     show: boolean
   }>({ member: {} as Account, show: false })
+  const [showDeleteOrgDialog, setShowDeleteOrgDialog] = useState(false)
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
   const [newMemberInput, setNewMemberInput] = useState("")
   const [addMemberError, setAddMemberError] = useState("")
 
@@ -88,6 +98,7 @@ export default function OrganizationSettingsPage() {
     resolver: zodResolver(organizationSettingsSchema),
     defaultValues: {
       name: "",
+      display_name: "",
     },
   })
 
@@ -103,7 +114,10 @@ export default function OrganizationSettingsPage() {
         title: "Organization updated",
         description: "Organization settings have been updated successfully.",
       })
-      form.reset({ name: updatedOrg.name || "" })
+      form.reset({
+        name: updatedOrg.name || "",
+        display_name: updatedOrg.display_name || "",
+      })
       if (updatedOrg.name !== orgname) {
         navigate(`/${updatedOrg.name}/settings`)
       }
@@ -142,9 +156,31 @@ export default function OrganizationSettingsPage() {
     },
   })
 
+  const deleteOrgMutation = useDeleteOrgMutation({
+    onSuccess: () => {
+      toast({
+        title: "Organization deleted",
+        description: "Organization has been permanently deleted.",
+      })
+      navigate("/dashboard")
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.data?.error?.message
+      toast({
+        title: "Failed to delete organization",
+        description:
+          errorMessage || "An error occurred while deleting the organization.",
+        variant: "destructive",
+      })
+    },
+  })
+
   useEffect(() => {
     if (organization) {
-      form.reset({ name: organization.name || "" })
+      form.reset({
+        name: organization.name || "",
+        display_name: organization.display_name || "",
+      })
     }
   }, [organization, form])
 
@@ -216,6 +252,7 @@ export default function OrganizationSettingsPage() {
     updateOrgMutation.mutate({
       orgId: organization.org_id,
       name: data.name,
+      display_name: data.display_name,
     })
   }
 
@@ -279,6 +316,19 @@ export default function OrganizationSettingsPage() {
     })
   }
 
+  const handleDeleteOrg = () => {
+    setShowDeleteOrgDialog(true)
+  }
+
+  const confirmDeleteOrg = () => {
+    if (!organization) return
+    deleteOrgMutation.mutate({
+      orgId: organization.org_id,
+    })
+    setShowDeleteOrgDialog(false)
+    setIsConfirmingDelete(false)
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
@@ -319,15 +369,44 @@ export default function OrganizationSettingsPage() {
                               Organization name
                             </FormLabel>
                             <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
-                              This is your organization's display name and URL
-                              identifier. Choose carefully as this affects your
-                              organization's web address.
+                              This is your organization's URL identifier. Choose
+                              carefully as this affects your organization's web
+                              address.
                             </FormDescription>
                           </div>
                           <div className="lg:col-span-3">
                             <FormControl>
                               <Input
                                 placeholder="Enter organization name"
+                                {...field}
+                                disabled={updateOrgMutation.isLoading}
+                                className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                              />
+                            </FormControl>
+                            <FormMessage className="mt-2" />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="display_name"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+                          <div className="lg:col-span-2">
+                            <FormLabel className="text-sm font-semibold text-gray-900">
+                              Display name
+                            </FormLabel>
+                            <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
+                              This is the name that will be displayed publicly.
+                              If left empty, the organization name will be used.
+                            </FormDescription>
+                          </div>
+                          <div className="lg:col-span-3">
+                            <FormControl>
+                              <Input
+                                placeholder="Enter display name"
                                 {...field}
                                 disabled={updateOrgMutation.isLoading}
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -463,66 +542,104 @@ export default function OrganizationSettingsPage() {
                       </p>
                     </div>
                   ) : (
-                    members.map((member) => (
-                      <div
-                        key={member.account_id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
-                      >
-                        <Link
-                          href={`/${member.github_username || member.account_id}`}
-                          className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                    members.map((member) => {
+                      const role = getMemberRole(
+                        organization,
+                        member.account_id,
+                      )
+                      return (
+                        <div
+                          key={member.account_id}
+                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
                         >
-                          <Avatar className="h-12 w-12 border-2 border-gray-200 shadow-sm">
-                            <AvatarImage
-                              src={`https://github.com/${member.github_username}.png`}
-                              alt={`${member.github_username} avatar`}
-                            />
-                            <AvatarFallback className="text-sm bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-medium">
-                              {(
-                                member.github_username ||
-                                member.account_id ||
-                                ""
-                              )
-                                .slice(0, 2)
-                                .toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
-                                {member.github_username || member.account_id}
-                              </span>
-                              {member.account_id ===
-                                organization.owner_account_id && (
-                                <div className="flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium flex-shrink-0">
-                                  <Crown className="h-3 w-3" />
-                                  Owner
-                                </div>
-                              )}
+                          <Link
+                            href={`/${member.github_username || member.account_id}`}
+                            className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                          >
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage
+                                src={`https://github.com/${member.github_username}.png`}
+                                alt={`${member.github_username} avatar`}
+                              />
+                              <AvatarFallback className="text-sm font-medium">
+                                {(
+                                  member.github_username ||
+                                  member.account_id ||
+                                  ""
+                                )
+                                  .slice(0, 2)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
+                                  {member.github_username || member.account_id}
+                                </span>
+                                {role !== "member" && <RoleBadge role={role} />}
+                              </div>
+                              <p className="text-sm text-gray-500 truncate">
+                                {getRoleDescription(role)}
+                              </p>
                             </div>
-                            <p className="text-sm text-gray-500 truncate">
-                              {member.account_id ===
-                              organization.owner_account_id
-                                ? "Full access to organization settings"
-                                : "Standard member access"}
-                            </p>
-                          </div>
-                        </Link>
-                        {member.account_id !== organization.owner_account_id &&
-                          member.account_id !== session?.account_id && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveMember(member)}
-                              disabled={removeMemberMutation.isLoading}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
-                            >
-                              Remove
-                            </Button>
-                          )}
-                      </div>
-                    ))
+                          </Link>
+                          {member.account_id !==
+                            organization.owner_account_id &&
+                            member.account_id !== session?.account_id && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveMember(member)}
+                                disabled={removeMemberMutation.isLoading}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
+                              >
+                                Remove
+                              </Button>
+                            )}
+                        </div>
+                      )
+                    })
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="bg-white border border-red-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-red-200 bg-red-50">
+                <h2 className="text-xl font-semibold text-red-900">
+                  Danger Zone
+                </h2>
+                <p className="text-sm text-red-600 mt-2">
+                  Irreversible and destructive actions for this organization.
+                </p>
+              </div>
+
+              <div className="p-6 lg:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                      Delete Organization
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                      Permanently delete this organization and all associated
+                      data. This action cannot be undone and will remove all
+                      packages, snippets, and organization information.
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <Button
+                      variant="destructive"
+                      onClick={handleDeleteOrg}
+                      disabled={
+                        organization.owner_account_id !== session?.account_id
+                      }
+                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm w-full lg:w-auto"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Organization
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -563,6 +680,55 @@ export default function OrganizationSettingsPage() {
               )}
               Remove member
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={showDeleteOrgDialog}
+        onOpenChange={(open) => {
+          setShowDeleteOrgDialog(open)
+          if (!open) {
+            setIsConfirmingDelete(false)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Organization
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you absolutely sure you want to delete{" "}
+              <strong>{organization?.name}</strong>? This action is permanent
+              and cannot be undone. All packages, snippets, and organization
+              data will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            {!isConfirmingDelete ? (
+              <Button
+                variant="destructive"
+                onClick={() => setIsConfirmingDelete(true)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete Organization
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                onClick={confirmDeleteOrg}
+                disabled={deleteOrgMutation.isLoading}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {deleteOrgMutation.isLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Yes, Delete Organization
+              </Button>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

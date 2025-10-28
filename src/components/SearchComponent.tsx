@@ -4,7 +4,6 @@ import { useLocation } from "wouter"
 import React, { useEffect, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { Alert } from "./ui/alert"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { Link } from "wouter"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -60,7 +59,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const resultsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [location, setLocation] = useLocation()
-  const apiBaseUrl = useApiBaseUrl()
 
   const { data: searchResults, isLoading } = useQuery(
     ["packageSearch", searchQuery],
@@ -202,60 +200,73 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200 no-scrollbar">
-              {searchResults.map((pkg: any, index: number) => (
-                <li
-                  key={pkg.package_id}
-                  className={cn(
-                    "p-2 hover:bg-gray-50",
-                    index === highlightedIndex && "bg-gray-100",
-                  )}
-                >
-                  <LinkWithNewTabHandling
-                    href={
-                      shouldOpenInEditor
-                        ? `/editor?package_id=${pkg.package_id}`
-                        : `/${pkg.name}`
-                    }
-                    shouldOpenInNewTab={shouldOpenInNewTab}
-                    className="flex"
-                    onClick={() => {
-                      setShowResults(false)
-                      if (closeOnClick) closeOnClick()
-                    }}
+              {searchResults.map((pkg: any, index: number) => {
+                const previewImageUrl =
+                  pkg.latest_pcb_preview_image_url ??
+                  pkg.latest_cad_preview_image_url ??
+                  pkg.latest_sch_preview_image_url ??
+                  undefined
+                const hasPreviewImage = Boolean(previewImageUrl)
+
+                return (
+                  <li
+                    key={pkg.package_id}
+                    className={cn(
+                      "p-2 hover:bg-gray-50",
+                      index === highlightedIndex && "bg-gray-100",
+                    )}
                   >
-                    <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
-                      <img
-                        src={`${apiBaseUrl}/packages/images/${pkg.name}/pcb.svg`}
-                        alt={`PCB preview for ${pkg.name}`}
-                        draggable={false}
-                        className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none"
-                          e.currentTarget.nextElementSibling?.classList.remove(
-                            "hidden",
-                          )
-                          e.currentTarget.nextElementSibling?.classList.add(
-                            "flex",
-                          )
-                        }}
-                      />
-                      <div className="w-12 h-12 hidden items-center justify-center">
-                        <CircuitBoard className="w-6 h-6 text-gray-300" />
-                      </div>
-                    </div>
-                    <div className="flex-grow">
-                      <div className="font-medium text-blue-600 break-words text-xs">
-                        {pkg.name}
-                      </div>
-                      {pkg.description && (
-                        <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                          {pkg.description}
+                    <LinkWithNewTabHandling
+                      href={
+                        shouldOpenInEditor
+                          ? `/editor?package_id=${pkg.package_id}`
+                          : `/${pkg.name}`
+                      }
+                      shouldOpenInNewTab={shouldOpenInNewTab}
+                      className="flex"
+                      onClick={() => {
+                        setShowResults(false)
+                        if (closeOnClick) closeOnClick()
+                      }}
+                    >
+                      <div className="w-12 h-12 overflow-hidden mr-2 flex-shrink-0 rounded-sm bg-gray-50 border flex items-center justify-center">
+                        {hasPreviewImage ? (
+                          <img
+                            src={previewImageUrl}
+                            alt={`PCB preview for ${pkg.name}`}
+                            draggable={false}
+                            className="w-12 h-12 object-contain p-1 scale-[4] rotate-45"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none"
+                              e.currentTarget.nextElementSibling?.classList.remove(
+                                "hidden",
+                              )
+                              e.currentTarget.nextElementSibling?.classList.add(
+                                "flex",
+                              )
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-12 h-12 ${hasPreviewImage ? "hidden" : "flex"} items-center justify-center`}
+                        >
+                          <CircuitBoard className="w-6 h-6 text-gray-300" />
                         </div>
-                      )}
-                    </div>
-                  </LinkWithNewTabHandling>
-                </li>
-              ))}
+                      </div>
+                      <div className="flex-grow">
+                        <div className="font-medium text-blue-600 break-words text-xs">
+                          {pkg.name}
+                        </div>
+                        {pkg.description && (
+                          <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
+                            {pkg.description}
+                          </div>
+                        )}
+                      </div>
+                    </LinkWithNewTabHandling>
+                  </li>
+                )
+              })}
             </ul>
           ) : (
             <Alert variant="default" className="p-4 text-center">

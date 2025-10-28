@@ -11,13 +11,14 @@ export const useCreateOrgMutation = ({
 
   return useMutation(
     ["createOrg"],
-    async ({ name }: { name: string }) => {
+    async ({ name, display_name }: { name: string; display_name?: string }) => {
       if (!session) throw new Error("No session")
 
       const {
         data: { org: newOrg },
       } = await axios.post("/orgs/create", {
         name,
+        display_name,
       })
 
       if (!newOrg) {
