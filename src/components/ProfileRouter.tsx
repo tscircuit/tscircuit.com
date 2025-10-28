@@ -8,7 +8,7 @@ import { useOrganization } from "@/hooks/use-organization"
 
 const ProfileRouter: React.FC = () => {
   const { username } = useParams()
-  const { organization, isLoading, error } = useOrganization({
+  const { organization, isLoading, error, isFetched } = useOrganization({
     orgName: username,
   })
 
@@ -16,7 +16,7 @@ const ProfileRouter: React.FC = () => {
     return <NotFoundPage heading="Username Not Provided" />
   }
 
-  if (isLoading) {
+  if (isLoading && !isFetched) {
     return <FullPageLoader />
   }
 

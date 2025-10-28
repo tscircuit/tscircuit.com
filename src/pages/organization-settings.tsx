@@ -35,7 +35,6 @@ import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutati
 import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
-import { cn } from "@/lib/utils"
 import {
   Users,
   AlertTriangle,
@@ -377,6 +376,9 @@ export default function OrganizationSettingsPage() {
                           <div className="lg:col-span-3">
                             <FormControl>
                               <Input
+                                type="text"
+                                autoComplete="off"
+                                spellCheck={false}
                                 placeholder="Enter organization name"
                                 {...field}
                                 disabled={updateOrgMutation.isLoading}
@@ -514,7 +516,7 @@ export default function OrganizationSettingsPage() {
                         disabled={
                           !newMemberInput.trim() || addMemberMutation.isLoading
                         }
-                        className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white px-6 text-sm font-medium shadow-sm"
+                        className="w-full md:h-11 bg-blue-600 hover:bg-blue-700 text-white px-6 text-sm font-medium shadow-sm"
                       >
                         {addMemberMutation.isLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -578,24 +580,39 @@ export default function OrganizationSettingsPage() {
                                 </span>
                                 {role !== "member" && <RoleBadge role={role} />}
                               </div>
-                              <p className="text-sm text-gray-500 truncate">
+                              <p className="hidden md:flex text-sm text-gray-500 truncate">
                                 {getRoleDescription(role)}
                               </p>
                             </div>
                           </Link>
-                          {member.account_id !==
-                            organization.owner_account_id &&
-                            member.account_id !== session?.account_id && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemoveMember(member)}
-                                disabled={removeMemberMutation.isLoading}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
-                              >
-                                Remove
-                              </Button>
-                            )}
+                          <div className="flex flex-wrap gap-4">
+                            {member.account_id !==
+                              organization.owner_account_id &&
+                              member.account_id !== session?.account_id && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveMember(member)}
+                                  disabled={removeMemberMutation.isLoading}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            {member.account_id !==
+                              organization.owner_account_id &&
+                              member.account_id !== session?.account_id &&
+                              organization.user_permissions?.can_manage_org && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  disabled={true}
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 self-start sm:self-center px-4 py-2"
+                                >
+                                  Edit
+                                </Button>
+                              )}
+                          </div>
                         </div>
                       )
                     })
@@ -656,7 +673,7 @@ export default function OrganizationSettingsPage() {
           setShowRemoveMemberDialog({ ...showRemoveMemberDialog, show: open })
         }
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Remove member</AlertDialogTitle>
             <AlertDialogDescription>
