@@ -85,7 +85,6 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
   }
 }, 10000)
 
-
 test("POST /orgs/create accepts explicit tscircuit_handle", async () => {
   const { jane_axios, db, seed } = await getTestServer()
 
@@ -102,9 +101,9 @@ test("POST /orgs/create accepts explicit tscircuit_handle", async () => {
   expect(org.name).toBe(orgName)
   expect(org.tscircuit_handle).toBe(tscHandle)
   expect(org.github_handle).toBeNull()
-  
-  const created =  db.getOrg({
-    org_id: org.org_id
+
+  const created = db.getOrg({
+    org_id: org.org_id,
   })
 
   expect(created?.tscircuit_handle).toBe(tscHandle)
