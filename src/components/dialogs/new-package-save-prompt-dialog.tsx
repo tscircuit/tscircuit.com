@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
+import { Alert, AlertDescription } from "../ui/alert"
 import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -38,7 +39,13 @@ export const NewPackageSavePromptDialog = ({
   const session = useGlobalStore((s) => s.session)
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate)
   const [selectedOrgId, setSelectedOrgId] = useState<string>("")
-  const { data: organizations, isLoading: orgsLoading } = useListUserOrgs()
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const {
+    data: organizations,
+    isLoading: orgsLoading,
+    error: orgsError,
+  } = useListUserOrgs()
 
   const isOwnerPersonalOrg = useMemo(() => {
     if (!selectedOrgId) return false
@@ -50,12 +57,44 @@ export const NewPackageSavePromptDialog = ({
   }, [selectedOrgId, organizations, session?.github_username])
 
   const fullPackageName = useMemo(() => {
-    if (!Boolean(packageName)) return
+    if (!Boolean(packageName.trim())) return
     if (selectedOrgId) {
-      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${packageName}`
+      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${packageName.trim()}`
     }
-    return `${session?.github_username}/${packageName}`
+    return `${session?.github_username}/${packageName.trim()}`
   }, [selectedOrgId, packageName, organizations, session?.github_username])
+
+  const extractErrorMessage = (error: any): string => {
+    const serverError = error?.data?.message
+    const firstLine = serverError.split("\n")[0]
+    if (firstLine.includes('for "')) {
+      return firstLine
+        .replace(/for ".*?"\.?$/, "")
+        .split(".")[0]
+        .trim()
+    }
+    if (!firstLine || firstLine.length < 1)
+      return "Failed to save package. Please try again."
+    return firstLine
+  }
+
+  const handleSave = async () => {
+    setSaveError(null)
+    setIsSaving(true)
+
+    try {
+      await onSave({
+        name: fullPackageName,
+        isPrivate,
+        org_id: selectedOrgId,
+      })
+      onOpenChange(false)
+    } catch (error) {
+      setSaveError(extractErrorMessage(error))
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   useEffect(() => {
     if (organizations && organizations.length > 0 && !selectedOrgId) {
@@ -65,6 +104,13 @@ export const NewPackageSavePromptDialog = ({
       )
     }
   }, [organizations, selectedOrgId])
+
+  useEffect(() => {
+    if (open) {
+      setSaveError(null)
+      setIsSaving(false)
+    }
+  }, [open])
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -74,6 +120,18 @@ export const NewPackageSavePromptDialog = ({
             Would you like to save this package?
           </DialogDescription>
         </DialogHeader>
+
+        {orgsError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>
+              Failed to load organizations:{" "}
+              {orgsError instanceof Error
+                ? orgsError.message
+                : "Please try refreshing the page."}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-4 py-1">
           <div className="space-y-2">
             <Label className="text-sm font-medium">Organization</Label>
@@ -129,7 +187,7 @@ export const NewPackageSavePromptDialog = ({
             <Input
               value={packageName}
               onChange={(e) => setPackageName(e.target.value)}
-              placeholder="Untitled Package"
+              placeholder="my-awesome-package"
               className="w-full"
             />
           </div>
@@ -167,22 +225,26 @@ export const NewPackageSavePromptDialog = ({
             </div>
           </div>
         </div>
+
+        {saveError && (
+          <Alert variant="destructive" className="mt-2">
+            <AlertDescription>{saveError}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSaving}
+          >
             Cancel
           </Button>
           <Button
-            onClick={() => {
-              onSave({
-                name: fullPackageName,
-                isPrivate,
-                org_id: selectedOrgId,
-              })
-              onOpenChange(false)
-            }}
-            disabled={!selectedOrgId || orgsLoading || !session}
+            onClick={handleSave}
+            disabled={orgsLoading || !session || isSaving || !!orgsError}
           >
-            Save
+            {isSaving ? "Saving..." : "Save"}
           </Button>
         </div>
       </DialogContent>
