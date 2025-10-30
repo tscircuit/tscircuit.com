@@ -64,19 +64,22 @@ export const NewPackageSavePromptDialog = ({
     return `${session?.github_username}/${packageName.trim()}`
   }, [selectedOrgId, packageName, organizations, session?.github_username])
 
-  const extractErrorMessage = (error: any): string => {
-    const serverError = error?.data?.message
-    const firstLine = serverError.split("\n")[0]
-    if (firstLine.includes('for "')) {
-      return firstLine
-        .replace(/for ".*?"\.?$/, "")
-        .split(".")[0]
-        .trim()
-    }
-    if (!firstLine || firstLine.length < 1)
-      return "Failed to save package. Please try again."
-    return firstLine
+const extractErrorMessage = (error: any): string => {
+  const serverError = error?.data?.message
+  if (!serverError || typeof serverError !== 'string') {
+    return "Failed to save package. Please try again."
   }
+  const firstLine = serverError.split("\n")[0]
+  if (firstLine.includes('for "')) {
+    return firstLine
+      .replace(/for ".*?"\.?$/, "")
+      .split(".")[0]
+      .trim()
+  }
+  if (!firstLine || firstLine.length < 1)
+    return "Failed to save package. Please try again."
+  return firstLine
+}
 
   const handleSave = async () => {
     setSaveError(null)
