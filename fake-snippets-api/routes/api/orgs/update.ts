@@ -14,6 +14,7 @@ export default withRouteSpec({
         name: z.string().min(5).max(40).optional(),
         display_name: z.string().max(50).optional(),
         github_handle: z.string().trim().min(1).nullable().optional(),
+        tscircuit_handle: z.string().trim().min(1).nullable().optional(),
       }),
     ),
   auth: "session",
@@ -21,12 +22,14 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name, display_name, github_handle } = req.commonParams as {
-    org_id: string
-    name?: string
-    display_name?: string
-    github_handle?: string
-  }
+  const { org_id, name, display_name, github_handle, tscircuit_handle } =
+    req.commonParams as {
+      org_id: string
+      name?: string
+      display_name?: string
+      tscircuit_handle?: string | null
+      github_handle?: string
+    }
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -80,6 +83,7 @@ export default withRouteSpec({
     org_name?: string
     org_display_name?: string
     github_handle?: string
+    tscircuit_handle?: string | null
   } = {}
 
   if (name) {
@@ -88,6 +92,10 @@ export default withRouteSpec({
 
   if (github_handle !== undefined) {
     updates.github_handle = github_handle
+  }
+
+  if (tscircuit_handle !== undefined) {
+    updates.tscircuit_handle = tscircuit_handle
   }
 
   if (display_name !== undefined) {

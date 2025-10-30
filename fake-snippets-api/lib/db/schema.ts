@@ -70,6 +70,7 @@ export const shippingInfoSchema = z.object({
 export const accountSchema = z.object({
   account_id: z.string(),
   github_username: z.string(),
+  tscircuit_handle: z.string().nullable(),
   shippingInfo: shippingInfoSchema.optional(),
   personal_org_id: z.string().optional(),
   is_tscircuit_staff: z.boolean().default(false),
@@ -444,11 +445,12 @@ export type PackageBuild = z.infer<typeof packageBuildSchema>
 
 export const orgSchema = z.object({
   org_id: z.string(),
-  github_handle: z.string().optional(),
   owner_account_id: z.string(),
   is_personal_org: z.boolean().default(false),
   created_at: z.string().datetime(),
   org_display_name: z.string().optional(),
+  github_handle: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
   org_name: z.string(),
 })
 export type Organization = z.infer<typeof orgSchema>
@@ -477,7 +479,8 @@ export const publicOrgSchema = z.object({
   is_personal_org: z.boolean(),
   display_name: z.string().optional(),
   package_count: z.number(),
-  github_handle: z.string().optional(),
+  github_handle: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
   created_at: z.string(),
   user_permissions: userPermissionsSchema.optional(),
 })

@@ -1154,7 +1154,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         if (!accountsWithPublicPackages.has(account.account_id)) {
           return false
         }
-        return account.github_username.toLowerCase().includes(lowercaseQuery)
+        return (
+          account.github_username.toLowerCase().includes(lowercaseQuery) ||
+          (account.tscircuit_handle?.toLowerCase().includes(lowercaseQuery) ??
+            false)
+        )
       })
       .slice(0, limit || 50)
 
@@ -1667,14 +1671,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     owner_account_id: string
     github_handle?: string
     org_display_name?: string
+    tscircuit_handle?: string
   }) => {
     const newOrganization: Organization = {
       org_name: organization.name,
       org_id: organization.org_id || `org_${get().idCounter + 1}`,
-      github_handle: organization.github_handle,
+      github_handle: organization.github_handle ?? null,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
       org_display_name: organization.org_display_name ?? organization.name,
+      tscircuit_handle: organization.tscircuit_handle ?? null,
       ...organization,
     }
     set((state) => ({
@@ -1693,6 +1699,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     filters?: {
       owner_account_id?: string
       github_handle?: string
+      tscircuit_handle?: string
       name?: string
     },
     auth?: { account_id?: string },
@@ -1711,8 +1718,17 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         return account?.github_username === filters.github_handle
       })
     }
+    if (filters?.tscircuit_handle) {
+      orgs = orgs.filter(
+        (org) => org.tscircuit_handle === filters.tscircuit_handle,
+      )
+    }
     if (filters?.name) {
-      orgs = orgs.filter((org) => org.github_handle === filters.name)
+      orgs = orgs.filter(
+        (org) =>
+          org.github_handle === filters.name ||
+          org.tscircuit_handle === filters.name,
+      )
     }
 
     return orgs.map((org) => {
@@ -1741,6 +1757,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       org_id?: string
       org_name?: string
       github_handle?: string
+      tscircuit_handle?: string
     },
     auth?: { account_id: string },
   ) => {
@@ -1759,7 +1776,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     if (filters?.github_handle) {
       orgs = orgs.filter((org) => org.github_handle === filters.github_handle)
     }
-
+    if (filters?.tscircuit_handle) {
+      orgs = orgs.filter(
+        (org) => org.tscircuit_handle === filters.tscircuit_handle,
+      )
+    }
     if (orgs.length === 0) {
       return null
     }
