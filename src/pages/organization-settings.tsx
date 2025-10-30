@@ -192,7 +192,7 @@ export default function OrganizationSettingsPage() {
   }
 
   if (orgError || !organization) {
-    return <NotFoundPage heading="Organization Not Found" />
+    return <NotFoundPage />
   }
 
   const pageTitle = organization?.name
