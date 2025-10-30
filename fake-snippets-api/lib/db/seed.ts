@@ -6,6 +6,7 @@ export const seed = (db: DbClient) => {
     account_id: "account-1234",
     personal_org_id: "org-1234",
     github_username: "testuser",
+    tscircuit_handle: "testuser",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -21,6 +22,7 @@ export const seed = (db: DbClient) => {
   })
   const seveibarAcc = db.addAccount({
     github_username: "seveibar",
+    tscircuit_handle: "seveibar",
   })
 
   if (process.env.AUTOLOAD_PACKAGES === "true") {
