@@ -12,6 +12,8 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe(orgName)
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBeNull()
   expect(responseBody.org.owner_account_id).toBe(
     String((axios.defaults.headers as any)?.["Authorization"]?.split(" ")[1]),
   )
@@ -47,6 +49,8 @@ test("POST /api/orgs/create - should accept display_name and use it", async () =
   expect(createResponse.status).toBe(200)
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBeNull()
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(displayName)
 })
@@ -60,6 +64,8 @@ test("POST /api/orgs/create - should map name as display_name when not provided"
   expect(createResponse.status).toBe(200)
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBeNull()
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(name)
 })
@@ -93,7 +99,7 @@ test("POST /orgs/create accepts explicit tscircuit_handle", async () => {
 
   const {
     data: { org },
-  } = await jane_axios.post("/orgs/create", {
+  } = await jane_axios.post("/api/orgs/create", {
     name: orgName,
     tscircuit_handle: tscHandle,
   })

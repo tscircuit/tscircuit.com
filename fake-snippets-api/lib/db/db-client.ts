@@ -1704,6 +1704,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     },
     auth?: { account_id?: string },
   ) => {
+    console.log(filters)
     let orgs = get().organizations
     if (filters?.owner_account_id) {
       orgs = orgs.filter(
