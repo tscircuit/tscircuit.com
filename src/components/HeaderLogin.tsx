@@ -46,7 +46,10 @@ export const HeaderLogin = () => {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button type="button" className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+        <button
+          type="button"
+          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
           <Avatar className="w-8 h-8 login-avatar">
             <AvatarImage
               src={`https://github.com/${session?.github_username}.png?size=40`}
