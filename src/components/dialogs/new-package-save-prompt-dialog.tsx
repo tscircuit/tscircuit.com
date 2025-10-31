@@ -190,7 +190,7 @@ export const NewPackageSavePromptDialog = ({
             <Input
               value={packageName}
               onChange={(e) =>
-                setPackageName(e.target.value.replace(" ", "").trim())
+                setPackageName(e.target.value.replaceAll(" ", ""))
               }
               placeholder="my-awesome-package"
               className="w-full"
