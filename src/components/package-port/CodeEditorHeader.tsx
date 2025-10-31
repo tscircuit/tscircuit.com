@@ -9,7 +9,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { AlertTriangle, PanelRightClose, Bot } from "lucide-react"
+import {
+  AlertTriangle,
+  PanelRightClose,
+  Bot,
+  FileText,
+  Package,
+  MoreHorizontal,
+} from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import {
   Select,
@@ -352,35 +359,35 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           </Select>
         </div>
 
-        <div className="flex items-center overflow-x-hidden gap-2 px-2 py-1 ml-auto">
+        <div className="flex items-center gap-1 ml-auto">
           {checkIfManualEditsImported(files, currentFile || "") && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-red-500 hover:bg-red-50"
-                >
-                  <AlertTriangle className="mr-2 h-4 w-4" />
-                  File Error
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem
-                  className="text-red-600 cursor-pointer"
-                  onClick={() =>
-                    handleManualEditsImportWithSupportForMultipleFiles(
-                      files,
-                      updateFileContent,
-                      entrypointFileName,
-                      toast,
-                    )
-                  }
-                >
-                  Manual edits exist but have not been imported. (Click to fix)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-500 hover:bg-red-50 px-2"
+                    onClick={() =>
+                      handleManualEditsImportWithSupportForMultipleFiles(
+                        files,
+                        updateFileContent,
+                        entrypointFileName,
+                        toast,
+                      )
+                    }
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="ml-1 hidden lg:inline">File Error</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    Manual edits exist but have not been imported. Click to fix.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
           <TooltipProvider>
@@ -392,12 +399,12 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                   onClick={() => {
                     setAiAutocompleteEnabled((prev) => !prev)
                   }}
-                  className={`relative group bg-transparent ${aiAutocompleteEnabled ? "text-black bg-white" : "text-gray-500 group-hover:text-black"}`}
+                  className={`relative px-2 ${aiAutocompleteEnabled ? "text-black" : "text-gray-500 group hover:text-black"}`}
                 >
                   <Bot className="h-4 w-4" />
                   {!aiAutocompleteEnabled && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-5 h-0.5 group-hover:bg-black bg-gray-500 rotate-45 rounded-full" />
+                      <div className="w-5 h-[1.8px] bg-gray-500 group-hover:bg-black rotate-45 rounded-full" />
                     </div>
                   )}
                 </Button>
@@ -408,12 +415,73 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
             </Tooltip>
           </TooltipProvider>
 
-          <Button size="sm" variant="ghost" onClick={() => openImportDialog()}>
-            Import
-          </Button>
-          <Button size="sm" variant="ghost" onClick={handleFormatFile}>
-            Format
-          </Button>
+          <div className="hidden md:flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => openImportDialog()}
+                    className="px-2"
+                  >
+                    <Package className="h-4 w-4 lg:hidden" />
+                    <span className="hidden lg:inline">Import</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Import components from tscircuit or JLCPCB</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleFormatFile}
+                    className="px-2"
+                  >
+                    <FileText className="h-4 w-4 lg:hidden" />
+                    <span className="hidden lg:inline">Format</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Format the current file</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="ghost" className="px-2">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    openImportDialog()
+                  }}
+                >
+                  <Package className="mr-2 h-4 w-4" />
+                  Import
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleFormatFile()
+                  }}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Format
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         <ImportComponentDialog
           onTscircuitPackageSelected={handleTscircuitPackageSelected}
