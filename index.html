@@ -6,6 +6,7 @@
   <meta name="robots" content="index, follow, NOODP" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
   <!-- SEO_START -->
   <title>tscircuit - Code Electronics with React</title>
   <meta name="description"
@@ -80,29 +81,30 @@
   </style>
 
   <script>
-    window.onload = function() {
+    window.__hideLoader = function() {
       const loader = document.getElementById("loader");
-      const root = document.getElementById("root");
-
-      // Hide the loader and show the root when the page has fully loaded
-      loader.style.transition = "opacity 0.3s ease";
-      loader.style.opacity = "0"; // Fade out the loader
-      setTimeout(function() {
-        loader.style.display = "none"; // Hide loader completely
-        root.style.visibility = "visible"; // Show the root content
-      }, 300); // Match the opacity transition duration
+      if (loader) {
+        loader.style.transition = "opacity 0.3s ease";
+        loader.style.opacity = "0";
+        setTimeout(function() {
+          loader.style.display = "none";
+        }, 300);
+      }
     };
   </script>
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16607843883">
-  </script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-  
     gtag('config', 'AW-16607843883');
+    
+  window.addEventListener('load', function() {
+      const script = document.createElement('script');
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=AW-16607843883';
+      script.async = true;
+      document.head.appendChild(script);
+    });
   </script>
 </head>
 
@@ -117,7 +119,7 @@
     </div>
   </div>
 
-  <div id="root" class="loaderanimation" style="visibility: hidden;"></div> <!-- Initially hidden -->
+  <div id="root" class="loaderanimation"></div>
 
   <script type="module" src="./src/main.tsx"></script>
 </body>
