@@ -14,7 +14,7 @@ function AppWrapper() {
       window.__hideLoader()
     }
   }, [])
-  
+
   return <App />
 }
 
