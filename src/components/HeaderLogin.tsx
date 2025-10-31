@@ -46,15 +46,17 @@ export const HeaderLogin = () => {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Avatar className="w-8 h-8 login-avatar">
-          <AvatarImage
-            src={`https://github.com/${session?.github_username}.png?size=40`}
-            alt={`${session?.github_username}'s profile picture`}
-          />
-          <AvatarFallback aria-label="User avatar fallback">
-            <User size={16} aria-hidden="true" />
-          </AvatarFallback>
-        </Avatar>
+        <button type="button" className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+          <Avatar className="w-8 h-8 login-avatar">
+            <AvatarImage
+              src={`https://github.com/${session?.github_username}.png?size=40`}
+              alt={`${session?.github_username}'s profile picture`}
+            />
+            <AvatarFallback aria-label="User avatar fallback">
+              <User size={16} aria-hidden="true" />
+            </AvatarFallback>
+          </Avatar>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="ml-1 mr-1 md:ml-0 md:mr-1">
         {/* <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
