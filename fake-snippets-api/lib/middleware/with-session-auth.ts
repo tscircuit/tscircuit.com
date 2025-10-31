@@ -14,6 +14,7 @@ export const withSessionAuth: Middleware<
       account_id: string
       personal_org_id: string
       github_username: string
+      tscircuit_handle: string | null
       session_id: string
       orgs: Array<{
         org_id: string
@@ -85,6 +86,7 @@ export const withSessionAuth: Middleware<
             personal_org_id:
               account.personal_org_id || `org-${account.account_id}`,
             github_username: account.github_username,
+            tscircuit_handle: account.tscircuit_handle,
             session_id: sessionId,
             orgs:
               orgs.length > 0
@@ -137,6 +139,7 @@ export const withSessionAuth: Middleware<
         account_id: account.account_id,
         personal_org_id: account.personal_org_id || `org-${account.account_id}`,
         github_username: account.github_username,
+        tscircuit_handle: account.tscircuit_handle,
         session_id: `session-${account.account_id}`,
         orgs:
           orgs.length > 0
@@ -174,6 +177,7 @@ export const withSessionAuth: Middleware<
     account_id: fallbackAccountId,
     personal_org_id: fallbackOrgId,
     github_username: "testuser",
+    tscircuit_handle: "testuser",
     session_id: "session-1234",
     orgs: fallbackOrgs,
   }

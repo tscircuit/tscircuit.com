@@ -59,6 +59,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
 const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
+    tscircuit_handle: "testuser",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -90,6 +91,7 @@ const seedDatabase = (db: DbClient) => {
 
   const account2 = db.addAccount({
     github_username: "jane",
+    tscircuit_handle: "jane",
   })
   const order = db.addOrder({
     account_id: account.account_id,

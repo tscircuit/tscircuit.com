@@ -29,7 +29,10 @@ interface ScoredPackage extends Package {
 }
 
 interface ScoredAccount
-  extends Omit<Account, "account_id" | "is_tscircuit_staff"> {
+  extends Omit<
+    Account,
+    "account_id" | "is_tscircuit_staff" | "tscircuit_handle"
+  > {
   score: number
   matches: number[]
 }

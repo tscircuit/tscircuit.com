@@ -19,21 +19,26 @@ test("GET /api/orgs/get - should return org by org_id", async () => {
   expect(responseBody.org.org_id).toBe(seed.organization.org_id)
   expect(responseBody.org.name).toBe(seed.organization.org_name)
   expect(responseBody.org.github_handle).toBe(seed.organization.github_handle)
+  expect(responseBody.org.tscircuit_handle).toBe(
+    seed.organization.tscircuit_handle,
+  )
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
   expect(responseBody2.org.user_permissions?.can_manage_org).not.toBe(true)
 })
 
 test("GET /api/orgs/get - should return org by github_handle", async () => {
-  const { axios } = await getTestServer()
+  const { axios, seed } = await getTestServer()
 
   const getResponse = await axios.get("/api/orgs/get", {
-    params: { github_handle: "jane" },
+    params: { github_handle: seed.account2.github_username },
   })
 
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
   expect(responseBody.org).toBeDefined()
-  expect(responseBody.org.name).toBe("jane")
+  expect(responseBody.org.name).toBe(seed.account2.github_username)
+  expect(responseBody.org.github_handle).toBe(seed.account2.github_username)
+  expect(responseBody.org.tscircuit_handle).toBeNull()
   expect(responseBody.org.user_permissions?.can_manage_org).not.toBe(true)
 })
 

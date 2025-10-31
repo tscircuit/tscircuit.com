@@ -1,5 +1,6 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import ts from "typescript"
 
 test("POST /api/orgs/update - should update org name when owner", async () => {
   const { axios } = await getTestServer()
@@ -18,6 +19,7 @@ test("POST /api/orgs/update - should update org name when owner", async () => {
   const responseBody = updateResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe("new-name")
+  expect(responseBody.org.tscircuit_handle).toBeNull()
   expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
 })
 
@@ -43,6 +45,7 @@ test("POST /api/orgs/update - should return current org when no changes provided
 
   const createResponse = await axios.post("/api/orgs/create", {
     name: "no-change",
+    tscircuit_handle: "no-change-handle",
   })
   const org = createResponse.data.org
 
@@ -52,6 +55,7 @@ test("POST /api/orgs/update - should return current org when no changes provided
 
   expect(updateResponse.status).toBe(200)
   expect(updateResponse.data.org.name).toBe("no-change")
+  expect(updateResponse.data.org.tscircuit_handle).toBe("no-change-handle")
 })
 
 test("POST /api/orgs/update - should fail when user lacks management permissions", async () => {
