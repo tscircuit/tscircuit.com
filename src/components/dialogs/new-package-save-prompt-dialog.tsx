@@ -21,6 +21,7 @@ import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { ICreatePackageProps } from "@/hooks/useFileManagement"
+import { normalizeName } from "@/lib/utils/normalizeName"
 
 export const NewPackageSavePromptDialog = ({
   open,
@@ -56,13 +57,23 @@ export const NewPackageSavePromptDialog = ({
     )
   }, [selectedOrgId, organizations, session?.github_username])
 
+  const normalizedPackageName = useMemo(() => {
+    if (!packageName.trim()) return ""
+    return normalizeName(packageName)
+  }, [packageName])
+
   const fullPackageName = useMemo(() => {
-    if (!Boolean(packageName.trim())) return
+    if (!normalizedPackageName) return
     if (selectedOrgId) {
-      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${packageName.trim()}`
+      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${normalizedPackageName}`
     }
-    return `${session?.github_username}/${packageName.trim()}`
-  }, [selectedOrgId, packageName, organizations, session?.github_username])
+    return `${session?.github_username}/${normalizedPackageName}`
+  }, [
+    selectedOrgId,
+    normalizedPackageName,
+    organizations,
+    session?.github_username,
+  ])
 
   const extractErrorMessage = (error: any): string => {
     const serverError = error?.data?.message
@@ -189,12 +200,21 @@ export const NewPackageSavePromptDialog = ({
             <Label className="text-sm font-medium">Package Name</Label>
             <Input
               value={packageName}
-              onChange={(e) =>
-                setPackageName(e.target.value.replace(/ /g, "").trim())
-              }
+              onChange={(e) => setPackageName(e.target.value)}
               placeholder="my-awesome-package"
               className="w-full"
             />
+            {packageName.trim() &&
+              normalizedPackageName !== packageName.trim() &&
+              normalizedPackageName && (
+                <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
+                  <span>Will be saved as:</span>
+                  <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 font-mono break-all">
+                    {fullPackageName ||
+                      `${selectedOrgId ? organizations?.find((x) => x.org_id === selectedOrgId)?.name : session?.github_username}/${normalizedPackageName}`}
+                  </code>
+                </div>
+              )}
           </div>
 
           <div className="space-y-2">
@@ -247,7 +267,13 @@ export const NewPackageSavePromptDialog = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={orgsLoading || !session || isSaving || !!orgsError}
+            disabled={
+              orgsLoading ||
+              !session ||
+              isSaving ||
+              !!orgsError ||
+              !normalizedPackageName
+            }
           >
             {isSaving ? "Saving..." : "Save"}
           </Button>
