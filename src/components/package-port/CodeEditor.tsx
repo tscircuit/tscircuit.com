@@ -101,6 +101,11 @@ export const CodeEditor = ({
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
+  const envRef = useRef<ReturnType<
+    typeof createVirtualTypeScriptEnvironment
+  > | null>(null)
+  const systemRef = useRef<ReturnType<typeof createSystem> | null>(null)
+  const fsMapRef = useRef<Map<string, string>>(new Map())
   const lastReceivedTsFileTimeRef = useRef<number>(0)
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
@@ -193,37 +198,40 @@ export const CodeEditor = ({
     files.forEach(({ path, content }) => {
       fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
     })
+    fsMapRef.current = fsMap
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     loadDefaultLibMap().then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
+        fsMapRef.current.set(filename, content)
       })
     })
 
-    const system = createSystem(fsMap)
+    if (!systemRef.current) {
+      const system = createSystem(fsMap)
+      systemRef.current = system
 
-    const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
-      jsx: tsModule.JsxEmit.ReactJSX,
-      declaration: true,
-      allowJs: true,
-      target: tsModule.ScriptTarget.ES2022,
-      resolveJsonModule: true,
-    })
+      const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+        jsx: tsModule.JsxEmit.ReactJSX,
+        declaration: true,
+        allowJs: true,
+        target: tsModule.ScriptTarget.ES2022,
+        resolveJsonModule: true,
+      })
 
-    // Add alias for tscircuit -> @tscircuit/core
-    const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
-    env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+      const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+      env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+      envRef.current = env
 
-    // Initialize ATA
-    const ataConfig: ATABootstrapConfig = {
-      projectName: "my-project",
-      typescript: tsModule,
-      logger: console,
-      fetcher: fetchWithPackageCaching as typeof fetch,
-      delegate: {
-        started: () => {
-          const manualEditsTypeDeclaration = `
+      const ataConfig: ATABootstrapConfig = {
+        projectName: "my-project",
+        typescript: tsModule,
+        logger: console,
+        fetcher: fetchWithPackageCaching as typeof fetch,
+        delegate: {
+          started: () => {
+            const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
 				  const value: {
 					  pcb_placements?: any[],
@@ -234,23 +242,32 @@ export const CodeEditor = ({
 				  export default value;
 				}
 			`
-          env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+            env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
+          },
+          receivedFile: (code: string, path: string) => {
+            fsMap.set(path, code)
+            fsMapRef.current.set(path, code)
+            env.createFile(path, code)
+            if (/\.tsx?$|\.d\.ts$/.test(path)) {
+              lastReceivedTsFileTimeRef.current = Date.now()
+            }
+          },
         },
-        receivedFile: (code: string, path: string) => {
-          fsMap.set(path, code)
-          env.createFile(path, code)
-          if (/\.tsx?$|\.d\.ts$/.test(path)) {
-            lastReceivedTsFileTimeRef.current = Date.now()
-          }
-          // Avoid dispatching a view update when ATA downloads files. Dispatching
-          // here caused the editor to reset the user's selection, which made text
-          // selection impossible while dependencies were loading.
-        },
-      },
-    }
+      }
 
-    const ata = setupTypeAcquisition(ataConfig)
-    ataRef.current = ata
+      const ata = setupTypeAcquisition(ataConfig)
+      ataRef.current = ata
+    } else {
+      const env = envRef.current!
+      files.forEach(({ path, content }) => {
+        const fullPath = `${path.startsWith("/") ? "" : "/"}${path}`
+        const existingContent = fsMapRef.current.get(fullPath)
+        if (existingContent !== content) {
+          fsMapRef.current.set(fullPath, content)
+          env.createFile(fullPath, content)
+        }
+      })
+    }
 
     const lastFilesEventContent: Record<string, string> = {}
 
@@ -384,7 +401,7 @@ export const CodeEditor = ({
       currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
         ? [
             tsFacet.of({
-              env,
+              env: envRef.current!,
               path: currentFile?.endsWith(".ts")
                 ? currentFile?.replace(/\.ts$/, ".tsx")
                 : currentFile,
@@ -616,6 +633,8 @@ export const CodeEditor = ({
           ]
         : []
 
+    if (!envRef.current) return
+
     const state = EditorState.create({
       doc: fileMap[currentFile || ""] || "",
       extensions: [...baseExtensions, ...tsExtensions],
@@ -628,13 +647,8 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
-    }
-
     return () => {
       view.destroy()
-      // Clean up any pending highlight timeout
       if (highlightTimeoutRef.current) {
         window.clearTimeout(highlightTimeoutRef.current)
         highlightTimeoutRef.current = null
@@ -648,6 +662,7 @@ export const CodeEditor = ({
     fontSize,
     aiAutocompleteEnabled,
     highlightedLine,
+    files,
   ])
 
   const updateCurrentEditorContent = (newContent: string) => {
@@ -706,11 +721,12 @@ export const CodeEditor = ({
   useEffect(() => {
     if (
       ataRef.current &&
+      envRef.current &&
       (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts"))
     ) {
       ataRef.current(`${defaultImports}${code}`)
     }
-  }, [codeImports])
+  }, [codeImports, currentFile, code])
 
   const handleFileChange = (path: string, lineNumber?: number) => {
     onFileSelect(path, lineNumber)
