@@ -34,7 +34,7 @@ export default function HeaderDropdown() {
   ]
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
         <Button
           size="sm"
@@ -44,7 +44,12 @@ export default function HeaderDropdown() {
           New <ChevronDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-fit">
+      <DropdownMenuContent
+        className="w-fit"
+        side="bottom"
+        align="start"
+        sideOffset={4}
+      >
         <DropdownMenuItem asChild>
           <Link
             href="/quickstart"
