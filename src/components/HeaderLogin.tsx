@@ -44,11 +44,11 @@ export const HeaderLogin = () => {
   }
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          className="rounded-full w-fit focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           <Avatar className="w-8 h-8 login-avatar">
             <AvatarImage
@@ -61,7 +61,12 @@ export const HeaderLogin = () => {
           </Avatar>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="ml-1 mr-1 md:ml-0 md:mr-1">
+      <DropdownMenuContent
+        className="ml-1 mr-1 md:ml-0 md:mr-1"
+        side="bottom"
+        align="end"
+        sideOffset={4}
+      >
         {/* <DropdownMenuItem asChild className="text-gray-500 text-xs" disabled>
           <div>
             AI Usage $
