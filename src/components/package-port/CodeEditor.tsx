@@ -101,7 +101,9 @@ export const CodeEditor = ({
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
-  const envRef = useRef<ReturnType<typeof createVirtualTypeScriptEnvironment> | null>(null)
+  const envRef = useRef<ReturnType<
+    typeof createVirtualTypeScriptEnvironment
+  > | null>(null)
   const systemRef = useRef<ReturnType<typeof createSystem> | null>(null)
   const fsMapRef = useRef<Map<string, string>>(new Map())
   const lastReceivedTsFileTimeRef = useRef<number>(0)
@@ -113,7 +115,6 @@ export const CodeEditor = ({
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null)
   const highlightTimeoutRef = useRef<number | null>(null)
-  const [isSystemInitialized, setIsSystemInitialized] = useState(false)
 
   const { highlighter } = useShikiHighlighter()
   const axios = useAxios()
@@ -200,37 +201,37 @@ export const CodeEditor = ({
     fsMapRef.current = fsMap
     ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
-    const initializeSystem = async () => {
-      const defaultFsMap = await loadDefaultLibMap()
+    loadDefaultLibMap().then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
         fsMap.set(filename, content)
         fsMapRef.current.set(filename, content)
       })
+    })
 
-      if (!systemRef.current) {
-        const system = createSystem(fsMap)
-        systemRef.current = system
+    if (!systemRef.current) {
+      const system = createSystem(fsMap)
+      systemRef.current = system
 
-        const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
-          jsx: tsModule.JsxEmit.ReactJSX,
-          declaration: true,
-          allowJs: true,
-          target: tsModule.ScriptTarget.ES2022,
-          resolveJsonModule: true,
-        })
+      const env = createVirtualTypeScriptEnvironment(system, [], tsModule, {
+        jsx: tsModule.JsxEmit.ReactJSX,
+        declaration: true,
+        allowJs: true,
+        target: tsModule.ScriptTarget.ES2022,
+        resolveJsonModule: true,
+      })
 
-        const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
-        env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
-        envRef.current = env
+      const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
+      env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
+      envRef.current = env
 
-        const ataConfig: ATABootstrapConfig = {
-          projectName: "my-project",
-          typescript: tsModule,
-          logger: console,
-          fetcher: fetchWithPackageCaching as typeof fetch,
-          delegate: {
-            started: () => {
-              const manualEditsTypeDeclaration = `
+      const ataConfig: ATABootstrapConfig = {
+        projectName: "my-project",
+        typescript: tsModule,
+        logger: console,
+        fetcher: fetchWithPackageCaching as typeof fetch,
+        delegate: {
+          started: () => {
+            const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
 				  const value: {
 					  pcb_placements?: any[],
@@ -241,37 +242,32 @@ export const CodeEditor = ({
 				  export default value;
 				}
 			`
-              env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
-            },
-            receivedFile: (code: string, path: string) => {
-              fsMap.set(path, code)
-              fsMapRef.current.set(path, code)
-              env.createFile(path, code)
-              if (/\.tsx?$|\.d\.ts$/.test(path)) {
-                lastReceivedTsFileTimeRef.current = Date.now()
-              }
-            },
+            env.createFile("manual-edits.d.ts", manualEditsTypeDeclaration)
           },
-        }
-
-        const ata = setupTypeAcquisition(ataConfig)
-        ataRef.current = ata
-        setIsSystemInitialized(true)
-      } else {
-        const env = envRef.current!
-        files.forEach(({ path, content }) => {
-          const fullPath = `${path.startsWith("/") ? "" : "/"}${path}`
-          const existingContent = fsMapRef.current.get(fullPath)
-          if (existingContent !== content) {
-            fsMapRef.current.set(fullPath, content)
-            env.createFile(fullPath, content)
-          }
-        })
-        setIsSystemInitialized(true)
+          receivedFile: (code: string, path: string) => {
+            fsMap.set(path, code)
+            fsMapRef.current.set(path, code)
+            env.createFile(path, code)
+            if (/\.tsx?$|\.d\.ts$/.test(path)) {
+              lastReceivedTsFileTimeRef.current = Date.now()
+            }
+          },
+        },
       }
-    }
 
-    initializeSystem()
+      const ata = setupTypeAcquisition(ataConfig)
+      ataRef.current = ata
+    } else {
+      const env = envRef.current!
+      files.forEach(({ path, content }) => {
+        const fullPath = `${path.startsWith("/") ? "" : "/"}${path}`
+        const existingContent = fsMapRef.current.get(fullPath)
+        if (existingContent !== content) {
+          fsMapRef.current.set(fullPath, content)
+          env.createFile(fullPath, content)
+        }
+      })
+    }
 
     const lastFilesEventContent: Record<string, string> = {}
 
@@ -667,7 +663,6 @@ export const CodeEditor = ({
     aiAutocompleteEnabled,
     highlightedLine,
     files,
-    isSystemInitialized,
   ])
 
   const updateCurrentEditorContent = (newContent: string) => {
