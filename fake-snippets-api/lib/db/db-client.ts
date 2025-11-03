@@ -1155,7 +1155,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           return false
         }
         return (
-          account.github_username.toLowerCase().includes(lowercaseQuery) ||
+          account.github_username?.toLowerCase().includes(lowercaseQuery) ||
           (account.tscircuit_handle?.toLowerCase().includes(lowercaseQuery) ??
             false)
         )

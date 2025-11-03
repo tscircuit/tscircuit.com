@@ -24,7 +24,7 @@ export const UserCard: React.FC<UserCardProps> = ({
     if (onClick) {
       onClick(account)
     } else if (!withLink) {
-      window.location.href = `/${account.github_username}`
+      window.location.href = `/${account.tscircuit_handle}`
     }
   }
 
@@ -53,11 +53,11 @@ export const UserCard: React.FC<UserCardProps> = ({
         <div className="flex-1 min-w-0 flex flex-col justify-center my-auto">
           <div className="flex justify-between items-start">
             <h2 className="text-md font-semibold truncate pr-[30px]">
-              <span className="text-gray-900">{account.github_username}</span>
+              <span className="text-gray-900">{account.tscircuit_handle}</span>
             </h2>
           </div>
           <p className="text-sm text-gray-500 truncate max-w-xs">
-            @{account.github_username}
+            @{account.tscircuit_handle}
           </p>
         </div>
       </div>
@@ -67,8 +67,8 @@ export const UserCard: React.FC<UserCardProps> = ({
   if (withLink) {
     return (
       <Link
-        key={account.github_username}
-        href={`/${account.github_username}`}
+        key={account.tscircuit_handle}
+        href={`/${account.tscircuit_handle}`}
         onClick={onClick ? () => onClick(account) : undefined}
       >
         {cardContent}

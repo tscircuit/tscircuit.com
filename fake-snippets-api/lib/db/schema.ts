@@ -69,8 +69,8 @@ export const shippingInfoSchema = z.object({
 })
 export const accountSchema = z.object({
   account_id: z.string(),
-  github_username: z.string(),
-  tscircuit_handle: z.string().nullable(),
+  github_username: z.string().nullable(),
+  tscircuit_handle: z.string(),
   shippingInfo: shippingInfoSchema.optional(),
   personal_org_id: z.string().optional(),
   is_tscircuit_staff: z.boolean().default(false),

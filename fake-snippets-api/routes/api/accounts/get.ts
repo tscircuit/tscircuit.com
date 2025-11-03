@@ -6,7 +6,8 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "session",
   jsonBody: z.object({
-    github_username: z.string(),
+    github_username: z.string().optional(),
+    tscircuit_handle: z.string().optional(),
   }),
   jsonResponse: z.object({
     account: accountSchema,
@@ -15,11 +16,19 @@ export default withRouteSpec({
   let account: Account | undefined
 
   if (req.method === "POST") {
-    const { github_username } = req.jsonBody
-    account = ctx.db.accounts.find(
-      (acc: Account) =>
-        acc.github_username.toLowerCase() === github_username.toLowerCase(),
-    )
+    const { github_username, tscircuit_handle } = req.jsonBody
+
+    if (tscircuit_handle) {
+      account = ctx.db.accounts.find(
+        (acc: Account) =>
+          acc.tscircuit_handle.toLowerCase() === tscircuit_handle.toLowerCase(),
+      )
+    } else if (github_username) {
+      account = ctx.db.accounts.find(
+        (acc: Account) =>
+          acc.github_username?.toLowerCase() === github_username.toLowerCase(),
+      )
+    }
   } else {
     account = ctx.db.getAccount(ctx.auth.account_id)
   }
