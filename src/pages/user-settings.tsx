@@ -1,11 +1,10 @@
 import { useState } from "react"
-import { useLocation, Redirect } from "wouter"
+import { Redirect } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -13,17 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react"
+import { AlertTriangle, Trash2 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
 
 export default function UserSettingsPage() {
-  const [, navigate] = useLocation()
-  const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
   const hasHydrated = useHydration()
 
@@ -41,15 +37,6 @@ export default function UserSettingsPage() {
 
   const handleDeleteAccount = () => {
     setShowDeleteAccountDialog(true)
-  }
-
-  const confirmDeleteAccount = () => {
-    // TODO: Implement delete account functionality
-    toast({
-      title: "Account deleted",
-      description: "Your account has been permanently deleted.",
-    })
-    navigate("/")
   }
 
   return (
@@ -131,28 +118,18 @@ export default function UserSettingsPage() {
         open={showDeleteAccountDialog}
         onOpenChange={setShowDeleteAccountDialog}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[90vw] md:w-auto rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
               Delete Account
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you absolutely sure you want to delete your account? This
-              action is permanent and cannot be undone. All your packages,
-              snippets, and account data will be permanently removed.
+              To delete your account, please contact us at support@tscircuit.com
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteAccount}
-              disabled={true}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {false && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete Account
-            </AlertDialogAction>
+            <AlertDialogCancel>Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
