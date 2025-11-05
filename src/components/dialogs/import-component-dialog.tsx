@@ -1,3 +1,4 @@
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { createUseDialog } from "./create-use-dialog"
 import {
   ImportComponentDialog2 as RunframeImportComponentDialog,
@@ -21,10 +22,13 @@ export const ImportComponentDialog = ({
   onOpenChange,
   ...rest
 }: ImportComponentDialogProps) => {
+  const apiBaseUrl = useApiBaseUrl()
+
   return (
     <RunframeImportComponentDialog
       isOpen={open}
       onClose={() => onOpenChange(false)}
+      jlcpcbProxyApiBase={apiBaseUrl}
       {...rest}
     />
   )
