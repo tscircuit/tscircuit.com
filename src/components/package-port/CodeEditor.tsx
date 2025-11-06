@@ -634,7 +634,6 @@ export const CodeEditor = ({
       ata(`${defaultImports}${code}`)
     }
 
-
     return () => {
       view.destroy()
       // Clean up any pending highlight timeout
