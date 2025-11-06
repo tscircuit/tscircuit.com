@@ -629,11 +629,11 @@ export const CodeEditor = ({
       state,
       parent: editorRef.current,
     })
-
+    viewRef.current = view
     if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
       ata(`${defaultImports}${code}`)
     }
-    viewRef.current = view
+
 
     return () => {
       view.destroy()
