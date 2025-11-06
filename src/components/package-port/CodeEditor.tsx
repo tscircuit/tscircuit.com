@@ -9,7 +9,7 @@ import {
 import { indentWithTab, indentMore } from "@codemirror/commands"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
-import { EditorState, Prec } from "@codemirror/state"
+import { EditorState, Prec, StateEffect, Compartment } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
 import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
@@ -102,6 +102,7 @@ export const CodeEditor = ({
   const viewRef = useRef<EditorView | null>(null)
   const ataRef = useRef<ReturnType<typeof setupTypeAcquisition> | null>(null)
   const lastReceivedTsFileTimeRef = useRef<number>(0)
+  const themeCompartment = useRef<Compartment>(new Compartment())
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
@@ -118,6 +119,24 @@ export const CodeEditor = ({
   const filePathFromUrl = urlParams.get("file_path")
   const lineNumberFromUrl = urlParams.get("line")
   const [aiAutocompleteEnabled, setAiAutocompleteEnabled] = useState(false)
+
+  const createTheme = (fontSize: number) =>
+    EditorView.theme({
+      ".cm-editor": {
+        fontSize: `${fontSize}px`,
+      },
+      ".cm-content": {
+        fontSize: `${fontSize}px`,
+      },
+      ".cm-line-highlight": {
+        backgroundColor: "#dbeafe !important",
+        animation: "lineHighlightFade 3s ease-in-out forwards",
+      },
+      "@keyframes lineHighlightFade": {
+        "0%": { backgroundColor: "#93c5fd" },
+        "100%": { backgroundColor: "transparent" },
+      },
+    })
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
 
@@ -309,22 +328,7 @@ export const CodeEditor = ({
           setCursorPosition(pos)
         }
       }),
-      EditorView.theme({
-        ".cm-editor": {
-          fontSize: `${fontSize}px`,
-        },
-        ".cm-content": {
-          fontSize: `${fontSize}px`,
-        },
-        ".cm-line-highlight": {
-          backgroundColor: "#dbeafe !important",
-          animation: "lineHighlightFade 3s ease-in-out forwards",
-        },
-        "@keyframes lineHighlightFade": {
-          "0%": { backgroundColor: "#93c5fd" },
-          "100%": { backgroundColor: "transparent" },
-        },
-      }),
+      themeCompartment.current.of(createTheme(fontSize)),
       EditorView.domEventHandlers({
         wheel: (event) => {
           if (event.ctrlKey || event.metaKey) {
@@ -628,10 +632,6 @@ export const CodeEditor = ({
 
     viewRef.current = view
 
-    if (currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")) {
-      ata(`${defaultImports}${code}`)
-    }
-
     return () => {
       view.destroy()
       // Clean up any pending highlight timeout
@@ -645,10 +645,18 @@ export const CodeEditor = ({
     currentFile,
     Boolean(highlighter),
     isSaving,
-    fontSize,
     aiAutocompleteEnabled,
     highlightedLine,
   ])
+
+  // Update font size dynamically without recreating the editor
+  useEffect(() => {
+    if (viewRef.current) {
+      viewRef.current.dispatch({
+        effects: themeCompartment.current.reconfigure(createTheme(fontSize)),
+      })
+    }
+  }, [fontSize])
 
   const updateCurrentEditorContent = (newContent: string) => {
     if (viewRef.current) {
