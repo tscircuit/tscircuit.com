@@ -21,8 +21,8 @@ export const useAxios = () => {
       baseURL: snippetsBaseApiUrl,
       headers: session
         ? {
-          Authorization: `Bearer ${session?.token}`,
-        }
+            Authorization: `Bearer ${session?.token}`,
+          }
         : {},
     })
 
@@ -98,8 +98,59 @@ export const useAxios = () => {
             }
           }
         } catch (decodeError) {
-          // If JWT decode fails, it's likely an invalid token
+          // If JWT decode fails, it's an invalid token - clear it
           console.error("Failed to decode JWT:", decodeError)
+          setSession(null)
+
+          // Only show toast once to avoid spam
+          if (!has401ToastBeenShown) {
+            has401ToastBeenShown = true
+
+            // Clear any existing timer to prevent race conditions
+            if (toastResetTimer) {
+              clearTimeout(toastResetTimer)
+            }
+
+            // Show sign-out notification
+            toastLibrary.custom(
+              (t) => (
+                <ToastContent
+                  title={"Signed Out"}
+                  description={"Invalid session token"}
+                  variant={"destructive"}
+                  t={t}
+                />
+              ),
+              {
+                position: "top-center",
+                duration: 3000,
+              },
+            )
+
+            // Show sign-in prompt
+            toastLibrary.custom(
+              (t) => (
+                <div onClick={() => signIn()} className="cursor-pointer">
+                  <ToastContent
+                    title={"Sign In Required"}
+                    description={"Click here to sign in again"}
+                    variant={"default"}
+                    t={t}
+                  />
+                </div>
+              ),
+              {
+                position: "top-center",
+                duration: 5000,
+              },
+            )
+
+            // Reset the flag after a delay so future 401s can show toast again
+            toastResetTimer = setTimeout(() => {
+              has401ToastBeenShown = false
+              toastResetTimer = null
+            }, 6000)
+          }
         }
       }
 
