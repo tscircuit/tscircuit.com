@@ -1,12 +1,14 @@
 import axios from "redaxios"
 import { useMemo } from "react"
+import { jwtDecode } from "jwt-decode"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { toast, ToastContent, useToast } from "./use-toast"
+import { ToastContent, useToast } from "./use-toast"
 import { useSignIn } from "./use-sign-in"
 
 // Track if we've already shown the 401 toast to prevent duplicates
 let has401ToastBeenShown = false
+let toastResetTimer: NodeJS.Timeout | null = null
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
@@ -19,8 +21,8 @@ export const useAxios = () => {
       baseURL: snippetsBaseApiUrl,
       headers: session
         ? {
-            Authorization: `Bearer ${session?.token}`,
-          }
+          Authorization: `Bearer ${session?.token}`,
+        }
         : {},
     })
 
@@ -35,36 +37,69 @@ export const useAxios = () => {
     const handleError = (error: any) => {
       const status = error?.response?.status ?? error?.status
 
-      if (status === 401 && session) {
-        // Clear the stale session from localStorage
-        setSession(null)
+      if (status === 401 && session?.token) {
+        // Decode JWT to check if it's actually expired
+        try {
+          const decoded = jwtDecode<{ exp?: number }>(session.token)
+          const isExpired = decoded.exp && decoded.exp * 1000 < Date.now()
 
-        // Only show toast once to avoid spam
-        if (!has401ToastBeenShown) {
-          has401ToastBeenShown = true
-          toastLibrary.custom(
-            (t) => (
-              <div onClick={() => signIn()} className="cursor-pointer">
-                <ToastContent
-                  title={"Unauthorized"}
-                  description={
-                    "You may need to sign in again. Click here to sign in again"
-                  }
-                  variant={"destructive"}
-                  t={t}
-                />
-              </div>
-            ),
-            {
-              position: "top-center",
-              duration: 5000,
-            },
-          )
+          if (isExpired) {
+            // Clear the expired session from localStorage
+            setSession(null)
 
-          // Reset the flag after a delay so future 401s can show toast again
-          setTimeout(() => {
-            has401ToastBeenShown = false
-          }, 6000)
+            // Only show toast once to avoid spam
+            if (!has401ToastBeenShown) {
+              has401ToastBeenShown = true
+
+              // Clear any existing timer to prevent race conditions
+              if (toastResetTimer) {
+                clearTimeout(toastResetTimer)
+              }
+
+              // Show sign-out notification
+              toastLibrary.custom(
+                (t) => (
+                  <ToastContent
+                    title={"Signed Out"}
+                    description={"Your session has expired"}
+                    variant={"destructive"}
+                    t={t}
+                  />
+                ),
+                {
+                  position: "top-center",
+                  duration: 3000,
+                },
+              )
+
+              // Show sign-in prompt
+              toastLibrary.custom(
+                (t) => (
+                  <div onClick={() => signIn()} className="cursor-pointer">
+                    <ToastContent
+                      title={"Sign In Required"}
+                      description={"Click here to sign in again"}
+                      variant={"default"}
+                      t={t}
+                    />
+                  </div>
+                ),
+                {
+                  position: "top-center",
+                  duration: 5000,
+                },
+              )
+
+              // Reset the flag after a delay so future 401s can show toast again
+              toastResetTimer = setTimeout(() => {
+                has401ToastBeenShown = false
+                toastResetTimer = null
+              }, 6000)
+            }
+          }
+        } catch (decodeError) {
+          // If JWT decode fails, it's likely an invalid token
+          console.error("Failed to decode JWT:", decodeError)
         }
       }
 
