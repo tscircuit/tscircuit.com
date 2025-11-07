@@ -16,7 +16,7 @@ export const isSessionValid = (session: Store["session"]): boolean => {
   try {
     // decodeJwt does not verify the signature, just decodes the payload
     const payload = decodeJwt(session.token)
-    
+
     // Check if token is expired
     if (payload.exp && Date.now() >= payload.exp * 1000) {
       return false
@@ -39,7 +39,7 @@ export const createAxiosErrorHandler = (
   setSession: (session: Store["session"]) => void,
   toastLibrary: typeof import("react-hot-toast").default,
   signIn: () => void,
-  ToastContent: React.ComponentType<any>
+  ToastContent: React.ComponentType<any>,
 ) => {
   return (error: any) => {
     const status = error?.response?.status ?? error?.status
@@ -81,7 +81,7 @@ export const createAxiosErrorHandler = (
           {
             position: "top-center",
             duration: 3000,
-          }
+          },
         )
 
         // Show sign-in prompt
@@ -99,7 +99,7 @@ export const createAxiosErrorHandler = (
           {
             position: "top-center",
             duration: 5000,
-          }
+          },
         )
 
         // Reset the flag after a delay so future 401s can show toast again

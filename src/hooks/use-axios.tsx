@@ -36,7 +36,7 @@ export const useAxios = () => {
       setSession,
       toastLibrary,
       signIn,
-      ToastContent
+      ToastContent,
     )
 
     instance.get = (async (...args: Parameters<typeof originalGet>) => {
