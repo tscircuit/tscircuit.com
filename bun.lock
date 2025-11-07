@@ -3,9 +3,6 @@
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
-      "dependencies": {
-        "jwt-decode": "^4.0.0",
-      },
       "devDependencies": {
         "@anthropic-ai/sdk": "^0.27.3",
         "@babel/preset-react": "^7.25.9",
@@ -1585,8 +1582,6 @@
     "jsonfile": ["jsonfile@4.0.0", "", { "optionalDependencies": { "graceful-fs": "^4.1.6" } }, "sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg=="],
 
     "jszip": ["jszip@3.10.1", "", { "dependencies": { "lie": "~3.3.0", "pako": "~1.0.2", "readable-stream": "~2.3.6", "setimmediate": "^1.0.5" } }, "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g=="],
-
-    "jwt-decode": ["jwt-decode@4.0.0", "", {}, "sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA=="],
 
     "kicad-component-converter": ["kicad-component-converter@0.1.28", "", { "bin": { "kicad-mod-converter": "dist/cli.js" } }, "sha512-VyrdkNakBZ6TCxyLiQ3uqBPbBgLYIL8Pjt9Z6/QGNx+IkmwCftkWKSjaq60ZHMivz2Uid5MiiudsEH8YqT7Zmw=="],
 
