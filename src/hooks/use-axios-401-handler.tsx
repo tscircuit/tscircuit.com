@@ -1,8 +1,7 @@
-import { useCallback, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useGlobalStore } from "./use-global-store"
-import { useSignIn } from "./use-sign-in"
 import { toast } from "./use-toast"
-import { getSessionInvalidReason } from "@/lib/axios-error-handler"
+import { isSessionExpired } from "@/utils/is-session-expired"
 
 /**
  * Hook that provides a 401 error handler for axios requests
@@ -11,15 +10,36 @@ import { getSessionInvalidReason } from "@/lib/axios-error-handler"
 export const useAxios401Handler = () => {
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
-  const signIn = useSignIn()
 
   const has401ToastBeenShownRef = useRef(false)
-  const toastResetTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const toastResetTimerRef = useRef<number | null>(null)
+  const signInPromptTimerRef = useRef<number | null>(null)
+
+  // Cleanup timeouts on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (toastResetTimerRef.current) {
+        clearTimeout(toastResetTimerRef.current)
+      }
+      if (signInPromptTimerRef.current) {
+        clearTimeout(signInPromptTimerRef.current)
+      }
+    }
+  }, [])
 
   const handle401Error = useCallback(() => {
     if (!session?.token) return
 
-    // Always clear the session on 401 (server rejected the token)
+    // ONLY clear the session if the JWT token has expired
+    // Don't clear on normal 401s (user accessing unauthorized resources)
+    const sessionExpired = isSessionExpired(session)
+    if (!sessionExpired) {
+      // Session is not expired, this is just an authorization issue
+      // Don't clear the session or show toast
+      return
+    }
+
+    // Session has expired, clear it
     setSession(null)
 
     // Only show toast once to avoid spam
@@ -31,33 +51,32 @@ export const useAxios401Handler = () => {
         clearTimeout(toastResetTimerRef.current)
       }
 
-      const reason = getSessionInvalidReason(session)
-
       // Show sign-out notification
       toast({
         title: "Signed Out",
-        description: reason,
+        description: "Your session has expired",
         variant: "destructive",
         duration: 3000,
       })
 
       // Show sign-in prompt after a short delay
-      setTimeout(() => {
+      signInPromptTimerRef.current = window.setTimeout(() => {
         toast({
           title: "Sign In Required",
           description: "Click here to sign in again",
           variant: "default",
           duration: 5000,
         })
+        signInPromptTimerRef.current = null
       }, 500)
 
       // Reset the flag after a delay so future 401s can show toast again
-      toastResetTimerRef.current = setTimeout(() => {
+      toastResetTimerRef.current = window.setTimeout(() => {
         has401ToastBeenShownRef.current = false
         toastResetTimerRef.current = null
       }, 6000)
     }
-  }, [session, setSession, signIn])
+  }, [session])
 
   return handle401Error
 }
