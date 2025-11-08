@@ -97,7 +97,7 @@ export default function UserSettingsPage() {
                   src={`https://github.com/${session.github_username}.png`}
                   alt={`${session.github_username} avatar`}
                 />
-                <AvatarFallback className="text-lg bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-medium">
+                <AvatarFallback className="text-lg font-medium">
                   {(session.github_username || session.account_id || "")
                     .slice(0, 2)
                     .toUpperCase()}
@@ -117,9 +117,6 @@ export default function UserSettingsPage() {
                 <h2 className="text-xl font-semibold text-gray-900">
                   Account information
                 </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Review the core details associated with your account.
-                </p>
               </div>
               <div className="p-6 lg:p-8">
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
@@ -141,9 +138,6 @@ export default function UserSettingsPage() {
                 <h2 className="text-xl font-semibold text-red-900">
                   Danger Zone
                 </h2>
-                <p className="text-sm text-red-600 mt-2">
-                  Irreversible and destructive actions for your account.
-                </p>
               </div>
 
               <div className="p-6 lg:p-8">
