@@ -1,4 +1,5 @@
 import { useParams } from "wouter"
+import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
@@ -106,6 +107,9 @@ export default function ReleaseDetailPage() {
 
   return (
     <>
+      <Helmet>
+        <title>{`${pkg.name} Release ${packageRelease.version || `v${packageRelease.package_release_id.slice(-6)}`} - tscircuit`}</title>
+      </Helmet>
       <Header />
       <div className="min-h-screen bg-white">
         {/* Page Header */}

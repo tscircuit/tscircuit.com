@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "wouter"
+import { Helmet } from "react-helmet-async"
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import Header from "@/components/Header"
 import { cn } from "@/lib/utils"
@@ -71,6 +72,13 @@ export default function PreviewBuildPage() {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {pkg
+            ? `Release preview for ${pkg.name} - tscircuit`
+            : "Release preview - tscircuit"}
+        </title>
+      </Helmet>
       <Header />
       <div className="flex flex-col h-screen overflow-hidden  !-mt-1">
         <div className="flex flex-1 overflow-hidden">
