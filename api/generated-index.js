@@ -269,7 +269,7 @@ async function handleCustomPackageHtml(req, res) {
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
-  const defaultView = packageInfo.default_view || "pcb"
+  const defaultView = packageInfo.default_view || "3d"
   const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "pcb"
   const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(
     author,
