@@ -2,14 +2,12 @@ import axios from "redaxios"
 import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { useSignIn } from "./use-sign-in"
-import { createAxiosErrorHandler } from "@/lib/axios-error-handler"
+import { useAxios401Handler } from "./use-axios-401-handler"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
-  const setSession = useGlobalStore((s) => s.setSession)
-  const signIn = useSignIn()
+  const handle401 = useAxios401Handler()
 
   return useMemo(() => {
     const instance = axios.create({
@@ -29,11 +27,13 @@ export const useAxios = () => {
     const originalDelete = instance.delete.bind(instance)
     const originalPatch = instance.patch.bind(instance)
 
-    const handleError = createAxiosErrorHandler({
-      session,
-      setSession,
-      signIn,
-    })
+    const handleError = (error: any) => {
+      const status = error?.response?.status ?? error?.status
+      if (status === 401) {
+        handle401()
+      }
+      throw error
+    }
 
     instance.get = (async (...args: Parameters<typeof originalGet>) => {
       try {
