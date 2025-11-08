@@ -517,7 +517,7 @@ async function handleReleaseDetail(req, res) {
 
   const html = getHtmlWithModifiedSeoTags({
     title,
-    description: `View release ${releaseId} of ${packageInfo.name}.`,
+    description: `View release of ${packageInfo.name}.`,
     canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
       unscopedPackageName,
     )}/releases/${he.encode(releaseId)}`,
