@@ -270,7 +270,7 @@ async function handleCustomPackageHtml(req, res) {
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
   const defaultView = packageInfo.default_view || "3d"
-  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "pcb"
+  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "3d"
   const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(
     author,
   )}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${
