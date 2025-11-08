@@ -18,10 +18,13 @@ import { AlertTriangle, Trash2 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
+import { useAxios } from "@/hooks/use-axios"
+import { useQuery } from "react-query"
 
 export default function UserSettingsPage() {
   const session = useGlobalStore((s) => s.session)
   const hasHydrated = useHydration()
+  const axios = useAxios()
 
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
 
@@ -34,7 +37,46 @@ export default function UserSettingsPage() {
   }
 
   const pageTitle = "User Settings - tscircuit"
-
+  const { data: accountResponse, isLoading: isLoadingAccount } = useQuery(
+    ["current-account"],
+    async () => {
+      const response = await axios.get("/accounts/get")
+      return response.data
+    },
+    {
+      enabled: Boolean(session),
+      refetchOnWindowFocus: false,
+    },
+  )
+  const account = accountResponse?.account
+  const formattedCreatedAt =
+    isLoadingAccount && account?.created_at === undefined
+      ? "Loading..."
+      : account?.created_at &&
+          !Number.isNaN(new Date(account.created_at).getTime())
+        ? new Date(account.created_at).toLocaleString()
+        : "Not available"
+  const userInfo = [
+    {
+      label: "GitHub Username",
+      value: account.github_username || "Not available",
+    },
+    {
+      label: "Email",
+      value: isLoadingAccount
+        ? "Loading..."
+        : account?.email || "Not available",
+    },
+    { label: "Account ID", value: session.account_id || "Not available" },
+    {
+      label: "Personal Organization ID",
+      value: isLoadingAccount
+        ? "Loading..."
+        : account?.personal_org_id || "Not available",
+    },
+    { label: "Session ID", value: session.session_id || "Not available" },
+    { label: "Created At", value: formattedCreatedAt },
+  ]
   const handleDeleteAccount = () => {
     setShowDeleteAccountDialog(true)
   }
@@ -65,14 +107,35 @@ export default function UserSettingsPage() {
                 <h1 className="text-3xl font-bold text-gray-900">
                   Account Settings
                 </h1>
-                <p className="text-gray-600 mt-1">
-                  Manage your account preferences and settings
-                </p>
               </div>
             </div>
           </div>
 
           <div className="space-y-8">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Account information
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Review the core details associated with your account.
+                </p>
+              </div>
+              <div className="p-6 lg:p-8">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                  {userInfo.map((item) => (
+                    <div key={item.label} className="space-y-1">
+                      <dt className="text-sm font-semibold text-gray-900">
+                        {item.label}
+                      </dt>
+                      <dd className="text-sm text-gray-600 break-words">
+                        {item.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
             <div className="bg-white border border-red-200 rounded-xl shadow-sm">
               <div className="px-6 py-5 border-b border-red-200 bg-red-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-red-900">
