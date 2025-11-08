@@ -1,7 +1,6 @@
-import type React from "react"
 import type { Store } from "@/hooks/use-global-store"
 import { decodeJwt } from "jose"
-import type { Toast } from "react-hot-toast"
+import { toast } from "@/hooks/use-toast"
 
 let has401ToastBeenShown = false
 let toastResetTimer: NodeJS.Timeout | null = null
@@ -30,17 +29,21 @@ export const isSessionValid = (session: Store["session"]): boolean => {
   }
 }
 
+interface AxiosErrorHandlerOptions {
+  session: Store["session"]
+  setSession: (session: Store["session"]) => void
+  signIn: () => void
+}
+
 /**
  * Creates an error handler for axios requests that handles 401 errors
  * by validating the session and showing appropriate toasts
  */
-export const createAxiosErrorHandler = (
-  session: Store["session"],
-  setSession: (session: Store["session"]) => void,
-  toastLibrary: typeof import("react-hot-toast").default,
-  signIn: () => void,
-  ToastContent: React.ComponentType<any>,
-) => {
+export const createAxiosErrorHandler = ({
+  session,
+  setSession,
+  signIn,
+}: AxiosErrorHandlerOptions) => {
   return (error: any) => {
     const status = error?.response?.status ?? error?.status
 
@@ -69,38 +72,22 @@ export const createAxiosErrorHandler = (
         }
 
         // Show sign-out notification
-        toastLibrary.custom(
-          (t: Toast) => (
-            <ToastContent
-              title={"Signed Out"}
-              description={reason}
-              variant={"destructive"}
-              t={t}
-            />
-          ),
-          {
-            position: "top-center",
-            duration: 3000,
-          },
-        )
+        toast({
+          title: "Signed Out",
+          description: reason,
+          variant: "destructive",
+          duration: 3000,
+        })
 
-        // Show sign-in prompt
-        toastLibrary.custom(
-          (t: Toast) => (
-            <div onClick={() => signIn()} className="cursor-pointer">
-              <ToastContent
-                title={"Sign In Required"}
-                description={"Click here to sign in again"}
-                variant={"default"}
-                t={t}
-              />
-            </div>
-          ),
-          {
-            position: "top-center",
+        // Show sign-in prompt after a short delay
+        setTimeout(() => {
+          toast({
+            title: "Sign In Required",
+            description: "Click here to sign in again",
+            variant: "default",
             duration: 5000,
-          },
-        )
+          })
+        }, 500)
 
         // Reset the flag after a delay so future 401s can show toast again
         toastResetTimer = setTimeout(() => {

@@ -2,7 +2,6 @@ import axios from "redaxios"
 import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { ToastContent, useToast } from "./use-toast"
 import { useSignIn } from "./use-sign-in"
 import { createAxiosErrorHandler } from "@/lib/axios-error-handler"
 
@@ -10,7 +9,6 @@ export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
-  const { toastLibrary } = useToast()
   const signIn = useSignIn()
 
   return useMemo(() => {
@@ -31,13 +29,11 @@ export const useAxios = () => {
     const originalDelete = instance.delete.bind(instance)
     const originalPatch = instance.patch.bind(instance)
 
-    const handleError = createAxiosErrorHandler(
+    const handleError = createAxiosErrorHandler({
       session,
       setSession,
-      toastLibrary,
       signIn,
-      ToastContent,
-    )
+    })
 
     instance.get = (async (...args: Parameters<typeof originalGet>) => {
       try {
@@ -80,5 +76,5 @@ export const useAxios = () => {
     }) as typeof originalPatch
 
     return instance
-  }, [session?.token, snippetsBaseApiUrl, setSession, toastLibrary, signIn])
+  }, [session?.token, snippetsBaseApiUrl])
 }
