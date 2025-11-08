@@ -12,7 +12,7 @@ export const useAxios401Handler = () => {
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
-  
+
   const has401ToastBeenShownRef = useRef(false)
   const toastResetTimerRef = useRef<NodeJS.Timeout | null>(null)
 
