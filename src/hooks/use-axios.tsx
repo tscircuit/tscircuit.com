@@ -76,5 +76,5 @@ export const useAxios = () => {
     }) as typeof originalPatch
 
     return instance
-  }, [session?.token, snippetsBaseApiUrl])
+  }, [session?.token])
 }
