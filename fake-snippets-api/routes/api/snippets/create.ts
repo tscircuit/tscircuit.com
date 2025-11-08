@@ -67,6 +67,7 @@ export default withRouteSpec({
 
   try {
     // Create the package directly (which will serve as our snippet)
+    // @ts-expect-error depreceated
     const newPackage = ctx.db.addPackage({
       creator_account_id: ctx.auth.account_id,
       owner_org_id: ctx.auth.personal_org_id,
@@ -173,6 +174,7 @@ export default withRouteSpec({
 
     return ctx.json({
       ok: true,
+      // @ts-expect-error depreceated snippets routes
       snippet: snippetResponse,
     })
   } catch (error) {

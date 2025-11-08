@@ -61,35 +61,37 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
           return (
             <Link
               key={member.account_id || member.github_username}
-              href={`/${member.github_username}`}
+              href={`/${member.github_username || member.account_id}`}
               className="block"
             >
               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                     <AvatarImage
-                      src={`https://github.com/${member.github_username}.png`}
-                      alt={`${member.github_username} avatar`}
+                      src={`https://github.com/${member.github_username || "unknown"}.png`}
+                      alt={`${member.github_username || "User"} avatar`}
                     />
                     <AvatarFallback className="text-sm font-medium">
                       {member.github_username
-                        .split(" ")
-                        .map((word) => word[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
+                        ? member.github_username
+                            .split(" ")
+                            .map((word) => word[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)
+                        : "U"}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium text-gray-900 truncate">
-                        {member.github_username}
+                        {member.github_username || "Unknown User"}
                       </h3>
                       <RoleBadge role={role} />
                     </div>
                     <p className="text-sm text-gray-500 truncate">
-                      @{member.github_username}
+                      @{member.github_username || "unknown"}
                     </p>
                   </div>
                 </div>

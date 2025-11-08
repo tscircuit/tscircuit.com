@@ -53,6 +53,7 @@ const AuthenticatePageInnerContent = () => {
           github_username: "testuser",
           token: "1234",
           session_id: "session-1234",
+          tscircuit_handle: "testuser",
         })
 
         handleRedirect(redirect, () => setLocation("/"))

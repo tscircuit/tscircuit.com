@@ -40,7 +40,8 @@ export default withRouteSpec({
   if (starred_by) {
     starredByAccount =
       ctx.db.accounts.find(
-        (acc) => acc.github_username.toLowerCase() === starred_by.toLowerCase(),
+        (acc) =>
+          acc.github_username?.toLowerCase() === starred_by.toLowerCase(),
       ) || null
 
     if (starredByAccount) {

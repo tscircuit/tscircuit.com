@@ -13,8 +13,8 @@ export const withSessionAuth: Middleware<
       type: "session"
       account_id: string
       personal_org_id: string
-      github_username: string
-      tscircuit_handle: string | null
+      github_username: string | null
+      tscircuit_handle: string
       session_id: string
       orgs: Array<{
         org_id: string

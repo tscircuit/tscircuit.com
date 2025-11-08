@@ -592,6 +592,7 @@ export default () => (
     creator_account_id: account_id,
     owner_org_id: "org-1234",
     owner_github_username: "testuser",
+    owner_tscircuit_handle: "testuser",
     description: "A test package for development",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

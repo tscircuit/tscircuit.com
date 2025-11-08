@@ -39,7 +39,7 @@ export default withRouteSpec({
     github_installation_id: githubInstallationId,
     account_id: ctx.auth.account_id,
     installation_id: mockInstallationId,
-    github_username: account.github_username,
+    github_username: account.github_username as string,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     is_active: true,

@@ -67,7 +67,7 @@ const CmdKMenu = () => {
     useImportComponentDialog()
   const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
+  const currentUser = session?.tscircuit_handle
   const jlcpcbProxyRequestHeaders = useMemo(
     () =>
       session?.token
@@ -198,7 +198,7 @@ const CmdKMenu = () => {
       .map((account: Account) => {
         const { score, matches } = fuzzyMatch(
           searchQuery,
-          account.github_username,
+          account.tscircuit_handle,
         )
         return { ...account, score, matches }
       })
@@ -213,7 +213,7 @@ const CmdKMenu = () => {
       if (!currentUser) return []
       try {
         const response = await axios.post(`/packages/list`, {
-          owner_github_username: currentUser,
+          owner_tscircuit_handle: currentUser,
           limit: 5,
         })
         return response.data.packages || []
