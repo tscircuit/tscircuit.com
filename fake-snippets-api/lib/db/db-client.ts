@@ -1704,7 +1704,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     },
     auth?: { account_id?: string },
   ) => {
-    console.log(filters)
     let orgs = get().organizations
     if (filters?.owner_account_id) {
       orgs = orgs.filter(
@@ -1720,9 +1719,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
     }
     if (filters?.tscircuit_handle) {
-      orgs = orgs.filter(
-        (org) => org.tscircuit_handle === filters.tscircuit_handle,
-      )
+      orgs = orgs.filter((org) => {
+        const account = get().accounts.find(
+          (account) => account.account_id === org.owner_account_id,
+        )
+        return account?.tscircuit_handle === filters.tscircuit_handle
+      })
     }
     if (filters?.name) {
       orgs = orgs.filter(

@@ -8,6 +8,7 @@ export default withRouteSpec({
   commonParams: z.object({
     creator_account_id: z.string().optional(),
     owner_github_username: z.string().optional(),
+    owner_tscircuit_handle: z.string().optional(),
     is_writable: z.boolean().optional(),
     owner_org_id: z.string().optional(),
     name: z.string().optional(),
@@ -30,6 +31,7 @@ export default withRouteSpec({
   const {
     creator_account_id,
     owner_github_username,
+    owner_tscircuit_handle,
     name,
     is_writable,
     owner_org_id,
@@ -43,6 +45,7 @@ export default withRouteSpec({
     !is_writable &&
     !creator_account_id &&
     !owner_github_username &&
+    !owner_tscircuit_handle &&
     !owner_org_id
   ) {
     return ctx.error(400, {
@@ -74,6 +77,24 @@ export default withRouteSpec({
     packages = packages.filter(
       (p) => p.owner_github_username === owner_github_username,
     )
+  }
+  if (owner_tscircuit_handle) {
+    const state = ctx.db.getState()
+    const account = state.accounts.find(
+      (acc) =>
+        acc.tscircuit_handle?.toLowerCase() ===
+        owner_tscircuit_handle.toLowerCase(),
+    )
+    if (account) {
+      packages = packages.filter((p) => {
+        if (account.github_username) {
+          return p.owner_github_username === account.github_username
+        }
+        return p.creator_account_id === account.account_id
+      })
+    } else {
+      packages = []
+    }
   }
   if (name) {
     packages = packages.filter((p) => p.name === name)

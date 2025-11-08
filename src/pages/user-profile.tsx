@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import type { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import type React from "react"
@@ -32,7 +31,9 @@ import { OrganizationCard } from "@/components/organization/OrganizationCard"
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
-  const { data: organizations } = useListUserOrgs(username)
+  const { data: organizations } = useListUserOrgs({
+    tscircuit_handle: username,
+  })
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [filter, setFilter] = useState("most-recent")
@@ -43,7 +44,13 @@ export const UserProfilePage = () => {
     isLoading: isLoadingAccount,
     isFetched: isFetchedAccount,
   } = useQuery<
-    { account: { github_username: string } },
+    {
+      account: {
+        account_id: string
+        github_username: string | null
+        tscircuit_handle: string
+      }
+    },
     Error & { status: number }
   >(
     ["account", username],
@@ -59,9 +66,10 @@ export const UserProfilePage = () => {
     },
   )
 
-  // use the username stored in the database so the correct case is displayed
   const githubUsername = account?.account?.github_username || username
-  const isCurrentUserProfile = githubUsername === session?.github_username
+  const tscircuitHandle = account?.account?.tscircuit_handle || username
+  const isCurrentUserProfile =
+    account?.account?.account_id === session?.account_id
 
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
@@ -72,10 +80,10 @@ export const UserProfilePage = () => {
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    ["userPackages", githubUsername],
+    ["userPackages", tscircuitHandle],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: githubUsername,
+        owner_tscircuit_handle: tscircuitHandle,
       })
       return response.data.packages
     },
@@ -99,9 +107,6 @@ export const UserProfilePage = () => {
         refetchOnWindowFocus: false,
       },
     )
-
-  const baseUrl = useApiBaseUrl()
-
   if (!isFetchedAccount) {
     return null
   }
