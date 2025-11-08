@@ -24,4 +24,3 @@ export const isSessionExpired = (session: Store["session"]): boolean => {
     return false
   }
 }
-
