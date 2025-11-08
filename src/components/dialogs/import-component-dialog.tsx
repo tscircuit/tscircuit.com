@@ -36,7 +36,7 @@ export const ImportComponentDialog = ({
       onOpenChange(false)
     }
     prevOpenRef.current = open
-  }, [open, session, toastLibrary, onOpenChange])
+  }, [open, session, onOpenChange])
 
   if (!session) {
     return null
