@@ -34,9 +34,7 @@ export const useOrgSignIn = () => {
         return
       }
 
-      const url = new URL(
-        `${snippetsBaseApiUrl}/internal/workos/initiate-auth`,
-      )
+      const url = new URL(`${snippetsBaseApiUrl}/internal/workos/initiate-auth`)
       url.searchParams.set("provider", normalizedProvider)
       url.searchParams.set("next", nextUrl)
       window.location.href = url.toString()

@@ -43,7 +43,9 @@ const ProviderButton = ({
       className={`w-full text-left border rounded-xl px-4 py-3 transition-all ${isActive ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"}`}
     >
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-full bg-white shadow-sm">{provider.icon}</div>
+        <div className="p-2 rounded-full bg-white shadow-sm">
+          {provider.icon}
+        </div>
         <div>
           <div className="font-semibold">{provider.label}</div>
           <div className="text-sm text-gray-500">{provider.description}</div>
@@ -129,7 +131,8 @@ const OrgLoginContent = () => {
                 Sign in with your company identity
               </h1>
               <p className="text-gray-600 mt-2 text-sm">
-                Pick the provider that matches your company’s setup and we’ll sign you in.
+                Pick the provider that matches your company’s setup and we’ll
+                sign you in.
               </p>
             </div>
             <div className="space-y-3">
@@ -143,7 +146,8 @@ const OrgLoginContent = () => {
               ))}
             </div>
             <p className="text-xs text-gray-400">
-              By continuing you agree to our Terms of Service and Privacy Policy.
+              By continuing you agree to our Terms of Service and Privacy
+              Policy.
             </p>
           </div>
         </div>
