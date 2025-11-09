@@ -281,8 +281,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ...account,
       is_tscircuit_staff: Boolean(account.is_tscircuit_staff),
       created_at: new Date(),
-      personal_org_id:
-        account.personal_org_id || `account_${get().idCounter + 1}`,
+      personal_org_id: account.personal_org_id || `porg_${get().idCounter + 1}`,
     }
 
     set((state) => {
