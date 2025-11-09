@@ -111,6 +111,12 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Company</h3>
             <nav className="flex flex-col space-y-2">
+              <Link
+                href="/org-login"
+                className="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium transition hover:bg-gray-50 w-fit"
+              >
+                Organization login
+              </Link>
               <a
                 href="https://tscircuit.com/legal/terms-of-service"
                 className="hover:underline w-fit"
