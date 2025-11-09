@@ -141,42 +141,6 @@ export const UserProfilePage = () => {
       }
     })
 
-  const filteredOrganizations = organizations?.filter((org) => {
-    if (!isCurrentUserProfile && org.is_personal_org) {
-      return false
-    }
-    return (
-      !searchQuery ||
-      (org.name?.toLowerCase().includes(searchQuery.toLowerCase().trim()) ??
-        false) ||
-      (org.display_name
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase().trim()) ??
-        false) ||
-      (org.github_handle
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase().trim()) ??
-        false) ||
-      (org.tscircuit_handle
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase().trim()) ??
-        false)
-    )
-  })
-
-  const getSearchPlaceholder = () => {
-    switch (activeTab) {
-      case "starred":
-        return "Search starred packages..."
-      case "organizations":
-        return "Search organizations..."
-      case "repos":
-        return "Search connected repositories..."
-      default:
-        return "Search packages..."
-    }
-  }
-
   const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
     setPackageToDelete(pkg)
@@ -245,25 +209,23 @@ export const UserProfilePage = () => {
           <div className="flex gap-4 mb-4">
             <Input
               type="text"
-              placeholder={getSearchPlaceholder()}
+              placeholder="Searching User Packages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="mb-4"
             />
-            {activeTab !== "organizations" && (
-              <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="most-recent">Most Recent</SelectItem>
-                  <SelectItem value="least-recent">Least Recent</SelectItem>
-                  <SelectItem value="most-starred">Most Starred</SelectItem>
-                  <SelectItem value="a-z">A-Z</SelectItem>
-                  <SelectItem value="z-a">Z-A</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="most-recent">Most Recent</SelectItem>
+                <SelectItem value="least-recent">Least Recent</SelectItem>
+                <SelectItem value="most-starred">Most Starred</SelectItem>
+                <SelectItem value="a-z">A-Z</SelectItem>
+                <SelectItem value="z-a">Z-A</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         )}
         {activeTab === "repos" ? (
@@ -275,31 +237,33 @@ export const UserProfilePage = () => {
           />
         ) : activeTab === "organizations" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredOrganizations && filteredOrganizations.length > 0 ? (
-              filteredOrganizations.map((org: PublicOrgSchema) => (
-                <OrganizationCard
-                  key={org.org_id}
-                  organization={org}
-                  withLink={true}
-                  showStats={true}
-                  showMembers={true}
-                  className="p-3"
-                />
-              ))
+            {organizations && organizations.length > 0 ? (
+              organizations
+                ?.filter((o) => {
+                  if (!isCurrentUserProfile && o.is_personal_org) {
+                    return false
+                  } else {
+                    return true
+                  }
+                })
+                .map((org: PublicOrgSchema) => (
+                  <OrganizationCard
+                    key={org.org_id}
+                    organization={org}
+                    withLink={true}
+                    showStats={true}
+                    showMembers={true}
+                    className="p-3"
+                  />
+                ))
             ) : (
               <div className="col-span-full flex justify-center">
                 <div className="flex flex-col items-center py-12 text-gray-500">
                   <Building2 className="mb-2" size={24} />
-                  <span className="text-lg font-medium">
-                    {searchQuery.trim()
-                      ? `No organizations matching '${searchQuery.trim()}'`
-                      : "No organizations"}
+                  <span className="text-lg font-medium">No organizations</span>
+                  <span className="text-sm">
+                    You're not a member of any organizations yet.
                   </span>
-                  {!searchQuery.trim() && (
-                    <span className="text-sm">
-                      You're not a member of any organizations yet.
-                    </span>
-                  )}
                 </div>
               </div>
             )}
