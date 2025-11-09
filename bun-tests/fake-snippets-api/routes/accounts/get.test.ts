@@ -11,9 +11,20 @@ test("GET /api/accounts/get - should return full account with email when authent
   expect(response.data.account).toBeDefined()
   expect(response.data.account.account_id).toBeDefined()
   expect(response.data.account.email).toBeDefined()
-  expect(response.data.account.shippingInfo).toBeDefined()
 })
+test("GET /api/accounts/get - should return public account when unauthenticated", async () => {
+  const { unauthenticatedAxios } = await getTestServer()
 
+  // The test server should automatically create a test account and set up authentication
+  const response = await unauthenticatedAxios.post("/api/accounts/get", {
+    github_username: "testuser",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.account).toBeDefined()
+  expect(response.data.account.account_id).toBeDefined()
+  expect(response.data.account.email).toBeUndefined()
+})
 test("GET /api/accounts/get - should return 404 if account not found", async () => {
   const { unauthenticatedAxios } = await getTestServer()
 
@@ -38,7 +49,6 @@ test("POST /api/accounts/get - should return full account when requesting own ac
   expect(response.data.account).toBeDefined()
   expect(response.data.account.account_id).toBeDefined()
   expect(response.data.account.email).toBeDefined()
-  expect(response.data.account.shippingInfo).toBeDefined()
 })
 
 test("POST /api/accounts/get - should return public account when requesting other user", async () => {

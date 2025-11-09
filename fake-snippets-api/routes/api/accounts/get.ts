@@ -1,10 +1,6 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import {
-  Account,
-  accountSchema,
-  publicAccountSchema,
-} from "fake-snippets-api/lib/db/schema"
+import { Account, publicAccountSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
@@ -12,10 +8,11 @@ export default withRouteSpec({
   jsonBody: z.object({
     github_username: z.string(),
   }),
-  jsonResponse: z.union([
-    z.object({ account: accountSchema }),
-    z.object({ account: publicAccountSchema }),
-  ]),
+  jsonResponse: z.object({
+    account: publicAccountSchema.extend({
+      email: z.string().email().optional(),
+    }),
+  }),
 })(async (req, ctx) => {
   let account: Account | undefined
   let isOwnAccount = false
@@ -40,7 +37,12 @@ export default withRouteSpec({
   }
 
   if (isOwnAccount) {
-    return ctx.json({ account })
+    return ctx.json({
+      account: {
+        ...account,
+        email: account.email ?? undefined,
+      },
+    })
   } else {
     const { email, shippingInfo, ...publicAccount } = account
     return ctx.json({ account: publicAccount })
