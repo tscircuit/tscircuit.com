@@ -16,6 +16,7 @@ export const publicMapOrg = (
     created_at,
     is_personal_org,
     org_display_name,
+    tscircuit_handle,
     org_name,
     ...org
   } = internal_org
@@ -29,7 +30,7 @@ export const publicMapOrg = (
     is_personal_org: Boolean(is_personal_org),
     created_at: String(created_at),
     github_handle,
-    tscircuit_handle: org_name,
-    ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),  
+    tscircuit_handle,
+    ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),
   }
 }

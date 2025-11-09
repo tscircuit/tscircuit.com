@@ -22,7 +22,7 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name, display_name, github_handle, tscircuit_handle } =       
+  const { org_id, name, display_name, github_handle, tscircuit_handle } =
     req.commonParams as {
       org_id: string
       name?: string
@@ -43,18 +43,18 @@ export default withRouteSpec({
   if (!org.can_manage_org) {
     return ctx.error(403, {
       error_code: "not_authorized",
-      message: "You do not have permission to manage this organization",        
+      message: "You do not have permission to manage this organization",
     })
   }
 
-  const orgName = tscircuit_handle !== undefined ? tscircuit_handle : name
-
-  if (!orgName && display_name === undefined && github_handle === null) {
+  // No changes provided
+  if (!name && display_name === undefined && github_handle === null) {
     return ctx.json({ org: publicMapOrg(org) })
   }
 
-  if (orgName && orgName !== org.org_name) {
-    const duplicate = ctx.db.getOrg({ org_name: orgName })
+  if (name && name !== org.org_name) {
+    // Validate duplicate name
+    const duplicate = ctx.db.getOrg({ org_name: name })
 
     if (duplicate && duplicate.org_id !== org_id) {
       return ctx.error(400, {
@@ -75,7 +75,7 @@ export default withRouteSpec({
     if (duplicateHandle) {
       return ctx.error(400, {
         error_code: "org_github_handle_already_exists",
-        message: "An organization with this GitHub handle already exists",      
+        message: "An organization with this GitHub handle already exists",
       })
     }
   }
@@ -83,14 +83,19 @@ export default withRouteSpec({
     org_name?: string
     org_display_name?: string
     github_handle?: string
+    tscircuit_handle?: string | null
   } = {}
 
-  if (orgName) {
-    updates.org_name = orgName
+  if (name) {
+    updates.org_name = name // TODO NORMALISE
   }
 
   if (github_handle !== undefined) {
     updates.github_handle = github_handle
+  }
+
+  if (tscircuit_handle !== undefined) {
+    updates.tscircuit_handle = tscircuit_handle
   }
 
   if (display_name !== undefined) {
@@ -98,7 +103,7 @@ export default withRouteSpec({
     const handleForFallback =
       github_handle !== undefined ? github_handle : org.github_handle
     const fallbackDisplayName =
-      orgName ?? org.org_display_name ?? org.org_name ?? handleForFallback ?? ""
+      name ?? org.org_display_name ?? org.org_name ?? handleForFallback ?? ""
     updates.org_display_name =
       trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
   }
