@@ -21,13 +21,12 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   let account: Account | undefined
   const { github_username, tscircuit_handle } = req.commonParams
-    if (tscircuit_handle) {
-      account = ctx.db.accounts.find(
-        (acc: Account) =>
-          acc.tscircuit_handle.toLowerCase() === tscircuit_handle.toLowerCase(),
-      )
-    } 
-  else if (github_username) {
+  if (tscircuit_handle) {
+    account = ctx.db.accounts.find(
+      (acc: Account) =>
+        acc.tscircuit_handle.toLowerCase() === tscircuit_handle.toLowerCase(),
+    )
+  } else if (github_username) {
     const foundAccount = ctx.db.accounts.find(
       (acc: Account) =>
         acc.github_username?.toLowerCase() === github_username.toLowerCase(),
