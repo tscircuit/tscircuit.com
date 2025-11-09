@@ -31,7 +31,11 @@ interface ScoredPackage extends Package {
 interface ScoredAccount
   extends Omit<
     Account,
-    "account_id" | "is_tscircuit_staff" | "github_username"
+    | "account_id"
+    | "is_tscircuit_staff"
+    | "tscircuit_handle"
+    | "created_at"
+    | "personal_org_id"
   > {
   score: number
   matches: number[]

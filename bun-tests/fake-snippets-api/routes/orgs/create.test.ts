@@ -13,7 +13,7 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe(orgName)
   expect(responseBody.org.github_handle).toBeNull()
-  expect(responseBody.org.tscircuit_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(orgName)
   expect(responseBody.org.owner_account_id).toBe(
     String((axios.defaults.headers as any)?.["Authorization"]?.split(" ")[1]),
   )
@@ -26,7 +26,7 @@ test("POST /api/orgs/create - should reject duplicate org names", async () => {
   const { axios, seed } = await getTestServer()
   try {
     await axios.post("/api/orgs/create", {
-      name: seed.organization.org_name,
+      name: seed.organization.tscircuit_handle,
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -50,7 +50,7 @@ test("POST /api/orgs/create - should accept display_name and use it", async () =
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.github_handle).toBeNull()
-  expect(responseBody.org.tscircuit_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(name)
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(displayName)
 })
@@ -65,7 +65,7 @@ test("POST /api/orgs/create - should map name as display_name when not provided"
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.github_handle).toBeNull()
-  expect(responseBody.org.tscircuit_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(name)
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(name)
 })

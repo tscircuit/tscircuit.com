@@ -38,7 +38,7 @@ test("GET /api/orgs/get - should return org by github_handle", async () => {
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.name).toBe(seed.account2.github_username)
   expect(responseBody.org.github_handle).toBe(seed.account2.github_username)
-  expect(responseBody.org.tscircuit_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(seed.account2.tscircuit_handle)
   expect(responseBody.org.user_permissions?.can_manage_org).not.toBe(true)
 })
 

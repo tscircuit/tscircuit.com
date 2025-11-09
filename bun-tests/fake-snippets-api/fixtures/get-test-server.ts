@@ -60,6 +60,7 @@ const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
     tscircuit_handle: "testuser",
+    email: "test@user.com",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -129,6 +130,7 @@ const seedDatabase = (db: DbClient) => {
   const organization = db.addOrganization({
     name: "janes-organization",
     github_handle: "janes-organization",
+    tscircuit_handle: "janes-organization",
     owner_account_id: account2.account_id,
   })
   // Seed a personal organization for account2

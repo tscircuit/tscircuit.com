@@ -178,14 +178,12 @@ async function handleDatasheetPage(req, res) {
 }
 
 async function handleCustomPackageHtml(req, res) {
-  // Get the author and package name
-  const [_, author, unscopedPackageName, other] = req.url
-    .split("?")[0]
-    .split("/")
+  const parts = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, other] = parts
   if (unscopedPackageName === "settings") {
     throw new Error("Organization settings route")
   }
-  if (other == "releases" || other == "release") {
+  if (other === "releases") {
     throw new Error("Release route")
   }
   if (!author || !unscopedPackageName) {
@@ -193,6 +191,9 @@ async function handleCustomPackageHtml(req, res) {
   }
   if (author === "datasheets") {
     throw new Error("Datasheet route")
+  }
+  if (parts.length > 3) {
+    throw new Error("Not a package route")
   }
 
   const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
@@ -268,8 +269,8 @@ async function handleCustomPackageHtml(req, res) {
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
   const allowedViews = ["schematic", "pcb", "assembly", "3d"]
-  const defaultView = packageInfo.default_view || "pcb"
-  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "pcb"
+  const defaultView = packageInfo.default_view || "3d"
+  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "3d"
   const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(
     author,
   )}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${
@@ -342,13 +343,20 @@ async function handleCustomPage(req, res) {
 }
 
 async function handleReleasePreview(req, res) {
-  const [_, author, unscopedPackageName, releaseId] = req.url
-    .split("?")[0]
-    .split("/")
+  const parts = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, releasesSegment, releaseId, preview] =
+    parts
 
-  if (!author || !unscopedPackageName || !releaseId) {
-    throw new Error("Invalid author/package/release URL")
+  if (
+    !author ||
+    !unscopedPackageName ||
+    releasesSegment !== "releases" ||
+    !releaseId ||
+    preview !== "preview"
+  ) {
+    throw new Error("Invalid release preview URL")
   }
+
   const packageDetails = await ky
     .get(`${REGISTRY_URL}/packages/get`, {
       searchParams: {
@@ -383,6 +391,196 @@ async function handleReleasePreview(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title,
     description: pageDescriptions["releases"],
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}/releases/${he.encode(releaseId)}/preview`,
+    ssrPackageData: { package: packageInfo },
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
+async function handleReleaseBuilds(req, res) {
+  const parts = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, releasesSegment, releaseId, builds] =
+    parts
+
+  if (
+    !author ||
+    !unscopedPackageName ||
+    releasesSegment !== "releases" ||
+    !releaseId ||
+    builds !== "builds"
+  ) {
+    throw new Error("Invalid release builds URL")
+  }
+
+  const packageDetails = await ky
+    .get(`${REGISTRY_URL}/packages/get`, {
+      searchParams: {
+        name: `${author}/${unscopedPackageName}`,
+      },
+    })
+    .json()
+    .catch((e) => {
+      if (String(e).includes("404")) {
+        return null
+      }
+      throw e
+    })
+
+  if (!packageDetails) {
+    const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+      title: "Package Not Found - tscircuit",
+      description: `Package ${author}/${unscopedPackageName} could not be found.`,
+      canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+        unscopedPackageName,
+      )}`,
+    })
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
+  }
+
+  const { package: packageInfo } = packageDetails
+  const title = he.encode(
+    `${packageInfo.name} Release ${releaseId} Builds - tscircuit`,
+  )
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description: `View all builds for release ${releaseId} of ${packageInfo.name}.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}/releases/${he.encode(releaseId)}/builds`,
+    ssrPackageData: { package: packageInfo },
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
+async function handleReleaseDetail(req, res) {
+  const parts = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, releasesSegment, releaseId] = parts
+
+  if (
+    !author ||
+    !unscopedPackageName ||
+    releasesSegment !== "releases" ||
+    !releaseId ||
+    parts.length > 5
+  ) {
+    throw new Error("Invalid release detail URL")
+  }
+
+  const packageDetails = await ky
+    .get(`${REGISTRY_URL}/packages/get`, {
+      searchParams: {
+        name: `${author}/${unscopedPackageName}`,
+      },
+    })
+    .json()
+    .catch((e) => {
+      if (String(e).includes("404")) {
+        return null
+      }
+      throw e
+    })
+
+  if (!packageDetails) {
+    const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+      title: "Package Not Found - tscircuit",
+      description: `Package ${author}/${unscopedPackageName} could not be found.`,
+      canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+        unscopedPackageName,
+      )}`,
+    })
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
+  }
+
+  const { package: packageInfo } = packageDetails
+  const title = he.encode(
+    `${packageInfo.name} Release ${releaseId} - tscircuit`,
+  )
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description: `View release of ${packageInfo.name}.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}/releases/${he.encode(releaseId)}`,
+    ssrPackageData: { package: packageInfo },
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
+async function handleReleases(req, res) {
+  const parts = req.url.split("?")[0].split("/")
+  const [_, author, unscopedPackageName, releasesSegment] = parts
+
+  if (
+    !author ||
+    !unscopedPackageName ||
+    releasesSegment !== "releases" ||
+    parts.length > 4
+  ) {
+    throw new Error("Invalid releases URL")
+  }
+
+  const packageDetails = await ky
+    .get(`${REGISTRY_URL}/packages/get`, {
+      searchParams: {
+        name: `${author}/${unscopedPackageName}`,
+      },
+    })
+    .json()
+    .catch((e) => {
+      if (String(e).includes("404")) {
+        return null
+      }
+      throw e
+    })
+
+  if (!packageDetails) {
+    const packageNotFoundHtml = getHtmlWithModifiedSeoTags({
+      title: "Package Not Found - tscircuit",
+      description: `Package ${author}/${unscopedPackageName} could not be found.`,
+      canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+        unscopedPackageName,
+      )}`,
+    })
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(packageNotFoundHtml)
+    return
+  }
+
+  const { package: packageInfo } = packageDetails
+  const title = he.encode(`${packageInfo.name} Releases - tscircuit`)
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description: `View all releases of ${packageInfo.name}.`,
+    canonicalUrl: `${BASE_URL}/${he.encode(author)}/${he.encode(
+      unscopedPackageName,
+    )}/releases`,
     ssrPackageData: { package: packageInfo },
   })
 
@@ -405,14 +603,35 @@ export default async function handler(req, res) {
   const pathParts = req.url.split("?")[0].split("/")
 
   try {
-    await handleCustomPackageHtml(req, res)
+    await handleReleasePreview(req, res)
     return
   } catch (e) {
     console.warn(e)
   }
 
   try {
-    await handleReleasePreview(req, res)
+    await handleReleaseBuilds(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
+
+  try {
+    await handleReleaseDetail(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
+
+  try {
+    await handleReleases(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
+
+  try {
+    await handleCustomPackageHtml(req, res)
     return
   } catch (e) {
     console.warn(e)
@@ -450,7 +669,6 @@ export default async function handler(req, res) {
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
   res.setHeader("Cache-Control", cacheControlHeader)
-  // Add ETag support for better caching
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(htmlContent)
 }
