@@ -33,9 +33,9 @@ interface ScoredAccount
     Account,
     | "account_id"
     | "is_tscircuit_staff"
-    | "tscircuit_handle"
     | "created_at"
     | "personal_org_id"
+    | "github_username"
   > {
   score: number
   matches: number[]
