@@ -17,9 +17,10 @@ export default withRouteSpec({
       .regex(/^[a-z0-9]/, "Name must start with a letter or number")
       .regex(/[a-z0-9]$/, "Name must end with a letter or number"),
     display_name: z.string().min(5).max(40).optional(),
-    github_handle: z.string().optional(),
     tscircuit_handle: z
       .string()
+      .min(1)
+      .max(40)
       .regex(
         /^[0-9A-Za-z_-]+$/,
         "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
@@ -31,10 +32,9 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { github_handle, name, display_name, tscircuit_handle } =
-    req.commonParams
+  const { name, display_name, tscircuit_handle } = req.commonParams
 
-  const existing = ctx.db.getOrg({ org_name: name })
+  const existing = ctx.db.getOrg({ tscircuit_handle: tscircuit_handle ?? name })
 
   if (existing) {
     return ctx.error(400, {
@@ -49,10 +49,7 @@ export default withRouteSpec({
     org_display_name: display_name,
     created_at: new Date(),
     can_manage_org: true,
-    ...(github_handle ? { github_handle } : {}),
-    ...((tscircuit_handle ?? github_handle)
-      ? { tscircuit_handle: tscircuit_handle ?? github_handle }
-      : {}),
+    tscircuit_handle: tscircuit_handle || name,
   }
 
   const org = ctx.db.addOrganization(newOrg)
