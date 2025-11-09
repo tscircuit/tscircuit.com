@@ -4,7 +4,7 @@ import { useIsUsingFakeApi } from "./use-is-using-fake-api"
 
 export type OrgAuthProvider = "google" | "github"
 
-const getRedirectPath = () => {
+export const getOrgLoginRedirectPath = () => {
   if (typeof window === "undefined") return "/"
   const searchParams = new URLSearchParams(window.location.search)
   const redirectParam = searchParams.get("redirect")
@@ -25,7 +25,7 @@ export const useOrgSignIn = () => {
       const replaceHost = (value: string) =>
         value.replace("127.0.0.1", "localhost")
       const origin = replaceHost(window.location.origin)
-      const redirectPath = getRedirectPath()
+      const redirectPath = getOrgLoginRedirectPath()
       const redirectUrl = `${origin}${redirectPath}`
       const nextUrl = `${origin}/authorize?redirect=${encodeURIComponent(redirectUrl)}`
 
