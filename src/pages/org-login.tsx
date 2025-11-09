@@ -1,9 +1,8 @@
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useState, type ReactNode } from "react"
+import { useOrgSignIn, type OrgAuthProvider } from "@/hooks/use-org-sign-in"
 import { LogIn, Github, Globe } from "lucide-react"
-
-type OrgAuthProvider = "google" | "github"
 
 const providerCards: Array<{
   id: OrgAuthProvider
@@ -55,10 +54,11 @@ const ProviderButton = ({
 const OrgLoginContent = () => {
   const [selectedProvider, setSelectedProvider] =
     useState<OrgAuthProvider | null>(null)
+  const orgSignIn = useOrgSignIn()
 
   const handleProviderClick = (provider: OrgAuthProvider) => {
     setSelectedProvider(provider)
-    // Actual auth redirect handled in Phase 4
+    orgSignIn(provider)
   }
 
   return (
