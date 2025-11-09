@@ -268,13 +268,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addAccount: (
-    account: Omit<Account, "account_id" | "is_tscircuit_staff"> &
-      Partial<Pick<Account, "account_id" | "is_tscircuit_staff">>,
+    account: Omit<
+      Account,
+      "account_id" | "is_tscircuit_staff" | "created_at" | "personal_org_id"
+    > &
+      Partial<
+        Pick<Account, "account_id" | "is_tscircuit_staff" | "personal_org_id">
+      >,
   ) => {
     const newAccount = {
       account_id: account.account_id || `account_${get().idCounter + 1}`,
       ...account,
       is_tscircuit_staff: Boolean(account.is_tscircuit_staff),
+      created_at: new Date(),
+      personal_org_id: account.personal_org_id || `porg_${get().idCounter + 1}`,
     }
 
     set((state) => {

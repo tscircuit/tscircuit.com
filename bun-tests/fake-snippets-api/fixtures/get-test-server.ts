@@ -60,6 +60,7 @@ const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
     tscircuit_handle: "testuser",
+    email: "test@user.com",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",

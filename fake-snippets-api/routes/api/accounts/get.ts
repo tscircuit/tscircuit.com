@@ -1,25 +1,33 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { Account, accountSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  Account,
+  accountSchema,
+  publicAccountSchema,
+} from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "session",
-  jsonBody: z.object({
-    github_username: z.string(),
+  commonParams: z.object({
+    github_username: z.string().optional(),
   }),
   jsonResponse: z.object({
-    account: accountSchema,
+    account: publicAccountSchema.extend({
+      email: z.string().nullable().optional(),
+    }),
   }),
 })(async (req, ctx) => {
   let account: Account | undefined
-
-  if (req.method === "POST") {
-    const { github_username } = req.jsonBody
-    account = ctx.db.accounts.find(
+  const { github_username } = req.commonParams
+  if (github_username) {
+    const foundAccount = ctx.db.accounts.find(
       (acc: Account) =>
-        acc.github_username.toLowerCase() === github_username.toLowerCase(),
+        acc.github_username?.toLowerCase() === github_username.toLowerCase(),
     )
+    if (foundAccount) {
+      account = { ...foundAccount, email: undefined }
+    }
   } else {
     account = ctx.db.getAccount(ctx.auth.account_id)
   }

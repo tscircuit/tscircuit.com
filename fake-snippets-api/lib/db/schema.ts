@@ -72,10 +72,22 @@ export const accountSchema = z.object({
   github_username: z.string(),
   tscircuit_handle: z.string().nullable(),
   shippingInfo: shippingInfoSchema.optional(),
-  personal_org_id: z.string().optional(),
+  personal_org_id: z.string().nullable(),
   is_tscircuit_staff: z.boolean().default(false),
+  email: z.string().nullable().optional(),
+  created_at: z.date(),
 })
 export type Account = z.infer<typeof accountSchema>
+
+export const publicAccountSchema = z.object({
+  account_id: z.string(),
+  github_username: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
+  personal_org_id: z.string().nullable(),
+  created_at: z.date(),
+})
+
+export type PublicAccount = z.infer<typeof publicAccountSchema>
 
 export const orderSchema = z.object({
   order_id: z.string(),
