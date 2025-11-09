@@ -1680,7 +1680,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
       org_display_name: organization.org_display_name ?? organization.name,
-      tscircuit_handle: organization.tscircuit_handle ?? null,
+      tscircuit_handle: organization.tscircuit_handle || organization.name,
       ...organization,
     }
     set((state) => ({

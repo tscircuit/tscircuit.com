@@ -13,8 +13,15 @@ export default withRouteSpec({
       z.object({
         name: z.string().min(5).max(40).optional(),
         display_name: z.string().max(50).optional(),
-        github_handle: z.string().trim().min(1).nullable().optional(),
-        tscircuit_handle: z.string().trim().min(1).nullable().optional(),
+        tscircuit_handle: z
+          .string()
+          .min(1)
+          .max(40)
+          .regex(
+            /^[0-9A-Za-z_-]+$/,
+            "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
+          )
+          .optional(),
       }),
     ),
   auth: "session",
@@ -22,14 +29,12 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name, display_name, github_handle, tscircuit_handle } =
-    req.commonParams as {
-      org_id: string
-      name?: string
-      display_name?: string
-      tscircuit_handle?: string | null
-      github_handle?: string
-    }
+  const { org_id, name, display_name, tscircuit_handle } = req.commonParams as {
+    org_id: string
+    name?: string
+    display_name?: string
+    tscircuit_handle?: string | null
+  }
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -48,12 +53,11 @@ export default withRouteSpec({
   }
 
   // No changes provided
-  if (!name && display_name === undefined && github_handle === null) {
+  if (!name && display_name === undefined && tscircuit_handle === undefined) {
     return ctx.json({ org: publicMapOrg(org) })
   }
 
   if (name && name !== org.org_name) {
-    // Validate duplicate name
     const duplicate = ctx.db.getOrg({ org_name: name })
 
     if (duplicate && duplicate.org_id !== org_id) {
@@ -63,35 +67,31 @@ export default withRouteSpec({
       })
     }
   }
-  if (
-    github_handle !== undefined &&
-    github_handle !== org.github_handle &&
-    github_handle !== null
-  ) {
-    const duplicateHandle = ctx.db.getOrg({ github_handle })
-      ? ctx.db.getOrg({ github_handle })?.org_id != org_id
-      : false
 
-    if (duplicateHandle) {
-      return ctx.error(400, {
-        error_code: "org_github_handle_already_exists",
-        message: "An organization with this GitHub handle already exists",
-      })
+  if (
+    tscircuit_handle !== undefined &&
+    tscircuit_handle !== org.tscircuit_handle
+  ) {
+    if (tscircuit_handle !== null) {
+      const duplicate = ctx.db.getOrg({ tscircuit_handle })
+
+      if (duplicate && duplicate.org_id !== org_id) {
+        return ctx.error(400, {
+          error_code: "org_tscircuit_handle_already_exists",
+          message: "An organization with this tscircuit_handle already exists",
+        })
+      }
     }
   }
+
   const updates: {
     org_name?: string
     org_display_name?: string
-    github_handle?: string
     tscircuit_handle?: string | null
   } = {}
 
   if (name) {
-    updates.org_name = name // TODO NORMALISE
-  }
-
-  if (github_handle !== undefined) {
-    updates.github_handle = github_handle
+    updates.org_name = name
   }
 
   if (tscircuit_handle !== undefined) {
@@ -100,10 +100,8 @@ export default withRouteSpec({
 
   if (display_name !== undefined) {
     const trimmedDisplayName = display_name.trim()
-    const handleForFallback =
-      github_handle !== undefined ? github_handle : org.github_handle
     const fallbackDisplayName =
-      name ?? org.org_display_name ?? org.org_name ?? handleForFallback ?? ""
+      name ?? org.org_display_name ?? org.org_name ?? org.tscircuit_handle ?? ""
     updates.org_display_name =
       trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
   }
