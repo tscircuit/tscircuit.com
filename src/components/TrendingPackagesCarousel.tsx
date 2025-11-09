@@ -4,10 +4,11 @@ import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useRef } from "react"
+import { CircuitBoard } from "lucide-react"
 const CarouselItem = ({ pkg }: { pkg: Package }) => {
   const previewImageUrl =
-    pkg.latest_pcb_preview_image_url ??
     pkg.latest_cad_preview_image_url ??
+    pkg.latest_pcb_preview_image_url ??
     pkg.latest_sch_preview_image_url ??
     undefined
 
@@ -17,14 +18,25 @@ const CarouselItem = ({ pkg }: { pkg: Package }) => {
         <div className="font-medium text-blue-600 mb-1 truncate text-sm">
           {pkg.name}
         </div>
-        <div className="mb-2 h-24 w-full bg-black rounded overflow-hidden">
+        <div className="mb-0.5 md:mb-2 h-[5rem] md:h-[7rem] w-full rounded-md overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 flex items-center justify-center relative">
           {previewImageUrl ? (
             <img
               src={previewImageUrl}
               alt="PCB preview"
-              className="w-full h-full object-contain p-2 scale-[3] rotate-45 hover:scale-[3.5] transition-transform"
+              draggable={false}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                e.currentTarget.nextElementSibling?.classList.remove("hidden")
+                e.currentTarget.nextElementSibling?.classList.add("flex")
+              }}
             />
           ) : null}
+          <div
+            className={`w-full h-full ${previewImageUrl ? "hidden" : "flex"} items-center justify-center`}
+          >
+            <CircuitBoard className="w-10 h-10 text-gray-300" />
+          </div>
         </div>
         <div className="flex items-center text-xs text-gray-500">
           <StarFilledIcon className="w-3 h-3 mr-1" />
