@@ -41,9 +41,7 @@ test("GET /api/accounts/get - should return 404 if account not found", async () 
 test("POST /api/accounts/get - should return full account when requesting own account", async () => {
   const { axios } = await getTestServer()
 
-  const response = await axios.post("/api/accounts/get", {
-    github_username: "testuser",
-  })
+  const response = await axios.post("/api/accounts/get", {})
 
   expect(response.status).toBe(200)
   expect(response.data.account).toBeDefined()
