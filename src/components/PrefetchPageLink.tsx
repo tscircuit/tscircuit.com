@@ -68,6 +68,7 @@ export const PrefetchPageLink = ({
       queryClient.prefetchQuery(["account", username], async () => {
         const { data } = await axios.post("/accounts/get", {
           github_username: username,
+          tscircuit_handle: username,
         })
         return data.account
       })
