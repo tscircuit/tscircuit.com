@@ -67,6 +67,8 @@ const AuthenticatePageInnerContent = () => {
         setSession({
           ...(decodedToken as any),
           token: session_token,
+          github_username:
+            decodedToken.github_username ?? decodedToken.tscircuit_handle,
         })
         setMessage("success! redirecting you now...")
         setTimeout(() => {
