@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAxios } from "@/hooks/use-axios"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import type { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
@@ -43,13 +43,19 @@ export const UserProfilePage = () => {
     isLoading: isLoadingAccount,
     isFetched: isFetchedAccount,
   } = useQuery<
-    { account: { github_username: string } },
+    {
+      account: {
+        github_username?: string | null
+        tscircuit_handle?: string | null
+      }
+    },
     Error & { status: number }
   >(
     ["account", username],
     async () => {
       const response = await axios.post("/accounts/get", {
         github_username: username,
+        tscircuit_handle: username,
       })
       return response.data
     },
@@ -60,8 +66,18 @@ export const UserProfilePage = () => {
   )
 
   // use the username stored in the database so the correct case is displayed
-  const githubUsername = account?.account?.github_username || username
-  const isCurrentUserProfile = githubUsername === session?.github_username
+  const githubUsername = account?.account?.github_username ?? null
+  const profileHandle =
+    account?.account?.tscircuit_handle ??
+    githubUsername ??
+    username ??
+    null
+  const sessionHandle = getSessionHandle(session)
+  const normalizedProfileHandle = profileHandle?.toLowerCase() ?? null
+  const normalizedSessionHandle = sessionHandle?.toLowerCase() ?? null
+  const isCurrentUserProfile =
+    normalizedProfileHandle !== null &&
+    normalizedProfileHandle === normalizedSessionHandle
 
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
@@ -72,30 +88,30 @@ export const UserProfilePage = () => {
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    ["userPackages", githubUsername],
+    ["userPackages", profileHandle],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: githubUsername,
+        owner_github_username: profileHandle,
       })
       return response.data.packages
     },
     {
-      enabled: Boolean(githubUsername),
+      enabled: Boolean(profileHandle),
       refetchOnWindowFocus: false,
     },
   )
 
   const { data: starredPackages, isLoading: isLoadingStarredPackages } =
     useQuery<Package[]>(
-      ["starredPackages", githubUsername],
+      ["starredPackages", profileHandle],
       async () => {
         const response = await axios.post(`/packages/list`, {
-          starred_by: githubUsername,
+          starred_by: profileHandle,
         })
         return response.data.packages
       },
       {
-        enabled: activeTab === "starred" && Boolean(githubUsername),
+        enabled: activeTab === "starred" && Boolean(profileHandle),
         refetchOnWindowFocus: false,
       },
     )
@@ -189,38 +205,42 @@ export const UserProfilePage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={`https://github.com/${githubUsername}.png?size=300`}
-              draggable={false}
-            />
+            {githubUsername && (
+              <AvatarImage
+                src={`https://github.com/${githubUsername}.png?size=300`}
+                draggable={false}
+              />
+            )}
             <AvatarFallback className="select-none">
-              {githubUsername?.[0]?.toUpperCase()}
+              {profileHandle?.[0]?.toUpperCase() ?? "U"}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-3xl font-bold">
               {isCurrentUserProfile
                 ? "My Profile"
-                : `${githubUsername}'s Profile`}
+                : `${profileHandle ?? "User"}'s Profile`}
             </h1>
             <div className="text-gray-600 mt-1">
               {userPackages?.length || 0} packages
             </div>
           </div>
         </div>
-        <div className="mb-6">
-          <a
-            href={`https://github.com/${githubUsername}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center"
-          >
-            <Button variant="outline">
-              <GitHubLogoIcon className="mr-2" />
-              View GitHub Profile
-            </Button>
-          </a>
-        </div>
+        {githubUsername && (
+          <div className="mb-6">
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center"
+            >
+              <Button variant="outline">
+                <GitHubLogoIcon className="mr-2" />
+                View GitHub Profile
+              </Button>
+            </a>
+          </div>
+        )}
         <Tabs
           defaultValue="all"
           onValueChange={setActiveTab}

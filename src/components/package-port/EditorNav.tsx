@@ -9,7 +9,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { cn } from "@/lib/utils"
 import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
@@ -91,6 +91,7 @@ export default function EditorNav({
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = useSessionHandle()
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
     useRenamePackageDialog()
   const {
@@ -214,10 +215,9 @@ export default function EditorNav({
   const canSavePackage = useMemo(
     () =>
       Boolean(
-        isLoggedIn &&
-          (!pkg || pkg?.owner_github_username === session?.github_username),
+        isLoggedIn && (!pkg || pkg?.owner_github_username === sessionHandle),
       ),
-    [isLoggedIn, pkg, session?.github_username],
+    [isLoggedIn, pkg, sessionHandle],
   )
 
   useHotkeyCombo(
@@ -257,7 +257,7 @@ export default function EditorNav({
                   {pkg.star_count}
                 </span>
               )}
-              {pkg.owner_github_username === session?.github_username && (
+              {pkg.owner_github_username === sessionHandle && (
                 <>
                   <TooltipProvider>
                     <Tooltip>
@@ -433,7 +433,7 @@ export default function EditorNav({
                 View Files
               </DropdownMenuItem>
               {pkg &&
-                session?.github_username === pkg?.owner_github_username && (
+                sessionHandle === pkg?.owner_github_username && (
                   <>
                     <DropdownMenuItem
                       className="text-xs"
@@ -541,7 +541,7 @@ export default function EditorNav({
                 </DropdownMenuItem>
               )}
               {pkg &&
-                session?.github_username === pkg?.owner_github_username && (
+                sessionHandle === pkg?.owner_github_username && (
                   <DropdownMenuItem
                     className="text-xs"
                     onClick={() => createReleaseDialog.openDialog()}
@@ -573,14 +573,14 @@ export default function EditorNav({
                 onClick={() => {
                   if (
                     pkg &&
-                    session?.github_username === pkg.owner_github_username
+                    sessionHandle === pkg.owner_github_username
                   ) {
                     updatePackageVisibilityToPrivate(!isPrivate)
                   }
                 }}
               >
                 <Eye className="mr-1 h-3 w-3" />
-                {session?.github_username === pkg?.owner_github_username
+                {sessionHandle === pkg?.owner_github_username
                   ? isPrivate
                     ? "Make Public"
                     : "Make Private"

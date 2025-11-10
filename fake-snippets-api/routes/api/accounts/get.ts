@@ -11,6 +11,7 @@ export default withRouteSpec({
   auth: "session",
   commonParams: z.object({
     github_username: z.string().optional(),
+    tscircuit_handle: z.string().optional(),
   }),
   jsonResponse: z.object({
     account: publicAccountSchema.extend({
@@ -19,15 +20,30 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   let account: Account | undefined
-  const { github_username } = req.commonParams
-  if (github_username) {
-    const foundAccount = ctx.db.accounts.find(
-      (acc: Account) =>
-        acc.github_username?.toLowerCase() === github_username.toLowerCase(),
-    )
-    if (foundAccount) {
-      account = { ...foundAccount, email: undefined }
+  const { github_username, tscircuit_handle } = req.commonParams
+  if (github_username || tscircuit_handle) {
+    const lookupByHandle = (predicate: (acc: Account) => boolean) => {
+      const foundAccount = ctx.db.accounts.find(predicate)
+      if (foundAccount) {
+        return { ...foundAccount, email: undefined }
+      }
+      return undefined
     }
+
+    account =
+      (tscircuit_handle &&
+        lookupByHandle(
+          (acc) =>
+            acc.tscircuit_handle?.toLowerCase() ===
+            tscircuit_handle.toLowerCase(),
+        )) ||
+      (github_username &&
+        lookupByHandle(
+          (acc) =>
+            acc.github_username?.toLowerCase() ===
+            github_username.toLowerCase(),
+        )) ||
+      undefined
   } else {
     account = ctx.db.getAccount(ctx.auth.account_id)
   }

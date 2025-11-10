@@ -1,5 +1,5 @@
 import { useMutation } from "react-query"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
@@ -15,20 +15,22 @@ export const useForkSnippetMutation = ({
 }) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = getSessionHandle(session)
   const { toast } = useToast()
 
   return useMutation(
-    ["createForkSnippet"],
-    async () => {
-      if (!session) throw new Error("No session")
-      if (!snippet) throw new Error("No snippet to fork")
+      ["createForkSnippet"],
+      async () => {
+        if (!session) throw new Error("No session")
+        if (!sessionHandle) throw new Error("No user handle")
+        if (!snippet) throw new Error("No snippet to fork")
 
-      const { data } = await axios.post("/snippets/create", {
-        unscoped_name: snippet.unscoped_name,
-        snippet_type: snippet.snippet_type,
-        owner_name: session.github_username,
-        code: currentCode ?? snippet.code, // Use currentCode if provided, fall back to snippet.code
-      })
+        const { data } = await axios.post("/snippets/create", {
+          unscoped_name: snippet.unscoped_name,
+          snippet_type: snippet.snippet_type,
+          owner_name: sessionHandle,
+          code: currentCode ?? snippet.code, // Use currentCode if provided, fall back to snippet.code
+        })
       return data.snippet
     },
     {

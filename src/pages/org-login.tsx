@@ -3,7 +3,7 @@ import Footer from "@/components/Footer"
 import { useState, type ReactNode } from "react"
 import { Link } from "wouter"
 import { useOrgSignIn, type OrgAuthProvider } from "@/hooks/use-org-sign-in"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { useAxios } from "@/hooks/use-axios"
 import { LogIn, Github, Globe } from "lucide-react"
 
@@ -62,6 +62,7 @@ const OrgLoginContent = () => {
   const orgSignIn = useOrgSignIn()
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
+  const sessionHandle = getSessionHandle(session)
   const axios = useAxios()
   const [isSigningOut, setIsSigningOut] = useState(false)
 
@@ -84,6 +85,7 @@ const OrgLoginContent = () => {
   }
 
   if (session) {
+    const profileHref = sessionHandle ? `/${sessionHandle}` : "/dashboard"
     return (
       <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-white to-gray-50">
         <div className="w-full max-w-2xl">
@@ -93,12 +95,14 @@ const OrgLoginContent = () => {
                 Already signed in
               </p>
               <h1 className="text-3xl font-bold text-gray-900 mt-2">
-                You're signed in as @{session.github_username}
+                {sessionHandle
+                  ? `You're signed in as @${sessionHandle}`
+                  : "You're already signed in"}
               </h1>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={`/${session.github_username}`}
+                href={profileHref}
                 className="flex-1 inline-flex justify-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-800 hover:bg-gray-100 transition"
               >
                 View Profile

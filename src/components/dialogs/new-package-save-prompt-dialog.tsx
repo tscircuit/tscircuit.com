@@ -19,7 +19,7 @@ import {
 import { Alert, AlertDescription } from "../ui/alert"
 import { createUseDialog } from "./create-use-dialog"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { ICreatePackageProps } from "@/hooks/useFileManagement"
 import { normalizeName } from "@/lib/utils/normalizeName"
 
@@ -38,6 +38,7 @@ export const NewPackageSavePromptDialog = ({
 }) => {
   const [packageName, setPackageName] = useState(initialName)
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = useSessionHandle()
   const [isPrivate, setIsPrivate] = useState(initialIsPrivate)
   const [selectedOrgId, setSelectedOrgId] = useState<string>("")
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -55,7 +56,7 @@ export const NewPackageSavePromptDialog = ({
       selectedOrg?.is_personal_org &&
       selectedOrg?.owner_account_id == session?.account_id
     )
-  }, [selectedOrgId, organizations, session?.github_username])
+  }, [selectedOrgId, organizations, session?.account_id])
 
   const normalizedPackageName = useMemo(() => {
     if (!packageName.trim()) return ""
@@ -67,12 +68,13 @@ export const NewPackageSavePromptDialog = ({
     if (selectedOrgId) {
       return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${normalizedPackageName}`
     }
-    return `${session?.github_username}/${normalizedPackageName}`
+    if (!sessionHandle) return
+    return `${sessionHandle}/${normalizedPackageName}`
   }, [
     selectedOrgId,
     normalizedPackageName,
     organizations,
-    session?.github_username,
+    sessionHandle,
   ])
 
   const extractErrorMessage = (error: any): string => {
@@ -211,7 +213,7 @@ export const NewPackageSavePromptDialog = ({
                   <span>Will be saved as:</span>
                   <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 font-mono break-all">
                     {fullPackageName ||
-                      `${selectedOrgId ? organizations?.find((x) => x.org_id === selectedOrgId)?.name : session?.github_username}/${normalizedPackageName}`}
+                      `${selectedOrgId ? organizations?.find((x) => x.org_id === selectedOrgId)?.name : sessionHandle || "your-handle"}/${normalizedPackageName}`}
                   </code>
                 </div>
               )}

@@ -6,7 +6,8 @@ export type Store = {
     token: string
     account_id: string
     session_id: string
-    github_username: string
+    github_username?: string | null
+    tscircuit_handle?: string | null
   } | null
   setSession: (session: Store["session"]) => any
   should_onboarding_tips_be_closed: boolean
@@ -34,3 +35,9 @@ if (typeof window !== "undefined") {
     window.TSCIRCUIT_REGISTRY_TOKEN = state.session?.token ?? null
   })
 }
+
+export const getSessionHandle = (session: Store["session"]) =>
+  session?.tscircuit_handle ?? session?.github_username ?? null
+
+export const useSessionHandle = () =>
+  useGlobalStore((state) => getSessionHandle(state.session))

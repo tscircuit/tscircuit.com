@@ -2,7 +2,7 @@ import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { Snippet } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
 import { useAxios } from "./use-axios"
-import { useGlobalStore } from "./use-global-store"
+import { useGlobalStore, getSessionHandle } from "./use-global-store"
 import { useUrlParams } from "./use-url-params"
 
 export const useCreateSnippetMutation = ({
@@ -12,6 +12,7 @@ export const useCreateSnippetMutation = ({
   const templateName = urlParams.template
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
+  const ownerHandle = getSessionHandle(session)
   return useMutation(
     ["createSnippet"],
     async ({
@@ -26,6 +27,7 @@ export const useCreateSnippetMutation = ({
       is_private?: boolean
     } = {}) => {
       if (!session) throw new Error("No session")
+      if (!ownerHandle) throw new Error("No user handle")
       const template =
         typeof code === "string"
           ? {
@@ -35,16 +37,16 @@ export const useCreateSnippetMutation = ({
                 (code.includes("<board") ? "board" : "package"),
             }
           : getSnippetTemplate(templateName)
-      const {
-        data: { snippet },
-      } = await axios.post("/snippets/create", {
-        code: template.code,
-        snippet_type: template.type ?? "board",
-        manual_edits_json_content,
-        owner_name: session?.github_username,
-        circuit_json,
-        is_private,
-      })
+        const {
+          data: { snippet },
+        } = await axios.post("/snippets/create", {
+          code: template.code,
+          snippet_type: template.type ?? "board",
+          manual_edits_json_content,
+          owner_name: ownerHandle,
+          circuit_json,
+          is_private,
+        })
       return snippet
     },
     {

@@ -14,7 +14,7 @@ import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { getBuildStatus } from "@/components/preview"
 
 export default function ReleaseDetailPage() {
@@ -60,6 +60,7 @@ export default function ReleaseDetailPage() {
   })
 
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = getSessionHandle(session)
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation()
   const { status } = getBuildStatus(latestBuild ?? null)
@@ -151,7 +152,7 @@ export default function ReleaseDetailPage() {
               </div>
 
               {/* Rebuild Button */}
-              {session?.github_username === pkg.owner_github_username && (
+              {sessionHandle === pkg.owner_github_username && (
                 <Button
                   variant="outline"
                   size="sm"

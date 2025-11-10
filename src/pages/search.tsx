@@ -11,7 +11,7 @@ import PackageSearchResults, {
 } from "@/components/PackageSearchResults"
 import { UserCard } from "@/components/UserCard"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSessionHandle } from "@/hooks/use-global-store"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import {
   Select,
@@ -45,7 +45,7 @@ export const SearchPage = () => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const currentUser = useSessionHandle()
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
   const [category, setCategory] = useState(

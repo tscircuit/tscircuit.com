@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TypeBadge } from "@/components/TypeBadge"
 import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
 import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
@@ -22,7 +22,7 @@ export const QuickstartPage = () => {
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
+  const currentUser = useSessionHandle()
   const isLoggedIn = Boolean(currentUser)
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()

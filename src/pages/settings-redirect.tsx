@@ -2,10 +2,11 @@ import { useEffect, useState } from "react"
 import { Redirect } from "wouter"
 
 import { FullPageLoader } from "@/App"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 
 const SettingsRedirectPage = () => {
   const session = useGlobalStore((state) => state.session)
+  const sessionHandle = useSessionHandle()
   const [hasHydrated, setHasHydrated] = useState(() => {
     if (typeof window === "undefined") return false
     return useGlobalStore.persist?.hasHydrated?.() ?? false
@@ -34,11 +35,11 @@ const SettingsRedirectPage = () => {
     return <FullPageLoader />
   }
 
-  if (!session?.github_username) {
+  if (!sessionHandle) {
     return <Redirect to="/" />
   }
 
-  return <Redirect to={`/${session.github_username}/settings`} />
+  return <Redirect to={`/${sessionHandle}/settings`} />
 }
 
 export default SettingsRedirectPage

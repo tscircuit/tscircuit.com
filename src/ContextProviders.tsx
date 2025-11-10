@@ -65,8 +65,8 @@ function PostHogIdentifier() {
       try {
         const githubUsername = session?.github_username
 
-        if (isInternalGithubUser(githubUsername)) {
-          posthog.identify(session?.github_username, {
+        if (githubUsername && isInternalGithubUser(githubUsername)) {
+          posthog.identify(githubUsername, {
             is_tscircuit_staff: true,
           })
         }

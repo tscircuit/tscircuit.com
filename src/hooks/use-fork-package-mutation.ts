@@ -1,7 +1,7 @@
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { useMutation } from "react-query"
 import { useAxios } from "./use-axios"
-import { useGlobalStore } from "./use-global-store"
+import { useGlobalStore, getSessionHandle } from "./use-global-store"
 import { useToast } from "./use-toast"
 
 export const useForkPackageMutation = ({
@@ -11,12 +11,14 @@ export const useForkPackageMutation = ({
 } = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = getSessionHandle(session)
   const { toast } = useToast()
 
   return useMutation(
     ["forkPackage"],
     async (packageId: string) => {
       if (!session) throw new Error("No session")
+      if (!sessionHandle) throw new Error("No user handle")
 
       const { data } = await axios.post("/packages/fork", {
         package_id: packageId,
@@ -31,11 +33,11 @@ export const useForkPackageMutation = ({
       onSuccess: (result) => {
         toast({
           title: "Package Forked",
-          description: `Successfully forked package to @${session?.github_username}/${result.unscoped_name}`,
+          description: `Successfully forked package to @${sessionHandle}/${result.unscoped_name}`,
         })
 
         const url = new URL(window.location.href)
-        url.pathname = `/${session?.github_username}/${result.unscoped_name}`
+        url.pathname = `/${sessionHandle}/${result.unscoped_name}`
         url.search = ""
         window.location.href = url.toString()
 

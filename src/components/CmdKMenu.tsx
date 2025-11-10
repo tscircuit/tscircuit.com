@@ -1,5 +1,5 @@
 import { useAxios } from "@/hooks/use-axios"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import { useNotImplementedToast } from "@/hooks/use-toast"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
@@ -67,7 +67,7 @@ const CmdKMenu = () => {
     useImportComponentDialog()
   const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
+  const currentUser = getSessionHandle(session)
   const jlcpcbProxyRequestHeaders = useMemo(
     () =>
       session?.token

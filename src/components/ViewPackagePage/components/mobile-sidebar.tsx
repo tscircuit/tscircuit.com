@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
 import { usePreviewImages } from "@/hooks/use-preview-images"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
@@ -50,10 +50,11 @@ const MobileSidebar = ({
     [packageInfo?.is_package],
   )
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const sessionHandle = useSessionHandle()
   const isOwner =
     isLoggedIn &&
     packageInfo?.owner_github_username ===
-      useGlobalStore((s) => s.session?.github_username)
+      sessionHandle
 
   const {
     Dialog: EditPackageDetailsDialog,

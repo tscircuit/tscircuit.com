@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
 import { AlertTriangle, Trash2 } from "lucide-react"
 import Header from "@/components/Header"
@@ -23,6 +23,7 @@ import { useQuery } from "react-query"
 
 export default function UserSettingsPage() {
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = useSessionHandle()
   const hasHydrated = useHydration()
   const axios = useAxios()
 
@@ -91,18 +92,20 @@ export default function UserSettingsPage() {
       <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="max-w-7xl mx-auto py-8">
           <div className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <Avatar className="h-16 w-16 border-2 border-gray-200 shadow-sm">
-                <AvatarImage
-                  src={`https://github.com/${session.github_username}.png`}
-                  alt={`${session.github_username} avatar`}
-                />
-                <AvatarFallback className="text-lg font-medium">
-                  {(session.github_username || session.account_id || "")
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="flex items-center gap-4 mb-6">
+                <Avatar className="h-16 w-16 border-2 border-gray-200 shadow-sm">
+                  {session?.github_username && (
+                    <AvatarImage
+                      src={`https://github.com/${session?.github_username}.png`}
+                      alt={`${session?.github_username} avatar`}
+                    />
+                  )}
+                  <AvatarFallback className="text-lg font-medium">
+                    {(sessionHandle || session?.account_id || "")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Account Settings

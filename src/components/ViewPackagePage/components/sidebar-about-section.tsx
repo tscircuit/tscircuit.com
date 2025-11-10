@@ -3,7 +3,7 @@ import { GitFork, Star, Settings, LinkIcon, Github, Plus } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import { useState, useEffect, useMemo } from "react"
@@ -47,10 +47,9 @@ export default function SidebarAboutSection({
   const topics = packageInfo?.is_package ? ["Package"] : ["Board"]
   const isLoading = !packageInfo || !packageRelease
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const sessionHandle = useSessionHandle()
   const isOwner =
-    isLoggedIn &&
-    packageInfo?.owner_github_username ===
-      useGlobalStore((s) => s.session?.github_username)
+    isLoggedIn && packageInfo?.owner_github_username === sessionHandle
 
   // Local state to store updated values before the query refetches
   const [localDescription, setLocalDescription] = useState<string>("")

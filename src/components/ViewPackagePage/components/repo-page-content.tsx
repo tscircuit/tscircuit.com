@@ -17,7 +17,7 @@ import {
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import type {
   Package,
   PackageFile as ApiPackageFile,
@@ -68,6 +68,7 @@ export default function RepoPageContent({
     }
   }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = getSessionHandle(session)
 
   // Check if circuit.json exists without downloading it
   const circuitJsonExists = useMemo(() => {
@@ -176,13 +177,13 @@ export default function RepoPageContent({
   return (
     <div className="min-h-screen bg-white dark:bg-[#0d1117] text-gray-900 dark:text-[#c9d1d9] font-sans">
       <Header />
-      <PackageHeader
-        packageInfo={packageInfo}
-        isPrivate={packageInfo?.is_private ?? false}
-        isCurrentUserAuthor={
-          packageInfo?.creator_account_id === session?.github_username
-        }
-      />
+        <PackageHeader
+          packageInfo={packageInfo}
+          isPrivate={packageInfo?.is_private ?? false}
+          isCurrentUserAuthor={
+            packageInfo?.creator_account_id === sessionHandle
+          }
+        />
 
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">

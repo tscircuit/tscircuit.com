@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import { useToast } from "@/hooks/use-toast"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, getSessionHandle } from "@/hooks/use-global-store"
 import { useLocation } from "wouter"
 import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
 import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
@@ -11,6 +11,7 @@ import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
 export const useJlcpcbComponentImport = () => {
   const { toastLibrary } = useToast()
   const session = useGlobalStore((s) => s.session)
+  const sessionHandle = getSessionHandle(session)
   const [, navigate] = useLocation()
   const axios = useAxios()
   const createPackageMutation = useCreatePackageMutation()
@@ -18,12 +19,15 @@ export const useJlcpcbComponentImport = () => {
   const createFilesMutation = useCreatePackageFilesMutation()
 
   const runImport = useCallback(
-    async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
-      if (!session) {
-        throw new Error("You must be logged in to import from JLCPCB")
-      }
+      async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
+        if (!session) {
+          throw new Error("You must be logged in to import from JLCPCB")
+        }
+        if (!sessionHandle) {
+          throw new Error("User handle unavailable")
+        }
 
-      const partNumber = result.component.partNumber || "component"
+        const partNumber = result.component.partNumber || "component"
 
       const normalizePartNumber = (input: string) =>
         input
@@ -36,7 +40,7 @@ export const useJlcpcbComponentImport = () => {
           .replace(/^-+/g, "") || "component"
 
       const componentSlug = normalizePartNumber(partNumber)
-      const packageName = `${session.github_username}/${componentSlug}`
+        const packageName = `${sessionHandle}/${componentSlug}`
 
       const fetchExistingPackage = async () => {
         try {

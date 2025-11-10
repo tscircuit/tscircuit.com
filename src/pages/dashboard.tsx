@@ -6,7 +6,7 @@ import Footer from "@/components/Footer"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { Edit2, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSessionHandle } from "@/hooks/use-global-store"
 import { Link } from "wouter"
 import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
@@ -22,7 +22,7 @@ export const DashboardPage = () => {
   const axios = useAxios()
   const { data: organizations } = useListUserOrgs()
 
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const currentUser = useSessionHandle()
   const isLoggedIn = Boolean(currentUser)
   const signIn = useSignIn()
 

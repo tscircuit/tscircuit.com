@@ -51,6 +51,7 @@ const AuthenticatePageInnerContent = () => {
         setSession({
           account_id: "account-1234",
           github_username: "testuser",
+          tscircuit_handle: "testuser",
           token: "1234",
           session_id: "session-1234",
         })
@@ -64,9 +65,15 @@ const AuthenticatePageInnerContent = () => {
       }
       if (session_token) {
         const decodedToken = jose.decodeJwt(session_token)
+        const decodedSession = decodedToken as any
+        const tscircuit_handle =
+          decodedSession?.tscircuit_handle ??
+          decodedSession?.github_username ??
+          null
         setSession({
           ...(decodedToken as any),
           token: session_token,
+          tscircuit_handle,
         })
         setMessage("success! redirecting you now...")
         setTimeout(() => {

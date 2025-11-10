@@ -38,6 +38,7 @@ export const DevLoginPage = () => {
         account_id: data.session.account_id,
         session_id: data.session.session_id,
         github_username: username,
+        tscircuit_handle: data.session.tscircuit_handle ?? username,
       })
 
       // Redirect to home page

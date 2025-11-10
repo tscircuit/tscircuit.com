@@ -14,7 +14,7 @@ import { GitFork, Package, Star } from "lucide-react"
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useOrderDialog } from "@tscircuit/runframe"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
 import { useSignIn } from "@/hooks/use-sign-in"
 
@@ -37,9 +37,8 @@ export default function PackageHeader({
     ? packageNameWithOwner?.split("/")[1]
     : packageInfo?.unscoped_name
   const sessionToken = useGlobalStore((s) => s.session?.token)
-  const isOwner =
-    packageInfo?.owner_github_username ===
-    useGlobalStore((s) => s.session?.github_username)
+  const sessionHandle = useSessionHandle()
+  const isOwner = packageInfo?.owner_github_username === sessionHandle
   const isLoggedIn = useGlobalStore((s) => s.session != null)
   const signIn = useSignIn()
   const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({

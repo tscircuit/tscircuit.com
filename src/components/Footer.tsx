@@ -1,10 +1,11 @@
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { useGlobalStore, useSessionHandle } from "@/hooks/use-global-store"
 import { CircuitBoard } from "lucide-react"
 import { Link } from "wouter"
 
 export default function Footer() {
   const session = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(session)
+  const sessionHandle = useSessionHandle()
 
   return (
     <footer className="bg-white text-black py-12 border-t mt-8">
@@ -28,8 +29,8 @@ export default function Footer() {
                 { name: "Organization login", href: "/org-login" },
                 {
                   name: "My Profile",
-                  href: `/${session?.github_username}`,
-                  hidden: !isLoggedIn,
+                  href: sessionHandle ? `/${sessionHandle}` : "/",
+                  hidden: !isLoggedIn || !sessionHandle,
                 },
               ]
                 .filter((item) => !item.hidden)

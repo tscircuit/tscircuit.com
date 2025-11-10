@@ -89,3 +89,15 @@ test("POST /api/accounts/get - should be case insensitive", async () => {
   expect(response.status).toBe(200)
   expect(response.data.account.github_username).toBe("testuser")
 })
+
+test("POST /api/accounts/get - should allow lookup by tscircuit_handle", async () => {
+  const { axios } = await getTestServer()
+
+  const response = await axios.post("/api/accounts/get", {
+    tscircuit_handle: "testuser",
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.account.tscircuit_handle).toBe("testuser")
+  expect(response.data.account.email).toBeUndefined()
+})
