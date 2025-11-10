@@ -71,7 +71,11 @@ export default function RepoPageContent({
 
   // Check if circuit.json exists without downloading it
   const circuitJsonExists = useMemo(() => {
-    return packageFiles?.some((file) => file.file_path === "dist/circuit.json")
+    return packageFiles?.some(
+      (file) =>
+        file.file_path === "dist/circuit.json" ||
+        file.file_path === "dist/index/circuit.json",
+    )
   }, [packageFiles])
 
   const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
