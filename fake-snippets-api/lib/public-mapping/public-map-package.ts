@@ -5,7 +5,6 @@ export const publicMapPackage = (internalPackage: {
   creator_account_id: string
   owner_org_id: string
   owner_github_username: string | null
-  owner_tscircuit_handle: string | null
   is_source_from_github: boolean
   description: string | null
   latest_version?: string | null

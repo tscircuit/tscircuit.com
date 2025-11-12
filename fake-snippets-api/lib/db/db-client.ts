@@ -365,7 +365,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       creator_account_id: snippet.creator_account_id ?? snippet.owner_name, // Using owner_name as account_id since we don't have context
       owner_org_id: snippet.owner_org_id ?? "",
       owner_github_username: snippet.owner_name,
-      owner_tscircuit_handle: snippet.owner_name,
       is_source_from_github: false,
       description: snippet.description || "",
       name: `${snippet.owner_name}/${snippet.unscoped_name}`,

@@ -102,7 +102,6 @@ export default withRouteSpec({
     creator_account_id: ctx.auth.account_id,
     owner_org_id: ctx.auth.personal_org_id,
     owner_github_username: ctx.auth.github_username,
-    owner_tscircuit_handle: ctx.auth.tscircuit_handle,
     latest_package_release_id: null,
     latest_version: null,
     license: null,
