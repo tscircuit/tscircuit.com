@@ -592,7 +592,7 @@ export default () => (
     creator_account_id: account_id,
     owner_org_id: "org-1234",
     owner_github_username: "testuser",
-    owner_tscircuit_handle: "testuser",
+    github_repo_full_name: "testuser/test",
     description: "A test package for development",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -730,6 +730,7 @@ export const TestComponent = ({ name }: { name: string }) => (
   db.addSnippet({
     name: "seveibar/a555timer",
     unscoped_name: "a555timer",
+    owner_org_id: "org-1234",
     owner_name: "seveibar",
     code: `
 export const A555Timer = ({ name }: { name: string }) => (
@@ -1261,6 +1262,7 @@ exports.A555Timer = A555Timer;
     name: "testuser/a555timer-square-wave",
     unscoped_name: "a555timer-square-wave",
     owner_name: "testuser",
+    owner_org_id: "org-1234",
     branch_name: "main",
     commit_message: "Attempted build of a555timer-square-wave package",
     commit_author: "testuser",

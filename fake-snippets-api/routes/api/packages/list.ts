@@ -8,11 +8,11 @@ export default withRouteSpec({
   commonParams: z.object({
     creator_account_id: z.string().optional(),
     owner_github_username: z.string().optional(),
-    owner_tscircuit_handle: z.string().optional(),
     is_writable: z.boolean().optional(),
     owner_org_id: z.string().optional(),
     name: z.string().optional(),
     limit: z.number().int().min(1).optional(),
+    starred_by: z.string().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -31,11 +31,11 @@ export default withRouteSpec({
   const {
     creator_account_id,
     owner_github_username,
-    owner_tscircuit_handle,
     name,
     is_writable,
     owner_org_id,
     limit,
+    starred_by,
   } = req.commonParams
 
   const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
@@ -45,7 +45,6 @@ export default withRouteSpec({
     !is_writable &&
     !creator_account_id &&
     !owner_github_username &&
-    !owner_tscircuit_handle &&
     !owner_org_id
   ) {
     return ctx.error(400, {
@@ -78,29 +77,29 @@ export default withRouteSpec({
       (p) => p.owner_github_username === owner_github_username,
     )
   }
-  if (owner_tscircuit_handle) {
-    const state = ctx.db.getState()
-    const account = state.accounts.find(
-      (acc) =>
-        acc.tscircuit_handle?.toLowerCase() ===
-        owner_tscircuit_handle.toLowerCase(),
-    )
-    if (account) {
-      packages = packages.filter((p) => {
-        if (account.github_username) {
-          return p.owner_github_username === account.github_username
-        }
-        return p.creator_account_id === account.account_id
-      })
-    } else {
-      packages = []
-    }
-  }
   if (name) {
     packages = packages.filter((p) => p.name === name)
   }
   if (owner_org_id) {
     packages = packages.filter((p) => p.owner_org_id === owner_org_id)
+  }
+  if (starred_by) {
+    const starredByAccount = ctx.db.accounts.find(
+      (acc) => acc.github_username?.toLowerCase() === starred_by.toLowerCase(),
+    )
+    if (starredByAccount) {
+      const starredPackageIds = new Set(
+        ctx.db.accountPackages
+          .filter(
+            (ap) =>
+              ap.account_id === starredByAccount.account_id && ap.is_starred,
+          )
+          .map((ap) => ap.package_id),
+      )
+      packages = packages.filter((p) => starredPackageIds.has(p.package_id))
+    } else {
+      packages = []
+    }
   }
   if (limit) {
     packages = packages.slice(0, limit)

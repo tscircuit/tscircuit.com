@@ -9,7 +9,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import type { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import type {
+  Account,
+  Package,
+  PublicOrgSchema,
+} from "fake-snippets-api/lib/db/schema"
 import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
@@ -45,18 +49,13 @@ export const UserProfilePage = () => {
     isFetched: isFetchedAccount,
   } = useQuery<
     {
-      account: {
-        account_id: string
-        github_username: string | null
-        tscircuit_handle: string
-      }
+      account: Account
     },
     Error & { status: number }
   >(
     ["account", username],
     async () => {
       const response = await axios.post("/accounts/get", {
-        github_username: username,
         tscircuit_handle: username,
       })
       return response.data
@@ -84,12 +83,12 @@ export const UserProfilePage = () => {
     ["userPackages", tscircuitHandle],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_tscircuit_handle: tscircuitHandle,
+        owner_org_id: account?.account?.personal_org_id,
       })
       return response.data.packages
     },
     {
-      enabled: Boolean(githubUsername),
+      enabled: Boolean(account?.account),
       refetchOnWindowFocus: false,
     },
   )

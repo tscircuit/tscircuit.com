@@ -347,6 +347,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     > & {
       creator_account_id?: string
       github_repo_full_name?: string
+      owner_org_id?: string
       branch_name?: string
       commit_message?: string
       commit_author?: string
@@ -362,7 +363,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const newPackage = {
       package_id: `pkg_${nextId}`,
       creator_account_id: snippet.creator_account_id ?? snippet.owner_name, // Using owner_name as account_id since we don't have context
-      owner_org_id: "", // Empty string instead of null to match type
+      owner_org_id: snippet.owner_org_id ?? "",
       owner_github_username: snippet.owner_name,
       owner_tscircuit_handle: snippet.owner_name,
       is_source_from_github: false,
@@ -1360,15 +1361,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addPackage: (
-    _package: Omit<
-      z.input<typeof packageSchema>,
-      "package_id" | "github_repo_full_name"
-    >,
+    _package: Omit<z.input<typeof packageSchema>, "package_id">,
   ): Package => {
     const timestamp = Date.now()
     const newPackage = {
       package_id: `package_${timestamp}`,
-      github_repo_full_name: null,
       latest_pcb_preview_image_url:
         _package.latest_pcb_preview_image_url ??
         `/api/packages/images/${_package.name}`,
