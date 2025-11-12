@@ -35,9 +35,7 @@ import { OrganizationCard } from "@/components/organization/OrganizationCard"
 export const UserProfilePage = () => {
   const { username } = useParams()
   const axios = useAxios()
-  const { data: organizations } = useListUserOrgs({
-    tscircuit_handle: username,
-  })
+  const { data: organizations } = useListUserOrgs(username)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
   const [filter, setFilter] = useState("most-recent")

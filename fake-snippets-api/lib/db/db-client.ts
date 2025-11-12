@@ -1360,7 +1360,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addPackage: (
-    _package: Omit<z.input<typeof packageSchema>, "package_id">,
+    _package: Omit<
+      z.input<typeof packageSchema>,
+      "package_id" | "github_repo_full_name"
+    > & {
+      github_repo_full_name?: string | null
+    },
   ): Package => {
     const timestamp = Date.now()
     const newPackage = {
@@ -1374,6 +1379,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       latest_sch_preview_image_url:
         _package.latest_sch_preview_image_url ??
         `/api/packages/images/${_package.name}`,
+      github_repo_full_name: _package.github_repo_full_name ?? null,
       ..._package,
     }
     set((state) => ({

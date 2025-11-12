@@ -141,7 +141,7 @@ export const SearchPage = () => {
       .map((account: Account) => {
         const { score, matches } = fuzzyMatch(
           searchQuery,
-          account.github_username,
+          account.github_username ?? account.tscircuit_handle ?? "",
         )
         return { ...account, score, matches }
       })

@@ -198,7 +198,7 @@ const CmdKMenu = () => {
       .map((account: Account) => {
         const { score, matches } = fuzzyMatch(
           searchQuery,
-          account.tscircuit_handle,
+          account.tscircuit_handle ?? account.github_username ?? "",
         )
         return { ...account, score, matches }
       })

@@ -24,7 +24,7 @@ export default withRouteSpec({
   if (tscircuit_handle) {
     account = ctx.db.accounts.find(
       (acc: Account) =>
-        acc.tscircuit_handle.toLowerCase() === tscircuit_handle.toLowerCase(),
+        acc.tscircuit_handle?.toLowerCase() === tscircuit_handle.toLowerCase(),
     )
   } else if (github_username) {
     const foundAccount = ctx.db.accounts.find(

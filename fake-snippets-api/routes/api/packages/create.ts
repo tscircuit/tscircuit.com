@@ -55,13 +55,15 @@ export default withRouteSpec({
   }
 
   if (!owner_segment) {
-    owner_segment = org_id ? org!.org_name : ctx.auth.github_username
+    owner_segment = org_id
+      ? (org!.org_name ?? "")
+      : (ctx.auth.github_username ?? "")
   }
 
   const final_name = name ?? `${owner_segment}/${unscoped_name}`
 
   const requested_owner_lower = owner_segment.toLowerCase()
-  const personal_owner_lower = ctx.auth.github_username.toLowerCase()
+  const personal_owner_lower = ctx.auth.github_username?.toLowerCase()
 
   let owner_org_id = ctx.auth.personal_org_id
   let owner_github_username = ctx.auth.github_username
