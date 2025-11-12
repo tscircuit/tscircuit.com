@@ -7,6 +7,7 @@ export type Store = {
     account_id: string
     session_id: string
     github_username: string
+    tscircuit_handle?: string | null
   } | null
   setSession: (session: Store["session"]) => any
   should_onboarding_tips_be_closed: boolean
