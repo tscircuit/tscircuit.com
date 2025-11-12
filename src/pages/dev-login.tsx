@@ -39,6 +39,7 @@ export const DevLoginPage = () => {
         session_id: data.session.session_id,
         github_username: username,
         tscircuit_handle: username,
+        personal_org_id: "org-1234",
       })
 
       // Redirect to home page

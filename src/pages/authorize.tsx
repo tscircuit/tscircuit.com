@@ -54,6 +54,7 @@ const AuthenticatePageInnerContent = () => {
           token: "1234",
           session_id: "session-1234",
           tscircuit_handle: "testuser",
+          personal_org_id: "org-1234",
         })
 
         handleRedirect(redirect, () => setLocation("/"))
