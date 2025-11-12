@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "react"
 
+import { getEvalWorkerBlobUrl } from "@/lib/get-eval-worker-blob-url"
+
 const RunFrame = lazy(async () => {
   const { RunFrame } = await import("@tscircuit/runframe/runner")
   return { default: RunFrame }
@@ -8,6 +10,10 @@ const RunFrame = lazy(async () => {
 export const SuspenseRunFrame = (
   props: React.ComponentProps<typeof RunFrame> & { className?: string },
 ) => {
+  const { className, evalWebWorkerBlobUrl, ...rest } = props
+  const resolvedEvalWorkerBlobUrl =
+    evalWebWorkerBlobUrl ?? getEvalWorkerBlobUrl()
+
   return (
     <Suspense
       fallback={
@@ -20,8 +26,8 @@ export const SuspenseRunFrame = (
         </div>
       }
     >
-      <div className={`h-[98vh] ${props.className}`}>
-        <RunFrame {...props} />
+      <div className={`h-[98vh] ${className ?? ""}`}>
+        <RunFrame {...rest} evalWebWorkerBlobUrl={resolvedEvalWorkerBlobUrl} />
       </div>
     </Suspense>
   )
