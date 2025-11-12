@@ -14,7 +14,7 @@ export const withSessionAuth: Middleware<
       account_id: string
       personal_org_id: string
       github_username: string | null
-      tscircuit_handle: string
+      tscircuit_handle: string | null
       session_id: string
       orgs: Array<{
         org_id: string
