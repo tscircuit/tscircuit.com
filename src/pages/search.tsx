@@ -33,9 +33,9 @@ interface ScoredAccount
     Account,
     | "account_id"
     | "is_tscircuit_staff"
+    | "tscircuit_handle"
     | "created_at"
     | "personal_org_id"
-    | "github_username"
   > {
   score: number
   matches: number[]
@@ -45,7 +45,7 @@ export const SearchPage = () => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentUser = useGlobalStore((s) => s.session?.tscircuit_handle)
+  const currentUser = useGlobalStore((s) => s.session?.github_username)
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
   const [category, setCategory] = useState(
@@ -141,7 +141,7 @@ export const SearchPage = () => {
       .map((account: Account) => {
         const { score, matches } = fuzzyMatch(
           searchQuery,
-          account.tscircuit_handle,
+          account.github_username,
         )
         return { ...account, score, matches }
       })
@@ -150,20 +150,20 @@ export const SearchPage = () => {
     // Then, extract unique package owners not already in API accounts
     const packageOwners: ScoredAccount[] = []
     const existingUsernames = new Set(
-      apiAccounts.map((acc: Account) => acc.tscircuit_handle),
+      apiAccounts.map((acc: Account) => acc.github_username),
     )
 
     filteredPackages.forEach((pkg) => {
       if (
-        pkg.owner_tscircuit_handle &&
-        !existingUsernames.has(pkg.owner_tscircuit_handle)
+        pkg.owner_github_username &&
+        !existingUsernames.has(pkg.owner_github_username)
       ) {
         packageOwners.push({
-          tscircuit_handle: pkg.owner_tscircuit_handle,
+          github_username: pkg.owner_github_username,
           score: 1,
           matches: [],
         })
-        existingUsernames.add(pkg.owner_tscircuit_handle)
+        existingUsernames.add(pkg.owner_github_username)
       }
     })
     return [...apiAccounts, ...packageOwners].sort(
