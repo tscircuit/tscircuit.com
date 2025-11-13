@@ -87,7 +87,7 @@
     "@tscircuit/eval": "^0.0.471",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
-    "@tscircuit/pcb-viewer": "^1.11.248",
+    "@tscircuit/pcb-viewer": "^1.11.256",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/runframe": "^0.0.1209",
     "@tscircuit/schematic-viewer": "^2.0.46",
