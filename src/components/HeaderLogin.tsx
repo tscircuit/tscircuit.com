@@ -14,6 +14,7 @@ import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
+  console.log(session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
@@ -41,7 +42,9 @@ export const HeaderLogin = () => {
       </div>
     )
   }
-
+  const tscircuitHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
@@ -72,13 +75,25 @@ export const HeaderLogin = () => {
           </div>
         </DropdownMenuItem> */}
           <DropdownMenuItem asChild>
-            <Link
-              href={`/${session?.github_username}`}
-              className="cursor-pointer"
-              onClick={() => setIsOpen(false)}
-            >
-              My Profile
-            </Link>
+            {session?.tscircuit_handle ? (
+              <Link
+                href={`/${session?.tscircuit_handle}`}
+                className="cursor-pointer"
+                onClick={() => setIsOpen(false)}
+              >
+                My Profile
+              </Link>
+            ) : (
+              <span
+                className="cursor-pointer"
+                onClick={() => {
+                  tscircuitHandleRequiredDialog()
+                  setIsOpen(false)
+                }}
+              >
+                My Profile
+              </span>
+            )}
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link

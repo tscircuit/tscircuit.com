@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Button } from "../ui/button"
 import { createUseDialog } from "./create-use-dialog"
-import { UserCircle } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { useLocation } from "wouter"
 
 export const TscircuitHandleRequiredDialog = ({
@@ -22,30 +22,23 @@ export const TscircuitHandleRequiredDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[90vw] max-w-md rounded-lg border-blue-200 bg-gradient-to-br from-white to-blue-50/30">
+      <DialogContent className="w-[90vw] max-w-md sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-blue-900">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-              <UserCircle className="h-5 w-5 text-blue-600" />
-            </div>
-            <span>Handle Required</span>
+          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+            <AlertCircle className="h-5 w-5 text-blue-600" />
+            Tscircuit Handle Required
           </DialogTitle>
         </DialogHeader>
-        <p className="text-gray-600 leading-relaxed pt-2">{message}</p>
-        <div className="flex flex-col sm:flex-row gap-2 mt-4">
-          <Button
-            onClick={handleGoToSettings}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm order-first sm:order-last"
-          >
-            Go to Settings
-          </Button>
-          <Button
-            onClick={() => onOpenChange(false)}
-            variant="outline"
-            className="bg-gray-100 hover:bg-gray-200 text-gray-900 shadow-sm"
-          >
-            Maybe Later
-          </Button>
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 leading-relaxed">{message}</p>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+            <Button
+              onClick={handleGoToSettings}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+            >
+              Go to Settings
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

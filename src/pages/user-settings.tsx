@@ -1,10 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-import type { ChangeEvent, FormEvent } from "react"
-import { Redirect, useLocation, useSearchParams } from "wouter"
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Redirect } from "wouter"
 import { Helmet } from "react-helmet-async"
-import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   AlertDialog,
@@ -17,38 +27,42 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
-import { AlertTriangle, Trash2 } from "lucide-react"
+import { AlertTriangle, Trash2, Loader2 } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
 import { useAxios } from "@/hooks/use-axios"
 import { useQuery } from "react-query"
-import toast from "react-hot-toast"
+import { useToast } from "@/hooks/use-toast"
+import { useUpdateAccountMutation } from "@/hooks/use-update-account-mutation"
+
+const accountSettingsSchema = z.object({
+  tscircuit_handle: z
+    .string()
+    .min(1, "Handle is required")
+    .max(40, "Handle must be 40 characters or less")
+    .regex(
+      /^[0-9A-Za-z_-]+$/,
+      "Handle may only contain letters, numbers, underscores, and hyphens",
+    ),
+})
+
+type AccountSettingsFormData = z.infer<typeof accountSettingsSchema>
 
 export default function UserSettingsPage() {
   const session = useGlobalStore((s) => s.session)
   const hasHydrated = useHydration()
   const axios = useAxios()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [, setLocation] = useLocation()
-  const isHandleRequired = searchParams.get("handleRequired") === "1"
-  const postHandleRedirectTarget = searchParams.get("redirect")
+  const { toast } = useToast()
 
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
-  const [handleInput, setHandleInput] = useState("")
-  const [isUpdatingHandle, setIsUpdatingHandle] = useState(false)
-  const [handleError, setHandleError] = useState<string | null>(null)
-  const hasShownHandleToastRef = useRef(false)
 
-  const clearHandleRequirementParams = useCallback(() => {
-    const params =
-      typeof window === "undefined"
-        ? new URLSearchParams()
-        : new URLSearchParams(window.location.search)
-    params.delete("handleRequired")
-    params.delete("redirect")
-    setSearchParams(params)
-  }, [setSearchParams])
+  const form = useForm<AccountSettingsFormData>({
+    resolver: zodResolver(accountSettingsSchema),
+    defaultValues: {
+      tscircuit_handle: "",
+    },
+  })
 
   if (!hasHydrated) {
     return <FullPageLoader />
@@ -59,11 +73,7 @@ export default function UserSettingsPage() {
   }
 
   const pageTitle = "User Settings - tscircuit"
-  const {
-    data: accountResponse,
-    isLoading: isLoadingAccount,
-    refetch: refetchAccount,
-  } = useQuery(
+  const { data: accountResponse, isLoading: isLoadingAccount } = useQuery(
     ["current-account"],
     async () => {
       const response = await axios.get("/accounts/get")
@@ -76,41 +86,34 @@ export default function UserSettingsPage() {
   )
   const account = accountResponse?.account
 
-  useEffect(() => {
-    const nextHandle =
-      account?.tscircuit_handle ?? session?.github_username ?? ""
-    setHandleInput(nextHandle)
-    setHandleError(null)
-  }, [account?.tscircuit_handle, session?.github_username])
-
-  useEffect(() => {
-    if (
-      isHandleRequired &&
-      !account?.tscircuit_handle &&
-      !hasShownHandleToastRef.current
-    ) {
-      toast("Pick a tscircuit handle to finish setting up your account.", {
-        icon: "⚠️",
+  const updateAccountMutation = useUpdateAccountMutation({
+    onSuccess: (updatedAccount) => {
+      toast({
+        title: "Account updated",
+        description: "Account settings have been updated successfully.",
       })
-      hasShownHandleToastRef.current = true
-    }
-  }, [isHandleRequired, account?.tscircuit_handle])
+      form.reset({
+        tscircuit_handle: updatedAccount.tscircuit_handle || "",
+      })
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error?.message
+      toast({
+        title: "Failed to update account",
+        description:
+          errorMessage || "An error occurred while updating the account.",
+        variant: "destructive",
+      })
+    },
+  })
 
   useEffect(() => {
-    if (isHandleRequired && account?.tscircuit_handle) {
-      const target = postHandleRedirectTarget
-      clearHandleRequirementParams()
-      if (target) {
-        setLocation(target)
-      }
+    if (account) {
+      form.reset({
+        tscircuit_handle: account.tscircuit_handle || "",
+      })
     }
-  }, [
-    isHandleRequired,
-    account?.tscircuit_handle,
-    postHandleRedirectTarget,
-    clearHandleRequirementParams,
-    setLocation,
-  ])
+  }, [account, form])
 
   const formattedCreatedAt =
     isLoadingAccount && account?.created_at === undefined
@@ -119,81 +122,11 @@ export default function UserSettingsPage() {
           !Number.isNaN(new Date(account.created_at).getTime())
         ? new Date(account.created_at).toLocaleString()
         : "Not available"
-  const normalizedHandleInput = handleInput.trim()
-  const currentHandle = account?.tscircuit_handle ?? ""
-  const hasHandleChanged = normalizedHandleInput !== currentHandle
-  const handlePreview =
-    normalizedHandleInput ||
-    account?.github_username ||
-    session?.github_username ||
-    "handle"
-
-  const validateHandleInput = () => {
-    if (!normalizedHandleInput) {
-      setHandleError("Handle is required")
-      return false
-    }
-    return true
-  }
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setHandleInput(event.target.value)
-    if (handleError) {
-      setHandleError(null)
-    }
-  }
-
-  const handleHandleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (isUpdatingHandle || isLoadingAccount || !account) {
-      return
-    }
-    setHandleError(null)
-    if (!validateHandleInput()) {
-      return
-    }
-    if (!hasHandleChanged) {
-      return
-    }
-
-    setIsUpdatingHandle(true)
-    try {
-      await axios.post("/accounts/update", {
-        tscircuit_handle: normalizedHandleInput,
-      })
-      toast.success("tscircuit handle updated")
-      await refetchAccount()
-      if (isHandleRequired) {
-        if (postHandleRedirectTarget) {
-          setTimeout(() => {
-            setLocation(postHandleRedirectTarget)
-          }, 500)
-        } else {
-          clearHandleRequirementParams()
-        }
-      }
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.error?.message ??
-        error?.data?.error?.message ??
-        "Failed to update handle"
-      setHandleError(message)
-      toast.error(message)
-    } finally {
-      setIsUpdatingHandle(false)
-    }
-  }
 
   const userInfo = [
     {
       label: "GitHub Username",
       value: account?.github_username || "Not available",
-    },
-    {
-      label: "tscircuit Handle",
-      value: isLoadingAccount
-        ? "Loading..."
-        : account?.tscircuit_handle || "Not set",
     },
     {
       label: "Email",
@@ -211,8 +144,15 @@ export default function UserSettingsPage() {
     { label: "Session ID", value: session.session_id || "Not available" },
     { label: "Created At", value: formattedCreatedAt },
   ]
+
   const handleDeleteAccount = () => {
     setShowDeleteAccountDialog(true)
+  }
+
+  const onSubmit = (data: AccountSettingsFormData) => {
+    updateAccountMutation.mutate({
+      tscircuit_handle: data.tscircuit_handle,
+    })
   }
 
   return (
@@ -249,6 +189,91 @@ export default function UserSettingsPage() {
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
               <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
+                  Account profile
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Update your account's basic information and settings.
+                </p>
+              </div>
+
+              <div className="p-6 lg:p-8">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="tscircuit_handle"
+                      render={({ field }) => (
+                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+                          <div className="lg:col-span-2">
+                            <FormLabel className="text-sm font-semibold text-gray-900">
+                              Tscircuit Handle
+                              {!account?.tscircuit_handle && (
+                                <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                                  Required
+                                </span>
+                              )}
+                            </FormLabel>
+                            <FormDescription className="text-sm text-gray-500 leading-relaxed">
+                              This is your account's URL identifier.
+                            </FormDescription>
+                          </div>
+                          <div className="lg:col-span-3">
+                            <FormControl>
+                              <Input
+                                type="text"
+                                autoComplete="off"
+                                spellCheck={false}
+                                placeholder="Enter handle"
+                                {...field}
+                                disabled={updateAccountMutation.isLoading}
+                                className={`w-full max-w-lg h-11 text-base ${
+                                  !account?.tscircuit_handle
+                                    ? "border-blue-400 focus:border-blue-500 focus:ring-blue-500 ring-2 ring-blue-100"
+                                    : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                }`}
+                              />
+                            </FormControl>
+                            <FormMessage className="mt-2" />
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+                      <Button
+                        type="submit"
+                        disabled={
+                          updateAccountMutation.isLoading ||
+                          !form.formState.isDirty
+                        }
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
+                      >
+                        {updateAccountMutation.isLoading && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Update account
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => form.reset()}
+                        disabled={updateAccountMutation.isLoading}
+                        className="px-6 py-2.5 text-sm font-medium border-gray-300 hover:bg-gray-50"
+                      >
+                        Reset changes
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-900">
                   Account information
                 </h2>
               </div>
@@ -267,66 +292,7 @@ export default function UserSettingsPage() {
                 </dl>
               </div>
             </div>
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Public profile
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Update your tscircuit handle used across your profile.
-                </p>
-              </div>
-              {isHandleRequired && !account?.tscircuit_handle && (
-                <div className="px-6 lg:px-8 pt-4">
-                  <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
-                    Finish authentication by selecting a handle below. You’ll be
-                    redirected once it’s saved.
-                  </div>
-                </div>
-              )}
-              <form
-                onSubmit={handleHandleSubmit}
-                className="p-6 lg:p-8 space-y-4"
-              >
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="tscircuit-handle"
-                    className="text-sm font-semibold text-gray-900"
-                  >
-                    tscircuit handle
-                  </Label>
-                  <Input
-                    id="tscircuit-handle"
-                    spellCheck={false}
-                    autoComplete="off"
-                    value={handleInput}
-                    onChange={handleInputChange}
-                    disabled={isUpdatingHandle || isLoadingAccount || !account}
-                    className={`h-11 ${
-                      handleError
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                        : "border-gray-300 focus-border-blue-500 focus:ring-blue-500"
-                    }`}
-                  />
-                  {handleError && (
-                    <p className="text-sm text-red-600">{handleError}</p>
-                  )}
-                </div>
-                <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    disabled={
-                      isUpdatingHandle ||
-                      isLoadingAccount ||
-                      !account ||
-                      !hasHandleChanged
-                    }
-                  >
-                    {isUpdatingHandle ? "Saving..." : "Save handle"}
-                  </Button>
-                </div>
-              </form>
-            </div>
+
             <div className="bg-white border border-red-200 rounded-xl shadow-sm">
               <div className="px-6 py-5 border-b border-red-200 bg-red-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-red-900">

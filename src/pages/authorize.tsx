@@ -41,6 +41,7 @@ const AuthenticatePageInnerContent = () => {
           setSession({
             account_id: "account-1234",
             github_username: "testuser",
+            tscircuit_handle: "testuser",
             token: "1234",
             session_id: "session-1234",
           })
