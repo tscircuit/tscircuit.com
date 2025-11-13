@@ -22,7 +22,7 @@ export default withRouteSpec({
       message: "You must provide filtering parameters",
     })
   }
-  console.log(2, github_handle, tscircuit_handle)
+
   const orgs = ctx.db.getOrgs(
     {
       github_handle,

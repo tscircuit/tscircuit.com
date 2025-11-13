@@ -93,7 +93,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 : organization.github_handle
             }
             fallback={organization.name}
-            fallbackClassName=" font-semibold text-lg"
+            fallbackClassName="font-semibold text-lg"
             size={40}
           />
         </div>

@@ -11,6 +11,7 @@ import { posthog } from "./lib/posthog"
 import { Toaster } from "react-hot-toast"
 import { populateQueryCacheWithSSRData } from "./lib/populate-query-cache-with-ssr-data"
 import { trackReactQueryApiFailure } from "./lib/react-query-api-failure-tracking"
+import { TscircuitHandleRequiredDialog } from "@/components/dialogs/tscircuit-handle-required-dialog"
 
 const staffGithubUsernames = [
   "imrishabh18",
@@ -66,7 +67,7 @@ function PostHogIdentifier() {
         const githubUsername = session?.github_username
 
         if (isInternalGithubUser(githubUsername)) {
-          posthog.identify(session?.github_username, {
+          posthog.identify(session?.github_username as string, {
             is_tscircuit_staff: true,
           })
         }
@@ -81,6 +82,21 @@ function PostHogIdentifier() {
   return null
 }
 
+const GlobalTscircuitHandleDialog = () => {
+  const dialog = useGlobalStore((s) => s.tscircuit_handle_required_dialog)
+  const closeDialog = useGlobalStore(
+    (s) => s.closeTscircuitHandleRequiredDialog,
+  )
+
+  return (
+    <TscircuitHandleRequiredDialog
+      open={dialog.open}
+      onOpenChange={(open) => !open && closeDialog()}
+      message={dialog.message}
+    />
+  )
+}
+
 export const ContextProviders = ({ children }: any) => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -88,6 +104,7 @@ export const ContextProviders = ({ children }: any) => {
         <PostHogIdentifier />
         {children}
         <Toaster position="top-center" />
+        <GlobalTscircuitHandleDialog />
       </HelmetProvider>
     </QueryClientProvider>
   )

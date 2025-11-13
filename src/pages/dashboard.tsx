@@ -22,7 +22,7 @@ export const DashboardPage = () => {
   const axios = useAxios()
   const { data: organizations } = useListUserOrgs()
 
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const currentUser = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(currentUser)
   const signIn = useSignIn()
 
@@ -41,7 +41,7 @@ export const DashboardPage = () => {
     ["userPackages", currentUser],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: currentUser,
+        creator_account_id: currentUser?.account_id,
       })
       return response.data.packages
     },

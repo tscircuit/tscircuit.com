@@ -1242,6 +1242,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       )
       if (accountIndex !== -1) {
         updatedAccount = { ...state.accounts[accountIndex] }
+        if (updates.tscircuit_handle) {
+          updatedAccount.tscircuit_handle = updates.tscircuit_handle
+          delete updates.tscircuit_handle
+        }
         if (updates.shippingInfo) {
           updatedAccount.shippingInfo = {
             ...updatedAccount.shippingInfo,

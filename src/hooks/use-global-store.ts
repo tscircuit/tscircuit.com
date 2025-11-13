@@ -6,12 +6,19 @@ export type Store = {
     token: string
     account_id: string
     session_id: string
-    github_username: string
-    tscircuit_handle: string
+    github_username: string | null
+    tscircuit_handle?: string | null
+    email?: string
   } | null
   setSession: (session: Store["session"]) => any
   should_onboarding_tips_be_closed: boolean
   setOnboardingTipsClosed: (closed: boolean) => any
+  tscircuit_handle_required_dialog: {
+    open: boolean
+    message?: string
+  }
+  openTscircuitHandleRequiredDialog: (message?: string) => any
+  closeTscircuitHandleRequiredDialog: () => any
 }
 
 export const useGlobalStore = create<Store>()(
@@ -22,6 +29,11 @@ export const useGlobalStore = create<Store>()(
       should_onboarding_tips_be_closed: false,
       setOnboardingTipsClosed: (closed) =>
         set({ should_onboarding_tips_be_closed: closed }),
+      tscircuit_handle_required_dialog: { open: false },
+      openTscircuitHandleRequiredDialog: (message) =>
+        set({ tscircuit_handle_required_dialog: { open: true, message } }),
+      closeTscircuitHandleRequiredDialog: () =>
+        set({ tscircuit_handle_required_dialog: { open: false } }),
     }),
     {
       name: "session_store",

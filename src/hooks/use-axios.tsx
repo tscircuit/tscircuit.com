@@ -8,6 +8,9 @@ export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
   const handle401 = useAxios401Handler()
+  const openHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
 
   return useMemo(() => {
     const instance = axios.create({
@@ -19,8 +22,6 @@ export const useAxios = () => {
         : {},
     })
 
-    // Wrap all instance methods to handle 401 errors
-    // (redaxios doesn't support interceptors, so we need to wrap methods)
     const originalGet = instance.get.bind(instance)
     const originalPost = instance.post.bind(instance)
     const originalPut = instance.put.bind(instance)
@@ -29,8 +30,13 @@ export const useAxios = () => {
 
     const handleError = (error: any) => {
       const status = error?.response?.status ?? error?.status
+      const errorCode = error?.data?.error?.error_code
       if (status === 401) {
         handle401()
+      } else if (errorCode === "tscircuit_handle_required") {
+        openHandleRequiredDialog(
+          "Please set a tscircuit handle before using this feature.",
+        )
       }
       throw error
     }
