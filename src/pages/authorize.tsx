@@ -6,31 +6,10 @@ import Footer from "@/components/Footer"
 import { useLocation } from "wouter"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react"
-
-const handleRedirect = (
-  redirect: string | null,
-  fallbackLocation: () => void,
-) => {
-  if (redirect) {
-    try {
-      const decodedRedirect = decodeURIComponent(redirect)
-
-      if (decodedRedirect.startsWith("/")) {
-        window.location.href = decodedRedirect
-        return
-      }
-
-      const redirectUrl = new URL(decodedRedirect)
-      if (redirectUrl.origin === window.location.origin) {
-        window.location.href = redirectUrl.href
-        return
-      }
-    } catch (e) {
-      console.warn("Invalid redirect URL:", redirect)
-    }
-  }
-  fallbackLocation()
-}
+import {
+  getSafeRedirectTarget,
+  handleRedirect,
+} from "@/lib/utils/handle-redirect"
 
 const AuthenticatePageInnerContent = () => {
   const [location, setLocation] = useLocation()
@@ -81,9 +60,17 @@ const AuthenticatePageInnerContent = () => {
           token: session_token,
           github_username:
             decodedToken.github_username ?? decodedToken.tscircuit_handle,
+          tscircuit_handle: decodedToken.tscircuit_handle,
         })
         setMessage("success! redirecting you now...")
         setTimeout(() => {
+          if (!decodedToken.tscircuit_handle) {
+            const safeRedirect = getSafeRedirectTarget(redirect) ?? "/"
+            setLocation(
+              `/settings?handleRequired=1&redirect=${encodeURIComponent(safeRedirect)}`,
+            )
+            return
+          }
           handleRedirect(redirect, () => setLocation("/"))
         }, 1000)
         return
@@ -92,7 +79,7 @@ const AuthenticatePageInnerContent = () => {
     login().catch((e) => {
       setMessage(`error logging you in: ${e.message || e.toString()}`)
     })
-  }, [session_token, redirect])
+  }, [session_token, redirect, isUsingFakeApi, setLocation, setSession])
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">

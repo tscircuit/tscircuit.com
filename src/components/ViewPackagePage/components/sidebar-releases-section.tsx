@@ -3,39 +3,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { BuildStatus, BuildStep } from "./build-status"
-import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { getBuildStatus, StatusIcon } from "@/components/preview"
 import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
-
-function getTranspilationStatus(
-  pr?: PackageRelease | null,
-): BuildStep["status"] {
-  switch (pr?.transpilation_display_status) {
-    case "complete":
-      return "success"
-    case "error":
-      return "error"
-    case "building":
-      return "running"
-    default:
-      return "pending"
-  }
-}
-
-function getCircuitJsonStatus(pr?: PackageRelease | null): BuildStep["status"] {
-  switch (pr?.circuit_json_build_display_status) {
-    case "complete":
-      return "success"
-    case "error":
-      return "error"
-    case "building":
-      return "running"
-    default:
-      return "pending"
-  }
-}
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -45,19 +15,6 @@ export default function SidebarReleasesSection() {
   const { data: latestBuild } = usePackageBuild(
     packageRelease?.latest_package_build_id ?? null,
   )
-
-  const buildSteps: BuildStep[] = [
-    {
-      id: "package_transpilation",
-      name: "Package Transpilation",
-      status: getTranspilationStatus(packageRelease),
-    },
-    {
-      id: "circuit_json_build",
-      name: "Circuit JSON Build",
-      status: getCircuitJsonStatus(packageRelease),
-    },
-  ]
 
   if (!packageRelease) {
     return (
@@ -101,13 +58,6 @@ export default function SidebarReleasesSection() {
             {timeAgo(new Date(packageRelease.created_at))}
           </span>
         </div>
-        {buildSteps.map((step) => (
-          <BuildStatus
-            key={step.id}
-            step={step}
-            packageReleaseId={packageRelease.package_release_id}
-          />
-        ))}
         {latestBuild && (
           <Link
             href={`/${packageInfo?.name}/releases`}
