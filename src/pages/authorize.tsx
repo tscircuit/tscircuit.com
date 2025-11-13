@@ -48,12 +48,24 @@ const AuthenticatePageInnerContent = () => {
   useEffect(() => {
     async function login() {
       if (isUsingFakeApi) {
-        setSession({
-          account_id: "account-1234",
-          github_username: "testuser",
-          token: "1234",
-          session_id: "session-1234",
-        })
+        const fromWorkOs = Boolean(searchParams.get("workos"))
+        if (fromWorkOs) {
+          setSession({
+            account_id: "account-1234",
+            github_username: null,
+            tscircuit_handle: null,
+            email: "test@test.com",
+            token: "1234",
+            session_id: "session-1234",
+          })
+        } else {
+          setSession({
+            account_id: "account-1234",
+            github_username: "testuser",
+            token: "1234",
+            session_id: "session-1234",
+          })
+        }
 
         handleRedirect(redirect, () => setLocation("/"))
         return

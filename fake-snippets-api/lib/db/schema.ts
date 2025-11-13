@@ -524,3 +524,12 @@ export const databaseSchema = z.object({
   bugReportFiles: z.array(bugReportFileSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
+
+export const tscircuitHandleSchema = z
+  .string()
+  .min(1)
+  .max(40)
+  .regex(
+    /^[0-9A-Za-z_-]+$/,
+    "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
+  )

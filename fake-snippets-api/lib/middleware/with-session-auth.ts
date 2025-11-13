@@ -28,7 +28,6 @@ export const withSessionAuth: Middleware<
   {}
 > = async (req, ctx, next) => {
   if (req.method === "OPTIONS") return next(req, ctx)
-
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
   // Try to decode JWT token and verify session exists
@@ -79,6 +78,17 @@ export const withSessionAuth: Middleware<
               user_permissions: { can_manage_packages: true },
             }
           })
+
+          const tscircuit_handle =
+            decoded?.tscircuit_handle ?? account?.tscircuit_handle ?? null
+
+          if (!tscircuit_handle) {
+            return ctx.error(400, {
+              error_code: "tscircuit_handle_required",
+              message:
+                "Please set a tscircuit handle before using this feature. Visit account settings to add one.",
+            })
+          }
 
           ctx.auth = {
             type: "session",

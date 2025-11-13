@@ -27,7 +27,7 @@ export const useOrgSignIn = () => {
       const origin = replaceHost(window.location.origin)
       const redirectPath = getOrgLoginRedirectPath()
       const redirectUrl = `${origin}${redirectPath}`
-      const nextUrl = `${origin}/authorize?redirect=${encodeURIComponent(redirectUrl)}`
+      const nextUrl = `${origin}/authorize?redirect=${encodeURIComponent(redirectUrl)}&workos=true`
 
       if (isUsingFakeApi) {
         window.location.href = nextUrl
