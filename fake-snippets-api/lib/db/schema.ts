@@ -339,6 +339,7 @@ export const packageFileSchema = z.object({
   package_release_id: z.string(),
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
+  content_bytes: z.string().nullable().optional(), // Base64 encoded binary content for images/non-text files
   created_at: z.string().datetime(),
   content_mimetype: z.string().nullable().optional(),
   is_release_tarball: z.boolean().optional(),
