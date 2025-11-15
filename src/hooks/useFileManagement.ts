@@ -68,7 +68,11 @@ export function useFileManagement({
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
-  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const session = useGlobalStore((s) => s.session)
+  const isLoggedIn = Boolean(session)
+  const tscircuitHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const {
@@ -522,7 +526,13 @@ export function useFileManagement({
     }
 
     if (!currentPackage) {
-      openNewPackageSaveDialog()
+      if (!session?.tscircuit_handle) {
+        tscircuitHandleRequiredDialog(
+          "Please set a tscircuit handle before saving your package.",
+        )
+      } else {
+        openNewPackageSaveDialog()
+      }
       return
     }
     updatePackageFilesMutation.mutate({
