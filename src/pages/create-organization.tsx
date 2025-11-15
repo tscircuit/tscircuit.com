@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useLocation } from "wouter"
+import { Redirect, useLocation } from "wouter"
 import { Helmet } from "react-helmet-async"
 import Header from "@/components/Header"
 import { Button } from "@/components/ui/button"
@@ -8,17 +8,18 @@ import { Label } from "@/components/ui/label"
 import toast from "react-hot-toast"
 import { useCreateOrgMutation } from "@/hooks/use-create-org-mutation"
 import { normalizeName } from "@/lib/utils/normalizeName"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface FormErrors {
-  name?: string
+  handle?: string
   display_name?: string
 }
 
 export const CreateOrganizationPage = () => {
   const [, setLocation] = useLocation()
-
+  const session = useGlobalStore((s) => s.session)
   const [formData, setFormData] = useState({
-    name: "",
+    handle: "",
     display_name: "",
   })
 
@@ -29,9 +30,9 @@ export const CreateOrganizationPage = () => {
     useCreateOrgMutation({
       onSuccess: (newOrganization) => {
         toast.success(
-          `Organization "${newOrganization.display_name || newOrganization.name}" created successfully!`,
+          `Organization "${newOrganization.display_name || newOrganization.tscircuit_handle}" created successfully!`,
         )
-        setLocation(`/${newOrganization.name}`)
+        setLocation(`/${newOrganization.tscircuit_handle}`)
         setIsLoading(false)
       },
     })
@@ -39,18 +40,18 @@ export const CreateOrganizationPage = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
 
-    if (!formData.name) {
-      newErrors.name = "Organization name is required"
-    } else if (formData.name.length > 40) {
-      newErrors.name = "Organization name must be less than 40 characters"
-    } else if (formData.name.length < 5) {
-      newErrors.name = "Organization name must be at least 5 characters"
+    if (!formData.handle) {
+      newErrors.handle = "Organization handle is required"
+    } else if (formData.handle.length > 40) {
+      newErrors.handle = "Organization handle must be less than 40 characters"
+    } else if (formData.handle.length < 5) {
+      newErrors.handle = "Organization handle must be at least 5 characters"
     }
 
-    const normalizedName = normalizeName(formData.name)
+    const normalizedName = normalizeName(formData.handle)
     if (normalizedName.length < 5) {
-      newErrors.name =
-        "Organization name must be at least 5 characters after normalization"
+      newErrors.handle =
+        "Organization handle must be at least 5 characters after normalization"
     }
 
     if (formData.display_name) {
@@ -72,8 +73,8 @@ export const CreateOrganizationPage = () => {
       return
     }
 
-    const normalizedName = normalizeName(formData.name)
-    const displayName = formData.display_name || formData.name
+    const normalizedName = normalizeName(formData.handle)
+    const displayName = formData.display_name || formData.handle
 
     setIsLoading(true)
     createOrganization(
@@ -96,10 +97,10 @@ export const CreateOrganizationPage = () => {
   }
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value
-    setFormData((prev) => ({ ...prev, name }))
-    if (errors.name) {
-      setErrors((prev) => ({ ...prev, name: undefined }))
+    const handle = e.target.value
+    setFormData((prev) => ({ ...prev, handle }))
+    if (errors.handle) {
+      setErrors((prev) => ({ ...prev, handle: undefined }))
     }
   }
 
@@ -109,6 +110,10 @@ export const CreateOrganizationPage = () => {
     if (errors.display_name) {
       setErrors((prev) => ({ ...prev, display_name: undefined }))
     }
+  }
+
+  if (!session) {
+    return <Redirect to="/" />
   }
 
   return (
@@ -140,7 +145,7 @@ export const CreateOrganizationPage = () => {
                 htmlFor="org-name"
                 className="text-sm font-semibold text-gray-900"
               >
-                Organization Name
+                Organization Handle
                 <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -148,24 +153,24 @@ export const CreateOrganizationPage = () => {
                 id="org-name"
                 type="text"
                 placeholder="My Organization"
-                value={formData.name}
+                value={formData.handle}
                 onChange={handleNameChange}
                 className={`h-10 sm:h-11 ${
-                  errors.name
+                  errors.handle
                     ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                     : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 }`}
                 disabled={isLoading || isMutating}
               />
-              {errors.name && (
-                <p className="text-sm text-red-600">{errors.name}</p>
+              {errors.handle && (
+                <p className="text-sm text-red-600">{errors.handle}</p>
               )}
               <p className="text-xs text-gray-500">
                 This will be your URL.
                 <br />
                 <span className="font-mono text-gray-700">
                   tscircuit.com/
-                  {normalizeName(formData.name) || "my-organization"}
+                  {normalizeName(formData.handle) || "my-organization"}
                 </span>
               </p>
             </div>
@@ -195,7 +200,7 @@ export const CreateOrganizationPage = () => {
                 <p className="text-sm text-red-600">{errors.display_name}</p>
               )}
               <p className="text-xs text-gray-500">
-                Optional. If not provided, your organization name will be used
+                Optional. If not provided, your organization handle will be used
                 as the display name.
               </p>
             </div>
@@ -203,7 +208,7 @@ export const CreateOrganizationPage = () => {
             <div>
               <Button
                 type="submit"
-                disabled={isLoading || isMutating || !formData.name}
+                disabled={isLoading || isMutating || !formData.handle}
                 className="w-full h-10 sm:h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm sm:text-base"
               >
                 {isLoading || isMutating ? (
