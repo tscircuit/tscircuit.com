@@ -49,6 +49,7 @@ export const UserProfilePage = () => {
     ["account", username],
     async () => {
       const response = await axios.post("/accounts/get", {
+        github_username: username,
         tscircuit_handle: username,
       })
       return response.data
