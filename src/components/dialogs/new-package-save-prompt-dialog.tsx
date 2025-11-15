@@ -48,15 +48,6 @@ export const NewPackageSavePromptDialog = ({
     error: orgsError,
   } = useListUserOrgs()
 
-  const isOwnerPersonalOrg = useMemo(() => {
-    if (!selectedOrgId) return false
-    const selectedOrg = organizations?.find((x) => x.org_id === selectedOrgId)
-    return (
-      selectedOrg?.is_personal_org &&
-      selectedOrg?.owner_account_id == session?.account_id
-    )
-  }, [selectedOrgId, organizations, session?.github_username])
-
   const normalizedPackageName = useMemo(() => {
     if (!packageName.trim()) return ""
     return normalizeName(packageName)

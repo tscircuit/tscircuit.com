@@ -21,7 +21,7 @@ test("GET /api/orgs/list - should return user's organizations when un-authentica
   const { axios, seed } = await getTestServer()
 
   const listResponse = await axios.post("/api/orgs/list", {
-    github_handle: seed.account2.github_username,
+    tscircuit_handle: seed.account2.tscircuit_handle,
   })
 
   expect(listResponse.status).toBe(200)
