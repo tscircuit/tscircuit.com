@@ -1709,18 +1709,29 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrgs: (
     filters?: {
       owner_account_id?: string
+      account_id?: string
       github_handle?: string
       tscircuit_handle?: string
       name?: string
     },
     auth?: { account_id?: string },
   ) => {
-    console.log(filters)
     let orgs = get().organizations
     if (filters?.owner_account_id) {
       orgs = orgs.filter(
         (org) => org.owner_account_id === filters.owner_account_id,
       )
+    }
+    if (filters?.account_id) {
+      orgs = orgs.filter((org) => {
+        const isMemberViaOrgAccounts = get().orgAccounts.some(
+          (oa) =>
+            oa.org_id === org.org_id && oa.account_id === filters.account_id,
+        )
+        const isPersonalOrg =
+          org.is_personal_org && org.owner_account_id === filters.account_id
+        return isMemberViaOrgAccounts || isPersonalOrg
+      })
     }
     if (filters?.github_handle) {
       orgs = orgs.filter((org) => {
