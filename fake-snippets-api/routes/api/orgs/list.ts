@@ -19,7 +19,7 @@ export default withRouteSpec({
   if (!ctx.auth && (!account_id || !tscircuit_handle)) {
     return ctx.error(400, {
       error_code: "invalid_request",
-      message: "You must provide filtering parameters",
+      message: "You must provide either account_id or tscircuit_handle when not authenticated",
     })
   }
 
