@@ -6,12 +6,12 @@ export default withRouteSpec({
   commonParams: z.object({
     org_id: z.string(),
     account_id: z.string().optional(),
-    github_username: z.string().optional(),
+    tscircuit_handle: z.string().optional(),
   }),
   auth: "session",
   jsonResponse: z.object({}),
 })(async (req, ctx) => {
-  const { org_id, account_id, github_username } = req.commonParams
+  const { org_id, account_id, tscircuit_handle } = req.commonParams
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
 
@@ -32,7 +32,7 @@ export default withRouteSpec({
   let account = ctx.db.accounts.find((acc) => acc.account_id === account_id)
   if (!account) {
     account = ctx.db.accounts.find(
-      (acc) => acc.github_username === github_username,
+      (acc) => acc.tscircuit_handle === tscircuit_handle,
     )
   }
 

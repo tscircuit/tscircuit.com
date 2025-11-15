@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,11 +56,11 @@ import { useOrganization } from "@/hooks/use-organization"
 const organizationSettingsSchema = z.object({
   name: z
     .string()
-    .min(1, "Organization name is required")
-    .max(50, "Organization name must be 50 characters or less")
+    .min(1, "Organization handle is required")
+    .max(50, "Organization handle must be 50 characters or less")
     .regex(
       /^[a-zA-Z0-9_-]+$/,
-      "Organization name can only contain letters, numbers, underscores, and hyphens",
+      "Organization handle can only contain letters, numbers, underscores, and hyphens",
     ),
   display_name: z
     .string()
@@ -265,32 +265,41 @@ export default function OrganizationSettingsPage() {
 
     // Basic validation
     if (input.length < 1) {
-      setAddMemberError("Please enter a GitHub username.")
+      setAddMemberError("Please enter a tscircuit handle.")
       return
     }
 
-    if (input.length > 39) {
-      setAddMemberError("GitHub usernames cannot be longer than 39 characters.")
-      return
-    }
-
-    // Check for invalid characters (GitHub usernames can only contain alphanumeric characters and hyphens)
-    if (!/^[a-zA-Z0-9-]+$/.test(input)) {
+    if (input.length > 50) {
       setAddMemberError(
-        "GitHub usernames can only contain letters, numbers, and hyphens.",
+        "tscircuit handles cannot be longer than 50 characters.",
       )
       return
     }
 
-    // Check if it starts or ends with hyphen
-    if (input.startsWith("-") || input.endsWith("-")) {
-      setAddMemberError("GitHub usernames cannot start or end with a hyphen.")
+    // Check for invalid characters (tscircuit handles can contain alphanumeric characters, underscores, and hyphens)
+    if (!/^[a-zA-Z0-9_-]+$/.test(input)) {
+      setAddMemberError(
+        "tscircuit handles can only contain letters, numbers, underscores, and hyphens.",
+      )
+      return
+    }
+
+    // Check if it starts or ends with hyphen or underscore
+    if (
+      input.startsWith("-") ||
+      input.endsWith("-") ||
+      input.startsWith("_") ||
+      input.endsWith("_")
+    ) {
+      setAddMemberError(
+        "tscircuit handles cannot start or end with a hyphen or underscore.",
+      )
       return
     }
 
     addMemberMutation.mutate({
       orgId: organization.org_id,
-      githubUsername: input,
+      tscircuitHandle: input,
     })
   }
 
@@ -365,7 +374,7 @@ export default function OrganizationSettingsPage() {
                         <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
                           <div className="lg:col-span-2">
                             <FormLabel className="text-sm font-semibold text-gray-900">
-                              Organization name
+                              Organization handle
                             </FormLabel>
                             <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
                               This is your organization's URL identifier. Choose
@@ -402,7 +411,8 @@ export default function OrganizationSettingsPage() {
                             </FormLabel>
                             <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
                               This is the name that will be displayed publicly.
-                              If left empty, the organization name will be used.
+                              If left empty, the organization handle will be
+                              used.
                             </FormDescription>
                           </div>
                           <div className="lg:col-span-3">
@@ -480,7 +490,7 @@ export default function OrganizationSettingsPage() {
                     <div className="lg:col-span-4">
                       <Input
                         id="member-input"
-                        placeholder="Enter GitHub username"
+                        placeholder="Enter tscircuit handle"
                         value={newMemberInput}
                         onChange={(e) => {
                           setNewMemberInput(e.target.value)
@@ -555,28 +565,26 @@ export default function OrganizationSettingsPage() {
                           className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
                         >
                           <Link
-                            href={`/${member.github_username || member.account_id}`}
+                            href={
+                              member.tscircuit_handle
+                                ? `/${member.tscircuit_handle}`
+                                : `#`
+                            }
                             className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
                           >
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage
-                                src={`https://github.com/${member.github_username}.png`}
-                                alt={`${member.github_username} avatar`}
-                              />
-                              <AvatarFallback className="text-sm font-medium">
-                                {(
-                                  member.github_username ||
-                                  member.account_id ||
-                                  ""
-                                )
-                                  .slice(0, 2)
-                                  .toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
+                            <GithubAvatarWithFallback
+                              username={member.github_username}
+                              fallback={
+                                member.tscircuit_handle || member.account_id
+                              }
+                              className="h-12 w-12"
+                              fallbackClassName="text-sm font-medium"
+                              colorClassName="text-black"
+                            />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
-                                  {member.github_username || member.account_id}
+                                  {member.tscircuit_handle || member.account_id}
                                 </span>
                                 {role !== "member" && <RoleBadge role={role} />}
                               </div>
@@ -679,7 +687,7 @@ export default function OrganizationSettingsPage() {
             <AlertDialogDescription>
               Are you sure you want to remove{" "}
               <strong>
-                {showRemoveMemberDialog.member.github_username ||
+                {showRemoveMemberDialog.member.tscircuit_handle ||
                   showRemoveMemberDialog.member.account_id}
               </strong>{" "}
               from this organization? This action cannot be undone.
