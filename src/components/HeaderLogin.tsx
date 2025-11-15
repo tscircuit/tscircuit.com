@@ -14,12 +14,14 @@ import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
-  console.log(session)
   const isLoggedIn = Boolean(session)
   const setSession = useGlobalStore((s) => s.setSession)
   const signIn = useSignIn()
   const [isOpen, setIsOpen] = useState(false)
   const axios = useAxios()
+  const tscircuitHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
 
   const handleSignOut = async () => {
     try {
@@ -42,9 +44,6 @@ export const HeaderLogin = () => {
       </div>
     )
   }
-  const tscircuitHandleRequiredDialog = useGlobalStore(
-    (s) => s.openTscircuitHandleRequiredDialog,
-  )
   return (
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
