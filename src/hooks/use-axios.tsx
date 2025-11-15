@@ -30,7 +30,8 @@ export const useAxios = () => {
 
     const handleError = (error: any) => {
       const status = error?.response?.status ?? error?.status
-      const errorCode = error?.data?.error?.error_code
+      const errorCode =
+        error?.data?.error_code || error?.data?.error?.error_code
       if (status === 401) {
         handle401()
       } else if (errorCode === "tscircuit_handle_required") {
