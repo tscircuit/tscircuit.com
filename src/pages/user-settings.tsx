@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -166,17 +166,12 @@ export default function UserSettingsPage() {
         <div className="max-w-7xl mx-auto py-8">
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
-              <Avatar className="h-16 w-16 border-2 border-gray-200 shadow-sm">
-                <AvatarImage
-                  src={`https://github.com/${session.github_username}.png`}
-                  alt={`${session.github_username} avatar`}
-                />
-                <AvatarFallback className="text-lg font-medium">
-                  {(session.github_username || session.account_id || "")
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <GithubAvatarWithFallback
+                username={session.github_username}
+                className="h-16 w-16 border-2 border-gray-200 shadow-sm"
+                fallbackClassName="text-lg font-medium"
+                colorClassName="text-black"
+              />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Account Settings
