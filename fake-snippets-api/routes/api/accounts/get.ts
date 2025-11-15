@@ -10,6 +10,7 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "session",
   commonParams: z.object({
+    tscircuit_handle: z.string().optional(),
     github_username: z.string().optional(),
   }),
   jsonResponse: z.object({
@@ -19,8 +20,16 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   let account: Account | undefined
-  const { github_username } = req.commonParams
-  if (github_username) {
+  const { github_username, tscircuit_handle } = req.commonParams
+  if (tscircuit_handle) {
+    const foundAccount = ctx.db.accounts.find(
+      (acc: Account) =>
+        acc.tscircuit_handle?.toLowerCase() === tscircuit_handle.toLowerCase(),
+    )
+    if (foundAccount) {
+      account = { ...foundAccount, email: undefined }
+    }
+  } else if (github_username) {
     const foundAccount = ctx.db.accounts.find(
       (acc: Account) =>
         acc.github_username?.toLowerCase() === github_username.toLowerCase(),
