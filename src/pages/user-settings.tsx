@@ -126,7 +126,7 @@ export default function UserSettingsPage() {
   const userInfo = [
     {
       label: "GitHub Username",
-      value: account?.github_username || "Not available",
+      value: account?.github_username || "Not connected",
     },
     {
       label: "Email",
