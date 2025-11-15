@@ -4,7 +4,7 @@ import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { Edit2, KeyRound } from "lucide-react"
+import { Edit2, KeyRound, Package2, Plus, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Link } from "wouter"
@@ -35,7 +35,6 @@ export const DashboardPage = () => {
   const {
     data: myPackages,
     isLoading,
-    error,
     refetch: refetchUserPackages,
   } = useQuery<Package[]>(
     ["userPackages", currentUser],
@@ -87,8 +86,6 @@ export const DashboardPage = () => {
     },
   )
 
-  const baseUrl = useApiBaseUrl()
-
   const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
     setPackageToDelete(pkg)
@@ -101,13 +98,13 @@ export const DashboardPage = () => {
       </Helmet>
       <Header />
       <div className="container mx-auto px-4 py-8 min-h-[80vh]">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
             {!isLoggedIn ? (
-              <div className="flex flex-col items-center justify-center h-64 rounded-md p-4 mt-[40px] mb-2 sm:mb-4">
+              <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
                   <KeyRound className="text-blue-500" size={32} />
                 </div>
@@ -118,20 +115,20 @@ export const DashboardPage = () => {
                 <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
                   Log in to access your dashboard and manage your packages.
                 </p>
-                <Button onClick={() => signIn()} variant="outline">
+                <Button onClick={() => signIn()} variant="default">
                   Log In
                 </Button>
               </div>
             ) : (
               <>
-                <div className="mt-6 mb-4">
-                  <div className="flex items-center">
-                    <h2 className="text-sm text-gray-600 whitespace-nowrap">
-                      Edit Recent
-                    </h2>
-                    <div className="flex gap-2 items-center overflow-x-scroll md:overflow-hidden">
-                      {myPackages &&
-                        myPackages.slice(0, 3).map((pkg) => (
+                {myPackages && myPackages.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center">
+                      <h2 className="hidden md:flex text-sm mb-2 md:mb-0 md:mr-2 text-gray-600 whitespace-nowrap">
+                        Edit Recent
+                      </h2>
+                      <div className="flex gap-2 items-center overflow-x-auto no-scrollbar md:overflow-hidden">
+                        {myPackages.slice(0, 3).map((pkg) => (
                           <div key={pkg.package_id}>
                             <Link
                               href={`/editor?package_id=${pkg.package_id}`}
@@ -140,7 +137,7 @@ export const DashboardPage = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="font-medium"
+                                className="font-medium whitespace-nowrap"
                               >
                                 {pkg.unscoped_name}
                                 <Edit2 className="w-3 h-3 ml-2" />
@@ -148,54 +145,83 @@ export const DashboardPage = () => {
                             </Link>
                           </div>
                         ))}
+                      </div>
                     </div>
                   </div>
+                )}
+
+                <div className="mb-4">
+                  {myPackages && myPackages.length > 0 && (
+                    <h2 className="text-sm font-bold mb-4 text-gray-700 border-b border-gray-200 pb-2">
+                      Your Recent Packages
+                    </h2>
+                  )}
+
+                  {isLoading && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {[...Array(6)].map((_, i) => (
+                        <PackageCardSkeleton key={i} />
+                      ))}
+                    </div>
+                  )}
+
+                  {myPackages && myPackages.length > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {myPackages.slice(0, 10).map((pkg) => (
+                        <PackageCard
+                          key={pkg.package_id}
+                          pkg={pkg}
+                          isCurrentUserPackage={
+                            pkg.owner_github_username === currentUser
+                          }
+                          onDeleteClick={handleDeleteClick}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    !isLoading &&
+                    myPackages?.length === 0 && (
+                      <div className="h-[50vh] grid place-items-center">
+                        <div className="flex flex-col items-center justify-center py-12 px-4">
+                          <div className="p-4 mb-4 rounded-full bg-slate-100">
+                            <Package2 className="text-black" size={32} />
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                            No packages yet
+                          </h3>
+                          <p className="text-gray-600 mb-6 text-center max-w-md text-sm">
+                            Create your first package to get started with
+                            tscircuit. Build and share electronic circuits with
+                            ease.
+                          </p>
+                          <div className="flex gap-3">
+                            <Link href="/editor">
+                              <Button className="flex items-center gap-2">
+                                <Plus size={14} />
+                                Create Package
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  )}
                 </div>
-                {/* <CreateNewSnippetWithAiHero/> */}
-                <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
-                  Your Recent Packages
-                </h2>
-                {isLoading && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[...Array(6)].map((_, i) => (
-                      <PackageCardSkeleton key={i} />
-                    ))}
-                  </div>
-                )}
-                {myPackages && myPackages.length > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {myPackages.slice(0, 10).map((pkg) => (
-                      <PackageCard
-                        key={pkg.package_id}
-                        pkg={pkg}
-                        isCurrentUserPackage={
-                          pkg.owner_github_username === currentUser
-                        }
-                        onDeleteClick={handleDeleteClick}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  !isLoading &&
-                  myPackages?.length === 0 && (
-                    <span className="font-medium text-sm text-gray-500">
-                      No packages found
-                    </span>
-                  )
-                )}
                 {myPackages && myPackages.length > 10 && (
-                  <Link
-                    href={`/${currentUser}`}
-                    className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-                  >
-                    View all packages
-                  </Link>
+                  <div className="mt-4">
+                    <Link
+                      href={`/${currentUser}`}
+                      className="text-sm text-blue-600 hover:underline inline-block"
+                    >
+                      View all packages
+                    </Link>
+                  </div>
                 )}
 
                 {/* Organizations Section */}
                 {organizations && organizations.length > 0 && (
-                  <div className="mt-8">
-                    <h2 className="text-sm font-bold mb-2 text-gray-700 border-b border-gray-200">
+                  <div className="mt-8 mb-8 md:mb-0">
+                    <h2 className="text-sm font-bold mb-4 text-gray-700 border-b border-gray-200 pb-2">
                       Your Organizations
                     </h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -210,12 +236,14 @@ export const DashboardPage = () => {
                       ))}
                     </div>
                     {organizations && organizations.length > 4 && (
-                      <Link
-                        href="/organizations"
-                        className="text-sm text-blue-600 hover:underline mt-2 inline-block"
-                      >
-                        View all organizations
-                      </Link>
+                      <div className="mt-4">
+                        <Link
+                          href="/organizations"
+                          className="text-sm text-blue-600 hover:underline inline-block"
+                        >
+                          View all organizations
+                        </Link>
+                      </div>
                     )}
                   </div>
                 )}
