@@ -15,11 +15,11 @@ export const useAddOrgMemberMutation = ({
     async ({
       orgId,
       accountId,
-      githubUsername,
+      tscircuitHandle,
     }: {
       orgId: string
       accountId?: string
-      githubUsername?: string
+      tscircuitHandle?: string
     }) => {
       if (!session) throw new Error("No session")
 
@@ -31,8 +31,8 @@ export const useAddOrgMemberMutation = ({
         payload.account_id = accountId
       }
 
-      if (githubUsername) {
-        payload.github_username = githubUsername
+      if (tscircuitHandle) {
+        payload.tscircuit_handle = tscircuitHandle
       }
 
       await axios.post("/orgs/add_member", payload)
