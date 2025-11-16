@@ -1,77 +1,50 @@
-import { useEffect, useState, useMemo } from "react"
-import { usePackageFileByRelease } from "./use-package-files"
-import { useAxios } from "./use-axios"
+import { useEffect, useState } from "react"
 
 interface UsePreviewImagesProps {
-  packageReleaseId?: string | null
+  cadPreviewUrl?: string | null
+  pcbPreviewUrl?: string | null
+  schematicPreviewUrl?: string | null
 }
 
-export function usePreviewImages({ packageReleaseId }: UsePreviewImagesProps) {
-  const axios = useAxios()
-
-  const { data: cadFile } = usePackageFileByRelease(
-    packageReleaseId ?? null,
-    "dist/3d.png",
-  )
-  const { data: pcbFile } = usePackageFileByRelease(
-    packageReleaseId ?? null,
-    "dist/pcb.svg",
-  )
-  const { data: schematicFile } = usePackageFileByRelease(
-    packageReleaseId ?? null,
-    "dist/schematic.svg",
-  )
-
+export function usePreviewImages({
+  cadPreviewUrl,
+  pcbPreviewUrl,
+  schematicPreviewUrl,
+}: UsePreviewImagesProps) {
   const [imageStatus, setImageStatus] = useState<
     Record<string, "loading" | "loaded" | "error">
-  >({})
-
-  const imageUrls = useMemo(() => {
-    const baseUrl = axios.defaults.baseURL || ""
-
-    return {
-      cadPreviewUrl: cadFile?.package_file_id
-        ? `${baseUrl}/package_files/download?package_file_id=${cadFile.package_file_id}`
-        : null,
-      pcbPreviewUrl: pcbFile?.package_file_id
-        ? `${baseUrl}/package_files/download?package_file_id=${pcbFile.package_file_id}`
-        : null,
-      schematicPreviewUrl: schematicFile?.package_file_id
-        ? `${baseUrl}/package_files/download?package_file_id=${schematicFile.package_file_id}`
-        : null,
-    }
-  }, [cadFile, pcbFile, schematicFile, axios.defaults.baseURL])
+  >({
+    "3d": cadPreviewUrl ? "loading" : "error",
+    pcb: pcbPreviewUrl ? "loading" : "error",
+    schematic: schematicPreviewUrl ? "loading" : "error",
+  })
 
   useEffect(() => {
     setImageStatus({
-      "3d": imageUrls.cadPreviewUrl ? "loading" : "error",
-      pcb: imageUrls.pcbPreviewUrl ? "loading" : "error",
-      schematic: imageUrls.schematicPreviewUrl ? "loading" : "error",
+      "3d": cadPreviewUrl ? "loading" : "error",
+      pcb: pcbPreviewUrl ? "loading" : "error",
+      schematic: schematicPreviewUrl ? "loading" : "error",
     })
-  }, [
-    imageUrls.cadPreviewUrl,
-    imageUrls.pcbPreviewUrl,
-    imageUrls.schematicPreviewUrl,
-  ])
+  }, [cadPreviewUrl, pcbPreviewUrl, schematicPreviewUrl])
 
   const views = [
     {
       id: "3d",
       label: "3D View",
       backgroundClass: "bg-gray-100",
-      imageUrl: imageUrls.cadPreviewUrl ?? undefined,
+      imageUrl: cadPreviewUrl ?? undefined,
     },
     {
       id: "pcb",
       label: "PCB View",
       backgroundClass: "bg-black",
-      imageUrl: imageUrls.pcbPreviewUrl ?? undefined,
+      imageUrl: pcbPreviewUrl ?? undefined,
     },
     {
       id: "schematic",
       label: "Schematic View",
       backgroundClass: "bg-[#F5F1ED]",
-      imageUrl: imageUrls.schematicPreviewUrl ?? undefined,
+      imageUrl: schematicPreviewUrl ?? undefined,
     },
   ]
 
