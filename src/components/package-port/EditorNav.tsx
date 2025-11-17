@@ -173,7 +173,8 @@ export default function EditorNav({
       toast({
         title: "Error",
         description:
-          error.response?.data?.error?.message ||
+          error?.data?.error?.message ||
+          error?.message ||
           "Failed to change the snippet type. Please try again.",
         variant: "destructive",
       })

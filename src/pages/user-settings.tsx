@@ -97,7 +97,7 @@ export default function UserSettingsPage() {
       })
     },
     onError: (error: any) => {
-      const errorMessage = error?.response?.data?.error?.message
+      const errorMessage = error?.data?.error?.message
       toast({
         title: "Failed to update account",
         description:
