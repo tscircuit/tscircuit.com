@@ -132,9 +132,7 @@ export const useCreateReleaseDialog = ({
       close()
     } catch (err: any) {
       const errorMessage =
-        err?.response?.data?.error?.message ||
-        err?.message ||
-        "Failed to create release"
+        err?.data?.error?.message || err?.message || "Failed to create release"
       setError(errorMessage)
       toast({
         title: "Error",
