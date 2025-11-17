@@ -74,17 +74,14 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     })
   }
 
-  const contentType = packageFile.content_mimetype || "application/octet-stream"
+  const contentType = "text/plain"
 
   const headers = {
     "Content-Type": contentType,
-    "Content-Disposition": `inline; filename="${packageFile.file_path.split("/").pop()}"`,
+    "Content-Disposition": `attachment; filename="${packageFile.file_path.split("/").pop()}"`,
     "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
     Expires: new Date(Date.now() + 86400000).toUTCString(),
   }
 
-  return new Response(
-    packageFile.content_text || packageFile.content_bytes || "",
-    { headers },
-  )
+  return new Response(packageFile.content_text, { headers })
 })
