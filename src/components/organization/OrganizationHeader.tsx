@@ -35,8 +35,8 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
     navigate(`/${organization.name}/settings`)
   }
   return (
-    <div className={cn("bg-white border-b border-gray-200", className)}>
-      <div className="container lg:mx-auto lg:px-6 py-6">
+    <div className="bg-white border-b border-gray-200">
+      <div className={cn("container lg:mx-auto lg:px-6 py-6", className)}>
         {/* Mobile Layout */}
         <div className="block sm:hidden">
           <div className="flex flex-col items-center text-center space-y-4">
