@@ -182,7 +182,7 @@ export default function UserSettingsPage() {
 
           <div className="space-y-8">
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Account profile
                 </h2>
@@ -267,7 +267,7 @@ export default function UserSettingsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Account information
                 </h2>
