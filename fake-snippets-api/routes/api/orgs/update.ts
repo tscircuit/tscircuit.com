@@ -1,6 +1,9 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { publicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  publicOrgSchema,
+  tscircuitHandleSchema,
+} from "fake-snippets-api/lib/db/schema"
 import { publicMapOrg } from "fake-snippets-api/lib/public-mapping/public-map-org"
 
 export default withRouteSpec({
@@ -13,15 +16,7 @@ export default withRouteSpec({
       z.object({
         name: z.string().min(5).max(40).optional(),
         display_name: z.string().max(50).optional(),
-        tscircuit_handle: z
-          .string()
-          .min(1)
-          .max(40)
-          .regex(
-            /^[0-9A-Za-z_-]+$/,
-            "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
-          )
-          .optional(),
+        tscircuit_handle: tscircuitHandleSchema.optional(),
       }),
     ),
   auth: "session",
@@ -101,7 +96,7 @@ export default withRouteSpec({
   if (display_name !== undefined) {
     const trimmedDisplayName = display_name.trim()
     const fallbackDisplayName =
-      name ?? org.org_display_name ?? org.org_name ?? org.tscircuit_handle ?? ""
+      name ?? org.org_name ?? org.tscircuit_handle ?? undefined
     updates.org_display_name =
       trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
   }

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useParams, useLocation, Link, Redirect } from "wouter"
 import { Helmet } from "react-helmet-async"
+import { normalizeName } from "@/lib/utils/normalizeName"
 import {
   Form,
   FormControl,
@@ -56,16 +57,18 @@ import { useOrganization } from "@/hooks/use-organization"
 const organizationSettingsSchema = z.object({
   name: z
     .string()
-    .min(1, "Organization handle is required")
-    .max(50, "Organization handle must be 50 characters or less")
+    .min(5, "Organization handle must be at least 5 characters")
+    .max(40, "Organization handle must be less than 40 characters")
     .regex(
       /^[a-zA-Z0-9_-]+$/,
       "Organization handle can only contain letters, numbers, underscores, and hyphens",
     ),
   display_name: z
     .string()
-    .max(50, "Display name must be 50 characters or less")
-    .optional(),
+    .min(5, "Display name must be at least 5 characters")
+    .max(40, "Display name must be less than 40 characters")
+    .optional()
+    .or(z.literal("")),
 })
 
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
@@ -120,6 +123,15 @@ export default function OrganizationSettingsPage() {
       if (updatedOrg.name !== orgname) {
         navigate(`/${updatedOrg.name}/settings`)
       }
+    },
+    onError: (error) => {
+      const errorMessage = error?.data?.message
+      toast({
+        title: "Failed to update organization",
+        description:
+          errorMessage || "An error occurred while updating the organization.",
+        variant: "destructive",
+      })
     },
   })
 
@@ -287,11 +299,33 @@ export default function OrganizationSettingsPage() {
 
   const onSubmit = (data: OrganizationSettingsFormData) => {
     if (!organization) return
-    updateOrgMutation.mutate({
-      orgId: organization.org_id,
-      name: data.name,
-      display_name: data.display_name,
-    })
+
+    const normalizedName = normalizeName(data.name)
+
+    if (normalizedName.length < 5) {
+      form.setError("name", {
+        type: "manual",
+        message:
+          "Organization handle must be at least 5 characters after normalization",
+      })
+      return
+    }
+
+    const changedFields: {
+      orgId: string
+      name?: string
+      display_name?: string
+    } = { orgId: organization.org_id }
+
+    if (normalizedName !== organization.name) {
+      changedFields.name = normalizedName
+    }
+
+    if (data.display_name !== organization.display_name) {
+      changedFields.display_name = data.display_name
+    }
+
+    updateOrgMutation.mutate(changedFields)
   }
 
   const handleAddMember = () => {
@@ -434,6 +468,17 @@ export default function OrganizationSettingsPage() {
                               />
                             </FormControl>
                             <FormMessage className="mt-2" />
+                            {field.value &&
+                              normalizeName(field.value)?.length && (
+                                <p className="text-xs text-gray-500 mt-2">
+                                  This will be your URL.
+                                  <br />
+                                  <span className="font-mono text-gray-700">
+                                    tscircuit.com/
+                                    {normalizeName(field.value)}
+                                  </span>
+                                </p>
+                              )}
                           </div>
                         </FormItem>
                       )}
@@ -498,7 +543,7 @@ export default function OrganizationSettingsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Organization information
                 </h2>

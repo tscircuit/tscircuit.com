@@ -11,12 +11,16 @@ export interface UpdateOrgParams {
 
 export const useUpdateOrgMutation = ({
   onSuccess,
-}: { onSuccess?: (org: PublicOrgSchema) => void } = {}) => {
+  onError,
+}: {
+  onSuccess?: (org: PublicOrgSchema) => void
+  onError?: (error: any) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const queryClient = useQueryClient()
 
-  return useMutation<PublicOrgSchema, any, UpdateOrgParams>(
+  return useMutation<PublicOrgSchema, unknown, UpdateOrgParams>(
     ["updateOrg"],
     async ({ orgId, name, display_name }) => {
       if (!session) throw new Error("No session")
@@ -40,8 +44,9 @@ export const useUpdateOrgMutation = ({
         queryClient.invalidateQueries(["orgs"])
         onSuccess?.(org)
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         console.error("Error updating organization:", error)
+        onError?.(error)
       },
     },
   )
