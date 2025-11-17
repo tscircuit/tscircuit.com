@@ -190,7 +190,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
     return (
       <Link
         key={organization.org_id}
-        href={`/${organization.tscircuit_handle || '?org-handle-not-set'}`}
+        href={`/${organization.tscircuit_handle || "?org-handle-not-set"}`}
         className="block h-full"
       >
         {cardContent}
