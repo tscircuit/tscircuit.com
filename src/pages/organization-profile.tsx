@@ -84,6 +84,7 @@ export const OrganizationProfilePageContent = ({
       <OrganizationHeader
         organization={org}
         isCurrentUserOrganization={isCurrentUserOrganization}
+        className="mx-auto"
       />
 
       <div className="container mx-auto px-4 py-8">
