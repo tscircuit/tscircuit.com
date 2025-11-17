@@ -96,12 +96,10 @@ export const UserProfilePage = () => {
         return response.data.packages
       },
       {
-        enabled: activeTab === "starred" && Boolean(githubUsername),
+        enabled: Boolean(githubUsername),
         refetchOnWindowFocus: false,
       },
     )
-
-  const baseUrl = useApiBaseUrl()
 
   if (!isFetchedAccount) {
     return null
