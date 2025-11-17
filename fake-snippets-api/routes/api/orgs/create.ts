@@ -1,40 +1,25 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 import { publicMapOrg } from "fake-snippets-api/lib/public-mapping/public-map-org"
-import { publicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  publicOrgSchema,
+  tscircuitHandleSchema,
+} from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z.object({
-    name: z
-      .string()
-      .min(5)
-      .max(40)
-      .regex(
-        /^[a-z0-9_-]+$/,
-        "Name must contain only lowercase letters, numbers, underscores, and hyphens",
-      )
-      .regex(/^[a-z0-9]/, "Name must start with a letter or number")
-      .regex(/[a-z0-9]$/, "Name must end with a letter or number"),
     display_name: z.string().min(5).max(40).optional(),
-    tscircuit_handle: z
-      .string()
-      .min(1)
-      .max(40)
-      .regex(
-        /^[0-9A-Za-z_-]+$/,
-        "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
-      )
-      .optional(),
+    tscircuit_handle: tscircuitHandleSchema,
   }),
   auth: "session",
   jsonResponse: z.object({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { name, display_name, tscircuit_handle } = req.commonParams
+  const { display_name, tscircuit_handle } = req.commonParams
 
-  const existing = ctx.db.getOrg({ tscircuit_handle: tscircuit_handle ?? name })
+  const existing = ctx.db.getOrg({ tscircuit_handle })
 
   if (existing) {
     return ctx.error(400, {
@@ -45,11 +30,10 @@ export default withRouteSpec({
 
   const newOrg = {
     owner_account_id: ctx.auth.account_id,
-    name,
     org_display_name: display_name,
     created_at: new Date(),
     can_manage_org: true,
-    tscircuit_handle: tscircuit_handle || name,
+    tscircuit_handle: tscircuit_handle,
   }
 
   const org = ctx.db.addOrganization(newOrg)

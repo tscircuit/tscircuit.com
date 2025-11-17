@@ -73,7 +73,6 @@ export default withRouteSpec({
       .organizations.find((org) => org.org_id === account.personal_org_id)
     if (personalOrg && personalOrg.is_personal_org) {
       ctx.db.updateOrganization(account.personal_org_id, {
-        org_name: requestedHandle,
         tscircuit_handle: requestedHandle,
       })
     }

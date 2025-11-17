@@ -7,15 +7,9 @@ import {
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
-  commonParams: z
-    .object({
-      org_id: z.string(),
-    })
-    .or(
-      z.object({
-        name: z.string(),
-      }),
-    ),
+  commonParams: z.object({
+    org_id: z.string(),
+  }),
   auth: "optional_session",
   jsonResponse: z.object({
     org_members: z.array(
@@ -26,12 +20,11 @@ export default withRouteSpec({
     ),
   }),
 })(async (req, ctx) => {
-  const params = req.commonParams as { org_id?: string; name?: string }
+  const params = req.commonParams as { org_id?: string }
 
   const org = ctx.db.getOrg(
     {
       org_id: params.org_id,
-      org_name: params.name,
     },
     ctx.auth,
   )
@@ -51,7 +44,6 @@ export default withRouteSpec({
       const memberOrg = ctx.db.getOrg(
         {
           org_id: org.org_id,
-          org_name: org.org_name,
         },
         {
           account_id: account.account_id,
@@ -78,7 +70,6 @@ export default withRouteSpec({
       const memberOrg = ctx.db.getOrg(
         {
           org_id: org.org_id,
-          org_name: org.org_name,
         },
         {
           account_id: owner.account_id,

@@ -37,7 +37,7 @@ test("GET /api/orgs/get_member - should return member by org_name and account_id
 
   const getResponse = await jane_axios.get("/api/orgs/get_member", {
     params: {
-      org_name: seed.organization.org_name,
+      org_id: seed.organization.org_id,
       account_id: seed.account.account_id,
     },
   })

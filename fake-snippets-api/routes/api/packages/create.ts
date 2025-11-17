@@ -55,7 +55,16 @@ export default withRouteSpec({
   }
 
   if (!owner_segment) {
-    owner_segment = org_id ? org!.org_name : ctx.auth.github_username
+    owner_segment = org_id
+      ? (org!.tscircuit_handle ?? undefined)
+      : (ctx.auth.tscircuit_handle ?? undefined)
+  }
+
+  if (!owner_segment) {
+    return ctx.error(400, {
+      error_code: "missing_owner_segment",
+      message: "Owner segment is required",
+    })
   }
 
   const final_name = name ?? `${owner_segment}/${unscoped_name}`
@@ -72,12 +81,7 @@ export default withRouteSpec({
       .filter((oa) => oa.account_id === ctx.auth.account_id)
       .map((oa) => state.organizations.find((o) => o.org_id === oa.org_id))
       .filter((o): o is NonNullable<typeof o> => o !== undefined)
-      .find(
-        (o) =>
-          o.org_display_name?.toLowerCase() === requested_owner_lower ||
-          o.org_name?.toLowerCase() === requested_owner_lower ||
-          o.github_handle?.toLowerCase() === requested_owner_lower,
-      )
+      .find((o) => o.tscircuit_handle?.toLowerCase() === requested_owner_lower)
 
     if (!memberOrg) {
       return ctx.error(403, {
@@ -88,7 +92,8 @@ export default withRouteSpec({
     }
 
     owner_org_id = memberOrg.org_id
-    owner_github_username = memberOrg.github_handle || memberOrg.org_name
+    owner_github_username =
+      memberOrg.github_handle ?? memberOrg.tscircuit_handle ?? ""
   }
 
   const existingPackage = ctx.db

@@ -463,7 +463,6 @@ export const orgSchema = z.object({
   org_display_name: z.string().optional(),
   github_handle: z.string().nullable(),
   tscircuit_handle: z.string().nullable(),
-  org_name: z.string(),
 })
 export type Organization = z.infer<typeof orgSchema>
 
@@ -527,9 +526,11 @@ export type DatabaseSchema = z.infer<typeof databaseSchema>
 
 export const tscircuitHandleSchema = z
   .string()
-  .min(1)
+  .min(5)
   .max(40)
   .regex(
-    /^[0-9A-Za-z_-]+$/,
-    "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
+    /^[a-z0-9_-]+$/,
+    "Name must contain only lowercase letters, numbers, underscores, and hyphens",
   )
+  .regex(/^[a-z0-9]/, "Name must start with a letter or number")
+  .regex(/[a-z0-9]$/, "Name must end with a letter or number")
