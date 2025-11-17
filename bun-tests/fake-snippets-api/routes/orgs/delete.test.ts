@@ -5,7 +5,7 @@ test("POST /api/orgs/delete - should delete an organization", async () => {
   const { jane_axios, seed } = await getTestServer()
 
   const createResponse = await jane_axios.post("/api/orgs/create", {
-    name: "test-org-to-delete",
+    tscircuit_handle: "test-org-to-delete",
     display_name: "Test Organization to Delete",
   })
   const org = createResponse.data.org
@@ -29,10 +29,10 @@ test("POST /api/orgs/delete - should delete an organization", async () => {
 })
 
 test("POST /api/orgs/delete - should fail for non-owner (403)", async () => {
-  const { jane_axios, axios, seed } = await getTestServer()
+  const { jane_axios, axios } = await getTestServer()
 
   const createResponse = await jane_axios.post("/api/orgs/create", {
-    name: "test-org-protected",
+    tscircuit_handle: "test-org-protected",
     display_name: "Test Organization Protected",
   })
   const org = createResponse.data.org

@@ -137,12 +137,11 @@ test("create package release - package not found", async () => {
   }
 })
 
-// test
 test("create package release under org", async () => {
   const { axios } = await getTestServer()
 
   const orgResponse = await axios.post("/api/orgs/create", {
-    name: "testorg",
+    tscircuit_handle: "testorg",
   })
   expect(orgResponse.status).toBe(200)
 
