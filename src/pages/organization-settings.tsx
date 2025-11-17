@@ -246,6 +246,45 @@ export default function OrganizationSettingsPage() {
     )
   }
 
+  const orgInfo = [
+    {
+      label: "Organization ID",
+      value: organization?.org_id || "Not available",
+    },
+    {
+      label: "Owner Account ID",
+      value: organization?.owner_account_id || "Not available",
+    },
+    {
+      label: "Organization Handle",
+      value: organization?.name || "Not added",
+    },
+    {
+      label: "GitHub Handle",
+      value: organization?.github_handle || "Not connected",
+    },
+    {
+      label: "Member Count",
+      value: organization?.member_count?.toString() || "0",
+    },
+    {
+      label: "Package Count",
+      value: organization?.package_count?.toString() || "0",
+    },
+    {
+      label: "Display Name",
+      value: organization?.display_name || "Not added",
+    },
+    {
+      label: "Created At",
+      value:
+        organization?.created_at &&
+        !Number.isNaN(new Date(organization.created_at).getTime())
+          ? new Date(organization.created_at).toLocaleString()
+          : "Not available",
+    },
+  ]
+
   const onSubmit = (data: OrganizationSettingsFormData) => {
     if (!organization) return
     updateOrgMutation.mutate({
@@ -352,7 +391,7 @@ export default function OrganizationSettingsPage() {
           <div className="max-w-7xl mx-auto space-y-8">
             {/* Organization Profile */}
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Organization profile
                 </h2>
@@ -458,9 +497,31 @@ export default function OrganizationSettingsPage() {
               </div>
             </div>
 
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Organization information
+                </h2>
+              </div>
+              <div className="p-6 lg:p-8">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                  {orgInfo.map((item) => (
+                    <div key={item.label} className="space-y-1">
+                      <dt className="text-sm font-semibold text-gray-900">
+                        {item.label}
+                      </dt>
+                      <dd className="text-sm text-gray-600 break-words">
+                        {item.value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </div>
+
             {/* Members Management */}
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
@@ -631,7 +692,7 @@ export default function OrganizationSettingsPage() {
 
             {/* Danger Zone */}
             <div className="bg-white border border-red-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-red-200 bg-red-50">
+              <div className="px-6 py-5 border-b border-red-200 bg-red-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-red-900">
                   Danger Zone
                 </h2>
