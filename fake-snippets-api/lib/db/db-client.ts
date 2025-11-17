@@ -1742,9 +1742,18 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
     }
     if (filters?.tscircuit_handle) {
-      orgs = orgs.filter(
-        (org) => org.tscircuit_handle === filters.tscircuit_handle,
+      const account = get().accounts.find(
+        (account) => account.tscircuit_handle === filters.tscircuit_handle,
       )
+      orgs = orgs.filter((org) => {
+        const orgAccount = get().orgAccounts.find(
+          (oa) =>
+            oa.org_id === org.org_id && oa.account_id === account?.account_id,
+        )
+        const isPersonalOrg =
+          org.is_personal_org && org.owner_account_id === account?.account_id
+        return Boolean(orgAccount) || isPersonalOrg
+      })
     }
     if (filters?.name) {
       orgs = orgs.filter(
