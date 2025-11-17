@@ -5,7 +5,7 @@ import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export interface UpdateOrgParams {
   orgId: string
-  name?: string
+  tscircuit_handle?: string
   display_name?: string
 }
 
@@ -22,14 +22,14 @@ export const useUpdateOrgMutation = ({
 
   return useMutation<PublicOrgSchema, unknown, UpdateOrgParams>(
     ["updateOrg"],
-    async ({ orgId, name, display_name }) => {
+    async ({ orgId, tscircuit_handle, display_name }) => {
       if (!session) throw new Error("No session")
 
       const {
         data: { org: updatedOrg },
       } = await axios.post("/orgs/update", {
         org_id: orgId,
-        name,
+        tscircuit_handle,
         display_name,
       })
 

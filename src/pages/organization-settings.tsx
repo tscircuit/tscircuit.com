@@ -55,14 +55,10 @@ import { OrganizationHeader } from "@/components/organization/OrganizationHeader
 import { useOrganization } from "@/hooks/use-organization"
 
 const organizationSettingsSchema = z.object({
-  name: z
+  tscircuit_handle: z
     .string()
     .min(5, "Organization handle must be at least 5 characters")
-    .max(40, "Organization handle must be less than 40 characters")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Organization handle can only contain letters, numbers, underscores, and hyphens",
-    ),
+    .max(40, "Organization handle must be less than 40 characters"),
   display_name: z
     .string()
     .min(5, "Display name must be at least 5 characters")
@@ -84,7 +80,7 @@ export default function OrganizationSettingsPage() {
     isLoading: isLoadingOrg,
     error: orgError,
   } = useOrganization({
-    orgName: orgname,
+    orgTscircuitHandle: orgname,
   })
 
   const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState<{
@@ -99,7 +95,7 @@ export default function OrganizationSettingsPage() {
   const form = useForm<OrganizationSettingsFormData>({
     resolver: zodResolver(organizationSettingsSchema),
     defaultValues: {
-      name: "",
+      tscircuit_handle: "",
       display_name: "",
     },
   })
@@ -117,11 +113,11 @@ export default function OrganizationSettingsPage() {
         description: "Organization settings have been updated successfully.",
       })
       form.reset({
-        name: updatedOrg.name || "",
+        tscircuit_handle: updatedOrg.tscircuit_handle || "",
         display_name: updatedOrg.display_name || "",
       })
-      if (updatedOrg.name !== orgname) {
-        navigate(`/${updatedOrg.name}/settings`)
+      if (updatedOrg.tscircuit_handle !== orgname) {
+        navigate(`/${updatedOrg.tscircuit_handle}/settings`)
       }
     },
     onError: (error) => {
@@ -189,7 +185,7 @@ export default function OrganizationSettingsPage() {
   useEffect(() => {
     if (organization) {
       form.reset({
-        name: organization.name || "",
+        tscircuit_handle: organization.tscircuit_handle || "",
         display_name: organization.display_name || "",
       })
     }
@@ -207,8 +203,8 @@ export default function OrganizationSettingsPage() {
     return <NotFoundPage />
   }
 
-  const pageTitle = organization?.name
-    ? `${organization.name} Settings - tscircuit`
+  const pageTitle = organization?.tscircuit_handle
+    ? `${organization.tscircuit_handle} Settings - tscircuit`
     : orgname
       ? `${orgname} Settings - tscircuit`
       : "Organization Settings - tscircuit"
@@ -269,7 +265,7 @@ export default function OrganizationSettingsPage() {
     },
     {
       label: "Organization Handle",
-      value: organization?.name || "Not added",
+      value: organization?.tscircuit_handle || "Not added",
     },
     {
       label: "GitHub Handle",
@@ -300,10 +296,10 @@ export default function OrganizationSettingsPage() {
   const onSubmit = (data: OrganizationSettingsFormData) => {
     if (!organization) return
 
-    const normalizedName = normalizeName(data.name)
+    const normalizedHandle = normalizeName(data.tscircuit_handle)
 
-    if (normalizedName.length < 5) {
-      form.setError("name", {
+    if (normalizedHandle.length < 5) {
+      form.setError("tscircuit_handle", {
         type: "manual",
         message:
           "Organization handle must be at least 5 characters after normalization",
@@ -313,12 +309,12 @@ export default function OrganizationSettingsPage() {
 
     const changedFields: {
       orgId: string
-      name?: string
+      tscircuit_handle?: string
       display_name?: string
     } = { orgId: organization.org_id }
 
-    if (normalizedName !== organization.name) {
-      changedFields.name = normalizedName
+    if (normalizedHandle !== organization.tscircuit_handle) {
+      changedFields.tscircuit_handle = normalizedHandle
     }
 
     if (data.display_name !== organization.display_name) {
@@ -442,7 +438,7 @@ export default function OrganizationSettingsPage() {
                   >
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="tscircuit_handle"
                       render={({ field }) => (
                         <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
                           <div className="lg:col-span-2">
@@ -461,7 +457,7 @@ export default function OrganizationSettingsPage() {
                                 type="text"
                                 autoComplete="off"
                                 spellCheck={false}
-                                placeholder="Enter organization name"
+                                placeholder="Enter organization handle"
                                 {...field}
                                 disabled={updateOrgMutation.isLoading}
                                 className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -832,9 +828,9 @@ export default function OrganizationSettingsPage() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you absolutely sure you want to delete{" "}
-              <strong>{organization?.name}</strong>? This action is permanent
-              and cannot be undone. All packages, snippets, and organization
-              data will be permanently removed.
+              <strong>{organization?.tscircuit_handle}</strong>? This action is
+              permanent and cannot be undone. All packages, snippets, and
+              organization data will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -228,6 +228,14 @@ export default function EditorNav({
     },
     { target: window },
   )
+  const packageNameWithOwner = pkg?.name
+  const packageOwnerName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[0]
+    : pkg?.owner_github_username
+  const packageName = packageNameWithOwner?.includes("/")
+    ? packageNameWithOwner?.split("/")[1]
+    : pkg?.unscoped_name
+
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
       <div className="lg:flex items-center my-2 ">
@@ -237,18 +245,18 @@ export default function EditorNav({
               <div className="flex items-center space-x-1 overflow-hidden">
                 <Link
                   className="text-blue-500 font-semibold hover:underline truncate"
-                  href={`/${pkg.owner_github_username}`}
-                  title={pkg.owner_github_username || ""}
+                  href={`/${packageOwnerName}`}
+                  title={packageOwnerName || ""}
                 >
-                  {pkg.owner_github_username}
+                  {packageOwnerName}
                 </Link>
                 <span className="px-0.5 text-gray-500">/</span>
                 <Link
                   className="text-blue-500 font-semibold hover:underline truncate"
                   href={`/${pkg.name}`}
-                  title={pkg.unscoped_name}
+                  title={packageName}
                 >
-                  {pkg.unscoped_name}
+                  {packageName}
                 </Link>
               </div>
               {pkg.star_count !== undefined && (

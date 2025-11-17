@@ -28,7 +28,6 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
 
   const { membersCount, packagesCount, isLoading } = useOrganization({
     orgId: organization.org_id,
-    orgName: organization.name!,
   })
 
   const handleSettingsClick = () => {

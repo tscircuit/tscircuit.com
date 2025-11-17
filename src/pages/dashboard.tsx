@@ -207,16 +207,6 @@ export const DashboardPage = () => {
                     )
                   )}
                 </div>
-                {myPackages && myPackages.length > 10 && (
-                  <div className="mt-4">
-                    <Link
-                      href={`/${currentUser}`}
-                      className="text-sm text-blue-600 hover:underline inline-block"
-                    >
-                      View all packages
-                    </Link>
-                  </div>
-                )}
 
                 {/* Organizations Section */}
                 {organizations && organizations.length > 0 && (
@@ -235,16 +225,6 @@ export const DashboardPage = () => {
                         />
                       ))}
                     </div>
-                    {organizations && organizations.length > 4 && (
-                      <div className="mt-4">
-                        <Link
-                          href="/organizations"
-                          className="text-sm text-blue-600 hover:underline inline-block"
-                        >
-                          View all organizations
-                        </Link>
-                      </div>
-                    )}
                   </div>
                 )}
               </>
