@@ -80,7 +80,7 @@ export default function OrganizationSettingsPage() {
     isLoading: isLoadingOrg,
     error: orgError,
   } = useOrganization({
-    orgName: orgname,
+    orgTscircuitHandle: orgname,
   })
 
   const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState<{
