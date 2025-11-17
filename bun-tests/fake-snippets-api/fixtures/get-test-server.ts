@@ -78,7 +78,7 @@ const seedDatabase = (db: DbClient) => {
   // Create personal organization for the main test account
   const personalOrg = db.addOrganization({
     org_id: "personal-org-1",
-    tscircuit_handle: "testuser",
+    name: "testuser",
     owner_account_id: account.account_id,
     is_personal_org: true,
   })
