@@ -16,7 +16,7 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { account_id, tscircuit_handle } = req.commonParams
-  if (!ctx.auth && (!account_id || !tscircuit_handle)) {
+  if (!ctx.auth && !account_id && !tscircuit_handle) {
     return ctx.error(400, {
       error_code: "invalid_request",
       message:

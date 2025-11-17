@@ -35,3 +35,20 @@ test("GET /api/orgs/list - should return user's organizations when un-authentica
   expect(personalOrg.name).toBe(seed.account2.github_username)
   expect(personalOrg.user_permissions?.can_manage_org).not.toBe(true)
 })
+
+test("GET /orgs/list returns user's organizations when unauthenticated with github_handle filter", async () => {
+  const { unauthenticatedAxios, seed } = await getTestServer()
+
+  const {
+    data: { orgs },
+  } = await unauthenticatedAxios.get(
+    `/api/orgs/list?tscircuit_handle=${seed.account2.tscircuit_handle}`,
+  )
+
+  expect(orgs.length).toBeGreaterThan(0)
+  expect(
+    orgs.some(
+      (org: any) => org.tscircuit_handle === seed.organization.tscircuit_handle,
+    ),
+  ).toBe(true)
+})
