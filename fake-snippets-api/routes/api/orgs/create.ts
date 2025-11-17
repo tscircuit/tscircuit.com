@@ -8,18 +8,24 @@ import {
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
-  commonParams: z.object({
-    display_name: z.string().min(5).max(40).optional(),
-    tscircuit_handle: tscircuitHandleSchema,
-  }),
+  commonParams: z
+    .object({
+      display_name: z.string().min(5).max(40).optional(),
+      tscircuit_handle: tscircuitHandleSchema.optional(),
+      name: tscircuitHandleSchema.optional(),
+    })
+    .refine((data) => data.tscircuit_handle || data.name, {
+      message: "Either tscircuit_handle or name is required",
+    }),
   auth: "session",
   jsonResponse: z.object({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { display_name, tscircuit_handle } = req.commonParams
+  const { display_name, tscircuit_handle, name } = req.commonParams
+  const handle = tscircuit_handle || name
 
-  const existing = ctx.db.getOrg({ tscircuit_handle })
+  const existing = ctx.db.getOrg({ tscircuit_handle: handle })
 
   if (existing) {
     return ctx.error(400, {
@@ -33,7 +39,7 @@ export default withRouteSpec({
     org_display_name: display_name,
     created_at: new Date(),
     can_manage_org: true,
-    tscircuit_handle: tscircuit_handle,
+    tscircuit_handle: handle,
   }
 
   const org = ctx.db.addOrganization(newOrg)
