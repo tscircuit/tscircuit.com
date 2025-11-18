@@ -67,7 +67,7 @@ export const NewPackageSavePromptDialog = ({
   ])
 
   const extractErrorMessage = (error: any): string => {
-    const serverError = error?.data?.message
+    const serverError = error?.data?.message || error?.data?.error?.message
     if (!serverError || typeof serverError !== "string") {
       return "Failed to save package. Please try again."
     }
