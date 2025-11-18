@@ -529,8 +529,6 @@ export const tscircuitHandleSchema = z
   .min(5)
   .max(40)
   .regex(
-    /^[a-z0-9_-]+$/,
-    "Name must contain only lowercase letters, numbers, underscores, and hyphens",
+    /^[0-9A-Za-z_-]+$/,
+    "tscircuit_handle may only contain letters, numbers, underscores, and hyphens",
   )
-  .regex(/^[a-z0-9]/, "Name must start with a letter or number")
-  .regex(/[a-z0-9]$/, "Name must end with a letter or number")
