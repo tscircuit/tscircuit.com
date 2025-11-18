@@ -1,9 +1,9 @@
 export const normalizeName = (input: string): string => {
   return input
-    .trim() // remove whitespace
-    .normalize("NFD") // decompose unicode characters
-    .replace(/[\u0300-\u036f]/g, "") // remove diacritics
-    .replace(/[^a-z0-9_-]/g, "-") // replace invalid chars with dash
-    .replace(/-+/g, "-") // collapse multiple dashes
-    .replace(/^-|-$/g, "") // remove leading/trailing dashes
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
 }
