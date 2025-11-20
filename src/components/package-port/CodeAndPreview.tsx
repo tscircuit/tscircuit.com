@@ -15,6 +15,7 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
+import { usePlatformConfig } from "@/hooks/usePlatformConfig"
 
 interface Props {
   pkg?: Package
@@ -92,6 +93,8 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
   })
+
+  const platformConfig = usePlatformConfig(fsMap)
 
   const hasUnsavedChanges = useMemo(
     () =>
@@ -228,6 +231,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
             showRunButton
             forceLatestEvalVersion
             isLoadingFiles={isLoading}
+            platformConfig={platformConfig}
             onRenderStarted={() =>
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }
