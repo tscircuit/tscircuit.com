@@ -18,7 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getBuildStatus, StatusIcon } from "."
+import { getBuildStatus, getUserCodeStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
@@ -38,7 +38,7 @@ export const ConnectedRepoOverview = ({
   pkg: Package
   packageRelease: PackageRelease
 }) => {
-  const { status, label } = getBuildStatus(packageBuild ?? null)
+  const { status, label } = getUserCodeStatus(packageRelease)
   const [openSections, setOpenSections] = useState({
     userCode: false,
   })
@@ -190,18 +190,25 @@ export const ConnectedRepoOverview = ({
               <div className="flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
                   <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
-                    Build {label}
+                    User Code {label}
                   </h1>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  <time dateTime={packageBuild.created_at}>
-                    Built {formatTimeAgo(packageBuild.created_at)}
+                  <time
+                    dateTime={
+                      packageRelease.user_code_started_at ||
+                      packageRelease.created_at
+                    }
+                  >
+                    {packageRelease.user_code_started_at
+                      ? `Started ${formatTimeAgo(packageRelease.user_code_started_at)}`
+                      : `Created ${formatTimeAgo(packageRelease.created_at)}`}
                   </time>
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
-              {status !== "error" && (
+              {status !== "error" && packageBuild && (
                 <Button
                   size="sm"
                   className="flex items-center gap-2 min-w-[80px] h-9"
@@ -298,7 +305,7 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <p
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${packageBuild.build_started_at}`}
+                  title={`User code started at ${packageRelease.user_code_started_at || "Not started"}`}
                 >
                   {buildDuration || 0}s
                 </p>
@@ -322,7 +329,7 @@ export const ConnectedRepoOverview = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">
-            Latest Build Logs
+            Latest User Code Logs
           </h2>
           <a
             href={`/${pkg.name.split("/")[0]}/${pkg.name.split("/")[1]}/releases/${packageRelease.package_release_id}/builds`}

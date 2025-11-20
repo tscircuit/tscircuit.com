@@ -15,7 +15,7 @@ import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { getBuildStatus } from "@/components/preview"
+import { getBuildStatus, getUserCodeStatus } from "@/components/preview"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -62,7 +62,7 @@ export default function ReleaseDetailPage() {
   const session = useGlobalStore((s) => s.session)
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation()
-  const { status } = getBuildStatus(latestBuild ?? null)
+  const { status } = getUserCodeStatus(packageRelease)
   if (isLoadingPackage || isLoadingRelease) {
     return (
       <>

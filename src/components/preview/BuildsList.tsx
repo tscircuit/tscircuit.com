@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getBuildStatus, StatusIcon } from "."
+import { getUserCodeStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
@@ -76,7 +76,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                     <TableHead>Release ID</TableHead>
                     <TableHead>Version</TableHead>
                     <TableHead>Branch/PR</TableHead>
-                    <TableHead>Latest Build</TableHead>
+                    <TableHead>User Code</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -109,10 +109,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                         </TableRow>
                       ))
                     : releases?.map((release) => {
-                        const latestBuild = latestBuildsMap.get(
-                          release.package_release_id,
-                        )
-                        const { status, label } = getBuildStatus(latestBuild)
+                        const { status, label } = getUserCodeStatus(release)
                         return (
                           <TableRow
                             key={release.package_release_id}
@@ -167,13 +164,19 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                             </TableCell>
                             <TableCell>
                               <div className="max-w-xs">
-                                {latestBuild ? (
+                                {release.user_code_started_at ? (
                                   <p className="text-sm text-gray-600">
-                                    {formatTimeAgo(latestBuild.created_at)}
+                                    {formatTimeAgo(
+                                      release.user_code_started_at,
+                                    )}
+                                  </p>
+                                ) : release.created_at ? (
+                                  <p className="text-sm text-gray-600">
+                                    {formatTimeAgo(release.created_at)}
                                   </p>
                                 ) : (
                                   <p className="text-sm text-gray-400">
-                                    No builds
+                                    No user code runs
                                   </p>
                                 )}
                               </div>
@@ -206,7 +209,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                                     {status !== "error" && (
                                       <DropdownMenuItem>
                                         <a
-                                          href={`/${pkg.name}/releases/${latestBuild?.package_release_id}/preview`}
+                                          href={`/${pkg.name}/releases/${release.package_release_id}/preview`}
                                         >
                                           Preview Release
                                         </a>

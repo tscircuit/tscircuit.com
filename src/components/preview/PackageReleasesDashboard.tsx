@@ -11,7 +11,7 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { getBuildStatus } from "."
+import { getBuildStatus, getUserCodeStatus } from "."
 import { Link } from "wouter"
 import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import {
@@ -32,7 +32,7 @@ export const PackageReleasesDashboard = ({
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
-  const { status, label } = getBuildStatus(latestBuild)
+  const { status, label } = getUserCodeStatus(latestRelease)
   const { toastLibrary } = useToast()
   const { downloadZip } = useDownloadZip()
   const { data: packageFiles } = usePackageFiles(
@@ -122,12 +122,17 @@ export const PackageReleasesDashboard = ({
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4 flex-shrink-0" />
                       <span>
-                        {latestBuild?.created_at ? (
-                          <time dateTime={latestBuild.created_at}>
-                            Last built {formatTimeAgo(latestBuild.created_at)}
+                        {latestRelease?.user_code_started_at ? (
+                          <time dateTime={latestRelease.user_code_started_at}>
+                            User code started{" "}
+                            {formatTimeAgo(latestRelease.user_code_started_at)}
+                          </time>
+                        ) : latestRelease?.created_at ? (
+                          <time dateTime={latestRelease.created_at}>
+                            Created {formatTimeAgo(latestRelease.created_at)}
                           </time>
                         ) : (
-                          "No builds yet"
+                          "No user code runs yet"
                         )}
                       </span>
                     </div>
