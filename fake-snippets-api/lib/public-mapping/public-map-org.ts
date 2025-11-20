@@ -17,14 +17,13 @@ export const publicMapOrg = (
     is_personal_org,
     org_display_name,
     tscircuit_handle,
-    org_name,
     ...org
   } = internal_org
   return {
     org_id: org.org_id,
-    display_name: org_display_name ?? org_name,
+    display_name: org_display_name ?? tscircuit_handle ?? undefined,
     owner_account_id: org.owner_account_id,
-    name: org_name,
+    name: tscircuit_handle,
     member_count: Number(member_count) || 0,
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),

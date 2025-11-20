@@ -1676,7 +1676,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return updated
   },
   addOrganization: (organization: {
-    name: string
+    name?: string
     org_id?: string
     is_personal_org?: boolean
     owner_account_id: string
@@ -1685,13 +1685,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     tscircuit_handle?: string
   }) => {
     const newOrganization: Organization = {
-      org_name: organization.name,
       org_id: organization.org_id || `org_${get().idCounter + 1}`,
       github_handle: organization.github_handle ?? null,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
-      org_display_name: organization.org_display_name ?? organization.name,
-      tscircuit_handle: organization.tscircuit_handle || organization.name,
+      org_display_name:
+        organization.org_display_name ??
+        organization.tscircuit_handle ??
+        undefined,
+      tscircuit_handle:
+        organization.tscircuit_handle || organization.name || null,
       ...organization,
     }
     set((state) => ({
@@ -1787,7 +1790,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrg: (
     filters: {
       org_id?: string
-      org_name?: string
       github_handle?: string
       tscircuit_handle?: string
     },
@@ -1797,9 +1799,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     if (filters?.org_id) {
       orgs = orgs.filter((org) => org.org_id === filters.org_id)
-    }
-    if (filters?.org_name) {
-      orgs = orgs.filter((org) => org.org_name === filters.org_name)
     }
     // if (filters?.org_name && auth?.account_id) {
     //   const account = get().accounts.find(x => x.account_id == auth?.account_id)

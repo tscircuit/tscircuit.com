@@ -70,11 +70,7 @@ export const withSessionAuth: Middleware<
             )
             return {
               org_id: oa.org_id,
-              name:
-                org?.org_display_name ||
-                org?.org_name ||
-                org?.github_handle ||
-                oa.org_id,
+              name: org?.org_display_name || org?.github_handle || oa.org_id,
               user_permissions: { can_manage_packages: true },
             }
           })
@@ -135,11 +131,7 @@ export const withSessionAuth: Middleware<
         const org = state.organizations.find((o: any) => o.org_id === oa.org_id)
         return {
           org_id: oa.org_id,
-          name:
-            org?.org_display_name ||
-            org?.org_name ||
-            org?.github_handle ||
-            oa.org_id,
+          name: org?.org_display_name || org?.github_handle || oa.org_id,
           user_permissions: { can_manage_packages: true },
         }
       })

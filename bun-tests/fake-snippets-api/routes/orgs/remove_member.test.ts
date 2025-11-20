@@ -5,7 +5,7 @@ test("POST /api/orgs/remove_member - should remove a user from an org (resets to
   const { jane_axios, seed } = await getTestServer()
 
   const createResponse = await jane_axios.post("/api/orgs/create", {
-    name: "globex",
+    tscircuit_handle: "globex",
   })
   const org = createResponse.data.org
 
@@ -27,7 +27,7 @@ test("POST /api/orgs/remove_member - should fail for non-owner (403)", async () 
   const { jane_axios, axios, seed } = await getTestServer()
 
   const createResponse = await jane_axios.post("/api/orgs/create", {
-    name: "initech",
+    tscircuit_handle: "initech",
   })
   const org = createResponse.data.org
 

@@ -7,7 +7,6 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z
     .object({ org_id: z.string() })
-    .or(z.object({ org_name: z.string() }))
     .or(z.object({ github_handle: z.string() }))
     .or(z.object({ tscircuit_handle: z.string() })),
   auth: "optional_session",
@@ -17,7 +16,6 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const params = req.commonParams as {
     org_id?: string
-    org_name?: string
     github_handle?: string
     tscircuit_handle?: string
   }
@@ -25,7 +23,6 @@ export default withRouteSpec({
   const org = ctx.db.getOrg(
     {
       org_id: params.org_id,
-      org_name: params.org_name,
       github_handle: params.github_handle,
       tscircuit_handle: params.tscircuit_handle,
     },

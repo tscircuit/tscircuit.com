@@ -17,7 +17,6 @@ test("GET /api/orgs/get - should return org by org_id", async () => {
   const responseBody2 = getNotOwnerResponse.data
   expect(responseBody.org).toBeDefined()
   expect(responseBody.org.org_id).toBe(seed.organization.org_id)
-  expect(responseBody.org.name).toBe(seed.organization.org_name)
   expect(responseBody.org.github_handle).toBe(seed.organization.github_handle)
   expect(responseBody.org.tscircuit_handle).toBe(
     seed.organization.tscircuit_handle,
