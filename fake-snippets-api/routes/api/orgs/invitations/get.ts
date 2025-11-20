@@ -14,6 +14,7 @@ export default withRouteSpec({
       is_pending: z.boolean(),
       is_accepted: z.boolean(),
       is_revoked: z.boolean(),
+      is_expired: z.boolean(),
       created_at: z.string(),
       expires_at: z.string(),
       org: z.object({
@@ -53,6 +54,13 @@ export default withRouteSpec({
     (acc) => acc.account_id === invitation.inviter_account_id,
   )
 
+  // Compute is_expired dynamically
+  const now = new Date()
+  const is_expired =
+    invitation.is_pending &&
+    !invitation.is_revoked &&
+    new Date(invitation.expires_at) < now
+
   return ctx.json({
     invitation: {
       org_invitation_id: invitation.org_invitation_id,
@@ -60,6 +68,7 @@ export default withRouteSpec({
       is_pending: invitation.is_pending,
       is_accepted: invitation.is_accepted,
       is_revoked: invitation.is_revoked,
+      is_expired,
       created_at: invitation.created_at,
       expires_at: invitation.expires_at,
       org: {

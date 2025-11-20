@@ -19,13 +19,13 @@ export const useOrgSignIn = () => {
   const isUsingFakeApi = useIsUsingFakeApi()
 
   return useCallback(
-    (provider: OrgAuthProvider) => {
+    (provider: OrgAuthProvider, customRedirect?: string) => {
       const normalizedProvider: OrgAuthProvider =
         provider === "github" ? "github" : "google"
       const replaceHost = (value: string) =>
         value.replace("127.0.0.1", "localhost")
       const origin = replaceHost(window.location.origin)
-      const redirectPath = getOrgLoginRedirectPath()
+      const redirectPath = customRedirect || getOrgLoginRedirectPath()
       const redirectUrl = `${origin}${redirectPath}`
       const nextUrl = `${origin}/authorize?redirect=${encodeURIComponent(redirectUrl)}&workos=true`
 

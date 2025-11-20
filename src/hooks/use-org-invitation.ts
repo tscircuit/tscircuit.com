@@ -7,6 +7,7 @@ interface OrgInvitation {
   is_pending: boolean
   is_accepted: boolean
   is_revoked: boolean
+  is_expired: boolean
   created_at: string
   expires_at: string
   org: {

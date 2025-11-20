@@ -81,7 +81,8 @@ export default withRouteSpec({
   })
 
   // Log email sending (fake API doesn't actually send emails)
-  const inviteUrl = `https://tscircuit.com/orgs/invite/${invitation_token}`
+  const origin = req.headers.get("origin") || "http://localhost:5173"
+  const inviteUrl = `${origin}/orgs/invite?token=${invitation_token}`
   console.log(`[FAKE EMAIL] Sending invitation to ${invitee_email}`)
   console.log(
     `[FAKE EMAIL] Organization: ${org.tscircuit_handle || org.org_id}`,
