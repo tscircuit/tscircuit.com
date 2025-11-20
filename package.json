@@ -144,7 +144,7 @@
     "jscad-electronics": "^0.0.25",
     "jszip": "^3.10.1",
     "kicad-converter": "^0.0.17",
-    "kicadts": "^0.0.10",
+    "kicadts": "^0.0.22",
     "ky": "^1.7.5",
     "lucide-react": "^0.488.0",
     "lz-string": "^1.5.0",
@@ -200,5 +200,8 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
+  },
+  "dependencies": {
+    "kicad-to-circuit-json": "^0.0.17"
   }
 }

@@ -1,9 +1,11 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
+      "dependencies": {
+        "kicad-to-circuit-json": "^0.0.17",
+      },
       "devDependencies": {
         "@anthropic-ai/sdk": "^0.27.3",
         "@babel/preset-react": "^7.25.9",
@@ -112,7 +114,7 @@
         "jscad-electronics": "^0.0.25",
         "jszip": "^3.10.1",
         "kicad-converter": "^0.0.17",
-        "kicadts": "^0.0.10",
+        "kicadts": "^0.0.22",
         "ky": "^1.7.5",
         "lucide-react": "^0.488.0",
         "lz-string": "^1.5.0",
@@ -1588,7 +1590,9 @@
 
     "kicad-converter": ["kicad-converter@0.0.17", "", { "peerDependencies": { "tscircuit": "*", "typescript": "^5.0.0", "zod": "*" } }, "sha512-fb8B8frGrMkm52WRUo3XIhqkUSKERjNABtPAEP58Nyrcop0ux8++PlOptj6B6LzXWw3Rkt3EgjDillqGjoPfAg=="],
 
-    "kicadts": ["kicadts@0.0.10", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-IREWrfp7IOjAiptHLodWH6WYip+PfMlM2s4q9GwWr8hxrG0UOgUeosisUcOudDOv0/2ZH+XzIzDNksNSmU6AwQ=="],
+    "kicad-to-circuit-json": ["kicad-to-circuit-json@0.0.17", "", { "dependencies": { "schematic-symbols": "^0.0.202" }, "peerDependencies": { "typescript": "^5" } }, "sha512-zXEMnov7XJDJXqlq11uXSyplkya3jwBTfr/If0CqnPLeEEInkEw+F1LUpMsUT1iE69ATH8qZ9axRxjnis8RHNQ=="],
+
+    "kicadts": ["kicadts@0.0.22", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-lB1Zy3eP0itLcThqlAkfXpUac+18wZB0ruYHH0NilB5YqcvWNlomnoLmB+F5anGu9mlo0bN/REku+Palb78a2w=="],
 
     "kind-of": ["kind-of@3.2.2", "", { "dependencies": { "is-buffer": "^1.1.5" } }, "sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ=="],
 
