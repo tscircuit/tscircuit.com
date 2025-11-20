@@ -476,6 +476,24 @@ export const orgAccountSchema = z.object({
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
 
+export const orgInvitationSchema = z.object({
+  org_invitation_id: z.string(),
+  org_id: z.string(),
+  invitee_email: z.string().email().nullable(),
+  inviter_account_id: z.string(),
+  invitation_token: z.string(),
+  is_link_invite: z.boolean().default(false),
+  is_pending: z.boolean().default(true),
+  is_accepted: z.boolean().default(false),
+  is_expired: z.boolean().default(false),
+  is_revoked: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  expires_at: z.string().datetime(),
+  accepted_at: z.string().datetime().nullable(),
+  accepted_by_account_id: z.string().nullable(),
+})
+export type OrgInvitation = z.infer<typeof orgInvitationSchema>
+
 export const userPermissionsSchema = z.object({
   can_manage_org: z.boolean().optional(),
   can_manage_package: z.boolean().optional(),
@@ -509,6 +527,7 @@ export const databaseSchema = z.object({
   orders: z.array(orderSchema).default([]),
   organizations: z.array(orgSchema).default([]),
   orgAccounts: z.array(orgAccountSchema).default([]),
+  orgInvitations: z.array(orgInvitationSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
   accountPackages: z.array(accountPackageSchema).default([]),
