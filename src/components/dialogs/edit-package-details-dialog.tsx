@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import {
   Select,
   SelectContent,
@@ -28,6 +28,7 @@ import { ChevronDown } from "lucide-react"
 import { useLocation } from "wouter"
 import { useDeletePackage } from "@/hooks/use-delete-package"
 import { GitHubRepositorySelector } from "./GitHubRepositorySelector"
+import { normalizeName } from "@/lib/utils/normalizeName"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -95,6 +96,11 @@ export const EditPackageDetailsDialog = ({
   const [dangerOpen, setDangerOpen] = useState(false)
   const [, setLocation] = useLocation()
 
+  const normalizedPackageName = useMemo(() => {
+    if (!formData.unscopedPackageName.trim()) return ""
+    return normalizeName(formData.unscopedPackageName)
+  }, [formData.unscopedPackageName])
+
   const deletePackageMutation = useDeletePackage({
     onSuccess: async () => {
       await qc.invalidateQueries(["packages"]) // Invalidate the packages query
@@ -126,8 +132,8 @@ export const EditPackageDetailsDialog = ({
           formData.githubRepoFullName === "unlink//repo"
             ? null
             : formData.githubRepoFullName,
-        ...(formData.unscopedPackageName !== unscopedPackageName && {
-          name: formData.unscopedPackageName.trim(),
+        ...(normalizedPackageName !== unscopedPackageName && {
+          name: normalizedPackageName,
         }),
       })
       if (response.status !== 200)
@@ -135,7 +141,7 @@ export const EditPackageDetailsDialog = ({
 
       const filesRes = await axios.get("/package_files/list", {
         params: {
-          package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+          package_name_with_version: `${packageAuthor}/${normalizedPackageName}`,
         },
       })
       const packageFiles: string[] =
@@ -150,25 +156,24 @@ export const EditPackageDetailsDialog = ({
       if (hasLicenseChanged) {
         if (packageFiles.includes("LICENSE") && !licenseContent) {
           await axios.post("/package_files/delete", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+            package_name_with_version: `${packageAuthor}/${normalizedPackageName}`,
             file_path: "LICENSE",
           })
         }
         if (licenseContent) {
           await axios.post("/package_files/create_or_update", {
-            package_name_with_version: `${packageAuthor}/${formData.unscopedPackageName}`,
+            package_name_with_version: `${packageAuthor}/${normalizedPackageName}`,
             file_path: "LICENSE",
             content_text: licenseContent,
           })
         }
       }
 
-      if (formData.unscopedPackageName !== unscopedPackageName) {
-        // Use router for client-side navigation
+      if (normalizedPackageName !== unscopedPackageName) {
         window.history.replaceState(
           {},
           "",
-          `/${packageAuthor}/${formData.unscopedPackageName}`,
+          `/${packageAuthor}/${normalizedPackageName}`,
         )
       }
 
@@ -267,14 +272,25 @@ export const EditPackageDetailsDialog = ({
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        unscopedPackageName: e.target.value.replace(/\s+/g, ""),
+                        unscopedPackageName: e.target.value,
                       }))
                     }
-                    placeholder="Enter package name"
+                    placeholder="my-awesome-package"
                     disabled={updatePackageDetailsMutation.isLoading}
                     className="w-full"
                     autoComplete="off"
                   />
+                  {formData.unscopedPackageName.trim() &&
+                    normalizedPackageName !==
+                      formData.unscopedPackageName.trim() &&
+                    normalizedPackageName && (
+                      <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
+                        <span>Will be saved as:</span>
+                        <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 font-mono break-all">
+                          {`${packageAuthor}/${normalizedPackageName}`}
+                        </code>
+                      </div>
+                    )}
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="website">Website</Label>
@@ -453,7 +469,8 @@ export const EditPackageDetailsDialog = ({
                 disabled={
                   updatePackageDetailsMutation.isLoading ||
                   !hasChanges ||
-                  !isFormValid
+                  !isFormValid ||
+                  !normalizedPackageName
                 }
                 className="sm:w-auto lg:w-[115px]"
               >
