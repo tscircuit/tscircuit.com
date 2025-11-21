@@ -18,7 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getBuildStatus, getUserCodeStatus, StatusIcon } from "."
+import { getBuildStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
@@ -38,7 +38,7 @@ export const ConnectedRepoOverview = ({
   pkg: Package
   packageRelease: PackageRelease
 }) => {
-  const { status, label } = getUserCodeStatus(packageRelease) // getBuildStatus(packageBuild ?? null)
+  const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
     userCode: false,
   })
@@ -136,17 +136,17 @@ export const ConnectedRepoOverview = ({
   }
 
   const buildDuration = (() => {
-    const userCodeDuration = packageRelease?.user_code_started_at
+    const userCodeDuration = packageBuild?.user_code_started_at
       ? Math.floor(
           (new Date(
-            packageRelease.user_code_completed_at || new Date(),
+            packageBuild.user_code_completed_at || new Date(),
           ).getTime() -
-            new Date(packageRelease.user_code_started_at).getTime()) /
+            new Date(packageBuild.user_code_started_at).getTime()) /
             1000,
         )
       : 0
 
-    if (!packageRelease?.user_code_started_at) {
+    if (!packageBuild?.user_code_started_at) {
       return null
     }
 
@@ -240,38 +240,39 @@ export const ConnectedRepoOverview = ({
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 group">
-              {packageRelease?.is_pr_preview ? (
-                <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              ) : (
-                <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              )}
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  {packageRelease?.is_pr_preview ? "PR" : "Branch"}
-                </p>
-                <a
-                  href={
-                    packageRelease?.is_pr_preview
-                      ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
-                      : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block"
-                >
-                  <Badge
-                    variant="outline"
-                    className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
+            {pkg.github_repo_full_name && (
+              <div className="flex items-center gap-3 group">
+                {packageRelease?.is_pr_preview ? (
+                  <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+                ) : (
+                  <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+                )}
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">
+                    {packageRelease?.is_pr_preview ? "PR" : "Branch"}
+                  </p>
+                  <a
+                    href={
+                      packageRelease?.is_pr_preview
+                        ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
+                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block"
                   >
-                    {packageRelease?.is_pr_preview
-                      ? `#${packageRelease.github_pr_number}`
-                      : packageRelease?.branch_name || "main"}
-                  </Badge>
-                </a>
+                    <Badge
+                      variant="outline"
+                      className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      {packageRelease?.is_pr_preview
+                        ? `#${packageRelease.github_pr_number}`
+                        : packageRelease?.branch_name || "main"}
+                    </Badge>
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-center gap-3 group">
               <User className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
@@ -298,9 +299,9 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <p
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${packageBuild.build_started_at}`}
+                  title={`Build started at ${packageBuild.user_code_started_at}`}
                 >
-                  {buildDuration || 0}s
+                  {buildDuration !== null ? buildDuration : "N/A"}s
                 </p>
               </div>
             </div>
@@ -341,9 +342,9 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
                 />
-                {packageRelease.user_code_error ? (
+                {packageBuild.user_code_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageRelease.user_code_completed_at ? (
+                ) : packageBuild.user_code_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 ) : userCodeJobInProgress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
@@ -354,27 +355,27 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  packageRelease.user_code_started_at,
-                  packageRelease.user_code_completed_at,
+                  packageBuild.user_code_started_at,
+                  packageBuild.user_code_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      packageRelease.user_code_started_at,
-                      packageRelease.user_code_completed_at,
+                      packageBuild.user_code_started_at,
+                      packageBuild.user_code_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      packageRelease.user_code_error?.message || null,
-                      packageRelease.user_code_completed_at,
+                      packageBuild.user_code_error?.message || null,
+                      packageBuild.user_code_completed_at,
                       userCodeJobInProgress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            packageRelease.user_code_error?.message || null,
-                            packageRelease.user_code_completed_at,
+                            packageBuild.user_code_error?.message || null,
+                            packageBuild.user_code_completed_at,
                             userCodeJobInProgress,
                           ) === "error"
                         ? "destructive"
@@ -382,9 +383,9 @@ export const ConnectedRepoOverview = ({
                   }
                   className="text-xs"
                 >
-                  {packageRelease.user_code_error
+                  {packageBuild.user_code_error
                     ? "Failed"
-                    : packageRelease.user_code_completed_at
+                    : packageBuild.user_code_completed_at
                       ? "Completed"
                       : userCodeJobInProgress
                         ? "Running"
@@ -396,14 +397,14 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-2">
-                {packageRelease.user_code_error && (
+                {packageBuild.user_code_error && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
                     <strong>Error:</strong>{" "}
                     {getErrorMessage(packageRelease.user_code_error)}
                   </div>
                 )}
                 {userCodeJobInProgress &&
-                  packageRelease.user_code_log_stream_url && (
+                  packageBuild.user_code_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span className="text-xs font-medium">
@@ -411,10 +412,10 @@ export const ConnectedRepoOverview = ({
                       </span>
                     </div>
                   )}
-                {packageRelease.user_code_build_logs &&
-                  packageRelease.user_code_build_logs.length > 0 && (
+                {packageBuild.user_code_build_logs &&
+                  packageBuild.user_code_build_logs.length > 0 && (
                     <>
-                      {packageRelease.user_code_build_logs.map(
+                      {packageBuild.user_code_build_logs.map(
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
@@ -439,17 +440,17 @@ export const ConnectedRepoOverview = ({
                     <div ref={logsEndRef} />
                   </>
                 )}
-                {packageRelease.user_code_build_logs?.length === 0 &&
+                {packageBuild.user_code_build_logs?.length === 0 &&
                   usercodeStreamedLogs.length === 0 &&
-                  !packageRelease.user_code_error &&
+                  !packageBuild.user_code_error &&
                   !userCodeJobInProgress && (
                     <div className="text-gray-500">No logs available</div>
                   )}
-                {packageRelease.user_code_log_stream_url &&
+                {packageBuild.user_code_log_stream_url &&
                   !userCodeJobInProgress && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <a
-                        href={packageRelease.user_code_log_stream_url}
+                        href={packageBuild.user_code_log_stream_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"

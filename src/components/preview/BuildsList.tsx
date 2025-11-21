@@ -153,16 +153,28 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
-                                {release.is_pr_preview ? (
-                                  <GitBranch className="w-3 h-3 text-gray-500" />
+                                {pkg?.github_repo_full_name ? (
+                                  <>
+                                    {release.is_pr_preview ? (
+                                      <GitBranch className="w-3 h-3 text-gray-500" />
+                                    ) : (
+                                      <GitCommit className="w-3 h-3 text-gray-500" />
+                                    )}
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      {release.is_pr_preview
+                                        ? `#${release.github_pr_number}`
+                                        : "main"}
+                                    </Badge>
+                                  </>
                                 ) : (
-                                  <GitCommit className="w-3 h-3 text-gray-500" />
+                                  <span className="text-sm text-gray-500 text-center">
+                                    {" "}
+                                    N/A{" "}
+                                  </span>
                                 )}
-                                <Badge variant="outline" className="text-xs">
-                                  {release.is_pr_preview
-                                    ? `#${release.github_pr_number}`
-                                    : "main"}
-                                </Badge>
                               </div>
                             </TableCell>
                             <TableCell>
