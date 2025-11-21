@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo } from "react"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
+import { useOrganization } from "@/hooks/use-organization"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
@@ -24,6 +25,14 @@ export default function SidebarAboutSection({
   const { packageRelease } = useCurrentPackageRelease({
     include_ai_review: true,
   })
+
+  const { organization } = useOrganization(
+    packageInfo?.owner_org_id
+      ? { orgId: String(packageInfo.owner_org_id) }
+      : packageInfo?.owner_github_username
+        ? { github_handle: packageInfo.owner_github_username }
+        : {},
+  )
 
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
@@ -51,6 +60,14 @@ export default function SidebarAboutSection({
     isLoggedIn &&
     packageInfo?.owner_github_username ===
       useGlobalStore((s) => s.session?.github_username)
+
+  const canManageOrg = useMemo(() => {
+    if (isOwner) return isOwner
+    if (organization) {
+      return organization.user_permissions?.can_manage_org
+    }
+    return false
+  }, [isOwner, organization])
 
   // Local state to store updated values before the query refetches
   const [localDescription, setLocalDescription] = useState<string>("")
@@ -106,7 +123,7 @@ export default function SidebarAboutSection({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">About</h2>
-          {isOwner && (
+          {canManageOrg && (
             <Button
               variant="ghost"
               size="sm"
