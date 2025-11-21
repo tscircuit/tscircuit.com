@@ -15,7 +15,7 @@ test("POST /api/orgs/delete - should delete an organization", async () => {
   })
 
   expect(deleteResponse.status).toBe(200)
-  expect(deleteResponse.data.success).toBe(true)
+  expect(deleteResponse.data.ok).toBe(true)
 
   try {
     await jane_axios.get("/api/orgs/get", {
