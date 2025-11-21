@@ -172,7 +172,7 @@ export const DashboardPage = () => {
                           key={pkg.package_id}
                           pkg={pkg}
                           isCurrentUserPackage={
-                            pkg.owner_github_username === currentUser
+                            pkg.creator_account_id === currentUser?.account_id
                           }
                           onDeleteClick={handleDeleteClick}
                         />
