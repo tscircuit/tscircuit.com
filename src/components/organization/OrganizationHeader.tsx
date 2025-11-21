@@ -48,17 +48,26 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             />
 
             <div>
-              <div className="flex flex-col items-center gap-3 mb-3">
+              <div className="flex flex-col items-center gap-1 md:gap-3 mb-3">
                 <Link
-                  href={`/${organization.name}`}
+                  href={`/${organization.tscircuit_handle}`}
                   className="font-bold text-gray-900 text-xl"
                 >
-                  {organization.display_name || organization.name}
+                  {organization.display_name || organization.tscircuit_handle}
                 </Link>
+                {organization.tscircuit_handle && (
+                  <Link
+                    href={`/${organization.tscircuit_handle}`}
+                    className="text-gray-500 text-sm hover:text-gray-700"
+                  >
+                    @{organization.tscircuit_handle}
+                  </Link>
+                )}
                 {canManageOrg && showActions && (
                   <Button
                     variant="outline"
                     size="sm"
+                    className="w-full md:w-auto mt-3 md:mt-0"
                     onClick={handleSettingsClick}
                   >
                     <Settings className="mr-2 h-4 w-4" />
@@ -99,12 +108,19 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-3">
-                <Link
-                  href={`/${organization.name}`}
-                  className="font-bold text-gray-900 text-2xl md:text-3xl truncate"
-                >
-                  {organization.display_name || organization.name}
-                </Link>
+                <div>
+                  <Link
+                    href={`/${organization.name}`}
+                    className="font-bold text-gray-900 text-2xl md:text-3xl truncate"
+                  >
+                    {organization.display_name || organization.name}
+                  </Link>
+                  {organization.tscircuit_handle && (
+                    <div className="text-gray-500 text-base font-medium">
+                      @{organization.tscircuit_handle}
+                    </div>
+                  )}
+                </div>
                 {canManageOrg && showActions && (
                   <Button variant="outline" onClick={handleSettingsClick}>
                     <Settings className="mr-2 h-4 w-4" />
