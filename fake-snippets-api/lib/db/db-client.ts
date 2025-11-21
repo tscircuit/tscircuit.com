@@ -1624,10 +1624,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return updated
   },
   addPackageBuild: (
-    packageBuild: Omit<z.input<typeof packageBuildSchema>, "package_build_id">,
+    packageBuild: Partial<
+      Omit<z.input<typeof packageBuildSchema>, "package_build_id">
+    > & {
+      package_release_id: string
+    },
   ): PackageBuild => {
     const newPackageBuild = packageBuildSchema.parse({
       package_build_id: crypto.randomUUID(),
+      user_code_build_logs: null,
+      image_generation_logs: null,
       ...packageBuild,
     })
     set((state) => ({

@@ -127,6 +127,11 @@ test("GET /api/package_builds/get - successfully returns package build with logs
 
   const res = await axios.get(
     `/api/package_builds/get?package_build_id=${packageBuild.package_build_id}`,
+    {
+      params: {
+        include_logs: true,
+      },
+    },
   )
   expect(res.status).toBe(200)
   expect(res.data.package_build).toBeDefined()
@@ -172,6 +177,11 @@ test("GET /api/package_builds/get - returns package build without logs when incl
 
   const res = await axios.get(
     `/api/package_builds/get?package_build_id=${packageBuild.package_build_id}`,
+    {
+      params: {
+        include_logs: true,
+      },
+    },
   )
   expect(res.status).toBe(200)
   expect(res.data.package_build).toBeDefined()
@@ -266,6 +276,11 @@ test("GET /api/package_builds/get - handles build in progress", async () => {
 
   const res = await axios.get(
     `/api/package_builds/get?package_build_id=${packageBuild.package_build_id}`,
+    {
+      params: {
+        include_logs: true,
+      },
+    },
   )
   expect(res.status).toBe(200)
   expect(res.data.package_build).toBeDefined()

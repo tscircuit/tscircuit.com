@@ -247,7 +247,7 @@ test("GET /api/package_builds/list - returns created builds with logs or not", a
   const transpilationLogs = ["Transpiling files", "Transpilation done"]
   const circuitJsonBuildLogs = ["Generating circuit JSON", "Circuit JSON ready"]
 
-  await db.addPackageBuild({
+  db.addPackageBuild({
     package_release_id: package_release.package_release_id,
     created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     transpilation_in_progress: false,
@@ -285,8 +285,9 @@ test("GET /api/package_builds/list - returns created builds with logs or not", a
   expect(resWithoutLogs.status).toBe(200)
   expect(resWithoutLogs.data.package_builds.length).toBe(1)
   expect(resWithoutLogs.data.package_builds[0].build_logs).toBeNull()
-  expect(resWithoutLogs.data.package_builds[0].transpilation_logs).toEqual([])
-  expect(resWithoutLogs.data.package_builds[0].circuit_json_build_logs).toEqual(
-    [],
-  )
+  expect(resWithoutLogs.data.package_builds[0].transpilation_logs).toBeNull()
+  expect(
+    resWithoutLogs.data.package_builds[0].circuit_json_build_logs,
+  ).toBeNull()
+  expect(resWithoutLogs.data.package_builds[0].user_code_build_logs).toBeNull()
 })
