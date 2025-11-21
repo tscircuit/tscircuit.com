@@ -88,6 +88,9 @@ const OrganizationSettingsPage = lazyImport(
   () => import("@/pages/organization-settings"),
 )
 const UserSettingsPage = lazyImport(() => import("@/pages/user-settings"))
+const AcceptOrgInvitationPage = lazyImport(
+  () => import("@/pages/accept-org-invitation"),
+)
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -268,6 +271,9 @@ function App() {
 
             {/* Organization creation route */}
             <Route path="/orgs/new" component={CreateOrganizationPage} />
+
+            {/* Organization invitation route */}
+            <Route path="/orgs/invite" component={AcceptOrgInvitationPage} />
 
             {/* User settings */}
             <Route path="/settings" component={UserSettingsPage} />

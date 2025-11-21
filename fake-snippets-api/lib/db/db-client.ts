@@ -34,6 +34,7 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
+  OrgInvitation,
   UserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
@@ -1990,5 +1991,68 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return state
     })
     return deleted
+  },
+  addOrgInvitation: (invitation: {
+    org_id: string
+    invitee_email: string
+    inviter_account_id: string
+    invitation_token: string
+  }): OrgInvitation => {
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7) // 7 days from now
+
+    const newInvitation: OrgInvitation = {
+      org_invitation_id: `org_invitation_${get().idCounter + 1}`,
+      org_id: invitation.org_id,
+      invitee_email: invitation.invitee_email,
+      inviter_account_id: invitation.inviter_account_id,
+      invitation_token: invitation.invitation_token,
+      is_link_invite: false,
+      is_pending: true,
+      is_accepted: false,
+      is_expired: false,
+      is_revoked: false,
+      created_at: new Date().toISOString(),
+      expires_at: expiresAt.toISOString(),
+      accepted_at: null,
+      accepted_by_account_id: null,
+    }
+    set((state) => ({
+      orgInvitations: [...state.orgInvitations, newInvitation],
+      idCounter: state.idCounter + 1,
+    }))
+    return newInvitation
+  },
+  getOrgInvitationByToken: (token: string): OrgInvitation | undefined => {
+    const state = get()
+    return state.orgInvitations.find(
+      (invitation) => invitation.invitation_token === token,
+    )
+  },
+  listOrgInvitations: (orgId: string): OrgInvitation[] => {
+    const state = get()
+    return state.orgInvitations.filter(
+      (invitation) => invitation.org_id === orgId,
+    )
+  },
+  updateOrgInvitation: (
+    invitationId: string,
+    updates: Partial<OrgInvitation>,
+  ): OrgInvitation | undefined => {
+    let updatedInvitation: OrgInvitation | undefined
+    set((state) => {
+      const index = state.orgInvitations.findIndex(
+        (inv) => inv.org_invitation_id === invitationId,
+      )
+      if (index === -1) return state
+      const updatedInvitations = [...state.orgInvitations]
+      updatedInvitations[index] = {
+        ...updatedInvitations[index],
+        ...updates,
+      }
+      updatedInvitation = updatedInvitations[index]
+      return { ...state, orgInvitations: updatedInvitations }
+    })
+    return updatedInvitation
   },
 }))

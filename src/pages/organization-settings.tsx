@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -31,9 +31,12 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
-import { useAddOrgMemberMutation } from "@/hooks/use-add-org-member-mutation"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
 import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
+import { useCreateOrgInvitationMutation } from "@/hooks/use-create-org-invitation-mutation"
+import { useListOrgInvitations } from "@/hooks/use-list-org-invitations"
+import { useRevokeOrgInvitationMutation } from "@/hooks/use-revoke-org-invitation-mutation"
+import { InvitationStatusBadge } from "@/components/ui/invitation-status-badge"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
 import {
@@ -44,6 +47,9 @@ import {
   ArrowLeft,
   Building2,
   Trash2,
+  Mail,
+  Clock,
+  X,
 } from "lucide-react"
 import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -89,8 +95,12 @@ export default function OrganizationSettingsPage() {
   }>({ member: {} as Account, show: false })
   const [showDeleteOrgDialog, setShowDeleteOrgDialog] = useState(false)
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
-  const [newMemberInput, setNewMemberInput] = useState("")
-  const [addMemberError, setAddMemberError] = useState("")
+  const [inviteeEmail, setInviteeEmail] = useState("")
+  const [inviteError, setInviteError] = useState("")
+  const [invitationFilter, setInvitationFilter] = useState<
+    "all" | "pending" | "accepted" | "expired" | "revoked"
+  >("all")
+  const [showRevokeDialog, setShowRevokeDialog] = useState<string | null>(null)
 
   const form = useForm<OrganizationSettingsFormData>({
     resolver: zodResolver(organizationSettingsSchema),
@@ -105,6 +115,23 @@ export default function OrganizationSettingsPage() {
       orgId: organization?.org_id || "",
     },
   )
+
+  const { data: invitations = [], isLoading: isLoadingInvitations } =
+    useListOrgInvitations({
+      orgId: organization?.org_id,
+    })
+
+  const filteredInvitations = useMemo(() => {
+    return invitations.filter((inv) => {
+      if (invitationFilter === "all") return true
+      if (invitationFilter === "pending")
+        return inv.is_pending && !inv.is_expired
+      if (invitationFilter === "accepted") return inv.is_accepted
+      if (invitationFilter === "expired") return inv.is_expired
+      if (invitationFilter === "revoked") return inv.is_revoked
+      return false
+    })
+  }, [invitations, invitationFilter])
 
   const updateOrgMutation = useUpdateOrgMutation({
     onSuccess: (updatedOrg) => {
@@ -131,23 +158,43 @@ export default function OrganizationSettingsPage() {
     },
   })
 
-  const addMemberMutation = useAddOrgMemberMutation({
+  const createInvitationMutation = useCreateOrgInvitationMutation({
+    onSuccess: (data) => {
+      toast({
+        title: "Invitation sent",
+        description: `Invitation sent to ${data.invitee_email}`,
+      })
+      setInviteeEmail("")
+      setInviteError("")
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.data?.error?.message || "Failed to send invitation"
+
+      setInviteError(errorMessage)
+
+      toast({
+        title: "Failed to send invitation",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    },
+  })
+
+  const revokeInvitationMutation = useRevokeOrgInvitationMutation({
     onSuccess: () => {
       toast({
-        title: "Member added",
-        description: "Member has been added to the organization successfully.",
+        title: "Invitation revoked",
+        description: "The invitation has been cancelled.",
       })
-      setNewMemberInput("")
-      setAddMemberError("")
+      setShowRevokeDialog(null)
     },
     onError: (error: any) => {
       const errorMessage = error?.data?.error?.message
-      setAddMemberError(errorMessage)
-
       toast({
-        title: "Failed to add member",
+        title: "Failed to revoke invitation",
         description:
-          errorMessage || "An error occurred while adding the member.",
+          errorMessage || "An error occurred while revoking the invitation.",
         variant: "destructive",
       })
     },
@@ -224,7 +271,6 @@ export default function OrganizationSettingsPage() {
           <title>{pageTitle}</title>
         </Helmet>
         <Header />
-        <Redirect to="/dashboard" />
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <div className="mx-auto h-24 w-24 rounded-full bg-red-100 flex items-center justify-center mb-6">
@@ -324,51 +370,26 @@ export default function OrganizationSettingsPage() {
     updateOrgMutation.mutate(changedFields)
   }
 
-  const handleAddMember = () => {
-    if (!newMemberInput.trim() || !organization) return
+  const handleSendInvitation = () => {
+    if (!inviteeEmail.trim() || !organization) return
 
     // Clear previous errors
-    setAddMemberError("")
+    setInviteError("")
 
-    const input = newMemberInput.trim()
+    const email = inviteeEmail.trim()
 
-    // Basic validation
-    if (input.length < 1) {
-      setAddMemberError("Please enter a tscircuit handle.")
+    // Email validation using zod
+    const emailSchema = z.string().email()
+    const result = emailSchema.safeParse(email)
+
+    if (!result.success) {
+      setInviteError("Please enter a valid email address")
       return
     }
 
-    if (input.length > 50) {
-      setAddMemberError(
-        "tscircuit handles cannot be longer than 50 characters.",
-      )
-      return
-    }
-
-    // Check for invalid characters (tscircuit handles can contain alphanumeric characters, underscores, and hyphens)
-    if (!/^[a-zA-Z0-9_-]+$/.test(input)) {
-      setAddMemberError(
-        "tscircuit handles can only contain letters, numbers, underscores, and hyphens.",
-      )
-      return
-    }
-
-    // Check if it starts or ends with hyphen or underscore
-    if (
-      input.startsWith("-") ||
-      input.endsWith("-") ||
-      input.startsWith("_") ||
-      input.endsWith("_")
-    ) {
-      setAddMemberError(
-        "tscircuit handles cannot start or end with a hyphen or underscore.",
-      )
-      return
-    }
-
-    addMemberMutation.mutate({
+    createInvitationMutation.mutate({
       orgId: organization.org_id,
-      tscircuitHandle: input,
+      inviteeEmail: email,
     })
   }
 
@@ -583,151 +604,296 @@ export default function OrganizationSettingsPage() {
               </div>
 
               <div className="p-6 lg:p-8">
-                {/* Add Member Section */}
+                {/* Invite Member Section */}
                 <div className="mb-8 p-6 bg-gray-50 rounded-xl">
                   <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    Add a member
+                    <Mail className="h-5 w-5" />
+                    Invite member
                   </h3>
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
                     <div className="lg:col-span-4">
                       <Input
-                        id="member-input"
-                        placeholder="Enter tscircuit handle"
-                        value={newMemberInput}
+                        id="invite-email-input"
+                        type="email"
+                        placeholder="Enter email address"
+                        value={inviteeEmail}
                         onChange={(e) => {
-                          setNewMemberInput(e.target.value)
+                          setInviteeEmail(e.target.value)
                           // Clear error when user starts typing
-                          if (addMemberError) {
-                            setAddMemberError("")
+                          if (inviteError) {
+                            setInviteError("")
                           }
                         }}
-                        disabled={addMemberMutation.isLoading}
+                        disabled={createInvitationMutation.isLoading}
                         className={`w-full h-11 text-base bg-white focus:border-blue-500 focus:ring-blue-500 ${
-                          addMemberError
+                          inviteError
                             ? "border-red-300 focus:border-red-500 focus:ring-red-500"
                             : "border-gray-300"
                         }`}
                         onKeyDown={(e) => {
                           if (
                             e.key === "Enter" &&
-                            !addMemberMutation.isLoading
+                            !createInvitationMutation.isLoading
                           ) {
-                            handleAddMember()
+                            handleSendInvitation()
                           }
                         }}
                       />
-                      {addMemberError && (
+                      {inviteError && (
                         <p className="mt-2 text-sm text-red-600">
-                          {addMemberError}
+                          {inviteError}
                         </p>
                       )}
                     </div>
                     <div className="lg:col-span-1">
                       <Button
-                        onClick={handleAddMember}
+                        onClick={handleSendInvitation}
                         disabled={
-                          !newMemberInput.trim() || addMemberMutation.isLoading
+                          !inviteeEmail.trim() ||
+                          createInvitationMutation.isLoading
                         }
                         className="w-full md:h-11 bg-blue-600 hover:bg-blue-700 text-white px-6 text-sm font-medium shadow-sm"
                       >
-                        {addMemberMutation.isLoading ? (
+                        {createInvitationMutation.isLoading ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         ) : (
-                          <PlusIcon className="h-4 w-4 mr-2" />
+                          <Mail className="h-4 w-4 mr-2" />
                         )}
-                        Add member
+                        Send Invitation
                       </Button>
                     </div>
                   </div>
                 </div>
 
                 {/* Members List */}
-                <div className="space-y-0 border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden">
-                  {isLoadingMembers ? (
-                    <div className="flex items-center justify-center py-16">
-                      <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                    </div>
-                  ) : members.length === 0 ? (
-                    <div className="text-center py-16 text-gray-500">
-                      <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                      <p className="text-lg font-medium">No members found</p>
-                      <p className="text-sm mt-1">
-                        Add your first team member to get started.
-                      </p>
-                    </div>
-                  ) : (
-                    members.map((member) => {
-                      const role = getMemberRole(
-                        organization,
-                        member.account_id,
-                      )
-                      return (
-                        <div
-                          key={member.account_id}
-                          className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
-                        >
-                          <Link
-                            href={
-                              member.tscircuit_handle
-                                ? `/${member.tscircuit_handle}`
-                                : `#`
-                            }
-                            className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                <div className="mb-8">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                    <Users className="h-5 w-5" />
+                    Members
+                  </h3>
+                  <div className="space-y-0 border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden">
+                    {isLoadingMembers ? (
+                      <div className="flex items-center justify-center py-16">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                      </div>
+                    ) : members.length === 0 ? (
+                      <div className="text-center py-16 text-gray-500">
+                        <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium">No members found</p>
+                        <p className="text-sm mt-1">
+                          Add your first team member to get started.
+                        </p>
+                      </div>
+                    ) : (
+                      members.map((member) => {
+                        const role = getMemberRole(
+                          organization,
+                          member.account_id,
+                        )
+                        return (
+                          <div
+                            key={member.account_id}
+                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
                           >
-                            <GithubAvatarWithFallback
-                              username={member.github_username}
-                              fallback={
-                                member.tscircuit_handle || member.account_id
+                            <Link
+                              href={
+                                member.tscircuit_handle
+                                  ? `/${member.tscircuit_handle}`
+                                  : `#`
                               }
-                              className="h-12 w-12"
-                              fallbackClassName="text-sm font-medium"
-                              colorClassName="text-black"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
-                                  {member.tscircuit_handle || member.account_id}
-                                </span>
-                                {role !== "member" && <RoleBadge role={role} />}
+                              className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                            >
+                              <GithubAvatarWithFallback
+                                username={member.github_username}
+                                fallback={
+                                  member.tscircuit_handle || member.account_id
+                                }
+                                className="h-12 w-12"
+                                fallbackClassName="text-sm font-medium"
+                                colorClassName="text-black"
+                              />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
+                                    {member.tscircuit_handle ||
+                                      member.account_id}
+                                  </span>
+                                  {role !== "member" && (
+                                    <RoleBadge role={role} />
+                                  )}
+                                </div>
+                                <p className="hidden md:flex text-sm text-gray-500 truncate">
+                                  {getRoleDescription(role)}
+                                </p>
                               </div>
-                              <p className="hidden md:flex text-sm text-gray-500 truncate">
-                                {getRoleDescription(role)}
-                              </p>
+                            </Link>
+                            <div className="flex flex-wrap gap-4">
+                              {member.account_id !==
+                                organization.owner_account_id &&
+                                member.account_id !== session?.account_id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveMember(member)}
+                                    disabled={removeMemberMutation.isLoading}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
+                                  >
+                                    Remove
+                                  </Button>
+                                )}
+                              {member.account_id !==
+                                organization.owner_account_id &&
+                                member.account_id !== session?.account_id &&
+                                organization.user_permissions
+                                  ?.can_manage_org && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={true}
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 self-start sm:self-center px-4 py-2"
+                                  >
+                                    Edit
+                                  </Button>
+                                )}
                             </div>
-                          </Link>
-                          <div className="flex flex-wrap gap-4">
-                            {member.account_id !==
-                              organization.owner_account_id &&
-                              member.account_id !== session?.account_id && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRemoveMember(member)}
-                                  disabled={removeMemberMutation.isLoading}
-                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
-                                >
-                                  Remove
-                                </Button>
-                              )}
-                            {member.account_id !==
-                              organization.owner_account_id &&
-                              member.account_id !== session?.account_id &&
-                              organization.user_permissions?.can_manage_org && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  disabled={true}
-                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 self-start sm:self-center px-4 py-2"
-                                >
-                                  Edit
-                                </Button>
-                              )}
                           </div>
-                        </div>
-                      )
-                    })
-                  )}
+                        )
+                      })
+                    )}
+                  </div>
                 </div>
+
+                {/* Invitations Section */}
+                {invitations.length > 0 && (
+                  <div className="mt-8">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                        <Mail className="h-5 w-5" />
+                        Invitations
+                      </h3>
+                      <div
+                        className="flex gap-2"
+                        role="group"
+                        aria-label="Filter invitations by status"
+                      >
+                        {(
+                          [
+                            "all",
+                            "pending",
+                            "accepted",
+                            "expired",
+                            "revoked",
+                          ] as const
+                        ).map((filter) => (
+                          <Button
+                            key={filter}
+                            variant={
+                              invitationFilter === filter
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setInvitationFilter(filter)}
+                            className="capitalize"
+                            aria-label={`Show ${filter} invitations`}
+                            aria-pressed={invitationFilter === filter}
+                          >
+                            {filter}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-0 border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden">
+                      {isLoadingInvitations ? (
+                        <div className="flex items-center justify-center py-16">
+                          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        </div>
+                      ) : filteredInvitations.length === 0 ? (
+                        <div className="text-center py-16 text-gray-500">
+                          <Mail className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                          <p className="text-lg font-medium">
+                            No{" "}
+                            {invitationFilter !== "all" ? invitationFilter : ""}{" "}
+                            invitations
+                          </p>
+                        </div>
+                      ) : (
+                        filteredInvitations.map((invitation) => {
+                          const status = invitation.is_revoked
+                            ? "revoked"
+                            : invitation.is_accepted
+                              ? "accepted"
+                              : invitation.is_expired
+                                ? "expired"
+                                : "pending"
+                          const inviterName =
+                            invitation.inviter.tscircuit_handle ||
+                            invitation.inviter.github_username ||
+                            "Unknown"
+
+                          return (
+                            <div
+                              key={invitation.org_invitation_id}
+                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-gray-900">
+                                    {invitation.invitee_email || "No email"}
+                                  </span>
+                                  <InvitationStatusBadge status={status} />
+                                </div>
+                                <p className="text-sm text-gray-500">
+                                  Invited by {inviterName} on{" "}
+                                  {new Date(
+                                    invitation.created_at,
+                                  ).toLocaleDateString()}
+                                </p>
+                                {invitation.is_accepted &&
+                                  invitation.accepted_at && (
+                                    <p className="text-xs text-green-600 mt-1">
+                                      Accepted on{" "}
+                                      {new Date(
+                                        invitation.accepted_at,
+                                      ).toLocaleDateString()}
+                                    </p>
+                                  )}
+                                {invitation.is_pending &&
+                                  !invitation.is_expired && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Expires on{" "}
+                                      {new Date(
+                                        invitation.expires_at,
+                                      ).toLocaleDateString()}
+                                    </p>
+                                  )}
+                              </div>
+                              {invitation.is_pending &&
+                                !invitation.is_expired && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      setShowRevokeDialog(
+                                        invitation.org_invitation_id,
+                                      )
+                                    }
+                                    disabled={
+                                      revokeInvitationMutation.isLoading
+                                    }
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
+                                  >
+                                    Revoke
+                                  </Button>
+                                )}
+                            </div>
+                          )
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -856,6 +1022,41 @@ export default function OrganizationSettingsPage() {
                 Yes, Delete Organization
               </Button>
             )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Revoke Invitation Confirmation Dialog */}
+      <AlertDialog
+        open={showRevokeDialog !== null}
+        onOpenChange={(open) => !open && setShowRevokeDialog(null)}
+      >
+        <AlertDialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Revoke invitation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to revoke this invitation? The invitation
+              link will no longer work.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (showRevokeDialog) {
+                  revokeInvitationMutation.mutate({
+                    invitationId: showRevokeDialog,
+                  })
+                }
+              }}
+              disabled={revokeInvitationMutation.isLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {revokeInvitationMutation.isLoading && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Revoke invitation
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
