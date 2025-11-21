@@ -8,7 +8,7 @@ export default withRouteSpec({
   }),
   auth: "session",
   jsonResponse: z.object({
-    success: z.boolean(),
+    ok: z.boolean(),
   }),
 })(async (req, ctx) => {
   const { org_id } = req.commonParams
@@ -22,10 +22,10 @@ export default withRouteSpec({
     })
   }
 
-  if (org.owner_account_id !== ctx.auth.account_id) {
+  if (!org.can_manage_org) {
     return ctx.error(403, {
       error_code: "not_authorized",
-      message: "Only the organization owner can delete the organization",
+      message: "You do not have permission to manage this organization",
     })
   }
 
@@ -33,6 +33,17 @@ export default withRouteSpec({
     return ctx.error(400, {
       error_code: "cannot_delete_personal_org",
       message: "Personal organizations cannot be deleted",
+    })
+  }
+
+  const packageCount = ctx.db.packages.filter(
+    (pkg) => pkg.owner_org_id === org_id,
+  ).length
+
+  if (packageCount > 0) {
+    return ctx.error(400, {
+      error_code: "org_has_packages",
+      message: "Cannot delete organization with existing packages",
     })
   }
 
@@ -46,6 +57,6 @@ export default withRouteSpec({
   }
 
   return ctx.json({
-    success: true,
+    ok: true,
   })
 })
