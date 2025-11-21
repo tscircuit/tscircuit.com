@@ -11,6 +11,8 @@ export const errorResponseSchema = z.object({
   error: errorSchema,
 })
 
+export const log = z.any()
+
 export const snippetSchema = z.object({
   snippet_id: z.string(),
   package_release_id: z.string(),
@@ -433,17 +435,17 @@ export const packageBuildSchema = z.object({
   transpilation_in_progress: z.boolean().default(false),
   transpilation_started_at: z.string().datetime().nullable().optional(),
   transpilation_completed_at: z.string().datetime().nullable().optional(),
-  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_logs: z.array(log).nullable(),
   transpilation_error: z.string().nullable().optional(),
   circuit_json_build_in_progress: z.boolean().default(false),
   circuit_json_build_started_at: z.string().datetime().nullable().optional(),
   circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
-  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_logs: z.array(log).nullable(),
   circuit_json_build_error: z.string().nullable().optional(),
   image_generation_in_progress: z.boolean().default(false),
   image_generation_started_at: z.string().datetime().nullable().optional(),
   image_generation_completed_at: z.string().datetime().nullable().optional(),
-  image_generation_logs: z.array(z.any()).default([]),
+  image_generation_logs: z.array(log).nullable(),
   image_generation_error: z.string().nullable().optional(),
   build_in_progress: z.boolean().default(false),
   build_started_at: z.string().datetime().nullable().optional(),
@@ -452,6 +454,11 @@ export const packageBuildSchema = z.object({
   build_error_last_updated_at: z.string().datetime(),
   preview_url: z.string().nullable().optional(),
   build_logs: z.string().nullable().optional(),
+  user_code_started_at: z.string().datetime().nullable().optional(),
+  user_code_completed_at: z.string().datetime().nullable().optional(),
+  user_code_error: z.any().nullable().optional(),
+  user_code_build_logs: z.array(log).nullable(),
+  user_code_log_stream_url: z.string().nullable().optional(),
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
 
