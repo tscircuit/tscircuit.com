@@ -18,7 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getBuildStatus, StatusIcon } from "."
+import { getBuildStatus, getUserCodeStatus, StatusIcon } from "."
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
@@ -38,7 +38,7 @@ export const ConnectedRepoOverview = ({
   pkg: Package
   packageRelease: PackageRelease
 }) => {
-  const { status, label } = getBuildStatus(packageBuild ?? null)
+  const { status, label } = getUserCodeStatus(packageRelease) // getBuildStatus(packageBuild ?? null)
   const [openSections, setOpenSections] = useState({
     userCode: false,
   })
