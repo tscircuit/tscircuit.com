@@ -110,7 +110,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <Link
-                    href={`/${organization.name}`}
+                    href={`/${organization.tscircuit_handle}`}
                     className="font-bold text-gray-900 text-2xl md:text-3xl truncate"
                   >
                     {organization.display_name || organization.name}
