@@ -3,6 +3,7 @@ export { BuildsList } from "./BuildsList"
 export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
 import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+
 export const getBuildStatus = (
   build?: PackageBuild | null,
 ): {
@@ -12,6 +13,35 @@ export const getBuildStatus = (
   if (!build) {
     return { status: "pending", label: "No builds" }
   }
+
+  if (
+    build.user_code_error &&
+    (typeof build.user_code_error === "object" ||
+      typeof build.user_code_error === "string")
+  ) {
+    return { status: "error", label: "Failed" }
+  }
+
+  if (
+    build.user_code_started_at &&
+    !build.user_code_completed_at &&
+    !build.user_code_error
+  ) {
+    return { status: "building", label: "Building" }
+  }
+
+  if (build.user_code_completed_at && !build.user_code_error) {
+    return { status: "success", label: "Ready" }
+  }
+
+  if (
+    build.user_code_started_at &&
+    build.user_code_completed_at &&
+    build.user_code_error
+  ) {
+    return { status: "error", label: "Failed" }
+  }
+
   if (
     build?.build_error ||
     build?.transpilation_error ||
@@ -40,7 +70,7 @@ export const getBuildStatus = (
   return { status: "queued", label: "Queued" }
 }
 
-export const getUserCodeStatus = (
+export const getUserCodeStatusFromRelease = (
   packageRelease?: PackageRelease | null,
 ): {
   status: "pending" | "building" | "success" | "error" | "queued"

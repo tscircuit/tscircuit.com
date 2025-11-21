@@ -11,7 +11,7 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { getBuildStatus, getUserCodeStatus } from "."
+import { getBuildStatus } from "."
 import { Link } from "wouter"
 import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import {
@@ -32,7 +32,7 @@ export const PackageReleasesDashboard = ({
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
-  const { status, label } = getUserCodeStatus(latestRelease)
+  const { status, label } = getBuildStatus(latestBuild)
   const { toastLibrary } = useToast()
   const { downloadZip } = useDownloadZip()
   const { data: packageFiles } = usePackageFiles(
@@ -200,7 +200,9 @@ export const PackageReleasesDashboard = ({
                         if (navigator.share) {
                           navigator.share({
                             title: pkg.unscoped_name,
-                            url: window.location.href,
+                            url: window.location.href.endsWith("/releases")
+                              ? window.location.href.slice(0, -9)
+                              : window.location.href,
                           })
                         } else {
                           navigator.clipboard.writeText(window.location.href)
