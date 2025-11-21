@@ -1,7 +1,13 @@
 import * as ZT from "fake-snippets-api/lib/db/schema"
 
 export const publicMapPackageBuild = (
-  internalPackageBuild: ZT.PackageBuild,
+  internalPackageBuild: ZT.PackageBuild & {
+    user_code_job_error?: any | null
+    user_code_job_completed_at?: string | null
+    user_code_job_completed_logs?: any | null
+    user_code_job_log_stream_url?: string | null
+    user_code_job_started_at?: string | null
+  },
   options: {
     include_logs?: boolean
   } = {
@@ -42,6 +48,15 @@ export const publicMapPackageBuild = (
       internalPackageBuild.build_error_last_updated_at,
     preview_url: internalPackageBuild.preview_url,
     build_logs: options.include_logs ? internalPackageBuild.build_logs : null,
+    user_code_started_at: internalPackageBuild.user_code_job_started_at ?? null,
+    user_code_completed_at:
+      internalPackageBuild.user_code_job_completed_at ?? null,
+    user_code_error: internalPackageBuild.user_code_job_error ?? null,
+    user_code_build_logs: options.include_logs
+      ? internalPackageBuild.user_code_job_completed_logs
+      : null,
+    user_code_log_stream_url:
+      internalPackageBuild.user_code_job_log_stream_url ?? null,
   }
 
   return result
