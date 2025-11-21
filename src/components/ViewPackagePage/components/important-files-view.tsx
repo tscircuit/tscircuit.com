@@ -84,11 +84,10 @@ export default function ImportantFilesView({
   const canManagePackage = useMemo(() => {
     if (isOwner) return isOwner
     if (organization) {
-      return organization.user_permissions?.can_manage_package
+      return organization.user_permissions?.can_manage_org
     }
     return false
   }, [isOwner, organization])
-
   // File type utilities
   const isLicenseFile = useCallback((filePath: string) => {
     const lowerPath = filePath.toLowerCase()
