@@ -1633,7 +1633,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     const newPackageBuild = packageBuildSchema.parse({
       package_build_id: crypto.randomUUID(),
       user_code_build_logs: null,
-      image_generation_logs: [],
+      image_generation_logs: null,
       ...packageBuild,
     })
     set((state) => ({
