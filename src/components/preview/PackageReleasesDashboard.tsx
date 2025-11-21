@@ -11,7 +11,7 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { BuildsList } from "./BuildsList"
 import Header from "../Header"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { getBuildStatus } from "."
+import { getBuildStatus, getUserCodeStatus } from "."
 import { Link } from "wouter"
 import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import {
@@ -32,7 +32,7 @@ export const PackageReleasesDashboard = ({
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
-  const { status, label } = getBuildStatus(latestBuild)
+  const { status, label } = getUserCodeStatus(latestRelease)
   const { toastLibrary } = useToast()
   const { downloadZip } = useDownloadZip()
   const { data: packageFiles } = usePackageFiles(
@@ -94,7 +94,7 @@ export const PackageReleasesDashboard = ({
                           status === "success"
                             ? "bg-green-500"
                             : status === "error"
-                              ? "bg-red-500"
+                              ? "bg-red-100"
                               : status === "building"
                                 ? "bg-blue-500 animate-pulse"
                                 : "bg-gray-500"
