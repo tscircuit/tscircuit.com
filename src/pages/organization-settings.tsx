@@ -172,12 +172,6 @@ export default function OrganizationSettingsPage() {
         error?.data?.error?.message || "Failed to send invitation"
 
       setInviteError(errorMessage)
-
-      toast({
-        title: "Failed to send invitation",
-        description: errorMessage,
-        variant: "destructive",
-      })
     },
   })
 
