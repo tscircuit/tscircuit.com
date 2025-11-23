@@ -31,7 +31,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
   })
 
   const handleSettingsClick = () => {
-    navigate(`/${organization.name}/settings`)
+    navigate(`/${organization.tscircuit_handle}/settings`)
   }
   return (
     <div className="bg-white border-b border-gray-200">
