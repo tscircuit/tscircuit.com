@@ -100,7 +100,11 @@ export default function CliLoginPage() {
                   </Button>
                 ) : (
                   <Button onClick={signIn} className="w-full">
+<<<<<<< HEAD
                     <span>Sign In with GitHub</span>
+=======
+                    <span>Sign In</span>
+>>>>>>> origin/main
                   </Button>
                 )}
               </CardContent>
