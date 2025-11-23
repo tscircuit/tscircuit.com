@@ -4,6 +4,10 @@ import type { Account } from "fake-snippets-api/lib/db/schema"
 
 interface MemberAccount extends Account {
   joined_at?: string
+  org_member_permissions?: {
+    can_manage_org?: boolean
+    can_manage_package?: boolean
+  }
 }
 
 export const useListOrgMembers = ({

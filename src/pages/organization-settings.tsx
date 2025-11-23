@@ -36,6 +36,10 @@ import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
 import { useCreateOrgInvitationMutation } from "@/hooks/use-create-org-invitation-mutation"
 import { useListOrgInvitations } from "@/hooks/use-list-org-invitations"
 import { useRevokeOrgInvitationMutation } from "@/hooks/use-revoke-org-invitation-mutation"
+import {
+  SelectedMember,
+  useEditOrgMemberPermissionsDialog,
+} from "@/components/dialogs/edit-org-member-permissions-dialog"
 import { InvitationStatusBadge } from "@/components/ui/invitation-status-badge"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
@@ -203,6 +207,11 @@ export default function OrganizationSettingsPage() {
       setShowRemoveMemberDialog({ member: {} as Account, show: false })
     },
   })
+
+  const {
+    Dialog: EditMemberPermissionsDialog,
+    openDialog: openEditMemberPermissionsDialog,
+  } = useEditOrgMemberPermissionsDialog()
 
   const deleteOrgMutation = useDeleteOrgMutation({
     onSuccess: () => {
@@ -680,10 +689,11 @@ export default function OrganizationSettingsPage() {
                       </div>
                     ) : (
                       members.map((member) => {
-                        const role = getMemberRole(
-                          organization,
-                          member.account_id,
-                        )
+                        const role = getMemberRole(member.account_id, {
+                          org_owner_account_id: organization.owner_account_id,
+                          member_permissions:
+                            member.org_member_permissions ?? {},
+                        })
                         return (
                           <div
                             key={member.account_id}
@@ -743,7 +753,16 @@ export default function OrganizationSettingsPage() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    disabled={true}
+                                    onClick={() => {
+                                      openEditMemberPermissionsDialog({
+                                        selectedMember: {
+                                          member,
+                                          orgId: organization.org_id,
+                                          currentPermissions:
+                                            member.org_member_permissions,
+                                        },
+                                      })
+                                    }}
                                     className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 self-start sm:self-center px-4 py-2"
                                   >
                                     Edit
@@ -970,6 +989,8 @@ export default function OrganizationSettingsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditMemberPermissionsDialog />
 
       <AlertDialog
         open={showDeleteOrgDialog}

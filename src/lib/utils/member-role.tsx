@@ -1,4 +1,7 @@
-import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  PublicOrgSchema,
+  UserPermissions,
+} from "fake-snippets-api/lib/db/schema"
 import { Crown, Shield, User } from "lucide-react"
 
 export type MemberRole = "owner" | "manager" | "member"
@@ -8,12 +11,15 @@ export const getRoleName = (role: MemberRole) => {
 }
 
 export const getMemberRole = (
-  organization: PublicOrgSchema,
   accountId: string,
+  information: {
+    org_owner_account_id: string
+    member_permissions: UserPermissions
+  },
 ): MemberRole => {
   const isOwner =
-    String(accountId).trim() === String(organization.owner_account_id).trim()
-  const isManager = Object.values(organization.user_permissions ?? {}).some(
+    String(accountId).trim() === String(information.org_owner_account_id).trim()
+  const isManager = Object.values(information.member_permissions ?? {}).some(
     Boolean,
   )
   if (isOwner) {

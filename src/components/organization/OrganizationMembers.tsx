@@ -57,7 +57,10 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
 
       <div className="space-y-2 sm:space-y-3">
         {members.map((member) => {
-          const role = getMemberRole(organization, member.account_id)
+          const role = getMemberRole(member.account_id, {
+            org_owner_account_id: organization.owner_account_id,
+            member_permissions: member.org_member_permissions ?? {},
+          })
           return (
             <Link
               key={member.account_id || member.github_username}
