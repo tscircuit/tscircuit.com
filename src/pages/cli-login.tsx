@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Redirect, useSearch } from "wouter"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -27,6 +27,16 @@ export default function CliLoginPage() {
   const searchParams = new URLSearchParams(useSearch())
   const login_page_id = searchParams.get("login_page_id")
   const login_page_auth_token = searchParams.get("login_page_auth_token")
+  const autoclose = searchParams.get("autoclose") === "true"
+
+  useEffect(() => {
+    if (complete && autoclose) {
+      const timer = setTimeout(() => {
+        window.close()
+      }, 900)
+      return () => clearTimeout(timer)
+    }
+  }, [complete, autoclose])
 
   const handleLogin = async () => {
     setLoading(true)
