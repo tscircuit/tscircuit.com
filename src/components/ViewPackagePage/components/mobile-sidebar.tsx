@@ -207,6 +207,7 @@ const MobileSidebar = ({
           packageName={packageInfo.name}
           unscopedPackageName={packageInfo.unscoped_name}
           currentDefaultView={packageInfo.default_view}
+          ownerOrgId={packageInfo.owner_org_id}
         />
       )}
     </div>

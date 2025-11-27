@@ -52,6 +52,7 @@ interface EditPackageDetailsDialogProps {
     newAllowPrPreviews?: boolean,
   ) => void
   currentAllowPrPreviews?: boolean
+  ownerOrgId?: string
 }
 
 export const EditPackageDetailsDialog = ({
@@ -69,6 +70,7 @@ export const EditPackageDetailsDialog = ({
   packageAuthor,
   currentAllowPrPreviews,
   onUpdate,
+  ownerOrgId,
 }: EditPackageDetailsDialogProps) => {
   const axios = useAxios()
   const { toast } = useToast()
@@ -416,6 +418,7 @@ export const EditPackageDetailsDialog = ({
                         ...content,
                       }))
                     }}
+                    orgId={ownerOrgId}
                   />
                 </div>
               </div>
