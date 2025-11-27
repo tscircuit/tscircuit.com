@@ -82,7 +82,8 @@ export const GitHubRepositorySelector = ({
       // Remove installation params while preserving other query params
       params.delete("installation_complete")
       const newSearch = params.toString()
-      const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
       window.history.replaceState({}, "", newUrl)
     }
   }, [toast, refetchRepositories])
