@@ -233,6 +233,7 @@ export default function SidebarAboutSection({
           packageName={packageInfo.name}
           currentDefaultView={packageInfo.default_view}
           currentAllowPrPreviews={packageInfo.allow_pr_previews}
+          ownerOrgId={packageInfo.owner_org_id}
         />
       )}
     </>
