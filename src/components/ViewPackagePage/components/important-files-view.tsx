@@ -593,7 +593,7 @@ export default function ImportantFilesView({
               <span className="sr-only">Regenerate AI Description</span>
             </button>
           )}
-          {activeTab?.type === "file" && canManagePackage && (
+          {activeTab?.type === "file" && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
               onClick={() => onEditClicked?.(activeTab.filePath)}
