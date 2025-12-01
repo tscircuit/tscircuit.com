@@ -39,14 +39,14 @@ export const useAxios = () => {
             <div onClick={() => signIn()} className="cursor-pointer">
               <ToastContent
                 title={
-                  errorCode === "session_not_found" ||
-                  errorCode === "session_expired"
+                  errorCode == "session_not_found" ||
+                  errorCode == "session_expired"
                     ? "Session Expired"
                     : "Unauthorized"
                 }
                 description={
-                  errorCode === "session_not_found" ||
-                  errorCode === "session_expired"
+                  errorCode == "session_not_found" ||
+                  errorCode == "session_expired"
                     ? "Your session has expired. Click here to sign in again"
                     : "You may need to sign in. Click here to sign in again"
                 }
