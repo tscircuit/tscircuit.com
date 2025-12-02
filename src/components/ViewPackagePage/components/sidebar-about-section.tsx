@@ -198,7 +198,7 @@ export default function SidebarAboutSection({
             </a>
           ) : (
             <>
-              {isOwner && (
+              {canManageOrg && (
                 <div
                   className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
                   onClick={openEditPackageDetailsDialog}
