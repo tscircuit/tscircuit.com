@@ -3,6 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -11,6 +14,7 @@ import { Link } from "wouter"
 import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
+import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
@@ -18,6 +22,7 @@ export const HeaderLogin = () => {
   const signIn = useSignIn()
   const [isOpen, setIsOpen] = useState(false)
   const axios = useAxios()
+  const { data: organizations } = useListUserOrgs()
   const tscircuitHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
   )
@@ -113,6 +118,26 @@ export const HeaderLogin = () => {
               Settings
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Orgs</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {organizations?.length ? (
+                organizations.map((org) => (
+                  <DropdownMenuItem key={org.org_id} asChild>
+                    <Link
+                      href={`/${org.tscircuit_handle}`}
+                      className="cursor-pointer"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {org.display_name || org.tscircuit_handle || "Org"}
+                    </Link>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <DropdownMenuItem disabled>No organizations</DropdownMenuItem>
+              )}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuItem asChild>
             <Link
               href="/orgs/new"
