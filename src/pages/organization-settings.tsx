@@ -54,6 +54,7 @@ import {
   Mail,
   Clock,
   X,
+  Github,
 } from "lucide-react"
 import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -63,6 +64,7 @@ import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
 import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
 import { useOrganization } from "@/hooks/use-organization"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 const organizationSettingsSchema = z.object({
   tscircuit_handle: z
@@ -89,9 +91,12 @@ export default function OrganizationSettingsPage() {
     organization,
     isLoading: isLoadingOrg,
     error: orgError,
+    refetch: refetchOrganization,
   } = useOrganization({
     orgTscircuitHandle: orgname,
   })
+
+  const apiBaseUrl = useApiBaseUrl()
 
   const [showRemoveMemberDialog, setShowRemoveMemberDialog] = useState<{
     member: Account
@@ -241,6 +246,25 @@ export default function OrganizationSettingsPage() {
     }
   }, [organization, form])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("installation_complete") === "true") {
+      toast({
+        title: "GitHub connected",
+        description:
+          "Your organization can now link packages to GitHub repositories.",
+      })
+
+      refetchOrganization?.()
+
+      params.delete("installation_complete")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [toast, refetchOrganization])
+
   if (!orgname) {
     return <NotFoundPage />
   }
@@ -373,6 +397,23 @@ export default function OrganizationSettingsPage() {
     updateOrgMutation.mutate(changedFields)
   }
 
+  const handleConnectGithub = () => {
+    if (!organization) return
+
+    const params = new URLSearchParams()
+    params.set("redirect_uri", window.location.href)
+
+    if (organization.org_id) {
+      params.set("org_id", organization.org_id)
+    }
+
+    if (session?.account_id) {
+      params.set("account_id", session.account_id)
+    }
+
+    window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
+  }
+
   const handleSendInvitation = () => {
     if (!inviteeEmail.trim() || !organization) return
 
@@ -443,6 +484,67 @@ export default function OrganizationSettingsPage() {
         <div className="py-8">
           {/* Main Content */}
           <div className="max-w-7xl mx-auto space-y-8">
+            {/* GitHub Connection */}
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  GitHub connection
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Install the tscircuit GitHub app for this organization to link
+                  packages to repositories and enable PR previews.
+                </p>
+              </div>
+
+              <div className="p-6 lg:p-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="p-3 bg-gray-100 rounded-lg">
+                      <Github className="h-5 w-5 text-gray-700" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <p className="text-base font-semibold text-gray-900">
+                        {organization.github_handle
+                          ? `Connected as @${organization.github_handle}`
+                          : "Not connected"}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Use the button below to connect or update the GitHub
+                        installation for this organization.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <Button
+                      onClick={handleConnectGithub}
+                      className="sm:w-auto w-full"
+                    >
+                      <Github className="h-4 w-4 mr-2" />
+                      {organization.github_handle
+                        ? "Manage GitHub connection"
+                        : "Connect GitHub"}
+                    </Button>
+                    {organization.github_handle && (
+                      <Button
+                        variant="outline"
+                        className="sm:w-auto w-full"
+                        onClick={() =>
+                          window.open(
+                            `https://github.com/${organization.github_handle}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        View on GitHub
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Organization Profile */}
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
               <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
