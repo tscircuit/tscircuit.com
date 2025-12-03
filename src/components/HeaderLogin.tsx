@@ -23,6 +23,7 @@ export const HeaderLogin = () => {
   const [isOpen, setIsOpen] = useState(false)
   const axios = useAxios()
   const { data: organizations } = useListUserOrgs()
+  const nonPersonalOrgs = organizations?.filter((org) => !org.is_personal_org)
   const tscircuitHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
   )
@@ -118,11 +119,11 @@ export const HeaderLogin = () => {
               Settings
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Orgs</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {organizations?.length ? (
-                organizations.map((org) => (
+          {nonPersonalOrgs && nonPersonalOrgs.length > 0 && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Orgs</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {nonPersonalOrgs.map((org) => (
                   <DropdownMenuItem key={org.org_id} asChild>
                     <Link
                       href={`/${org.tscircuit_handle}`}
@@ -132,12 +133,10 @@ export const HeaderLogin = () => {
                       {org.display_name || org.tscircuit_handle || "Org"}
                     </Link>
                   </DropdownMenuItem>
-                ))
-              ) : (
-                <DropdownMenuItem disabled>No organizations</DropdownMenuItem>
-              )}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          )}
           <DropdownMenuItem asChild>
             <Link
               href="/orgs/new"
