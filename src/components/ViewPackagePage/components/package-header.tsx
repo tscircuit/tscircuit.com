@@ -10,11 +10,14 @@ import {
 } from "@/components/ui/tooltip"
 import { Lock, Globe } from "lucide-react"
 import { GitFork, Star } from "lucide-react"
+// import { Package } from "lucide-react"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
+// import { useOrderDialog } from "@tscircuit/runframe"
+// import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType
@@ -39,6 +42,13 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
+  // const signIn = useSignIn()
+  // const { OrderDialog, isOpen, open, close, stage, setStage } =
+  //   useOrderDialog({
+  //     onSignIn: signIn,
+  //     isLoggedIn,
+  //     packageReleaseId: packageInfo?.latest_package_release_id ?? "",
+  //   })
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
     packageInfo?.name ?? null,
@@ -116,6 +126,18 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
+            {/*
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={open}
+              disabled={!packageInfo?.latest_package_release_id}
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Order
+            </Button>
+            */}
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -188,6 +210,12 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
+            {/*
+            <Button variant="outline" size="sm" onClick={open}>
+              <Package className="w-4 h-4 mr-2" />
+              Order
+            </Button>
+            */}
             <Button
               variant="outline"
               size="sm"
@@ -235,6 +263,14 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
+      {/*
+      <OrderDialog
+        isOpen={isOpen}
+        onClose={close}
+        stage={stage}
+        setStage={setStage}
+      />
+      */}
     </header>
   )
 }
