@@ -17,6 +17,7 @@ export const publicMapOrg = (
     is_personal_org,
     org_display_name,
     tscircuit_handle,
+    avatar_url,
     ...org
   } = internal_org
   return {
@@ -24,6 +25,7 @@ export const publicMapOrg = (
     display_name: org_display_name ?? tscircuit_handle ?? undefined,
     owner_account_id: org.owner_account_id,
     name: tscircuit_handle,
+    avatar_url: avatar_url ?? null,
     member_count: Number(member_count) || 0,
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),
