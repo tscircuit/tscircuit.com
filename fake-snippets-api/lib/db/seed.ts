@@ -24,7 +24,7 @@ export const seed = (db: DbClient) => {
   const seveibarAcc = db.addAccount({
     github_username: "seveibar",
     tscircuit_handle: "seveibar",
-    email: "seveibar@tscircuit.com",
+    email: "example@tscircuit.com",
   })
 
   if (process.env.AUTOLOAD_PACKAGES === "true") {
