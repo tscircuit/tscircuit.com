@@ -1690,6 +1690,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     github_handle?: string
     org_display_name?: string
     tscircuit_handle?: string
+    avatar_url?: string | null
   }) => {
     const newOrganization: Organization = {
       org_id: organization.org_id || `org_${get().idCounter + 1}`,
@@ -1700,6 +1701,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         organization.org_display_name ??
         organization.tscircuit_handle ??
         undefined,
+      avatar_url: organization.avatar_url ?? null,
       tscircuit_handle:
         organization.tscircuit_handle || organization.name || null,
       ...organization,

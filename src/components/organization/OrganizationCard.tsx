@@ -93,6 +93,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
                 : organization.github_handle
             }
             fallback={organization.name}
+            imageUrl={organization.avatar_url || undefined}
             fallbackClassName="font-semibold text-lg"
             size={40}
           />

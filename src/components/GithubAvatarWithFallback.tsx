@@ -8,6 +8,7 @@ export const GithubAvatarWithFallback = ({
   fallbackClassName,
   size,
   colorClassName,
+  imageUrl,
 }: {
   username?: string | null
   fallback?: string | null
@@ -15,6 +16,7 @@ export const GithubAvatarWithFallback = ({
   fallbackClassName?: string
   size?: number
   colorClassName?: string
+  imageUrl?: string | null
 }) => {
   const hasUsernameOrFallback = username || fallback
 
@@ -22,9 +24,10 @@ export const GithubAvatarWithFallback = ({
     <Avatar className={className}>
       <AvatarImage
         src={
-          username
+          imageUrl ||
+          (username
             ? `https://github.com/${username}.png${size ? `?size=${size}` : ""}`
-            : undefined
+            : undefined)
         }
         alt={`${username || fallback} avatar`}
         className="object-cover"
