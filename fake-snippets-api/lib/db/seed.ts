@@ -1930,7 +1930,6 @@ export const SquareWaveModule = () => (
     pcb_preview_image_url: `/api/packages/images/test-organization/test-org-package/pcb.png`,
     cad_preview_image_url: `/api/packages/images/test-organization/test-org-package/3d.png`,
     sch_preview_image_url: `/api/packages/images/test-organization/test-org-package/schematic.png`,
-
   })
   db.addPackageFile({
     package_release_id: testOrgPackageReleaseId,
