@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import type { ChangeEvent } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUpdateOrgMutation } from "@/hooks/use-update-org-mutation"
+import { useUploadOrgAvatarMutation } from "@/hooks/use-upload-org-avatar-mutation"
 import { useListOrgMembers } from "@/hooks/use-list-org-members"
 import { useRemoveOrgMemberMutation } from "@/hooks/use-remove-org-member-mutation"
 import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
@@ -55,6 +57,7 @@ import {
   Clock,
   X,
   Github,
+  ImageUp,
 } from "lucide-react"
 import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -65,6 +68,14 @@ import { FullPageLoader } from "@/App"
 import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
 import { useOrganization } from "@/hooks/use-organization"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const organizationSettingsSchema = z.object({
   tscircuit_handle: z
@@ -110,6 +121,12 @@ export default function OrganizationSettingsPage() {
     "all" | "pending" | "accepted" | "expired" | "revoked"
   >("all")
   const [showRevokeDialog, setShowRevokeDialog] = useState<string | null>(null)
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
+  const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(
+    null,
+  )
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
 
   const form = useForm<OrganizationSettingsFormData>({
     resolver: zodResolver(organizationSettingsSchema),
@@ -162,6 +179,40 @@ export default function OrganizationSettingsPage() {
         title: "Failed to update organization",
         description:
           errorMessage || "An error occurred while updating the organization.",
+        variant: "destructive",
+      })
+    },
+  })
+
+  const resetAvatarSelection = () => {
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview)
+    }
+    setSelectedAvatarFile(null)
+    setAvatarPreview(null)
+    setAvatarError(null)
+  }
+
+  const uploadAvatarMutation = useUploadOrgAvatarMutation({
+    onSuccess: (updatedOrg) => {
+      toast({
+        title: "Avatar updated",
+        description: `${updatedOrg.display_name || updatedOrg.name || "Organization"} avatar has been updated.`,
+      })
+      resetAvatarSelection()
+      setIsAvatarDialogOpen(false)
+      refetchOrganization?.()
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.data?.error?.message ||
+        error?.response?.data?.error?.message ||
+        "Failed to upload avatar"
+
+      setAvatarError(errorMessage)
+      toast({
+        title: "Failed to upload avatar",
+        description: errorMessage,
         variant: "destructive",
       })
     },
@@ -245,6 +296,14 @@ export default function OrganizationSettingsPage() {
       })
     }
   }, [organization, form])
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) {
+        URL.revokeObjectURL(avatarPreview)
+      }
+    }
+  }, [avatarPreview])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -414,6 +473,55 @@ export default function OrganizationSettingsPage() {
     window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
   }
 
+  const handleAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please select an image file.")
+      setSelectedAvatarFile(null)
+      setAvatarPreview(null)
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Avatar must be 5MB or smaller.")
+      setSelectedAvatarFile(null)
+      setAvatarPreview(null)
+      return
+    }
+
+    if (avatarPreview) {
+      URL.revokeObjectURL(avatarPreview)
+    }
+
+    setAvatarError(null)
+    setSelectedAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+
+  const handleAvatarUpload = () => {
+    if (!organization) return
+    if (!selectedAvatarFile) {
+      setAvatarError("Please select an image to upload.")
+      return
+    }
+
+    uploadAvatarMutation.mutate({
+      orgId: organization.org_id,
+      avatarFile: selectedAvatarFile,
+    })
+  }
+
+  const handleAvatarDialogChange = (open: boolean) => {
+    if (!open) {
+      resetAvatarSelection()
+    }
+    setIsAvatarDialogOpen(open)
+  }
+
   const handleSendInvitation = () => {
     if (!inviteeEmail.trim() || !organization) return
 
@@ -473,6 +581,77 @@ export default function OrganizationSettingsPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Dialog open={isAvatarDialogOpen} onOpenChange={handleAvatarDialogChange}>
+        <DialogContent className="w-[95vw] max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Update organization avatar</DialogTitle>
+            <DialogDescription>
+              Upload a square image (PNG, JPG, or GIF) up to 5MB to represent
+              your organization.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5">
+            <div className="flex items-center gap-4">
+              <GithubAvatarWithFallback
+                username={organization.github_handle}
+                fallback={organization.name}
+                imageUrl={avatarPreview || organization.avatar_url || undefined}
+                className="shadow-sm size-16 md:size-20"
+                fallbackClassName="font-semibold text-lg"
+              />
+              <div className="text-sm text-gray-600">
+                {selectedAvatarFile ? (
+                  <>
+                    <p className="font-medium text-gray-900">
+                      {selectedAvatarFile.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {(selectedAvatarFile.size / 1024).toFixed(1)} KB
+                    </p>
+                  </>
+                ) : (
+                  <p>Choose an image file to preview and upload.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarFileChange}
+                disabled={uploadAvatarMutation.isLoading}
+              />
+              {avatarError && (
+                <p className="text-sm text-red-600">{avatarError}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                Supported formats: PNG, JPG, GIF. Max size 5MB.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => handleAvatarDialogChange(false)}
+              disabled={uploadAvatarMutation.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAvatarUpload}
+              disabled={!selectedAvatarFile || uploadAvatarMutation.isLoading}
+            >
+              {uploadAvatarMutation.isLoading && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              Save avatar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Helmet>
         <title>{pageTitle}</title>
       </Helmet>
@@ -557,6 +736,40 @@ export default function OrganizationSettingsPage() {
               </div>
 
               <div className="p-6 lg:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                  <GithubAvatarWithFallback
+                    username={organization.github_handle}
+                    fallback={organization.name}
+                    imageUrl={organization.avatar_url || undefined}
+                    className="shadow-sm size-16"
+                    fallbackClassName="font-semibold text-lg"
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Organization avatar
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Upload a custom avatar to replace the default GitHub
+                      image.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAvatarDialogChange(true)}
+                      >
+                        <ImageUp className="h-4 w-4 mr-2" />
+                        Update avatar
+                      </Button>
+                      {organization.avatar_url && (
+                        <Badge variant="secondary" className="w-fit">
+                          Custom avatar active
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}

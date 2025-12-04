@@ -468,6 +468,7 @@ export const orgSchema = z.object({
   is_personal_org: z.boolean().default(false),
   created_at: z.string().datetime(),
   org_display_name: z.string().optional(),
+  avatar_url: z.string().nullable().optional(),
   github_handle: z.string().nullable(),
   tscircuit_handle: z.string().nullable(),
 })
@@ -515,6 +516,7 @@ export const publicOrgSchema = z.object({
   is_personal_org: z.boolean(),
   display_name: z.string().optional(),
   package_count: z.number(),
+  avatar_url: z.string().nullable().optional(),
   github_handle: z.string().nullable(),
   tscircuit_handle: z.string().nullable(),
   created_at: z.string(),
