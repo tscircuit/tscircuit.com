@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import {
   AlertDialog,
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
-import { AlertTriangle, Trash2, Loader2 } from "lucide-react"
+import { AlertTriangle, Trash2, Loader2, ImageUp } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
@@ -35,6 +36,8 @@ import { useAxios } from "@/hooks/use-axios"
 import { useQuery } from "react-query"
 import { useToast } from "@/hooks/use-toast"
 import { useUpdateAccountMutation } from "@/hooks/use-update-account-mutation"
+import { useOrganization } from "@/hooks/use-organization"
+import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
@@ -85,6 +88,25 @@ export default function UserSettingsPage() {
     },
   )
   const account = accountResponse?.account
+
+  const { organization: personalOrg, refetch: refetchPersonalOrg } =
+    useOrganization({
+      orgId: account?.personal_org_id || undefined,
+    })
+
+  const {
+    AvatarUploadDialog,
+    openDialog: openAvatarDialog,
+    preview: avatarPreview,
+  } = useAvatarUploadDialog({
+    orgId: account?.personal_org_id,
+    currentAvatarUrl: personalOrg?.avatar_url,
+    fallbackUsername: session.github_username,
+    title: "Update profile avatar",
+    description:
+      "Upload a square image (PNG, JPG, or GIF) up to 5MB to represent your profile.",
+    onSuccess: refetchPersonalOrg,
+  })
 
   const updateAccountMutation = useUpdateAccountMutation({
     onSuccess: (updatedAccount) => {
@@ -168,6 +190,7 @@ export default function UserSettingsPage() {
             <div className="flex items-center gap-4 mb-6">
               <GithubAvatarWithFallback
                 username={session.github_username}
+                imageUrl={personalOrg?.avatar_url || undefined}
                 className="h-16 w-16 border-2 border-gray-200 shadow-sm"
                 fallbackClassName="text-lg font-medium"
                 colorClassName="text-black"
@@ -182,7 +205,7 @@ export default function UserSettingsPage() {
 
           <div className="space-y-8">
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Account profile
                 </h2>
@@ -192,6 +215,42 @@ export default function UserSettingsPage() {
               </div>
 
               <div className="p-6 lg:p-8">
+                <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
+                  <GithubAvatarWithFallback
+                    username={session.github_username}
+                    imageUrl={
+                      avatarPreview || personalOrg?.avatar_url || undefined
+                    }
+                    className="shadow-sm size-24 md:size-16 border-2 border-gray-200"
+                    fallbackClassName="font-semibold text-lg"
+                    colorClassName="text-black"
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-900">
+                      Profile avatar
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Upload a custom avatar to replace the default GitHub
+                      image.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={openAvatarDialog}
+                      >
+                        <ImageUp className="h-4 w-4 mr-2" />
+                        Update avatar
+                      </Button>
+                      {personalOrg?.avatar_url && (
+                        <Badge variant="secondary" className="w-fit">
+                          Custom avatar active
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -267,7 +326,7 @@ export default function UserSettingsPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl rounded-t-xl">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
                   Account information
                 </h2>
@@ -325,6 +384,8 @@ export default function UserSettingsPage() {
       </section>
 
       <Footer />
+
+      <AvatarUploadDialog />
 
       <AlertDialog
         open={showDeleteAccountDialog}
