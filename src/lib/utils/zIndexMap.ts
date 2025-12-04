@@ -1,6 +1,6 @@
 export const zIndexMap = {
-  dialogOverlay: 1000,
-  dialogContent: 1001,
+  dialogOverlay: 150,
+  dialogContent: 151,
 } as const
 
 export type ZIndexKey = keyof typeof zIndexMap
