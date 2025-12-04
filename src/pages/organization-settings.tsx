@@ -828,6 +828,11 @@ export default function OrganizationSettingsPage() {
                                     <RoleBadge role={role} />
                                   )}
                                 </div>
+                                {member.email && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {member.email}
+                                  </p>
+                                )}
                                 <p className="hidden md:flex text-sm text-gray-500 truncate">
                                   {getRoleDescription(role)}
                                 </p>
