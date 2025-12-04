@@ -592,12 +592,12 @@ export default function OrganizationSettingsPage() {
           </DialogHeader>
 
           <div className="space-y-5">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center flex-col gap-4">
               <GithubAvatarWithFallback
                 username={organization.github_handle}
                 fallback={organization.name}
                 imageUrl={avatarPreview || organization.avatar_url || undefined}
-                className="shadow-sm size-16 md:size-20"
+                className="shadow-sm size-20 md:size-24"
                 fallbackClassName="font-semibold text-lg"
               />
               <div className="text-sm text-gray-600">
@@ -632,7 +632,7 @@ export default function OrganizationSettingsPage() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => handleAvatarDialogChange(false)}
@@ -736,12 +736,12 @@ export default function OrganizationSettingsPage() {
               </div>
 
               <div className="p-6 lg:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
                   <GithubAvatarWithFallback
                     username={organization.github_handle}
                     fallback={organization.name}
                     imageUrl={organization.avatar_url || undefined}
-                    className="shadow-sm size-16"
+                    className="shadow-sm size-24 md:size-16"
                     fallbackClassName="font-semibold text-lg"
                   />
                   <div className="space-y-2">
