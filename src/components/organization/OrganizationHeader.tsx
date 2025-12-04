@@ -42,6 +42,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             <GithubAvatarWithFallback
               username={organization.github_handle}
               fallback={organization.name}
+              imageUrl={organization.avatar_url || undefined}
               className="shadow-sm size-16 md:size-20 lg:size-24"
               fallbackClassName="font-bold text-xl md:text-2xl lg:text-3xl"
               size={300}
@@ -102,6 +103,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
             <GithubAvatarWithFallback
               username={organization.github_handle}
               fallback={organization.name}
+              imageUrl={organization.avatar_url || undefined}
               className="flex-shrink-0 shadow-sm size-16 md:size-20 lg:size-24"
               fallbackClassName="font-bold text-xl md:text-2xl lg:text-3xl"
             />

@@ -139,7 +139,7 @@ export const DashboardPage = () => {
                                 size="sm"
                                 className="font-medium whitespace-nowrap"
                               >
-                                {pkg.unscoped_name}
+                                {pkg.name}
                                 <Edit2 className="w-3 h-3 ml-2" />
                               </Button>
                             </Link>
@@ -171,6 +171,7 @@ export const DashboardPage = () => {
                         <PackageCard
                           key={pkg.package_id}
                           pkg={pkg}
+                          showOwner
                           isCurrentUserPackage={
                             pkg.creator_account_id === currentUser?.account_id
                           }

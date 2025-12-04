@@ -1,6 +1,6 @@
 {
   "name": "@tscircuit/fake-snippets",
-  "version": "0.0.152",
+  "version": "0.0.153",
   "type": "module",
   "repository": {
     "type": "git",
@@ -84,7 +84,7 @@
     "@tscircuit/3d-viewer": "^0.0.448",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
-    "@tscircuit/eval": "^0.0.515",
+    "@tscircuit/eval": "^0.0.522",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "^1.11.256",
@@ -111,7 +111,6 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "circuit-json-to-bom-csv": "^0.0.7",
-    "circuit-json-to-gerber": "^0.0.29",
     "circuit-json-to-gltf": "^0.0.14",
     "circuit-json-to-kicad": "^0.0.22",
     "circuit-json-to-pnp-csv": "^0.0.7",

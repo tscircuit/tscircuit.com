@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useAxios } from "@/hooks/use-axios"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import { useQuery } from "react-query"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
@@ -46,6 +47,7 @@ export const GitHubRepositorySelector = ({
 }: GitHubRepositorySelectorProps) => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
+  const session = useGlobalStore((s) => s.session)
   const { toast } = useToast()
   const initialValue = useRef(selectedRepository).current
   const [comboboxOpen, setComboboxOpen] = useState(false)
@@ -88,9 +90,10 @@ export const GitHubRepositorySelector = ({
     }
   }, [toast, refetchRepositories])
 
-  const handleConnectMoreRepos = async () => {
+  const handleConnectMoreRepos = () => {
     const params = new URLSearchParams()
     if (orgId) params.set("org_id", orgId)
+    if (session?.account_id) params.set("account_id", session.account_id)
     params.set("redirect_uri", window.location.href)
     window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
   }

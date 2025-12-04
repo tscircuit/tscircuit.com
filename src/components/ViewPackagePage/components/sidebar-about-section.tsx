@@ -228,7 +228,7 @@ export default function SidebarAboutSection({
           currentLicense={currentLicense}
           currentWebsite={(packageInfo as any)?.website || ""}
           isPrivate={Boolean(packageInfo.is_private)}
-          packageAuthor={packageInfo.owner_github_username}
+          packageAuthor={packageInfo.name.split("/")[0]}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
           currentDefaultView={packageInfo.default_view}
