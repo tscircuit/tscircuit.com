@@ -73,6 +73,7 @@ export const OrganizationMembers: React.FC<OrganizationMembersProps> = ({
                     username={member.tscircuit_handle}
                     className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0"
                     fallbackClassName="text-sm font-medium"
+                    colorClassName="text-black"
                   />
 
                   <div className="min-w-0 flex-1">
