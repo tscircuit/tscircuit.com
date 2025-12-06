@@ -57,7 +57,7 @@ import {
   Github,
   ImageUp,
 } from "lucide-react"
-import { getMemberRole, getRoleDescription } from "@/lib/utils/member-role"
+import { getMemberRole } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -848,7 +848,7 @@ export default function OrganizationSettingsPage() {
                         return (
                           <div
                             key={member.account_id}
-                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
+                            className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between p-5 hover:bg-gray-50 transition-all duration-200"
                           >
                             <Link
                               href={
@@ -868,7 +868,7 @@ export default function OrganizationSettingsPage() {
                                 colorClassName="text-black"
                               />
                               <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                   <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
                                     {member.tscircuit_handle ||
                                       member.account_id}
@@ -878,52 +878,51 @@ export default function OrganizationSettingsPage() {
                                   )}
                                 </div>
                                 {member.email && (
-                                  <p className="text-xs text-gray-500 truncate">
+                                  <p className="text-sm text-gray-500 truncate">
                                     {member.email}
                                   </p>
                                 )}
-                                <p className="hidden md:flex text-sm text-gray-500 truncate">
-                                  {getRoleDescription(role)}
-                                </p>
                               </div>
                             </Link>
-                            <div className="flex flex-wrap gap-4">
-                              {member.account_id !==
-                                organization.owner_account_id &&
-                                member.account_id !== session?.account_id && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleRemoveMember(member)}
-                                    disabled={removeMemberMutation.isLoading}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 self-start sm:self-center px-4 py-2"
-                                  >
-                                    Remove
-                                  </Button>
-                                )}
-                              {member.account_id !==
-                                organization.owner_account_id &&
-                                member.account_id !== session?.account_id &&
-                                organization.user_permissions
-                                  ?.can_manage_org && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      openEditMemberPermissionsDialog({
-                                        selectedMember: {
-                                          member,
-                                          orgId: organization.org_id,
-                                          currentPermissions:
-                                            member.org_member_permissions,
-                                        },
-                                      })
-                                    }}
-                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 self-start sm:self-center px-4 py-2"
-                                  >
-                                    Edit
-                                  </Button>
-                                )}
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6 flex-shrink-0 w-full lg:w-auto">
+                              <div className="flex flex-wrap gap-3 justify-start sm:justify-end">
+                                {member.account_id !==
+                                  organization.owner_account_id &&
+                                  member.account_id !== session?.account_id && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleRemoveMember(member)}
+                                      disabled={removeMemberMutation.isLoading}
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
+                                    >
+                                      Remove
+                                    </Button>
+                                  )}
+                                {member.account_id !==
+                                  organization.owner_account_id &&
+                                  member.account_id !== session?.account_id &&
+                                  organization.user_permissions
+                                    ?.can_manage_org && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        openEditMemberPermissionsDialog({
+                                          selectedMember: {
+                                            member,
+                                            orgId: organization.org_id,
+                                            currentPermissions:
+                                              member.org_member_permissions,
+                                          },
+                                        })
+                                      }}
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-4 py-2"
+                                    >
+                                      Edit
+                                    </Button>
+                                  )}
+                              </div>
                             </div>
                           </div>
                         )
