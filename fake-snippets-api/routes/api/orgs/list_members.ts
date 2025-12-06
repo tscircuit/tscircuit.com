@@ -36,6 +36,14 @@ export default withRouteSpec({
     })
   }
 
+  const currentAccountId = ctx.auth?.account_id
+  const isCurrentUserMember =
+    currentAccountId &&
+    (currentAccountId === org.owner_account_id ||
+      ctx.db.orgAccounts.some(
+        (m) => m.org_id === org.org_id && m.account_id === currentAccountId,
+      ))
+
   const members = ctx.db.orgAccounts
     .map((m) => {
       if (m.org_id !== org.org_id) return undefined
@@ -88,6 +96,7 @@ export default withRouteSpec({
   return ctx.json({
     org_members: fullMembers.map((m) => ({
       ...m,
+      email: isCurrentUserMember ? m.email : undefined,
       org_member_permissions: m.user_permissions ?? {
         can_manage_org: false,
         can_manage_package: false,
