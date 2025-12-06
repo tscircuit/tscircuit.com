@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useSignIn } from "@/hooks/use-sign-in"
-import { Link } from "wouter"
+import { Link, useLocation } from "wouter"
 import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
@@ -22,6 +22,7 @@ export const HeaderLogin = () => {
   const signIn = useSignIn()
   const [isOpen, setIsOpen] = useState(false)
   const axios = useAxios()
+  const [, setLocation] = useLocation()
   const { data: organizations } = useListUserOrgs()
   const nonPersonalOrgs = organizations?.filter((org) => !org.is_personal_org)
   const tscircuitHandleRequiredDialog = useGlobalStore(
@@ -38,6 +39,7 @@ export const HeaderLogin = () => {
     } finally {
       setSession(null)
       setIsOpen(false)
+      setLocation("/")
     }
   }
 
