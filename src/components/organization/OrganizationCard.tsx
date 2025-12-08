@@ -16,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
@@ -87,15 +86,13 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
         {/* Organization Avatar */}
         <div className="flex-shrink-0">
           <GithubAvatarWithFallback
-            username={
-              organization.is_personal_org
-                ? organization.github_handle || organization.name
-                : organization.github_handle
-            }
-            fallback={organization.name}
-            imageUrl={organization.avatar_url || undefined}
+            username={organization.tscircuit_handle}
+            imageUrl={organization.avatar_url}
             fallbackClassName="font-semibold text-lg"
             size={40}
+            colorClassName={
+              organization.is_personal_org ? "text-black" : undefined
+            }
           />
         </div>
 
@@ -104,7 +101,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({
           <div className="flex justify-between items-start mb-1">
             <div className="min-w-0 flex-1">
               <h2 className="text-md font-semibold text-gray-900 truncate pr-8">
-                {organization.name}
+                {organization.tscircuit_handle || organization.display_name}
               </h2>
             </div>
 

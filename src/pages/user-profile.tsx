@@ -43,7 +43,7 @@ export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
     isLoading: isLoadingAccount,
     isFetched: isFetchedAccount,
   } = useQuery<
-    { account: { github_username: string } },
+    { account: { github_username: string; tscircuit_handle: string } },
     Error & { status: number }
   >(
     ["account", username],
@@ -59,9 +59,9 @@ export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
       refetchOnWindowFocus: false,
     },
   )
-  // use the username stored in the database so the correct case is displayed
-  const githubUsername = account?.account?.github_username || username
-  const isCurrentUserProfile = githubUsername === session?.github_username
+  const githubUsername = account?.account?.github_username
+  const tscircuitHandle = account?.account?.tscircuit_handle
+  const isCurrentUserProfile = username === session?.tscircuit_handle
 
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
@@ -72,15 +72,15 @@ export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    ["userPackages", githubUsername],
+    ["userPackages", tscircuitHandle],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: githubUsername,
+        owner_tscircuit_handle: tscircuitHandle,
       })
       return response.data.packages
     },
     {
-      enabled: Boolean(githubUsername),
+      enabled: Boolean(githubUsername || tscircuitHandle),
       refetchOnWindowFocus: false,
     },
   )
@@ -185,37 +185,38 @@ export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <GithubAvatarWithFallback
-            username={org?.tscircuit_handle}
-            imageUrl={org.avatar_url}
-            className="shadow-sm size-16 border-2 border-gray-200"
-            fallbackClassName="font-semibold text-lg"
-            colorClassName="text-black"
-          />
-          <div>
-            <h1 className="text-3xl font-bold">
-              {isCurrentUserProfile
-                ? "My Profile"
-                : `${githubUsername}'s Profile`}
-            </h1>
-            <div className="text-gray-600 mt-1">
-              {userPackages?.length || 0} packages
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="flex items-center gap-4">
+            <GithubAvatarWithFallback
+              username={org?.tscircuit_handle}
+              imageUrl={org.avatar_url}
+              className="shadow-sm size-16 border-2 border-gray-200"
+              fallbackClassName="font-semibold text-lg"
+              colorClassName="text-black"
+            />
+            <div>
+              <h1 className="text-3xl font-bold">
+                {isCurrentUserProfile
+                  ? "My Profile"
+                  : `${tscircuitHandle}'s Profile`}
+              </h1>
+              <div className="text-gray-600 mt-1">
+                {userPackages?.length || 0} packages
+              </div>
             </div>
           </div>
-        </div>
-        <div className="mb-6">
-          <a
-            href={`https://github.com/${githubUsername}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center"
-          >
-            <Button variant="outline">
-              <GitHubLogoIcon className="mr-2" />
-              View GitHub Profile
-            </Button>
-          </a>
+          {githubUsername && (
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" className="w-full md:w-auto">
+                <GitHubLogoIcon className="mr-2" />
+                View GitHub Profile
+              </Button>
+            </a>
+          )}
         </div>
         <Tabs
           defaultValue="all"
