@@ -56,14 +56,14 @@ export const NewPackageSavePromptDialog = ({
   const fullPackageName = useMemo(() => {
     if (!normalizedPackageName) return
     if (selectedOrgId) {
-      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.name}/${normalizedPackageName}`
+      return `${organizations?.find((x) => x.org_id === selectedOrgId)?.tscircuit_handle}/${normalizedPackageName}`
     }
-    return `${session?.github_username}/${normalizedPackageName}`
+    return `${session?.tscircuit_handle}/${normalizedPackageName}`
   }, [
     selectedOrgId,
     normalizedPackageName,
     organizations,
-    session?.github_username,
+    session?.tscircuit_handle,
   ])
 
   const extractErrorMessage = (error: any): string => {
@@ -150,11 +150,10 @@ export const NewPackageSavePromptDialog = ({
                   {selectedOrgId && organizations ? (
                     <span className="truncate">
                       {organizations.find((org) => org.org_id === selectedOrgId)
-                        ?.display_name ||
+                        ?.tscircuit_handle ||
                         organizations.find(
                           (org) => org.org_id === selectedOrgId,
-                        )?.name ||
-                        `Org ${selectedOrgId.slice(0, 10)}`}
+                        )?.display_name}
                     </span>
                   ) : (
                     <span className="text-slate-500">
@@ -177,9 +176,7 @@ export const NewPackageSavePromptDialog = ({
                       value={org.org_id}
                       className="cursor-pointer"
                     >
-                      {org.display_name ||
-                        org.name ||
-                        `Org ${org.org_id.slice(0, 8)}`}
+                      {org.tscircuit_handle || org.display_name}
                     </SelectItem>
                   ))
                 )}
@@ -202,7 +199,7 @@ export const NewPackageSavePromptDialog = ({
                   <span>Will be saved as:</span>
                   <code className="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-700 dark:text-slate-300 font-mono break-all">
                     {fullPackageName ||
-                      `${selectedOrgId ? organizations?.find((x) => x.org_id === selectedOrgId)?.name : session?.github_username}/${normalizedPackageName}`}
+                      `${selectedOrgId ? organizations?.find((x) => x.org_id === selectedOrgId)?.tscircuit_handle : session?.tscircuit_handle}/${normalizedPackageName}`}
                   </code>
                 </div>
               )}
