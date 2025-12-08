@@ -16,7 +16,6 @@ export default withRouteSpec({
     package: packageSchema
       .extend({
         is_starred: z.boolean(),
-        org_owner_tscircuit_handle: z.string().nullable().optional(),
         user_permissions: z
           .object({
             can_manage_packages: z.boolean(),
