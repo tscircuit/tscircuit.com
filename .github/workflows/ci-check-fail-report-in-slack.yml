@@ -2,7 +2,7 @@ name: Notify on Failed Package Update
 
 on:
   workflow_run:
-    workflows: ["CI"]  # Replace with your actual CI workflow name
+    workflows: ["Format Check", "Type Check", "Bun Test"]
     types:
       - completed
 
@@ -53,7 +53,7 @@ jobs:
           curl -X POST $SLACK_AUTOMERGE_ALERT_WEBHOOK_URL \
             -H "Content-Type: application/json" \
             -d "{
-              \"MESSAGE\": \"CI failed for automated package update in ${{ github.repository }} - PR #$PR_NUMBER: $PR_URL\"
+              \"MESSAGE\": \"CI failed for automated package update in ${{ github.repository }} - PR #${PR_NUMBER}: ${PR_URL}\"
             }"
             
           # Optional: Still add a comment to the PR for visibility
