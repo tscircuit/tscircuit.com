@@ -57,8 +57,8 @@ export const CreateOrganizationPage = () => {
     if (formData.display_name) {
       if (formData.display_name.length > 40) {
         newErrors.display_name = "Display name must be less than 40 characters"
-      } else if (formData.display_name.length < 5) {
-        newErrors.display_name = "Display name must be at least 5 characters"
+      } else if (formData.display_name.length < 3) {
+        newErrors.display_name = "Display name must be at least 3 characters"
       }
     }
 

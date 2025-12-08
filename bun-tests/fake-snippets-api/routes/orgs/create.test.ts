@@ -54,6 +54,20 @@ test("POST /api/orgs/create - should accept display_name and use it", async () =
   expect(responseBody.org.display_name).toBe(displayName)
 })
 
+test("POST /api/orgs/create - should accept 3 character display_name", async () => {
+  const { axios } = await getTestServer()
+  const name = "acme-corp-96"
+  const displayName = "abc"
+  const createResponse = await axios.post("/api/orgs/create", {
+    tscircuit_handle: name,
+    display_name: displayName,
+  })
+
+  expect(createResponse.status).toBe(200)
+  const responseBody = createResponse.data
+  expect(responseBody.org.display_name).toBe(displayName)
+})
+
 test("POST /api/orgs/create - should map tscircuit_handle as display_name when not provided", async () => {
   const { axios, db } = await getTestServer()
   const name = "acme-corp"
