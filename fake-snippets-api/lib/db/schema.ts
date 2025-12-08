@@ -353,6 +353,7 @@ export const packageSchema = z.object({
   creator_account_id: z.string(),
   owner_org_id: z.string(),
   owner_github_username: z.string().nullable(),
+  org_owner_tscircuit_handle: z.string().nullable().optional(),
   github_repo_full_name: z.string().nullable(),
   name: z.string(),
   unscoped_name: z.string(),

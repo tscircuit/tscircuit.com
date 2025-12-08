@@ -230,6 +230,7 @@ export default function EditorNav({
     { target: window },
   )
   const packageNameWithOwner = pkg?.name
+  const packageOwnerHandle = pkg?.org_owner_tscircuit_handle
   const packageOwnerName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[0]
     : pkg?.owner_github_username
@@ -246,7 +247,7 @@ export default function EditorNav({
               <div className="flex items-center space-x-1 overflow-hidden">
                 <Link
                   className="text-blue-500 font-semibold hover:underline truncate"
-                  href={`/${packageOwnerName}`}
+                  href={`/${packageOwnerHandle || packageOwnerName}`}
                   title={packageOwnerName || ""}
                 >
                   {packageOwnerName}

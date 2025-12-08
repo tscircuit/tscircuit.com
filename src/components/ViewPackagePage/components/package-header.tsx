@@ -34,6 +34,7 @@ export default function PackageHeader({
   const packageOwnerName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[0]
     : packageInfo?.owner_github_username
+  const packageOwnerHandle = packageInfo?.org_owner_tscircuit_handle
   const packageName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[1]
     : packageInfo?.unscoped_name
@@ -81,18 +82,18 @@ export default function PackageHeader({
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between flex-wrap gap-y-2">
           <div className="flex items-center min-w-0 flex-wrap">
-            {packageOwnerName && packageName ? (
+            {packageName ? (
               <>
                 <h1 className="text-lg md:text-xl font-bold mr-2 break-words">
                   <Link
-                    href={`/${packageOwnerName}`}
+                    href={`/${packageOwnerHandle || packageOwnerName}`}
                     className="text-blue-600 hover:underline"
                   >
                     {packageOwnerName}
                   </Link>
                   <span className="px-1 text-gray-500">/</span>
                   <Link
-                    href={`/${packageOwnerName}/${packageName}`}
+                    href={`/${packageNameWithOwner}`}
                     className="text-blue-600 hover:underline"
                   >
                     {packageName}
