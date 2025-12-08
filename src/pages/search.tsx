@@ -45,7 +45,7 @@ export const SearchPage = () => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const currentUser = useGlobalStore((s) => s.session)
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
   const [category, setCategory] = useState(
