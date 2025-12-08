@@ -24,6 +24,7 @@ export const HeaderLogin = () => {
   const axios = useAxios()
   const [, setLocation] = useLocation()
   const { data: organizations } = useListUserOrgs()
+  const personalOrg = organizations?.find((org) => org.is_personal_org)
   const nonPersonalOrgs = organizations?.filter((org) => !org.is_personal_org)
   const tscircuitHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
@@ -62,7 +63,8 @@ export const HeaderLogin = () => {
             className="rounded-full w-fit focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             <GithubAvatarWithFallback
-              username={session?.github_username}
+              username={personalOrg?.tscircuit_handle}
+              imageUrl={personalOrg?.avatar_url}
               className="w-8 h-8 focus:outline-none focus:ring-0 !ring-0"
               size={40}
               colorClassName="text-black"
