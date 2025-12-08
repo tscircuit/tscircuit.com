@@ -217,7 +217,7 @@ export default function UserSettingsPage() {
               <div className="p-6 lg:p-8">
                 <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
                   <GithubAvatarWithFallback
-                    username={session.github_username}
+                    username={session?.tscircuit_handle}
                     imageUrl={
                       avatarPreview || personalOrg?.avatar_url || undefined
                     }

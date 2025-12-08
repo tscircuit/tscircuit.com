@@ -28,7 +28,7 @@ const ProfileRouter: React.FC = () => {
     return <OrganizationProfilePageContent org={organization} />
   }
 
-  return <UserProfilePage />
+  return <UserProfilePage org={organization} />
 }
 
 export default ProfileRouter

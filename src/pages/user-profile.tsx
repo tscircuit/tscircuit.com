@@ -2,7 +2,7 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { PackageCard } from "@/components/PackageCard"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -29,7 +29,7 @@ import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesLis
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
-export const UserProfilePage = () => {
+export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
   const { username } = useParams()
   const axios = useAxios()
   const { data: organizations } = useListUserOrgs(username)
@@ -59,7 +59,6 @@ export const UserProfilePage = () => {
       refetchOnWindowFocus: false,
     },
   )
-
   // use the username stored in the database so the correct case is displayed
   const githubUsername = account?.account?.github_username || username
   const isCurrentUserProfile = githubUsername === session?.github_username
@@ -187,15 +186,13 @@ export const UserProfilePage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6">
-          <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={`https://github.com/${githubUsername}.png?size=300`}
-              draggable={false}
-            />
-            <AvatarFallback className="select-none">
-              {githubUsername?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <GithubAvatarWithFallback
+            username={org?.tscircuit_handle}
+            imageUrl={org.avatar_url}
+            className="shadow-sm size-16 border-2 border-gray-200"
+            fallbackClassName="font-semibold text-lg"
+            colorClassName="text-black"
+          />
           <div>
             <h1 className="text-3xl font-bold">
               {isCurrentUserProfile
