@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useSignIn } from "@/hooks/use-sign-in"
 import { Link, useLocation } from "wouter"
 import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
@@ -19,16 +18,24 @@ import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
-  const signIn = useSignIn()
   const [isOpen, setIsOpen] = useState(false)
   const axios = useAxios()
-  const [, setLocation] = useLocation()
+  const [location, setLocation] = useLocation()
   const { data: organizations } = useListUserOrgs()
   const personalOrg = organizations?.find((org) => org.is_personal_org)
   const nonPersonalOrgs = organizations?.filter((org) => !org.is_personal_org)
   const tscircuitHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
   )
+
+  const orgLoginRedirect = location?.startsWith("/")
+    ? location
+    : `/${location ?? ""}`
+
+  const goToOrgLogin = () => {
+    const redirect = orgLoginRedirect || "/"
+    setLocation(`/org-login?redirect=${encodeURIComponent(redirect)}`)
+  }
 
   const isLoggedIn = Boolean(session)
 
@@ -47,10 +54,10 @@ export const HeaderLogin = () => {
   if (!isLoggedIn) {
     return (
       <div className="flex items-center md:space-x-2 justify-end">
-        <Button onClick={() => signIn()} variant="ghost">
+        <Button onClick={goToOrgLogin} variant="ghost">
           Log In
         </Button>
-        <Button onClick={() => signIn()}>Get Started</Button>
+        <Button onClick={goToOrgLogin}>Get Started</Button>
       </div>
     )
   }
