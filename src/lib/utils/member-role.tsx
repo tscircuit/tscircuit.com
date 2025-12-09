@@ -54,14 +54,3 @@ export const getRoleColor = (role: MemberRole) => {
       return "bg-gray-100 text-gray-800 border-gray-200"
   }
 }
-
-export const getRoleDescription = (role: MemberRole) => {
-  switch (role) {
-    case "owner":
-      return "Full access to organization settings"
-    case "manager":
-      return "Limited administrative privileges"
-    case "member":
-      return "Standard member access"
-  }
-}
