@@ -555,7 +555,7 @@ export type DatabaseSchema = z.infer<typeof databaseSchema>
 
 export const tscircuitHandleSchema = z
   .string()
-  .min(5)
+  .min(3)
   .max(40)
   .regex(
     /^[0-9A-Za-z][0-9A-Za-z_-]*[0-9A-Za-z]$/,
