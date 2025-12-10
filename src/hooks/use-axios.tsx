@@ -3,7 +3,7 @@ import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
 import { ToastContent, useToast } from "./use-toast"
-import { useSignIn } from "./use-sign-in"
+import { useLocation } from "wouter"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
@@ -12,7 +12,10 @@ export const useAxios = () => {
     (s) => s.openTscircuitHandleRequiredDialog,
   )
   const { toastLibrary } = useToast()
-  const signIn = useSignIn()
+  const [location, setLocation] = useLocation()
+  const orgLoginRedirect = location?.startsWith("/")
+    ? location
+    : `/${location ?? ""}`
   return useMemo(() => {
     const instance = axios.create({
       baseURL: snippetsBaseApiUrl,
@@ -36,7 +39,14 @@ export const useAxios = () => {
       if (status === 401) {
         toastLibrary.custom(
           (t) => (
-            <div onClick={() => signIn()} className="cursor-pointer">
+            <div
+              onClick={() =>
+                setLocation(
+                  `/org-login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
+                )
+              }
+              className="cursor-pointer"
+            >
               <ToastContent
                 title={
                   errorCode == "session_not_found" ||
