@@ -6,7 +6,7 @@ import { ErrorOutline } from "@/components/ErrorOutline"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 
 export const EditorPage = () => {
-  const { packageInfo: pkg, error } = useCurrentPackageInfo()
+  const { packageInfo: pkg, error, isFetched } = useCurrentPackageInfo()
 
   const uuid4RegExp = new RegExp(
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
@@ -40,7 +40,7 @@ export const EditorPage = () => {
       </Helmet>
       <Header />
       <div className="flex-1 overflow-y-auto">
-        {!error && <CodeAndPreview pkg={pkg} />}
+        {!error && <CodeAndPreview pkg={pkg} isPackageFetched={isFetched} />}
         {error &&
           (error.status === 404 ||
             !uuid4RegExp.test(pkg?.package_id ?? "")) && (

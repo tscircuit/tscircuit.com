@@ -9,6 +9,7 @@ export const useCurrentPackageInfo = (): {
   isLoading: boolean
   error: (Error & { status: number }) | null
   refetch: () => Promise<unknown>
+  isFetched: boolean
 } => {
   const urlParams = useUrlParams()
   const packageIdFromQuery = urlParams.package_id ?? null
@@ -28,5 +29,11 @@ export const useCurrentPackageInfo = (): {
 
   const refetch = packageIdFromQuery ? queryById.refetch : queryByName.refetch
 
-  return { packageInfo: data, isLoading, error, refetch }
+  return {
+    packageInfo: data,
+    isLoading,
+    error,
+    refetch,
+    isFetched: queryById.isFetched || queryByName.isFetched,
+  }
 }
