@@ -419,7 +419,7 @@ export const ConnectedRepoOverview = ({
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
-                            className="text-gray-600 whitespace-pre-wrap"
+                            className="text-gray-600 whitespace-pre-wrap break-words"
                           >
                             {log.msg || log.message || JSON.stringify(log)}
                           </div>
@@ -432,7 +432,7 @@ export const ConnectedRepoOverview = ({
                     {usercodeStreamedLogs.map((log: string, i: number) => (
                       <div
                         key={`streamed-log-${i}`}
-                        className="text-gray-600 whitespace-pre-wrap"
+                        className="text-gray-600 whitespace-pre-wrap break-words"
                       >
                         {log}
                       </div>
