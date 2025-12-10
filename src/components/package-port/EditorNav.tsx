@@ -40,8 +40,8 @@ import { useToast } from "@/hooks/use-toast"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
-import { TypeBadge } from "@/components/TypeBadge"
 import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
+import { useOrganization } from "@/hooks/use-organization"
 import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
 import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
@@ -122,6 +122,14 @@ export default function EditorNav({
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
+
+  const { organization } = useOrganization(
+    pkg?.owner_org_id
+      ? { orgId: String(pkg.owner_org_id) }
+      : pkg?.owner_github_username
+        ? { github_handle: pkg.owner_github_username }
+        : {},
+  )
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkPackageMutation({
     pkg: pkg!,
@@ -212,14 +220,18 @@ export default function EditorNav({
     }
   }
 
-  const canSavePackage = useMemo(
-    () =>
-      Boolean(
-        isLoggedIn &&
-          (!pkg || pkg?.owner_github_username === session?.github_username),
-      ),
-    [isLoggedIn, pkg, session?.github_username],
-  )
+  const canManagePackage = useMemo(() => {
+    if (!isLoggedIn) return false
+    if (organization?.owner_account_id === session?.account_id) return true
+    if (organization?.user_permissions?.can_manage_org) return true
+    return false
+  }, [isLoggedIn, organization, session?.account_id])
+
+  const canSavePackage = useMemo(() => {
+    if (!isLoggedIn) return false
+    if (!pkg) return true
+    return canManagePackage
+  }, [isLoggedIn, pkg, canManagePackage])
 
   useHotkeyCombo(
     "cmd+s",
@@ -267,7 +279,7 @@ export default function EditorNav({
                   {pkg.star_count}
                 </span>
               )}
-              {pkg.owner_github_username === session?.github_username && (
+              {canManagePackage && (
                 <>
                   <TooltipProvider>
                     <Tooltip>
@@ -442,74 +454,71 @@ export default function EditorNav({
                 <File className="mr-2 h-3 w-3" />
                 View Files
               </DropdownMenuItem>
-              {pkg &&
-                session?.github_username === pkg?.owner_github_username && (
-                  <>
-                    <DropdownMenuItem
+              {pkg && canManagePackage && (
+                <>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => openupdateDescriptionDialog()}
+                  >
+                    <FilePenLine className="mr-2 h-3 w-3" />
+                    Edit Description
+                  </DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger
                       className="text-xs"
-                      onClick={() => openupdateDescriptionDialog()}
+                      disabled={isChangingType || hasUnsavedChanges}
                     >
-                      <FilePenLine className="mr-2 h-3 w-3" />
-                      Edit Description
-                    </DropdownMenuItem>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger
+                      <Edit2 className="mr-2 h-3 w-3" />
+                      {isChangingType ? "Changing..." : "Change Type"}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
                         className="text-xs"
-                        disabled={isChangingType || hasUnsavedChanges}
+                        disabled={currentType === "board" || isChangingType}
+                        onClick={() => handleTypeChange("board")}
                       >
-                        <Edit2 className="mr-2 h-3 w-3" />
-                        {isChangingType ? "Changing..." : "Change Type"}
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem
-                          className="text-xs"
-                          disabled={currentType === "board" || isChangingType}
-                          onClick={() => handleTypeChange("board")}
-                        >
-                          Board {currentType === "board" && "✓"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-xs"
-                          disabled={currentType === "package" || isChangingType}
-                          onClick={() => handleTypeChange("package")}
-                        >
-                          Module {currentType === "package" && "✓"}
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="text-xs">
-                        <Edit2 className="mr-2 h-3 w-3" />
-                        Change Package Visibility
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem
-                          className="text-xs"
-                          disabled={isPrivate}
-                          onClick={() => updatePackageVisibilityToPrivate(true)}
-                        >
-                          Private {isPrivate && "✓"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-xs"
-                          disabled={!isPrivate}
-                          onClick={() =>
-                            updatePackageVisibilityToPrivate(false)
-                          }
-                        >
-                          Public {!isPrivate && "✓"}
-                        </DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuItem
-                      className="text-xs text-red-600"
-                      onClick={() => openDeleteDialog()}
-                    >
-                      <Trash2 className="mr-2 h-3 w-3" />
-                      Delete Package
-                    </DropdownMenuItem>
-                  </>
-                )}
+                        Board {currentType === "board" && "✓"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-xs"
+                        disabled={currentType === "package" || isChangingType}
+                        onClick={() => handleTypeChange("package")}
+                      >
+                        Module {currentType === "package" && "✓"}
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger className="text-xs">
+                      <Edit2 className="mr-2 h-3 w-3" />
+                      Change Package Visibility
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
+                        className="text-xs"
+                        disabled={isPrivate}
+                        onClick={() => updatePackageVisibilityToPrivate(true)}
+                      >
+                        Private {isPrivate && "✓"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-xs"
+                        disabled={!isPrivate}
+                        onClick={() => updatePackageVisibilityToPrivate(false)}
+                      >
+                        Public {!isPrivate && "✓"}
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuItem
+                    className="text-xs text-red-600"
+                    onClick={() => openDeleteDialog()}
+                  >
+                    <Trash2 className="mr-2 h-3 w-3" />
+                    Delete Package
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -550,17 +559,16 @@ export default function EditorNav({
                   Discard Changes
                 </DropdownMenuItem>
               )}
-              {pkg &&
-                session?.github_username === pkg?.owner_github_username && (
-                  <DropdownMenuItem
-                    className="text-xs"
-                    onClick={() => createReleaseDialog.openDialog()}
-                    disabled={hasUnsavedChanges || isSaving}
-                  >
-                    <Tag className="mr-1 h-3 w-3" />
-                    Create Release
-                  </DropdownMenuItem>
-                )}
+              {pkg && canManagePackage && (
+                <DropdownMenuItem
+                  className="text-xs"
+                  onClick={() => createReleaseDialog.openDialog()}
+                  disabled={hasUnsavedChanges || isSaving}
+                >
+                  <Tag className="mr-1 h-3 w-3" />
+                  Create Release
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => {
@@ -581,16 +589,13 @@ export default function EditorNav({
               <DropdownMenuItem
                 className="text-xs"
                 onClick={() => {
-                  if (
-                    pkg &&
-                    session?.github_username === pkg.owner_github_username
-                  ) {
+                  if (pkg && canManagePackage) {
                     updatePackageVisibilityToPrivate(!isPrivate)
                   }
                 }}
               >
                 <Eye className="mr-1 h-3 w-3" />
-                {session?.github_username === pkg?.owner_github_username
+                {canManagePackage
                   ? isPrivate
                     ? "Make Public"
                     : "Make Private"
