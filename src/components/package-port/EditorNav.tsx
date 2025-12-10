@@ -126,8 +126,8 @@ export default function EditorNav({
   const { organization } = useOrganization(
     pkg?.owner_org_id
       ? { orgId: String(pkg.owner_org_id) }
-      : pkg?.owner_github_username
-        ? { github_handle: pkg.owner_github_username }
+      : pkg?.org_owner_tscircuit_handle
+        ? { orgTscircuitHandle: pkg.org_owner_tscircuit_handle }
         : {},
   )
 
@@ -221,22 +221,24 @@ export default function EditorNav({
   }
 
   const canManagePackage = useMemo(() => {
+    if (!pkg) return true
     if (!isLoggedIn) return false
     if (organization?.owner_account_id === session?.account_id) return true
     if (organization?.user_permissions?.can_manage_org) return true
+    if (pkg?.creator_account_id === session?.account_id) return true
     return false
-  }, [isLoggedIn, organization, session?.account_id])
-
-  const canSavePackage = useMemo(() => {
-    if (!isLoggedIn) return false
-    if (!pkg) return true
-    return canManagePackage
-  }, [isLoggedIn, pkg, canManagePackage])
+  }, [
+    isLoggedIn,
+    pkg,
+    organization,
+    session?.account_id,
+    pkg?.creator_account_id,
+  ])
 
   useHotkeyCombo(
     "cmd+s",
     () => {
-      if (!hasUnsavedChanges || !canSavePackage) return
+      if (!hasUnsavedChanges || !canManagePackage) return
       onSave()
     },
     { target: window },
@@ -349,17 +351,17 @@ export default function EditorNav({
               Not logged in, can't save
             </div>
           )}
-          {(canSavePackage || (isLoggedIn && pkg)) && (
+          {(canManagePackage || (isLoggedIn && pkg)) && (
             <Button
               variant="outline"
               size="sm"
               className={"ml-1 h-6 px-2 text-xs save-button"}
               disabled={
-                canSavePackage && pkg ? !hasUnsavedChanges : !isLoggedIn
+                canManagePackage && pkg ? !hasUnsavedChanges : !isLoggedIn
               }
-              onClick={canSavePackage ? onSave : () => forkSnippet()}
+              onClick={canManagePackage ? onSave : () => forkSnippet()}
             >
-              {canSavePackage ? (
+              {canManagePackage ? (
                 <>
                   <Save className="mr-1 h-3 w-3" />
                   Save
