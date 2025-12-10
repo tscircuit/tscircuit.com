@@ -94,7 +94,9 @@ export const GitHubRepositorySelector = ({
     const params = new URLSearchParams()
     if (orgId) params.set("org_id", orgId)
     if (session?.account_id) params.set("account_id", session.account_id)
-    params.set("redirect_uri", window.location.href)
+    const redirectUrl = new URL(window.location.href)
+    redirectUrl.searchParams.set("open_edit_package_dialog", "true")
+    params.set("redirect_uri", redirectUrl.toString())
     window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
   }
 
