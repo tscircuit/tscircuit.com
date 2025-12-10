@@ -82,7 +82,7 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
 
   for (const name of invalidNames) {
     try {
-      const response = await axios.post("/api/orgs/create", {
+      await axios.post("/api/orgs/create", {
         tscircuit_handle: name,
       })
       throw new Error(`Expected request to fail for name: ${name}`)
