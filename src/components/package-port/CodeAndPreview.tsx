@@ -23,6 +23,7 @@ interface Props {
    * reporting autorouting bugs
    */
   projectUrl?: string
+  isPackageFetched?: boolean
 }
 
 export interface CodeAndPreviewState {
@@ -35,7 +36,7 @@ export interface CodeAndPreviewState {
   defaultComponentFile?: string
 }
 
-export function CodeAndPreview({ pkg, projectUrl }: Props) {
+export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
 
@@ -161,6 +162,7 @@ export function CodeAndPreview({ pkg, projectUrl }: Props) {
       <EditorNav
         circuitJson={state.circuitJson}
         pkg={pkg}
+        isPackageFetched={isPackageFetched}
         packageType={packageType}
         code={String(currentFileCode)}
         fsMap={fsMap}

@@ -48,8 +48,8 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
               size={300}
             />
 
-            <div>
-              <div className="flex flex-col items-center gap-1 md:gap-3 mb-3">
+            <div className="w-full">
+              <div className="flex flex-col items-center gap-1 mb-3">
                 <Link
                   href={`/${organization.tscircuit_handle}`}
                   className="font-bold text-gray-900 text-xl"
@@ -64,20 +64,9 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                     @{organization.tscircuit_handle}
                   </Link>
                 )}
-                {canManageOrg && showActions && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full md:w-auto mt-3 md:mt-0"
-                    onClick={handleSettingsClick}
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Button>
-                )}
               </div>
 
-              <div className="grid grid-cols-2 md:flex flex-wrap justify-center gap-4 text-sm">
+              <div className="flex justify-center gap-6 text-sm">
                 {!isLoading && (
                   <>
                     <div className="flex items-center gap-1.5 text-gray-600">
@@ -93,6 +82,18 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                   </>
                 )}
               </div>
+              {canManageOrg && showActions && (
+                <div className="mt-4 w-full px-4">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleSettingsClick}
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
