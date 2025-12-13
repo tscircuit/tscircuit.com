@@ -4,7 +4,7 @@ export const publicMapPackage = (internalPackage: {
   package_id: string
   creator_account_id: string
   owner_org_id: string
-  owner_github_username: string | null
+  owner_github_username?: string | null
   is_source_from_github: boolean
   description: string | null
   latest_version?: string | null
@@ -31,6 +31,7 @@ export const publicMapPackage = (internalPackage: {
   latest_pcb_preview_image_url?: string | null
   latest_sch_preview_image_url?: string | null
   latest_cad_preview_image_url?: string | null
+  org_owner_tscircuit_handle?: string | null
 }): zt.Package => {
   return {
     ...internalPackage,
@@ -56,5 +57,7 @@ export const publicMapPackage = (internalPackage: {
       internalPackage.latest_sch_preview_image_url ?? null,
     latest_cad_preview_image_url:
       internalPackage.latest_cad_preview_image_url ?? null,
+    org_owner_tscircuit_handle:
+      internalPackage.org_owner_tscircuit_handle ?? null,
   }
 }
