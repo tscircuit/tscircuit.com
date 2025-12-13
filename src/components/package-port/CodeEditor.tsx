@@ -110,6 +110,7 @@ export const CodeEditor = ({
   const [showQuickOpen, setShowQuickOpen] = useState(false)
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null)
+  const [typesLoaded, setTypesLoaded] = useState(false)
   const highlightTimeoutRef = useRef<number | null>(null)
 
   const { highlighter } = useShikiHighlighter()
@@ -242,6 +243,7 @@ export const CodeEditor = ({
       fetcher: fetchWithPackageCaching as typeof fetch,
       delegate: {
         started: () => {
+          setTypesLoaded(false)
           const manualEditsTypeDeclaration = `
 				  declare module "manual-edits.json" {
 				  const value: {
@@ -264,6 +266,13 @@ export const CodeEditor = ({
           // Avoid dispatching a view update when ATA downloads files. Dispatching
           // here caused the editor to reset the user's selection, which made text
           // selection impossible while dependencies were loading.
+        },
+        finished: () => {
+          // Types have finished loading - mark as loaded after a short delay
+          // to ensure the language service has processed everything
+          setTimeout(() => {
+            setTypesLoaded(true)
+          }, 500)
         },
       },
     }
@@ -395,7 +404,8 @@ export const CodeEditor = ({
             }),
             tsSync(),
             linter(async (view) => {
-              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+              // Suppress diagnostics only during initial type loading
+              if (!typesLoaded) {
                 return []
               }
               const config = view.state.facet(tsFacet)
@@ -838,6 +848,7 @@ export const CodeEditor = ({
               aiAutocompleteEnabled,
               setAiAutocompleteEnabled,
             ]}
+            typesLoaded={typesLoaded}
           />
         )}
         <div

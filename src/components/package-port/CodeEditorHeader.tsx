@@ -16,6 +16,7 @@ import {
   FileText,
   Package,
   MoreHorizontal,
+  Loader2,
 } from "lucide-react"
 import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
 import {
@@ -53,6 +54,7 @@ interface CodeEditorHeaderProps {
   isLoadingFiles: boolean
   createFile: (props: ICreateFileProps) => ICreateFileResult
   aiAutocompleteState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+  typesLoaded?: boolean
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -65,6 +67,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   entrypointFileName = "index.tsx",
   createFile,
   aiAutocompleteState,
+  typesLoaded = true,
 }) => {
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
@@ -382,6 +385,30 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 <TooltipContent>
                   <p>
                     Manual edits exist but have not been imported. Click to fix.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {!typesLoaded && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-blue-500 hover:bg-blue-50 px-2"
+                    disabled
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="ml-1 hidden lg:inline">Loading Types</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    TypeScript types are loading. Diagnostics will be available
+                    once complete.
                   </p>
                 </TooltipContent>
               </Tooltip>
