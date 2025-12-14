@@ -23,7 +23,11 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import { Package, PackageFile, PackageRelease } from "fake-snippets-api/lib/db/schema"
+import {
+  Package,
+  PackageFile,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 import { BuildStatusBadge } from "./build-status-badge"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useDownloadZip } from "@/hooks/use-download-zip"
@@ -88,9 +92,7 @@ export default function MainContentHeader({
           activeView={activeView}
           onViewChange={onViewChange}
         />
-        {packageRelease && (
-          <BuildStatusBadge packageRelease={packageRelease} />
-        )}
+        {packageRelease && <BuildStatusBadge packageRelease={packageRelease} />}
       </div>
 
       <div className="flex space-x-2">
