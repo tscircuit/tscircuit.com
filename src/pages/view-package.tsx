@@ -6,13 +6,13 @@ import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { SentryNotFoundReporter } from "@/components/SentryNotFoundReporter"
+import { ContentLoadingErrorPage } from "@/components/ContentLoadingErrorPage"
 
 export const ViewPackagePage = () => {
   const { author, packageName } = useParams()
   const packageNameFull = `${author}/${packageName}`
   const [, setLocation] = useLocation()
 
-  // Get package data directly by name - this will also cache by ID
   const {
     data: packageInfo,
     error: packageError,
@@ -32,12 +32,31 @@ export const ViewPackagePage = () => {
     usePackageFiles(packageRelease?.package_release_id)
 
   if (!isLoadingPackage && packageError) {
+    const status = (packageError as any)?.status
+    if (status === 403) {
+      return (
+        <ContentLoadingErrorPage
+          heading="Access Forbidden"
+          subtitle="You don't have permission to view this package. Check your organization settings or contact the package owner."
+          error={packageError}
+        />
+      )
+    }
+    if (status !== 404) {
+      return (
+        <ContentLoadingErrorPage
+          heading="Error Loading Package"
+          subtitle={`Failed to load package "${packageNameFull}".`}
+          error={packageError}
+        />
+      )
+    }
     return (
       <>
         <SentryNotFoundReporter
           context="package"
           slug={packageNameFull}
-          status={(packageError as any)?.status}
+          status={status}
           message={packageError.message}
         />
         <NotFoundPage heading="Package Not Found" />
@@ -45,16 +64,38 @@ export const ViewPackagePage = () => {
     )
   }
 
-  if (!isLoadingPackageRelease && packageReleaseError?.status == 404) {
+  if (!isLoadingPackageRelease && packageReleaseError) {
+    const status = packageReleaseError.status
+    if (status === 403) {
+      return (
+        <ContentLoadingErrorPage
+          heading="Access Forbidden"
+          subtitle="You don't have permission to view this package release. This may be due to misconfigured organization settings."
+          error={packageReleaseError}
+        />
+      )
+    }
+    if (status !== 404) {
+      return (
+        <ContentLoadingErrorPage
+          heading="Error Loading Package Release"
+          subtitle={`Package "${packageNameFull}" exists but there was an error loading its release.`}
+          error={packageReleaseError}
+        />
+      )
+    }
     return (
       <>
         <SentryNotFoundReporter
           context="package_release"
           slug={packageNameFull}
-          status={packageReleaseError.status}
+          status={status}
           message={packageReleaseError.message}
         />
-        <NotFoundPage heading="Package Not Found" />
+        <NotFoundPage
+          heading="Package Release Not Found"
+          subtitle={`Package "${packageNameFull}" exists but has no published releases. The package may not have been fully saved.`}
+        />
       </>
     )
   }

@@ -934,13 +934,13 @@ export default function OrganizationSettingsPage() {
                 {/* Invitations Section */}
                 {invitations.length > 0 && (
                   <div className="mt-8">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                       <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                         <Mail className="h-5 w-5" />
                         Invitations
                       </h3>
                       <div
-                        className="flex gap-2"
+                        className="flex flex-wrap gap-2"
                         role="group"
                         aria-label="Filter invitations by status"
                       >

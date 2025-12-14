@@ -271,7 +271,14 @@ export function useFileManagement({
       totalFilesCount > 0 &&
       localFiles.length === 0
 
-    return waitingForPriorityFile || hasPackageWithFilesButNoneLoaded
+    const isDefaultTemplateFile =
+      !urlParams.package_id && localFiles.length === 0
+
+    return (
+      waitingForPriorityFile ||
+      hasPackageWithFilesButNoneLoaded ||
+      isDefaultTemplateFile
+    )
   }, [
     isPriorityFileFetched,
     urlParams.package_id,
