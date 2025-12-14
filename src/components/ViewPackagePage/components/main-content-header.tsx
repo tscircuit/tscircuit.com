@@ -23,7 +23,8 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
+import { Package, PackageFile, PackageRelease } from "fake-snippets-api/lib/db/schema"
+import { BuildStatusBadge } from "./build-status-badge"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
@@ -33,6 +34,7 @@ interface MainContentHeaderProps {
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
   packageInfo?: Package
+  packageRelease?: PackageRelease
 }
 
 export default function MainContentHeader({
@@ -40,6 +42,7 @@ export default function MainContentHeader({
   activeView,
   onViewChange,
   packageInfo,
+  packageRelease,
 }: MainContentHeaderProps) {
   const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
@@ -80,10 +83,15 @@ export default function MainContentHeader({
 
   return (
     <div className="flex items-center justify-between mb-4">
-      <MainContentViewSelector
-        activeView={activeView}
-        onViewChange={onViewChange}
-      />
+      <div className="flex items-center gap-2">
+        <MainContentViewSelector
+          activeView={activeView}
+          onViewChange={onViewChange}
+        />
+        {packageRelease && (
+          <BuildStatusBadge packageRelease={packageRelease} />
+        )}
+      </div>
 
       <div className="flex space-x-2">
         <DownloadButtonAndMenu

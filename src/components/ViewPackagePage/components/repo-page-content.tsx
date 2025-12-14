@@ -215,6 +215,7 @@ export default function RepoPageContent({
                 window.location.hash = view
               }}
               packageInfo={packageInfo}
+              packageRelease={packageRelease}
             />
 
             {/* Dynamic Content based on active view */}
