@@ -464,6 +464,31 @@ export default function OrganizationSettingsPage() {
         inviteeEmail: email,
       },
       {
+        onSuccess: () => {
+          toast({
+            title: "Invitation resent",
+            description: `A new invitation has been sent to ${email}`,
+          })
+        },
+        onError: (error: any) => {
+          setInviteError("")
+          const errorCode = error?.data?.error?.error_code
+          if (errorCode === "invitation_already_exists") {
+            toast({
+              title: "Invitation already sent",
+              description:
+                "An active invitation for this email already exists. Ask them to check their spam folder.",
+            })
+          } else {
+            toast({
+              title: "Failed to resend invitation",
+              description:
+                error?.data?.error?.message ||
+                "An error occurred while resending the invitation.",
+              variant: "destructive",
+            })
+          }
+        },
         onSettled: () => setResendingInvitationId(null),
       },
     )
