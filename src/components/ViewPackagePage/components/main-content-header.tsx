@@ -90,33 +90,24 @@ export default function MainContentHeader({
     currentVersion && latestVersion && currentVersion !== latestVersion
 
   return (
-    <div className="flex flex-col gap-3 mb-4">
-      <div className="flex items-center gap-3 flex-wrap">
-        {onVersionChange && packageInfo?.package_id && (
-          <ReleaseVersionSelector
-            packageId={packageInfo.package_id}
-            currentVersion={currentVersion || null}
-            onVersionChange={onVersionChange}
-            latestVersion={latestVersion}
+    <div className="flex flex-col gap-2 mb-4">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          {onVersionChange && packageInfo?.package_id && (
+            <ReleaseVersionSelector
+              packageId={packageInfo.package_id}
+              currentVersion={currentVersion || null}
+              onVersionChange={onVersionChange}
+              latestVersion={latestVersion}
+              compact
+            />
+          )}
+          <MainContentViewSelector
+            activeView={activeView}
+            onViewChange={onViewChange}
           />
-        )}
-        {isViewingOlderVersion && onVersionChange && (
-          <button
-            onClick={() => onVersionChange(latestVersion!, "")}
-            className="px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-          >
-            Viewing older version.{" "}
-            <span className="underline">Switch to latest</span>
-          </button>
-        )}
-      </div>
-      <div className="flex items-center justify-between">
-        <MainContentViewSelector
-          activeView={activeView}
-          onViewChange={onViewChange}
-        />
-
-        <div className="flex space-x-2">
+        </div>
+        <div className="flex items-center gap-2">
           <DownloadButtonAndMenu
             unscopedName={packageInfo?.unscoped_name}
             desiredImageType={activeView}
@@ -205,6 +196,15 @@ export default function MainContentHeader({
           </DropdownMenu>
         </div>
       </div>
+      {isViewingOlderVersion && onVersionChange && (
+        <button
+          onClick={() => onVersionChange(latestVersion!, "")}
+          className="self-start px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+        >
+          Viewing older version.{" "}
+          <span className="underline">Switch to latest</span>
+        </button>
+      )}
     </div>
   )
 }

@@ -29,7 +29,7 @@ export default function ReleaseVersionSelector({
   const { data: releases, isLoading } = usePackageReleasesByPackageId(packageId)
 
   if (isLoading) {
-    return <Skeleton className={compact ? "h-7 w-24" : "h-8 w-32"} />
+    return <Skeleton className="h-8 w-24 rounded-md" />
   }
 
   if (!releases || releases.length === 0) {
@@ -46,16 +46,14 @@ export default function ReleaseVersionSelector({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size={compact ? "sm" : "default"}
-          className={`${compact ? "h-7 px-2 text-xs" : "h-8 px-3 text-sm"} font-medium`}
+          size="sm"
+          className="h-[38px] text-sm shadow-none"
         >
-          <Tag className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"} mr-1.5`} />
-          <span className="truncate max-w-[100px]">
+          <Tag className="h-4 w-4 mr-1.5" />
+          <span className="truncate max-w-[80px]">
             v{currentVersion || latestVersion}
           </span>
-          <ChevronDown
-            className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"} ml-1.5 opacity-50`}
-          />
+          <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -86,7 +84,7 @@ export default function ReleaseVersionSelector({
                       v{release.version}
                     </span>
                     {isReleaseLatest && (
-                      <span className="px-1 py-0.5 text-[10px] bg-blue-100 text-blue-700 rounded flex-shrink-0">
+                      <span className="px-1 py-0.5 text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded flex-shrink-0">
                         latest
                       </span>
                     )}
