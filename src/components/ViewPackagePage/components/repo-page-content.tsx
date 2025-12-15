@@ -30,7 +30,7 @@ import SidebarReleasesSection from "./sidebar-releases-section"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
-  content_text?: string | null // Keep for backward compatibility
+  content_text?: string | null
 }
 
 interface RepoPageContentProps {
@@ -41,6 +41,9 @@ interface RepoPageContentProps {
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
   arePackageFilesFetched?: boolean
+  currentVersion?: string | null
+  latestVersion?: string
+  onVersionChange?: (version: string, releaseId: string) => void
 }
 
 export default function RepoPageContent({
@@ -50,6 +53,9 @@ export default function RepoPageContent({
   packageRelease,
   onFileClicked,
   onEditClicked,
+  currentVersion,
+  latestVersion,
+  onVersionChange,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
   const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
@@ -203,7 +209,6 @@ export default function RepoPageContent({
       {/* Main Content */}
       <div className="max-w-[1200px] mx-auto">
         <div className="flex flex-col md:flex-row">
-          {/* Main Content Area */}
           <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
             {/* Main Content Header with Tabs */}
             <MainContentHeader
@@ -215,6 +220,9 @@ export default function RepoPageContent({
                 window.location.hash = view
               }}
               packageInfo={packageInfo}
+              currentVersion={currentVersion}
+              latestVersion={latestVersion}
+              onVersionChange={onVersionChange}
             />
 
             {/* Dynamic Content based on active view */}
@@ -245,7 +253,6 @@ export default function RepoPageContent({
             />
           </div>
 
-          {/* Sidebar - Hidden on mobile, shown on md and up */}
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
             <Sidebar
               packageInfo={packageInfo}
@@ -258,7 +265,6 @@ export default function RepoPageContent({
               onLicenseClick={handleLicenseFileRequest}
             />
           </div>
-          {/* Releases section - Only visible on small screens */}
           <div className="block md:hidden w-full px-5">
             <SidebarReleasesSection />
           </div>

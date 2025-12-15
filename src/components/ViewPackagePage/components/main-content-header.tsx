@@ -27,12 +27,17 @@ import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
+import ReleaseVersionSelector from "./release-version-selector"
+
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
   activeView: string
   onViewChange: (view: string) => void
   onExportClicked?: (exportType: string) => void
   packageInfo?: Package
+  currentVersion?: string | null
+  latestVersion?: string
+  onVersionChange?: (version: string, releaseId: string) => void
 }
 
 export default function MainContentHeader({
@@ -40,6 +45,9 @@ export default function MainContentHeader({
   activeView,
   onViewChange,
   packageInfo,
+  currentVersion,
+  latestVersion,
+  onVersionChange,
 }: MainContentHeaderProps) {
   const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
@@ -78,103 +86,124 @@ export default function MainContentHeader({
 
   const { circuitJson } = useCurrentPackageCircuitJson()
 
-  return (
-    <div className="flex items-center justify-between mb-4">
-      <MainContentViewSelector
-        activeView={activeView}
-        onViewChange={onViewChange}
-      />
+  const isViewingOlderVersion =
+    currentVersion && latestVersion && currentVersion !== latestVersion
 
-      <div className="flex space-x-2">
-        <DownloadButtonAndMenu
-          unscopedName={packageInfo?.unscoped_name}
-          desiredImageType={activeView}
-          author={packageInfo?.owner_github_username ?? undefined}
-          circuitJson={circuitJson}
+  return (
+    <div className="flex flex-col gap-3 mb-4">
+      <div className="flex items-center gap-3 flex-wrap">
+        {onVersionChange && packageInfo?.package_id && (
+          <ReleaseVersionSelector
+            packageId={packageInfo.package_id}
+            currentVersion={currentVersion || null}
+            onVersionChange={onVersionChange}
+            latestVersion={latestVersion}
+          />
+        )}
+        {isViewingOlderVersion && onVersionChange && (
+          <button
+            onClick={() => onVersionChange(latestVersion!, "")}
+            className="px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+          >
+            Viewing older version.{" "}
+            <span className="underline">Switch to latest</span>
+          </button>
+        )}
+      </div>
+      <div className="flex items-center justify-between">
+        <MainContentViewSelector
+          activeView={activeView}
+          onViewChange={onViewChange}
         />
 
-        {/* Code Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
-            >
-              <CodeIcon className="h-4 w-4 mr-1.5" />
-              Code
-              <ChevronDown className="h-4 w-4 ml-0.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72 relative z-[101]">
-            <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
-              <a
-                href={`/editor?package_id=${packageInfo?.package_id}`}
+        <div className="flex space-x-2">
+          <DownloadButtonAndMenu
+            unscopedName={packageInfo?.unscoped_name}
+            desiredImageType={activeView}
+            author={packageInfo?.owner_github_username ?? undefined}
+            circuitJson={circuitJson}
+          />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 dark:bg-[#238636] dark:hover:bg-[#2ea043] text-white"
+              >
+                <CodeIcon className="h-4 w-4 mr-1.5" />
+                Code
+                <ChevronDown className="h-4 w-4 ml-0.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72 relative z-[101]">
+              <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
+                <a
+                  href={`/editor?package_id=${packageInfo?.package_id}`}
+                  className="cursor-pointer px-2 py-3"
+                >
+                  <Pencil className="h-4 w-4 mx-3" />
+                  Edit Online
+                </a>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                disabled={!Boolean(packageInfo)}
+                onClick={handleDownloadZip}
                 className="cursor-pointer px-2 py-3"
               >
-                <Pencil className="h-4 w-4 mx-3" />
-                Edit Online
-              </a>
-            </DropdownMenuItem>
+                <Package2 className="h-4 w-4 mx-3" />
+                Download ZIP
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              disabled={!Boolean(packageInfo)}
-              onClick={handleDownloadZip}
-              className="cursor-pointer px-2 py-3"
-            >
-              <Package2 className="h-4 w-4 mx-3" />
-              Download ZIP
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+              <div className="p-2">
+                <div className="text-sm font-medium mb-4 flex items-center">
+                  <DownloadIcon className="h-4 w-4 inline-block mr-1.5" />
+                  Install
+                </div>
+                <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
+                  <code className="flex-1 overflow-x-auto">
+                    tsci add{" "}
+                    {packageInfo?.name || "@tscircuit/keyboard-default60"}
+                  </code>
+                  <button
+                    className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
+                    onClick={handleCopyInstall}
+                  >
+                    {copyInstallState === "copy" ? (
+                      <Copy className="h-4 w-4" />
+                    ) : (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
 
-            {/* Install Option */}
-            <div className="p-2">
-              <div className="text-sm font-medium mb-4 flex items-center">
-                <DownloadIcon className="h-4 w-4 inline-block mr-1.5" />
-                Install
+              <div className="p-2">
+                <div className="text-sm font-medium mb-4 flex items-center">
+                  <GitForkIcon className="h-4 w-4 inline-block mr-1.5" />
+                  Clone
+                </div>
+                <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
+                  <code className="flex-1 overflow-x-auto">
+                    tsci clone{" "}
+                    {packageInfo?.name || "@tscircuit/keyboard-default60"}
+                  </code>
+                  <button
+                    className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
+                    onClick={handleCopyClone}
+                  >
+                    {copyCloneState === "copy" ? (
+                      <Copy className="h-4 w-4" />
+                    ) : (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
-                <code className="flex-1 overflow-x-auto">
-                  tsci add{" "}
-                  {packageInfo?.name || "@tscircuit/keyboard-default60"}
-                </code>
-                <button
-                  className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
-                  onClick={handleCopyInstall}
-                >
-                  {copyInstallState === "copy" ? (
-                    <Copy className="h-4 w-4" />
-                  ) : (
-                    <Check className="h-4 w-4 text-green-500" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Clone Option */}
-            <div className="p-2">
-              <div className="text-sm font-medium mb-4 flex items-center">
-                <GitForkIcon className="h-4 w-4 inline-block mr-1.5" />
-                Clone
-              </div>
-              <div className="flex items-center bg-gray-100 dark:bg-[#161b22] rounded-md p-2 text-xs font-mono">
-                <code className="flex-1 overflow-x-auto">
-                  tsci clone{" "}
-                  {packageInfo?.name || "@tscircuit/keyboard-default60"}
-                </code>
-                <button
-                  className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded"
-                  onClick={handleCopyClone}
-                >
-                  {copyCloneState === "copy" ? (
-                    <Copy className="h-4 w-4" />
-                  ) : (
-                    <Check className="h-4 w-4 text-green-500" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </div>
   )

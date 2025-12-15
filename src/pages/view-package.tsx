@@ -7,17 +7,61 @@ import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { SentryNotFoundReporter } from "@/components/SentryNotFoundReporter"
 import { ContentLoadingErrorPage } from "@/components/ContentLoadingErrorPage"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { useEffect, useMemo, useCallback } from "react"
+import { useUrlParams } from "@/hooks/use-url-params"
 
 export const ViewPackagePage = () => {
   const { author, packageName } = useParams()
   const packageNameFull = `${author}/${packageName}`
   const [, setLocation] = useLocation()
+  const urlParams = useUrlParams()
+  const versionFromUrl = urlParams.version
 
   const {
     data: packageInfo,
     error: packageError,
     isLoading: isLoadingPackage,
   } = usePackageByName(packageNameFull)
+
+  const { data: allReleases, isLoading: isLoadingReleases } =
+    usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
+
+  const latestVersion = useMemo(() => {
+    if (!allReleases || allReleases.length === 0) return null
+    const sorted = [...allReleases].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    return sorted[0].version
+  }, [allReleases])
+
+  const isVersionValid = useMemo(() => {
+    if (!versionFromUrl) return true
+    if (!allReleases || allReleases.length === 0) return true
+    return allReleases.some((r) => r.version === versionFromUrl)
+  }, [versionFromUrl, allReleases])
+
+  useEffect(() => {
+    if (
+      !isLoadingReleases &&
+      allReleases &&
+      allReleases.length > 0 &&
+      versionFromUrl &&
+      !isVersionValid
+    ) {
+      const params = new URLSearchParams(window.location.search)
+      params.delete("version")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname +
+        (newSearch ? `?${newSearch}` : "") +
+        window.location.hash
+      window.history.replaceState({}, "", newUrl)
+      window.dispatchEvent(new Event("popstate"))
+    }
+  }, [isLoadingReleases, allReleases, versionFromUrl, isVersionValid])
+
   const {
     packageRelease,
     error: packageReleaseError,
@@ -30,6 +74,25 @@ export const ViewPackagePage = () => {
 
   const { data: packageFiles, isFetched: arePackageFilesFetched } =
     usePackageFiles(packageRelease?.package_release_id)
+
+  const handleVersionChange = useCallback(
+    (version: string, _releaseId: string) => {
+      const params = new URLSearchParams(window.location.search)
+      if (version === latestVersion) {
+        params.delete("version")
+      } else {
+        params.set("version", version)
+      }
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname +
+        (newSearch ? `?${newSearch}` : "") +
+        window.location.hash
+      window.history.pushState({}, "", newUrl)
+      window.dispatchEvent(new Event("popstate"))
+    },
+    [latestVersion],
+  )
 
   if (!isLoadingPackage && packageError) {
     const status = (packageError as any)?.status
@@ -111,6 +174,9 @@ export const ViewPackagePage = () => {
         packageInfo={packageInfo}
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
+        currentVersion={versionFromUrl || packageRelease?.version || null}
+        latestVersion={latestVersion || undefined}
+        onVersionChange={handleVersionChange}
         onFileClicked={(file) => {
           if (!packageInfo?.package_id) return
           setLocation(
