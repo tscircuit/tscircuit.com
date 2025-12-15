@@ -89,3 +89,15 @@ test("POST /api/accounts/get - should be case insensitive", async () => {
   expect(response.status).toBe(200)
   expect(response.data.account.github_username).toBe("testuser")
 })
+
+test("POST /api/accounts/get - should return account by account_id", async () => {
+  const { axios } = await getTestServer()
+
+  const { data: selfData } = await axios.get("/api/accounts/get")
+  const response = await axios.post("/api/accounts/get", {
+    account_id: selfData.account.account_id,
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.account.account_id).toBe(selfData.account.account_id)
+})

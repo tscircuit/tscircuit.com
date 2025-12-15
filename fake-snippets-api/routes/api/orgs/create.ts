@@ -10,9 +10,9 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   commonParams: z
     .object({
-      display_name: z.string().min(5).max(40).optional(),
-      tscircuit_handle: tscircuitHandleSchema.optional(),
-      name: tscircuitHandleSchema.optional(),
+      display_name: z.string().min(3).max(40).optional(),
+      tscircuit_handle: tscircuitHandleSchema.min(3).optional(),
+      name: tscircuitHandleSchema.min(3).optional(),
     })
     .refine((data) => data.tscircuit_handle || data.name, {
       message: "Either tscircuit_handle or name is required",

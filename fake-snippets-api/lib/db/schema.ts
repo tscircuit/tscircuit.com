@@ -341,11 +341,17 @@ export const packageFileSchema = z.object({
   package_release_id: z.string(),
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
-  created_at: z.string().datetime(),
+  content_bytes: z.instanceof(Buffer).nullable().optional(),
   content_mimetype: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
   is_release_tarball: z.boolean().optional(),
   npm_pack_output: z.any().nullable().optional(),
 })
+
+export const packageFileLiteSchema = packageFileSchema.omit({
+  content_text: true,
+})
+export type PackageFileLite = z.infer<typeof packageFileLiteSchema>
 export type PackageFile = z.infer<typeof packageFileSchema>
 
 export const packageSchema = z.object({
@@ -555,9 +561,9 @@ export type DatabaseSchema = z.infer<typeof databaseSchema>
 
 export const tscircuitHandleSchema = z
   .string()
-  .min(5)
+  .min(1)
   .max(40)
   .regex(
-    /^[0-9A-Za-z][0-9A-Za-z_-]*[0-9A-Za-z]$/,
+    /^[0-9A-Za-z]([0-9A-Za-z_-]*[0-9A-Za-z])?$/,
     "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
   )

@@ -44,21 +44,21 @@ export const CreateOrganizationPage = () => {
       newErrors.handle = "Organization handle is required"
     } else if (formData.handle.length > 40) {
       newErrors.handle = "Organization handle must be less than 40 characters"
-    } else if (formData.handle.length < 5) {
-      newErrors.handle = "Organization handle must be at least 5 characters"
+    } else if (formData.handle.length < 3) {
+      newErrors.handle = "Organization handle must be at least 3 characters"
     }
 
     const normalizedName = normalizeName(formData.handle)
-    if (normalizedName.length < 5) {
+    if (normalizedName.length < 3) {
       newErrors.handle =
-        "Organization handle must be at least 5 characters after normalization"
+        "Organization handle must be at least 3 characters after normalization"
     }
 
     if (formData.display_name) {
       if (formData.display_name.length > 40) {
         newErrors.display_name = "Display name must be less than 40 characters"
-      } else if (formData.display_name.length < 5) {
-        newErrors.display_name = "Display name must be at least 5 characters"
+      } else if (formData.display_name.length < 3) {
+        newErrors.display_name = "Display name must be at least 3 characters"
       }
     }
 

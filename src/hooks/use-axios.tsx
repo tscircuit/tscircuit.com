@@ -67,6 +67,20 @@ export const useAxios = () => {
           ),
           { id: "auth-401" },
         )
+      } else if (status === 403) {
+        toastLibrary.custom(
+          (t) => (
+            <ToastContent
+              title="Access Forbidden"
+              description={
+                "You don't have permission to perform this action. Check your organization settings."
+              }
+              variant={"destructive"}
+              t={t}
+            />
+          ),
+          { id: "auth-403" },
+        )
       } else if (errorCode === "tscircuit_handle_required") {
         openHandleRequiredDialog(
           "Please set a tscircuit handle before using this feature.",

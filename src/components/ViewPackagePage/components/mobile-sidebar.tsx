@@ -60,6 +60,19 @@ const MobileSidebar = ({
     openDialog: openEditPackageDetailsDialog,
   } = useEditPackageDetailsDialog()
 
+  // Auto-open dialog if redirected back from GitHub installation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("open_edit_package_dialog") === "true") {
+      openEditPackageDetailsDialog()
+      params.delete("open_edit_package_dialog")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [openEditPackageDetailsDialog])
+
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
 

@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { ChevronDown, FileUp, Upload, Zap } from "lucide-react"
+import { ChevronDown, Upload, Zap } from "lucide-react"
 import { Link } from "wouter"
 
 export default function HeaderDropdown() {
@@ -62,7 +62,7 @@ export default function HeaderDropdown() {
         </DropdownMenuItem>
         {blankTemplates.map((template, index) => (
           <DropdownMenuItem key={index} asChild disabled={template.disabled}>
-            <Link
+            <a
               href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
               className={cn(
                 "flex items-center cursor-pointer",
@@ -74,7 +74,7 @@ export default function HeaderDropdown() {
                 className={`w-2 h-2 rounded-full mr-2 ${template.badgeColor}`}
               />
               {template.name}
-            </Link>
+            </a>
           </DropdownMenuItem>
         ))}
         <DropdownMenuItem asChild>
