@@ -1369,9 +1369,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_id" | "github_repo_full_name"
     >,
   ): Package => {
-    const timestamp = Date.now()
+    const state = get()
+    const nextId = state.idCounter + 1
     const newPackage = {
-      package_id: `package_${timestamp}`,
+      package_id: `package_${nextId}`,
       github_repo_full_name: null,
       latest_pcb_preview_image_url:
         _package.latest_pcb_preview_image_url ??
@@ -1385,6 +1386,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ..._package,
     }
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packages: [...state.packages, newPackage as Package],
     }))
     return newPackage as Package
@@ -1432,11 +1434,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_release_id"
     >,
   ): PackageRelease => {
+    const state = get()
+    const nextId = state.idCounter + 1
     const parsed = packageReleaseSchema.parse({
-      package_release_id: `package_release_${Date.now()}`,
+      package_release_id: `package_release_${nextId}`,
       ...packageRelease,
     })
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packageReleases: [...state.packageReleases, parsed],
     }))
     return parsed
