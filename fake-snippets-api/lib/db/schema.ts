@@ -341,11 +341,17 @@ export const packageFileSchema = z.object({
   package_release_id: z.string(),
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
-  created_at: z.string().datetime(),
+  content_bytes: z.instanceof(Buffer).nullable().optional(),
   content_mimetype: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
   is_release_tarball: z.boolean().optional(),
   npm_pack_output: z.any().nullable().optional(),
 })
+
+export const packageFileLiteSchema = packageFileSchema.omit({
+  content_text: true,
+})
+export type PackageFileLite = z.infer<typeof packageFileLiteSchema>
 export type PackageFile = z.infer<typeof packageFileSchema>
 
 export const packageSchema = z.object({
