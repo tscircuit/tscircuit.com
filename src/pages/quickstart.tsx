@@ -22,8 +22,8 @@ export const QuickstartPage = () => {
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
-  const isLoggedIn = Boolean(currentUser)
+  const currentUserAccountId = session?.account_id
+  const isLoggedIn = Boolean(currentUserAccountId)
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
   const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
@@ -46,10 +46,10 @@ export const QuickstartPage = () => {
     queryClient.removeQueries("userPackages")
   }, [queryClient])
   const { data: myPackages, isLoading } = useQuery<Package[]>(
-    ["userPackages", currentUser],
+    ["userPackages", currentUserAccountId],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: currentUser,
+        creator_account_id: currentUserAccountId,
       })
       return response.data.packages
     },
@@ -116,6 +116,13 @@ export const QuickstartPage = () => {
                       </Card>
                     </Link>
                   ))}
+                {myPackages && myPackages.length === 0 && (
+                  <div className="col-span-full flex items-center justify-center py-4">
+                    <p className="text-sm text-slate-400 tracking-wide">
+                      No recent packages yet
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
