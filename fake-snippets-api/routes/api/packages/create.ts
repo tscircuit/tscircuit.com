@@ -35,8 +35,8 @@ export default withRouteSpec({
         "Package name must include an author segment (e.g. author/package_name)",
     })
   }
-  const org = ctx.db.getOrg({ org_id })
-  if (Boolean(org_id) && !Boolean(org))
+  const org = org_id ? ctx.db.getOrg({ org_id }) : null
+  if (org_id && !org)
     return ctx.error(404, {
       error_code: "org_not_found",
       message: "Organization not found",
