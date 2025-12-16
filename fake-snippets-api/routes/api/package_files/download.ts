@@ -74,14 +74,31 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     })
   }
 
-  const contentType = "text/plain"
+  // Extract extension from file_path (e.g., "assets/logo.png" -> ".png")
+  const extension = packageFile.file_path.includes(".")
+    ? `.${packageFile.file_path.split(".").pop()}`
+    : ""
+  const filename = `${packageFile.package_file_id}${extension}`
 
   const headers = {
-    "Content-Type": contentType,
-    "Content-Disposition": `attachment; filename="${packageFile.file_path.split("/").pop()}"`,
+    "Content-Type":
+      packageFile.content_mimetype ||
+      (packageFile.content_text
+        ? "application/javascript"
+        : "application/octet-stream"),
+    "Content-Disposition": `attachment; filename="${filename}"`,
     "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
     Expires: new Date(Date.now() + 86400000).toUTCString(),
   }
 
-  return new Response(packageFile.content_text, { headers })
+  // Return text content if available, otherwise binary content
+  if (packageFile.content_text) {
+    return new Response(packageFile.content_text, { headers })
+  }
+
+  // Convert Buffer to Uint8Array for Response compatibility
+  const uint8Array = packageFile.content_bytes
+    ? new Uint8Array(packageFile.content_bytes)
+    : new Uint8Array()
+  return new Response(uint8Array, { headers })
 })

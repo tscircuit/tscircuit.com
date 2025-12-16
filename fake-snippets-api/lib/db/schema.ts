@@ -346,6 +346,7 @@ export const packageFileSchema = z.object({
   created_at: z.string().datetime(),
   is_release_tarball: z.boolean().optional(),
   npm_pack_output: z.any().nullable().optional(),
+  is_text: z.boolean().optional(),
 })
 
 export const packageFileLiteSchema = packageFileSchema.omit({
