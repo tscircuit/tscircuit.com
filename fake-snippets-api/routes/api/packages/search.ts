@@ -4,7 +4,7 @@ import { packageSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["POST"],
-  auth: "none",
+  auth: "optional_session",
   jsonBody: z.object({
     query: z.string(),
   }),
@@ -14,6 +14,7 @@ export default withRouteSpec({
   }),
 })(async (req, ctx) => {
   const { query } = req.jsonBody
-  const packages = ctx.db.searchPackages(query)
+  const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
+  const packages = ctx.db.searchPackages(query, auth?.account_id)
   return ctx.json({ packages, ok: true })
 })

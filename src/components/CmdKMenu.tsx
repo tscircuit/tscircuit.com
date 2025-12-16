@@ -67,7 +67,7 @@ const CmdKMenu = () => {
     useImportComponentDialog()
   const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
+  const currentUserAccountId = session?.account_id
   const jlcpcbProxyRequestHeaders = useMemo(
     () =>
       session?.token
@@ -172,7 +172,7 @@ const CmdKMenu = () => {
       }
     },
     {
-      enabled: Boolean(searchQuery) && Boolean(currentUser),
+      enabled: Boolean(searchQuery) && Boolean(currentUserAccountId),
       retry: false,
       refetchOnWindowFocus: false,
     },
@@ -208,12 +208,12 @@ const CmdKMenu = () => {
   }, [allAccounts, searchQuery])
 
   const { data: recentPackages = [] } = useQuery<Package[]>(
-    ["cmdKMenuPackages", currentUser],
+    ["cmdKMenuPackages", currentUserAccountId],
     async () => {
-      if (!currentUser) return []
+      if (!currentUserAccountId) return []
       try {
         const response = await axios.post(`/packages/list`, {
-          owner_github_username: currentUser,
+          creator_account_id: currentUserAccountId,
           limit: 5,
         })
         return response.data.packages || []
@@ -223,7 +223,7 @@ const CmdKMenu = () => {
       }
     },
     {
-      enabled: !!currentUser && !searchQuery,
+      enabled: !!currentUserAccountId && !searchQuery,
       retry: false,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
