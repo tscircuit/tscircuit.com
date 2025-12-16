@@ -111,6 +111,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "circuit-json-to-bom-csv": "^0.0.7",
+    "circuit-json-to-gerber": "^0.0.46",
     "circuit-json-to-gltf": "^0.0.14",
     "circuit-json-to-kicad": "^0.0.22",
     "circuit-json-to-lbrn": "^0.0.23",
