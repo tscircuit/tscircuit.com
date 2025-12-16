@@ -639,6 +639,7 @@ export const TestComponent = ({ name }: { name: string }) => (
 )
 `.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageFile({
     package_release_id: test2PackageReleaseId,
@@ -691,6 +692,7 @@ export const TestComponent = ({ name }: { name: string }) => (
   }
 ]`.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageBuild({
     package_release_id: test2PackageReleaseId,
@@ -1947,6 +1949,7 @@ export const SquareWaveModule = () => (
     )
     `.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageFile({
     package_release_id: testOrgPackageReleaseId,
@@ -1999,6 +2002,7 @@ export const SquareWaveModule = () => (
       }
     ]`.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageBuild({
     package_release_id: testOrgPackageReleaseId,
@@ -2196,6 +2200,7 @@ export default () => (
   </board>
 )`,
     created_at: new Date().toISOString(),
+    is_text: true,
   })
 
   // Read the GLB file from assets directory and add it as a package file
@@ -2207,6 +2212,7 @@ export default () => (
     content_bytes: glbFileContent,
     content_mimetype: "model/gltf-binary",
     created_at: new Date().toISOString(),
+    is_text: false,
   })
 
   // Add a successful build for the GLB model package

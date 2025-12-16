@@ -35,8 +35,8 @@ export default withRouteSpec({
         "Package name must include an author segment (e.g. author/package_name)",
     })
   }
-  const org = ctx.db.getOrg({ org_id })
-  if (Boolean(org_id) && !Boolean(org))
+  const org = org_id ? ctx.db.getOrg({ org_id }) : null
+  if (org_id && !org)
     return ctx.error(404, {
       error_code: "org_not_found",
       message: "Organization not found",
@@ -72,8 +72,7 @@ export default withRouteSpec({
   const requested_owner_lower = owner_segment.toLowerCase()
   const personal_owner_lower = ctx.auth.github_username.toLowerCase()
 
-  let owner_org_id = ctx.auth.personal_org_id
-  let owner_github_username = ctx.auth.github_username
+  let owner_org_id = org?.org_id ?? ctx.auth.personal_org_id
 
   if (requested_owner_lower !== personal_owner_lower) {
     const state = ctx.db.getState()
@@ -92,8 +91,6 @@ export default withRouteSpec({
     }
 
     owner_org_id = memberOrg.org_id
-    owner_github_username =
-      memberOrg.github_handle ?? memberOrg.tscircuit_handle ?? ""
   }
 
   const existingPackage = ctx.db
@@ -112,7 +109,6 @@ export default withRouteSpec({
     description: description ?? null,
     creator_account_id: ctx.auth.account_id,
     owner_org_id,
-    owner_github_username,
     latest_package_release_id: null,
     latest_package_release_fs_sha: null,
     latest_version: null,
@@ -134,8 +130,10 @@ export default withRouteSpec({
   if (!newPackage) {
     throw new Error("Failed to create package")
   }
-
   return ctx.json({
-    package: publicMapPackage(newPackage),
+    package: publicMapPackage({
+      ...newPackage,
+      org_owner_tscircuit_handle: org?.tscircuit_handle ?? null,
+    }),
   })
 })

@@ -1092,36 +1092,42 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((snippet): snippet is Snippet => snippet !== null)
   },
-  searchPackages: (query: string): Package[] => {
+  searchPackages: (query: string, account_id?: string): Package[] => {
     const state = get()
     const lowercaseQuery = query.toLowerCase()
 
-    // Get all packages that are public
-    const packages = state.packages.filter((pkg) => pkg.is_public === true)
+    const userOrgIds = account_id
+      ? new Set(
+          state.orgAccounts
+            .filter((oa) => oa.account_id === account_id)
+            .map((oa) => oa.org_id),
+        )
+      : new Set<string>()
 
-    // Find packages that match by name or description
+    const packages = state.packages.filter(
+      (pkg) =>
+        pkg.is_public === true ||
+        (account_id && pkg.owner_org_id && userOrgIds.has(pkg.owner_org_id)),
+    )
+
     const matchingPackagesByMetadata = packages.filter(
       (pkg) =>
         pkg.name.toLowerCase().includes(lowercaseQuery) ||
         pkg.description?.toLowerCase().includes(lowercaseQuery),
     )
 
-    // Find packages that match by code content in any file
     const matchingFilesByContent = state.packageFiles.filter(
       (file) =>
         file.content_text?.toLowerCase().includes(lowercaseQuery) ?? false,
     )
 
-    // Get the packages for matching files
     const matchingPackagesByContent = matchingFilesByContent
       .map((file) => {
-        // Find the package release for this file
         const packageRelease = state.packageReleases.find(
           (pr) => pr.package_release_id === file.package_release_id,
         )
         if (!packageRelease) return null
 
-        // Find the package for this release
         return packages.find(
           (pkg) =>
             pkg.latest_package_release_id === packageRelease.package_release_id,
@@ -1129,7 +1135,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((pkg): pkg is NonNullable<typeof pkg> => pkg !== null)
 
-    // Combine both sets of matching packages and remove duplicates
     const matchingPackages = [
       ...new Set([...matchingPackagesByMetadata, ...matchingPackagesByContent]),
     ]

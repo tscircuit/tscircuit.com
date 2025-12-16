@@ -139,7 +139,7 @@ test("list packages includes user_permissions when session provided", async () =
 
   const { data: unauthData } = await unauthenticatedAxios.get(
     "/api/packages/list",
-    { params: { owner_github_username: "testuser" } },
+    { params: { owner_tscircuit_handle: "testuser" } },
   )
   expect(unauthData.packages[0].user_permissions).toBeUndefined()
 })

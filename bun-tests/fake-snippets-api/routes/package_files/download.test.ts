@@ -41,7 +41,9 @@ test("download package file by package_file_id", async () => {
 
   expect(downloadResponse.status).toBe(200)
   expect(downloadResponse.data).toBe(fileContent)
-  expect(downloadResponse.headers.get("content-type")).toContain("text/plain")
+  expect(downloadResponse.headers.get("content-type")).toContain(
+    "application/javascript",
+  )
   expect(downloadResponse.headers.get("content-disposition")).toContain(
     "attachment",
   )
@@ -96,7 +98,9 @@ test("download package file by package_name_with_version and file_path", async (
 
   expect(downloadResponse.status).toBe(200)
   expect(downloadResponse.data).toBe(fileContent)
-  expect(downloadResponse.headers.get("content-type")).toContain("text/plain")
+  expect(downloadResponse.headers.get("content-type")).toContain(
+    "application/javascript",
+  )
   expect(downloadResponse.headers.get("content-disposition")).toContain(
     "attachment",
   )
