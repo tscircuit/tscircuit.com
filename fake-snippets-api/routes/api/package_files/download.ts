@@ -74,19 +74,13 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     })
   }
 
-  // Extract extension from file_path (e.g., "assets/logo.png" -> ".png")
-  const extension = packageFile.file_path.includes(".")
-    ? `.${packageFile.file_path.split(".").pop()}`
-    : ""
-  const filename = `${packageFile.package_file_id}${extension}`
-
   const headers = {
     "Content-Type":
       packageFile.content_mimetype ||
       (packageFile.content_text
         ? "application/javascript"
         : "application/octet-stream"),
-    "Content-Disposition": `attachment; filename="${filename}"`,
+    "Content-Disposition": `attachment; filename="${packageFile.file_path.split("/").pop()}"`,
     "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
     Expires: new Date(Date.now() + 86400000).toUTCString(),
   }
