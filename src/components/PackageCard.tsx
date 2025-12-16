@@ -76,9 +76,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     pkg.default_view as "pcb" | "schematic" | "3d",
   )
   const packageNameWithOwner = pkg?.name
-  const packageOwnerName = packageNameWithOwner?.includes("/")
-    ? packageNameWithOwner?.split("/")[0]
-    : pkg?.owner_github_username
+  const packageOwnerName =
+    pkg?.org_owner_tscircuit_handle ??
+    (packageNameWithOwner?.includes("/")
+      ? packageNameWithOwner?.split("/")[0]
+      : pkg?.owner_github_username)
   const packageName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[1]
     : pkg?.unscoped_name
