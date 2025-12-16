@@ -58,8 +58,9 @@ test("get schematic svg of a package", async () => {
     fs_sha: `md5-${fsMapHash}`,
   })
 
+  const ownerName = pkg.data.package.name.split("/")[0]
   const response = await axios.get(
-    `/api/packages/images/${pkg.data.package.owner_github_username}/${pkg.data.package.unscoped_name}/schematic.svg`,
+    `/api/packages/images/${ownerName}/${pkg.data.package.unscoped_name}/schematic.svg`,
     {
       params: {
         fs_sha: `md5-${fsMapHash}`,

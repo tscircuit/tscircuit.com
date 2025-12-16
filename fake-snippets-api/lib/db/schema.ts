@@ -341,18 +341,25 @@ export const packageFileSchema = z.object({
   package_release_id: z.string(),
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
-  created_at: z.string().datetime(),
+  content_bytes: z.instanceof(Buffer).nullable().optional(),
   content_mimetype: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
   is_release_tarball: z.boolean().optional(),
   npm_pack_output: z.any().nullable().optional(),
+  is_text: z.boolean().optional(),
 })
+
+export const packageFileLiteSchema = packageFileSchema.omit({
+  content_text: true,
+})
+export type PackageFileLite = z.infer<typeof packageFileLiteSchema>
 export type PackageFile = z.infer<typeof packageFileSchema>
 
 export const packageSchema = z.object({
   package_id: z.string(),
   creator_account_id: z.string(),
   owner_org_id: z.string(),
-  owner_github_username: z.string().nullable(),
+  owner_github_username: z.string().nullable().optional(),
   org_owner_tscircuit_handle: z.string().nullable().optional(),
   github_repo_full_name: z.string().nullable(),
   name: z.string(),

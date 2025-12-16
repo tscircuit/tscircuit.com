@@ -1092,36 +1092,42 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((snippet): snippet is Snippet => snippet !== null)
   },
-  searchPackages: (query: string): Package[] => {
+  searchPackages: (query: string, account_id?: string): Package[] => {
     const state = get()
     const lowercaseQuery = query.toLowerCase()
 
-    // Get all packages that are public
-    const packages = state.packages.filter((pkg) => pkg.is_public === true)
+    const userOrgIds = account_id
+      ? new Set(
+          state.orgAccounts
+            .filter((oa) => oa.account_id === account_id)
+            .map((oa) => oa.org_id),
+        )
+      : new Set<string>()
 
-    // Find packages that match by name or description
+    const packages = state.packages.filter(
+      (pkg) =>
+        pkg.is_public === true ||
+        (account_id && pkg.owner_org_id && userOrgIds.has(pkg.owner_org_id)),
+    )
+
     const matchingPackagesByMetadata = packages.filter(
       (pkg) =>
         pkg.name.toLowerCase().includes(lowercaseQuery) ||
         pkg.description?.toLowerCase().includes(lowercaseQuery),
     )
 
-    // Find packages that match by code content in any file
     const matchingFilesByContent = state.packageFiles.filter(
       (file) =>
         file.content_text?.toLowerCase().includes(lowercaseQuery) ?? false,
     )
 
-    // Get the packages for matching files
     const matchingPackagesByContent = matchingFilesByContent
       .map((file) => {
-        // Find the package release for this file
         const packageRelease = state.packageReleases.find(
           (pr) => pr.package_release_id === file.package_release_id,
         )
         if (!packageRelease) return null
 
-        // Find the package for this release
         return packages.find(
           (pkg) =>
             pkg.latest_package_release_id === packageRelease.package_release_id,
@@ -1129,7 +1135,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((pkg): pkg is NonNullable<typeof pkg> => pkg !== null)
 
-    // Combine both sets of matching packages and remove duplicates
     const matchingPackages = [
       ...new Set([...matchingPackagesByMetadata, ...matchingPackagesByContent]),
     ]
@@ -1369,9 +1374,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_id" | "github_repo_full_name"
     >,
   ): Package => {
-    const timestamp = Date.now()
+    const state = get()
+    const nextId = state.idCounter + 1
     const newPackage = {
-      package_id: `package_${timestamp}`,
+      package_id: `package_${nextId}`,
       github_repo_full_name: null,
       latest_pcb_preview_image_url:
         _package.latest_pcb_preview_image_url ??
@@ -1385,6 +1391,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ..._package,
     }
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packages: [...state.packages, newPackage as Package],
     }))
     return newPackage as Package
@@ -1432,11 +1439,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_release_id"
     >,
   ): PackageRelease => {
+    const state = get()
+    const nextId = state.idCounter + 1
     const parsed = packageReleaseSchema.parse({
-      package_release_id: `package_release_${Date.now()}`,
+      package_release_id: `package_release_${nextId}`,
       ...packageRelease,
     })
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packageReleases: [...state.packageReleases, parsed],
     }))
     return parsed

@@ -3,6 +3,11 @@ import { useAxios } from "@/hooks/use-axios"
 import { usePackageFiles } from "@/hooks/use-package-files"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState, useMemo } from "react"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+
+function blobToBlobUrl(blob: Blob): string {
+  return URL.createObjectURL(blob)
+}
 
 export interface PackageFile {
   path: string
@@ -22,6 +27,7 @@ export function useOptimizedPackageFilesLoader(
   priorityFilePath?: string | null,
 ) {
   const axios = useAxios()
+  const apiBaseUrl = useApiBaseUrl()
   const [loadedFiles, setLoadedFiles] = useState<Map<string, PackageFile>>(
     new Map(),
   )
@@ -62,11 +68,24 @@ export function useOptimizedPackageFilesLoader(
     queryFn: async () => {
       if (!priorityFileData) return null
 
+      // First get file metadata to check if it's binary
       const response = await axios.get(`/package_files/get`, {
         params: { package_file_id: priorityFileData.package_file_id },
       })
-      const content = response.data.package_file?.content_text
-      const file = { path: priorityFileData.file_path, content: content ?? "" }
+      const packageFile = response.data.package_file
+
+      let content: string
+      if (packageFile?.is_text === false) {
+        // Binary file - use download endpoint to get binary content
+        const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${priorityFileData.package_file_id}`
+        const binaryResponse = await fetch(downloadUrl)
+        const blob = await binaryResponse.blob()
+        content = blobToBlobUrl(blob)
+      } else {
+        // Text file
+        content = packageFile?.content_text ?? ""
+      }
+      const file = { path: priorityFileData.file_path, content }
 
       setLoadedFiles((prev) => {
         const newMap = new Map(prev)
@@ -89,11 +108,24 @@ export function useOptimizedPackageFilesLoader(
       ?.map((file) => ({
         queryKey: ["packageFile", file.package_file_id],
         queryFn: async () => {
+          // First get file metadata to check if it's binary
           const response = await axios.get(`/package_files/get`, {
             params: { package_file_id: file.package_file_id },
           })
-          const content = response.data.package_file?.content_text
-          const fileData = { path: file.file_path, content: content ?? "" }
+          const packageFile = response.data.package_file
+
+          let content: string
+          if (packageFile?.is_text === false) {
+            // Binary file - use download endpoint to get binary content
+            const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
+            const binaryResponse = await fetch(downloadUrl)
+            const blob = await binaryResponse.blob()
+            content = blobToBlobUrl(blob)
+          } else {
+            // Text file
+            content = packageFile?.content_text ?? ""
+          }
+          const fileData = { path: file.file_path, content }
 
           setLoadedFiles((prev) => {
             const newMap = new Map(prev)
