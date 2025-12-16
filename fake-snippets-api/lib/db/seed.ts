@@ -1,5 +1,10 @@
+import { readFileSync } from "node:fs"
+import { join, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
 import { DbClient } from "./db-client"
 import { loadAutoloadPackages } from "./autoload-dev-packages"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
@@ -634,6 +639,7 @@ export const TestComponent = ({ name }: { name: string }) => (
 )
 `.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageFile({
     package_release_id: test2PackageReleaseId,
@@ -686,6 +692,7 @@ export const TestComponent = ({ name }: { name: string }) => (
   }
 ]`.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageBuild({
     package_release_id: test2PackageReleaseId,
@@ -1942,6 +1949,7 @@ export const SquareWaveModule = () => (
     )
     `.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageFile({
     package_release_id: testOrgPackageReleaseId,
@@ -1994,6 +2002,7 @@ export const SquareWaveModule = () => (
       }
     ]`.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageBuild({
     package_release_id: testOrgPackageReleaseId,
@@ -2128,5 +2137,120 @@ exports.TestComponent = TestComponent;
   db.addOrganizationAccount({
     org_id: testOrg.org_id,
     account_id: seveibarAcc.account_id,
+  })
+
+  // Add a package with a custom 3D model (GLB file)
+  const glbModelPackage = db.addPackage({
+    name: "testuser/custom-3d-model",
+    unscoped_name: "custom-3d-model",
+    creator_account_id: account_id,
+    owner_org_id: "org-1234",
+    owner_github_username: "testuser",
+    description: "A package demonstrating custom 3D CAD model usage",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_source_from_github: false,
+    snippet_type: "package",
+    latest_package_release_id: null,
+    latest_version: "0.0.1",
+    license: "MIT",
+    website: "https://tscircuit.com",
+    star_count: 5,
+    ai_description:
+      "A package that demonstrates how to use custom 3D CAD models (GLB files) with tscircuit components.",
+    ai_usage_instructions:
+      "Import the default component and use it in your circuit design. The component includes a custom 3D model for visualization.",
+    default_view: "3d",
+  })
+
+  const { package_release_id: glbModelReleaseId } = db.addPackageRelease({
+    package_id: glbModelPackage.package_id,
+    version: "0.0.1",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+
+  // Update the package to link to the release
+  db.updatePackage(glbModelPackage.package_id, {
+    latest_package_release_id: glbModelReleaseId,
+  })
+
+  // Add the index.tsx file
+  db.addPackageFile({
+    package_release_id: glbModelReleaseId,
+    file_path: "index.tsx",
+    content_text: `import glbUrl from "./test.glb"
+export default () => (
+  <board>
+    <chip
+      name="U1"
+      cadModel={
+        <cadassembly>
+          <cadmodel
+            modelUrl={glbUrl}
+            modelUnitToMmScale={1000}
+            positionOffset={{ x: 0, y: 0, z: 0.2 }}
+          />
+        </cadassembly>
+      }
+    />
+  </board>
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
+  // Read the GLB file from assets directory and add it as a package file
+  const glbFilePath = join(__dirname, "assets", "test.glb")
+  const glbFileContent = readFileSync(glbFilePath)
+  db.addPackageFile({
+    package_release_id: glbModelReleaseId,
+    file_path: "test.glb",
+    content_bytes: glbFileContent,
+    content_mimetype: "model/gltf-binary",
+    created_at: new Date().toISOString(),
+    is_text: false,
+  })
+
+  // Add a successful build for the GLB model package
+  db.addPackageBuild({
+    package_release_id: glbModelReleaseId,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(),
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(),
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[INFO] Processing GLB asset file",
+      "[INFO] Generating TypeScript definitions",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(),
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(),
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[INFO] Loading custom 3D model",
+      "[INFO] Validating CAD assembly structure",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(),
+    build_completed_at: new Date().toISOString(),
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Asset processing - OK\n" +
+      "3. Code compilation - OK\n" +
+      "4. 3D model validation - OK\n" +
+      "Build completed successfully",
   })
 }

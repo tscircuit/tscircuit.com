@@ -39,11 +39,14 @@ export default withRouteSpec({
   // Parse the view format
   const [outputType, format] = view_format.split(".")
 
-  // Get the package
+  // Get the package by owner handle and unscoped name
+  const ownerOrg = ctx.db.organizations.find(
+    (o) =>
+      o.tscircuit_handle?.toLowerCase() === owner_github_username.toLowerCase(),
+  )
   const pkg = ctx.db.packages.find(
     (p) =>
-      p.owner_github_username === owner_github_username &&
-      p.unscoped_name === unscoped_name,
+      p.owner_org_id === ownerOrg?.org_id && p.unscoped_name === unscoped_name,
   )
 
   // If package is not found, return 404

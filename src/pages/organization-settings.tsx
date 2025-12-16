@@ -56,6 +56,7 @@ import {
   X,
   Github,
   ImageUp,
+  RotateCw,
 } from "lucide-react"
 import { getMemberRole } from "@/lib/utils/member-role"
 import { RoleBadge } from "@/components/ui/role-badge"
@@ -112,6 +113,9 @@ export default function OrganizationSettingsPage() {
     "all" | "pending" | "accepted" | "expired" | "revoked"
   >("all")
   const [showRevokeDialog, setShowRevokeDialog] = useState<string | null>(null)
+  const [resendingInvitationId, setResendingInvitationId] = useState<
+    string | null
+  >(null)
 
   const form = useForm<OrganizationSettingsFormData>({
     resolver: zodResolver(organizationSettingsSchema),
@@ -449,6 +453,45 @@ export default function OrganizationSettingsPage() {
       orgId: organization.org_id,
       inviteeEmail: email,
     })
+  }
+
+  const handleResendInvitation = (invitationId: string, email: string) => {
+    if (!organization || !email) return
+    setResendingInvitationId(invitationId)
+    createInvitationMutation.mutate(
+      {
+        orgId: organization.org_id,
+        inviteeEmail: email,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Invitation resent",
+            description: `A new invitation has been sent to ${email}`,
+          })
+        },
+        onError: (error: any) => {
+          setInviteError("")
+          const errorCode = error?.data?.error?.error_code
+          if (errorCode === "invitation_already_exists") {
+            toast({
+              title: "Invitation already sent",
+              description:
+                "An active invitation for this email already exists. Ask them to check their spam folder.",
+            })
+          } else {
+            toast({
+              title: "Failed to resend invitation",
+              description:
+                error?.data?.error?.message ||
+                "An error occurred while resending the invitation.",
+              variant: "destructive",
+            })
+          }
+        },
+        onSettled: () => setResendingInvitationId(null),
+      },
+    )
   }
 
   const handleRemoveMember = (member: Account) => {
@@ -1037,24 +1080,57 @@ export default function OrganizationSettingsPage() {
                                     </p>
                                   )}
                               </div>
-                              {invitation.is_pending &&
-                                !invitation.is_expired && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      setShowRevokeDialog(
-                                        invitation.org_invitation_id,
-                                      )
-                                    }
-                                    disabled={
-                                      revokeInvitationMutation.isLoading
-                                    }
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
-                                  >
-                                    Revoke
-                                  </Button>
-                                )}
+                              <div className="flex items-center gap-2">
+                                {(invitation.is_pending ||
+                                  invitation.is_expired) &&
+                                  !invitation.is_revoked &&
+                                  !invitation.is_accepted &&
+                                  invitation.invitee_email && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        handleResendInvitation(
+                                          invitation.org_invitation_id,
+                                          invitation.invitee_email!,
+                                        )
+                                      }
+                                      disabled={
+                                        resendingInvitationId ===
+                                        invitation.org_invitation_id
+                                      }
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-4 py-2"
+                                    >
+                                      {resendingInvitationId ===
+                                      invitation.org_invitation_id ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <>
+                                          <RotateCw className="h-4 w-4 mr-1" />
+                                          Resend
+                                        </>
+                                      )}
+                                    </Button>
+                                  )}
+                                {invitation.is_pending &&
+                                  !invitation.is_expired && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        setShowRevokeDialog(
+                                          invitation.org_invitation_id,
+                                        )
+                                      }
+                                      disabled={
+                                        revokeInvitationMutation.isLoading
+                                      }
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
+                                    >
+                                      Revoke
+                                    </Button>
+                                  )}
+                              </div>
                             </div>
                           )
                         })
