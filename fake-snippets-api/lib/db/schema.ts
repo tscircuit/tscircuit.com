@@ -526,6 +526,7 @@ export const publicOrgSchema = z.object({
   package_count: z.number(),
   avatar_url: z.string().nullable().optional(),
   github_handle: z.string().nullable(),
+  github_installation_handles: z.array(z.string()).optional(),
   tscircuit_handle: z.string().nullable(),
   created_at: z.string(),
   user_permissions: userPermissionsSchema.optional(),
