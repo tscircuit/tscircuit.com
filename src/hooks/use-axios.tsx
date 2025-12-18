@@ -8,6 +8,7 @@ import { useLocation } from "wouter"
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
+  const setSession = useGlobalStore((s) => s.setSession)
   const openHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
   )
@@ -37,6 +38,11 @@ export const useAxios = () => {
       const errorCode =
         error?.data?.error_code || error?.data?.error?.error_code
       if (status === 401) {
+        const isSessionInvalid =
+          errorCode === "session_not_found" || errorCode === "session_expired"
+        if (isSessionInvalid) {
+          setSession(null)
+        }
         toastLibrary.custom(
           (t) => (
             <div
@@ -48,15 +54,9 @@ export const useAxios = () => {
               className="cursor-pointer"
             >
               <ToastContent
-                title={
-                  errorCode == "session_not_found" ||
-                  errorCode == "session_expired"
-                    ? "Session Expired"
-                    : "Unauthorized"
-                }
+                title={isSessionInvalid ? "Session Expired" : "Unauthorized"}
                 description={
-                  errorCode == "session_not_found" ||
-                  errorCode == "session_expired"
+                  isSessionInvalid
                     ? "Your session has expired. Click here to sign in again"
                     : "You may need to sign in. Click here to sign in again"
                 }
