@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button"
 import {
   ChevronDown,
   CodeIcon,
-  Download,
   Copy,
   Check,
-  Hammer,
   Pencil,
   GitForkIcon,
   DownloadIcon,
@@ -23,8 +21,12 @@ import {
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useLocation } from "wouter"
-import { Package, PackageFile } from "fake-snippets-api/lib/db/schema"
-import { usePackageFiles } from "@/hooks/use-package-files"
+import {
+  Package,
+  PackageFile,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
+import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
@@ -38,6 +40,7 @@ interface MainContentHeaderProps {
   currentVersion?: string | null
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
+  packageRelease?: PackageRelease
 }
 
 export default function MainContentHeader({
@@ -48,6 +51,7 @@ export default function MainContentHeader({
   currentVersion,
   latestVersion,
   onVersionChange,
+  packageRelease,
 }: MainContentHeaderProps) {
   const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
@@ -114,6 +118,14 @@ export default function MainContentHeader({
             author={packageInfo?.owner_github_username ?? undefined}
             circuitJson={circuitJson}
           />
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <MainContentViewSelector
+          activeView={activeView}
+          onViewChange={onViewChange}
+        />
+        {packageRelease && <BuildStatusBadge packageRelease={packageRelease} />}
+      </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

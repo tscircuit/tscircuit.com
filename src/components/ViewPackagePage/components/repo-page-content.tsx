@@ -223,6 +223,7 @@ export default function RepoPageContent({
               currentVersion={currentVersion}
               latestVersion={latestVersion}
               onVersionChange={onVersionChange}
+              packageRelease={packageRelease}
             />
 
             {/* Dynamic Content based on active view */}
