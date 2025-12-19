@@ -179,16 +179,24 @@ export const ViewPackagePage = () => {
         onVersionChange={handleVersionChange}
         onFileClicked={(file) => {
           if (!packageInfo?.package_id) return
+          const versionParam =
+            versionFromUrl && versionFromUrl !== latestVersion
+              ? `&version=${versionFromUrl}`
+              : ""
           setLocation(
-            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}`,
+            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}${versionParam}`,
           )
         }}
         onEditClicked={(file_path?: string) => {
           if (!packageInfo?.package_id) return
+          const versionParam =
+            versionFromUrl && versionFromUrl !== latestVersion
+              ? `&version=${versionFromUrl}`
+              : ""
           setLocation(
             `/editor?package_id=${packageInfo?.package_id}${
               file_path ? `&file_path=${file_path}` : ""
-            }`,
+            }${versionParam}`,
           )
         }}
       />
