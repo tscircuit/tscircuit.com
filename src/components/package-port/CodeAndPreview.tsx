@@ -15,6 +15,7 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 interface Props {
   pkg?: Package
@@ -39,7 +40,7 @@ export interface CodeAndPreviewState {
 export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
-
+  const sessionToken = useGlobalStore((s) => s.session?.token)
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
     [urlParams.template],
@@ -226,6 +227,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           )}
         >
           <SuspenseRunFrame
+            tscircuitSessionToken={sessionToken}
             showFileMenu={false}
             showRunButton
             forceLatestEvalVersion
