@@ -57,12 +57,14 @@ export function useFileManagement({
   openNewPackageSaveDialog,
   updateLastUpdated,
   urlParams,
+  releaseId,
 }: {
   templateCode?: string
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
   updateLastUpdated: () => void
+  releaseId?: string | null
 }) {
   const fileChosen = urlParams.file_path ?? null
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
@@ -75,6 +77,8 @@ export function useFileManagement({
   )
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const effectiveReleaseId =
+    releaseId ?? currentPackage?.latest_package_release_id
   const {
     priorityFile,
     allFiles: packageFilesWithContent,
@@ -83,10 +87,14 @@ export function useFileManagement({
     totalFilesCount,
     loadedFilesCount,
     isPriorityFileFetched,
-  } = useOptimizedPackageFilesLoader(currentPackage, fileChosen)
+  } = useOptimizedPackageFilesLoader(
+    currentPackage,
+    fileChosen,
+    effectiveReleaseId,
+  )
 
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
-    usePackageFiles(currentPackage?.latest_package_release_id)
+    usePackageFiles(effectiveReleaseId)
   const initialCodeContent = useMemo(() => {
     return (
       (!!decodeUrlHashToText(window.location.toString()) &&
