@@ -604,8 +604,8 @@ export default () => (
     updated_at: new Date().toISOString(),
     is_source_from_github: false,
     snippet_type: "package",
-    latest_package_release_id: null,
-    latest_version: "0.0.1",
+    latest_package_release_id: "0.0.4",
+    latest_version: "0.0.4",
     license: "MIT",
     website: "https://tscircuit.com",
     star_count: 10,
@@ -621,8 +621,8 @@ export default () => (
   const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
     package_id: test2Package.package_id,
     version: "0.0.1",
-    created_at: new Date().toISOString(),
-    is_latest: true,
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    is_latest: false,
     is_locked: false,
     has_transpiled: true,
     transpilation_error: null,
@@ -732,6 +732,133 @@ export const TestComponent = ({ name }: { name: string }) => (
       "4. Circuit validation - OK\n" +
       "5. Package assembly - OK\n" +
       "Build completed successfully",
+  })
+
+  const { package_release_id: test2PackageReleaseId2 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.2",
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_latest: false,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId2,
+    file_path: "index.tsx",
+    content_text: `export const TestComponent = ({ name }: { name: string }) => (
+  <resistor name={name} resistance="20k" />
+)`,
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId2,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\``,
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_text: true,
+  })
+
+  const { package_release_id: test2PackageReleaseId3 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.3",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_latest: false,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance } from "./utils"
+
+export const TestComponent = ({ name, value = 30 }: { name: string; value?: number }) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 30`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "README.md",
+    content_text: `# Test2 Package v0.0.3
+
+Added value prop support.`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+
+  const { package_release_id: test2PackageReleaseId4 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.4",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+    pcb_preview_image_url: `/api/packages/images/testuser/test2-package/pcb.png`,
+    cad_preview_image_url: `/api/packages/images/testuser/test2-package/3d.png`,
+    sch_preview_image_url: `/api/packages/images/testuser/test2-package/schematic.png`,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance, DEFAULT_RESISTANCE } from "./utils"
+import type { ComponentProps } from "./types"
+
+export const TestComponent = ({ name, value = DEFAULT_RESISTANCE }: ComponentProps) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 40`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "types.ts",
+    content_text: `export interface ComponentProps {
+  name: string
+  value?: number
+}`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "README.md",
+    content_text: `# Test2 Package v0.0.4
+
+Latest version with TypeScript types.
+
+## Usage
+\`\`\`tsx
+import { TestComponent } from "@tsci/testuser.test2-package"
+
+<TestComponent name="R1" value={40} />
+\`\`\``,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
+  db.updatePackage(test2Package.package_id, {
+    latest_package_release_id: test2PackageReleaseId4,
   })
 
   // Define the @tsci/seveibar.a555timer package
