@@ -122,7 +122,7 @@
     "circuit-json-to-spice": "^0.0.6",
     "circuit-json-to-step": "^0.0.2",
     "circuit-json-to-tscircuit": "^0.0.11",
-    "circuit-to-svg": "^0.0.202",
+    "circuit-to-svg": "^0.0.298",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
