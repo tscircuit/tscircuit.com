@@ -124,7 +124,11 @@ export function useOptimizedPackageFilesLoader(
           if (packageFile?.is_text === false) {
             // Binary file - use download endpoint to get binary content
             const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
-            const binaryResponse = await fetch(downloadUrl)
+            const binaryResponse = await fetch(downloadUrl, {
+              headers: {
+                Authorization: `Bearer ${sessionToken}`,
+              },
+            })
             const blob = await binaryResponse.blob()
             content = blobToBlobUrl(blob)
           } else {
