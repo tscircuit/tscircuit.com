@@ -81,9 +81,11 @@ export function useOptimizedPackageFilesLoader(
         // Binary file - use download endpoint to get binary content
         const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${priorityFileData.package_file_id}`
         const binaryResponse = await fetch(downloadUrl, {
-          headers: {
-            Authorization: `Bearer ${sessionToken}`,
-          },
+          headers: sessionToken
+            ? {
+                Authorization: `Bearer ${sessionToken}`,
+              }
+            : {},
         })
         const blob = await binaryResponse.blob()
         content = blobToBlobUrl(blob)
@@ -125,9 +127,11 @@ export function useOptimizedPackageFilesLoader(
             // Binary file - use download endpoint to get binary content
             const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
             const binaryResponse = await fetch(downloadUrl, {
-              headers: {
-                Authorization: `Bearer ${sessionToken}`,
-              },
+              headers: sessionToken
+                ? {
+                    Authorization: `Bearer ${sessionToken}`,
+                  }
+                : {},
             })
             const blob = await binaryResponse.blob()
             content = blobToBlobUrl(blob)
