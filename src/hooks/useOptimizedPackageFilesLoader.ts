@@ -26,6 +26,7 @@ export interface OptimizedLoadingState {
 export function useOptimizedPackageFilesLoader(
   pkg?: Package,
   priorityFilePath?: string | null,
+  releaseId?: string | null,
 ) {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
@@ -34,7 +35,7 @@ export function useOptimizedPackageFilesLoader(
   )
   const sessionToken = useGlobalStore((s) => s.session?.token)
 
-  const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
+  const pkgFiles = usePackageFiles(releaseId ?? pkg?.latest_package_release_id)
 
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath

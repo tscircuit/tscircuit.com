@@ -136,11 +136,16 @@ export default function MainContentHeader({
             <DropdownMenuContent align="end" className="w-72 relative z-[101]">
               <DropdownMenuItem disabled={!Boolean(packageInfo)} asChild>
                 <a
-                  href={`/editor?package_id=${packageInfo?.package_id}`}
+                  href={`/editor?package_id=${packageInfo?.package_id}${currentVersion && currentVersion !== latestVersion ? `&version=${currentVersion}` : ""}`}
                   className="cursor-pointer px-2 py-3"
                 >
                   <Pencil className="h-4 w-4 mx-3" />
                   Edit Online
+                  {isViewingOlderVersion && (
+                    <span className="ml-1 text-xs text-amber-600">
+                      (v{currentVersion})
+                    </span>
+                  )}
                 </a>
               </DropdownMenuItem>
 
