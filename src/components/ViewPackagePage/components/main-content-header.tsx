@@ -95,23 +95,44 @@ export default function MainContentHeader({
 
   return (
     <div className="flex flex-col gap-2 mb-4">
+      {((onVersionChange && packageInfo?.package_id) || packageRelease) && (
+        <div className="flex items-center gap-2 w-full md:hidden">
+          {onVersionChange && packageInfo?.package_id && (
+            <div className="flex-1 min-w-0">
+              <ReleaseVersionSelector
+                packageId={packageInfo.package_id}
+                currentVersion={currentVersion || null}
+                onVersionChange={onVersionChange}
+                latestVersion={latestVersion}
+              />
+            </div>
+          )}
+          {packageRelease && (
+            <BuildStatusBadge packageRelease={packageRelease} />
+          )}
+        </div>
+      )}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           {onVersionChange && packageInfo?.package_id && (
-            <ReleaseVersionSelector
-              packageId={packageInfo.package_id}
-              currentVersion={currentVersion || null}
-              onVersionChange={onVersionChange}
-              latestVersion={latestVersion}
-              compact
-            />
+            <div className="hidden md:block">
+              <ReleaseVersionSelector
+                packageId={packageInfo.package_id}
+                currentVersion={currentVersion || null}
+                onVersionChange={onVersionChange}
+                latestVersion={latestVersion}
+                compact
+              />
+            </div>
           )}
           <MainContentViewSelector
             activeView={activeView}
             onViewChange={onViewChange}
           />
           {packageRelease && (
-            <BuildStatusBadge packageRelease={packageRelease} />
+            <div className="hidden md:block">
+              <BuildStatusBadge packageRelease={packageRelease} />
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2">
