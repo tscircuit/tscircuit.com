@@ -110,6 +110,9 @@ export default function MainContentHeader({
             activeView={activeView}
             onViewChange={onViewChange}
           />
+          {packageRelease && (
+            <BuildStatusBadge packageRelease={packageRelease} />
+          )}
         </div>
         <div className="flex items-center gap-2">
           <DownloadButtonAndMenu
@@ -118,14 +121,6 @@ export default function MainContentHeader({
             author={packageInfo?.owner_github_username ?? undefined}
             circuitJson={circuitJson}
           />
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center gap-2">
-        <MainContentViewSelector
-          activeView={activeView}
-          onViewChange={onViewChange}
-        />
-        {packageRelease && <BuildStatusBadge packageRelease={packageRelease} />}
-      </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
