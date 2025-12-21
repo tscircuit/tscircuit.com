@@ -1,3 +1,4 @@
+import React from "react"
 import type { TreeDataItem } from "@/components/ui/tree-view"
 import type {
   IRenameFileProps,
@@ -30,6 +31,8 @@ interface TransformFilesToTreeDataProps {
   canModifyFiles: boolean
   setErrorMessage: (message: string) => void
   setSelectedFolderForCreation: (folder: string | null) => void
+  openDropdownId: string | null
+  setOpenDropdownId: (id: string | null) => void
 }
 
 export const transformFilesToTreeData = ({
@@ -44,6 +47,8 @@ export const transformFilesToTreeData = ({
   canModifyFiles,
   setErrorMessage,
   setSelectedFolderForCreation,
+  openDropdownId,
+  setOpenDropdownId,
 }: TransformFilesToTreeDataProps): TreeDataItem[] => {
   const { toast } = useToast()
   const root: Record<string, TreeNode> = {}
@@ -121,7 +126,13 @@ export const transformFilesToTreeData = ({
           children: isLeafNode ? undefined : {},
           actions: canModifyFiles ? (
             <>
-              <DropdownMenu key={itemId}>
+              <DropdownMenu
+                key={itemId}
+                open={openDropdownId === itemId}
+                onOpenChange={(open) => {
+                  setOpenDropdownId(open ? itemId : null)
+                }}
+              >
                 <DropdownMenuTrigger asChild>
                   <MoreVertical className="w-4 h-4 text-gray-500 hover:text-gray-700" />
                 </DropdownMenuTrigger>
@@ -141,6 +152,7 @@ export const transformFilesToTreeData = ({
                       <DropdownMenuItem
                         onClick={() => {
                           setRenamingFile(itemId)
+                          setOpenDropdownId(null)
                         }}
                         className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
                       >
@@ -162,6 +174,7 @@ export const transformFilesToTreeData = ({
                         if (fileDeleted) {
                           setErrorMessage("")
                         }
+                        setOpenDropdownId(null)
                       }}
                       className="flex items-center px-3 py-1 text-xs text-red-600 hover:bg-gray-100 cursor-pointer"
                     >
@@ -173,6 +186,13 @@ export const transformFilesToTreeData = ({
               </DropdownMenu>
             </>
           ) : undefined,
+          onContextMenu: canModifyFiles
+            ? (e: React.MouseEvent) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setOpenDropdownId(itemId)
+              }
+            : undefined,
         }
       }
 
