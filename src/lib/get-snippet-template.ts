@@ -1,26 +1,39 @@
 import { blankPackageTemplate } from "@/lib/templates/blank-package-template"
-import { blankFootprintTemplate } from "@/lib/templates/blank-footprint-template"
 import { blankCircuitBoardTemplate } from "@/lib/templates/blank-circuit-board-template"
-import { blank3dModelTemplate } from "@/lib/templates/blank-3d-model-template"
+import { analogSimulationTemplate } from "@/lib/templates/analog-simulation-template"
 import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { blinkingLedBoardTemplate } from "@/lib/templates/blinking-led-board-template"
 import { usbCLedFlashlightTemplate } from "@/lib/templates/usb-c-led-flashlight-template"
 
+export const templateCatalogue = [
+  {
+    name: "New Board",
+    templateKey: "blank-circuit-board",
+    badgeColor: "bg-blue-500",
+  },
+  {
+    name: "New Chip Component",
+    templateKey: "blank-chip-component",
+    badgeColor: "bg-green-500",
+  },
+  {
+    name: "New Simulation",
+    templateKey: "analog-simulation",
+    badgeColor: "bg-orange-500",
+  },
+] as const
+
+const templateMap: Record<string, { code: string; type: string }> = {
+  "blank-circuit-board": blankCircuitBoardTemplate,
+  "blank-chip-component": blankPackageTemplate,
+  "analog-simulation": analogSimulationTemplate,
+  "blinking-led-board": blinkingLedBoardTemplate,
+  "usb-c-led-flashlight": usbCLedFlashlightTemplate,
+}
+
 export const getSnippetTemplate = (template: string | undefined) => {
-  switch (template) {
-    case "blank-circuit-module":
-      return blankPackageTemplate
-    case "blank-footprint":
-      return blankFootprintTemplate
-    case "blank-circuit-board":
-      return blankCircuitBoardTemplate
-    case "blank-3d-model":
-      return blank3dModelTemplate
-    case "blinking-led-board":
-      return blinkingLedBoardTemplate
-    case "usb-c-led-flashlight":
-      return usbCLedFlashlightTemplate
-    default:
-      return { code: defaultCodeForBlankPage, type: "board" }
+  if (template && templateMap[template]) {
+    return templateMap[template]
   }
+  return { code: defaultCodeForBlankPage, type: "board" }
 }
