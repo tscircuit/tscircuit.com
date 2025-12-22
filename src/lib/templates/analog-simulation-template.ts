@@ -2,27 +2,32 @@ export const analogSimulationTemplate = {
   type: "board",
   code: `
 export default () => (
-  <board width="20mm" height="20mm">
-    <analogsimulation duration={0.01} timePerStep={1e-6} />
-    
-    <voltagesource
-      name="V1"
-      voltage="5V"
-      waveShape="sine"
-      frequency="1kHz"
-      amplitude="5V"
-      offset="0V"
+  <board schMaxTraceDistance={10} routingDisabled>
+    <voltagesource name="V1" voltage="5V" />
+    <resistor name="R_base" resistance="10k" schY={2} />
+    <switch name="SW1" simSwitchFrequency="1kHz" schX={1.5} schY={2} />
+    <transistor
+      name="Q1"
+      type="npn"
+      footprint="sot23"
+      schX={2}
+      schY={0.3}
+      schRotation={180}
     />
-    <resistor name="R1" resistance="1k" footprint="0402" />
-    <capacitor name="C1" capacitance="1uF" footprint="0402" />
-    <ground name="GND" />
+    <resistor name="R_collector" resistance="10k" schY={-2} />
 
-    <trace from=".V1 > .pos" to=".R1 > .pin1" />
-    <trace from=".R1 > .pin2" to=".C1 > .pin1" />
-    <trace from=".C1 > .pin2" to=".GND > .pin1" />
-    <trace from=".V1 > .neg" to=".GND > .pin1" />
+    <trace from=".V1 > .pin1" to=".R_base > .pin1" />
+    <trace from=".R_base > .pin2" to=".SW1 > .pin1" />
+    <trace from=".SW1 > .pin2" to=".Q1 > .base" />
 
-    <voltageprobe connectsTo=".R1 > .pin2" />
+    <trace from=".V1 > .pin1" to=".R_collector > .pin1" />
+    <trace from=".R_collector > .pin2" to=".Q1 > .collector" />
+
+    <trace from=".Q1 > .emitter" to=".V1 > .pin2" />
+
+    <voltageprobe name="VP_COLLECTOR" connectsTo=".R_collector > .pin2" />
+
+    <analogsimulation duration="4ms" timePerStep="1us" spiceEngine="ngspice" />
   </board>
 )
 `.trim(),

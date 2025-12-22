@@ -5,21 +5,25 @@ import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { blinkingLedBoardTemplate } from "@/lib/templates/blinking-led-board-template"
 import { usbCLedFlashlightTemplate } from "@/lib/templates/usb-c-led-flashlight-template"
 
+// Used in quick start and header dropdown
 export const templateCatalogue = [
   {
     name: "New Board",
     templateKey: "blank-circuit-board",
     badgeColor: "bg-blue-500",
+    type: "board",
   },
   {
     name: "New Chip Component",
     templateKey: "blank-chip-component",
     badgeColor: "bg-green-500",
+    type: "package",
   },
   {
     name: "New Simulation",
     templateKey: "analog-simulation",
     badgeColor: "bg-orange-500",
+    type: "board",
   },
 ] as const
 
