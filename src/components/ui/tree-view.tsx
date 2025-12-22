@@ -31,6 +31,7 @@ interface TreeDataItem {
   isRenaming?: boolean
   onRename?: (newName: string) => void
   onCancelRename?: () => void
+  onContextMenu?: (e: React.MouseEvent) => void
 }
 
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -304,6 +305,7 @@ const TreeNode = ({
             handleSelectChange(item)
             item.onClick?.()
           }}
+          onContextMenu={item.onContextMenu}
           draggable={!!item.draggable}
           onDragStart={onDragStart}
           onDragOver={onDragOver}
@@ -415,6 +417,7 @@ const TreeLeaf = React.forwardRef<
           handleSelectChange(item)
           item.onClick?.()
         }}
+        onContextMenu={item.onContextMenu}
         draggable={!!item.draggable}
         onDragStart={onDragStart}
         onDragOver={onDragOver}

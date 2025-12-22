@@ -246,7 +246,10 @@ export const GitHubRepositorySelector = ({
                     onValueChange={setSearchValue}
                     placeholder="Search repositories..."
                   />
-                  <CommandList className="max-h-[400px] overflow-y-auto">
+                  <CommandList
+                    className="max-h-[400px] overflow-y-auto overscroll-contain [&_[cmdk-list-sizer]]:overflow-visible"
+                    onWheel={(e) => e.stopPropagation()}
+                  >
                     <CommandEmpty className="text-sm text-slate-500 py-6 pl-4">
                       No repositories found.
                     </CommandEmpty>

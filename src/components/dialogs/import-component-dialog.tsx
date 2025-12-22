@@ -47,6 +47,7 @@ export const ImportComponentDialog = ({
       isOpen={open}
       onClose={() => onOpenChange(false)}
       jlcpcbProxyApiBase={apiBaseUrl}
+      tscircuitSessionToken={session?.token}
       {...rest}
     />
   )

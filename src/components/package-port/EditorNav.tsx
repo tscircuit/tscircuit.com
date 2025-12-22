@@ -69,6 +69,9 @@ export default function EditorNav({
   isSaving,
   files,
   packageFilesMeta,
+  isViewingOlderVersion,
+  viewingVersion,
+  latestVersion,
 }: {
   pkg?: Package | null
   isPackageFetched?: boolean
@@ -89,6 +92,9 @@ export default function EditorNav({
     package_file_id: string
     package_release_id: string
   }[]
+  isViewingOlderVersion?: boolean
+  viewingVersion?: string
+  latestVersion?: string | null
 }) {
   const [, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -240,7 +246,8 @@ export default function EditorNav({
   useHotkeyCombo(
     "cmd+s",
     () => {
-      if (!hasUnsavedChanges || !canManagePackage) return
+      if (!hasUnsavedChanges || !canManagePackage || isViewingOlderVersion)
+        return
       onSave()
     },
     { target: window },
@@ -253,6 +260,10 @@ export default function EditorNav({
   const packageName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[1]
     : pkg?.unscoped_name
+
+  const packagePageUrl = pkg?.name
+    ? `/${pkg.name}${viewingVersion && isViewingOlderVersion ? `?version=${viewingVersion}` : ""}`
+    : ""
 
   return (
     <nav className="lg:flex w-screen items-center justify-between px-2 py-3 border-b border-gray-200 bg-white text-sm border-t">
@@ -271,7 +282,7 @@ export default function EditorNav({
                 <span className="px-0.5 text-gray-500">/</span>
                 <Link
                   className="text-blue-500 font-semibold hover:underline truncate"
-                  href={`/${pkg.name}`}
+                  href={packagePageUrl}
                   title={packageName}
                 >
                   {packageName}
@@ -333,14 +344,17 @@ export default function EditorNav({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link target="_blank" href={`/${pkg.name}`}>
+                    <Link target="_blank" href={packagePageUrl}>
                       <Button variant="ghost" size="icon" className="h-6 w-6">
                         <OpenInNewWindowIcon className="h-3 w-3 text-gray-700" />
                       </Button>
                     </Link>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>View package</p>
+                    <p>
+                      View package
+                      {isViewingOlderVersion ? ` (v${viewingVersion})` : ""}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -353,27 +367,50 @@ export default function EditorNav({
               Not logged in, can't save
             </div>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className={"ml-1 h-6 px-2 text-xs save-button"}
-            disabled={
-              canManagePackage && pkg ? !hasUnsavedChanges : !isLoggedIn
-            }
-            onClick={canManagePackage ? onSave : () => forkSnippet()}
-          >
-            {canManagePackage ? (
-              <>
-                <Save className="mr-1 h-3 w-3" />
-                Save
-              </>
-            ) : (
-              <>
-                <GitFork className="mr-1 h-3 w-3" />
-                Fork
-              </>
-            )}
-          </Button>
+          {isViewingOlderVersion && (
+            <div className="bg-amber-100 text-amber-700 py-1 px-2 text-xs">
+              Viewing v{viewingVersion} (read-only)
+            </div>
+          )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={"ml-1 h-6 px-2 text-xs save-button"}
+                    disabled={
+                      isViewingOlderVersion ||
+                      (canManagePackage && pkg
+                        ? !hasUnsavedChanges
+                        : !isLoggedIn)
+                    }
+                    onClick={canManagePackage ? onSave : () => forkSnippet()}
+                  >
+                    {canManagePackage ? (
+                      <>
+                        <Save className="mr-1 h-3 w-3" />
+                        Save
+                      </>
+                    ) : (
+                      <>
+                        <GitFork className="mr-1 h-3 w-3" />
+                        Fork
+                      </>
+                    )}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {isViewingOlderVersion && (
+                <TooltipContent>
+                  <p>
+                    You can only save from the latest release (v{latestVersion})
+                  </p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
