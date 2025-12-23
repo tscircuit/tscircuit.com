@@ -111,7 +111,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                   return (
                     <div
                       key={release.package_release_id}
-                      className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                      className="flex items-center gap-4 px-6 pb-4 hover:bg-gray-50 cursor-pointer transition-colors"
                       onClick={() => {
                         setLocation(
                           `/${pkg.name}/releases/${release.package_release_id}`,
