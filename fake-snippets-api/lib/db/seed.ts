@@ -2261,6 +2261,15 @@ exports.TestComponent = TestComponent;
     org_id: "org-1234",
   })
 
+  db.addOrganization({
+    name: "seveibar",
+    owner_account_id: seveibarAcc.account_id,
+    github_handle: "seveibar",
+    is_personal_org: true,
+    org_id: "org-1235",
+    avatar_url: "https://github.com/seveibar.png",
+  })
+
   db.addOrganizationAccount({
     org_id: testOrg.org_id,
     account_id: seveibarAcc.account_id,

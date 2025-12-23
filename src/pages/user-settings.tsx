@@ -189,7 +189,7 @@ export default function UserSettingsPage() {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-6">
               <GithubAvatarWithFallback
-                username={session.github_username}
+                username={session.tscircuit_handle}
                 imageUrl={personalOrg?.avatar_url || undefined}
                 className="h-16 w-16 border-2 border-gray-200 shadow-sm"
                 fallbackClassName="text-lg font-medium"

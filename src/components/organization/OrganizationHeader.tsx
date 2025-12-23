@@ -40,7 +40,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         <div className="block sm:hidden">
           <div className="flex flex-col items-center text-center space-y-4">
             <GithubAvatarWithFallback
-              username={organization.github_handle}
+              username={organization.tscircuit_handle}
               fallback={organization.name}
               imageUrl={organization.avatar_url || undefined}
               className="shadow-sm size-16 md:size-20 lg:size-24"
@@ -102,7 +102,7 @@ export const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
         <div className="hidden sm:block">
           <div className="flex items-center gap-6">
             <GithubAvatarWithFallback
-              username={organization.github_handle}
+              username={organization.tscircuit_handle}
               fallback={organization.name}
               imageUrl={organization.avatar_url || undefined}
               className="flex-shrink-0 shadow-sm size-16 md:size-20 lg:size-24"
