@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
-import { AlertTriangle, Trash2, Loader2, ImageUp } from "lucide-react"
+import { AlertTriangle, Trash2, Loader2, ImageUp, Github } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useUpdateAccountMutation } from "@/hooks/use-update-account-mutation"
 import { useOrganization } from "@/hooks/use-organization"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
@@ -57,6 +58,7 @@ export default function UserSettingsPage() {
   const hasHydrated = useHydration()
   const axios = useAxios()
   const { toast } = useToast()
+  const apiBaseUrl = useApiBaseUrl()
 
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
 
@@ -137,6 +139,25 @@ export default function UserSettingsPage() {
     }
   }, [account, form])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("installation_complete") === "true") {
+      toast({
+        title: "GitHub connected",
+        description:
+          "Your account can now link packages to GitHub repositories.",
+      })
+
+      refetchPersonalOrg?.()
+
+      params.delete("installation_complete")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [toast, refetchPersonalOrg])
+
   const formattedCreatedAt =
     isLoadingAccount && account?.created_at === undefined
       ? "Loading..."
@@ -169,6 +190,23 @@ export default function UserSettingsPage() {
 
   const handleDeleteAccount = () => {
     setShowDeleteAccountDialog(true)
+  }
+
+  const handleConnectGithub = () => {
+    if (!personalOrg) return
+
+    const params = new URLSearchParams()
+    params.set("redirect_uri", window.location.href)
+
+    if (personalOrg.org_id) {
+      params.set("org_id", personalOrg.org_id)
+    }
+
+    if (session?.account_id) {
+      params.set("account_id", session.account_id)
+    }
+
+    window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
   }
 
   const onSubmit = (data: AccountSettingsFormData) => {
@@ -204,6 +242,83 @@ export default function UserSettingsPage() {
           </div>
 
           <div className="space-y-8">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  GitHub connection
+                </h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Install the tscircuit GitHub app for your account to link
+                  packages to repositories and enable PR previews.
+                </p>
+              </div>
+
+              <div className="p-6 lg:p-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="p-3 bg-gray-100 rounded-lg">
+                      <Github className="h-5 w-5 text-gray-700" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Status</p>
+                      <p className="text-base font-semibold text-gray-900">
+                        {personalOrg?.github_installation_handles?.length
+                          ? `Connected to ${personalOrg.github_installation_handles.length} GitHub account${personalOrg.github_installation_handles.length > 1 ? "s" : ""}`
+                          : "Not connected"}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Use the button below to connect or update the GitHub
+                        installation for your account.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <Button
+                      onClick={handleConnectGithub}
+                      className="sm:w-auto w-full"
+                    >
+                      <Github className="h-4 w-4 mr-2" />
+                      {personalOrg?.github_installation_handles?.length
+                        ? "Manage GitHub connection"
+                        : "Connect GitHub"}
+                    </Button>
+                  </div>
+                </div>
+
+                {personalOrg?.github_installation_handles &&
+                  personalOrg.github_installation_handles.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <p className="text-sm font-medium text-gray-700 mb-3">
+                        Connected GitHub accounts
+                      </p>
+                      <div className="flex flex-wrap gap-3">
+                        {personalOrg.github_installation_handles.map(
+                          (handle) => (
+                            <a
+                              key={handle}
+                              href={`https://github.com/${handle}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                            >
+                              <GithubAvatarWithFallback
+                                username={handle}
+                                className="h-6 w-6"
+                                fallbackClassName="text-xs"
+                              />
+                              <span className="text-sm font-medium text-gray-900">
+                                @{handle}
+                              </span>
+                            </a>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
               <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 className="text-xl font-semibold text-gray-900">
