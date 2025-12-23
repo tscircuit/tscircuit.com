@@ -140,10 +140,12 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                           <span
                             className={`text-sm font-medium ${
                               status === "success"
-                                ? "text-cyan-600"
+                                ? "text-green-500"
                                 : status === "error"
-                                  ? "text-red-600"
-                                  : "text-gray-600"
+                                  ? "text-red-500"
+                                  : status === "building"
+                                    ? "text-blue-500"
+                                    : "text-gray-500"
                             }`}
                           >
                             {label}
