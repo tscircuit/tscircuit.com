@@ -637,7 +637,7 @@ export default function OrganizationSettingsPage() {
               <div className="p-6 lg:p-8">
                 <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
                   <GithubAvatarWithFallback
-                    username={organization.github_handle}
+                    username={organization.tscircuit_handle}
                     fallback={organization.name}
                     imageUrl={organization.avatar_url || undefined}
                     className="shadow-sm size-24 md:size-16"
@@ -922,7 +922,8 @@ export default function OrganizationSettingsPage() {
                               className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
                             >
                               <GithubAvatarWithFallback
-                                username={member.github_username}
+                                username={member.tscircuit_handle}
+                                imageUrl={member.avatar_url}
                                 fallback={
                                   member.tscircuit_handle || member.account_id
                                 }
