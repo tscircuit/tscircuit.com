@@ -11,6 +11,7 @@ import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
+import { templateCatalogue } from "@/lib/get-snippet-template"
 import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
 import { cn } from "@/lib/utils"
 import { Link } from "wouter"
@@ -57,15 +58,6 @@ export const QuickstartPage = () => {
       enabled: isLoggedIn,
     },
   )
-
-  const blankTemplates: Array<{
-    name: string
-    type: string
-    disabled?: boolean
-  }> = [
-    { name: "Blank Circuit Board", type: "board" },
-    { name: "Blank Circuit Module", type: "package" },
-  ]
 
   const templates = [
     { name: "Blinking LED Board", type: "board" },
@@ -135,23 +127,12 @@ export const QuickstartPage = () => {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {blankTemplates.map((template, index) => (
+            {templateCatalogue.map((template) => (
               <Link
-                key={index}
-                href={
-                  template.disabled
-                    ? "#"
-                    : `/editor?template=${template.name
-                        .toLowerCase()
-                        .replace(/ /g, "-")}`
-                }
+                key={template.templateKey}
+                href={`/editor?template=${template.templateKey}`}
               >
-                <Card
-                  className={cn(
-                    "hover:shadow-md border bg-white transition-shadow h-full flex flex-col rounded-md",
-                    template.disabled && "opacity-50 cursor-not-allowed",
-                  )}
-                >
+                <Card className="hover:shadow-md border bg-white transition-shadow h-full flex flex-col rounded-md">
                   <CardHeader className="p-6 flex-grow flex flex-col justify-between">
                     <div>
                       <CardTitle className="text-lg font-semibold text-slate-900 mb-3">
