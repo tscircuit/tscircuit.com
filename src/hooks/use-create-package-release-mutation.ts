@@ -15,12 +15,14 @@ export const useCreatePackageReleaseMutation = ({
       is_latest = true,
       commit_sha,
       package_name_with_version,
+      ready_to_build = false,
     }: {
       package_id?: string
       version?: string
       is_latest?: boolean
       commit_sha?: string
       package_name_with_version?: string
+      ready_to_build?: boolean
     }) => {
       // Validate that either package_id + version or package_name_with_version is provided
       if (!package_name_with_version && (!package_id || !version)) {
@@ -59,7 +61,7 @@ export const useCreatePackageReleaseMutation = ({
           is_latest,
           commit_sha,
           package_name_with_version: normalizedPackageNameWithVersion,
-          ready_to_build: true,
+          ready_to_build,
         })
 
         if (!newPackageRelease) {
