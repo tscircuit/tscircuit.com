@@ -66,7 +66,12 @@ export const useCreateReleaseDialog = ({
     packageFilesMeta,
   })
 
+  // Mark the package as ready to build
   const updatePackageReleaseMutation = useUpdatePackageReleaseMutation()
+  updatePackageReleaseMutation.mutateAsync({
+    package_name_with_version: `${currentPackage?.name ?? packageName}@${version.trim()}`,
+    ready_to_build: true,
+  })
 
   const open = () => {
     setIsOpen(true)
@@ -120,11 +125,6 @@ export const useCreateReleaseDialog = ({
           await updatePackageFilesMutation.mutateAsync({
             package_name_with_version: `${currentPackage.name}@${version.trim()}`,
             ...currentPackage,
-          })
-
-          await updatePackageReleaseMutation.mutateAsync({
-            package_name_with_version: `${currentPackage.name}@${version.trim()}`,
-            ready_to_build: true,
           })
         } catch (fileError: any) {
           console.error("Error uploading files:", fileError)
