@@ -128,7 +128,7 @@ export const QuickstartPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {templateCatalogue.map((template) => (
-              <Link
+              <a
                 key={template.templateKey}
                 href={`/editor?template=${template.templateKey}`}
               >
@@ -144,7 +144,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
@@ -219,7 +219,7 @@ export const QuickstartPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template, index) => (
-              <Link
+              <a
                 key={index}
                 href={`/editor?template=${template.name
                   .toLowerCase()
@@ -235,7 +235,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
