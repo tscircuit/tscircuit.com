@@ -3,7 +3,7 @@ import { z } from "zod"
 import { publicMapOrg } from "fake-snippets-api/lib/public-mapping/public-map-org"
 import {
   publicOrgSchema,
-  tscircuitHandleSchema,
+  tscircuitHandleStrictSchema,
 } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
@@ -11,8 +11,8 @@ export default withRouteSpec({
   commonParams: z
     .object({
       display_name: z.string().min(3).max(40).optional(),
-      tscircuit_handle: tscircuitHandleSchema.min(3).optional(),
-      name: tscircuitHandleSchema.min(3).optional(),
+      tscircuit_handle: tscircuitHandleStrictSchema.optional(),
+      name: tscircuitHandleStrictSchema.optional(),
     })
     .refine((data) => data.tscircuit_handle || data.name, {
       message: "Either tscircuit_handle or name is required",

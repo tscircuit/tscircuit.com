@@ -570,7 +570,17 @@ export const tscircuitHandleSchema = z
     /^[0-9A-Za-z]([0-9A-Za-z_-]*[0-9A-Za-z])?$/,
     "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
   )
+  .transform((s) => s.toLowerCase())
 
+export const tscircuitHandleStrictSchema = z
+  .string()
+  .min(3)
+  .max(40)
+  .regex(
+    /^[0-9A-Za-z][0-9A-Za-z_-]*[0-9A-Za-z]$/,
+    "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
+  )
+  .transform((s) => s.toLowerCase())
 export const memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
   joined_at: z.string(),
   org_member_permissions: userPermissionsSchema,
