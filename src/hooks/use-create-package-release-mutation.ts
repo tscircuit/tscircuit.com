@@ -59,6 +59,7 @@ export const useCreatePackageReleaseMutation = ({
           is_latest,
           commit_sha,
           package_name_with_version: normalizedPackageNameWithVersion,
+          ready_to_build: true,
         })
 
         if (!newPackageRelease) {
