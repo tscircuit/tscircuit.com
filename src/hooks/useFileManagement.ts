@@ -12,6 +12,7 @@ import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
 import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
 import { useCreatePackageMutation } from "./use-create-package-mutation"
+import { useUpdatePackageReleaseMutation } from "./use-update-package-release-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
@@ -116,6 +117,7 @@ export function useFileManagement({
     initialFiles,
     packageFilesMeta: packageFilesMeta || [],
   })
+  const updatePackageReleaseMutation = useUpdatePackageReleaseMutation()
   const { mutate: createRelease, isLoading: isCreatingRelease } =
     useCreatePackageReleaseMutation({
       onSuccess: () => {
@@ -132,11 +134,30 @@ export function useFileManagement({
           package_name_with_version: `${newPackage.name}@latest`,
         },
         {
-          onSuccess: () => {
-            updatePackageFilesMutation.mutate({
-              package_name_with_version: `${newPackage.name}@latest`,
-              ...newPackage,
-            })
+          onSuccess: async () => {
+            try {
+              await updatePackageFilesMutation.mutateAsync({
+                package_name_with_version: `${newPackage.name}@latest`,
+                ...newPackage,
+              })
+
+              await updatePackageReleaseMutation.mutateAsync({
+                package_name_with_version: `${newPackage.name}@latest`,
+                ready_to_build: true,
+              })
+            } catch (error) {
+              console.error(
+                "Error uploading files or marking ready to build:",
+                error,
+              )
+              toast({
+                title: "Error",
+                description:
+                  "Failed to upload files or mark release as ready to build",
+                variant: "destructive",
+              })
+            }
+
             const url = new URL(window.location.href)
             url.searchParams.set("package_id", newPackage.package_id)
             url.searchParams.delete("template")
