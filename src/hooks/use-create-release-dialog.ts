@@ -5,7 +5,7 @@ import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import type { PackageFile } from "@/types/package"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useToast } from "./use-toast"
-import { useUpdatePackageReleaseMutation } from "./use-update-package-release-mutation"
+
 interface UseCreateReleaseDialogProps {
   packageId?: string
   packageName?: string
@@ -64,13 +64,6 @@ export const useCreateReleaseDialog = ({
     localFiles: files,
     initialFiles: [],
     packageFilesMeta,
-  })
-
-  // Mark the package as ready to build
-  const updatePackageReleaseMutation = useUpdatePackageReleaseMutation()
-  updatePackageReleaseMutation.mutateAsync({
-    package_name_with_version: `${currentPackage?.name ?? packageName}@${version.trim()}`,
-    ready_to_build: true,
   })
 
   const open = () => {
