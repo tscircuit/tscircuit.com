@@ -48,7 +48,7 @@ export const useAxios = () => {
             <div
               onClick={() =>
                 setLocation(
-                  `/org-login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
+                  `/login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
                 )
               }
               className="cursor-pointer"

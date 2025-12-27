@@ -4,9 +4,9 @@ import { useState } from "react"
 import { Link } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAxios } from "@/hooks/use-axios"
-import { OrgAuthProviderButtons } from "@/components/org-auth/OrgAuthProviderButtons"
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 
-const OrgLoginContent = () => {
+const LoginContent = () => {
   const session = useGlobalStore((s) => s.session)
   const setSession = useGlobalStore((s) => s.setSession)
   const axios = useAxios()
@@ -67,17 +67,16 @@ const OrgLoginContent = () => {
           <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8 space-y-6">
             <div>
               <p className="text-sm uppercase text-blue-500 font-semibold">
-                Organization Access
+                Sign In
               </p>
               <h1 className="text-3xl font-bold text-gray-900 mt-2">
-                Sign in with your company identity
+                Sign in to get started
               </h1>
               <p className="text-gray-600 mt-2 text-sm">
-                Pick the provider that matches your company's setup and we'll
-                sign you in.
+                Choose your preferred sign-in method to continue.
               </p>
             </div>
-            <OrgAuthProviderButtons />
+            <AuthProviderButtons />
             <p className="text-xs text-gray-400">
               By continuing you agree to our Terms of Service and Privacy
               Policy.
@@ -89,14 +88,14 @@ const OrgLoginContent = () => {
   )
 }
 
-export const OrgLoginPage = () => {
+export const LoginPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <OrgLoginContent />
+      <LoginContent />
       <Footer />
     </div>
   )
 }
 
-export default OrgLoginPage
+export default LoginPage
