@@ -86,11 +86,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     : pkg?.unscoped_name
   const cardContent = (
     <div
-      className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 ${className}`}
+      className={`border border-gray-200 rounded-lg p-4 hover:bg-gray-50 hover:border-gray-300 transition-colors ${className}`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
+          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0`}
         >
           {previewImageUrl ? (
             <img
@@ -110,52 +110,51 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             <CircuitBoard className="w-6 h-6 text-gray-300" />
           </div>
         </div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start mb-[2px] -mt-[3px]">
-            <h2 className="text-md font-semibold truncate pr-[30px]">
-              {showOwner && (
-                <>
-                  <span className="text-gray-700 text-md">
-                    {packageOwnerName}
-                  </span>
-                  <span className="mx-1">/</span>
-                </>
-              )}
-              <span className="text-gray-900">{packageName}</span>
-            </h2>
-            <div className="flex items-center gap-2">
+          <div className="flex items-start justify-between mb-1">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-1">
+                {showOwner && (
+                  <>
+                    <span className="text-gray-600">{packageOwnerName}</span>
+                    <span className="mx-1 text-gray-400">/</span>
+                  </>
+                )}
+                <span>{packageName}</span>
+              </h2>
+              <p
+                className={`${!pkg.description && "h-5"} text-sm text-gray-600 mb-2 line-clamp-2`}
+              >
+                {pkg.description || "No description available"}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 ml-4 flex-shrink-0">
               <SnippetTypeIcon
                 type={pkg.snippet_type as SnippetType}
                 className="pt-[2.5px]"
               />
-              <div className="flex items-center gap-1 text-gray-600">
-                <StarIcon className="w-4 h-4 pt-[2.5px]" />
-                <span className="text-[16px]">{pkg.star_count || 0}</span>
-              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-[1.5rem] w-[1.5rem]"
-                  >
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem
-                    className="text-xs cursor-pointer"
+                    className="text-sm cursor-pointer"
                     onClick={handleShareClick}
                   >
-                    <Share2 className="mr-2 h-3 w-3" />
+                    <Share2 className="mr-2 h-4 w-4" />
                     Share Package
                   </DropdownMenuItem>{" "}
                   {isCurrentUserPackage && onDeleteClick && (
                     <DropdownMenuItem
-                      className="text-xs text-red-600"
+                      className="text-sm text-red-600"
                       onClick={handleDeleteClick}
                     >
-                      <Trash2 className="mr-2 h-3 w-3" />
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Delete Package
                     </DropdownMenuItem>
                   )}
@@ -164,26 +163,28 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               {renderActions && renderActions(pkg)}
             </div>
           </div>
-          <p
-            className={`${!pkg.description && "h-[1.25rem]"} text-sm text-gray-500 mb-1 truncate max-w-xs`}
-          >
-            {pkg.description ? pkg.description : " "}
-          </p>
-          <div className={`flex items-center gap-4`}>
+
+          <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-1">
+              <StarIcon className="w-4 h-4" />
+              <span>{pkg.star_count || 0}</span>
+            </div>
+
             {pkg.is_private ? (
-              <div className="flex items-center text-xs gap-1 text-gray-500">
-                <LockClosedIcon height={12} width={12} />
+              <div className="flex items-center gap-1">
+                <LockClosedIcon height={14} width={14} />
                 <span>Private</span>
               </div>
             ) : (
-              <div className="flex items-center text-xs gap-1 text-gray-500">
-                <GlobeIcon height={12} width={12} />
+              <div className="flex items-center gap-1">
+                <GlobeIcon height={14} width={14} />
                 <span>Public</span>
               </div>
             )}
-            <div className="flex items-center text-xs gap-1 text-gray-500">
-              <PencilIcon height={12} width={12} />
-              <span>{timeAgo(new Date(pkg.updated_at))}</span>
+
+            <div className="flex items-center gap-1">
+              <PencilIcon height={14} width={14} />
+              <span>Updated {timeAgo(new Date(pkg.updated_at))}</span>
             </div>
           </div>
         </div>
