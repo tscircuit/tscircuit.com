@@ -11,13 +11,13 @@ const providerCards: Array<{
   {
     id: "google",
     label: "Continue with Google",
-    description: "Use your Google Workspace identity",
+    description: "Continue with your Google account",
     icon: <Globe className="h-5 w-5 text-blue-500" />,
   },
   {
     id: "github",
     label: "Continue with GitHub",
-    description: "Use your GitHub organization account",
+    description: "Continue with your GitHub account",
     icon: <Github className="h-5 w-5 text-gray-900" />,
   },
 ]

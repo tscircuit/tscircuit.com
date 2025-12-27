@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useOrgInvitation } from "@/hooks/use-org-invitation"
 import { useAcceptOrgInvitationMutation } from "@/hooks/use-accept-org-invitation-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { OrgAuthProviderButtons } from "@/components/org-auth/OrgAuthProviderButtons"
+import { OrgAuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 import { useToast } from "@/hooks/use-toast"
 import {
   Loader2,
