@@ -90,7 +90,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     >
       <div className="flex items-start gap-3">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0`}
+          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center`}
         >
           {previewImageUrl ? (
             <img
@@ -124,7 +124,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 <span>{packageName}</span>
               </h2>
               <p
-                className={`${!pkg.description && "h-5"} text-sm text-gray-600 mb-2 line-clamp-2`}
+                className={`${!pkg.description && "h-10"} text-sm text-gray-600 mb-2 line-clamp-2`}
               >
                 {pkg.description || "No description available"}
               </p>
@@ -166,7 +166,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">
-              <StarIcon className="w-4 h-4" />
+              <StarIcon height={14} width={14} />
               <span>{pkg.star_count || 0}</span>
             </div>
 
