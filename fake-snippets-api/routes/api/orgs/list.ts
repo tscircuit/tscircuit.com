@@ -7,18 +7,30 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "optional_session",
   commonParams: z.object({
-    github_handle: z.string().optional(),
+    account_id: z.string().optional(),
+    tscircuit_handle: z.string().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
     orgs: z.array(publicOrgSchema),
   }),
 })(async (req, ctx) => {
-  const { github_handle } = req.commonParams
+  const { account_id, tscircuit_handle } = req.commonParams
+  if (!ctx.auth && !account_id && !tscircuit_handle) {
+    return ctx.error(400, {
+      error_code: "invalid_request",
+      message:
+        "You must provide either account_id or tscircuit_handle when not authenticated",
+    })
+  }
+
   const orgs = ctx.db.getOrgs(
     {
-      owner_account_id: ctx.auth?.account_id,
-      github_handle,
+      account_id: account_id,
+      tscircuit_handle,
+      ...(!account_id && !tscircuit_handle
+        ? { owner_account_id: ctx.auth?.account_id }
+        : {}),
     },
     {
       account_id: ctx.auth?.account_id,

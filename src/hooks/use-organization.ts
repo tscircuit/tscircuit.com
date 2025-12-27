@@ -4,27 +4,27 @@ import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useOrganization = ({
   orgId,
-  orgName,
+  orgTscircuitHandle,
   github_handle,
-}: { orgId?: string; orgName?: string; github_handle?: string }) => {
+}: { orgId?: string; orgTscircuitHandle?: string; github_handle?: string }) => {
   const axios = useAxios()
 
   const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(
-    ["orgs", "get", orgId || orgName || github_handle],
+    ["orgs", "get", orgId || orgTscircuitHandle || github_handle],
     async () => {
-      if (!orgId && !orgName && !github_handle) {
+      if (!orgId && !orgTscircuitHandle && !github_handle) {
         throw new Error("Organization ID, name, or GitHub handle is required")
       }
       const params = orgId
         ? { org_id: orgId }
-        : orgName
-          ? { org_name: orgName }
+        : orgTscircuitHandle
+          ? { tscircuit_handle: orgTscircuitHandle }
           : { github_handle }
       const { data } = await axios.get("/orgs/get", { params })
       return data.org
     },
     {
-      enabled: Boolean(orgId || orgName),
+      enabled: Boolean(orgId || orgTscircuitHandle || github_handle),
       retry: false,
       refetchOnWindowFocus: false,
       keepPreviousData: true,
@@ -38,5 +38,7 @@ export const useOrganization = ({
     isLoading: orgQuery.isLoading,
     isError: orgQuery.isError,
     error: orgQuery.error,
+    isFetched: orgQuery.isFetched,
+    refetch: orgQuery.refetch,
   }
 }

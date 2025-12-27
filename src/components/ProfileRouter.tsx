@@ -8,23 +8,27 @@ import { useOrganization } from "@/hooks/use-organization"
 
 const ProfileRouter: React.FC = () => {
   const { username } = useParams()
-  const { organization, isLoading, error } = useOrganization({
-    orgName: username,
+  const { organization, isLoading, error, isFetched } = useOrganization({
+    orgTscircuitHandle: username,
   })
 
   if (!username) {
     return <NotFoundPage heading="Username Not Provided" />
   }
 
-  if (isLoading) {
+  if (isLoading || !isFetched) {
     return <FullPageLoader />
   }
 
-  if (organization && !organization.is_personal_org && !error) {
+  if (error || !organization) {
+    return <NotFoundPage heading="Organization Not Found" />
+  }
+
+  if (!organization.is_personal_org) {
     return <OrganizationProfilePageContent org={organization} />
   }
 
-  return <UserProfilePage />
+  return <UserProfilePage org={organization} />
 }
 
 export default ProfileRouter

@@ -84,6 +84,7 @@ export const OrganizationProfilePageContent = ({
       <OrganizationHeader
         organization={org}
         isCurrentUserOrganization={isCurrentUserOrganization}
+        className="mx-auto"
       />
 
       <div className="container mx-auto px-4 py-8">
@@ -92,7 +93,7 @@ export const OrganizationProfilePageContent = ({
             <Tabs
               defaultValue="packages"
               onValueChange={setActiveTab}
-              className="mb-6"
+              className={`mb-6 ${Boolean(session?.account_id) ? "flex" : "hidden"}`}
             >
               <TabsList>
                 <TabsTrigger
@@ -101,14 +102,12 @@ export const OrganizationProfilePageContent = ({
                 >
                   Packages
                 </TabsTrigger>
-                {Boolean(session?.account_id) && (
-                  <TabsTrigger
-                    value="members"
-                    className="flex items-center gap-2"
-                  >
-                    Members
-                  </TabsTrigger>
-                )}
+                <TabsTrigger
+                  value="members"
+                  className="flex items-center gap-2"
+                >
+                  Members
+                </TabsTrigger>
               </TabsList>
             </Tabs>
 

@@ -11,6 +11,8 @@ export const errorResponseSchema = z.object({
   error: errorSchema,
 })
 
+export const log = z.any()
+
 export const snippetSchema = z.object({
   snippet_id: z.string(),
   package_release_id: z.string(),
@@ -70,11 +72,24 @@ export const shippingInfoSchema = z.object({
 export const accountSchema = z.object({
   account_id: z.string(),
   github_username: z.string(),
+  tscircuit_handle: z.string().nullable(),
   shippingInfo: shippingInfoSchema.optional(),
-  personal_org_id: z.string().optional(),
+  personal_org_id: z.string().nullable(),
   is_tscircuit_staff: z.boolean().default(false),
+  email: z.string().nullable().optional(),
+  created_at: z.date(),
 })
 export type Account = z.infer<typeof accountSchema>
+
+export const publicAccountSchema = z.object({
+  account_id: z.string(),
+  github_username: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
+  personal_org_id: z.string().nullable(),
+  created_at: z.date(),
+})
+
+export type PublicAccount = z.infer<typeof publicAccountSchema>
 
 export const orderSchema = z.object({
   order_id: z.string(),
@@ -246,6 +261,7 @@ export const packageReleaseSchema = z.object({
   has_transpiled: z.boolean().default(false),
   transpilation_error: z.string().nullable().optional(),
   fs_sha: z.string().nullable().optional(),
+  ready_to_build: z.boolean().default(false),
   // Build Status and Display
   display_status: z
     .enum(["pending", "building", "complete", "error"])
@@ -267,7 +283,7 @@ export const packageReleaseSchema = z.object({
   user_code_started_at: z.string().datetime().nullable().default(null),
   user_code_completed_at: z.string().datetime().nullable().default(null),
   user_code_build_logs: z.array(z.any()).nullable().default(null),
-  user_code_error: z.string().nullable().default(null),
+  user_code_error: errorSchema.nullable().default(null),
   user_code_log_stream_url: z.string().nullable().default(null),
 
   // Circuit JSON Build Process
@@ -326,18 +342,26 @@ export const packageFileSchema = z.object({
   package_release_id: z.string(),
   file_path: z.string(),
   content_text: z.string().nullable().optional(),
-  created_at: z.string().datetime(),
+  content_bytes: z.instanceof(Buffer).nullable().optional(),
   content_mimetype: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
   is_release_tarball: z.boolean().optional(),
   npm_pack_output: z.any().nullable().optional(),
+  is_text: z.boolean().optional(),
 })
+
+export const packageFileLiteSchema = packageFileSchema.omit({
+  content_text: true,
+})
+export type PackageFileLite = z.infer<typeof packageFileLiteSchema>
 export type PackageFile = z.infer<typeof packageFileSchema>
 
 export const packageSchema = z.object({
   package_id: z.string(),
   creator_account_id: z.string(),
   owner_org_id: z.string(),
-  owner_github_username: z.string().nullable(),
+  owner_github_username: z.string().nullable().optional(),
+  org_owner_tscircuit_handle: z.string().nullable().optional(),
   github_repo_full_name: z.string().nullable(),
   name: z.string(),
   unscoped_name: z.string(),
@@ -420,17 +444,17 @@ export const packageBuildSchema = z.object({
   transpilation_in_progress: z.boolean().default(false),
   transpilation_started_at: z.string().datetime().nullable().optional(),
   transpilation_completed_at: z.string().datetime().nullable().optional(),
-  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_logs: z.array(log).nullable(),
   transpilation_error: z.string().nullable().optional(),
   circuit_json_build_in_progress: z.boolean().default(false),
   circuit_json_build_started_at: z.string().datetime().nullable().optional(),
   circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
-  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_logs: z.array(log).nullable(),
   circuit_json_build_error: z.string().nullable().optional(),
   image_generation_in_progress: z.boolean().default(false),
   image_generation_started_at: z.string().datetime().nullable().optional(),
   image_generation_completed_at: z.string().datetime().nullable().optional(),
-  image_generation_logs: z.array(z.any()).default([]),
+  image_generation_logs: z.array(log).nullable(),
   image_generation_error: z.string().nullable().optional(),
   build_in_progress: z.boolean().default(false),
   build_started_at: z.string().datetime().nullable().optional(),
@@ -439,17 +463,23 @@ export const packageBuildSchema = z.object({
   build_error_last_updated_at: z.string().datetime(),
   preview_url: z.string().nullable().optional(),
   build_logs: z.string().nullable().optional(),
+  user_code_started_at: z.string().datetime().nullable().optional(),
+  user_code_completed_at: z.string().datetime().nullable().optional(),
+  user_code_error: z.any().nullable().optional(),
+  user_code_build_logs: z.array(log).nullable(),
+  user_code_log_stream_url: z.string().nullable().optional(),
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
 
 export const orgSchema = z.object({
   org_id: z.string(),
-  github_handle: z.string().optional(),
   owner_account_id: z.string(),
   is_personal_org: z.boolean().default(false),
   created_at: z.string().datetime(),
   org_display_name: z.string().optional(),
-  org_name: z.string(),
+  avatar_url: z.string().nullable().optional(),
+  github_handle: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
 })
 export type Organization = z.infer<typeof orgSchema>
 
@@ -462,6 +492,24 @@ export const orgAccountSchema = z.object({
   can_manage_org: z.boolean().default(false),
 })
 export type OrgAccount = z.infer<typeof orgAccountSchema>
+
+export const orgInvitationSchema = z.object({
+  org_invitation_id: z.string(),
+  org_id: z.string(),
+  invitee_email: z.string().email().nullable(),
+  inviter_account_id: z.string(),
+  invitation_token: z.string(),
+  is_link_invite: z.boolean().default(false),
+  is_pending: z.boolean().default(true),
+  is_accepted: z.boolean().default(false),
+  is_expired: z.boolean().default(false),
+  is_revoked: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  expires_at: z.string().datetime(),
+  accepted_at: z.string().datetime().nullable(),
+  accepted_by_account_id: z.string().nullable(),
+})
+export type OrgInvitation = z.infer<typeof orgInvitationSchema>
 
 export const userPermissionsSchema = z.object({
   can_manage_org: z.boolean().optional(),
@@ -477,7 +525,10 @@ export const publicOrgSchema = z.object({
   is_personal_org: z.boolean(),
   display_name: z.string().optional(),
   package_count: z.number(),
-  github_handle: z.string().optional(),
+  avatar_url: z.string().nullable().optional(),
+  github_handle: z.string().nullable(),
+  github_installation_handles: z.array(z.string()).optional(),
+  tscircuit_handle: z.string().nullable(),
   created_at: z.string(),
   user_permissions: userPermissionsSchema.optional(),
 })
@@ -495,6 +546,7 @@ export const databaseSchema = z.object({
   orders: z.array(orderSchema).default([]),
   organizations: z.array(orgSchema).default([]),
   orgAccounts: z.array(orgAccountSchema).default([]),
+  orgInvitations: z.array(orgInvitationSchema).default([]),
   orderFiles: z.array(orderFileSchema).default([]),
   accountSnippets: z.array(accountSnippetSchema).default([]),
   accountPackages: z.array(accountPackageSchema).default([]),
@@ -509,3 +561,29 @@ export const databaseSchema = z.object({
   bugReportFiles: z.array(bugReportFileSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
+
+export const tscircuitHandleSchema = z
+  .string()
+  .min(1)
+  .max(40)
+  .regex(
+    /^[0-9A-Za-z]([0-9A-Za-z_-]*[0-9A-Za-z])?$/,
+    "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
+  )
+  .transform((s) => s.toLowerCase())
+
+export const tscircuitHandleStrictSchema = z
+  .string()
+  .min(3)
+  .max(40)
+  .regex(
+    /^[0-9A-Za-z][0-9A-Za-z_-]*[0-9A-Za-z]$/,
+    "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
+  )
+  .transform((s) => s.toLowerCase())
+export const memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
+  joined_at: z.string(),
+  org_member_permissions: userPermissionsSchema,
+  avatar_url: z.string().nullable().optional(),
+})
+export type Member = z.infer<typeof memberSchema>

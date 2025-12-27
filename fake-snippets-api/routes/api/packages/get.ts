@@ -51,7 +51,8 @@ export default withRouteSpec({
     })
   }
 
-  // Check if user can manage the package
+  const ownerOrg = ctx.db.getOrg({ org_id: foundPackage.owner_org_id })
+
   const canManagePackage =
     auth &&
     ctx.db
@@ -69,6 +70,7 @@ export default withRouteSpec({
       is_starred: auth
         ? ctx.db.hasStarred(auth.account_id, foundPackage.package_id)
         : false,
+      org_owner_tscircuit_handle: ownerOrg?.tscircuit_handle ?? null,
       ...(auth
         ? {
             user_permissions: {

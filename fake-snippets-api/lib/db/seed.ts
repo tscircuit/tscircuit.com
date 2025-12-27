@@ -1,11 +1,18 @@
+import { readFileSync } from "node:fs"
+import { join, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
 import { DbClient } from "./db-client"
 import { loadAutoloadPackages } from "./autoload-dev-packages"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export const seed = (db: DbClient) => {
   const { account_id } = db.addAccount({
     account_id: "account-1234",
     personal_org_id: "org-1234",
     github_username: "testuser",
+    tscircuit_handle: "testuser",
+    email: "testuser@tscircuit.com",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -21,6 +28,8 @@ export const seed = (db: DbClient) => {
   })
   const seveibarAcc = db.addAccount({
     github_username: "seveibar",
+    tscircuit_handle: "seveibar",
+    email: "example@tscircuit.com",
   })
 
   if (process.env.AUTOLOAD_PACKAGES === "true") {
@@ -595,8 +604,8 @@ export default () => (
     updated_at: new Date().toISOString(),
     is_source_from_github: false,
     snippet_type: "package",
-    latest_package_release_id: null,
-    latest_version: "0.0.1",
+    latest_package_release_id: "0.0.4",
+    latest_version: "0.0.4",
     license: "MIT",
     website: "https://tscircuit.com",
     star_count: 10,
@@ -612,8 +621,8 @@ export default () => (
   const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
     package_id: test2Package.package_id,
     version: "0.0.1",
-    created_at: new Date().toISOString(),
-    is_latest: true,
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    is_latest: false,
     is_locked: false,
     has_transpiled: true,
     transpilation_error: null,
@@ -630,6 +639,7 @@ export const TestComponent = ({ name }: { name: string }) => (
 )
 `.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageFile({
     package_release_id: test2PackageReleaseId,
@@ -682,6 +692,7 @@ export const TestComponent = ({ name }: { name: string }) => (
   }
 ]`.trim(),
     created_at: new Date().toISOString(),
+    is_text: true,
   })
   db.addPackageBuild({
     package_release_id: test2PackageReleaseId,
@@ -721,6 +732,133 @@ export const TestComponent = ({ name }: { name: string }) => (
       "4. Circuit validation - OK\n" +
       "5. Package assembly - OK\n" +
       "Build completed successfully",
+  })
+
+  const { package_release_id: test2PackageReleaseId2 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.2",
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_latest: false,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId2,
+    file_path: "index.tsx",
+    content_text: `export const TestComponent = ({ name }: { name: string }) => (
+  <resistor name={name} resistance="20k" />
+)`,
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId2,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\``,
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    is_text: true,
+  })
+
+  const { package_release_id: test2PackageReleaseId3 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.3",
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_latest: false,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance } from "./utils"
+
+export const TestComponent = ({ name, value = 30 }: { name: string; value?: number }) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 30`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId3,
+    file_path: "README.md",
+    content_text: `# Test2 Package v0.0.3
+
+Added value prop support.`,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    is_text: true,
+  })
+
+  const { package_release_id: test2PackageReleaseId4 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.4",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+    pcb_preview_image_url: `/api/packages/images/testuser/test2-package/pcb.png`,
+    cad_preview_image_url: `/api/packages/images/testuser/test2-package/3d.png`,
+    sch_preview_image_url: `/api/packages/images/testuser/test2-package/schematic.png`,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance, DEFAULT_RESISTANCE } from "./utils"
+import type { ComponentProps } from "./types"
+
+export const TestComponent = ({ name, value = DEFAULT_RESISTANCE }: ComponentProps) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 40`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "types.ts",
+    content_text: `export interface ComponentProps {
+  name: string
+  value?: number
+}`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId4,
+    file_path: "README.md",
+    content_text: `# Test2 Package v0.0.4
+
+Latest version with TypeScript types.
+
+## Usage
+\`\`\`tsx
+import { TestComponent } from "@tsci/testuser.test2-package"
+
+<TestComponent name="R1" value={40} />
+\`\`\``,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
+  db.updatePackage(test2Package.package_id, {
+    latest_package_release_id: test2PackageReleaseId4,
   })
 
   // Define the @tsci/seveibar.a555timer package
@@ -1878,7 +2016,7 @@ export const SquareWaveModule = () => (
 
   const testOrg = db.addOrganization({
     org_display_name: "Test Organization",
-    name: "test-organization",
+    tscircuit_handle: "test-organization",
     github_handle: "tscircuit",
     owner_account_id: account_id,
   })
@@ -1888,6 +2026,149 @@ export const SquareWaveModule = () => (
     org_id: testOrg.org_id,
     account_id: account_id,
     is_owner: true,
+  })
+
+  // Test  Org Package addition
+  const testOrgPackage = db.addPackage({
+    name: "test-organization/test-org-package",
+    unscoped_name: "test-org-package",
+    creator_account_id: account_id,
+    owner_org_id: testOrg.org_id,
+    owner_github_username: testOrg.github_handle,
+    description: "A test package for development",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_source_from_github: false,
+    snippet_type: "package",
+    latest_package_release_id: null,
+    latest_version: "0.0.1",
+    license: "MIT",
+    website: "https://tscircuit.com",
+    star_count: 10,
+    ai_description:
+      "A comprehensive test package designed for development and testing purposes. This package includes various components and utilities commonly used in circuit design and simulation workflows.",
+    ai_usage_instructions:
+      "Import the package using `import { TestComponent } from '@tsci/test-organization.test-org-package'`. Use the TestComponent in your circuit designs by providing the required props. Example: `<TestComponent name='my-test' value={42} />`",
+    default_view: "files",
+    latest_pcb_preview_image_url: `/api/packages/images/test-organization/test-org-package/pcb.png`,
+    latest_cad_preview_image_url: `/api/packages/images/test-organization/test-org-package/3d.png`,
+    latest_sch_preview_image_url: `/api/packages/images/test-organization/test-org-package/schematic.png`,
+  })
+  const { package_release_id: testOrgPackageReleaseId } = db.addPackageRelease({
+    package_id: testOrgPackage.package_id,
+    version: "0.0.1",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+
+    pcb_preview_image_url: `/api/packages/images/test-organization/test-org-package/pcb.png`,
+    cad_preview_image_url: `/api/packages/images/test-organization/test-org-package/3d.png`,
+    sch_preview_image_url: `/api/packages/images/test-organization/test-org-package/schematic.png`,
+  })
+  db.addPackageFile({
+    package_release_id: testOrgPackageReleaseId,
+    file_path: "index.tsx",
+    content_text: `
+    export const TestComponent = ({ name }: { name: string }) => (
+      <resistor name={name} resistance="10k" />
+    )
+    `.trim(),
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: testOrgPackageReleaseId,
+    file_path: "/dist/circuit.json",
+    content_text: `[
+      {
+        "type": "source_project_metadata",
+        "source_project_metadata_id": "source_project_metadata_0",
+        "software_used_string": "@tscircuit/core@0.0.813"
+      },
+      {
+        "type": "source_group",
+        "source_group_id": "source_group_0",
+        "is_subcircuit": true,
+        "was_automatically_named": true,
+        "subcircuit_id": "subcircuit_source_group_0"
+      },
+      {
+        "type": "source_board",
+        "source_board_id": "source_board_0",
+        "source_group_id": "source_group_0"
+      },
+      {
+        "type": "schematic_group",
+        "schematic_group_id": "schematic_group_0",
+        "is_subcircuit": true,
+        "subcircuit_id": "subcircuit_source_group_0",
+        "name": "unnamed_board1",
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "width": 0,
+        "height": 0,
+        "schematic_component_ids": [],
+        "source_group_id": "source_group_0"
+      },
+      {
+        "type": "pcb_board",
+        "pcb_board_id": "pcb_board_0",
+        "center": {
+          "x": 0,
+          "y": 0
+        },
+        "thickness": 1.4,
+        "num_layers": 2,
+        "width": 10,
+        "height": 10,
+        "material": "fr4"
+      }
+    ]`.trim(),
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageBuild({
+    package_release_id: testOrgPackageReleaseId,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(), // Started 5 seconds ago
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(), // Completed 3 seconds ago
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[INFO] Generating TypeScript definitions",
+      "[INFO] Compiling to JavaScript",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(), // Started after transpilation
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(), // Completed 1 second ago
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[INFO] Analyzing component structure",
+      "[INFO] Generating port configurations",
+      "[INFO] Validating circuit connections",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(), // Started 10 seconds ago
+    build_completed_at: new Date().toISOString(), // Just completed
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Dependency resolution - OK\n" +
+      "3. Code compilation - OK\n" +
+      "4. Circuit validation - OK\n" +
+      "5. Package assembly - OK\n" +
+      "Build completed successfully",
   })
 
   const { package_release_id: orgPackageReleaseId } = db.addSnippet({
@@ -1980,8 +2261,132 @@ exports.TestComponent = TestComponent;
     org_id: "org-1234",
   })
 
+  db.addOrganization({
+    name: "seveibar",
+    owner_account_id: seveibarAcc.account_id,
+    github_handle: "seveibar",
+    is_personal_org: true,
+    org_id: "org-1235",
+    avatar_url: "https://github.com/seveibar.png",
+  })
+
   db.addOrganizationAccount({
     org_id: testOrg.org_id,
     account_id: seveibarAcc.account_id,
+  })
+
+  // Add a package with a custom 3D model (GLB file)
+  const glbModelPackage = db.addPackage({
+    name: "testuser/custom-3d-model",
+    unscoped_name: "custom-3d-model",
+    creator_account_id: account_id,
+    owner_org_id: "org-1234",
+    owner_github_username: "testuser",
+    description: "A package demonstrating custom 3D CAD model usage",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_source_from_github: false,
+    snippet_type: "package",
+    latest_package_release_id: null,
+    latest_version: "0.0.1",
+    license: "MIT",
+    website: "https://tscircuit.com",
+    star_count: 5,
+    ai_description:
+      "A package that demonstrates how to use custom 3D CAD models (GLB files) with tscircuit components.",
+    ai_usage_instructions:
+      "Import the default component and use it in your circuit design. The component includes a custom 3D model for visualization.",
+    default_view: "3d",
+  })
+
+  const { package_release_id: glbModelReleaseId } = db.addPackageRelease({
+    package_id: glbModelPackage.package_id,
+    version: "0.0.1",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+
+  // Update the package to link to the release
+  db.updatePackage(glbModelPackage.package_id, {
+    latest_package_release_id: glbModelReleaseId,
+  })
+
+  // Add the index.tsx file
+  db.addPackageFile({
+    package_release_id: glbModelReleaseId,
+    file_path: "index.tsx",
+    content_text: `import glbUrl from "./test.glb"
+export default () => (
+  <board>
+    <chip
+      name="U1"
+      cadModel={
+        <cadassembly>
+          <cadmodel
+            modelUrl={glbUrl}
+            modelUnitToMmScale={1000}
+            positionOffset={{ x: 0, y: 0, z: 0.2 }}
+          />
+        </cadassembly>
+      }
+    />
+  </board>
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
+  // Read the GLB file from assets directory and add it as a package file
+  const glbFilePath = join(__dirname, "assets", "test.glb")
+  const glbFileContent = readFileSync(glbFilePath)
+  db.addPackageFile({
+    package_release_id: glbModelReleaseId,
+    file_path: "test.glb",
+    content_bytes: glbFileContent,
+    content_mimetype: "model/gltf-binary",
+    created_at: new Date().toISOString(),
+    is_text: false,
+  })
+
+  // Add a successful build for the GLB model package
+  db.addPackageBuild({
+    package_release_id: glbModelReleaseId,
+    created_at: new Date().toISOString(),
+    transpilation_in_progress: false,
+    transpilation_started_at: new Date(Date.now() - 5000).toISOString(),
+    transpilation_completed_at: new Date(Date.now() - 3000).toISOString(),
+    transpilation_logs: [
+      "[INFO] Starting transpilation...",
+      "[INFO] Parsing package code",
+      "[INFO] Processing GLB asset file",
+      "[INFO] Generating TypeScript definitions",
+      "[SUCCESS] Transpilation completed successfully",
+    ],
+    transpilation_error: null,
+    circuit_json_build_in_progress: false,
+    circuit_json_build_started_at: new Date(Date.now() - 3000).toISOString(),
+    circuit_json_build_completed_at: new Date(Date.now() - 1000).toISOString(),
+    circuit_json_build_logs: [
+      "[INFO] Starting circuit JSON build...",
+      "[INFO] Loading custom 3D model",
+      "[INFO] Validating CAD assembly structure",
+      "[SUCCESS] Circuit JSON build completed",
+    ],
+    circuit_json_build_error: null,
+    build_in_progress: false,
+    build_started_at: new Date(Date.now() - 10000).toISOString(),
+    build_completed_at: new Date().toISOString(),
+    build_error: null,
+    build_error_last_updated_at: new Date().toISOString(),
+    build_logs:
+      "Build process:\n" +
+      "1. Environment setup - OK\n" +
+      "2. Asset processing - OK\n" +
+      "3. Code compilation - OK\n" +
+      "4. 3D model validation - OK\n" +
+      "Build completed successfully",
   })
 }

@@ -29,7 +29,14 @@ interface ScoredPackage extends Package {
 }
 
 interface ScoredAccount
-  extends Omit<Account, "account_id" | "is_tscircuit_staff"> {
+  extends Omit<
+    Account,
+    | "account_id"
+    | "is_tscircuit_staff"
+    | "tscircuit_handle"
+    | "created_at"
+    | "personal_org_id"
+  > {
   score: number
   matches: number[]
 }
@@ -38,7 +45,7 @@ export const SearchPage = () => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const [searchParams, setSearchParams] = useSearchParams()
-  const currentUser = useGlobalStore((s) => s.session?.github_username)
+  const currentUser = useGlobalStore((s) => s.session)
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "")
   const [category, setCategory] = useState(

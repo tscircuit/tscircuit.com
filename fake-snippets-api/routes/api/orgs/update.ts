@@ -1,6 +1,9 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { publicOrgSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  publicOrgSchema,
+  tscircuitHandleSchema,
+} from "fake-snippets-api/lib/db/schema"
 import { publicMapOrg } from "fake-snippets-api/lib/public-mapping/public-map-org"
 
 export default withRouteSpec({
@@ -11,9 +14,8 @@ export default withRouteSpec({
     })
     .and(
       z.object({
-        name: z.string().min(5).max(40).optional(),
         display_name: z.string().max(50).optional(),
-        github_handle: z.string().trim().min(1).nullable().optional(),
+        tscircuit_handle: tscircuitHandleSchema.optional(),
       }),
     ),
   auth: "session",
@@ -21,11 +23,10 @@ export default withRouteSpec({
     org: publicOrgSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, name, display_name, github_handle } = req.commonParams as {
+  const { org_id, display_name, tscircuit_handle } = req.commonParams as {
     org_id: string
-    name?: string
     display_name?: string
-    github_handle?: string
+    tscircuit_handle?: string | null
   }
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
@@ -45,57 +46,32 @@ export default withRouteSpec({
   }
 
   // No changes provided
-  if (!name && display_name === undefined && github_handle === null) {
+  if (display_name === undefined && tscircuit_handle === undefined) {
     return ctx.json({ org: publicMapOrg(org) })
   }
 
-  if (name && name !== org.org_name) {
-    // Validate duplicate name
-    const duplicate = ctx.db.getOrg({ org_name: name })
+  if (tscircuit_handle && tscircuit_handle !== org.tscircuit_handle) {
+    const duplicate = ctx.db.getOrg({ tscircuit_handle })
 
     if (duplicate && duplicate.org_id !== org_id) {
       return ctx.error(400, {
-        error_code: "org_already_exists",
-        message: "An organization with this name already exists",
-      })
-    }
-  }
-  if (
-    github_handle !== undefined &&
-    github_handle !== org.github_handle &&
-    github_handle !== null
-  ) {
-    const duplicateHandle = ctx.db.getOrg({ github_handle })
-      ? ctx.db.getOrg({ github_handle })?.org_id != org_id
-      : false
-
-    if (duplicateHandle) {
-      return ctx.error(400, {
-        error_code: "org_github_handle_already_exists",
-        message: "An organization with this GitHub handle already exists",
+        error_code: "org_tscircuit_handle_already_exists",
+        message: "An organization with this tscircuit_handle already exists",
       })
     }
   }
   const updates: {
-    org_name?: string
     org_display_name?: string
-    github_handle?: string
+    tscircuit_handle?: string | null
   } = {}
 
-  if (name) {
-    updates.org_name = name // TODO NORMALISE
-  }
-
-  if (github_handle !== undefined) {
-    updates.github_handle = github_handle
+  if (tscircuit_handle !== undefined) {
+    updates.tscircuit_handle = tscircuit_handle
   }
 
   if (display_name !== undefined) {
     const trimmedDisplayName = display_name.trim()
-    const handleForFallback =
-      github_handle !== undefined ? github_handle : org.github_handle
-    const fallbackDisplayName =
-      name ?? org.org_display_name ?? org.org_name ?? handleForFallback ?? ""
+    const fallbackDisplayName = org.tscircuit_handle ?? undefined
     updates.org_display_name =
       trimmedDisplayName.length > 0 ? trimmedDisplayName : fallbackDisplayName
   }

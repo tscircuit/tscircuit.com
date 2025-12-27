@@ -8,7 +8,7 @@ test("POST /api/orgs/add_member - should add a user to an org (owner authorized)
 
   const addResponse = await jane_axios.post("/api/orgs/add_member", {
     org_id: seed.organization.org_id,
-    account_id: seed.account.account_id,
+    tscircuit_handle: seed.account.tscircuit_handle,
   })
 
   expect(addResponse.status).toBe(200)

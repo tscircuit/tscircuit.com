@@ -25,6 +25,7 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
+                { name: "Sign In", href: "/login" },
                 {
                   name: "My Profile",
                   href: `/${session?.github_username}`,
@@ -36,14 +37,14 @@ export default function Footer() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="hover:underline"
+                    className="hover:underline w-fit"
                   >
                     {item.name}
                   </Link>
                 ))}
               <a
                 href="https://chat.tscircuit.com"
-                className="hover:underline"
+                className="hover:underline w-fit"
                 target="_blank"
               >
                 Create with AI
@@ -54,16 +55,19 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Explore</h3>
             <footer className="flex flex-col space-y-2">
-              <Link href="/latest" className="hover:underline">
+              <Link href="/latest" className="hover:underline w-fit">
                 Latest Packages
               </Link>
-              <Link href="/trending" className="hover:underline">
+              <Link href="/trending" className="hover:underline w-fit">
                 Trending Packages
               </Link>
-              <Link href="/search" className="hover:underline">
+              <Link href="/search" className="hover:underline w-fit">
                 Search Packages
               </Link>
-              <a href="https://docs.tscircuit.com" className="hover:underline">
+              <a
+                href="https://docs.tscircuit.com"
+                className="hover:underline w-fit"
+              >
                 Docs
               </a>
             </footer>
@@ -72,24 +76,33 @@ export default function Footer() {
           <div className="space-y-4">
             <h3 className="font-semibold uppercase">Follow</h3>
             <footer className="flex flex-col space-y-2">
-              <a href="https://blog.tscircuit.com" className="hover:underline">
+              <a
+                href="https://blog.tscircuit.com"
+                className="hover:underline w-fit"
+              >
                 Blog
               </a>
-              <a href="https://x.com/tscircuit" className="hover:underline">
+              <a
+                href="https://x.com/tscircuit"
+                className="hover:underline w-fit"
+              >
                 Twitter
               </a>
-              <a href="https://tscircuit.com/join" className="hover:underline">
+              <a
+                href="https://tscircuit.com/join"
+                className="hover:underline w-fit"
+              >
                 Discord
               </a>
               <a
                 href="https://github.com/tscircuit/tscircuit"
-                className="hover:underline"
+                className="hover:underline w-fit"
               >
                 GitHub
               </a>
               <a
                 href="https://youtube.com/@seveibar"
-                className="hover:underline"
+                className="hover:underline w-fit"
               >
                 YouTube
               </a>
@@ -101,19 +114,19 @@ export default function Footer() {
             <nav className="flex flex-col space-y-2">
               <a
                 href="https://tscircuit.com/legal/terms-of-service"
-                className="hover:underline"
+                className="hover:underline w-fit"
               >
                 Terms of Service
               </a>
               <a
                 href="https://tscircuit.com/legal/privacy-policy"
-                className="hover:underline"
+                className="hover:underline w-fit"
               >
                 Privacy Policy
               </a>
               <a
                 href="mailto:contact@tscircuit.com"
-                className="hover:underline"
+                className="hover:underline w-fit"
               >
                 contact@tscircuit.com
               </a>

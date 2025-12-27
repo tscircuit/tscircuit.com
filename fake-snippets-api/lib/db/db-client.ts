@@ -34,6 +34,7 @@ import {
   type snippetSchema,
   Organization,
   OrgAccount,
+  OrgInvitation,
   UserPermissions,
 } from "./schema.ts"
 import { seed as seedFn } from "./seed"
@@ -268,13 +269,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     )
   },
   addAccount: (
-    account: Omit<Account, "account_id" | "is_tscircuit_staff"> &
-      Partial<Pick<Account, "account_id" | "is_tscircuit_staff">>,
+    account: Omit<
+      Account,
+      "account_id" | "is_tscircuit_staff" | "created_at" | "personal_org_id"
+    > &
+      Partial<
+        Pick<Account, "account_id" | "is_tscircuit_staff" | "personal_org_id">
+      >,
   ) => {
     const newAccount = {
       account_id: account.account_id || `account_${get().idCounter + 1}`,
       ...account,
       is_tscircuit_staff: Boolean(account.is_tscircuit_staff),
+      created_at: new Date(),
+      personal_org_id: account.personal_org_id || `porg_${get().idCounter + 1}`,
     }
 
     set((state) => {
@@ -1084,36 +1092,42 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((snippet): snippet is Snippet => snippet !== null)
   },
-  searchPackages: (query: string): Package[] => {
+  searchPackages: (query: string, account_id?: string): Package[] => {
     const state = get()
     const lowercaseQuery = query.toLowerCase()
 
-    // Get all packages that are public
-    const packages = state.packages.filter((pkg) => pkg.is_public === true)
+    const userOrgIds = account_id
+      ? new Set(
+          state.orgAccounts
+            .filter((oa) => oa.account_id === account_id)
+            .map((oa) => oa.org_id),
+        )
+      : new Set<string>()
 
-    // Find packages that match by name or description
+    const packages = state.packages.filter(
+      (pkg) =>
+        pkg.is_public === true ||
+        (account_id && pkg.owner_org_id && userOrgIds.has(pkg.owner_org_id)),
+    )
+
     const matchingPackagesByMetadata = packages.filter(
       (pkg) =>
         pkg.name.toLowerCase().includes(lowercaseQuery) ||
         pkg.description?.toLowerCase().includes(lowercaseQuery),
     )
 
-    // Find packages that match by code content in any file
     const matchingFilesByContent = state.packageFiles.filter(
       (file) =>
         file.content_text?.toLowerCase().includes(lowercaseQuery) ?? false,
     )
 
-    // Get the packages for matching files
     const matchingPackagesByContent = matchingFilesByContent
       .map((file) => {
-        // Find the package release for this file
         const packageRelease = state.packageReleases.find(
           (pr) => pr.package_release_id === file.package_release_id,
         )
         if (!packageRelease) return null
 
-        // Find the package for this release
         return packages.find(
           (pkg) =>
             pkg.latest_package_release_id === packageRelease.package_release_id,
@@ -1121,7 +1135,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       })
       .filter((pkg): pkg is NonNullable<typeof pkg> => pkg !== null)
 
-    // Combine both sets of matching packages and remove duplicates
     const matchingPackages = [
       ...new Set([...matchingPackagesByMetadata, ...matchingPackagesByContent]),
     ]
@@ -1154,7 +1167,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         if (!accountsWithPublicPackages.has(account.account_id)) {
           return false
         }
-        return account.github_username.toLowerCase().includes(lowercaseQuery)
+        return (
+          account.github_username.toLowerCase().includes(lowercaseQuery) ||
+          (account.tscircuit_handle?.toLowerCase().includes(lowercaseQuery) ??
+            false)
+        )
       })
       .slice(0, limit || 50)
 
@@ -1231,6 +1248,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       )
       if (accountIndex !== -1) {
         updatedAccount = { ...state.accounts[accountIndex] }
+        if (updates.tscircuit_handle) {
+          updatedAccount.tscircuit_handle = updates.tscircuit_handle
+          delete updates.tscircuit_handle
+        }
         if (updates.shippingInfo) {
           updatedAccount.shippingInfo = {
             ...updatedAccount.shippingInfo,
@@ -1353,9 +1374,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_id" | "github_repo_full_name"
     >,
   ): Package => {
-    const timestamp = Date.now()
+    const state = get()
+    const nextId = state.idCounter + 1
     const newPackage = {
-      package_id: `package_${timestamp}`,
+      package_id: `package_${nextId}`,
       github_repo_full_name: null,
       latest_pcb_preview_image_url:
         _package.latest_pcb_preview_image_url ??
@@ -1369,6 +1391,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       ..._package,
     }
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packages: [...state.packages, newPackage as Package],
     }))
     return newPackage as Package
@@ -1416,11 +1439,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       "package_release_id"
     >,
   ): PackageRelease => {
+    const state = get()
+    const nextId = state.idCounter + 1
     const parsed = packageReleaseSchema.parse({
-      package_release_id: `package_release_${Date.now()}`,
+      package_release_id: `package_release_${nextId}`,
       ...packageRelease,
     })
     set((state) => ({
+      idCounter: state.idCounter + 1,
       packageReleases: [...state.packageReleases, parsed],
     }))
     return parsed
@@ -1608,10 +1634,16 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return updated
   },
   addPackageBuild: (
-    packageBuild: Omit<z.input<typeof packageBuildSchema>, "package_build_id">,
+    packageBuild: Partial<
+      Omit<z.input<typeof packageBuildSchema>, "package_build_id">
+    > & {
+      package_release_id: string
+    },
   ): PackageBuild => {
     const newPackageBuild = packageBuildSchema.parse({
       package_build_id: crypto.randomUUID(),
+      user_code_build_logs: null,
+      image_generation_logs: null,
       ...packageBuild,
     })
     set((state) => ({
@@ -1661,20 +1693,27 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return updated
   },
   addOrganization: (organization: {
-    name: string
+    name?: string
     org_id?: string
     is_personal_org?: boolean
     owner_account_id: string
     github_handle?: string
     org_display_name?: string
+    tscircuit_handle?: string
+    avatar_url?: string | null
   }) => {
     const newOrganization: Organization = {
-      org_name: organization.name,
       org_id: organization.org_id || `org_${get().idCounter + 1}`,
-      github_handle: organization.github_handle,
+      github_handle: organization.github_handle ?? null,
       is_personal_org: organization.is_personal_org || false,
       created_at: new Date().toISOString(),
-      org_display_name: organization.org_display_name ?? organization.name,
+      org_display_name:
+        organization.org_display_name ??
+        organization.tscircuit_handle ??
+        undefined,
+      avatar_url: organization.avatar_url ?? null,
+      tscircuit_handle:
+        organization.tscircuit_handle || organization.name || null,
       ...organization,
     }
     set((state) => ({
@@ -1692,7 +1731,9 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrgs: (
     filters?: {
       owner_account_id?: string
+      account_id?: string
       github_handle?: string
+      tscircuit_handle?: string
       name?: string
     },
     auth?: { account_id?: string },
@@ -1703,6 +1744,17 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         (org) => org.owner_account_id === filters.owner_account_id,
       )
     }
+    if (filters?.account_id) {
+      orgs = orgs.filter((org) => {
+        const isMemberViaOrgAccounts = get().orgAccounts.some(
+          (oa) =>
+            oa.org_id === org.org_id && oa.account_id === filters.account_id,
+        )
+        const isPersonalOrg =
+          org.is_personal_org && org.owner_account_id === filters.account_id
+        return isMemberViaOrgAccounts || isPersonalOrg
+      })
+    }
     if (filters?.github_handle) {
       orgs = orgs.filter((org) => {
         const account = get().accounts.find(
@@ -1711,8 +1763,26 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         return account?.github_username === filters.github_handle
       })
     }
+    if (filters?.tscircuit_handle) {
+      const account = get().accounts.find(
+        (account) => account.tscircuit_handle === filters.tscircuit_handle,
+      )
+      orgs = orgs.filter((org) => {
+        const orgAccount = get().orgAccounts.find(
+          (oa) =>
+            oa.org_id === org.org_id && oa.account_id === account?.account_id,
+        )
+        const isPersonalOrg =
+          org.is_personal_org && org.owner_account_id === account?.account_id
+        return Boolean(orgAccount) || isPersonalOrg
+      })
+    }
     if (filters?.name) {
-      orgs = orgs.filter((org) => org.github_handle === filters.name)
+      orgs = orgs.filter(
+        (org) =>
+          org.github_handle === filters.name ||
+          org.tscircuit_handle === filters.name,
+      )
     }
 
     return orgs.map((org) => {
@@ -1739,8 +1809,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getOrg: (
     filters: {
       org_id?: string
-      org_name?: string
       github_handle?: string
+      tscircuit_handle?: string
     },
     auth?: { account_id: string },
   ) => {
@@ -1749,9 +1819,6 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     if (filters?.org_id) {
       orgs = orgs.filter((org) => org.org_id === filters.org_id)
     }
-    if (filters?.org_name) {
-      orgs = orgs.filter((org) => org.org_name === filters.org_name)
-    }
     // if (filters?.org_name && auth?.account_id) {
     //   const account = get().accounts.find(x => x.account_id == auth?.account_id)
     //   orgs = orgs.filter((org) => org.github_handle === account?.github_username)
@@ -1759,7 +1826,12 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     if (filters?.github_handle) {
       orgs = orgs.filter((org) => org.github_handle === filters.github_handle)
     }
-
+    if (filters?.tscircuit_handle) {
+      orgs = orgs.filter(
+        (org) =>
+          org.tscircuit_handle?.toLowerCase() === filters.tscircuit_handle,
+      )
+    }
     if (orgs.length === 0) {
       return null
     }
@@ -1938,5 +2010,68 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return state
     })
     return deleted
+  },
+  addOrgInvitation: (invitation: {
+    org_id: string
+    invitee_email: string
+    inviter_account_id: string
+    invitation_token: string
+  }): OrgInvitation => {
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7) // 7 days from now
+
+    const newInvitation: OrgInvitation = {
+      org_invitation_id: `org_invitation_${get().idCounter + 1}`,
+      org_id: invitation.org_id,
+      invitee_email: invitation.invitee_email,
+      inviter_account_id: invitation.inviter_account_id,
+      invitation_token: invitation.invitation_token,
+      is_link_invite: false,
+      is_pending: true,
+      is_accepted: false,
+      is_expired: false,
+      is_revoked: false,
+      created_at: new Date().toISOString(),
+      expires_at: expiresAt.toISOString(),
+      accepted_at: null,
+      accepted_by_account_id: null,
+    }
+    set((state) => ({
+      orgInvitations: [...state.orgInvitations, newInvitation],
+      idCounter: state.idCounter + 1,
+    }))
+    return newInvitation
+  },
+  getOrgInvitationByToken: (token: string): OrgInvitation | undefined => {
+    const state = get()
+    return state.orgInvitations.find(
+      (invitation) => invitation.invitation_token === token,
+    )
+  },
+  listOrgInvitations: (orgId: string): OrgInvitation[] => {
+    const state = get()
+    return state.orgInvitations.filter(
+      (invitation) => invitation.org_id === orgId,
+    )
+  },
+  updateOrgInvitation: (
+    invitationId: string,
+    updates: Partial<OrgInvitation>,
+  ): OrgInvitation | undefined => {
+    let updatedInvitation: OrgInvitation | undefined
+    set((state) => {
+      const index = state.orgInvitations.findIndex(
+        (inv) => inv.org_invitation_id === invitationId,
+      )
+      if (index === -1) return state
+      const updatedInvitations = [...state.orgInvitations]
+      updatedInvitations[index] = {
+        ...updatedInvitations[index],
+        ...updates,
+      }
+      updatedInvitation = updatedInvitations[index]
+      return { ...state, orgInvitations: updatedInvitations }
+    })
+    return updatedInvitation
   },
 }))

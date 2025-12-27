@@ -5,13 +5,14 @@ test("POST /api/orgs/create - should create a new org for the user", async () =>
   const { axios } = await getTestServer()
   const orgName = "acme-corp"
   const createResponse = await axios.post("/api/orgs/create", {
-    name: orgName,
+    tscircuit_handle: orgName,
   })
 
   expect(createResponse.status).toBe(200)
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
-  expect(responseBody.org.name).toBe(orgName)
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(orgName)
   expect(responseBody.org.owner_account_id).toBe(
     String((axios.defaults.headers as any)?.["Authorization"]?.split(" ")[1]),
   )
@@ -24,7 +25,7 @@ test("POST /api/orgs/create - should reject duplicate org names", async () => {
   const { axios, seed } = await getTestServer()
   try {
     await axios.post("/api/orgs/create", {
-      name: seed.organization.org_name,
+      tscircuit_handle: seed.organization.tscircuit_handle,
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
@@ -41,25 +42,29 @@ test("POST /api/orgs/create - should accept display_name and use it", async () =
   const name = "acme-corp-69"
   const displayName = "ACME Corporation"
   const createResponse = await axios.post("/api/orgs/create", {
-    name: name,
+    tscircuit_handle: name,
     display_name: displayName,
   })
   expect(createResponse.status).toBe(200)
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(name)
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(displayName)
 })
 
-test("POST /api/orgs/create - should map name as display_name when not provided", async () => {
+test("POST /api/orgs/create - should map tscircuit_handle as display_name when not provided", async () => {
   const { axios, db } = await getTestServer()
   const name = "acme-corp"
   const createResponse = await axios.post("/api/orgs/create", {
-    name: name,
+    tscircuit_handle: name,
   })
   expect(createResponse.status).toBe(200)
   const responseBody = createResponse.data
   expect(responseBody.org).toBeDefined()
+  expect(responseBody.org.github_handle).toBeNull()
+  expect(responseBody.org.tscircuit_handle).toBe(name)
   expect(responseBody.org.name).toBe(name)
   expect(responseBody.org.display_name).toBe(name)
 })
@@ -77,7 +82,9 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
 
   for (const name of invalidNames) {
     try {
-      await axios.post("/api/orgs/create", { name })
+      await axios.post("/api/orgs/create", {
+        tscircuit_handle: name,
+      })
       throw new Error(`Expected request to fail for name: ${name}`)
     } catch (error: any) {
       expect(error.status).toBe(400)

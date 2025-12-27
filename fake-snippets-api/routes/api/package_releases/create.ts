@@ -13,6 +13,7 @@ export default withRouteSpec({
     is_latest: z.boolean().optional(),
     commit_sha: z.string().optional(),
     package_name_with_version: z.string().optional(),
+    ready_to_build: z.boolean().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -26,6 +27,7 @@ export default withRouteSpec({
     version,
     commit_sha,
     package_name_with_version,
+    ready_to_build,
   } = req.jsonBody
 
   if (package_name_with_version && !package_id) {
@@ -92,6 +94,7 @@ export default withRouteSpec({
     // Setting the transpiled as true on creation
     has_transpiled: true,
     transpilation_error: null,
+    ready_to_build: ready_to_build ?? false,
   })
 
   // Update the package's latest_package_release_id if this is the latest release

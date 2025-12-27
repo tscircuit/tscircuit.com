@@ -16,19 +16,22 @@ export const publicMapOrg = (
     created_at,
     is_personal_org,
     org_display_name,
-    org_name,
+    tscircuit_handle,
+    avatar_url,
     ...org
   } = internal_org
   return {
     org_id: org.org_id,
-    display_name: org_display_name ?? org_name,
+    display_name: org_display_name ?? tscircuit_handle ?? undefined,
     owner_account_id: org.owner_account_id,
-    name: org_name,
+    name: tscircuit_handle,
+    avatar_url: avatar_url ?? null,
     member_count: Number(member_count) || 0,
     package_count: Number(package_count) || 0,
     is_personal_org: Boolean(is_personal_org),
     created_at: String(created_at),
-    ...(github_handle ? { github_handle } : {}),
+    github_handle,
+    tscircuit_handle,
     ...(can_manage_org ? { user_permissions: { can_manage_org: true } } : {}),
   }
 }

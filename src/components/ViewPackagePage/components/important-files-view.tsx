@@ -84,11 +84,10 @@ export default function ImportantFilesView({
   const canManagePackage = useMemo(() => {
     if (isOwner) return isOwner
     if (organization) {
-      return organization.user_permissions?.can_manage_package
+      return organization.user_permissions?.can_manage_org
     }
     return false
   }, [isOwner, organization])
-
   // File type utilities
   const isLicenseFile = useCallback((filePath: string) => {
     const lowerPath = filePath.toLowerCase()
@@ -594,7 +593,7 @@ export default function ImportantFilesView({
               <span className="sr-only">Regenerate AI Description</span>
             </button>
           )}
-          {activeTab?.type === "file" && canManagePackage && (
+          {activeTab?.type === "file" && (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
               onClick={() => onEditClicked?.(activeTab.filePath)}

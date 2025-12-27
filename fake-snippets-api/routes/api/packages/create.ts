@@ -35,8 +35,8 @@ export default withRouteSpec({
         "Package name must include an author segment (e.g. author/package_name)",
     })
   }
-  const org = ctx.db.getOrg({ org_id })
-  if (Boolean(org_id) && !Boolean(org))
+  const org = org_id ? ctx.db.getOrg({ org_id }) : null
+  if (org_id && !org)
     return ctx.error(404, {
       error_code: "org_not_found",
       message: "Organization not found",
@@ -55,7 +55,16 @@ export default withRouteSpec({
   }
 
   if (!owner_segment) {
-    owner_segment = org_id ? org!.org_name : ctx.auth.github_username
+    owner_segment = org_id
+      ? (org!.tscircuit_handle ?? undefined)
+      : (ctx.auth.tscircuit_handle ?? undefined)
+  }
+
+  if (!owner_segment) {
+    return ctx.error(400, {
+      error_code: "missing_owner_segment",
+      message: "Owner segment is required",
+    })
   }
 
   const final_name = name ?? `${owner_segment}/${unscoped_name}`
@@ -63,8 +72,7 @@ export default withRouteSpec({
   const requested_owner_lower = owner_segment.toLowerCase()
   const personal_owner_lower = ctx.auth.github_username.toLowerCase()
 
-  let owner_org_id = ctx.auth.personal_org_id
-  let owner_github_username = ctx.auth.github_username
+  let owner_org_id = org?.org_id ?? ctx.auth.personal_org_id
 
   if (requested_owner_lower !== personal_owner_lower) {
     const state = ctx.db.getState()
@@ -72,12 +80,7 @@ export default withRouteSpec({
       .filter((oa) => oa.account_id === ctx.auth.account_id)
       .map((oa) => state.organizations.find((o) => o.org_id === oa.org_id))
       .filter((o): o is NonNullable<typeof o> => o !== undefined)
-      .find(
-        (o) =>
-          o.org_display_name?.toLowerCase() === requested_owner_lower ||
-          o.org_name?.toLowerCase() === requested_owner_lower ||
-          o.github_handle?.toLowerCase() === requested_owner_lower,
-      )
+      .find((o) => o.tscircuit_handle?.toLowerCase() === requested_owner_lower)
 
     if (!memberOrg) {
       return ctx.error(403, {
@@ -88,7 +91,6 @@ export default withRouteSpec({
     }
 
     owner_org_id = memberOrg.org_id
-    owner_github_username = memberOrg.github_handle || memberOrg.org_name
   }
 
   const existingPackage = ctx.db
@@ -107,7 +109,6 @@ export default withRouteSpec({
     description: description ?? null,
     creator_account_id: ctx.auth.account_id,
     owner_org_id,
-    owner_github_username,
     latest_package_release_id: null,
     latest_package_release_fs_sha: null,
     latest_version: null,
@@ -129,8 +130,10 @@ export default withRouteSpec({
   if (!newPackage) {
     throw new Error("Failed to create package")
   }
-
   return ctx.json({
-    package: publicMapPackage(newPackage),
+    package: publicMapPackage({
+      ...newPackage,
+      org_owner_tscircuit_handle: org?.tscircuit_handle ?? null,
+    }),
   })
 })

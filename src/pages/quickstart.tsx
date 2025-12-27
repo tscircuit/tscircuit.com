@@ -11,6 +11,7 @@ import { CircuitJsonImportDialog } from "@/components/CircuitJsonImportDialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
+import { templateCatalogue } from "@/lib/get-snippet-template"
 import { JlcpcbComponentTsxLoadedPayload } from "@tscircuit/runframe/runner"
 import { cn } from "@/lib/utils"
 import { Link } from "wouter"
@@ -22,8 +23,8 @@ export const QuickstartPage = () => {
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
     useState(false)
   const session = useGlobalStore((s) => s.session)
-  const currentUser = session?.github_username
-  const isLoggedIn = Boolean(currentUser)
+  const currentUserAccountId = session?.account_id
+  const isLoggedIn = Boolean(currentUserAccountId)
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
   const { importComponent: importJlcpcbComponent } = useJlcpcbComponentImport()
@@ -46,10 +47,10 @@ export const QuickstartPage = () => {
     queryClient.removeQueries("userPackages")
   }, [queryClient])
   const { data: myPackages, isLoading } = useQuery<Package[]>(
-    ["userPackages", currentUser],
+    ["userPackages", currentUserAccountId],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: currentUser,
+        creator_account_id: currentUserAccountId,
       })
       return response.data.packages
     },
@@ -57,15 +58,6 @@ export const QuickstartPage = () => {
       enabled: isLoggedIn,
     },
   )
-
-  const blankTemplates: Array<{
-    name: string
-    type: string
-    disabled?: boolean
-  }> = [
-    { name: "Blank Circuit Board", type: "board" },
-    { name: "Blank Circuit Module", type: "package" },
-  ]
 
   const templates = [
     { name: "Blinking LED Board", type: "board" },
@@ -116,6 +108,13 @@ export const QuickstartPage = () => {
                       </Card>
                     </Link>
                   ))}
+                {myPackages && myPackages.length === 0 && (
+                  <div className="col-span-full flex items-center justify-center py-4">
+                    <p className="text-sm text-slate-400 tracking-wide">
+                      No recent packages yet
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -128,23 +127,12 @@ export const QuickstartPage = () => {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {blankTemplates.map((template, index) => (
-              <Link
-                key={index}
-                href={
-                  template.disabled
-                    ? "#"
-                    : `/editor?template=${template.name
-                        .toLowerCase()
-                        .replace(/ /g, "-")}`
-                }
+            {templateCatalogue.map((template) => (
+              <a
+                key={template.templateKey}
+                href={`/editor?template=${template.templateKey}`}
               >
-                <Card
-                  className={cn(
-                    "hover:shadow-md border bg-white transition-shadow h-full flex flex-col rounded-md",
-                    template.disabled && "opacity-50 cursor-not-allowed",
-                  )}
-                >
+                <Card className="hover:shadow-md border bg-white transition-shadow h-full flex flex-col rounded-md">
                   <CardHeader className="p-6 flex-grow flex flex-col justify-between">
                     <div>
                       <CardTitle className="text-lg font-semibold text-slate-900 mb-3">
@@ -156,7 +144,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
@@ -231,7 +219,7 @@ export const QuickstartPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.map((template, index) => (
-              <Link
+              <a
                 key={index}
                 href={`/editor?template=${template.name
                   .toLowerCase()
@@ -247,7 +235,7 @@ export const QuickstartPage = () => {
                     </div>
                   </CardHeader>
                 </Card>
-              </Link>
+              </a>
             ))}
           </div>
         </div>

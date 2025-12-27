@@ -13,6 +13,7 @@ declare global {
     prettierPlugins: any
     /** Timestamp in milliseconds of when the application was first loaded */
     __APP_LOADED_AT?: number
+    __hideLoader?: () => void
   }
 }
 

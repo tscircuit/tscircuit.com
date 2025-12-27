@@ -7,12 +7,13 @@ export default withRouteSpec({
   auth: "session",
   queryParams: z.object({
     package_build_id: z.string(),
+    include_logs: z.boolean().optional().default(false),
   }),
   jsonResponse: z.object({
     package_build: z.any(),
   }),
 })(async (req, ctx) => {
-  const { package_build_id } = req.query
+  const { package_build_id, include_logs } = req.query
 
   if (!package_build_id) {
     return ctx.error(400, {
@@ -61,7 +62,7 @@ export default withRouteSpec({
   }
 
   const publicBuild = publicMapPackageBuild(packageBuild, {
-    include_logs: true,
+    include_logs,
   })
 
   return ctx.json({

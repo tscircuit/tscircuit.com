@@ -1,4 +1,5 @@
 import { useParams } from "wouter"
+import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { useLatestPackageRelease } from "@/hooks/use-package-release"
 import { usePackageBuild } from "@/hooks/use-package-builds"
@@ -46,10 +47,15 @@ export default function ReleasesPage() {
   // If there's no build, we still want to show the releases page
   // The PackageReleasesDashboard will handle the case where latestBuild is null
   return (
-    <PackageReleasesDashboard
-      latestRelease={latestRelease}
-      latestBuild={latestBuild ?? null}
-      pkg={pkg}
-    />
+    <>
+      <Helmet>
+        <title>{`${pkg.name} Releases - tscircuit`}</title>
+      </Helmet>
+      <PackageReleasesDashboard
+        latestRelease={latestRelease}
+        latestBuild={latestBuild ?? null}
+        pkg={pkg}
+      />
+    </>
   )
 }

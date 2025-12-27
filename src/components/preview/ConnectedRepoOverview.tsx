@@ -38,12 +38,9 @@ export const ConnectedRepoOverview = ({
   pkg: Package
   packageRelease: PackageRelease
 }) => {
-  const { status, label } = getBuildStatus(packageBuild ?? null)
+  const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
-    transpilation: false,
     userCode: false,
-    circuitJson: false,
-    imageGeneration: false,
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -139,60 +136,21 @@ export const ConnectedRepoOverview = ({
   }
 
   const buildDuration = (() => {
-    const transpilationDuration = packageBuild?.transpilation_started_at
+    const userCodeDuration = packageBuild?.user_code_started_at
       ? Math.floor(
           (new Date(
-            packageBuild.transpilation_completed_at || new Date(),
+            packageBuild.user_code_completed_at || new Date(),
           ).getTime() -
-            new Date(packageBuild.transpilation_started_at).getTime()) /
+            new Date(packageBuild.user_code_started_at).getTime()) /
             1000,
         )
       : 0
 
-    const userCodeDuration = packageRelease?.user_code_started_at
-      ? Math.floor(
-          (new Date(
-            packageRelease.user_code_completed_at || new Date(),
-          ).getTime() -
-            new Date(packageRelease.user_code_started_at).getTime()) /
-            1000,
-        )
-      : 0
-
-    const circuitJsonDuration = packageBuild?.circuit_json_build_started_at
-      ? Math.floor(
-          (new Date(
-            packageBuild.circuit_json_build_completed_at || new Date(),
-          ).getTime() -
-            new Date(packageBuild.circuit_json_build_started_at).getTime()) /
-            1000,
-        )
-      : 0
-    const imageGenerationDuration = packageBuild?.image_generation_started_at
-      ? Math.floor(
-          (new Date(
-            packageBuild.image_generation_completed_at || new Date(),
-          ).getTime() -
-            new Date(packageBuild.image_generation_started_at).getTime()) /
-            1000,
-        )
-      : 0
-
-    if (
-      !packageBuild?.transpilation_started_at &&
-      !packageRelease?.user_code_started_at &&
-      !packageBuild?.circuit_json_build_started_at &&
-      !packageBuild?.image_generation_started_at
-    ) {
+    if (!packageBuild?.user_code_started_at) {
       return null
     }
 
-    return (
-      transpilationDuration +
-      userCodeDuration +
-      circuitJsonDuration +
-      imageGenerationDuration
-    )
+    return userCodeDuration
   })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -282,38 +240,39 @@ export const ConnectedRepoOverview = ({
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 group">
-              {packageRelease?.is_pr_preview ? (
-                <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              ) : (
-                <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              )}
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  {packageRelease?.is_pr_preview ? "PR" : "Branch"}
-                </p>
-                <a
-                  href={
-                    packageRelease?.is_pr_preview
-                      ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
-                      : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block"
-                >
-                  <Badge
-                    variant="outline"
-                    className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
+            {pkg.github_repo_full_name && (
+              <div className="flex items-center gap-3 group">
+                {packageRelease?.is_pr_preview ? (
+                  <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+                ) : (
+                  <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
+                )}
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wide">
+                    {packageRelease?.is_pr_preview ? "PR" : "Branch"}
+                  </p>
+                  <a
+                    href={
+                      packageRelease?.is_pr_preview
+                        ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
+                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block"
                   >
-                    {packageRelease?.is_pr_preview
-                      ? `#${packageRelease.github_pr_number}`
-                      : packageRelease?.branch_name || "main"}
-                  </Badge>
-                </a>
+                    <Badge
+                      variant="outline"
+                      className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
+                      {packageRelease?.is_pr_preview
+                        ? `#${packageRelease.github_pr_number}`
+                        : packageRelease?.branch_name || "main"}
+                    </Badge>
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="flex items-center gap-3 group">
               <User className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
@@ -340,9 +299,9 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <p
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${packageBuild.build_started_at}`}
+                  title={`Build started at ${packageBuild.user_code_started_at}`}
                 >
-                  {buildDuration || 0}s
+                  {buildDuration !== null ? buildDuration : "N/A"}s
                 </p>
               </div>
             </div>
@@ -373,93 +332,6 @@ export const ConnectedRepoOverview = ({
             (previous builds)
           </a>
         </div>
-
-        <Collapsible
-          open={openSections.transpilation}
-          onOpenChange={() => toggleSection("transpilation")}
-        >
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="flex items-center gap-3">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.transpilation ? "rotate-90" : ""}`}
-                />
-                {packageBuild.transpilation_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.transpilation_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : packageBuild.transpilation_in_progress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
-                <span className="font-medium">Transpilation</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.transpilation_started_at,
-                  packageBuild.transpilation_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.transpilation_started_at,
-                      packageBuild.transpilation_completed_at,
-                    )}
-                  </span>
-                )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.transpilation_error,
-                      packageBuild.transpilation_completed_at,
-                      packageBuild.transpilation_in_progress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.transpilation_error,
-                            packageBuild.transpilation_completed_at,
-                            packageBuild.transpilation_in_progress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.transpilation_error
-                    ? "Failed"
-                    : packageBuild.transpilation_completed_at
-                      ? "Completed"
-                      : packageBuild.transpilation_in_progress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
-              <div className="font-mono text-xs space-y-1">
-                {packageBuild.transpilation_error && (
-                  <div className="text-red-600 whitespace-pre-wrap mb-4">
-                    <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageBuild.transpilation_error)}
-                  </div>
-                )}
-                {packageBuild.transpilation_logs &&
-                packageBuild.transpilation_logs.length > 0 ? (
-                  packageBuild.transpilation_logs.map((log: any, i: number) => (
-                    <div key={i} className="text-gray-600 whitespace-pre-wrap">
-                      {log.msg || log.message || JSON.stringify(log)}
-                    </div>
-                  ))
-                ) : !packageBuild.transpilation_error ? (
-                  <div className="text-gray-500">No logs available</div>
-                ) : null}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
         <Collapsible
           open={openSections.userCode}
           onOpenChange={() => toggleSection("userCode")}
@@ -470,9 +342,9 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
                 />
-                {packageRelease.user_code_error ? (
+                {packageBuild.user_code_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageRelease.user_code_completed_at ? (
+                ) : packageBuild.user_code_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 ) : userCodeJobInProgress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
@@ -483,27 +355,27 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  packageRelease.user_code_started_at,
-                  packageRelease.user_code_completed_at,
+                  packageBuild.user_code_started_at,
+                  packageBuild.user_code_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      packageRelease.user_code_started_at,
-                      packageRelease.user_code_completed_at,
+                      packageBuild.user_code_started_at,
+                      packageBuild.user_code_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      packageRelease.user_code_error,
-                      packageRelease.user_code_completed_at,
+                      packageBuild.user_code_error?.message || null,
+                      packageBuild.user_code_completed_at,
                       userCodeJobInProgress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            packageRelease.user_code_error,
-                            packageRelease.user_code_completed_at,
+                            packageBuild.user_code_error?.message || null,
+                            packageBuild.user_code_completed_at,
                             userCodeJobInProgress,
                           ) === "error"
                         ? "destructive"
@@ -511,9 +383,9 @@ export const ConnectedRepoOverview = ({
                   }
                   className="text-xs"
                 >
-                  {packageRelease.user_code_error
+                  {packageBuild.user_code_error
                     ? "Failed"
-                    : packageRelease.user_code_completed_at
+                    : packageBuild.user_code_completed_at
                       ? "Completed"
                       : userCodeJobInProgress
                         ? "Running"
@@ -525,14 +397,14 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-2">
-                {packageRelease.user_code_error && (
+                {packageBuild.user_code_error && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
                     <strong>Error:</strong>{" "}
                     {getErrorMessage(packageRelease.user_code_error)}
                   </div>
                 )}
                 {userCodeJobInProgress &&
-                  packageRelease.user_code_log_stream_url && (
+                  packageBuild.user_code_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span className="text-xs font-medium">
@@ -540,14 +412,14 @@ export const ConnectedRepoOverview = ({
                       </span>
                     </div>
                   )}
-                {packageRelease.user_code_build_logs &&
-                  packageRelease.user_code_build_logs.length > 0 && (
+                {packageBuild.user_code_build_logs &&
+                  packageBuild.user_code_build_logs.length > 0 && (
                     <>
-                      {packageRelease.user_code_build_logs.map(
+                      {packageBuild.user_code_build_logs.map(
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
-                            className="text-gray-600 whitespace-pre-wrap"
+                            className="text-gray-600 whitespace-pre-wrap break-words"
                           >
                             {log.msg || log.message || JSON.stringify(log)}
                           </div>
@@ -560,7 +432,7 @@ export const ConnectedRepoOverview = ({
                     {usercodeStreamedLogs.map((log: string, i: number) => (
                       <div
                         key={`streamed-log-${i}`}
-                        className="text-gray-600 whitespace-pre-wrap"
+                        className="text-gray-600 whitespace-pre-wrap break-words"
                       >
                         {log}
                       </div>
@@ -568,17 +440,17 @@ export const ConnectedRepoOverview = ({
                     <div ref={logsEndRef} />
                   </>
                 )}
-                {packageRelease.user_code_build_logs?.length === 0 &&
+                {packageBuild.user_code_build_logs?.length === 0 &&
                   usercodeStreamedLogs.length === 0 &&
-                  !packageRelease.user_code_error &&
+                  !packageBuild.user_code_error &&
                   !userCodeJobInProgress && (
                     <div className="text-gray-500">No logs available</div>
                   )}
-                {packageRelease.user_code_log_stream_url &&
+                {packageBuild.user_code_log_stream_url &&
                   !userCodeJobInProgress && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <a
-                        href={packageRelease.user_code_log_stream_url}
+                        href={packageBuild.user_code_log_stream_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
@@ -588,188 +460,6 @@ export const ConnectedRepoOverview = ({
                       </a>
                     </div>
                   )}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible
-          open={openSections.circuitJson}
-          onOpenChange={() => toggleSection("circuitJson")}
-        >
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="flex items-center gap-3">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.circuitJson ? "rotate-90" : ""}`}
-                />
-                {packageBuild.circuit_json_build_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.circuit_json_build_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : packageBuild.circuit_json_build_in_progress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
-                <span className="font-medium">Circuit JSON Build</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.circuit_json_build_started_at,
-                  packageBuild.circuit_json_build_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.circuit_json_build_started_at,
-                      packageBuild.circuit_json_build_completed_at,
-                    )}
-                  </span>
-                )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.circuit_json_build_error,
-                      packageBuild.circuit_json_build_completed_at,
-                      packageBuild.circuit_json_build_in_progress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.circuit_json_build_error,
-                            packageBuild.circuit_json_build_completed_at,
-                            packageBuild.circuit_json_build_in_progress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.circuit_json_build_error
-                    ? "Failed"
-                    : packageBuild.circuit_json_build_completed_at
-                      ? "Completed"
-                      : packageBuild.circuit_json_build_in_progress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
-              <div className="font-mono text-xs space-y-1">
-                {packageBuild.circuit_json_build_error && (
-                  <div className="text-red-600 whitespace-pre-wrap mb-4">
-                    <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageBuild.circuit_json_build_error)}
-                  </div>
-                )}
-                {packageBuild.circuit_json_build_logs &&
-                packageBuild.circuit_json_build_logs.length > 0 ? (
-                  packageBuild.circuit_json_build_logs.map(
-                    (log: any, i: number) => (
-                      <div
-                        key={i}
-                        className="text-gray-600 whitespace-pre-wrap"
-                      >
-                        {log.msg || log.message || JSON.stringify(log)}
-                      </div>
-                    ),
-                  )
-                ) : !packageBuild.circuit_json_build_error ? (
-                  <div className="text-gray-500">No logs available</div>
-                ) : null}
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-
-        <Collapsible
-          open={openSections.imageGeneration}
-          onOpenChange={() => toggleSection("imageGeneration")}
-        >
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <div className="flex items-center gap-3">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.imageGeneration ? "rotate-90" : ""}`}
-                />
-                {packageBuild.image_generation_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.image_generation_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : packageBuild.image_generation_in_progress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
-                <span className="font-medium">Image Generation</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.image_generation_started_at,
-                  packageBuild.image_generation_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.image_generation_started_at,
-                      packageBuild.image_generation_completed_at,
-                    )}
-                  </span>
-                )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.image_generation_error,
-                      packageBuild.image_generation_completed_at,
-                      packageBuild.image_generation_in_progress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.image_generation_error,
-                            packageBuild.image_generation_completed_at,
-                            packageBuild.image_generation_in_progress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.image_generation_error
-                    ? "Failed"
-                    : packageBuild.image_generation_completed_at
-                      ? "Completed"
-                      : packageBuild.image_generation_in_progress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
-              <div className="font-mono text-xs space-y-1">
-                {packageBuild.image_generation_error && (
-                  <div className="text-red-600 whitespace-pre-wrap mb-4">
-                    <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageBuild.image_generation_error)}
-                  </div>
-                )}
-                {packageBuild.image_generation_logs &&
-                packageBuild.image_generation_logs.length > 0 ? (
-                  packageBuild.image_generation_logs.map(
-                    (log: any, i: number) => (
-                      <div
-                        key={i}
-                        className="text-gray-600 whitespace-pre-wrap"
-                      >
-                        {log.msg || log.message || JSON.stringify(log)}
-                      </div>
-                    ),
-                  )
-                ) : !packageBuild.image_generation_error ? (
-                  <div className="text-gray-500">No logs available</div>
-                ) : null}
               </div>
             </div>
           </CollapsibleContent>

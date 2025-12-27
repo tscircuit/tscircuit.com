@@ -110,3 +110,38 @@ test("GET /api/packages/get - returns user_permissions when authenticated", asyn
   })
   expect(unauthResponse.data.package.user_permissions).toBeUndefined()
 })
+
+test("GET /api/packages/get - returns org_owner_tscircuit_handle", async () => {
+  const { db, axios } = await getTestServer()
+
+  const org = db.addOrganization({
+    name: "my-org",
+    tscircuit_handle: "my-org-handle",
+    owner_account_id: "test_account_id",
+  })
+
+  const pkg = db.addPackage({
+    name: "my-org-handle/test-pkg",
+    unscoped_name: "test-pkg",
+    owner_org_id: org.org_id,
+    creator_account_id: "test_account_id",
+    owner_github_username: null,
+    description: null,
+    is_source_from_github: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    latest_package_release_id: null,
+    latest_version: null,
+    license: null,
+    star_count: 0,
+    ai_description: null,
+    ai_usage_instructions: null,
+  })
+
+  const res = await axios.get("/api/packages/get", {
+    params: { package_id: pkg.package_id },
+  })
+
+  expect(res.status).toBe(200)
+  expect(res.data.package.org_owner_tscircuit_handle).toBe("my-org-handle")
+})

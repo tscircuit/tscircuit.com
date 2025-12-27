@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query"
 import { useAxios } from "./use-axios"
 import { usePackageByName } from "./use-package-by-package-name"
 import { usePackageById } from "./use-package-by-package-id"
+import { Package } from "fake-snippets-api/lib/db/schema"
 
 type PackageStarQuery = { package_id: string } | { name: string }
 
@@ -39,11 +40,24 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
   const axios = useAxios()
   const queryClient = useQueryClient()
 
+  const getPackageQueryKey = () => {
+    if ("name" in query) return ["package", query.name]
+    return ["package", query.package_id]
+  }
+
+  const updatePackageCache = (updater: (pkg: Package) => Package) => {
+    const packageKey = getPackageQueryKey()
+    const packageData = queryClient.getQueryData<Package>(packageKey)
+    if (packageData) {
+      queryClient.setQueryData(packageKey, updater(packageData))
+    }
+  }
+
   const addStar = useMutation<
-    any,
+    Package,
     Error,
     void,
-    { previousStars?: PackageStarResponse }
+    { previousStars?: PackageStarResponse; previousPackage?: Package }
   >(
     async () => {
       const { data } = await axios.post("/packages/add_star", query)
@@ -52,16 +66,32 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
     {
       onMutate: async () => {
         await queryClient.cancelQueries(["packageStars", query])
+        await queryClient.cancelQueries(getPackageQueryKey())
+
         const previousStars = queryClient.getQueryData<PackageStarResponse>([
           "packageStars",
           query,
         ])
-        const optimistic: PackageStarResponse = {
+        const previousPackage = queryClient.getQueryData<Package>(
+          getPackageQueryKey(),
+        )
+
+        const optimisticStars: PackageStarResponse = {
           is_starred: true,
-          star_count: (previousStars?.star_count ?? 0) + 1,
+          star_count:
+            (previousStars?.star_count ?? previousPackage?.star_count ?? 0) + 1,
         }
-        queryClient.setQueryData(["packageStars", query], optimistic)
-        return { previousStars }
+        queryClient.setQueryData(["packageStars", query], optimisticStars)
+
+        if (previousPackage) {
+          queryClient.setQueryData(getPackageQueryKey(), {
+            ...previousPackage,
+            is_starred: true,
+            star_count: optimisticStars.star_count,
+          })
+        }
+
+        return { previousStars, previousPackage }
       },
       onError: (_error, _vars, context) => {
         if (context?.previousStars) {
@@ -70,18 +100,32 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
             context.previousStars,
           )
         }
+        if (context?.previousPackage) {
+          queryClient.setQueryData(
+            getPackageQueryKey(),
+            context.previousPackage,
+          )
+        }
       },
-      onSettled: () => {
-        queryClient.invalidateQueries(["packageStars", query])
+      onSuccess: () => {
+        const starsData = queryClient.getQueryData<PackageStarResponse>([
+          "packageStars",
+          query,
+        ])
+        updatePackageCache((pkg) => ({
+          ...pkg,
+          is_starred: starsData?.is_starred ?? true,
+          star_count: starsData?.star_count ?? pkg.star_count,
+        }))
       },
     },
   )
 
   const removeStar = useMutation<
-    any,
+    Package,
     Error,
     void,
-    { previousStars?: PackageStarResponse }
+    { previousStars?: PackageStarResponse; previousPackage?: Package }
   >(
     async () => {
       const { data } = await axios.post("/packages/remove_star", query)
@@ -90,16 +134,34 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
     {
       onMutate: async () => {
         await queryClient.cancelQueries(["packageStars", query])
+        await queryClient.cancelQueries(getPackageQueryKey())
+
         const previousStars = queryClient.getQueryData<PackageStarResponse>([
           "packageStars",
           query,
         ])
-        const optimistic: PackageStarResponse = {
+        const previousPackage = queryClient.getQueryData<Package>(
+          getPackageQueryKey(),
+        )
+
+        const optimisticStars: PackageStarResponse = {
           is_starred: false,
-          star_count: Math.max(0, (previousStars?.star_count ?? 1) - 1),
+          star_count: Math.max(
+            0,
+            (previousStars?.star_count ?? previousPackage?.star_count ?? 1) - 1,
+          ),
         }
-        queryClient.setQueryData(["packageStars", query], optimistic)
-        return { previousStars }
+        queryClient.setQueryData(["packageStars", query], optimisticStars)
+
+        if (previousPackage) {
+          queryClient.setQueryData(getPackageQueryKey(), {
+            ...previousPackage,
+            is_starred: false,
+            star_count: optimisticStars.star_count,
+          })
+        }
+
+        return { previousStars, previousPackage }
       },
       onError: (_error, _vars, context) => {
         if (context?.previousStars) {
@@ -108,9 +170,23 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
             context.previousStars,
           )
         }
+        if (context?.previousPackage) {
+          queryClient.setQueryData(
+            getPackageQueryKey(),
+            context.previousPackage,
+          )
+        }
       },
-      onSettled: () => {
-        queryClient.invalidateQueries(["packageStars", query])
+      onSuccess: () => {
+        const starsData = queryClient.getQueryData<PackageStarResponse>([
+          "packageStars",
+          query,
+        ])
+        updatePackageCache((pkg) => ({
+          ...pkg,
+          is_starred: starsData?.is_starred ?? false,
+          star_count: starsData?.star_count ?? pkg.star_count,
+        }))
       },
     },
   )

@@ -5,7 +5,7 @@ import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import type { PackageFile } from "@/types/package"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useToast } from "./use-toast"
-
+import { useUpdatePackageReleaseMutation } from "./use-update-package-release-mutation"
 interface UseCreateReleaseDialogProps {
   packageId?: string
   packageName?: string
@@ -66,6 +66,8 @@ export const useCreateReleaseDialog = ({
     packageFilesMeta,
   })
 
+  const updatePackageReleaseMutation = useUpdatePackageReleaseMutation()
+
   const open = () => {
     setIsOpen(true)
     setError(null)
@@ -119,6 +121,11 @@ export const useCreateReleaseDialog = ({
             package_name_with_version: `${currentPackage.name}@${version.trim()}`,
             ...currentPackage,
           })
+
+          await updatePackageReleaseMutation.mutateAsync({
+            package_name_with_version: `${currentPackage.name}@${version.trim()}`,
+            ready_to_build: true,
+          })
         } catch (fileError: any) {
           console.error("Error uploading files:", fileError)
           toast({
@@ -132,9 +139,7 @@ export const useCreateReleaseDialog = ({
       close()
     } catch (err: any) {
       const errorMessage =
-        err?.response?.data?.error?.message ||
-        err?.message ||
-        "Failed to create release"
+        err?.data?.error?.message || err?.message || "Failed to create release"
       setError(errorMessage)
       toast({
         title: "Error",

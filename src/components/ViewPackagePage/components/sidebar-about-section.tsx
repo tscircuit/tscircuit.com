@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo } from "react"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
+import { useOrganization } from "@/hooks/use-organization"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
@@ -24,6 +25,14 @@ export default function SidebarAboutSection({
   const { packageRelease } = useCurrentPackageRelease({
     include_ai_review: true,
   })
+
+  const { organization } = useOrganization(
+    packageInfo?.owner_org_id
+      ? { orgId: String(packageInfo.owner_org_id) }
+      : packageInfo?.owner_github_username
+        ? { github_handle: packageInfo.owner_github_username }
+        : {},
+  )
 
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
@@ -52,6 +61,14 @@ export default function SidebarAboutSection({
     packageInfo?.owner_github_username ===
       useGlobalStore((s) => s.session?.github_username)
 
+  const canManageOrg = useMemo(() => {
+    if (isOwner) return isOwner
+    if (organization) {
+      return organization.user_permissions?.can_manage_org
+    }
+    return false
+  }, [isOwner, organization])
+
   // Local state to store updated values before the query refetches
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
@@ -70,6 +87,19 @@ export default function SidebarAboutSection({
     Dialog: EditPackageDetailsDialog,
     openDialog: openEditPackageDetailsDialog,
   } = useEditPackageDetailsDialog()
+
+  // Auto-open dialog if redirected back from GitHub installation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("open_edit_package_dialog") === "true") {
+      openEditPackageDetailsDialog()
+      params.delete("open_edit_package_dialog")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [openEditPackageDetailsDialog])
 
   // Handle updates from the dialog
   const handlePackageUpdate = (newDescription: string, newWebsite: string) => {
@@ -106,7 +136,7 @@ export default function SidebarAboutSection({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">About</h2>
-          {isOwner && (
+          {canManageOrg && (
             <Button
               variant="ghost"
               size="sm"
@@ -181,7 +211,7 @@ export default function SidebarAboutSection({
             </a>
           ) : (
             <>
-              {isOwner && (
+              {canManageOrg && (
                 <div
                   className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
                   onClick={openEditPackageDetailsDialog}
@@ -211,11 +241,12 @@ export default function SidebarAboutSection({
           currentLicense={currentLicense}
           currentWebsite={(packageInfo as any)?.website || ""}
           isPrivate={Boolean(packageInfo.is_private)}
-          packageAuthor={packageInfo.owner_github_username}
+          packageAuthor={packageInfo.name.split("/")[0]}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
           currentDefaultView={packageInfo.default_view}
           currentAllowPrPreviews={packageInfo.allow_pr_previews}
+          ownerOrgId={packageInfo.owner_org_id}
         />
       )}
     </>

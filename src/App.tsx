@@ -19,7 +19,6 @@ export const FullPageLoader = () => (
 const lazyImport = (importFn: () => Promise<any>) =>
   lazy<ComponentType<any>>(async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
       const module = await importFn()
 
       if (module.default) {
@@ -69,6 +68,8 @@ const CreateOrganizationPage = lazyImport(
 )
 const ProfileRouter = lazyImport(() => import("@/components/ProfileRouter"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
+const LoginPage = lazyImport(() => import("@/pages/login"))
+const CliLoginPage = lazyImport(() => import("@/pages/cli-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
@@ -88,6 +89,9 @@ const OrganizationSettingsPage = lazyImport(
   () => import("@/pages/organization-settings"),
 )
 const UserSettingsPage = lazyImport(() => import("@/pages/user-settings"))
+const AcceptOrgInvitationPage = lazyImport(
+  () => import("@/pages/accept-org-invitation"),
+)
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -263,10 +267,16 @@ function App() {
             <Route path="/datasheets/:chipName" component={DatasheetPage} />
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/org-login" component={LoginPage} />
             <Route path="/dev-login" component={DevLoginPage} />
+            <Route path="/cli-login" component={CliLoginPage} />
 
             {/* Organization creation route */}
             <Route path="/orgs/new" component={CreateOrganizationPage} />
+
+            {/* Organization invitation route */}
+            <Route path="/orgs/invite" component={AcceptOrgInvitationPage} />
 
             {/* User settings */}
             <Route path="/settings" component={UserSettingsPage} />

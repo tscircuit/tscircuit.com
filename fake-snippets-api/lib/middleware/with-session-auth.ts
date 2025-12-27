@@ -14,6 +14,7 @@ export const withSessionAuth: Middleware<
       account_id: string
       personal_org_id: string
       github_username: string
+      tscircuit_handle: string | null
       session_id: string
       orgs: Array<{
         org_id: string
@@ -27,7 +28,6 @@ export const withSessionAuth: Middleware<
   {}
 > = async (req, ctx, next) => {
   if (req.method === "OPTIONS") return next(req, ctx)
-
   const token = req.headers.get("authorization")?.split("Bearer ")?.[1]
 
   // Try to decode JWT token and verify session exists
@@ -70,14 +70,21 @@ export const withSessionAuth: Middleware<
             )
             return {
               org_id: oa.org_id,
-              name:
-                org?.org_display_name ||
-                org?.org_name ||
-                org?.github_handle ||
-                oa.org_id,
+              name: org?.org_display_name || org?.github_handle || oa.org_id,
               user_permissions: { can_manage_packages: true },
             }
           })
+
+          const tscircuit_handle =
+            decoded?.tscircuit_handle ?? account?.tscircuit_handle ?? null
+
+          if (!tscircuit_handle) {
+            return ctx.error(400, {
+              error_code: "tscircuit_handle_required",
+              message:
+                "Please set a tscircuit handle before using this feature. Visit account settings to add one.",
+            })
+          }
 
           ctx.auth = {
             type: "session",
@@ -85,6 +92,7 @@ export const withSessionAuth: Middleware<
             personal_org_id:
               account.personal_org_id || `org-${account.account_id}`,
             github_username: account.github_username,
+            tscircuit_handle: account.tscircuit_handle,
             session_id: sessionId,
             orgs:
               orgs.length > 0
@@ -123,11 +131,7 @@ export const withSessionAuth: Middleware<
         const org = state.organizations.find((o: any) => o.org_id === oa.org_id)
         return {
           org_id: oa.org_id,
-          name:
-            org?.org_display_name ||
-            org?.org_name ||
-            org?.github_handle ||
-            oa.org_id,
+          name: org?.org_display_name || org?.github_handle || oa.org_id,
           user_permissions: { can_manage_packages: true },
         }
       })
@@ -137,6 +141,7 @@ export const withSessionAuth: Middleware<
         account_id: account.account_id,
         personal_org_id: account.personal_org_id || `org-${account.account_id}`,
         github_username: account.github_username,
+        tscircuit_handle: account.tscircuit_handle,
         session_id: `session-${account.account_id}`,
         orgs:
           orgs.length > 0
@@ -174,6 +179,7 @@ export const withSessionAuth: Middleware<
     account_id: fallbackAccountId,
     personal_org_id: fallbackOrgId,
     github_username: "testuser",
+    tscircuit_handle: "testuser",
     session_id: "session-1234",
     orgs: fallbackOrgs,
   }

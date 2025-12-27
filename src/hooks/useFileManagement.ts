@@ -12,6 +12,7 @@ import { useToast } from "@/components/ViewPackagePage/hooks/use-toast"
 import { useUpdatePackageFilesMutation } from "./useUpdatePackageFilesMutation"
 import { useCreatePackageReleaseMutation } from "./use-create-package-release-mutation"
 import { useCreatePackageMutation } from "./use-create-package-mutation"
+import { useUpdatePackageReleaseMutation } from "./use-update-package-release-mutation"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
@@ -57,20 +58,28 @@ export function useFileManagement({
   openNewPackageSaveDialog,
   updateLastUpdated,
   urlParams,
+  releaseId,
 }: {
   templateCode?: string
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
   updateLastUpdated: () => void
+  releaseId?: string | null
 }) {
   const fileChosen = urlParams.file_path ?? null
   const [localFiles, setLocalFiles] = useState<PackageFile[]>([])
   const [initialFiles, setInitialFiles] = useState<PackageFile[]>([])
   const [currentFile, setCurrentFile] = useState<string | null>(null)
-  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const session = useGlobalStore((s) => s.session)
+  const isLoggedIn = Boolean(session)
+  const tscircuitHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const effectiveReleaseId =
+    releaseId ?? currentPackage?.latest_package_release_id
   const {
     priorityFile,
     allFiles: packageFilesWithContent,
@@ -79,10 +88,14 @@ export function useFileManagement({
     totalFilesCount,
     loadedFilesCount,
     isPriorityFileFetched,
-  } = useOptimizedPackageFilesLoader(currentPackage, fileChosen)
+  } = useOptimizedPackageFilesLoader(
+    currentPackage,
+    fileChosen,
+    effectiveReleaseId,
+  )
 
   const { data: packageFilesMeta, isLoading: isLoadingPackageFiles } =
-    usePackageFiles(currentPackage?.latest_package_release_id)
+    usePackageFiles(effectiveReleaseId)
   const initialCodeContent = useMemo(() => {
     return (
       (!!decodeUrlHashToText(window.location.toString()) &&
@@ -104,6 +117,7 @@ export function useFileManagement({
     initialFiles,
     packageFilesMeta: packageFilesMeta || [],
   })
+  const updatePackageReleaseMutation = useUpdatePackageReleaseMutation()
   const { mutate: createRelease, isLoading: isCreatingRelease } =
     useCreatePackageReleaseMutation({
       onSuccess: () => {
@@ -120,11 +134,30 @@ export function useFileManagement({
           package_name_with_version: `${newPackage.name}@latest`,
         },
         {
-          onSuccess: () => {
-            updatePackageFilesMutation.mutate({
-              package_name_with_version: `${newPackage.name}@latest`,
-              ...newPackage,
-            })
+          onSuccess: async () => {
+            try {
+              await updatePackageFilesMutation.mutateAsync({
+                package_name_with_version: `${newPackage.name}@latest`,
+                ...newPackage,
+              })
+
+              await updatePackageReleaseMutation.mutateAsync({
+                package_name_with_version: `${newPackage.name}@latest`,
+                ready_to_build: true,
+              })
+            } catch (error) {
+              console.error(
+                "Error uploading files or marking ready to build:",
+                error,
+              )
+              toast({
+                title: "Error",
+                description:
+                  "Failed to upload files or mark release as ready to build",
+                variant: "destructive",
+              })
+            }
+
             const url = new URL(window.location.href)
             url.searchParams.set("package_id", newPackage.package_id)
             url.searchParams.delete("template")
@@ -267,7 +300,14 @@ export function useFileManagement({
       totalFilesCount > 0 &&
       localFiles.length === 0
 
-    return waitingForPriorityFile || hasPackageWithFilesButNoneLoaded
+    const isDefaultTemplateFile =
+      !urlParams.package_id && localFiles.length === 0
+
+    return (
+      waitingForPriorityFile ||
+      hasPackageWithFilesButNoneLoaded ||
+      isDefaultTemplateFile
+    )
   }, [
     isPriorityFileFetched,
     urlParams.package_id,
@@ -522,7 +562,13 @@ export function useFileManagement({
     }
 
     if (!currentPackage) {
-      openNewPackageSaveDialog()
+      if (!session?.tscircuit_handle) {
+        tscircuitHandleRequiredDialog(
+          "Please set a tscircuit handle before saving your package.",
+        )
+      } else {
+        openNewPackageSaveDialog()
+      }
       return
     }
     updatePackageFilesMutation.mutate({

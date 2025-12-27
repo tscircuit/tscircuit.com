@@ -60,6 +60,19 @@ const MobileSidebar = ({
     openDialog: openEditPackageDetailsDialog,
   } = useEditPackageDetailsDialog()
 
+  // Auto-open dialog if redirected back from GitHub installation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("open_edit_package_dialog") === "true") {
+      openEditPackageDetailsDialog()
+      params.delete("open_edit_package_dialog")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [openEditPackageDetailsDialog])
+
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
 
@@ -202,11 +215,12 @@ const MobileSidebar = ({
           currentLicense={currentLicense}
           currentWebsite={(packageInfo as any)?.website || ""}
           isPrivate={Boolean(packageInfo.is_private)}
-          packageAuthor={packageInfo.owner_github_username}
+          packageAuthor={packageInfo.name.split("/")[0]}
           onUpdate={handlePackageUpdate}
           packageName={packageInfo.name}
           unscopedPackageName={packageInfo.unscoped_name}
           currentDefaultView={packageInfo.default_view}
+          ownerOrgId={packageInfo.owner_org_id}
         />
       )}
     </div>

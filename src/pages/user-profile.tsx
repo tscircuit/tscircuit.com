@@ -2,7 +2,7 @@ import Footer from "@/components/Footer"
 import Header from "@/components/Header"
 import { PackageCard } from "@/components/PackageCard"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -29,7 +29,7 @@ import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesLis
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 import { OrganizationCard } from "@/components/organization/OrganizationCard"
 
-export const UserProfilePage = () => {
+export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
   const { username } = useParams()
   const axios = useAxios()
   const { data: organizations } = useListUserOrgs(username)
@@ -43,13 +43,14 @@ export const UserProfilePage = () => {
     isLoading: isLoadingAccount,
     isFetched: isFetchedAccount,
   } = useQuery<
-    { account: { github_username: string } },
+    { account: { github_username: string; tscircuit_handle: string } },
     Error & { status: number }
   >(
     ["account", username],
     async () => {
       const response = await axios.post("/accounts/get", {
         github_username: username,
+        tscircuit_handle: username,
       })
       return response.data
     },
@@ -58,10 +59,9 @@ export const UserProfilePage = () => {
       refetchOnWindowFocus: false,
     },
   )
-
-  // use the username stored in the database so the correct case is displayed
-  const githubUsername = account?.account?.github_username || username
-  const isCurrentUserProfile = githubUsername === session?.github_username
+  const githubUsername = account?.account?.github_username
+  const tscircuitHandle = account?.account?.tscircuit_handle
+  const isCurrentUserProfile = username === session?.tscircuit_handle
 
   const { Dialog: DeleteDialog, openDialog: openDeleteDialog } =
     useConfirmDeletePackageDialog()
@@ -72,15 +72,15 @@ export const UserProfilePage = () => {
     isLoading: isLoadingUserPackages,
     refetch: refetchUserPackages,
   } = useQuery<Package[]>(
-    ["userPackages", githubUsername],
+    ["userPackages", tscircuitHandle],
     async () => {
       const response = await axios.post(`/packages/list`, {
-        owner_github_username: githubUsername,
+        owner_tscircuit_handle: tscircuitHandle,
       })
       return response.data.packages
     },
     {
-      enabled: Boolean(githubUsername),
+      enabled: Boolean(githubUsername || tscircuitHandle),
       refetchOnWindowFocus: false,
     },
   )
@@ -95,12 +95,10 @@ export const UserProfilePage = () => {
         return response.data.packages
       },
       {
-        enabled: activeTab === "starred" && Boolean(githubUsername),
+        enabled: Boolean(githubUsername),
         refetchOnWindowFocus: false,
       },
     )
-
-  const baseUrl = useApiBaseUrl()
 
   if (!isFetchedAccount) {
     return null
@@ -141,6 +139,42 @@ export const UserProfilePage = () => {
       }
     })
 
+  const filteredOrganizations = organizations?.filter((org) => {
+    if (!isCurrentUserProfile && org.is_personal_org) {
+      return false
+    }
+    return (
+      !searchQuery ||
+      (org.name?.toLowerCase().includes(searchQuery.toLowerCase().trim()) ??
+        false) ||
+      (org.display_name
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase().trim()) ??
+        false) ||
+      (org.github_handle
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase().trim()) ??
+        false) ||
+      (org.tscircuit_handle
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase().trim()) ??
+        false)
+    )
+  })
+
+  const getSearchPlaceholder = () => {
+    switch (activeTab) {
+      case "starred":
+        return "Search starred packages..."
+      case "organizations":
+        return "Search organizations..."
+      case "repos":
+        return "Search connected repositories..."
+      default:
+        return "Search packages..."
+    }
+  }
+
   const handleDeleteClick = (e: React.MouseEvent, pkg: Package) => {
     e.preventDefault() // Prevent navigation
     setPackageToDelete(pkg)
@@ -151,39 +185,38 @@ export const UserProfilePage = () => {
     <div>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
-          <Avatar className="h-16 w-16">
-            <AvatarImage
-              src={`https://github.com/${githubUsername}.png?size=300`}
-              draggable={false}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div className="flex items-center gap-4">
+            <GithubAvatarWithFallback
+              username={org?.tscircuit_handle}
+              imageUrl={org.avatar_url}
+              className="shadow-sm size-16 border-2 border-gray-200"
+              fallbackClassName="font-semibold text-lg"
+              colorClassName="text-black"
             />
-            <AvatarFallback className="select-none">
-              {githubUsername?.[0]?.toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h1 className="text-3xl font-bold">
-              {isCurrentUserProfile
-                ? "My Profile"
-                : `${githubUsername}'s Profile`}
-            </h1>
-            <div className="text-gray-600 mt-1">
-              {userPackages?.length || 0} packages
+            <div>
+              <h1 className="text-3xl font-bold">
+                {isCurrentUserProfile
+                  ? "My Profile"
+                  : `${tscircuitHandle}'s Profile`}
+              </h1>
+              <div className="text-gray-600 mt-1">
+                {userPackages?.length || 0} packages
+              </div>
             </div>
           </div>
-        </div>
-        <div className="mb-6">
-          <a
-            href={`https://github.com/${githubUsername}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center"
-          >
-            <Button variant="outline">
-              <GitHubLogoIcon className="mr-2" />
-              View GitHub Profile
-            </Button>
-          </a>
+          {githubUsername && (
+            <a
+              href={`https://github.com/${githubUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" className="w-full md:w-auto">
+                <GitHubLogoIcon className="mr-2" />
+                View GitHub Profile
+              </Button>
+            </a>
+          )}
         </div>
         <Tabs
           defaultValue="all"
@@ -209,23 +242,25 @@ export const UserProfilePage = () => {
           <div className="flex gap-4 mb-4">
             <Input
               type="text"
-              placeholder="Searching User Packages..."
+              placeholder={getSearchPlaceholder()}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="mb-4"
             />
-            <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="most-recent">Most Recent</SelectItem>
-                <SelectItem value="least-recent">Least Recent</SelectItem>
-                <SelectItem value="most-starred">Most Starred</SelectItem>
-                <SelectItem value="a-z">A-Z</SelectItem>
-                <SelectItem value="z-a">Z-A</SelectItem>
-              </SelectContent>
-            </Select>
+            {activeTab !== "organizations" && (
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="most-recent">Most Recent</SelectItem>
+                  <SelectItem value="least-recent">Least Recent</SelectItem>
+                  <SelectItem value="most-starred">Most Starred</SelectItem>
+                  <SelectItem value="a-z">A-Z</SelectItem>
+                  <SelectItem value="z-a">Z-A</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         )}
         {activeTab === "repos" ? (
@@ -237,33 +272,31 @@ export const UserProfilePage = () => {
           />
         ) : activeTab === "organizations" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {organizations && organizations.length > 0 ? (
-              organizations
-                ?.filter((o) => {
-                  if (!isCurrentUserProfile && o.is_personal_org) {
-                    return false
-                  } else {
-                    return true
-                  }
-                })
-                .map((org: PublicOrgSchema) => (
-                  <OrganizationCard
-                    key={org.org_id}
-                    organization={org}
-                    withLink={true}
-                    showStats={true}
-                    showMembers={true}
-                    className="p-3"
-                  />
-                ))
+            {filteredOrganizations && filteredOrganizations.length > 0 ? (
+              filteredOrganizations.map((org: PublicOrgSchema) => (
+                <OrganizationCard
+                  key={org.org_id}
+                  organization={org}
+                  withLink={true}
+                  showStats={true}
+                  showMembers={true}
+                  className="p-3"
+                />
+              ))
             ) : (
               <div className="col-span-full flex justify-center">
                 <div className="flex flex-col items-center py-12 text-gray-500">
                   <Building2 className="mb-2" size={24} />
-                  <span className="text-lg font-medium">No organizations</span>
-                  <span className="text-sm">
-                    You're not a member of any organizations yet.
+                  <span className="text-lg font-medium">
+                    {searchQuery.trim()
+                      ? `No organizations matching '${searchQuery.trim()}'`
+                      : "No organizations"}
                   </span>
+                  {!searchQuery.trim() && (
+                    <span className="text-sm">
+                      You're not a member of any organizations yet.
+                    </span>
+                  )}
                 </div>
               </div>
             )}

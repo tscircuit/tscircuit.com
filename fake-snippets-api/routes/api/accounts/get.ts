@@ -1,25 +1,50 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { Account, accountSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  Account,
+  accountSchema,
+  publicAccountSchema,
+} from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "session",
-  jsonBody: z.object({
-    github_username: z.string(),
+  commonParams: z.object({
+    account_id: z.string().optional(),
+    tscircuit_handle: z.string().optional(),
+    github_username: z.string().optional(),
   }),
   jsonResponse: z.object({
-    account: accountSchema,
+    account: publicAccountSchema.extend({
+      email: z.string().nullable().optional(),
+    }),
   }),
 })(async (req, ctx) => {
   let account: Account | undefined
-
-  if (req.method === "POST") {
-    const { github_username } = req.jsonBody
-    account = ctx.db.accounts.find(
-      (acc: Account) =>
-        acc.github_username.toLowerCase() === github_username.toLowerCase(),
+  const { account_id, github_username, tscircuit_handle } = req.commonParams
+  if (account_id) {
+    const foundAccount = ctx.db.accounts.find(
+      (acc: Account) => acc.account_id === account_id,
     )
+    if (foundAccount) {
+      account = { ...foundAccount, email: undefined }
+    }
+  } else if (tscircuit_handle) {
+    const foundAccount = ctx.db.accounts.find(
+      (acc: Account) =>
+        acc.tscircuit_handle?.toLowerCase() === tscircuit_handle.toLowerCase(),
+    )
+    if (foundAccount) {
+      account = { ...foundAccount, email: undefined }
+    }
+  } else if (github_username) {
+    const foundAccount = ctx.db.accounts.find(
+      (acc: Account) =>
+        acc.github_username?.toLowerCase() === github_username.toLowerCase(),
+    )
+    if (foundAccount) {
+      account = { ...foundAccount, email: undefined }
+    }
   } else {
     account = ctx.db.getAccount(ctx.auth.account_id)
   }

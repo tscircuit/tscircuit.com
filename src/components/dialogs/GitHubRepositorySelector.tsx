@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react"
+import { useRef, useState, useMemo, useEffect } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 import {
   Command,
@@ -16,11 +16,13 @@ import {
 import { cn } from "@/lib/utils"
 import { useAxios } from "@/hooks/use-axios"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import { useQuery } from "react-query"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label"
 import { Minus, Plus, RefreshCw } from "lucide-react"
 import { Switch } from "../ui/switch"
+import { useToast } from "@/hooks/use-toast"
 
 interface GitHubRepositorySelectorProps {
   selectedRepository?: string
@@ -31,6 +33,7 @@ interface GitHubRepositorySelectorProps {
     allowPrPreviews?: boolean
   }) => void
   formData?: any
+  orgId?: string
 }
 
 export const GitHubRepositorySelector = ({
@@ -40,9 +43,12 @@ export const GitHubRepositorySelector = ({
   open = false,
   addFormContent,
   formData,
+  orgId,
 }: GitHubRepositorySelectorProps) => {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
+  const session = useGlobalStore((s) => s.session)
+  const { toast } = useToast()
   const initialValue = useRef(selectedRepository).current
   const [comboboxOpen, setComboboxOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
@@ -53,9 +59,11 @@ export const GitHubRepositorySelector = ({
     refetch: refetchRepositories,
     isLoading,
   } = useQuery(
-    ["github-repositories"],
+    ["github-repositories", orgId],
     async () => {
-      const response = await axios.get("/github/repos/list_available")
+      const response = await axios.get("/github/repos/list_available", {
+        params: orgId ? { org_id: orgId } : undefined,
+      })
       return response.data
     },
     {
@@ -64,14 +72,38 @@ export const GitHubRepositorySelector = ({
     },
   )
 
-  const handleConnectMoreRepos = async () => {
-    window.location.href = `${apiBaseUrl}/github/installations/create_new_installation_redirect?return_to_page=${window.location.pathname}`
+  // Handle callback from GitHub installation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("installation_complete") === "true") {
+      toast({
+        title: "GitHub connected",
+        description: "Repository list refreshed",
+      })
+      refetchRepositories()
+      // Remove installation params while preserving other query params
+      params.delete("installation_complete")
+      const newSearch = params.toString()
+      const newUrl =
+        window.location.pathname + (newSearch ? `?${newSearch}` : "")
+      window.history.replaceState({}, "", newUrl)
+    }
+  }, [toast, refetchRepositories])
+
+  const handleConnectMoreRepos = () => {
+    const params = new URLSearchParams()
+    if (orgId) params.set("org_id", orgId)
+    if (session?.account_id) params.set("account_id", session.account_id)
+    const redirectUrl = new URL(window.location.href)
+    redirectUrl.searchParams.set("open_edit_package_dialog", "true")
+    params.set("redirect_uri", redirectUrl.toString())
+    window.location.href = `${apiBaseUrl}/internal/github/installations/create_new_installation_redirect?${params.toString()}`
   }
 
   const handleRefreshRepositories = async () => {
     try {
       // First call the refresh endpoint to update repositories
-      await axios.post("/github/repos/refresh")
+      await axios.post("/github/repos/refresh", orgId ? { org_id: orgId } : {})
       // Then refetch the repositories list
       refetchRepositories()
     } catch (error) {
@@ -214,7 +246,10 @@ export const GitHubRepositorySelector = ({
                     onValueChange={setSearchValue}
                     placeholder="Search repositories..."
                   />
-                  <CommandList className="max-h-[400px] overflow-y-auto">
+                  <CommandList
+                    className="max-h-[400px] overflow-y-auto overscroll-contain [&_[cmdk-list-sizer]]:overflow-visible"
+                    onWheel={(e) => e.stopPropagation()}
+                  >
                     <CommandEmpty className="text-sm text-slate-500 py-6 pl-4">
                       No repositories found.
                     </CommandEmpty>

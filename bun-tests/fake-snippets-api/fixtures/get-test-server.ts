@@ -59,6 +59,8 @@ export const getTestServer = async (): Promise<TestFixture> => {
 const seedDatabase = (db: DbClient) => {
   const account = db.addAccount({
     github_username: "testuser",
+    tscircuit_handle: "testuser",
+    email: "test@user.com",
     shippingInfo: {
       firstName: "Test",
       lastName: "User",
@@ -90,6 +92,7 @@ const seedDatabase = (db: DbClient) => {
 
   const account2 = db.addAccount({
     github_username: "jane",
+    tscircuit_handle: "jane",
   })
   const order = db.addOrder({
     account_id: account.account_id,
@@ -127,18 +130,26 @@ const seedDatabase = (db: DbClient) => {
   const organization = db.addOrganization({
     name: "janes-organization",
     github_handle: "janes-organization",
+    tscircuit_handle: "janes-organization",
     owner_account_id: account2.account_id,
   })
   // Seed a personal organization for account2
   const organization2 = db.addOrganization({
     name: "jane",
     github_handle: "jane",
+    tscircuit_handle: "jane",
     is_personal_org: true,
     owner_account_id: account2.account_id,
   })
-  // Add account2 as a member of their org
+  // Add account2 as a member of janes-organization
   db.addOrganizationAccount({
     org_id: organization.org_id,
+    account_id: account2.account_id,
+    is_owner: true,
+  })
+  // Add account2 as a member of their personal org
+  db.addOrganizationAccount({
+    org_id: organization2.org_id,
     account_id: account2.account_id,
     is_owner: true,
   })

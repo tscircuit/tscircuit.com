@@ -9,14 +9,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Lock, Globe } from "lucide-react"
-import { GitFork, Package, Star } from "lucide-react"
+import { GitFork, Star } from "lucide-react"
+// import { Package } from "lucide-react"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
-import { useOrderDialog } from "@tscircuit/runframe"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
-import { useSignIn } from "@/hooks/use-sign-in"
+// import { useOrderDialog } from "@tscircuit/runframe"
+// import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType
@@ -33,6 +34,7 @@ export default function PackageHeader({
   const packageOwnerName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[0]
     : packageInfo?.owner_github_username
+  const packageOwnerHandle = packageInfo?.org_owner_tscircuit_handle
   const packageName = packageNameWithOwner?.includes("/")
     ? packageNameWithOwner?.split("/")[1]
     : packageInfo?.unscoped_name
@@ -41,12 +43,13 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const signIn = useSignIn()
-  const { OrderDialog, isOpen, open, close, stage, setStage } = useOrderDialog({
-    onSignIn: signIn,
-    isLoggedIn,
-    packageReleaseId: packageInfo?.latest_package_release_id ?? "",
-  })
+  // const signIn = useSignIn()
+  // const { OrderDialog, isOpen, open, close, stage, setStage } =
+  //   useOrderDialog({
+  //     onSignIn: signIn,
+  //     isLoggedIn,
+  //     packageReleaseId: packageInfo?.latest_package_release_id ?? "",
+  //   })
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
     packageInfo?.name ?? null,
@@ -79,19 +82,25 @@ export default function PackageHeader({
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between flex-wrap gap-y-2">
           <div className="flex items-center min-w-0 flex-wrap">
-            {packageOwnerName && packageName ? (
+            {packageName ? (
               <>
                 <h1 className="text-lg md:text-xl font-bold mr-2 break-words">
                   <Link
-                    href={`/${packageOwnerName}`}
+                    href={`/${packageOwnerHandle || packageOwnerName}`}
                     className="text-blue-600 hover:underline"
                   >
                     {packageOwnerName}
                   </Link>
                   <span className="px-1 text-gray-500">/</span>
                   <Link
-                    href={`/${packageOwnerName}/${packageName}`}
+                    href={`/${packageNameWithOwner}`}
                     className="text-blue-600 hover:underline"
+                    onClick={() =>
+                      setTimeout(
+                        () => window.dispatchEvent(new Event("popstate")),
+                        0,
+                      )
+                    }
                   >
                     {packageName}
                   </Link>
@@ -124,6 +133,7 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
+            {/*
             <Button
               variant="outline"
               size="sm"
@@ -133,6 +143,7 @@ export default function PackageHeader({
               <Package className="w-4 h-4 mr-2" />
               Order
             </Button>
+            */}
 
             <TooltipProvider>
               <Tooltip>
@@ -206,10 +217,12 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
+            {/*
             <Button variant="outline" size="sm" onClick={open}>
               <Package className="w-4 h-4 mr-2" />
               Order
             </Button>
+            */}
             <Button
               variant="outline"
               size="sm"
@@ -257,13 +270,14 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
-
+      {/*
       <OrderDialog
         isOpen={isOpen}
         onClose={close}
         stage={stage}
         setStage={setStage}
       />
+      */}
     </header>
   )
 }

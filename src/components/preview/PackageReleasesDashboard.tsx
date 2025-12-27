@@ -94,7 +94,7 @@ export const PackageReleasesDashboard = ({
                           status === "success"
                             ? "bg-green-500"
                             : status === "error"
-                              ? "bg-red-500"
+                              ? "bg-red-100"
                               : status === "building"
                                 ? "bg-blue-500 animate-pulse"
                                 : "bg-gray-500"
@@ -200,7 +200,9 @@ export const PackageReleasesDashboard = ({
                         if (navigator.share) {
                           navigator.share({
                             title: pkg.unscoped_name,
-                            url: window.location.href,
+                            url: window.location.href.endsWith("/releases")
+                              ? window.location.href.slice(0, -9)
+                              : window.location.href,
                           })
                         } else {
                           navigator.clipboard.writeText(window.location.href)

@@ -2,14 +2,21 @@ import axios from "redaxios"
 import { useMemo } from "react"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
-import { toast, ToastContent, useToast } from "./use-toast"
-import { useSignIn } from "./use-sign-in"
+import { ToastContent, useToast } from "./use-toast"
+import { useLocation } from "wouter"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
   const session = useGlobalStore((s) => s.session)
+  const setSession = useGlobalStore((s) => s.setSession)
+  const openHandleRequiredDialog = useGlobalStore(
+    (s) => s.openTscircuitHandleRequiredDialog,
+  )
   const { toastLibrary } = useToast()
-  const signIn = useSignIn()
+  const [location, setLocation] = useLocation()
+  const orgLoginRedirect = location?.startsWith("/")
+    ? location
+    : `/${location ?? ""}`
   return useMemo(() => {
     const instance = axios.create({
       baseURL: snippetsBaseApiUrl,
@@ -20,8 +27,6 @@ export const useAxios = () => {
         : {},
     })
 
-    // Wrap all instance methods to handle 401 errors
-    // (redaxios doesn't support interceptors, so we need to wrap methods)
     const originalGet = instance.get.bind(instance)
     const originalPost = instance.post.bind(instance)
     const originalPut = instance.put.bind(instance)
@@ -30,27 +35,57 @@ export const useAxios = () => {
 
     const handleError = (error: any) => {
       const status = error?.response?.status ?? error?.status
-
+      const errorCode =
+        error?.data?.error_code || error?.data?.error?.error_code
       if (status === 401) {
+        const isSessionInvalid =
+          errorCode === "session_not_found" || errorCode === "session_expired"
+        if (isSessionInvalid) {
+          setSession(null)
+        }
         toastLibrary.custom(
           (t) => (
-            <div onClick={() => signIn()} className="cursor-pointer">
+            <div
+              onClick={() =>
+                setLocation(
+                  `/login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
+                )
+              }
+              className="cursor-pointer"
+            >
               <ToastContent
-                title={"Unauthorized"}
+                title={isSessionInvalid ? "Session Expired" : "Unauthorized"}
                 description={
-                  "You may need to sign in again. Click here to sign in again"
+                  isSessionInvalid
+                    ? "Your session has expired. Click here to sign in again"
+                    : "You may need to sign in. Click here to sign in again"
                 }
                 variant={"destructive"}
                 t={t}
               />
             </div>
           ),
-          {
-            position: "top-center",
-          },
+          { id: "auth-401" },
+        )
+      } else if (status === 403) {
+        toastLibrary.custom(
+          (t) => (
+            <ToastContent
+              title="Access Forbidden"
+              description={
+                "You don't have permission to perform this action. Check your organization settings."
+              }
+              variant={"destructive"}
+              t={t}
+            />
+          ),
+          { id: "auth-403" },
+        )
+      } else if (errorCode === "tscircuit_handle_required") {
+        openHandleRequiredDialog(
+          "Please set a tscircuit handle before using this feature.",
         )
       }
-
       throw error
     }
 

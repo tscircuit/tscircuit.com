@@ -1,48 +1,30 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
 
-test("POST /api/orgs/update - should update org name when owner", async () => {
-  const { axios } = await getTestServer()
-
-  const createResponse = await axios.post("/api/orgs/create", {
-    name: "old-name",
-  })
-  const org = createResponse.data.org
-
-  const updateResponse = await axios.post("/api/orgs/update", {
-    org_id: org.org_id,
-    name: "new-name",
-  })
-
-  expect(updateResponse.status).toBe(200)
-  const responseBody = updateResponse.data
-  expect(responseBody.org).toBeDefined()
-  expect(responseBody.org.name).toBe("new-name")
-  expect(responseBody.org.user_permissions?.can_manage_org).toBe(true)
-})
-
 test("PATCH /api/orgs/update - should update org name using PATCH method", async () => {
   const { axios } = await getTestServer()
 
   const createResponse = await axios.post("/api/orgs/create", {
-    name: "patch-test",
+    tscircuit_handle: "patch-test",
   })
   const org = createResponse.data.org
 
   const updateResponse = await axios.patch("/api/orgs/update", {
     org_id: org.org_id,
-    name: "patch-updated",
+    display_name: "patch-updated",
   })
 
   expect(updateResponse.status).toBe(200)
-  expect(updateResponse.data.org.name).toBe("patch-updated")
+  expect(updateResponse.data.org.display_name).toBe("patch-updated")
+  expect(updateResponse.data.org.tscircuit_handle).toBe("patch-test")
+  expect(updateResponse.data.org.github_handle).toBeNull()
 })
 
 test("POST /api/orgs/update - should return current org when no changes provided", async () => {
   const { axios } = await getTestServer()
 
   const createResponse = await axios.post("/api/orgs/create", {
-    name: "no-change",
+    tscircuit_handle: "no-change-handle",
   })
   const org = createResponse.data.org
 
@@ -51,7 +33,8 @@ test("POST /api/orgs/update - should return current org when no changes provided
   })
 
   expect(updateResponse.status).toBe(200)
-  expect(updateResponse.data.org.name).toBe("no-change")
+  expect(updateResponse.data.org.name).toBe("no-change-handle")
+  expect(updateResponse.data.org.tscircuit_handle).toBe("no-change-handle")
 })
 
 test("POST /api/orgs/update - should fail when user lacks management permissions", async () => {
@@ -72,43 +55,17 @@ test("POST /api/orgs/update - should fail when user lacks management permissions
   }
 })
 
-test("POST /api/orgs/update - should reject duplicate name", async () => {
-  const { axios } = await getTestServer()
-
-  await axios.post("/api/orgs/create", {
-    name: "dup-a",
-  })
-  const org2Response = await axios.post("/api/orgs/create", {
-    name: "dup-b",
-  })
-
-  try {
-    const updateResponse = await axios.post("/api/orgs/update", {
-      org_id: org2Response.data.org.org_id,
-      name: "dup-a",
-    })
-    console.log(2, updateResponse.data)
-    throw new Error("Expected request to fail")
-  } catch (error: any) {
-    expect(error.status).toBe(400)
-    expect(error.data.error.error_code).toBe("org_already_exists")
-    expect(error.data.error.message).toBe(
-      "An organization with this name already exists",
-    )
-  }
-})
-
-test("POST /api/orgs/update - should update github_handle when owner", async () => {
+test("POST /api/orgs/update - should update tscircuit_handle when owner", async () => {
   const { axios, db } = await getTestServer()
 
   const createResponse = await axios.post("/api/orgs/create", {
-    name: "handle-owner",
+    tscircuit_handle: "handle-owner",
   })
   const org = createResponse.data.org
 
   const updateResponse = await axios.post("/api/orgs/update", {
     org_id: org.org_id,
-    github_handle: "handle-owner",
+    tscircuit_handle: "handle-owner",
   })
 
   expect(updateResponse.status).toBe(200)
@@ -117,35 +74,38 @@ test("POST /api/orgs/update - should update github_handle when owner", async () 
   const updatedOrg = state.organizations.find(
     (o: any) => o.org_id === org.org_id,
   )
-  expect(updatedOrg?.github_handle).toBe("handle-owner")
+  expect(updatedOrg?.tscircuit_handle).toBe("handle-owner")
+  expect(updatedOrg?.github_handle).toBeNull()
 })
 
-test("POST /api/orgs/update - should reject duplicate github_handle", async () => {
+test("POST /api/orgs/update - should reject duplicate tscircuit_handle", async () => {
   const { axios } = await getTestServer()
 
   const orgAResponse = await axios.post("/api/orgs/create", {
-    name: "dup-handle-a",
+    tscircuit_handle: "dup-handle-a",
   })
   const orgA = orgAResponse.data.org
 
   await axios.post("/api/orgs/update", {
     org_id: orgA.org_id,
-    github_handle: "duplicate-handle",
+    tscircuit_handle: "duplicate-handle",
   })
 
   const orgBResponse = await axios.post("/api/orgs/create", {
-    name: "dup-handle-b",
+    tscircuit_handle: "dup-handle-b",
   })
   const orgB = orgBResponse.data.org
 
   try {
     await axios.post("/api/orgs/update", {
       org_id: orgB.org_id,
-      github_handle: "duplicate-handle",
+      tscircuit_handle: "duplicate-handle",
     })
     throw new Error("Expected request to fail")
   } catch (error: any) {
     expect(error.status).toBe(400)
-    expect(error.data.error.error_code).toBe("org_github_handle_already_exists")
+    expect(error.data.error.error_code).toBe(
+      "org_tscircuit_handle_already_exists",
+    )
   }
 })
