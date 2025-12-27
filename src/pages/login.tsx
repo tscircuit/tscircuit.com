@@ -43,7 +43,7 @@ const LoginContent = () => {
   }
 
   return (
-    <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-white to-gray-50">
+    <main className="flex-1 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-3xl">
         <div className="grid gap-8">
           <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8 space-y-6">
