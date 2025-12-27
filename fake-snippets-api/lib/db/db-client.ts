@@ -2000,14 +2000,51 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   deleteAccount: (accountId: string): boolean => {
     let deleted = false
     set((state) => {
-      const index = state.accounts.findIndex(
+      const accountIndex = state.accounts.findIndex(
         (account) => account.account_id === accountId,
       )
-      if (index !== -1) {
-        state.accounts.splice(index, 1)
-        deleted = true
+      if (accountIndex === -1) return state
+
+      const account = state.accounts[accountIndex]
+      const personalOrgId = account.personal_org_id
+
+      let packageIdsToDelete: string[] = []
+      let releaseIdsToDelete: string[] = []
+
+      if (personalOrgId) {
+        packageIdsToDelete = state.packages
+          .filter((pkg) => pkg.owner_org_id === personalOrgId)
+          .map((pkg) => pkg.package_id)
+
+        releaseIdsToDelete = state.packageReleases
+          .filter((rel) => packageIdsToDelete.includes(rel.package_id))
+          .map((rel) => rel.package_release_id)
       }
-      return state
+
+      deleted = true
+      return {
+        ...state,
+        accounts: state.accounts.filter((a) => a.account_id !== accountId),
+        organizations: state.organizations.filter(
+          (org) => org.org_id !== personalOrgId,
+        ),
+        orgAccounts: state.orgAccounts.filter(
+          (oa) => oa.org_id !== personalOrgId,
+        ),
+        packages: state.packages.filter(
+          (pkg) => !packageIdsToDelete.includes(pkg.package_id),
+        ),
+        packageReleases: state.packageReleases.filter(
+          (rel) => !releaseIdsToDelete.includes(rel.package_release_id),
+        ),
+        packageFiles: state.packageFiles.filter(
+          (file) => !releaseIdsToDelete.includes(file.package_release_id),
+        ),
+        accountPackages: state.accountPackages.filter(
+          (ap) => ap.account_id !== accountId,
+        ),
+        sessions: state.sessions.filter((s) => s.account_id !== accountId),
+      }
     })
     return deleted
   },
