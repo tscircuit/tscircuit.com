@@ -56,7 +56,7 @@ interface OrgAuthProviderButtonsProps {
   redirectPath?: string
 }
 
-export const OrgAuthProviderButtons = ({
+export const AuthProviderButtons = ({
   onProviderSelect,
   redirectPath,
 }: OrgAuthProviderButtonsProps) => {

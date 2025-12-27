@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Link } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAxios } from "@/hooks/use-axios"
-import { OrgAuthProviderButtons } from "@/components/auth/AuthProviderButtons"
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 
 const LoginContent = () => {
   const session = useGlobalStore((s) => s.session)
@@ -76,7 +76,7 @@ const LoginContent = () => {
                 Choose your preferred sign-in method to continue.
               </p>
             </div>
-            <OrgAuthProviderButtons />
+            <AuthProviderButtons />
             <p className="text-xs text-gray-400">
               By continuing you agree to our Terms of Service and Privacy
               Policy.

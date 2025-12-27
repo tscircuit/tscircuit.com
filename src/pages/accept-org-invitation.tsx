@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { useOrgInvitation } from "@/hooks/use-org-invitation"
 import { useAcceptOrgInvitationMutation } from "@/hooks/use-accept-org-invitation-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { OrgAuthProviderButtons } from "@/components/auth/AuthProviderButtons"
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 import { useToast } from "@/hooks/use-toast"
 import {
   Loader2,
@@ -237,7 +237,7 @@ export default function AcceptOrgInvitationPage() {
             </div>
 
             <div className="mb-6">
-              <OrgAuthProviderButtons redirectPath={redirectPath} />
+              <AuthProviderButtons redirectPath={redirectPath} />
             </div>
 
             <p className="text-xs text-gray-500 text-center">
