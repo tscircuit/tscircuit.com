@@ -2006,30 +2006,48 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       if (accountIndex === -1) return state
 
       const account = state.accounts[accountIndex]
-      const personalOrgId = account.personal_org_id
+      const { personal_org_id, github_username } = account
 
-      let packageIdsToDelete: string[] = []
-      let releaseIdsToDelete: string[] = []
-
-      if (personalOrgId) {
-        packageIdsToDelete = state.packages
-          .filter((pkg) => pkg.owner_org_id === personalOrgId)
-          .map((pkg) => pkg.package_id)
-
-        releaseIdsToDelete = state.packageReleases
-          .filter((rel) => packageIdsToDelete.includes(rel.package_id))
-          .map((rel) => rel.package_release_id)
+      const orgIdsToDelete = new Set<string>()
+      if (personal_org_id) {
+        orgIdsToDelete.add(personal_org_id)
       }
+
+      const orgMemberCounts = state.orgAccounts.reduce(
+        (acc, oa) => {
+          acc[oa.org_id] = (acc[oa.org_id] || 0) + 1
+          return acc
+        },
+        {} as Record<string, number>,
+      )
+
+      const userOrgIds = state.orgAccounts
+        .filter((oa) => oa.account_id === accountId)
+        .map((oa) => oa.org_id)
+
+      for (const orgId of userOrgIds) {
+        if (orgMemberCounts[orgId] === 1) {
+          orgIdsToDelete.add(orgId)
+        }
+      }
+
+      const packageIdsToDelete = state.packages
+        .filter((pkg) => orgIdsToDelete.has(pkg.owner_org_id))
+        .map((pkg) => pkg.package_id)
+
+      const releaseIdsToDelete = state.packageReleases
+        .filter((rel) => packageIdsToDelete.includes(rel.package_id))
+        .map((rel) => rel.package_release_id)
 
       deleted = true
       return {
         ...state,
         accounts: state.accounts.filter((a) => a.account_id !== accountId),
         organizations: state.organizations.filter(
-          (org) => org.org_id !== personalOrgId,
+          (org) => !orgIdsToDelete.has(org.org_id),
         ),
         orgAccounts: state.orgAccounts.filter(
-          (oa) => oa.org_id !== personalOrgId,
+          (oa) => !orgIdsToDelete.has(oa.org_id) && oa.account_id !== accountId,
         ),
         packages: state.packages.filter(
           (pkg) => !packageIdsToDelete.includes(pkg.package_id),
@@ -2040,10 +2058,31 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         packageFiles: state.packageFiles.filter(
           (file) => !releaseIdsToDelete.includes(file.package_release_id),
         ),
+        snippets: state.snippets.filter(
+          (s) => s.owner_name !== github_username,
+        ),
         accountPackages: state.accountPackages.filter(
           (ap) => ap.account_id !== accountId,
         ),
         sessions: state.sessions.filter((s) => s.account_id !== accountId),
+        orgInvitations: state.orgInvitations.filter(
+          (inv) =>
+            inv.inviter_account_id !== accountId &&
+            (!account.email || inv.invitee_email !== account.email),
+        ),
+        orders: state.orders.filter((o) => o.account_id !== accountId),
+        orderQuotes: state.orderQuotes.filter(
+          (oq) => oq.account_id !== accountId,
+        ),
+        githubInstallations: state.githubInstallations.filter(
+          (gi) => gi.account_id !== accountId,
+        ),
+        bugReports: state.bugReports.filter(
+          (br) => br.reporter_account_id !== accountId,
+        ),
+        accountSnippets: state.accountSnippets.filter(
+          (as) => as.account_id !== accountId,
+        ),
       }
     })
     return deleted
