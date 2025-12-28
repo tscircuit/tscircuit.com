@@ -90,7 +90,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     >
       <div className="flex items-center gap-2">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md bg-gray-50 flex items-center justify-center`}
+          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
           {previewImageUrl ? (
             <img
