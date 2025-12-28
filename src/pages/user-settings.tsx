@@ -17,25 +17,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useHydration } from "@/hooks/use-hydration"
-import {
-  AlertTriangle,
-  Trash2,
-  Loader2,
-  ImageUp,
-  Github,
-  LogOut,
-} from "lucide-react"
+import { Trash2, Loader2, ImageUp, Github, LogOut } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { FullPageLoader } from "@/App"
@@ -47,6 +31,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useLogout } from "@/hooks/use-logout"
+import { useConfirmDeleteAccountDialog } from "@/components/dialogs/confirm-delete-account-dialog"
 
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
@@ -69,7 +54,8 @@ export default function UserSettingsPage() {
   const apiBaseUrl = useApiBaseUrl()
   const { handleLogout } = useLogout()
 
-  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false)
+  const { Dialog: DeleteAccountDialog, openDialog: openDeleteAccountDialog } =
+    useConfirmDeleteAccountDialog()
 
   const form = useForm<AccountSettingsFormData>({
     resolver: zodResolver(accountSettingsSchema),
@@ -199,7 +185,10 @@ export default function UserSettingsPage() {
   ]
 
   const handleDeleteAccount = () => {
-    setShowDeleteAccountDialog(true)
+    openDeleteAccountDialog({
+      tscircuitHandle: session.tscircuit_handle ?? "",
+      accountId: session.account_id,
+    })
   }
 
   const handleConnectGithub = () => {
@@ -538,25 +527,7 @@ export default function UserSettingsPage() {
 
       <AvatarUploadDialog />
 
-      <AlertDialog
-        open={showDeleteAccountDialog}
-        onOpenChange={setShowDeleteAccountDialog}
-      >
-        <AlertDialogContent className="w-[90vw] md:w-auto rounded-lg">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-5 w-5" />
-              Delete Account
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              To delete your account, please contact us at support@tscircuit.com
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAccountDialog />
     </div>
   )
 }
