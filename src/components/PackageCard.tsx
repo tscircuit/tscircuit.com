@@ -86,11 +86,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     : pkg?.unscoped_name
   const cardContent = (
     <div
-      className={`border border-gray-200 rounded-lg p-4 hover:bg-gray-50 hover:border-gray-300 transition-colors ${className}`}
+      className={`border border-gray-200 rounded-lg p-3 hover:bg-gray-50 min-h-[120px] ${className}`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-2">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border border-gray-200 flex items-center justify-center`}
+          className={`${imageSize} flex-shrink-0 rounded-md bg-gray-50 flex items-center justify-center`}
         >
           {previewImageUrl ? (
             <img
@@ -114,7 +114,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-1">
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-1">
+              <h2 className="text-lg font-semibold text-blue-600 hover:text-blue-800 mb-1 truncate">
                 {showOwner && (
                   <>
                     <span className="text-gray-600">{packageOwnerName}</span>
@@ -123,14 +123,12 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 )}
                 <span>{packageName}</span>
               </h2>
-              <p
-                className={`${!pkg.description && "h-10"} text-sm text-gray-600 mb-2 line-clamp-2`}
-              >
+              <p className="h-10 text-sm text-gray-600 mb-2 line-clamp-2 overflow-hidden">
                 {pkg.description || "No description available"}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <div className="flex items-center gap-1 ml-4 flex-shrink-0">
               <SnippetTypeIcon
                 type={pkg.snippet_type as SnippetType}
                 className="pt-[2.5px]"
@@ -164,7 +162,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-3 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <StarIcon height={14} width={14} />
               <span>{pkg.star_count || 0}</span>
@@ -194,7 +192,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
 
   if (withLink) {
     return (
-      <Link key={pkg.package_id} href={`/${pkg.name}`}>
+      <Link key={pkg.package_id} href={`/${pkg.name}`} className="block">
         {cardContent}
       </Link>
     )

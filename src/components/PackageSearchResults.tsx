@@ -15,7 +15,7 @@ interface PackageSearchResultsProps {
 const PackageGrid = ({
   packages,
 }: { packages: Package[]; baseUrl: string }) => (
-  <div className="space-y-2">
+  <div className="space-y-4">
     {packages.map((pkg) => (
       <PackageCard key={pkg.package_id} pkg={pkg} showOwner={true} />
     ))}
@@ -23,7 +23,7 @@ const PackageGrid = ({
 )
 
 export const LoadingState = () => (
-  <div className="space-y-2">
+  <div className="space-y-4">
     {[...Array(6)].map((_, i) => (
       <PackageCardSkeleton key={i} />
     ))}
