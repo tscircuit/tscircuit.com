@@ -5,7 +5,7 @@ export default withRouteSpec({
   methods: ["DELETE"],
   auth: "session",
   jsonResponse: z.object({
-    success: z.boolean(),
+    ok: z.boolean(),
   }),
 })(async (req, ctx) => {
   const account_id = ctx.auth.account_id
@@ -33,5 +33,5 @@ export default withRouteSpec({
     })
   }
 
-  return ctx.json({ success: true })
+  return ctx.json({ ok: true })
 })
