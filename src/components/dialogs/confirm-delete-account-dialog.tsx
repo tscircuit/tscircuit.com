@@ -76,8 +76,8 @@ export const ConfirmDeleteAccountDialog = ({
           <DialogDescription className="text-left space-y-2">
             <div>Are you sure you want to delete your account?</div>
             <div className="text-red-600 font-medium">
-              This action cannot be undone. All your packages and data will be
-              permanently removed.
+              This action cannot be undone. All your packages and information
+              will be permanently removed.
             </div>
             <div className="pt-2">{confirmationPromptText}</div>
           </DialogDescription>
