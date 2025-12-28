@@ -7,7 +7,7 @@ test("DELETE /api/accounts/delete - should delete authenticated account", async 
   const response = await axios.delete("/api/accounts/delete")
 
   expect(response.status).toBe(200)
-  expect(response.data.success).toBe(true)
+  expect(response.data.ok).toBe(true)
 
   const state = db.getState()
   const accountAfter = state.accounts.find(
@@ -54,7 +54,7 @@ test("DELETE /api/accounts/delete - should delete personal org and packages", as
 
   const deleteResponse = await axios.delete("/api/accounts/delete")
   expect(deleteResponse.status).toBe(200)
-  expect(deleteResponse.data.success).toBe(true)
+  expect(deleteResponse.data.ok).toBe(true)
 
   const stateAfter = db.getState()
 
