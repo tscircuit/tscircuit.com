@@ -34,7 +34,7 @@ export const HeaderLogin = () => {
 
   const goToOrgLogin = () => {
     const redirect = orgLoginRedirect || "/"
-    setLocation(`/org-login?redirect=${encodeURIComponent(redirect)}`)
+    setLocation(`/login?redirect=${encodeURIComponent(redirect)}`)
   }
 
   const isLoggedIn = Boolean(session)

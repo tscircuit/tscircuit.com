@@ -268,6 +268,7 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/login" component={LoginPage} />
+            <Route path="/org-login" component={LoginPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/cli-login" component={CliLoginPage} />
 
