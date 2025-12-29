@@ -1,6 +1,11 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
 export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
+export {
+  BuildItemRow,
+  BuildItemRowSkeleton,
+  formatBuildDuration,
+} from "./BuildItemRow"
 import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
