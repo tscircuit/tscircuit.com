@@ -289,5 +289,7 @@ test("GET /api/package_builds/list - returns created builds with logs or not", a
   expect(
     resWithoutLogs.data.package_builds[0].circuit_json_build_logs,
   ).toBeNull()
-  expect(resWithoutLogs.data.package_builds[0].user_code_build_logs).toBeNull()
+  expect(
+    resWithoutLogs.data.package_builds[0].user_code_job_completed_logs,
+  ).toBeNull()
 })
