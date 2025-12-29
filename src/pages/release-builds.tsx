@@ -4,10 +4,16 @@ import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
 import { usePackageBuildsByReleaseId } from "@/hooks/use-package-builds"
-import { BuildsList } from "@/components/preview/BuildsList"
 import Header from "@/components/Header"
 import { useLocation } from "wouter"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  getBuildStatus,
+  PackageOrBuildItemRow,
+  PackageOrBuildItemRowSkeleton,
+  formatBuildDuration,
+} from "@/components/preview"
 
 export default function ReleaseBuildsPage() {
   const params = useParams<{
@@ -87,13 +93,57 @@ export default function ReleaseBuildsPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">All Builds</h2>
-              <p className="text-sm text-gray-600">
-                {builds?.length} build{builds?.length !== 1 ? "s" : ""} found
-              </p>
-            </div>
-            {pkg && <BuildsList pkg={pkg} />}
+            <Card>
+              <CardHeader className="px-4 sm:px-6 pb-2 pt-4 sm:pt-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base sm:text-lg">
+                    All Builds
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    {builds?.length} build{builds?.length !== 1 ? "s" : ""}{" "}
+                    found
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-gray-200">
+                  {isLoadingBuilds
+                    ? Array.from({ length: 3 }).map((_, i) => (
+                        <PackageOrBuildItemRowSkeleton key={i} />
+                      ))
+                    : builds?.map((build) => {
+                        const { status, label } = getBuildStatus(build)
+                        const buildDuration = formatBuildDuration(
+                          build.user_code_job_started_at,
+                          build.user_code_job_completed_at,
+                        )
+
+                        return (
+                          <PackageOrBuildItemRow
+                            key={build.package_build_id}
+                            package_release_or_build_id={build.package_build_id}
+                            subtitle={`Build #${build.package_build_id.slice(0, 8)}`}
+                            status={status}
+                            statusLabel={label}
+                            duration={buildDuration}
+                            createdAt={build.created_at}
+                            // TODO: Create a build page to view that specific build log
+                            // onClick={() => {
+                            //   setLocation(
+                            //     `/${pkg?.name}/build/${packageRelease.package_release_id}`,
+                            //   )
+                            // }}
+                          />
+                        )
+                      })}
+                  {!isLoadingBuilds && (!builds || builds.length === 0) && (
+                    <div className="px-4 sm:px-6 py-8 text-center text-gray-500">
+                      No builds found for this release.
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

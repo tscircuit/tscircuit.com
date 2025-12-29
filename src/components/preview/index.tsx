@@ -1,6 +1,11 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
 export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
+export {
+  PackageOrBuildItemRow,
+  PackageOrBuildItemRowSkeleton,
+  formatBuildDuration,
+} from "./PackageReleaseOrBuildItemRow"
 import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
@@ -15,29 +20,29 @@ export const getBuildStatus = (
   }
 
   if (
-    build.user_code_error &&
-    (typeof build.user_code_error === "object" ||
-      typeof build.user_code_error === "string")
+    build.user_code_job_error &&
+    (typeof build.user_code_job_error === "object" ||
+      typeof build.user_code_job_error === "string")
   ) {
     return { status: "error", label: "Failed" }
   }
 
   if (
-    build.user_code_started_at &&
-    !build.user_code_completed_at &&
-    !build.user_code_error
+    build.user_code_job_started_at &&
+    !build.user_code_job_completed_at &&
+    !build.user_code_job_error
   ) {
     return { status: "building", label: "Building" }
   }
 
-  if (build.user_code_completed_at && !build.user_code_error) {
+  if (build.user_code_job_completed_at && !build.user_code_job_error) {
     return { status: "success", label: "Ready" }
   }
 
   if (
-    build.user_code_started_at &&
-    build.user_code_completed_at &&
-    build.user_code_error
+    build.user_code_job_started_at &&
+    build.user_code_job_completed_at &&
+    build.user_code_job_error
   ) {
     return { status: "error", label: "Failed" }
   }
