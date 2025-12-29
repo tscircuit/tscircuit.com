@@ -5,7 +5,7 @@ export {
   PackageOrBuildItemRow,
   PackageOrBuildItemRowSkeleton,
   formatBuildDuration,
-} from "./PackageOrBuildItemRow"
+} from "./PackageReleaseOrBuildItemRow"
 import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
@@ -15,7 +15,6 @@ export const getBuildStatus = (
   status: "pending" | "building" | "success" | "error" | "queued"
   label: string
 } => {
-  console.log("build", build)
   if (!build) {
     return { status: "pending", label: "No builds" }
   }
