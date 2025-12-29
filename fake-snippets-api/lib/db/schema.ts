@@ -466,7 +466,7 @@ export const packageBuildSchema = z.object({
   user_code_job_started_at: z.string().datetime().nullable().optional(),
   user_code_job_completed_at: z.string().datetime().nullable().optional(),
   user_code_job_error: z.any().nullable().optional(),
-  user_code_job_logs: z.array(log).nullable(),
+  user_code_job_logs: z.array(log).nullable().optional(),
   user_code_job_log_stream_url: z.string().nullable().optional(),
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
