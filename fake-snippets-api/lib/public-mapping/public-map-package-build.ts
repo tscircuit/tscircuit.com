@@ -48,14 +48,15 @@ export const publicMapPackageBuild = (
       internalPackageBuild.build_error_last_updated_at,
     preview_url: internalPackageBuild.preview_url,
     build_logs: options.include_logs ? internalPackageBuild.build_logs : null,
-    user_code_started_at: internalPackageBuild.user_code_job_started_at ?? null,
-    user_code_completed_at:
+    user_code_job_started_at:
+      internalPackageBuild.user_code_job_started_at ?? null,
+    user_code_job_completed_at:
       internalPackageBuild.user_code_job_completed_at ?? null,
-    user_code_error: internalPackageBuild.user_code_job_error ?? null,
-    user_code_build_logs: options.include_logs
+    user_code_job_error: internalPackageBuild.user_code_job_error ?? null,
+    user_code_job_completed_logs: options.include_logs
       ? internalPackageBuild.user_code_job_completed_logs
       : null,
-    user_code_log_stream_url:
+    user_code_job_log_stream_url:
       internalPackageBuild.user_code_job_log_stream_url ?? null,
   }
 

@@ -45,14 +45,14 @@ export const ConnectedRepoOverview = ({
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
   const userCodeJobInProgress = Boolean(
-    packageRelease.user_code_started_at &&
-      !packageRelease.user_code_completed_at &&
-      !packageRelease.user_code_error,
+    packageRelease.user_code_job_started_at &&
+      !packageRelease.user_code_job_completed_at &&
+      !packageRelease.user_code_job_error,
   )
 
   // Use custom hook to manage SSE log streaming
   const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
-    packageRelease.user_code_log_stream_url,
+    packageRelease.user_code_job_log_stream_url,
     userCodeJobInProgress,
     packageRelease.package_release_id,
   )
@@ -412,10 +412,10 @@ export const ConnectedRepoOverview = ({
                       </span>
                     </div>
                   )}
-                {packageBuild.user_code_job_logs &&
-                  packageBuild.user_code_job_logs.length > 0 && (
+                {packageBuild.user_code_job_completed_logs &&
+                  packageBuild.user_code_job_completed_logs.length > 0 && (
                     <>
-                      {packageBuild.user_code_job_logs.map(
+                      {packageBuild.user_code_job_completed_logs.map(
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
@@ -440,7 +440,7 @@ export const ConnectedRepoOverview = ({
                     <div ref={logsEndRef} />
                   </>
                 )}
-                {packageBuild.user_code_job_logs?.length === 0 &&
+                {packageBuild.user_code_job_completed_logs?.length === 0 &&
                   usercodeStreamedLogs.length === 0 &&
                   !packageBuild.user_code_job_error &&
                   !userCodeJobInProgress && (

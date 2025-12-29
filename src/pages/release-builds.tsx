@@ -10,8 +10,8 @@ import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   getBuildStatus,
-  PackageOrBuildItemRow,
-  PackageOrBuildItemRowSkeleton,
+  PackageReleaseOrBuildItemRow,
+  PackageReleaseOrBuildItemRowSkeleton,
   formatBuildDuration,
 } from "@/components/preview"
 
@@ -109,7 +109,7 @@ export default function ReleaseBuildsPage() {
                 <div className="divide-y divide-gray-200">
                   {isLoadingBuilds
                     ? Array.from({ length: 3 }).map((_, i) => (
-                        <PackageOrBuildItemRowSkeleton key={i} />
+                        <PackageReleaseOrBuildItemRowSkeleton key={i} />
                       ))
                     : builds?.map((build) => {
                         const { status, label } = getBuildStatus(build)
@@ -119,7 +119,7 @@ export default function ReleaseBuildsPage() {
                         )
 
                         return (
-                          <PackageOrBuildItemRow
+                          <PackageReleaseOrBuildItemRow
                             key={build.package_build_id}
                             package_release_or_build_id={build.package_build_id}
                             subtitle={`Build #${build.package_build_id.slice(0, 8)}`}

@@ -33,7 +33,7 @@ interface DropdownAction {
   hidden?: boolean
 }
 
-interface PackageOrBuildItemRowProps {
+interface PackageReleaseOrBuildItemRowProps {
   package_release_or_build_id: string
   label?: string
   subtitle?: string
@@ -46,7 +46,7 @@ interface PackageOrBuildItemRowProps {
   middleContent?: React.ReactNode
 }
 
-export const PackageOrBuildItemRow = ({
+export const PackageReleaseOrBuildItemRow = ({
   package_release_or_build_id,
   label,
   subtitle,
@@ -57,7 +57,7 @@ export const PackageOrBuildItemRow = ({
   onClick,
   dropdownActions,
   middleContent,
-}: PackageOrBuildItemRowProps) => {
+}: PackageReleaseOrBuildItemRowProps) => {
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -212,7 +212,7 @@ export const PackageOrBuildItemRow = ({
   )
 }
 
-export const PackageOrBuildItemRowSkeleton = () => (
+export const PackageReleaseOrBuildItemRowSkeleton = () => (
   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4">
     <div className="flex justify-between gap-2 sm:hidden">
       <div className="flex-1 space-y-1">
