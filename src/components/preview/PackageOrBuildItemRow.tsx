@@ -34,7 +34,7 @@ interface DropdownAction {
 }
 
 interface PackageOrBuildItemRowProps {
-  package_or_build_id: string
+  package_release_or_build_id: string
   label?: string
   subtitle?: string
   status: "pending" | "building" | "success" | "error" | "queued"
@@ -47,7 +47,7 @@ interface PackageOrBuildItemRowProps {
 }
 
 export const PackageOrBuildItemRow = ({
-  package_or_build_id,
+  package_release_or_build_id,
   label,
   subtitle,
   status,
@@ -68,7 +68,7 @@ export const PackageOrBuildItemRow = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {package_or_build_id}
+              {package_release_or_build_id}
             </p>
             {subtitle && (
               <span className="text-xs text-gray-500 flex-shrink-0">
@@ -136,7 +136,7 @@ export const PackageOrBuildItemRow = ({
       {/* Desktop Layout - ID Column */}
       <div className="hidden sm:block sm:min-w-[140px] sm:max-w-[200px]">
         <p className="text-sm font-medium text-gray-900 truncate">
-          {package_or_build_id}
+          {package_release_or_build_id}
         </p>
         <p className="text-sm text-gray-500">{subtitle}</p>
       </div>

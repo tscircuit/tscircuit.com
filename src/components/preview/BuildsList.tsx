@@ -115,7 +115,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                   return (
                     <PackageOrBuildItemRow
                       key={release.package_release_id}
-                      package_or_build_id={release.package_release_id}
+                      package_release_or_build_id={release.package_release_id}
                       subtitle={subtitle}
                       status={status}
                       statusLabel={label}

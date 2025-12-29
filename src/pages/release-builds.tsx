@@ -121,7 +121,7 @@ export default function ReleaseBuildsPage() {
                         return (
                           <PackageOrBuildItemRow
                             key={build.package_build_id}
-                            package_or_build_id={build.package_build_id}
+                            package_release_or_build_id={build.package_build_id}
                             subtitle={`Build #${build.package_build_id.slice(0, 8)}`}
                             status={status}
                             statusLabel={label}
