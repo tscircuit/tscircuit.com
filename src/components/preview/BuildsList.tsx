@@ -2,8 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { GitBranch, GitCommitHorizontal } from "lucide-react"
 import {
   getBuildStatus,
-  BuildItemRow,
-  BuildItemRowSkeleton,
+  PackageOrBuildItemRow,
+  PackageOrBuildItemRowSkeleton,
   formatBuildDuration,
 } from "."
 import {
@@ -98,7 +98,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
           <div className="divide-y divide-gray-200">
             {isLoading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <BuildItemRowSkeleton key={i} />
+                  <PackageOrBuildItemRowSkeleton key={i} />
                 ))
               : releases?.map((release) => {
                   const latestBuild = latestBuildsMap.get(
@@ -106,16 +106,16 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                   )
                   const { status, label } = getBuildStatus(latestBuild)
                   const buildDuration = formatBuildDuration(
-                    latestBuild?.user_code_started_at,
-                    latestBuild?.user_code_completed_at,
+                    latestBuild?.user_code_job_started_at,
+                    latestBuild?.user_code_job_completed_at,
                   )
 
                   const subtitle = `${release.is_pr_preview ? "Preview" : "Production"}${release.is_latest ? " • Current" : ""}`
 
                   return (
-                    <BuildItemRow
+                    <PackageOrBuildItemRow
                       key={release.package_release_id}
-                      id={release.package_release_id.slice(-8)}
+                      package_or_build_id={release.package_release_id}
                       subtitle={subtitle}
                       status={status}
                       statusLabel={label}

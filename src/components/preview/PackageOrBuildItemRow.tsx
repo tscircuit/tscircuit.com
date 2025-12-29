@@ -33,9 +33,9 @@ interface DropdownAction {
   hidden?: boolean
 }
 
-interface BuildItemRowProps {
-  id: string
-  idLabel?: string
+interface PackageOrBuildItemRowProps {
+  package_or_build_id: string
+  label?: string
   subtitle?: string
   status: "pending" | "building" | "success" | "error" | "queued"
   statusLabel: string
@@ -46,9 +46,9 @@ interface BuildItemRowProps {
   middleContent?: React.ReactNode
 }
 
-export const BuildItemRow = ({
-  id,
-  idLabel,
+export const PackageOrBuildItemRow = ({
+  package_or_build_id,
+  label,
   subtitle,
   status,
   statusLabel,
@@ -57,7 +57,7 @@ export const BuildItemRow = ({
   onClick,
   dropdownActions,
   middleContent,
-}: BuildItemRowProps) => {
+}: PackageOrBuildItemRowProps) => {
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -67,7 +67,9 @@ export const BuildItemRow = ({
       <div className="flex items-start justify-between gap-2 sm:hidden">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-sm font-medium text-gray-900 truncate">{id}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {package_or_build_id}
+            </p>
             {subtitle && (
               <span className="text-xs text-gray-500 flex-shrink-0">
                 {subtitle}
@@ -93,7 +95,7 @@ export const BuildItemRow = ({
               {duration || "—"}
             </span>
           </div>
-          {idLabel && <p className="text-xs text-gray-400">{idLabel}</p>}
+          {label && <p className="text-xs text-gray-400">{label}</p>}
         </div>
         <div className="flex items-start gap-2 flex-shrink-0">
           <span className="text-xs text-gray-600 whitespace-nowrap">
@@ -133,7 +135,9 @@ export const BuildItemRow = ({
 
       {/* Desktop Layout - ID Column */}
       <div className="hidden sm:block sm:min-w-[140px] sm:max-w-[200px]">
-        <p className="text-sm font-medium text-gray-900 truncate">{id}</p>
+        <p className="text-sm font-medium text-gray-900 truncate">
+          {package_or_build_id}
+        </p>
         <p className="text-sm text-gray-500">{subtitle}</p>
       </div>
 
@@ -208,7 +212,7 @@ export const BuildItemRow = ({
   )
 }
 
-export const BuildItemRowSkeleton = () => (
+export const PackageOrBuildItemRowSkeleton = () => (
   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4">
     <div className="flex justify-between gap-2 sm:hidden">
       <div className="flex-1 space-y-1">
