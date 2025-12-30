@@ -110,17 +110,17 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                     latestBuild?.user_code_job_completed_at,
                   )
 
-                  const subtitle = `${release.is_pr_preview ? "Preview" : "Production"}${release.is_latest ? " • Current" : ""}`
-
                   return (
                     <PackageReleaseOrBuildItemRow
                       key={release.package_release_id}
-                      package_release_or_build_id={release.package_release_id}
-                      subtitle={subtitle}
+                      package_release_or_build_id={
+                        release.version || release.package_release_id
+                      }
                       status={status}
                       statusLabel={label}
                       duration={buildDuration}
                       createdAt={release.created_at}
+                      isLatest={release.is_latest}
                       onClick={() => {
                         setLocation(
                           `/${pkg.name}/releases/${release.package_release_id}`,

@@ -44,6 +44,7 @@ interface PackageReleaseOrBuildItemRowProps {
   onClick?: () => void
   dropdownActions?: DropdownAction[]
   middleContent?: React.ReactNode
+  isLatest?: boolean
 }
 
 export const PackageReleaseOrBuildItemRow = ({
@@ -57,6 +58,7 @@ export const PackageReleaseOrBuildItemRow = ({
   onClick,
   dropdownActions,
   middleContent,
+  isLatest,
 }: PackageReleaseOrBuildItemRowProps) => {
   return (
     <div
@@ -73,6 +75,11 @@ export const PackageReleaseOrBuildItemRow = ({
             {subtitle && (
               <span className="text-xs text-gray-500 flex-shrink-0">
                 {subtitle}
+              </span>
+            )}
+            {isLatest && (
+              <span className="text-xs font-medium text-blue-500 flex-shrink-0">
+                Latest
               </span>
             )}
           </div>
@@ -138,7 +145,12 @@ export const PackageReleaseOrBuildItemRow = ({
         <p className="text-sm font-medium text-gray-900 truncate">
           {package_release_or_build_id}
         </p>
-        <p className="text-sm text-gray-500">{subtitle}</p>
+        <div className="flex items-center">
+          <span className="text-sm text-gray-500">{subtitle}</span>
+          {isLatest && (
+            <span className="text-sm font-medium text-blue-500">Latest</span>
+          )}
+        </div>
       </div>
 
       {/* Desktop Layout - Status Column */}
