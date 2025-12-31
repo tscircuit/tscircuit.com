@@ -1,37 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { GitBranch, MoreHorizontal, GitCommitHorizontal } from "lucide-react"
+import { GitBranch, GitCommitHorizontal } from "lucide-react"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { getBuildStatus, StatusIcon } from "."
-import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+  getBuildStatus,
+  PackageReleaseOrBuildItemRow,
+  PackageReleaseOrBuildItemRowSkeleton,
+  formatBuildDuration,
+} from "."
+import {
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { useLocation } from "wouter"
-
-const formatBuildDuration = (
-  startedAt?: string | null,
-  completedAt?: string | null,
-): string | null => {
-  if (!startedAt) return null
-  const start = new Date(startedAt).getTime()
-  const end = completedAt ? new Date(completedAt).getTime() : Date.now()
-  const durationMs = end - start
-
-  const seconds = Math.floor(durationMs / 1000)
-  if (seconds < 60) return `${seconds}s`
-
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
-}
 
 export const BuildsList = ({ pkg }: { pkg: Package }) => {
   const { data: releases, isLoading: isLoadingReleases } =
@@ -69,6 +52,40 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
     }
   })
 
+  const renderGitInfo = (release: PackageRelease) => {
+    if (!pkg?.github_repo_full_name) {
+      return <p className="text-sm text-gray-400">No repository linked</p>
+    }
+
+    return (
+      <div className="space-y-0.5">
+        <div className="flex items-center gap-1.5 text-gray-900">
+          <GitBranch className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm font-mono truncate">
+            {release.branch_name ||
+              (release.is_pr_preview
+                ? `pr-${release.github_pr_number}`
+                : "main")}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-gray-900">
+          <GitCommitHorizontal className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm truncate block">
+            <span className="font-mono">
+              {release.package_release_id.slice(0, 7)}
+            </span>
+            {release.commit_message && (
+              <span className="ml-1.5 text-gray-600 truncate">
+                {release.commit_message.slice(0, 40)}
+                {release.commit_message.length > 40 ? "..." : ""}
+              </span>
+            )}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -81,42 +98,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
           <div className="divide-y divide-gray-200">
             {isLoading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4"
-                  >
-                    <div className="flex justify-between gap-2 sm:hidden">
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Skeleton className="h-4 w-16" />
-                          <Skeleton className="h-3 w-12" />
-                        </div>
-                        <Skeleton className="h-3 w-20" />
-                        <Skeleton className="h-3 w-24" />
-                        <Skeleton className="h-3 w-32" />
-                      </div>
-                      <div className="flex gap-2">
-                        <Skeleton className="h-3 w-12" />
-                        <Skeleton className="h-7 w-7 rounded" />
-                      </div>
-                    </div>
-                    <div className="hidden sm:block flex-1 sm:min-w-[140px] sm:max-w-[200px]">
-                      <Skeleton className="h-5 w-20 mb-1" />
-                      <Skeleton className="h-4 w-16" />
-                    </div>
-                    <div className="hidden sm:block flex-shrink-0 sm:w-[120px]">
-                      <Skeleton className="h-5 w-16 mb-1" />
-                      <Skeleton className="h-4 w-12" />
-                    </div>
-                    <div className="hidden sm:block flex-1">
-                      <Skeleton className="h-4 w-24 mb-1" />
-                      <Skeleton className="h-4 w-32" />
-                    </div>
-                    <div className="hidden sm:flex items-center justify-start gap-3">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-6 w-6 rounded-full" />
-                    </div>
-                  </div>
+                  <PackageReleaseOrBuildItemRowSkeleton key={i} />
                 ))
               : releases?.map((release) => {
                   const latestBuild = latestBuildsMap.get(
@@ -124,274 +106,52 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
                   )
                   const { status, label } = getBuildStatus(latestBuild)
                   const buildDuration = formatBuildDuration(
-                    latestBuild?.user_code_started_at,
-                    latestBuild?.user_code_completed_at,
+                    latestBuild?.user_code_job_started_at,
+                    latestBuild?.user_code_job_completed_at,
                   )
 
                   return (
-                    <div
+                    <PackageReleaseOrBuildItemRow
                       key={release.package_release_id}
-                      className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                      package_release_or_build_id={
+                        release.version || release.package_release_id
+                      }
+                      status={status}
+                      statusLabel={label}
+                      duration={buildDuration}
+                      createdAt={release.created_at}
+                      isLatest={release.is_latest}
                       onClick={() => {
                         setLocation(
                           `/${pkg.name}/releases/${release.package_release_id}`,
                         )
                       }}
-                    >
-                      <div className="flex items-start justify-between gap-2 sm:hidden">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {release.package_release_id.slice(-8)}
-                            </p>
-                            <span className="text-xs text-gray-500 flex-shrink-0">
-                              {release.is_pr_preview ? "Preview" : "Production"}
-                            </span>
-                            {release.is_latest && (
-                              <span className="text-xs text-blue-600 font-medium flex-shrink-0">
-                                Current
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <StatusIcon status={status} />
-                            <span
-                              className={`text-xs font-medium ${
-                                status === "success"
-                                  ? "text-green-500"
-                                  : status === "error"
-                                    ? "text-red-500"
-                                    : status === "building"
-                                      ? "text-blue-500"
-                                      : "text-gray-500"
-                              }`}
-                            >
-                              {label}
-                            </span>
-                            <span className="text-xs text-gray-500 tabular-nums">
-                              {buildDuration || "—"}
-                            </span>
-                          </div>
-                          {pkg?.github_repo_full_name ? (
-                            <div className="space-y-0.5">
-                              <div className="flex items-center gap-1.5 text-gray-900">
-                                <GitBranch className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="text-xs font-mono truncate">
-                                  {release.branch_name ||
-                                    (release.is_pr_preview
-                                      ? `pr-${release.github_pr_number}`
-                                      : "main")}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-gray-900">
-                                <GitCommitHorizontal className="w-3.5 h-3.5 flex-shrink-0" />
-                                <span className="text-xs truncate block">
-                                  <span className="font-mono">
-                                    {release.package_release_id.slice(0, 7)}
-                                  </span>
-                                  {release.commit_message && (
-                                    <span className="ml-1.5 text-gray-600 truncate">
-                                      {release.commit_message.slice(0, 30)}
-                                      {release.commit_message.length > 30
-                                        ? "..."
-                                        : ""}
-                                    </span>
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-gray-400">
-                              No repository linked
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-start gap-2 flex-shrink-0">
-                          <span className="text-xs text-gray-600 whitespace-nowrap">
-                            {formatTimeAgo(release.created_at)}
-                          </span>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <MoreHorizontal className="w-3.5 h-3.5" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setLocation(
-                                    `/${pkg.name}/releases/${release.package_release_id}`,
-                                  )
-                                }}
-                              >
-                                View Release
-                              </DropdownMenuItem>
-                              {status !== "error" && (
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setLocation(
-                                      `/${pkg.name}/releases/${release.package_release_id}/preview`,
-                                    )
-                                  }}
-                                >
-                                  Preview Release
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setLocation(
-                                    `/${pkg.name}/releases/${release.package_release_id}/builds`,
-                                  )
-                                }}
-                              >
-                                View All Builds
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-
-                      <div className="hidden sm:block flex-1 sm:min-w-[140px] sm:max-w-[200px]">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {release.package_release_id.slice(-8)}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {release.is_pr_preview ? "Preview" : "Production"}
-                          {release.is_latest && (
-                            <span className="ml-2 text-xs text-blue-600 font-medium">
-                              Current
-                            </span>
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="hidden sm:flex items-center gap-4">
-                        <div className="flex-shrink-0">
-                          <div className="flex items-center gap-1.5">
-                            <StatusIcon status={status} />
-                            <span
-                              className={`text-sm font-medium ${
-                                status === "success"
-                                  ? "text-green-500"
-                                  : status === "error"
-                                    ? "text-red-500"
-                                    : status === "building"
-                                      ? "text-blue-500"
-                                      : "text-gray-500"
-                              }`}
-                            >
-                              {label}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-500 tabular-nums">
-                            {buildDuration || "—"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="hidden sm:block flex-1 sm:min-w-[200px]">
-                        {pkg?.github_repo_full_name ? (
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-1.5 text-gray-900">
-                              <GitBranch className="w-4 h-4 flex-shrink-0" />
-                              <span className="text-sm font-mono truncate">
-                                {release.branch_name ||
-                                  (release.is_pr_preview
-                                    ? `pr-${release.github_pr_number}`
-                                    : "main")}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-gray-900">
-                              <GitCommitHorizontal className="w-4 h-4 flex-shrink-0" />
-                              <span className="text-sm truncate block">
-                                <span className="font-mono">
-                                  {release.package_release_id.slice(0, 7)}
-                                </span>
-                                {release.commit_message && (
-                                  <span className="ml-1.5 text-gray-600 truncate">
-                                    {release.commit_message.slice(0, 40)}
-                                    {release.commit_message.length > 40
-                                      ? "..."
-                                      : ""}
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-400">
-                            No repository linked
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="hidden sm:flex items-center justify-start gap-3 flex-shrink-0">
-                        <span className="text-sm text-gray-600 whitespace-nowrap">
-                          {formatTimeAgo(release.created_at)}
-                          {release.commit_author && (
-                            <span className="text-gray-500 hidden lg:inline">
-                              {" "}
-                              by {release.commit_author}
-                            </span>
-                          )}
-                        </span>
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setLocation(
-                                  `/${pkg.name}/releases/${release.package_release_id}`,
-                                )
-                              }}
-                            >
-                              View Release
-                            </DropdownMenuItem>
-                            {status !== "error" && (
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setLocation(
-                                    `/${pkg.name}/releases/${release.package_release_id}/preview`,
-                                  )
-                                }}
-                              >
-                                Preview Release
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setLocation(
-                                  `/${pkg.name}/releases/${release.package_release_id}/builds`,
-                                )
-                              }}
-                            >
-                              View All Builds
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
+                      middleContent={renderGitInfo(release)}
+                      dropdownActions={[
+                        {
+                          label: "View Release",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}`,
+                            ),
+                        },
+                        {
+                          label: "Preview Release",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}/preview`,
+                            ),
+                          hidden: status === "error",
+                        },
+                        {
+                          label: "View All Builds",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}/builds`,
+                            ),
+                        },
+                      ]}
+                    />
                   )
                 })}
           </div>
