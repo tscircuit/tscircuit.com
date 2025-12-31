@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   Select,
   SelectContent,
@@ -29,6 +29,7 @@ import { useLocation } from "wouter"
 import { useDeletePackage } from "@/hooks/use-delete-package"
 import { GitHubRepositorySelector } from "./GitHubRepositorySelector"
 import { normalizeName } from "@/lib/utils/normalizeName"
+import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
 
 interface EditPackageDetailsDialogProps {
   open: boolean
@@ -95,19 +96,78 @@ export const EditPackageDetailsDialog = ({
   })
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [showConfirmTransfer, setShowConfirmTransfer] = useState(false)
   const [dangerOpen, setDangerOpen] = useState(false)
+  const [targetOrgId, setTargetOrgId] = useState("")
   const [, setLocation] = useLocation()
+  const { data: organizations = [] } = useListUserOrgs()
 
   const normalizedPackageName = useMemo(() => {
     if (!formData.unscopedPackageName.trim()) return ""
     return normalizeName(formData.unscopedPackageName)
   }, [formData.unscopedPackageName])
 
+  useEffect(() => {
+    if (open) {
+      setTargetOrgId("")
+      setShowConfirmTransfer(false)
+    }
+  }, [open])
+
+  const availableOrgs = useMemo(
+    () => organizations.filter((org) => org.org_id !== ownerOrgId),
+    [organizations, ownerOrgId],
+  )
+
+  const selectedTransferOrg = useMemo(
+    () => availableOrgs.find((org) => org.org_id === targetOrgId),
+    [availableOrgs, targetOrgId],
+  )
+
   const deletePackageMutation = useDeletePackage({
     onSuccess: async () => {
       await qc.invalidateQueries(["packages"]) // Invalidate the packages query
       onOpenChange(false) // Close the dialog
       setLocation("/dashboard") // Redirect to the dashboard
+    },
+  })
+
+  const transferPackageMutation = useMutation({
+    mutationFn: async () => {
+      if (!targetOrgId) {
+        throw new Error("Please select an organization to transfer to.")
+      }
+
+      const response = await axios.post("/packages/transfer", {
+        package_id: packageId,
+        target_org_id: targetOrgId,
+      })
+
+      if (response.status !== 200) {
+        throw new Error("Failed to transfer package")
+      }
+
+      return response.data.package
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries(["packages"])
+      await qc.invalidateQueries(["packages", packageId])
+      setShowConfirmTransfer(false)
+      onOpenChange(false)
+      toast({
+        title: "Package transferred",
+        description: "The package has been transferred successfully.",
+      })
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description:
+          (error as any)?.data?.error?.message ||
+          (error as Error).message ||
+          "Failed to transfer package. Please try again.",
+        variant: "destructive",
+      })
     },
   })
   const updatePackageDetailsMutation = useMutation({
@@ -254,7 +314,10 @@ export const EditPackageDetailsDialog = ({
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog open={open !== showConfirmDelete} onOpenChange={onOpenChange}>
+      <Dialog
+        open={open && !showConfirmDelete && !showConfirmTransfer}
+        onOpenChange={onOpenChange}
+      >
         <DialogContent className="sm:max-w-[500px] lg:h-[85vh] sm:h-[90vh] overflow-y-auto no-scrollbar w-[95vw] h-[80vh] p-6 gap-6 rounded-2xl shadow-lg">
           <div className="flex flex-col gap-10">
             <DialogHeader>
@@ -434,7 +497,66 @@ export const EditPackageDetailsDialog = ({
                   />
                 </summary>
                 <div className="p-2 pr-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-black">
+                          Transfer package ownership
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Transfer this package to another organization you
+                          belong to.
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor="transfer-org">
+                          Target organization
+                        </Label>
+                        <Select
+                          value={targetOrgId}
+                          onValueChange={(value) => setTargetOrgId(value)}
+                          disabled={
+                            transferPackageMutation.isLoading ||
+                            availableOrgs.length === 0
+                          }
+                        >
+                          <SelectTrigger id="transfer-org" className="w-full">
+                            <SelectValue placeholder="Select an organization" />
+                          </SelectTrigger>
+                          <SelectContent className="!z-[999]">
+                            {availableOrgs.length === 0 ? (
+                              <SelectItem value="none" disabled>
+                                No other organizations available
+                              </SelectItem>
+                            ) : (
+                              availableOrgs.map((org) => (
+                                <SelectItem key={org.org_id} value={org.org_id}>
+                                  {org.display_name ||
+                                    org.tscircuit_handle ||
+                                    org.github_handle ||
+                                    org.org_id}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Button
+                          variant="destructive"
+                          size="default"
+                          onClick={() => setShowConfirmTransfer(true)}
+                          disabled={
+                            !targetOrgId || transferPackageMutation.isLoading
+                          }
+                          className="shrink-0 lg:w-[170px] w-full"
+                        >
+                          {transferPackageMutation.isLoading
+                            ? "Transferring..."
+                            : "Transfer package"}
+                        </Button>
+                      </div>
+                    </div>
                     <div>
                       <p className="text-sm text-muted-foreground">
                         Once deleted, it cannot be recovered.
@@ -483,6 +605,43 @@ export const EditPackageDetailsDialog = ({
               </Button>
             </div>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showConfirmTransfer} onOpenChange={setShowConfirmTransfer}>
+        <DialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-left">Confirm Transfer</DialogTitle>
+            <DialogDescription className="text-left">
+              {selectedTransferOrg
+                ? `Transfer this package to ${
+                    selectedTransferOrg.display_name ||
+                    selectedTransferOrg.tscircuit_handle ||
+                    selectedTransferOrg.github_handle ||
+                    selectedTransferOrg.org_id
+                  }?`
+                : "Select an organization to transfer this package to."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmTransfer(false)}
+              disabled={transferPackageMutation.isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => transferPackageMutation.mutate()}
+              disabled={
+                transferPackageMutation.isLoading || !selectedTransferOrg
+              }
+            >
+              {transferPackageMutation.isLoading
+                ? "Transferring..."
+                : "Confirm transfer"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
