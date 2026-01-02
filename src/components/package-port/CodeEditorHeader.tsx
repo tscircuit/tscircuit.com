@@ -196,10 +196,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b md:py-2 border-gray-200">
         <button
-          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${sidebarOpen
-            ? "w-0 pointer-events-none opacity-0"
-            : "w-6 opacity-100"
-            }`}
+          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen
+              ? "w-0 pointer-events-none opacity-0"
+              : "w-6 opacity-100"
+          }`}
           onClick={() => setSidebarOpen(true)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
@@ -209,8 +210,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         <div>
           <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger
-              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${sidebarOpen ? "-ml-2" : "-ml-1"
-                }`}
+              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+                sidebarOpen ? "-ml-2" : "-ml-1"
+              }`}
             >
               <SelectValue
                 placeholder={
@@ -235,10 +237,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 .map((filename) => (
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
-                      className={`text-xs pr-1 block truncate ${sidebarOpen
-                        ? "max-w-[8rem] sm:max-w-[12rem]"
-                        : "max-w-[12rem] sm:max-w-[16rem]"
-                        }`}
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
+                      }`}
                     >
                       {filename}
                     </span>
@@ -253,10 +256,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 ) && (
                   <SelectItem className="select-none py-1" value={currentFile}>
                     <span
-                      className={`text-xs pr-1 block truncate ${sidebarOpen
-                        ? "max-w-[8rem] sm:max-w-[12rem]"
-                        : "max-w-[12rem] sm:max-w-[16rem]"
-                        }`}
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen
+                          ? "max-w-[8rem] sm:max-w-[12rem]"
+                          : "max-w-[12rem] sm:max-w-[16rem]"
+                      }`}
                     >
                       {currentFile}
                     </span>
@@ -355,17 +359,28 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                     <span className="hidden lg:inline">Format</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent sideOffset={8} className="p-0 bg-transparent border-none shadow-none pointer-events-none">
-                  <div
-                    className="ml-1 flex items-center px-2.5 py-1.5 bg-slate-900 rounded-md shadow-xl border border-slate-800/60"
-                  >
+                <TooltipContent
+                  sideOffset={8}
+                  className="p-0 bg-transparent border-none shadow-none pointer-events-none"
+                >
+                  <div className="ml-1 flex items-center px-2.5 py-1.5 bg-slate-900 rounded-md shadow-xl border border-slate-800/60">
                     <p className="pr-2">Format the current file</p>
 
-                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">Shift</kbd>
-                    <span className="text-slate-500 text-[11px] font-medium leading-none">+</span>
-                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">Alt</kbd>
-                    <span className="text-slate-500 text-[11px] font-medium leading-none">+</span>
-                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">F</kbd>
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">
+                      Shift
+                    </kbd>
+                    <span className="text-slate-500 text-[11px] font-medium leading-none">
+                      +
+                    </span>
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">
+                      Alt
+                    </kbd>
+                    <span className="text-slate-500 text-[11px] font-medium leading-none">
+                      +
+                    </span>
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">
+                      F
+                    </kbd>
                   </div>
                 </TooltipContent>
               </Tooltip>
