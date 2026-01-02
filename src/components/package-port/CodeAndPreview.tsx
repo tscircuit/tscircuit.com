@@ -262,7 +262,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             showFileMenu={false}
             showRunButton
             forceLatestEvalVersion
-            isLoadingFiles={isLoading}
+            isLoadingFiles={isLoading || !isFullyLoaded}
             onRenderStarted={() =>
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }
