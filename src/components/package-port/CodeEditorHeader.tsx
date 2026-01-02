@@ -53,6 +53,7 @@ interface CodeEditorHeaderProps {
   isLoadingFiles: boolean
   createFile: (props: ICreateFileProps) => ICreateFileResult
   aiAutocompleteState: [boolean, React.Dispatch<React.SetStateAction<boolean>>]
+  handleFormatFile: () => void
 }
 
 export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
@@ -65,6 +66,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
   entrypointFileName = "index.tsx",
   createFile,
   aiAutocompleteState,
+  handleFormatFile,
 }) => {
   const { Dialog: ImportComponentDialog, openDialog: openImportDialog } =
     useImportComponentDialog()
@@ -79,95 +81,6 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
       Authorization: `Bearer ${session.token}`,
     }
   }, [session?.token])
-
-  const handleFormatFile = useCallback(() => {
-    if (!window.prettier || !window.prettierPlugins) return
-    if (!currentFile) return
-    try {
-      const currentContent = files[currentFile]
-      let fileExtension = currentFile.split(".").pop()?.toLowerCase()
-      if (currentContent.trim().length === 0) {
-        toast({
-          title: "Empty file",
-          description: "Cannot format an empty file.",
-        })
-        return
-      }
-      if (!fileExtension) {
-        toast({
-          title: "Cannot determine file type",
-          description: "Unable to format file without an extension.",
-        })
-        return
-      }
-
-      if (["readme"].includes(currentFile.toLowerCase())) {
-        fileExtension = "md"
-      }
-
-      if (fileExtension === currentFile.toLowerCase()) {
-        toast({
-          title: "Cannot determine file type",
-          description: "Unable to format file without an extension.",
-        })
-        return
-      }
-
-      // Handle JSON formatting separately
-      if (fileExtension === "json") {
-        try {
-          const jsonObj = JSON.parse(currentContent)
-          const formattedJson = JSON.stringify(jsonObj, null, 2)
-          updateFileContent(currentFile, formattedJson)
-        } catch (jsonError) {
-          toast({
-            title: "Invalid JSON",
-            description: "Failed to format JSON: invalid syntax.",
-            variant: "destructive",
-          })
-        }
-        return
-      }
-
-      const parserMap: Record<string, string> = {
-        js: "babel",
-        jsx: "babel",
-        ts: "typescript",
-        tsx: "typescript",
-        md: "markdown",
-        markdown: "markdown",
-      }
-
-      const parser = parserMap[fileExtension] || "tsx"
-      const formattedCode = window.prettier.format(currentContent, {
-        semi: false,
-        parser: parser,
-        plugins: window.prettierPlugins,
-      })
-
-      updateFileContent(currentFile, formattedCode)
-    } catch (error) {
-      console.error("Formatting error:", error)
-      if (
-        error instanceof Error &&
-        error.message.includes("No parser could be inferred")
-      ) {
-        toast({
-          title: "Unsupported File Type",
-          description: `Formatting not supported for .${currentFile.split(".").pop()?.toLowerCase()} files. Tried default parser.`,
-        })
-      } else {
-        toast({
-          title: "Formatting error",
-          description:
-            error instanceof Error
-              ? error.message
-              : "Failed to format the code. Please check for syntax errors.",
-          variant: "destructive",
-        })
-      }
-    }
-  }, [currentFile, files, toast, updateFileContent])
 
   const handleTscircuitPackageSelected = useCallback(
     async ({ fullPackageName }: TscircuitPackageSelectedPayload) => {
@@ -283,11 +196,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b md:py-2 border-gray-200">
         <button
-          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${
-            sidebarOpen
-              ? "w-0 pointer-events-none opacity-0"
-              : "w-6 opacity-100"
-          }`}
+          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${sidebarOpen
+            ? "w-0 pointer-events-none opacity-0"
+            : "w-6 opacity-100"
+            }`}
           onClick={() => setSidebarOpen(true)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
@@ -297,9 +209,8 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         <div>
           <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger
-              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
-                sidebarOpen ? "-ml-2" : "-ml-1"
-              }`}
+              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${sidebarOpen ? "-ml-2" : "-ml-1"
+                }`}
             >
               <SelectValue
                 placeholder={
@@ -324,11 +235,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 .map((filename) => (
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
-                      className={`text-xs pr-1 block truncate ${
-                        sidebarOpen
-                          ? "max-w-[8rem] sm:max-w-[12rem]"
-                          : "max-w-[12rem] sm:max-w-[16rem]"
-                      }`}
+                      className={`text-xs pr-1 block truncate ${sidebarOpen
+                        ? "max-w-[8rem] sm:max-w-[12rem]"
+                        : "max-w-[12rem] sm:max-w-[16rem]"
+                        }`}
                     >
                       {filename}
                     </span>
@@ -343,11 +253,10 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 ) && (
                   <SelectItem className="select-none py-1" value={currentFile}>
                     <span
-                      className={`text-xs pr-1 block truncate ${
-                        sidebarOpen
-                          ? "max-w-[8rem] sm:max-w-[12rem]"
-                          : "max-w-[12rem] sm:max-w-[16rem]"
-                      }`}
+                      className={`text-xs pr-1 block truncate ${sidebarOpen
+                        ? "max-w-[8rem] sm:max-w-[12rem]"
+                        : "max-w-[12rem] sm:max-w-[16rem]"
+                        }`}
                     >
                       {currentFile}
                     </span>
@@ -446,8 +355,18 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                     <span className="hidden lg:inline">Format</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  <p>Format the current file</p>
+                <TooltipContent sideOffset={8} className="p-0 bg-transparent border-none shadow-none pointer-events-none">
+                  <div
+                    className="ml-1 flex items-center px-2.5 py-1.5 bg-slate-900 rounded-md shadow-xl border border-slate-800/60"
+                  >
+                    <p className="pr-2">Format the current file</p>
+
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">Shift</kbd>
+                    <span className="text-slate-500 text-[11px] font-medium leading-none">+</span>
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">Alt</kbd>
+                    <span className="text-slate-500 text-[11px] font-medium leading-none">+</span>
+                    <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] font-sans font-medium border border-slate-700 text-slate-200 leading-none">F</kbd>
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
