@@ -2,10 +2,6 @@ import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { PackageFile } from "@/types/package"
 import { isComponentExported } from "./isComponentExported"
 
-/**
- * Find the main entrypoint file from tscircuit.config.json
- * This is used for library bundling/exporting
- */
 export const findMainEntrypointFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
@@ -26,11 +22,6 @@ export const findMainEntrypointFileFromTscircuitConfig = (
   }
 }
 
-/**
- * Find the preview component file from tscircuit.config.json
- * This is used for generating preview images (PCB, schematic, 3D)
- * when you want a different "showcase" component than the main entrypoint
- */
 export const findPreviewComponentFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
