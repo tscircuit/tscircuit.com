@@ -7,7 +7,7 @@ import { isComponentExported } from "./isComponentExported"
  */
 const findFileFromTscircuitConfig = (
   files: PackageFile[],
-  configKey: "mainEntrypoint" | "previewComponentPath"
+  configKey: "mainEntrypoint" | "previewComponentPath",
 ): PackageFile | null => {
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
 
