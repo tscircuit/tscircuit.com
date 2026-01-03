@@ -2,8 +2,12 @@ import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { PackageFile } from "@/types/package"
 import { isComponentExported } from "./isComponentExported"
 
-export const findMainEntrypointFileFromTscircuitConfig = (
+/**
+ * Helper to find a file from tscircuit.config.json based on a config key
+ */
+const findFileFromTscircuitConfig = (
   files: PackageFile[],
+  configKey: "mainEntrypoint" | "previewComponentPath"
 ): PackageFile | null => {
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
 
@@ -11,12 +15,12 @@ export const findMainEntrypointFileFromTscircuitConfig = (
     try {
       const config = JSON.parse(configFile.content)
 
-      if (config && typeof config.mainEntrypoint === "string") {
-        const mainComponentPath = config.mainEntrypoint
+      if (config && typeof config[configKey] === "string") {
+        const componentPath = config[configKey]
 
-        const normalizedPath = mainComponentPath.startsWith("./")
-          ? mainComponentPath.substring(2)
-          : mainComponentPath
+        const normalizedPath = componentPath.startsWith("./")
+          ? componentPath.substring(2)
+          : componentPath
 
         return files.find((file) => file.path === normalizedPath) ?? null
       }
@@ -24,6 +28,27 @@ export const findMainEntrypointFileFromTscircuitConfig = (
   }
 
   return null
+}
+
+/**
+ * Find the main entrypoint file from tscircuit.config.json
+ * This is used for library bundling/exporting
+ */
+export const findMainEntrypointFileFromTscircuitConfig = (
+  files: PackageFile[],
+): PackageFile | null => {
+  return findFileFromTscircuitConfig(files, "mainEntrypoint")
+}
+
+/**
+ * Find the preview component file from tscircuit.config.json
+ * This is used for generating preview images (PCB, schematic, 3D)
+ * when you want a different "showcase" component than the main entrypoint
+ */
+export const findPreviewComponentFileFromTscircuitConfig = (
+  files: PackageFile[],
+): PackageFile | null => {
+  return findFileFromTscircuitConfig(files, "previewComponentPath")
 }
 
 export const findTargetFile = ({
@@ -64,6 +89,11 @@ export const findTargetFile = ({
   }
 
   if (!targetFile) {
+    // First check for previewComponentPath (takes precedence for preview rendering)
+    targetFile = findPreviewComponentFileFromTscircuitConfig(files)
+  }
+  if (!targetFile) {
+    // Fall back to mainEntrypoint
     targetFile = findMainEntrypointFileFromTscircuitConfig(files)
   }
   if (!targetFile) {
