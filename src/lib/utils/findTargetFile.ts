@@ -88,12 +88,9 @@ export const findTargetFile = ({
   }
 
   if (!targetFile) {
-    // First check for previewComponentPath (takes precedence for preview rendering)
-    targetFile = findPreviewComponentFileFromTscircuitConfig(files)
-  }
-  if (!targetFile) {
-    // Fall back to mainEntrypoint
-    targetFile = findMainEntrypointFileFromTscircuitConfig(files)
+    targetFile =
+      findPreviewComponentFileFromTscircuitConfig(files) ??
+      findMainEntrypointFileFromTscircuitConfig(files)
   }
   if (!targetFile) {
     targetFile =
