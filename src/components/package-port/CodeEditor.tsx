@@ -27,7 +27,7 @@ import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import tsModule from "typescript"
 import CodeEditorHeader, {
   FileName,
@@ -52,6 +52,7 @@ import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Loader2 } from "lucide-react"
 import { useAxios } from "@/hooks/use-axios"
+import { useToast } from "@/hooks/use-toast"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -139,6 +140,100 @@ export const CodeEditor = ({
     })
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
+  const { toast } = useToast()
+
+  const handleFormatFile = useCallback(() => {
+    if (!window.prettier || !window.prettierPlugins) return
+    if (!currentFile) return
+    try {
+      const filesObject = Object.fromEntries(
+        files.map((f) => [f.path, f.content]),
+      )
+
+      const currentContent = filesObject[currentFile]
+      let fileExtension = currentFile.split(".").pop()?.toLowerCase()
+      if (currentContent.trim().length === 0) {
+        toast({
+          title: "Empty file",
+          description: "Cannot format an empty file.",
+        })
+        return
+      }
+      if (!fileExtension) {
+        toast({
+          title: "Cannot determine file type",
+          description: "Unable to format file without an extension.",
+        })
+        return
+      }
+
+      if (["readme"].includes(currentFile.toLowerCase())) {
+        fileExtension = "md"
+      }
+
+      if (fileExtension === currentFile.toLowerCase()) {
+        toast({
+          title: "Cannot determine file type",
+          description: "Unable to format file without an extension.",
+        })
+        return
+      }
+
+      // Handle JSON formatting separately
+      if (fileExtension === "json") {
+        try {
+          const jsonObj = JSON.parse(currentContent)
+          const formattedJson = JSON.stringify(jsonObj, null, 2)
+          updateFileContent(currentFile, formattedJson)
+        } catch (jsonError) {
+          toast({
+            title: "Invalid JSON",
+            description: "Failed to format JSON: invalid syntax.",
+            variant: "destructive",
+          })
+        }
+        return
+      }
+
+      const parserMap: Record<string, string> = {
+        js: "babel",
+        jsx: "babel",
+        ts: "typescript",
+        tsx: "typescript",
+        md: "markdown",
+        markdown: "markdown",
+      }
+
+      const parser = parserMap[fileExtension] || "tsx"
+      const formattedCode = window.prettier.format(currentContent, {
+        semi: false,
+        parser: parser,
+        plugins: window.prettierPlugins,
+      })
+
+      updateFileContent(currentFile, formattedCode)
+    } catch (error) {
+      console.error("Formatting error:", error)
+      if (
+        error instanceof Error &&
+        error.message.includes("No parser could be inferred")
+      ) {
+        toast({
+          title: "Unsupported File Type",
+          description: `Formatting not supported for .${currentFile.split(".").pop()?.toLowerCase()} files. Tried default parser.`,
+        })
+      } else {
+        toast({
+          title: "Formatting error",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to format the code. Please check for syntax errors.",
+          variant: "destructive",
+        })
+      }
+    }
+  }, [currentFile, files, toast])
 
   const entryPointFileName = useMemo(() => {
     const entryPointFile = findTargetFile({ files, filePathFromUrl: null })
@@ -305,6 +400,13 @@ export const CodeEditor = ({
             key: "Mod-Shift-f",
             run: () => {
               setShowGlobalFindReplace(true)
+              return true
+            },
+          },
+          {
+            key: "Shift-Alt-f",
+            run: () => {
+              handleFormatFile()
               return true
             },
           },
@@ -838,6 +940,7 @@ export const CodeEditor = ({
               aiAutocompleteEnabled,
               setAiAutocompleteEnabled,
             ]}
+            handleFormatFile={handleFormatFile}
           />
         )}
         <div
