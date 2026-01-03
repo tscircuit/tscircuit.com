@@ -3,41 +3,27 @@ import { PackageFile } from "@/types/package"
 import { isComponentExported } from "./isComponentExported"
 
 /**
- * Helper to find a file from tscircuit.config.json based on a config key
- */
-const findFileFromTscircuitConfig = (
-  files: PackageFile[],
-  configKey: "mainEntrypoint" | "previewComponentPath",
-): PackageFile | null => {
-  const configFile = files.find((file) => file.path === "tscircuit.config.json")
-
-  if (configFile) {
-    try {
-      const config = JSON.parse(configFile.content)
-
-      if (config && typeof config[configKey] === "string") {
-        const componentPath = config[configKey]
-
-        const normalizedPath = componentPath.startsWith("./")
-          ? componentPath.substring(2)
-          : componentPath
-
-        return files.find((file) => file.path === normalizedPath) ?? null
-      }
-    } catch {}
-  }
-
-  return null
-}
-
-/**
  * Find the main entrypoint file from tscircuit.config.json
  * This is used for library bundling/exporting
  */
 export const findMainEntrypointFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
-  return findFileFromTscircuitConfig(files, "mainEntrypoint")
+  const configFile = files.find((file) => file.path === "tscircuit.config.json")
+  if (!configFile) return null
+
+  try {
+    const config = JSON.parse(configFile.content)
+    if (!config?.mainEntrypoint) return null
+
+    const normalizedPath = config.mainEntrypoint.startsWith("./")
+      ? config.mainEntrypoint.substring(2)
+      : config.mainEntrypoint
+
+    return files.find((file) => file.path === normalizedPath) ?? null
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -48,7 +34,21 @@ export const findMainEntrypointFileFromTscircuitConfig = (
 export const findPreviewComponentFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
-  return findFileFromTscircuitConfig(files, "previewComponentPath")
+  const configFile = files.find((file) => file.path === "tscircuit.config.json")
+  if (!configFile) return null
+
+  try {
+    const config = JSON.parse(configFile.content)
+    if (!config?.previewComponentPath) return null
+
+    const normalizedPath = config.previewComponentPath.startsWith("./")
+      ? config.previewComponentPath.substring(2)
+      : config.previewComponentPath
+
+    return files.find((file) => file.path === normalizedPath) ?? null
+  } catch {
+    return null
+  }
 }
 
 export const findTargetFile = ({
