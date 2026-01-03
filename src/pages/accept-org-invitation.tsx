@@ -1,11 +1,12 @@
 import { useLocation, useSearch } from "wouter"
+import { Helmet } from "react-helmet-async"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { useOrgInvitation } from "@/hooks/use-org-invitation"
 import { useAcceptOrgInvitationMutation } from "@/hooks/use-accept-org-invitation-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { OrgAuthProviderButtons } from "@/components/org-auth/OrgAuthProviderButtons"
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 import { useToast } from "@/hooks/use-toast"
 import {
   Loader2,
@@ -48,6 +49,9 @@ export default function AcceptOrgInvitationPage() {
   if (!token) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Helmet>
+          <title>Invalid Invitation Link - tscircuit</title>
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8 text-center">
@@ -104,8 +108,16 @@ export default function AcceptOrgInvitationPage() {
 
   // Show status messages for non-pending invitations
   if (invitation.is_revoked) {
+    const orgName =
+      invitation.org.org_display_name ||
+      invitation.org.org_name ||
+      "Organization"
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Helmet>
+          <title>{`${orgName} - Invitation Cancelled - tscircuit`}</title>
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8 text-center">
@@ -124,8 +136,16 @@ export default function AcceptOrgInvitationPage() {
   }
 
   if (invitation.is_accepted) {
+    const orgName =
+      invitation.org.org_display_name ||
+      invitation.org.org_name ||
+      "Organization"
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Helmet>
+          <title>{`${orgName} - Invitation Already Accepted - tscircuit`}</title>
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8 text-center">
@@ -154,8 +174,16 @@ export default function AcceptOrgInvitationPage() {
   }
 
   if (invitation.is_expired) {
+    const orgName =
+      invitation.org.org_display_name ||
+      invitation.org.org_name ||
+      "Organization"
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Helmet>
+          <title>{`${orgName} - Invitation Expired - tscircuit`}</title>
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8 text-center">
@@ -182,9 +210,16 @@ export default function AcceptOrgInvitationPage() {
   // If not authenticated, show login UI
   if (!session) {
     const redirectPath = window.location.pathname + window.location.search
+    const orgName =
+      invitation.org.org_display_name ||
+      invitation.org.org_name ||
+      "Organization"
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+        <Helmet>
+          <title>{`Join ${orgName} - tscircuit`}</title>
+        </Helmet>
         <Header />
         <div className="flex items-center justify-center px-4 py-20">
           <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
@@ -202,7 +237,7 @@ export default function AcceptOrgInvitationPage() {
             </div>
 
             <div className="mb-6">
-              <OrgAuthProviderButtons redirectPath={redirectPath} />
+              <AuthProviderButtons redirectPath={redirectPath} />
             </div>
 
             <p className="text-xs text-gray-500 text-center">
@@ -215,8 +250,14 @@ export default function AcceptOrgInvitationPage() {
     )
   }
 
+  const orgName =
+    invitation.org.org_display_name || invitation.org.org_name || "Organization"
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+      <Helmet>
+        <title>{`Join ${orgName} - tscircuit`}</title>
+      </Helmet>
       <Header />
       <div className="flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-md bg-white rounded-3xl shadow-lg border border-gray-100 p-8">

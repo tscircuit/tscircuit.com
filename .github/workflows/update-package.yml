@@ -38,6 +38,8 @@ jobs:
       - name: Close existing PRs
         run: |
           gh pr list --repo ${{ github.repository }} --state open --author "tscircuitbot" --json number,title --jq '.[] | select(.title | startswith("chore:")) | .number' | xargs -I{} gh pr close {} --comment "Closing in favor of a new update PR"
+        env:
+          GH_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
       - name: Create Pull Request
         id: create-pr
         uses: peter-evans/create-pull-request@v5

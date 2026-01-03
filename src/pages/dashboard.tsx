@@ -130,7 +130,7 @@ export const DashboardPage = () => {
                       <div className="flex gap-2 items-center overflow-x-auto no-scrollbar md:overflow-hidden">
                         {myPackages.slice(0, 3).map((pkg) => (
                           <div key={pkg.package_id}>
-                            <Link
+                            <a
                               href={`/editor?package_id=${pkg.package_id}`}
                               className="text-blue-600 hover:underline"
                             >
@@ -142,7 +142,7 @@ export const DashboardPage = () => {
                                 {pkg.name}
                                 <Edit2 className="w-3 h-3 ml-2" />
                               </Button>
-                            </Link>
+                            </a>
                           </div>
                         ))}
                       </div>

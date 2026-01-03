@@ -1,25 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { GitBranch, MoreHorizontal, GitCommit } from "lucide-react"
+import { GitBranch, GitCommitHorizontal } from "lucide-react"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  getBuildStatus,
+  PackageReleaseOrBuildItemRow,
+  PackageReleaseOrBuildItemRowSkeleton,
+  formatBuildDuration,
+} from "."
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { getBuildStatus, StatusIcon } from "."
-import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
-import { Package, PackageBuild } from "fake-snippets-api/lib/db/schema"
+  Package,
+  PackageBuild,
+  PackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -60,190 +51,112 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
       latestBuildsMap.set(releases[index].package_release_id, query.data)
     }
   })
-  return (
-    <>
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Releases</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto [&>div]:no-scrollbar">
-              <Table className="no-scrollbar">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Release ID</TableHead>
-                    <TableHead>Version</TableHead>
-                    <TableHead>Branch/PR</TableHead>
-                    <TableHead>Latest Build</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading
-                    ? Array.from({ length: 3 }).map((_, i) => (
-                        <TableRow key={i}>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-16" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-12" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-32" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-16" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-8" />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    : releases?.map((release) => {
-                        const latestBuild = latestBuildsMap.get(
-                          release.package_release_id,
-                        )
-                        const { status, label } = getBuildStatus(latestBuild)
-                        return (
-                          <TableRow
-                            key={release.package_release_id}
-                            className="cursor-pointer hover:bg-gray-50 no-scrollbar"
-                            onClick={() => {
-                              setLocation(
-                                `/${pkg.name}/releases/${release.package_release_id}`,
-                              )
-                            }}
-                          >
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <StatusIcon status={status} />
-                                <Badge
-                                  variant={
-                                    status === "success"
-                                      ? "default"
-                                      : status === "error"
-                                        ? "destructive"
-                                        : "secondary"
-                                  }
-                                  className="text-xs"
-                                >
-                                  {label}
-                                </Badge>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                                {release.package_release_id.slice(-8)}
-                              </code>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm font-medium">
-                                {release.version ||
-                                  "v" + release.package_release_id.slice(-6)}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                {pkg?.github_repo_full_name ? (
-                                  <>
-                                    {release.is_pr_preview ? (
-                                      <GitBranch className="w-3 h-3 text-gray-500" />
-                                    ) : (
-                                      <GitCommit className="w-3 h-3 text-gray-500" />
-                                    )}
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      {release.is_pr_preview
-                                        ? `#${release.github_pr_number}`
-                                        : "main"}
-                                    </Badge>
-                                  </>
-                                ) : (
-                                  <span className="text-sm text-gray-500 text-center">
-                                    {" "}
-                                    N/A{" "}
-                                  </span>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="max-w-xs">
-                                {latestBuild ? (
-                                  <p className="text-sm text-gray-600">
-                                    {formatTimeAgo(latestBuild.created_at)}
-                                  </p>
-                                ) : (
-                                  <p className="text-sm text-gray-400">
-                                    No builds
-                                  </p>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-gray-600">
-                                {formatTimeAgo(release.created_at)}
-                              </span>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <MoreHorizontal className="w-3 h-3" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => {
-                                        window.location.href = `/${pkg.name}/releases/${release.package_release_id}`
-                                      }}
-                                    >
-                                      View Release
-                                    </DropdownMenuItem>
-                                    {status !== "error" && (
-                                      <DropdownMenuItem>
-                                        <a
-                                          href={`/${pkg.name}/releases/${latestBuild?.package_release_id}/preview`}
-                                        >
-                                          Preview Release
-                                        </a>
-                                      </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem
-                                      onClick={() => {
-                                        window.location.href = `/${pkg.name}/releases/${release.package_release_id}/builds`
-                                      }}
-                                    >
-                                      View All Builds
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+
+  const renderGitInfo = (release: PackageRelease) => {
+    if (!pkg?.github_repo_full_name) {
+      return <p className="text-sm text-gray-400">No repository linked</p>
+    }
+
+    return (
+      <div className="space-y-0.5">
+        <div className="flex items-center gap-1.5 text-gray-900">
+          <GitBranch className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm font-mono truncate">
+            {release.branch_name ||
+              (release.is_pr_preview
+                ? `pr-${release.github_pr_number}`
+                : "main")}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-gray-900">
+          <GitCommitHorizontal className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm truncate block">
+            <span className="font-mono">
+              {release.package_release_id.slice(0, 7)}
+            </span>
+            {release.commit_message && (
+              <span className="ml-1.5 text-gray-600 truncate">
+                {release.commit_message.slice(0, 40)}
+                {release.commit_message.length > 40 ? "..." : ""}
+              </span>
+            )}
+          </span>
+        </div>
       </div>
-    </>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader className="px-4 sm:px-6 pb-2 pt-4 sm:pt-6">
+          <CardTitle className="text-base sm:text-lg">
+            Recent Releases
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y divide-gray-200">
+            {isLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <PackageReleaseOrBuildItemRowSkeleton key={i} />
+                ))
+              : releases?.map((release) => {
+                  const latestBuild = latestBuildsMap.get(
+                    release.package_release_id,
+                  )
+                  const { status, label } = getBuildStatus(latestBuild)
+                  const buildDuration = formatBuildDuration(
+                    latestBuild?.user_code_job_started_at,
+                    latestBuild?.user_code_job_completed_at,
+                  )
+
+                  return (
+                    <PackageReleaseOrBuildItemRow
+                      key={release.package_release_id}
+                      package_release_or_build_id={
+                        release.version || release.package_release_id
+                      }
+                      status={status}
+                      statusLabel={label}
+                      duration={buildDuration}
+                      createdAt={release.created_at}
+                      isLatest={release.is_latest}
+                      onClick={() => {
+                        setLocation(
+                          `/${pkg.name}/releases/${release.package_release_id}`,
+                        )
+                      }}
+                      middleContent={renderGitInfo(release)}
+                      dropdownActions={[
+                        {
+                          label: "View Release",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}`,
+                            ),
+                        },
+                        {
+                          label: "Preview Release",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}/preview`,
+                            ),
+                          hidden: status === "error",
+                        },
+                        {
+                          label: "View All Builds",
+                          onClick: () =>
+                            setLocation(
+                              `/${pkg.name}/releases/${release.package_release_id}/builds`,
+                            ),
+                        },
+                      ]}
+                    />
+                  )
+                })}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

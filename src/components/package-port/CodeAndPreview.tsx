@@ -15,6 +15,8 @@ import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 
 interface Props {
   pkg?: Package
@@ -39,11 +41,37 @@ export interface CodeAndPreviewState {
 export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
-
+  const sessionToken = useGlobalStore((s) => s.session?.token)
+  const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
     [urlParams.template],
   )
+
+  const { data: allReleases } = usePackageReleasesByPackageId(
+    pkg?.package_id ?? null,
+  )
+
+  const latestVersion = useMemo(() => {
+    if (!allReleases || allReleases.length === 0) return pkg?.latest_version
+    const sorted = [...allReleases].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    return sorted[0].version
+  }, [allReleases, pkg?.latest_version])
+
+  const releaseIdForVersion = useMemo(() => {
+    if (!versionFromUrl || !allReleases) return null
+    const release = allReleases.find((r) => r.version === versionFromUrl)
+    return release?.package_release_id ?? null
+  }, [versionFromUrl, allReleases])
+
+  const isViewingOlderVersion = useMemo(() => {
+    if (!versionFromUrl || !latestVersion) return false
+    if (!releaseIdForVersion) return false
+    return versionFromUrl !== latestVersion
+  }, [versionFromUrl, latestVersion, releaseIdForVersion])
 
   const [state, setState] = useState<CodeAndPreviewState>({
     showPreview: true,
@@ -92,6 +120,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     updateLastUpdated: () => {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
+    releaseId: releaseIdForVersion,
   })
 
   const hasUnsavedChanges = useMemo(
@@ -176,6 +205,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         previewOpen={state.showPreview}
         files={localFiles}
         packageFilesMeta={packageFilesMeta}
+        isViewingOlderVersion={isViewingOlderVersion}
+        viewingVersion={versionFromUrl}
+        latestVersion={latestVersion}
       />
       <div
         className={`flex flex-1 min-h-0 ${
@@ -226,10 +258,11 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           )}
         >
           <SuspenseRunFrame
+            tscircuitSessionToken={sessionToken}
             showFileMenu={false}
             showRunButton
             forceLatestEvalVersion
-            isLoadingFiles={isLoading}
+            isLoadingFiles={isLoading || !isFullyLoaded}
             onRenderStarted={() =>
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }

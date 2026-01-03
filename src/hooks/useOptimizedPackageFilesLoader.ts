@@ -4,6 +4,7 @@ import { usePackageFiles } from "@/hooks/use-package-files"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useState, useMemo } from "react"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useGlobalStore } from "./use-global-store"
 
 function blobToBlobUrl(blob: Blob): string {
   return URL.createObjectURL(blob)
@@ -25,14 +26,16 @@ export interface OptimizedLoadingState {
 export function useOptimizedPackageFilesLoader(
   pkg?: Package,
   priorityFilePath?: string | null,
+  releaseId?: string | null,
 ) {
   const axios = useAxios()
   const apiBaseUrl = useApiBaseUrl()
   const [loadedFiles, setLoadedFiles] = useState<Map<string, PackageFile>>(
     new Map(),
   )
+  const sessionToken = useGlobalStore((s) => s.session?.token)
 
-  const pkgFiles = usePackageFiles(pkg?.latest_package_release_id)
+  const pkgFiles = usePackageFiles(releaseId ?? pkg?.latest_package_release_id)
 
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath
@@ -78,7 +81,13 @@ export function useOptimizedPackageFilesLoader(
       if (packageFile?.is_text === false) {
         // Binary file - use download endpoint to get binary content
         const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${priorityFileData.package_file_id}`
-        const binaryResponse = await fetch(downloadUrl)
+        const binaryResponse = await fetch(downloadUrl, {
+          headers: sessionToken
+            ? {
+                Authorization: `Bearer ${sessionToken}`,
+              }
+            : {},
+        })
         const blob = await binaryResponse.blob()
         content = blobToBlobUrl(blob)
       } else {
@@ -118,7 +127,13 @@ export function useOptimizedPackageFilesLoader(
           if (packageFile?.is_text === false) {
             // Binary file - use download endpoint to get binary content
             const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
-            const binaryResponse = await fetch(downloadUrl)
+            const binaryResponse = await fetch(downloadUrl, {
+              headers: sessionToken
+                ? {
+                    Authorization: `Bearer ${sessionToken}`,
+                  }
+                : {},
+            })
             const blob = await binaryResponse.blob()
             content = blobToBlobUrl(blob)
           } else {

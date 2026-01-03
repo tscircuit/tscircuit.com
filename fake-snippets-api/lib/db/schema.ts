@@ -261,6 +261,7 @@ export const packageReleaseSchema = z.object({
   has_transpiled: z.boolean().default(false),
   transpilation_error: z.string().nullable().optional(),
   fs_sha: z.string().nullable().optional(),
+  ready_to_build: z.boolean().default(false),
   // Build Status and Display
   display_status: z
     .enum(["pending", "building", "complete", "error"])
@@ -279,11 +280,11 @@ export const packageReleaseSchema = z.object({
 
   // User Code Job Process
   ext_user_code_job_id: z.string().nullable().default(null),
-  user_code_started_at: z.string().datetime().nullable().default(null),
-  user_code_completed_at: z.string().datetime().nullable().default(null),
-  user_code_build_logs: z.array(z.any()).nullable().default(null),
-  user_code_error: errorSchema.nullable().default(null),
-  user_code_log_stream_url: z.string().nullable().default(null),
+  user_code_job_started_at: z.string().datetime().nullable().default(null),
+  user_code_job_completed_at: z.string().datetime().nullable().default(null),
+  user_code_job_completed_logs: z.array(z.any()).nullable().default(null),
+  user_code_job_error: errorSchema.nullable().default(null),
+  user_code_job_log_stream_url: z.string().nullable().default(null),
 
   // Circuit JSON Build Process
   circuit_json_build_display_status: z
@@ -462,11 +463,11 @@ export const packageBuildSchema = z.object({
   build_error_last_updated_at: z.string().datetime(),
   preview_url: z.string().nullable().optional(),
   build_logs: z.string().nullable().optional(),
-  user_code_started_at: z.string().datetime().nullable().optional(),
-  user_code_completed_at: z.string().datetime().nullable().optional(),
-  user_code_error: z.any().nullable().optional(),
-  user_code_build_logs: z.array(log).nullable(),
-  user_code_log_stream_url: z.string().nullable().optional(),
+  user_code_job_started_at: z.string().datetime().nullable().optional(),
+  user_code_job_completed_at: z.string().datetime().nullable().optional(),
+  user_code_job_error: z.any().nullable().optional(),
+  user_code_job_completed_logs: z.array(log).nullable().optional(),
+  user_code_job_log_stream_url: z.string().nullable().optional(),
 })
 export type PackageBuild = z.infer<typeof packageBuildSchema>
 
@@ -526,6 +527,7 @@ export const publicOrgSchema = z.object({
   package_count: z.number(),
   avatar_url: z.string().nullable().optional(),
   github_handle: z.string().nullable(),
+  github_installation_handles: z.array(z.string()).optional(),
   tscircuit_handle: z.string().nullable(),
   created_at: z.string(),
   user_permissions: userPermissionsSchema.optional(),
@@ -565,6 +567,22 @@ export const tscircuitHandleSchema = z
   .min(1)
   .max(40)
   .regex(
-    /^[0-9A-Za-z]([0-9A-Za-z_-]*[0-9A-Za-z])?$/,
-    "tscircuit_handle must start and end with a letter or number, and may only contain letters, numbers, underscores, and hyphens",
+    /^[0-9a-z_-]+$/,
+    "tscircuit_handle must be lowercase and may only contain lowercase letters, numbers, underscores, and hyphens",
   )
+
+export const tscircuitHandleStrictSchema = z
+  .string()
+  .min(3)
+  .max(40)
+  .regex(
+    /^[0-9a-z][0-9a-z_-]*[0-9a-z]$/,
+    "tscircuit_handle must be lowercase, start and end with a lowercase letter or number, and may only contain lowercase letters, numbers, underscores, and hyphens",
+  )
+
+export const memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
+  joined_at: z.string(),
+  org_member_permissions: userPermissionsSchema,
+  avatar_url: z.string().nullable().optional(),
+})
+export type Member = z.infer<typeof memberSchema>

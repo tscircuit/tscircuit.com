@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { getBuildStatus } from "@/components/preview"
+import { useOrganization } from "@/hooks/use-organization"
+import { useMemo } from "react"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -63,6 +65,24 @@ export default function ReleaseDetailPage() {
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation()
   const { status } = getBuildStatus(latestBuild ?? null)
+
+  const { organization } = useOrganization(
+    pkg?.owner_org_id
+      ? { orgId: String(pkg.owner_org_id) }
+      : pkg?.org_owner_tscircuit_handle
+        ? { orgTscircuitHandle: pkg.org_owner_tscircuit_handle }
+        : {},
+  )
+
+  const canManagePackage = useMemo(() => {
+    if (!pkg) return true
+    if (!session) return false
+    if (organization?.owner_account_id === session?.account_id) return true
+    if (organization?.user_permissions?.can_manage_org) return true
+    if (pkg?.creator_account_id === session?.account_id) return true
+    return false
+  }, [session, pkg, organization, session?.account_id, pkg?.creator_account_id])
+
   if (isLoadingPackage || isLoadingRelease) {
     return (
       <>
@@ -151,7 +171,7 @@ export default function ReleaseDetailPage() {
               </div>
 
               {/* Rebuild Button */}
-              {session?.github_username === pkg.owner_github_username && (
+              {canManagePackage && (
                 <Button
                   variant="outline"
                   size="sm"

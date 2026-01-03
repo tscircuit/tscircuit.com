@@ -25,7 +25,7 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
-                { name: "Organization login", href: "/org-login" },
+                { name: "Sign In", href: "/login" },
                 {
                   name: "My Profile",
                   href: `/${session?.github_username}`,

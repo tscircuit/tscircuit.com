@@ -543,65 +543,85 @@ export default function OrganizationSettingsPage() {
           {/* Main Content */}
           <div className="max-w-7xl mx-auto space-y-8">
             {/* GitHub Connection */}
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  GitHub connection
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Install the tscircuit GitHub app for this organization to link
-                  packages to repositories and enable PR previews.
-                </p>
-              </div>
+            {canManageOrg && (
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+                <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    GitHub connection
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Install the tscircuit GitHub app for this organization to
+                    link packages to repositories and enable PR previews.
+                  </p>
+                </div>
 
-              <div className="p-6 lg:p-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="p-3 bg-gray-100 rounded-lg">
-                      <Github className="h-5 w-5 text-gray-700" />
+                <div className="p-6 lg:p-8">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-gray-100 rounded-lg">
+                        <Github className="h-5 w-5 text-gray-700" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Status</p>
+                        <p className="text-base font-semibold text-gray-900">
+                          {organization.github_installation_handles?.length
+                            ? `Connected to ${organization.github_installation_handles.length} GitHub account${organization.github_installation_handles.length > 1 ? "s" : ""}`
+                            : "Not connected"}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Use the button below to connect or update the GitHub
+                          installation for this organization.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <p className="text-base font-semibold text-gray-900">
-                        {organization.github_handle
-                          ? `Connected as @${organization.github_handle}`
-                          : "Not connected"}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Use the button below to connect or update the GitHub
-                        installation for this organization.
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                    <Button
-                      onClick={handleConnectGithub}
-                      className="sm:w-auto w-full"
-                    >
-                      <Github className="h-4 w-4 mr-2" />
-                      {organization.github_handle
-                        ? "Manage GitHub connection"
-                        : "Connect GitHub"}
-                    </Button>
-                    {organization.github_handle && (
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                       <Button
-                        variant="outline"
+                        onClick={handleConnectGithub}
                         className="sm:w-auto w-full"
-                        onClick={() =>
-                          window.open(
-                            `https://github.com/${organization.github_handle}`,
-                            "_blank",
-                          )
-                        }
                       >
-                        View on GitHub
+                        <Github className="h-4 w-4 mr-2" />
+                        {organization.github_installation_handles?.length
+                          ? "Manage GitHub connection"
+                          : "Connect GitHub"}
                       </Button>
-                    )}
+                    </div>
                   </div>
+
+                  {/* Connected GitHub accounts */}
+                  {organization.github_installation_handles &&
+                    organization.github_installation_handles.length > 0 && (
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-3">
+                          Connected GitHub accounts
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          {organization.github_installation_handles.map(
+                            (handle) => (
+                              <a
+                                key={handle}
+                                href={`https://github.com/${handle}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                              >
+                                <GithubAvatarWithFallback
+                                  username={handle}
+                                  className="h-6 w-6"
+                                  fallbackClassName="text-xs"
+                                />
+                                <span className="text-sm font-medium text-gray-900">
+                                  @{handle}
+                                </span>
+                              </a>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Organization Profile */}
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -617,7 +637,7 @@ export default function OrganizationSettingsPage() {
               <div className="p-6 lg:p-8">
                 <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
                   <GithubAvatarWithFallback
-                    username={organization.github_handle}
+                    username={organization.tscircuit_handle}
                     fallback={organization.name}
                     imageUrl={organization.avatar_url || undefined}
                     className="shadow-sm size-24 md:size-16"
@@ -902,7 +922,8 @@ export default function OrganizationSettingsPage() {
                               className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
                             >
                               <GithubAvatarWithFallback
-                                username={member.github_username}
+                                username={member.tscircuit_handle}
+                                imageUrl={member.avatar_url}
                                 fallback={
                                   member.tscircuit_handle || member.account_id
                                 }

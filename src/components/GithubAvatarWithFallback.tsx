@@ -23,12 +23,7 @@ export const GithubAvatarWithFallback = ({
   return (
     <Avatar className={className}>
       <AvatarImage
-        src={
-          imageUrl ||
-          (username
-            ? `https://github.com/${username}.png${size ? `?size=${size}` : ""}`
-            : undefined)
-        }
+        src={imageUrl ?? undefined}
         alt={`${username || fallback} avatar`}
         className="object-cover"
       />

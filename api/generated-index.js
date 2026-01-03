@@ -317,6 +317,30 @@ async function handleOrganizationSettings(req, res) {
   res.setHeader("Vary", "Accept-Encoding")
   res.status(200).send(html)
 }
+
+async function handleOrganizationInvite(req, res) {
+  const parts = req.url.split("?")[0].split("/")
+  const [_, orgs, invite] = parts
+
+  if (orgs !== "orgs" || invite !== "invite") {
+    throw new Error("Not an organization invite route")
+  }
+
+  const title = "Organization Invitation - tscircuit"
+  const description =
+    "Accept your invitation to join an organization on tscircuit."
+
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: `${BASE_URL}/orgs/invite`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
 async function handleCustomPage(req, res) {
   const [_, page] = req.url.split("?")[0].split("/")
 
@@ -644,6 +668,13 @@ export default async function handler(req, res) {
     } catch (e) {
       console.warn(e)
     }
+  }
+
+  try {
+    await handleOrganizationInvite(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
   }
 
   try {

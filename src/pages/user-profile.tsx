@@ -15,7 +15,7 @@ import type React from "react"
 import { useState } from "react"
 import { useQuery } from "react-query"
 import NotFoundPage from "./404"
-import { useParams } from "wouter"
+import { useParams, Link } from "wouter"
 import {
   Select,
   SelectContent,
@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Box, Star, Building2 } from "lucide-react"
+import { Box, Star, Building2, Settings } from "lucide-react"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { ConnectedPackagesList } from "@/components/preview/ConnectedPackagesList"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
@@ -205,18 +205,28 @@ export const UserProfilePage = ({ org }: { org: PublicOrgSchema }) => {
               </div>
             </div>
           </div>
-          {githubUsername && (
-            <a
-              href={`https://github.com/${githubUsername}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="outline" className="w-full md:w-auto">
-                <GitHubLogoIcon className="mr-2" />
-                View GitHub Profile
-              </Button>
-            </a>
-          )}
+          <div className="flex flex-col md:flex-row gap-2">
+            {githubUsername && (
+              <a
+                href={`https://github.com/${githubUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="outline" className="w-full md:w-auto">
+                  <GitHubLogoIcon className="mr-2" />
+                  GitHub Profile
+                </Button>
+              </a>
+            )}
+            {isCurrentUserProfile && (
+              <Link href="/settings">
+                <Button variant="outline" className="w-full md:w-auto">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
         <Tabs
           defaultValue="all"

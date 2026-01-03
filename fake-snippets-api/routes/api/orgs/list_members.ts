@@ -1,9 +1,6 @@
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import {
-  accountSchema,
-  userPermissionsSchema,
-} from "fake-snippets-api/lib/db/schema"
+import { memberSchema } from "fake-snippets-api/lib/db/schema"
 
 export default withRouteSpec({
   methods: ["GET", "POST"],
@@ -12,12 +9,7 @@ export default withRouteSpec({
   }),
   auth: "optional_session",
   jsonResponse: z.object({
-    org_members: z.array(
-      accountSchema.omit({ shippingInfo: true }).extend({
-        joined_at: z.string(),
-        org_member_permissions: userPermissionsSchema,
-      }),
-    ),
+    org_members: z.array(memberSchema),
   }),
 })(async (req, ctx) => {
   const params = req.commonParams as { org_id?: string }
@@ -44,6 +36,16 @@ export default withRouteSpec({
         (m) => m.org_id === org.org_id && m.account_id === currentAccountId,
       ))
 
+  const getPersonalOrgAvatarUrl = (account: {
+    personal_org_id: string | null
+  }) => {
+    if (!account.personal_org_id) return null
+    const personalOrg = ctx.db.organizations.find(
+      (o) => o.org_id === account.personal_org_id,
+    )
+    return personalOrg?.avatar_url ?? null
+  }
+
   const members = ctx.db.orgAccounts
     .map((m) => {
       if (m.org_id !== org.org_id) return undefined
@@ -62,6 +64,7 @@ export default withRouteSpec({
         ...account,
         user_permissions: memberOrg,
         joined_at: m.created_at,
+        avatar_url: getPersonalOrgAvatarUrl(account),
       }
     })
     .filter(
@@ -89,6 +92,7 @@ export default withRouteSpec({
           ...owner,
           user_permissions: memberOrg,
           joined_at: org.created_at,
+          avatar_url: getPersonalOrgAvatarUrl(owner),
         },
       ]
     }

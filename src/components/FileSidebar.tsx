@@ -53,6 +53,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   const [selectedFolderForCreation, setSelectedFolderForCreation] = useState<
     string | null
   >(null)
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const selectedItemId = useMemo(() => currentFile || "", [currentFile])
   const canModifyFiles = Boolean(pkg) && !isLoadingFiles
 
@@ -72,6 +73,8 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     canModifyFiles,
     setErrorMessage,
     setSelectedFolderForCreation,
+    openDropdownId,
+    setOpenDropdownId,
   })
 
   const getCurrentFolderPath = (): string => {

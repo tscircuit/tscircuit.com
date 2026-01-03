@@ -95,6 +95,12 @@ export default function PackageHeader({
                   <Link
                     href={`/${packageNameWithOwner}`}
                     className="text-blue-600 hover:underline"
+                    onClick={() =>
+                      setTimeout(
+                        () => window.dispatchEvent(new Event("popstate")),
+                        0,
+                      )
+                    }
                   >
                     {packageName}
                   </Link>

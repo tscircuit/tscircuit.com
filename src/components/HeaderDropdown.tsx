@@ -6,32 +6,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
 import { ChevronDown, Upload, Zap } from "lucide-react"
 import { Link } from "wouter"
+import { templateCatalogue } from "@/lib/get-snippet-template"
 
 export default function HeaderDropdown() {
   const [open, setOpen] = useState(false)
-  const blankTemplates = [
-    { name: "Blank Circuit Board", type: "board", badgeColor: "bg-blue-500" },
-    {
-      name: "Blank Circuit Module",
-      type: "package",
-      badgeColor: "bg-green-500",
-    },
-    {
-      name: "Blank 3D Model",
-      type: "model",
-      badgeColor: "bg-purple-500 ",
-      disabled: true,
-    },
-    {
-      name: "Blank Footprint",
-      type: "footprint",
-      badgeColor: "bg-pink-500 ",
-      disabled: true,
-    },
-  ]
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
@@ -60,15 +40,12 @@ export default function HeaderDropdown() {
             Quickstart Templates
           </Link>
         </DropdownMenuItem>
-        {blankTemplates.map((template, index) => (
-          <DropdownMenuItem key={index} asChild disabled={template.disabled}>
+        {templateCatalogue.map((template) => (
+          <DropdownMenuItem key={template.templateKey} asChild>
             <a
-              href={`/editor?template=${template.name.toLowerCase().replace(/ /g, "-")}`}
-              className={cn(
-                "flex items-center cursor-pointer",
-                template.disabled && "opacity-50 cursor-not-allowed",
-              )}
-              onClick={() => !template.disabled && setOpen(false)}
+              href={`/editor?template=${template.templateKey}`}
+              className="flex items-center cursor-pointer"
+              onClick={() => setOpen(false)}
             >
               <span
                 className={`w-2 h-2 rounded-full mr-2 ${template.badgeColor}`}

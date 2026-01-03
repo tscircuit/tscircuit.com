@@ -45,14 +45,14 @@ export const ConnectedRepoOverview = ({
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
   const userCodeJobInProgress = Boolean(
-    packageRelease.user_code_started_at &&
-      !packageRelease.user_code_completed_at &&
-      !packageRelease.user_code_error,
+    packageRelease.user_code_job_started_at &&
+      !packageRelease.user_code_job_completed_at &&
+      !packageRelease.user_code_job_error,
   )
 
   // Use custom hook to manage SSE log streaming
   const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
-    packageRelease.user_code_log_stream_url,
+    packageRelease.user_code_job_log_stream_url,
     userCodeJobInProgress,
     packageRelease.package_release_id,
   )
@@ -136,21 +136,21 @@ export const ConnectedRepoOverview = ({
   }
 
   const buildDuration = (() => {
-    const userCodeDuration = packageBuild?.user_code_started_at
+    const userCodeJobDuration = packageBuild?.user_code_job_started_at
       ? Math.floor(
           (new Date(
-            packageBuild.user_code_completed_at || new Date(),
+            packageBuild.user_code_job_completed_at || new Date(),
           ).getTime() -
-            new Date(packageBuild.user_code_started_at).getTime()) /
+            new Date(packageBuild.user_code_job_started_at).getTime()) /
             1000,
         )
       : 0
 
-    if (!packageBuild?.user_code_started_at) {
+    if (!packageBuild?.user_code_job_started_at) {
       return null
     }
 
-    return userCodeDuration
+    return userCodeJobDuration
   })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -299,7 +299,7 @@ export const ConnectedRepoOverview = ({
                 </p>
                 <p
                   className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${packageBuild.user_code_started_at}`}
+                  title={`Build started at ${packageBuild.user_code_job_started_at}`}
                 >
                   {buildDuration !== null ? buildDuration : "N/A"}s
                 </p>
@@ -342,9 +342,9 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
                 />
-                {packageBuild.user_code_error ? (
+                {packageBuild.user_code_job_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.user_code_completed_at ? (
+                ) : packageBuild.user_code_job_completed_at ? (
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 ) : userCodeJobInProgress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
@@ -355,27 +355,27 @@ export const ConnectedRepoOverview = ({
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
-                  packageBuild.user_code_started_at,
-                  packageBuild.user_code_completed_at,
+                  packageBuild.user_code_job_started_at,
+                  packageBuild.user_code_job_completed_at,
                 ) && (
                   <span className="text-sm text-gray-600">
                     {getStepDuration(
-                      packageBuild.user_code_started_at,
-                      packageBuild.user_code_completed_at,
+                      packageBuild.user_code_job_started_at,
+                      packageBuild.user_code_job_completed_at,
                     )}
                   </span>
                 )}
                 <Badge
                   variant={
                     getStepStatus(
-                      packageBuild.user_code_error?.message || null,
-                      packageBuild.user_code_completed_at,
+                      packageBuild.user_code_job_error?.message || null,
+                      packageBuild.user_code_job_completed_at,
                       userCodeJobInProgress,
                     ) === "success"
                       ? "default"
                       : getStepStatus(
-                            packageBuild.user_code_error?.message || null,
-                            packageBuild.user_code_completed_at,
+                            packageBuild.user_code_job_error?.message || null,
+                            packageBuild.user_code_job_completed_at,
                             userCodeJobInProgress,
                           ) === "error"
                         ? "destructive"
@@ -383,9 +383,9 @@ export const ConnectedRepoOverview = ({
                   }
                   className="text-xs"
                 >
-                  {packageBuild.user_code_error
+                  {packageBuild.user_code_job_error
                     ? "Failed"
-                    : packageBuild.user_code_completed_at
+                    : packageBuild.user_code_job_completed_at
                       ? "Completed"
                       : userCodeJobInProgress
                         ? "Running"
@@ -397,14 +397,14 @@ export const ConnectedRepoOverview = ({
           <CollapsibleContent>
             <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
               <div className="font-mono text-xs space-y-2">
-                {packageBuild.user_code_error && (
+                {packageBuild.user_code_job_error && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
                     <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageRelease.user_code_error)}
+                    {getErrorMessage(packageBuild.user_code_job_error)}
                   </div>
                 )}
                 {userCodeJobInProgress &&
-                  packageBuild.user_code_log_stream_url && (
+                  packageBuild.user_code_job_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span className="text-xs font-medium">
@@ -412,10 +412,10 @@ export const ConnectedRepoOverview = ({
                       </span>
                     </div>
                   )}
-                {packageBuild.user_code_build_logs &&
-                  packageBuild.user_code_build_logs.length > 0 && (
+                {packageBuild.user_code_job_completed_logs &&
+                  packageBuild.user_code_job_completed_logs.length > 0 && (
                     <>
-                      {packageBuild.user_code_build_logs.map(
+                      {packageBuild.user_code_job_completed_logs.map(
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
@@ -440,17 +440,17 @@ export const ConnectedRepoOverview = ({
                     <div ref={logsEndRef} />
                   </>
                 )}
-                {packageBuild.user_code_build_logs?.length === 0 &&
+                {packageBuild.user_code_job_completed_logs?.length === 0 &&
                   usercodeStreamedLogs.length === 0 &&
-                  !packageBuild.user_code_error &&
+                  !packageBuild.user_code_job_error &&
                   !userCodeJobInProgress && (
                     <div className="text-gray-500">No logs available</div>
                   )}
-                {packageBuild.user_code_log_stream_url &&
+                {packageBuild.user_code_job_log_stream_url &&
                   !userCodeJobInProgress && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <a
-                        href={packageBuild.user_code_log_stream_url}
+                        href={packageBuild.user_code_job_log_stream_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
