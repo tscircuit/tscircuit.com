@@ -12,11 +12,11 @@ export const findMainEntrypointFileFromTscircuitConfig = (
       const config = JSON.parse(configFile.content)
 
       if (config && typeof config.mainEntrypoint === "string") {
-        const componentPath = config.mainEntrypoint
+        const mainComponentPath = config.mainEntrypoint
 
-        const normalizedPath = componentPath.startsWith("./")
-          ? componentPath.substring(2)
-          : componentPath
+        const normalizedPath = mainComponentPath.startsWith("./")
+          ? mainComponentPath.substring(2)
+          : mainComponentPath
 
         return files.find((file) => file.path === normalizedPath) ?? null
       }
@@ -36,11 +36,11 @@ export const findPreviewComponentFileFromTscircuitConfig = (
       const config = JSON.parse(configFile.content)
 
       if (config && typeof config.previewComponentPath === "string") {
-        const componentPath = config.previewComponentPath
+        const previewComponentPath = config.previewComponentPath
 
-        const normalizedPath = componentPath.startsWith("./")
-          ? componentPath.substring(2)
-          : componentPath
+        const normalizedPath = previewComponentPath.startsWith("./")
+          ? previewComponentPath.substring(2)
+          : previewComponentPath
 
         return files.find((file) => file.path === normalizedPath) ?? null
       }
