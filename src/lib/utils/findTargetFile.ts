@@ -89,8 +89,8 @@ export const findTargetFile = ({
 
   if (!targetFile) {
     targetFile =
-      findPreviewComponentFileFromTscircuitConfig(files) ??
-      findMainEntrypointFileFromTscircuitConfig(files)
+      findMainEntrypointFileFromTscircuitConfig(files) ??
+      findPreviewComponentFileFromTscircuitConfig(files)
   }
   if (!targetFile) {
     targetFile =
