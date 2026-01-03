@@ -6,40 +6,48 @@ export const findMainEntrypointFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
-  if (!configFile) return null
 
-  try {
-    const config = JSON.parse(configFile.content)
-    if (!config?.mainEntrypoint) return null
+  if (configFile) {
+    try {
+      const config = JSON.parse(configFile.content)
 
-    const normalizedPath = config.mainEntrypoint.startsWith("./")
-      ? config.mainEntrypoint.substring(2)
-      : config.mainEntrypoint
+      if (config && typeof config.mainEntrypoint === "string") {
+        const componentPath = config.mainEntrypoint
 
-    return files.find((file) => file.path === normalizedPath) ?? null
-  } catch {
-    return null
+        const normalizedPath = componentPath.startsWith("./")
+          ? componentPath.substring(2)
+          : componentPath
+
+        return files.find((file) => file.path === normalizedPath) ?? null
+      }
+    } catch {}
   }
+
+  return null
 }
 
 export const findPreviewComponentFileFromTscircuitConfig = (
   files: PackageFile[],
 ): PackageFile | null => {
   const configFile = files.find((file) => file.path === "tscircuit.config.json")
-  if (!configFile) return null
 
-  try {
-    const config = JSON.parse(configFile.content)
-    if (!config?.previewComponentPath) return null
+  if (configFile) {
+    try {
+      const config = JSON.parse(configFile.content)
 
-    const normalizedPath = config.previewComponentPath.startsWith("./")
-      ? config.previewComponentPath.substring(2)
-      : config.previewComponentPath
+      if (config && typeof config.previewComponentPath === "string") {
+        const componentPath = config.previewComponentPath
 
-    return files.find((file) => file.path === normalizedPath) ?? null
-  } catch {
-    return null
+        const normalizedPath = componentPath.startsWith("./")
+          ? componentPath.substring(2)
+          : componentPath
+
+        return files.find((file) => file.path === normalizedPath) ?? null
+      }
+    } catch {}
   }
+
+  return null
 }
 
 export const findTargetFile = ({
