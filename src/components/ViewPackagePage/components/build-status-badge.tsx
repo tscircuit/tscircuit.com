@@ -1,5 +1,5 @@
 import { Link, useParams } from "wouter"
-import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 import {
   Tooltip,
   TooltipContent,
@@ -10,7 +10,7 @@ import { usePackageBuild } from "@/hooks/use-package-builds"
 import { getBuildStatus, StatusIcon } from "@/components/preview"
 
 interface BuildStatusBadgeProps {
-  packageRelease: PackageRelease
+  packageRelease: PublicPackageRelease
 }
 
 export const BuildStatusBadge = ({ packageRelease }: BuildStatusBadgeProps) => {

@@ -24,7 +24,7 @@ import { useLocation } from "wouter"
 import {
   Package,
   PackageFile,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
@@ -40,7 +40,7 @@ interface MainContentHeaderProps {
   currentVersion?: string | null
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
-  packageRelease?: PackageRelease
+  packageRelease?: PublicPackageRelease
 }
 
 export default function MainContentHeader({

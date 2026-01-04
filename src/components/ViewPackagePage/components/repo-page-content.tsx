@@ -21,6 +21,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import type {
   Package,
   PackageFile as ApiPackageFile,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
@@ -37,7 +38,7 @@ interface RepoPageContentProps {
   packageFiles?: PackageFile[]
   importantFilePaths?: string[]
   packageInfo?: Package
-  packageRelease?: import("fake-snippets-api/lib/db/schema").PackageRelease
+  packageRelease?: PublicPackageRelease
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
   arePackageFilesFetched?: boolean
