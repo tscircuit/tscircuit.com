@@ -64,7 +64,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
           <span className="text-sm font-mono truncate">
             {release.github_branch_name ||
               (release.is_pr_preview
-                ? `pr-${release.github_pr_number}`
+                ? `${release.github_pr_number ? `#${release.github_pr_number}` : "Unknown PR"}`
                 : "main")}
           </span>
         </div>

@@ -141,12 +141,14 @@ export const PackageReleaseOrBuildItemRow = ({
       </div>
 
       {/* Desktop Layout - ID Column */}
-      <div className="hidden sm:block sm:min-w-[140px] sm:max-w-[200px]">
+      <div className="hidden sm:block w-[140px] flex-shrink-0 overflow-hidden">
         <p className="text-sm font-medium text-gray-900 truncate">
           {package_release_or_build_id}
         </p>
-        <div className="flex items-center">
-          <span className="text-sm text-gray-500">{subtitle}</span>
+        <div className="flex items-center gap-1">
+          {subtitle && (
+            <span className="text-sm text-gray-500">{subtitle}</span>
+          )}
           {isLatest && (
             <span className="text-sm font-medium text-blue-500">Latest</span>
           )}
@@ -154,39 +156,35 @@ export const PackageReleaseOrBuildItemRow = ({
       </div>
 
       {/* Desktop Layout - Status Column */}
-      <div className="hidden sm:flex items-center gap-4">
-        <div className="flex-shrink-0 w-[100px]">
-          <div className="flex items-center gap-1.5">
-            <StatusIcon status={status} />
-            <span
-              className={`text-sm font-medium ${
-                status === "success"
-                  ? "text-green-500"
-                  : status === "error"
-                    ? "text-red-500"
-                    : status === "building"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-              }`}
-            >
-              {statusLabel}
-            </span>
-          </div>
-          <p className="text-sm text-gray-500 tabular-nums">
-            {duration || "—"}
-          </p>
+      <div className="hidden sm:block w-[100px] flex-shrink-0">
+        <div className="flex items-center gap-1.5">
+          <StatusIcon status={status} />
+          <span
+            className={`text-sm font-medium ${
+              status === "success"
+                ? "text-green-500"
+                : status === "error"
+                  ? "text-red-500"
+                  : status === "building"
+                    ? "text-blue-500"
+                    : "text-gray-500"
+            }`}
+          >
+            {statusLabel}
+          </span>
         </div>
+        <p className="text-sm text-gray-500 tabular-nums">{duration || "—"}</p>
       </div>
 
       {/* Desktop Layout - Middle Content (optional, e.g., git info) */}
       {middleContent && (
-        <div className="hidden sm:block flex-1 sm:min-w-[200px]">
+        <div className="hidden sm:block flex-1 min-w-0 overflow-hidden">
           {middleContent}
         </div>
       )}
 
       {/* Desktop Layout - Time and Actions */}
-      <div className="hidden sm:flex items-center justify-end gap-3 flex-1">
+      <div className="hidden sm:flex items-center justify-end gap-3 flex-shrink-0">
         <span className="text-sm text-gray-600 whitespace-nowrap">
           {formatTimeAgo(createdAt)}
         </span>
@@ -240,19 +238,19 @@ export const PackageReleaseOrBuildItemRowSkeleton = () => (
         <Skeleton className="h-7 w-7 rounded" />
       </div>
     </div>
-    <div className="hidden sm:block sm:min-w-[140px] sm:max-w-[200px]">
+    <div className="hidden sm:block w-[140px] flex-shrink-0">
       <Skeleton className="h-5 w-20 mb-1" />
       <Skeleton className="h-4 w-16" />
     </div>
-    <div className="hidden sm:block flex-shrink-0 w-[100px]">
+    <div className="hidden sm:block w-[100px] flex-shrink-0">
       <Skeleton className="h-5 w-16 mb-1" />
       <Skeleton className="h-4 w-12" />
     </div>
-    <div className="hidden sm:block flex-1">
+    <div className="hidden sm:block flex-1 min-w-0">
       <Skeleton className="h-4 w-24 mb-1" />
       <Skeleton className="h-4 w-32" />
     </div>
-    <div className="hidden sm:flex items-center justify-end gap-3 flex-1">
+    <div className="hidden sm:flex items-center justify-end gap-3 flex-shrink-0">
       <Skeleton className="h-4 w-24" />
       <Skeleton className="h-6 w-6 rounded-full" />
     </div>

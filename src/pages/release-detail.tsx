@@ -8,6 +8,12 @@ import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOvervie
 import Header from "@/components/Header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Calendar, GitBranch, RefreshCw } from "lucide-react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
@@ -149,25 +155,36 @@ export default function ReleaseDetailPage() {
             {/* Header Content */}
             <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                {packageRelease.is_pr_preview && (
-                  <a
-                    href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-gray-800 transition-colors"
-                  >
-                    <GitBranch className="w-4 h-4" />
-                    <Badge variant="outline" className="text-xs">
-                      PR #{packageRelease.github_pr_number}
-                    </Badge>
-                  </a>
-                )}
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   <span>
                     Created {formatTimeAgo(packageRelease.created_at)}
                   </span>
-                </div>
+                </div>{" "}
+                {packageRelease.is_pr_preview && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <a
+                          href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 hover:text-gray-800 transition-colors"
+                        >
+                          <GitBranch className="w-4 h-4" />
+                          <Badge variant="outline" className="text-xs">
+                            PR #{packageRelease.github_pr_number}
+                          </Badge>
+                        </a>
+                      </TooltipTrigger>
+                      {packageRelease.github_pr_title && (
+                        <TooltipContent>
+                          {packageRelease.github_pr_title}
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
 
               {/* Rebuild Button */}
