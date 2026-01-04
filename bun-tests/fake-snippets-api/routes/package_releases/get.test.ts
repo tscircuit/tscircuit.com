@@ -179,3 +179,41 @@ test("POST /api/package_releases/get?include_ai_review=true returns latest revie
   )
   expect(getRes.data.package_release.ai_review_completed_at).not.toBeNull()
 })
+
+test("POST /api/package_releases/get - returns pr_number, pr_title, branch_name, is_pr_preview", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageRes = await axios.post("/api/packages/create", {
+    name: "testuser/test-pr-details",
+    description: "A test package for PR details",
+  })
+  expect(packageRes.status).toBe(200)
+
+  const releaseRes = await axios.post("/api/package_releases/create", {
+    package_id: packageRes.data.package.package_id,
+    version: "1.0.0",
+  })
+  expect(releaseRes.status).toBe(200)
+
+  const packageReleaseId = releaseRes.data.package_release.package_release_id
+  const existingRelease = db.getPackageReleaseById(packageReleaseId)!
+
+  db.updatePackageRelease({
+    ...existingRelease,
+    pr_number: 42,
+    pr_title: "feat: add new feature",
+    branch_name: "feature/new-feature",
+    is_pr_preview: true,
+  })
+
+  const getRes = await axios.post("/api/package_releases/get", {
+    package_release_id: packageReleaseId,
+  })
+
+  expect(getRes.status).toBe(200)
+  expect(getRes.data.ok).toBe(true)
+  expect(getRes.data.package_release.pr_number).toBe(42)
+  expect(getRes.data.package_release.pr_title).toBe("feat: add new feature")
+  expect(getRes.data.package_release.branch_name).toBe("feature/new-feature")
+  expect(getRes.data.package_release.is_pr_preview).toBe(true)
+})

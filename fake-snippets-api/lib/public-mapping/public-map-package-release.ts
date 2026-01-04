@@ -48,8 +48,9 @@ export const publicMapPackageRelease = (
     image_generation_display_status:
       internal_package_release.image_generation_display_status,
     is_pr_preview: Boolean(internal_package_release.is_pr_preview),
-    github_pr_number: internal_package_release.github_pr_number,
-    branch_name: internal_package_release.branch_name,
+    pr_number: internal_package_release.pr_number ?? null,
+    pr_title: internal_package_release.pr_title ?? null,
+    branch_name: internal_package_release.branch_name ?? null,
     commit_message: internal_package_release.commit_message ?? null,
     commit_author: internal_package_release.commit_author ?? null,
     pcb_preview_image_url:

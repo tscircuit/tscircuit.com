@@ -322,11 +322,12 @@ export const packageReleaseSchema = z.object({
 
   // Preview
   is_pr_preview: z.boolean().default(false),
-  github_pr_number: z.number().nullable().optional(),
+  pr_number: z.number().nullable().default(null),
+  pr_title: z.string().nullable().default(null),
+  branch_name: z.string().nullable().default(null),
 
   // Latest Build Reference
   latest_package_build_id: z.string().nullable().optional(),
-  branch_name: z.string().nullable().optional(),
   commit_message: z.string().nullable().optional(),
   commit_author: z.string().nullable().optional(),
 
