@@ -51,6 +51,7 @@ export const publicMapPackageRelease = (
     github_pr_number: internal_package_release.pr_number ?? null,
     github_pr_title: internal_package_release.pr_title ?? null,
     github_branch_name: internal_package_release.branch_name ?? null,
+    github_commit_sha: internal_package_release.commit_sha ?? null,
     pcb_preview_image_url:
       internal_package_release.pcb_preview_image_url ?? null,
     sch_preview_image_url:

@@ -860,8 +860,8 @@ import { TestComponent } from "@tsci/testuser.test2-package"
     is_text: true,
   })
 
-  const { package_release_id: test2PackageReleaseIdPr1 } = db.addPackageRelease(
-    {
+  const { package_release_id: test2PackageReleaseIdPr1, ...d } =
+    db.addPackageRelease({
       package_id: test2Package.package_id,
       version: "0.0.4-pr1-ead7df70",
       created_at: new Date().toISOString(),
@@ -873,8 +873,9 @@ import { TestComponent } from "@tsci/testuser.test2-package"
       pr_number: 1,
       pr_title: "feat: add new resistor values",
       branch_name: "feature/new-resistor-values",
-    },
-  )
+      commit_sha: "259fbcd1f9e41cbe769c6f0b01cb2d86a9294668",
+    })
+
   db.addPackageFile({
     package_release_id: test2PackageReleaseIdPr1,
     file_path: "index.tsx",
