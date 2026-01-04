@@ -11,6 +11,7 @@ import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
 import { useOrganization } from "@/hooks/use-organization"
+import { usePackageWebsite } from "@/hooks/use-package-website"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
@@ -71,7 +72,7 @@ export default function SidebarAboutSection({
 
   // Local state to store updated values before the query refetches
   const [localDescription, setLocalDescription] = useState<string>("")
-  const [localWebsite, setLocalWebsite] = useState<string>("")
+  const [websiteOverride, setWebsiteOverride] = useState<string | null>(null)
 
   // Update local state when packageInfo changes
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function SidebarAboutSection({
       setLocalDescription(
         packageInfo.description || packageInfo.ai_description || "",
       )
-      setLocalWebsite((packageInfo as any)?.website || "")
+      setWebsiteOverride(null)
     }
   }, [packageInfo])
 
@@ -103,13 +104,17 @@ export default function SidebarAboutSection({
 
   // Handle updates from the dialog
   const handlePackageUpdate = (newDescription: string, newWebsite: string) => {
-    // Update local state immediately for a responsive UI
     setLocalDescription(newDescription)
-    setLocalWebsite(newWebsite)
-
-    // Refetch the package info to get the updated data from the server
+    setWebsiteOverride(newWebsite)
     refetchPackageInfo()
   }
+
+  const website = usePackageWebsite({
+    packageInfo,
+    packageRelease,
+    releaseFiles,
+    overrideWebsite: websiteOverride,
+  })
 
   if (isLoading) {
     return (
@@ -154,15 +159,15 @@ export default function SidebarAboutSection({
             packageInfo?.description ||
             packageInfo?.ai_description}
         </p>
-        {localWebsite && (
+        {website && (
           <a
-            href={localWebsite}
+            href={website}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
           >
             <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
-            <span className="truncate">{localWebsite}</span>
+            <span className="truncate">{website}</span>
           </a>
         )}
         <div className="flex flex-wrap gap-2 mb-4">

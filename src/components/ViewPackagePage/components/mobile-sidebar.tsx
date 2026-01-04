@@ -15,6 +15,8 @@ import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import PreviewImageSquares from "./preview-image-squares"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { usePackageWebsite } from "@/hooks/use-package-website"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -26,6 +28,7 @@ const MobileSidebar = ({
   onViewChange,
 }: MobileSidebarProps) => {
   const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
+  const { packageRelease } = useCurrentPackageRelease()
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
   )
@@ -74,25 +77,32 @@ const MobileSidebar = ({
   }, [openEditPackageDetailsDialog])
 
   const [localDescription, setLocalDescription] = useState<string>("")
-  const [localWebsite, setLocalWebsite] = useState<string>("")
+  const [websiteOverride, setWebsiteOverride] = useState<string | null>(null)
 
   useEffect(() => {
     if (packageInfo) {
       setLocalDescription(
         packageInfo.description || packageInfo.ai_description || "",
       )
-      setLocalWebsite((packageInfo as any)?.website || "")
+      setWebsiteOverride(null)
     }
   }, [packageInfo])
 
   const handlePackageUpdate = useCallback(
     (newDescription: string, newWebsite: string) => {
       setLocalDescription(newDescription)
-      setLocalWebsite(newWebsite)
+      setWebsiteOverride(newWebsite)
       refetchPackageInfo()
     },
     [refetchPackageInfo],
   )
+
+  const website = usePackageWebsite({
+    packageInfo,
+    packageRelease,
+    releaseFiles,
+    overrideWebsite: websiteOverride,
+  })
 
   if (isLoading) {
     return (
@@ -139,15 +149,15 @@ const MobileSidebar = ({
         )}
       </div>
 
-      {localWebsite && (
+      {website && (
         <a
-          href={localWebsite}
+          href={website}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
         >
           <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
-          <span className="truncate">{localWebsite}</span>
+          <span className="truncate">{website}</span>
         </a>
       )}
 
