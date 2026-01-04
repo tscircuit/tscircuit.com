@@ -154,20 +154,20 @@ export const ConnectedPackageCard = ({
       </div>
 
       <div className="mb-6 flex-1">
-        {packageRelease?.commit_message && (
+        {/* {packageRelease?.commit_message && (
           <h4
             title={packageRelease.commit_message}
             className="text-sm font-medium truncate text-gray-900 mb-2"
           >
             {packageRelease.commit_message}
           </h4>
-        )}
+        )} */}
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span>{formatTimeAgo(String(latestBuildInfo?.created_at))} on</span>
           <div className="flex items-center gap-1">
             <GitBranch className="w-3 h-3" />
             <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-medium">
-              {packageRelease?.branch_name || "main"}
+              {packageRelease?.github_branch_name || "main"}
             </span>
           </div>
         </div>

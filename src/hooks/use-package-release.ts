@@ -1,4 +1,4 @@
-import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 import { type UseQueryOptions, useQuery } from "react-query"
 import { useAxios } from "./use-axios"
 
@@ -28,12 +28,12 @@ export const usePackageRelease = (
     refetchInterval?:
       | number
       | false
-      | ((data: PackageRelease | undefined) => number | false)
+      | ((data: PublicPackageRelease | undefined) => number | false)
   },
 ) => {
   const axios = useAxios()
 
-  return useQuery<PackageRelease, Error & { status: number }>(
+  return useQuery<PublicPackageRelease, Error & { status: number }>(
     ["packageRelease", query],
     async () => {
       if (!query) return
@@ -94,19 +94,18 @@ export const useLatestPackageRelease = (
 export const usePackageReleasesByPackageId = (packageId: string | null) => {
   const axios = useAxios()
 
-  return useQuery<PackageRelease[], Error & { status: number }>(
+  return useQuery<PublicPackageRelease[], Error & { status: number }>(
     ["packageReleases", packageId],
     async () => {
       if (!packageId) {
         throw new Error("package_id is required")
       }
 
-      const { data } = await axios.post<{ package_releases: PackageRelease[] }>(
-        "/package_releases/list",
-        {
-          package_id: packageId,
-        },
-      )
+      const { data } = await axios.post<{
+        package_releases: PublicPackageRelease[]
+      }>("/package_releases/list", {
+        package_id: packageId,
+      })
 
       if (!data.package_releases) {
         return []

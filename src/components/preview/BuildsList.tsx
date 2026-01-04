@@ -9,7 +9,7 @@ import {
 import {
   Package,
   PackageBuild,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
@@ -52,7 +52,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
     }
   })
 
-  const renderGitInfo = (release: PackageRelease) => {
+  const renderGitInfo = (release: PublicPackageRelease) => {
     if (!pkg?.github_repo_full_name) {
       return <p className="text-sm text-gray-400">No repository linked</p>
     }
@@ -62,7 +62,7 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
         <div className="flex items-center gap-1.5 text-gray-900">
           <GitBranch className="w-4 h-4 flex-shrink-0" />
           <span className="text-sm font-mono truncate">
-            {release.branch_name ||
+            {release.github_branch_name ||
               (release.is_pr_preview
                 ? `pr-${release.github_pr_number}`
                 : "main")}
@@ -74,12 +74,12 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
             <span className="font-mono">
               {release.package_release_id.slice(0, 7)}
             </span>
-            {release.commit_message && (
+            {/* {release.commit_message && (
               <span className="ml-1.5 text-gray-600 truncate">
                 {release.commit_message.slice(0, 40)}
                 {release.commit_message.length > 40 ? "..." : ""}
               </span>
-            )}
+            )} */}
           </span>
         </div>
       </div>

@@ -322,11 +322,12 @@ export const packageReleaseSchema = z.object({
 
   // Preview
   is_pr_preview: z.boolean().default(false),
-  github_pr_number: z.number().nullable().optional(),
+  pr_number: z.number().nullable().default(null),
+  pr_title: z.string().nullable().default(null),
+  branch_name: z.string().nullable().default(null),
 
   // Latest Build Reference
   latest_package_build_id: z.string().nullable().optional(),
-  branch_name: z.string().nullable().optional(),
   commit_message: z.string().nullable().optional(),
   commit_author: z.string().nullable().optional(),
 
@@ -336,6 +337,69 @@ export const packageReleaseSchema = z.object({
   cad_preview_image_url: z.string().nullable().default(null),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
+
+export const publicPackageReleaseSchema = z.object({
+  package_release_id: z.string(),
+  package_id: z.string(),
+  version: z.string().nullable(),
+  is_locked: z.boolean(),
+  is_latest: z.boolean(),
+  ready_to_build: z.boolean().optional(),
+  is_pr_preview: z.boolean(),
+  created_at: z.string().datetime(),
+  circuit_json_build_error: z.string().nullable().optional(),
+  circuit_json_build_error_last_updated_at: z
+    .string()
+    .datetime()
+    .nullable()
+    .optional(),
+  has_transpiled: z.boolean().nullable().optional(),
+  transpilation_error: z.string().nullable().optional(),
+  transpilation_logs: z.array(log).nullable().optional(),
+  transpilation_in_progress: z.boolean().nullable().optional(),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_is_stale: z.boolean().nullable().optional(),
+  transpilation_display_status: z.string().nullable().optional(),
+  fs_sha: z.string().nullable().optional(),
+  circuit_json_build_logs: z.array(log).nullable().optional(),
+  circuit_json_build_in_progress: z.boolean().nullable().optional(),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_is_stale: z.boolean().nullable().optional(),
+  circuit_json_build_display_status: z.string().nullable().optional(),
+  image_generation_error: z.string().nullable().optional(),
+  image_generation_error_last_updated_at: z
+    .string()
+    .datetime()
+    .nullable()
+    .optional(),
+  image_generation_logs: z.array(log).nullable().optional(),
+  image_generation_in_progress: z.boolean().nullable().optional(),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_is_stale: z.boolean().nullable().optional(),
+  image_generation_display_status: z.string().nullable().optional(),
+  pcb_preview_image_url: z.string().nullable().optional(),
+  sch_preview_image_url: z.string().nullable().optional(),
+  cad_preview_image_url: z.string().nullable().optional(),
+  display_status: z.string().nullable().optional(),
+  latest_package_build_id: z.string().nullable().optional(),
+  user_code_job_started_at: z.string().datetime().nullable().optional(),
+  user_code_job_completed_at: z.string().datetime().nullable().optional(),
+  user_code_job_error: z.any().nullable().optional(),
+  user_code_job_completed_logs: z.array(log).nullable().optional(),
+  user_code_job_log_stream_url: z.string().nullable().optional(),
+  ai_review_requested: z.boolean().optional(),
+  ai_review_text: z.string().nullable().optional(),
+  ai_review_started_at: z.string().datetime().nullable().optional(),
+  ai_review_completed_at: z.string().datetime().nullable().optional(),
+  ai_review_error: z.any().nullable().optional(),
+  github_pr_number: z.number().nullable().optional(),
+  github_pr_title: z.string().nullable().optional(),
+  github_branch_name: z.string().nullable().optional(),
+})
+export type PublicPackageRelease = z.infer<typeof publicPackageReleaseSchema>
 
 export const packageFileSchema = z.object({
   package_file_id: z.string(),

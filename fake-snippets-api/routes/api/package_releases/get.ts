@@ -19,7 +19,7 @@ export default withRouteSpec({
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    package_release: zt.packageReleaseSchema,
+    package_release: zt.publicPackageReleaseSchema,
   }),
 })(async (req, ctx) => {
   const {
