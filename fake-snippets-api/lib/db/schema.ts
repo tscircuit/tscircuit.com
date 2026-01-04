@@ -398,6 +398,7 @@ export const publicPackageReleaseSchema = z.object({
   github_pr_number: z.number().nullable().optional(),
   github_pr_title: z.string().nullable().optional(),
   github_branch_name: z.string().nullable().optional(),
+  github_commit_sha: z.string().nullable(),
 })
 export type PublicPackageRelease = z.infer<typeof publicPackageReleaseSchema>
 
