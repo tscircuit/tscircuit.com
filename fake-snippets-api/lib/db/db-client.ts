@@ -1126,14 +1126,14 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         const packageRelease = state.packageReleases.find(
           (pr) => pr.package_release_id === file.package_release_id,
         )
-        if (!packageRelease) return null
+        if (!packageRelease) return undefined
 
         return packages.find(
           (pkg) =>
             pkg.latest_package_release_id === packageRelease.package_release_id,
         )
       })
-      .filter((pkg): pkg is NonNullable<typeof pkg> => pkg !== null)
+      .filter((pkg): pkg is Package => pkg != null)
 
     const matchingPackages = [
       ...new Set([...matchingPackagesByMetadata, ...matchingPackagesByContent]),
