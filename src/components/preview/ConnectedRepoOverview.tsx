@@ -40,7 +40,7 @@ export const ConnectedRepoOverview = ({
 }) => {
   const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
-    userCode: false,
+    userCode: true,
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -337,7 +337,9 @@ export const ConnectedRepoOverview = ({
           onOpenChange={() => toggleSection("userCode")}
         >
           <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+            <div
+              className={`flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 ${openSections.userCode ? "rounded-b-none border-b-0" : ""}`}
+            >
               <div className="flex items-center gap-3">
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
@@ -351,7 +353,7 @@ export const ConnectedRepoOverview = ({
                 ) : (
                   <Clock className="w-5 h-5 text-gray-400" />
                 )}
-                <span className="font-medium">Usercode Logs</span>
+                <span className="font-medium">Build Logs</span>
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
