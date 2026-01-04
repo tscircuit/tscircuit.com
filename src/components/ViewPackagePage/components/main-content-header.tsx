@@ -9,7 +9,14 @@ import {
   GitForkIcon,
   DownloadIcon,
   Package2,
+  GitPullRequest,
 } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import MainContentViewSelector from "./main-content-view-selector"
 import {
   DropdownMenu,
@@ -53,7 +60,6 @@ export default function MainContentHeader({
   onVersionChange,
   packageRelease,
 }: MainContentHeaderProps) {
-  const [, setLocation] = useLocation()
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
     "copy",
   )
@@ -229,15 +235,49 @@ export default function MainContentHeader({
           </DropdownMenu>
         </div>
       </div>
-      {isViewingOlderVersion && onVersionChange && (
-        <button
-          onClick={() => onVersionChange(latestVersion!, "")}
-          className="self-start px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-        >
-          Viewing older version.{" "}
-          <span className="underline">Switch to latest</span>
-        </button>
-      )}
+      {packageRelease &&
+        (packageRelease.is_pr_preview ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {packageRelease.github_pr_number &&
+                packageInfo?.github_repo_full_name ? (
+                  <a
+                    href={`https://github.com/${packageInfo.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="self-start cursor-pointer px-2 py-1 text-xs bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded text-purple-700 dark:text-purple-400 flex items-center gap-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
+                  >
+                    <GitPullRequest className="h-3 w-3" />
+                    <span>PR Preview</span>
+                    <span>#{packageRelease.github_pr_number}</span>
+                  </a>
+                ) : (
+                  <div className="self-start cursor-pointer px-2 py-1 text-xs bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
+                    <GitPullRequest className="h-3 w-3" />
+                    <span>PR Preview</span>
+                    {packageRelease.github_pr_number && (
+                      <span>#{packageRelease.github_pr_number}</span>
+                    )}
+                  </div>
+                )}
+              </TooltipTrigger>
+              {packageRelease.github_pr_title && (
+                <TooltipContent>
+                  <p>{packageRelease.github_pr_title}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        ) : isViewingOlderVersion && onVersionChange ? (
+          <button
+            onClick={() => onVersionChange(latestVersion!, "")}
+            className="self-start px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+          >
+            Viewing older version.{" "}
+            <span className="underline">Switch to latest</span>
+          </button>
+        ) : null)}
     </div>
   )
 }

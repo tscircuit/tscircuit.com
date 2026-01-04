@@ -29,6 +29,12 @@ export const ViewPackagePage = () => {
 
   const latestVersion = useMemo(() => {
     if (!allReleases || allReleases.length === 0) return null
+    if (
+      packageInfo?.latest_version &&
+      allReleases.some((r) => r.version === packageInfo?.latest_version)
+    ) {
+      return packageInfo?.latest_version
+    }
     const sorted = [...allReleases].sort(
       (a, b) =>
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),

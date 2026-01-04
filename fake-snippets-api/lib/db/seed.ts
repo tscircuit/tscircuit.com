@@ -604,8 +604,8 @@ export default () => (
     updated_at: new Date().toISOString(),
     is_source_from_github: false,
     snippet_type: "package",
-    latest_package_release_id: "0.0.4",
-    latest_version: "0.0.4",
+    latest_package_release_id: "0.0.5",
+    latest_version: "0.0.5",
     license: "MIT",
     website: "https://tscircuit.com",
     star_count: 10,
@@ -617,6 +617,9 @@ export default () => (
     latest_pcb_preview_image_url: `/api/packages/images/testuser/test2-package/pcb.png`,
     latest_cad_preview_image_url: `/api/packages/images/testuser/test2-package/3d.png`,
     latest_sch_preview_image_url: `/api/packages/images/testuser/test2-package/schematic.png`,
+  })
+  db.updatePackage(test2Package.package_id, {
+    github_repo_full_name: "testuser/test2-package",
   })
   const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
     package_id: test2Package.package_id,
@@ -800,7 +803,7 @@ Added value prop support.`,
 
   const { package_release_id: test2PackageReleaseId4 } = db.addPackageRelease({
     package_id: test2Package.package_id,
-    version: "0.0.4",
+    version: "0.0.5",
     created_at: new Date().toISOString(),
     is_latest: true,
     is_locked: false,
@@ -853,6 +856,52 @@ import { TestComponent } from "@tsci/testuser.test2-package"
 
 <TestComponent name="R1" value={40} />
 \`\`\``,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
+  const { package_release_id: test2PackageReleaseIdPr1 } = db.addPackageRelease(
+    {
+      package_id: test2Package.package_id,
+      version: "0.0.4-pr1-ead7df70",
+      created_at: new Date().toISOString(),
+      is_latest: false,
+      is_locked: false,
+      has_transpiled: true,
+      transpilation_error: null,
+      is_pr_preview: true,
+      pr_number: 1,
+      pr_title: "feat: add new resistor values",
+      branch_name: "feature/new-resistor-values",
+    },
+  )
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseIdPr1,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance, DEFAULT_RESISTANCE } from "./utils"
+import type { ComponentProps } from "./types"
+
+export const TestComponent = ({ name, value = DEFAULT_RESISTANCE }: ComponentProps) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseIdPr1,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 50`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseIdPr1,
+    file_path: "types.ts",
+    content_text: `export interface ComponentProps {
+  name: string
+  value?: number
+}`,
     created_at: new Date().toISOString(),
     is_text: true,
   })
