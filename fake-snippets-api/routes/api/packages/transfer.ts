@@ -43,14 +43,12 @@ export default withRouteSpec({
       .orgAccounts.some(
         (oa) =>
           oa.account_id === ctx.auth.account_id &&
-          oa.org_id === pkg.owner_org_id &&
-          oa.is_owner === true,
+          oa.org_id === pkg.owner_org_id,
       )
   if (!canTransferPackage) {
     return ctx.error(403, {
       error_code: "forbidden",
-      message:
-        "You must be an owner of the organization to transfer this package",
+      message: "You don't have permission to transfer this package",
     })
   }
 
@@ -76,16 +74,14 @@ export default withRouteSpec({
       .getState()
       .orgAccounts.some(
         (oa) =>
-          oa.account_id === ctx.auth.account_id &&
-          oa.org_id === target_org_id &&
-          oa.can_manage_org === true,
+          oa.account_id === ctx.auth.account_id && oa.org_id === target_org_id,
       )
 
   if (!isMemberOfTargetOrg) {
     return ctx.error(403, {
       error_code: "forbidden",
       message:
-        "You must be a member of the organization with manage permissions to transfer a package to it",
+        "You must be a member of the organization to transfer a package to it",
     })
   }
 
