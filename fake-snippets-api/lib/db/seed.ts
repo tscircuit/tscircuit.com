@@ -2389,17 +2389,18 @@ export default () => (
     is_text: true,
   })
 
-  // Read the GLB file from assets directory and add it as a package file
-  const glbFilePath = join(__dirname, "assets", "test.glb")
-  const glbFileContent = readFileSync(glbFilePath)
-  db.addPackageFile({
-    package_release_id: glbModelReleaseId,
-    file_path: "test.glb",
-    content_bytes: glbFileContent,
-    content_mimetype: "model/gltf-binary",
-    created_at: new Date().toISOString(),
-    is_text: false,
-  })
+  try {
+    const glbFilePath = join(__dirname, "assets", "test.glb")
+    const glbFileContent = readFileSync(glbFilePath)
+    db.addPackageFile({
+      package_release_id: glbModelReleaseId,
+      file_path: "test.glb",
+      content_bytes: glbFileContent,
+      content_mimetype: "model/gltf-binary",
+      created_at: new Date().toISOString(),
+      is_text: false,
+    })
+  } catch {}
 
   // Add a successful build for the GLB model package
   db.addPackageBuild({
