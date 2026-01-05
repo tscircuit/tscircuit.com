@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { GitBranch, GitCommitHorizontal } from "lucide-react"
+import { GitBranch, GitCommitHorizontal, PackageIcon } from "lucide-react"
 import {
   getBuildStatus,
   PackageReleaseOrBuildItemRow,
@@ -9,7 +9,7 @@ import {
 import {
   Package,
   PackageBuild,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useQueries } from "react-query"
@@ -52,7 +52,8 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
     }
   })
 
-  const renderGitInfo = (release: PackageRelease) => {
+  const renderGitInfo = (release: PublicPackageRelease) => {
+    console.log(release, 56)
     if (!pkg?.github_repo_full_name) {
       return <p className="text-sm text-gray-400">No repository linked</p>
     }
@@ -62,26 +63,35 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
         <div className="flex items-center gap-1.5 text-gray-900">
           <GitBranch className="w-4 h-4 flex-shrink-0" />
           <span className="text-sm font-mono truncate">
-            {release.branch_name ||
+            {release.github_branch_name ||
               (release.is_pr_preview
-                ? `pr-${release.github_pr_number}`
+                ? `${release.github_pr_number ? `#${release.github_pr_number}` : "Unknown PR"}`
                 : "main")}
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-gray-900">
-          <GitCommitHorizontal className="w-4 h-4 flex-shrink-0" />
-          <span className="text-sm truncate block">
-            <span className="font-mono">
-              {release.package_release_id.slice(0, 7)}
-            </span>
-            {release.commit_message && (
-              <span className="ml-1.5 text-gray-600 truncate">
-                {release.commit_message.slice(0, 40)}
-                {release.commit_message.length > 40 ? "..." : ""}
+        {release?.github_commit_sha ? (
+          <div className="flex items-center gap-1.5 text-gray-900">
+            <GitCommitHorizontal className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm truncate block">
+              <span className="font-mono">
+                {release.github_commit_sha.slice(0, 7)}
               </span>
-            )}
-          </span>
-        </div>
+              {/* {release.commit_message && (
+                <span className="ml-1.5 text-gray-600 truncate">
+                  {release.commit_message.slice(0, 40)}
+                  {release.commit_message.length > 40 ? "..." : ""}
+                </span>
+              )} */}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-gray-900">
+            <PackageIcon className="w-4 h-4 flex-shrink-0" />
+            <span className="text-sm truncate block">
+              <span className="font-mono">{release.package_release_id}</span>
+            </span>
+          </div>
+        )}
       </div>
     )
   }

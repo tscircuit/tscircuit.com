@@ -9,7 +9,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 interface ReleaseVersionSelectorProps {
   packageId: string | null
@@ -60,7 +60,7 @@ export default function ReleaseVersionSelector({
         align="start"
         className="w-64 max-h-80 overflow-y-auto z-[101] no-scrollbar"
       >
-        {sortedReleases.map((release: PackageRelease) => {
+        {sortedReleases.map((release: PublicPackageRelease) => {
           const isSelected = currentVersion
             ? release.version === currentVersion
             : release.version === latestVersion

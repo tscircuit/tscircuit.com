@@ -23,7 +23,7 @@ import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
   PackageBuild,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
 
@@ -36,7 +36,7 @@ export const ConnectedRepoOverview = ({
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
   pkg: Package
-  packageRelease: PackageRelease
+  packageRelease: PublicPackageRelease
 }) => {
   const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
@@ -255,7 +255,7 @@ export const ConnectedRepoOverview = ({
                     href={
                       packageRelease?.is_pr_preview
                         ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
-                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
+                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.github_branch_name || "main"}`
                     }
                     target="_blank"
                     rel="noopener noreferrer"
@@ -267,7 +267,7 @@ export const ConnectedRepoOverview = ({
                     >
                       {packageRelease?.is_pr_preview
                         ? `#${packageRelease.github_pr_number}`
-                        : packageRelease?.branch_name || "main"}
+                        : packageRelease?.github_branch_name || "main"}
                     </Badge>
                   </a>
                 </div>
@@ -307,7 +307,7 @@ export const ConnectedRepoOverview = ({
             </div>
           </div>
 
-          {packageRelease?.commit_message && (
+          {/* {packageRelease?.commit_message && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                 Commit Message
@@ -316,7 +316,7 @@ export const ConnectedRepoOverview = ({
                 {packageRelease?.commit_message}
               </p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 

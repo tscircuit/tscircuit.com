@@ -17,7 +17,7 @@ import { PackageBreadcrumb } from "../PackageBreadcrumb"
 import {
   Package,
   PackageBuild,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
@@ -28,7 +28,7 @@ export const PackageReleasesDashboard = ({
   latestBuild,
   pkg,
 }: {
-  latestRelease: PackageRelease
+  latestRelease: PublicPackageRelease
   latestBuild: PackageBuild | null
   pkg: Package
 }) => {
@@ -109,14 +109,14 @@ export const PackageReleasesDashboard = ({
                       onClick={() =>
                         pkg.github_repo_full_name &&
                         window?.open(
-                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestRelease?.branch_name || "main"}`,
+                          `https://github.com/${pkg.github_repo_full_name}/tree/${latestRelease?.github_branch_name || "main"}`,
                           "_blank",
                         )
                       }
                     >
                       <GitBranch className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
-                        {latestRelease?.branch_name || "main"}
+                        {latestRelease?.github_branch_name || "main"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1">

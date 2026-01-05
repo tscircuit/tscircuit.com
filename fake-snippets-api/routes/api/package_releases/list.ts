@@ -1,4 +1,4 @@
-import { packageReleaseSchema } from "fake-snippets-api/lib/db/schema"
+import { publicPackageReleaseSchema } from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { publicMapPackageRelease } from "fake-snippets-api/lib/public-mapping/public-map-package-release"
 import { z } from "zod"
@@ -31,7 +31,7 @@ export default withRouteSpec({
     }, "package_id or package_name is required"),
   jsonResponse: z.object({
     ok: z.boolean(),
-    package_releases: z.array(packageReleaseSchema),
+    package_releases: z.array(publicPackageReleaseSchema),
   }),
 })(async (req, ctx) => {
   const { package_id, package_name, is_latest, version, commit_sha } =

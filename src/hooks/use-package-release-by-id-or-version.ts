@@ -12,7 +12,7 @@ export const usePackageReleaseByIdOrVersion = (
       | false
       | ((
           data:
-            | import("fake-snippets-api/lib/db/schema").PackageRelease
+            | import("fake-snippets-api/lib/db/schema").PublicPackageRelease
             | undefined,
         ) => number | false)
   },

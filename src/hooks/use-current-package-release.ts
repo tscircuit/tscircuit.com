@@ -2,7 +2,7 @@ import { useParams } from "wouter"
 import { useCurrentPackageId } from "./use-current-package-id"
 import { usePackageRelease } from "./use-package-release"
 import { useUrlParams } from "./use-url-params"
-import type { PackageRelease } from "fake-snippets-api/lib/db/schema"
+import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 export const useCurrentPackageRelease = (options?: {
   include_ai_review?: boolean
@@ -10,7 +10,7 @@ export const useCurrentPackageRelease = (options?: {
   refetchInterval?:
     | number
     | false
-    | ((data: PackageRelease | undefined) => number | false)
+    | ((data: PublicPackageRelease | undefined) => number | false)
 }) => {
   const { packageId } = useCurrentPackageId()
   const urlParams = useUrlParams()
