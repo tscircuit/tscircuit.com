@@ -143,7 +143,7 @@ export default function ReleaseDetailPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <PackageBreadcrumb
-              author={pkg.owner_github_username || ""}
+              author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
               packageName={pkg.name}
               unscopedName={pkg.unscoped_name}
               releaseVersion={

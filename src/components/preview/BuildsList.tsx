@@ -53,7 +53,6 @@ export const BuildsList = ({ pkg }: { pkg: Package }) => {
   })
 
   const renderGitInfo = (release: PublicPackageRelease) => {
-    console.log(release, 56)
     if (!pkg?.github_repo_full_name) {
       return <p className="text-sm text-gray-400">No repository linked</p>
     }
