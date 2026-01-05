@@ -2069,6 +2069,7 @@ export const SquareWaveModule = () => (
     tscircuit_handle: "test-organization",
     github_handle: "tscircuit",
     owner_account_id: account_id,
+    org_id: "org-test-1234",
   })
 
   // Add org member
