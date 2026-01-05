@@ -319,15 +319,15 @@ export const EditPackageDetailsDialog = ({
         onOpenChange={onOpenChange}
       >
         <DialogContent className="sm:max-w-[500px] lg:h-[85vh] sm:h-[90vh] overflow-y-auto no-scrollbar w-[95vw] h-[80vh] p-6 gap-6 rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Package Details</DialogTitle>
+            <DialogDescription>
+              Update your package's description, website, visibility, or delete
+              it.
+            </DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-10">
-            <DialogHeader>
-              <DialogTitle>Edit Package Details</DialogTitle>
-              <DialogDescription>
-                Update your package's description, website, visibility, or
-                delete it.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="">
+            <div>
               <div className="grid gap-2">
                 <div className="space-y-1">
                   <Label htmlFor="packageName">Package Name</Label>
@@ -487,87 +487,76 @@ export const EditPackageDetailsDialog = ({
               </div>
 
               <details
-                className="mt-2 rounded-md"
+                className="mt-4 rounded-lg border border-red-200 dark:border-red-900/50"
                 onToggle={(e) => setDangerOpen(e.currentTarget.open)}
               >
-                <summary className="select-none cursor-pointer p-2 font-medium text-sm text-black list-none flex justify-between items-center">
+                <summary className="select-none cursor-pointer px-4 py-3 font-medium text-sm text-red-600 dark:text-red-400 list-none flex justify-between items-center bg-red-50/50 dark:bg-red-950/20 rounded-lg">
                   Danger Zone
                   <ChevronDown
-                    className={`w-4 h-4 mr-1 transition-transform ${dangerOpen ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 transition-transform ${dangerOpen ? "rotate-180" : ""}`}
                   />
                 </summary>
-                <div className="p-2 pr-2">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-3">
-                      <div>
-                        <p className="text-sm font-medium text-black">
-                          Transfer package ownership
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Transfer this package to another organization you
-                          belong to.
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="transfer-org">
-                          Target organization
-                        </Label>
-                        <Select
-                          value={targetOrgId}
-                          onValueChange={(value) => setTargetOrgId(value)}
-                          disabled={
-                            transferPackageMutation.isLoading ||
-                            availableOrgs.length === 0
-                          }
-                        >
-                          <SelectTrigger id="transfer-org" className="w-full">
-                            <SelectValue placeholder="Select an organization" />
-                          </SelectTrigger>
-                          <SelectContent className="!z-[999]">
-                            {availableOrgs.length === 0 ? (
-                              <SelectItem value="none" disabled>
-                                No other organizations available
+                <div className="p-4 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                    <div className="flex-1 space-y-1.5">
+                      <p className="text-sm font-medium">Transfer ownership</p>
+                      <Select
+                        value={targetOrgId}
+                        onValueChange={setTargetOrgId}
+                        disabled={
+                          transferPackageMutation.isLoading ||
+                          availableOrgs.length === 0
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select organization" />
+                        </SelectTrigger>
+                        <SelectContent className="!z-[999]">
+                          {availableOrgs.length === 0 ? (
+                            <SelectItem value="none" disabled>
+                              No organizations available
+                            </SelectItem>
+                          ) : (
+                            availableOrgs.map((org) => (
+                              <SelectItem key={org.org_id} value={org.org_id}>
+                                {org.display_name ||
+                                  org.tscircuit_handle ||
+                                  org.github_handle ||
+                                  org.org_id}
                               </SelectItem>
-                            ) : (
-                              availableOrgs.map((org) => (
-                                <SelectItem key={org.org_id} value={org.org_id}>
-                                  {org.display_name ||
-                                    org.tscircuit_handle ||
-                                    org.github_handle ||
-                                    org.org_id}
-                                </SelectItem>
-                              ))
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Button
-                          variant="destructive"
-                          size="default"
-                          onClick={() => setShowConfirmTransfer(true)}
-                          disabled={
-                            !targetOrgId || transferPackageMutation.isLoading
-                          }
-                          className="shrink-0 lg:w-[170px] w-full"
-                        >
-                          {transferPackageMutation.isLoading
-                            ? "Transferring..."
-                            : "Transfer package"}
-                        </Button>
-                      </div>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowConfirmTransfer(true)}
+                      disabled={
+                        !targetOrgId || transferPackageMutation.isLoading
+                      }
+                      className="sm:w-auto w-full"
+                    >
+                      {transferPackageMutation.isLoading
+                        ? "Transferring..."
+                        : "Transfer"}
+                    </Button>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm text-muted-foreground">
-                        Once deleted, it cannot be recovered.
+                      <p className="text-sm font-medium">Delete package</p>
+                      <p className="text-xs text-muted-foreground">
+                        This action cannot be undone
                       </p>
                     </div>
                     <Button
                       variant="destructive"
-                      size="default"
+                      size="sm"
                       onClick={() => setShowConfirmDelete(true)}
                       disabled={deletePackageMutation.isLoading}
-                      className="shrink-0 lg:w-[115px] w-[70px]"
+                      className="sm:w-auto w-full"
                     >
                       {deletePackageMutation.isLoading
                         ? "Deleting..."
