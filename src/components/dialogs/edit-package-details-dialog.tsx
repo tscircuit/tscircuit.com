@@ -149,7 +149,7 @@ export const EditPackageDetailsDialog = ({
 
       return response.data.package
     },
-    onSuccess: async () => {
+    onSuccess: async (pkg) => {
       await qc.invalidateQueries(["packages"])
       await qc.invalidateQueries(["packages", packageId])
       setShowConfirmTransfer(false)
@@ -158,6 +158,9 @@ export const EditPackageDetailsDialog = ({
         title: "Package transferred",
         description: "The package has been transferred successfully.",
       })
+      if (pkg.name) {
+        setLocation(`/${pkg.name}`)
+      }
     },
     onError: (error) => {
       toast({
