@@ -36,14 +36,16 @@ export default withRouteSpec({
     })
   }
 
-  const canManagePackage = ctx.db
-    .getState()
-    .orgAccounts.some(
-      (oa) =>
-        oa.account_id === ctx.auth.account_id && oa.org_id === pkg.owner_org_id,
-    )
-
-  if (!canManagePackage) {
+  const canTransferPackage =
+    ctx.auth.personal_org_id === pkg.owner_org_id ||
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (oa) =>
+          oa.account_id === ctx.auth.account_id &&
+          oa.org_id === pkg.owner_org_id,
+      )
+  if (!canTransferPackage) {
     return ctx.error(403, {
       error_code: "forbidden",
       message: "You don't have permission to transfer this package",
@@ -59,9 +61,21 @@ export default withRouteSpec({
     })
   }
 
+  if (!targetOrg.tscircuit_handle) {
+    return ctx.error(400, {
+      error_code: "tscircuit_handle_not_set",
+      message: "Target organization tscircuit handle is not set",
+    })
+  }
+
   const isMemberOfTargetOrg =
     ctx.auth.personal_org_id === target_org_id ||
-    (ctx.auth.orgs?.some((org) => org.org_id === target_org_id) ?? false)
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (oa) =>
+          oa.account_id === ctx.auth.account_id && oa.org_id === target_org_id,
+      )
 
   if (!isMemberOfTargetOrg) {
     return ctx.error(403, {
@@ -71,8 +85,19 @@ export default withRouteSpec({
     })
   }
 
+  const unscopedName = pkg.unscoped_name ?? pkg.name.split("/")[1]
+  if (!unscopedName) {
+    return ctx.error(400, {
+      error_code: "invalid_package_name",
+      message: "Package name must include an author segment",
+    })
+  }
+
+  const newPackageName = `${targetOrg.tscircuit_handle}/${unscopedName}`
+
   const updatedPackage = ctx.db.updatePackage(package_id, {
     owner_org_id: target_org_id,
+    name: newPackageName,
     github_repo_full_name: null,
     updated_at: new Date().toISOString(),
   })
