@@ -26,6 +26,7 @@ import {
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { Link } from "wouter"
 
 export const ConnectedRepoOverview = ({
   packageBuild,
@@ -325,12 +326,12 @@ export const ConnectedRepoOverview = ({
           <h2 className="text-lg font-semibold text-gray-900">
             Latest Build Logs
           </h2>
-          <a
+          <Link
             href={`/${pkg.name.split("/")[0]}/${pkg.name.split("/")[1]}/releases/${packageRelease.package_release_id}/builds`}
             className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
           >
             (previous builds)
-          </a>
+          </Link>
         </div>
         <Collapsible
           open={openSections.userCode}
