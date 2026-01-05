@@ -234,10 +234,13 @@ export default function UserSettingsPage() {
               />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Account Settings{" "}
-                  {session.tscircuit_handle
-                    ? `- @${session.tscircuit_handle} `
-                    : ""}
+                  Account Settings
+                  <span className="hidden md:inline">
+                    {" "}
+                    {session.tscircuit_handle
+                      ? `- @${session.tscircuit_handle} `
+                      : ""}
+                  </span>
                 </h1>
               </div>
             </div>

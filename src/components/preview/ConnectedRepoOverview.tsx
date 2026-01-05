@@ -23,9 +23,10 @@ import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
   PackageBuild,
-  PackageRelease,
+  PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { Link } from "wouter"
 
 export const ConnectedRepoOverview = ({
   packageBuild,
@@ -36,11 +37,11 @@ export const ConnectedRepoOverview = ({
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
   pkg: Package
-  packageRelease: PackageRelease
+  packageRelease: PublicPackageRelease
 }) => {
   const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
-    userCode: false,
+    userCode: true,
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
@@ -255,7 +256,7 @@ export const ConnectedRepoOverview = ({
                     href={
                       packageRelease?.is_pr_preview
                         ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
-                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.branch_name || "main"}`
+                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.github_branch_name || "main"}`
                     }
                     target="_blank"
                     rel="noopener noreferrer"
@@ -267,7 +268,7 @@ export const ConnectedRepoOverview = ({
                     >
                       {packageRelease?.is_pr_preview
                         ? `#${packageRelease.github_pr_number}`
-                        : packageRelease?.branch_name || "main"}
+                        : packageRelease?.github_branch_name || "main"}
                     </Badge>
                   </a>
                 </div>
@@ -307,7 +308,7 @@ export const ConnectedRepoOverview = ({
             </div>
           </div>
 
-          {packageRelease?.commit_message && (
+          {/* {packageRelease?.commit_message && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                 Commit Message
@@ -316,7 +317,7 @@ export const ConnectedRepoOverview = ({
                 {packageRelease?.commit_message}
               </p>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -325,19 +326,21 @@ export const ConnectedRepoOverview = ({
           <h2 className="text-lg font-semibold text-gray-900">
             Latest Build Logs
           </h2>
-          <a
+          <Link
             href={`/${pkg.name.split("/")[0]}/${pkg.name.split("/")[1]}/releases/${packageRelease.package_release_id}/builds`}
             className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
           >
             (previous builds)
-          </a>
+          </Link>
         </div>
         <Collapsible
           open={openSections.userCode}
           onOpenChange={() => toggleSection("userCode")}
         >
           <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+            <div
+              className={`flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 ${openSections.userCode ? "rounded-b-none border-b-0" : ""}`}
+            >
               <div className="flex items-center gap-3">
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
@@ -351,7 +354,7 @@ export const ConnectedRepoOverview = ({
                 ) : (
                   <Clock className="w-5 h-5 text-gray-400" />
                 )}
-                <span className="font-medium">Usercode Logs</span>
+                <span className="font-medium">Build Logs</span>
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(

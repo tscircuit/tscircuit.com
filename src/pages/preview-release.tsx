@@ -122,7 +122,7 @@ export default function PreviewBuildPage() {
                         {build?.package_build_id}
                       </Link>
                     </div>
-                    {packageRelease?.commit_message && (
+                    {/* {packageRelease?.commit_message && (
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <span className="text-xs text-gray-500 uppercase tracking-wide">
                           Commit
@@ -137,7 +137,7 @@ export default function PreviewBuildPage() {
                           {packageRelease?.commit_message}
                         </a>
                       </div>
-                    )}
+                    )} */}
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <span className="text-xs text-gray-500 uppercase tracking-wide">

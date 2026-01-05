@@ -1,11 +1,9 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
-import { packageReleaseSchema } from "fake-snippets-api/lib/db/schema"
 
 test("POST /api/package_releases/get - should return package release by package_release_id", async () => {
   const { axios } = await getTestServer()
 
-  // First create a package with valid name format
   const packageResponse = await axios.post("/api/packages/create", {
     name: "testuser/package-1",
     description: "A test package",
@@ -13,7 +11,6 @@ test("POST /api/package_releases/get - should return package release by package_
   expect(packageResponse.status).toBe(200)
   const createdPackage = packageResponse.data.package
 
-  // Create a package release
   const releaseResponse = await axios.post("/api/package_releases/create", {
     package_id: createdPackage.package_id,
     version: "1.0.0",
@@ -22,7 +19,6 @@ test("POST /api/package_releases/get - should return package release by package_
   expect(releaseResponse.status).toBe(200)
   const createdRelease = releaseResponse.data.package_release
 
-  // Get the created package release
   const getResponse = await axios.post("/api/package_releases/get", {
     package_release_id: createdRelease.package_release_id,
   })
@@ -30,9 +26,7 @@ test("POST /api/package_releases/get - should return package release by package_
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
-  expect(responseBody.package_release).toEqual(
-    packageReleaseSchema.parse(createdRelease),
-  )
+  expect(responseBody.package_release).toEqual(createdRelease)
 })
 
 test("POST /api/package_releases/get - should return 404 if package release not found", async () => {
@@ -82,9 +76,7 @@ test("POST /api/package_releases/get - should find release by package_name_with_
   expect(getResponse.status).toBe(200)
   const responseBody = getResponse.data
   expect(responseBody.ok).toBe(true)
-  expect(responseBody.package_release).toEqual(
-    packageReleaseSchema.parse(createdRelease),
-  )
+  expect(responseBody.package_release).toEqual(createdRelease)
 })
 
 test("POST /api/package_releases/get - should return circuit_json_build_error if it exists", async () => {
@@ -178,4 +170,46 @@ test("POST /api/package_releases/get?include_ai_review=true returns latest revie
     "Placeholder AI Review",
   )
   expect(getRes.data.package_release.ai_review_completed_at).not.toBeNull()
+})
+
+test("POST /api/package_releases/get - returns pr_number, pr_title, branch_name, is_pr_preview", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageRes = await axios.post("/api/packages/create", {
+    name: "testuser/test-pr-details",
+    description: "A test package for PR details",
+  })
+  expect(packageRes.status).toBe(200)
+
+  const releaseRes = await axios.post("/api/package_releases/create", {
+    package_id: packageRes.data.package.package_id,
+    version: "1.0.0",
+  })
+  expect(releaseRes.status).toBe(200)
+
+  const packageReleaseId = releaseRes.data.package_release.package_release_id
+  const existingRelease = db.getPackageReleaseById(packageReleaseId)!
+
+  db.updatePackageRelease({
+    ...existingRelease,
+    pr_number: 42,
+    pr_title: "feat: add new feature",
+    branch_name: "feature/new-feature",
+    is_pr_preview: true,
+  })
+
+  const getRes = await axios.post("/api/package_releases/get", {
+    package_release_id: packageReleaseId,
+  })
+
+  expect(getRes.status).toBe(200)
+  expect(getRes.data.ok).toBe(true)
+  expect(getRes.data.package_release.github_pr_number).toBe(42)
+  expect(getRes.data.package_release.github_pr_title).toBe(
+    "feat: add new feature",
+  )
+  expect(getRes.data.package_release.github_branch_name).toBe(
+    "feature/new-feature",
+  )
+  expect(getRes.data.package_release.is_pr_preview).toBe(true)
 })
