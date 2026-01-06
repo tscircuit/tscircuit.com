@@ -28,18 +28,13 @@ export const ViewPackagePage = () => {
     usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
 
   const latestVersion = useMemo(() => {
-    if (!allReleases || allReleases.length === 0) return null
+    if (!allReleases || allReleases.length === 0) return undefined
     if (
       packageInfo?.latest_version &&
       allReleases.some((r) => r.version === packageInfo?.latest_version)
     ) {
       return packageInfo?.latest_version
     }
-    const sorted = [...allReleases].sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    )
-    return sorted[0].version
   }, [allReleases])
 
   const isVersionValid = useMemo(() => {
@@ -181,7 +176,7 @@ export const ViewPackagePage = () => {
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
         currentVersion={versionFromUrl || packageRelease?.version || null}
-        latestVersion={latestVersion || undefined}
+        latestVersion={latestVersion}
         onVersionChange={handleVersionChange}
         onFileClicked={(file) => {
           if (!packageInfo?.package_id) return
