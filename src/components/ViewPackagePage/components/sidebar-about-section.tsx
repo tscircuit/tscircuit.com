@@ -73,15 +73,20 @@ export default function SidebarAboutSection({
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
 
-  // Update local state when packageInfo changes
+  // Update local state when packageInfo or packageRelease changes
   useEffect(() => {
     if (packageInfo) {
       setLocalDescription(
         packageInfo.description || packageInfo.ai_description || "",
       )
-      setLocalWebsite((packageInfo as any)?.website || "")
     }
   }, [packageInfo])
+
+  useEffect(() => {
+    if (packageRelease) {
+      setLocalWebsite(packageRelease.package_release_website_url || "")
+    }
+  }, [packageRelease])
 
   const {
     Dialog: EditPackageDetailsDialog,
@@ -239,7 +244,7 @@ export default function SidebarAboutSection({
             packageInfo.description || packageInfo?.ai_description || ""
           }
           currentLicense={currentLicense}
-          currentWebsite={(packageInfo as any)?.website || ""}
+          currentWebsite={packageRelease?.package_release_website_url || ""}
           isPrivate={Boolean(packageInfo.is_private)}
           packageAuthor={packageInfo.name.split("/")[0]}
           onUpdate={handlePackageUpdate}

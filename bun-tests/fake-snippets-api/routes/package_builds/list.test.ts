@@ -124,7 +124,7 @@ test("GET /api/package_builds/list - returns created builds", async () => {
       Date.now() - 1000 * 60 * 25,
     ).toISOString(),
     build_logs: null,
-    preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
+    package_build_website_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
   })
 
   const res = await axios.get(
@@ -171,7 +171,7 @@ test("GET /api/package_builds/list - sorts builds by created_at descending", asy
       Date.now() - 1000 * 60 * 25,
     ).toISOString(),
     build_logs: null,
-    preview_url: "https://preview.tscircuit.com/pb_1",
+    package_build_website_url: "https://preview.tscircuit.com/pb_1",
   })
 
   db.addPackageBuild({
@@ -203,7 +203,7 @@ test("GET /api/package_builds/list - sorts builds by created_at descending", asy
       Date.now() - 1000 * 60 * 10,
     ).toISOString(),
     build_logs: null,
-    preview_url: "https://preview.tscircuit.com/pb_2",
+    package_build_website_url: "https://preview.tscircuit.com/pb_2",
   })
 
   const res = await axios.get(
@@ -276,7 +276,7 @@ test("GET /api/package_builds/list - returns created builds with logs or not", a
       Date.now() - 1000 * 60 * 25,
     ).toISOString(),
     build_logs: buildLogs.join(" "),
-    preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
+    package_build_website_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
   })
 
   const resWithoutLogs = await axios.get(

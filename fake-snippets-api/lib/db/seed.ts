@@ -575,7 +575,7 @@ export default () => (
     build_completed_at: new Date(Date.now() - 14000).toISOString(),
     build_error: "Build failed: Unable to complete transpilation step",
     build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
-    preview_url: null,
+    package_build_website_url: null,
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -1984,7 +1984,7 @@ export const SquareWaveModule = () => (
     build_completed_at: new Date(Date.now() - 14000).toISOString(),
     build_error: "Build failed: Unable to complete transpilation step",
     build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
-    preview_url: null,
+    package_build_website_url: null,
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -2025,7 +2025,7 @@ export const SquareWaveModule = () => (
     build_completed_at: new Date().toISOString(), // Just completed
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
-    preview_url: "http://localhost:3000/preview/package_build_1",
+    package_build_website_url: "http://localhost:3000/preview/package_build_1",
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -2292,7 +2292,8 @@ exports.TestComponent = TestComponent;
     build_completed_at: new Date().toISOString(),
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
-    preview_url: "http://localhost:3000/preview/org_package_build",
+    package_build_website_url:
+      "http://localhost:3000/preview/org_package_build",
     build_logs: "Build completed successfully",
   })
 

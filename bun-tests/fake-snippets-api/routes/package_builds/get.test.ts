@@ -70,7 +70,7 @@ test("GET /api/package_builds/get - returns 403 for unauthorized package build a
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
-    preview_url: "https://preview.tscircuit.com/pb_test",
+    package_build_website_url: "https://preview.tscircuit.com/pb_test",
   })
 
   const res = await axios.get(
@@ -122,7 +122,7 @@ test("GET /api/package_builds/get - successfully returns package build with logs
       Date.now() - 1000 * 60 * 25,
     ).toISOString(),
     build_logs: buildLogs.join(" "),
-    preview_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
+    package_build_website_url: "https://preview.tscircuit.com/pb_1a2b3c4d",
   })
 
   const res = await axios.get(
@@ -172,7 +172,7 @@ test("GET /api/package_builds/get - returns package build without logs when incl
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: "Some build logs",
-    preview_url: "https://preview.tscircuit.com/pb_test",
+    package_build_website_url: "https://preview.tscircuit.com/pb_test",
   })
 
   const res = await axios.get(
@@ -222,7 +222,7 @@ test("GET /api/package_builds/get - handles build with errors", async () => {
     build_error: "Build failed: compilation error",
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
-    preview_url: null,
+    package_build_website_url: null,
   })
 
   const res = await axios.get(
@@ -271,7 +271,7 @@ test("GET /api/package_builds/get - handles build in progress", async () => {
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
-    preview_url: null,
+    package_build_website_url: null,
   })
 
   const res = await axios.get(

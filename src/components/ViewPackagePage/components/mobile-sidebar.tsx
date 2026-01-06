@@ -1,20 +1,15 @@
 import { GitFork, Star, Tag, Settings, LinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { usePackageReleaseImages } from "@/hooks/use-package-release-images"
-import { usePreviewImages } from "@/hooks/use-preview-images"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
-import {
-  normalizeSvgForSquareTile,
-  svgToDataUrl,
-} from "@/lib/normalize-svg-for-tile"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import PreviewImageSquares from "./preview-image-squares"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -75,15 +70,20 @@ const MobileSidebar = ({
 
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
-
+  const { packageRelease } = useCurrentPackageRelease()
   useEffect(() => {
     if (packageInfo) {
       setLocalDescription(
         packageInfo.description || packageInfo.ai_description || "",
       )
-      setLocalWebsite((packageInfo as any)?.website || "")
     }
   }, [packageInfo])
+
+  useEffect(() => {
+    if (packageRelease) {
+      setLocalWebsite(packageRelease.package_release_website_url || "")
+    }
+  }, [packageRelease])
 
   const handlePackageUpdate = useCallback(
     (newDescription: string, newWebsite: string) => {

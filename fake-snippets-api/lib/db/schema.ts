@@ -335,6 +335,9 @@ export const packageReleaseSchema = z.object({
   pcb_preview_image_url: z.string().nullable().default(null),
   sch_preview_image_url: z.string().nullable().default(null),
   cad_preview_image_url: z.string().nullable().default(null),
+
+  // Website URL
+  package_release_website_url: z.string().nullable().default(null),
 })
 export type PackageRelease = z.infer<typeof packageReleaseSchema>
 
@@ -399,6 +402,7 @@ export const publicPackageReleaseSchema = z.object({
   github_pr_title: z.string().nullable().optional(),
   github_branch_name: z.string().nullable().optional(),
   github_commit_sha: z.string().nullable(),
+  package_release_website_url: z.string().nullable().optional(),
 })
 export type PublicPackageRelease = z.infer<typeof publicPackageReleaseSchema>
 
@@ -526,7 +530,7 @@ export const packageBuildSchema = z.object({
   build_completed_at: z.string().datetime().nullable().optional(),
   build_error: z.string().nullable().optional(),
   build_error_last_updated_at: z.string().datetime(),
-  preview_url: z.string().nullable().optional(),
+  package_build_website_url: z.string().nullable().optional(),
   build_logs: z.string().nullable().optional(),
   user_code_job_started_at: z.string().datetime().nullable().optional(),
   user_code_job_completed_at: z.string().datetime().nullable().optional(),
