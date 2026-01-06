@@ -79,9 +79,11 @@ const MobileSidebar = ({
     }
   }, [packageInfo])
 
+  const websiteUrl =
+    packageRelease?.package_release_website_url || packageInfo?.website || ""
   useEffect(() => {
     if (packageRelease) {
-      setLocalWebsite(packageRelease.package_release_website_url || "")
+      setLocalWebsite(websiteUrl || "")
     }
   }, [packageRelease])
 
