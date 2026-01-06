@@ -43,7 +43,7 @@ test("GET /package_builds/get includes image generation fields", async () => {
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
     build_logs: null,
-    preview_url: null,
+    package_build_website_url: null,
   })
 
   const res = await jane_axios.get(

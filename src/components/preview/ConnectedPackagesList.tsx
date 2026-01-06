@@ -182,7 +182,7 @@ export const ConnectedPackageCard = ({
             View
           </Button>
         </Link>
-        {latestBuildInfo?.preview_url &&
+        {latestBuildInfo?.package_build_website_url &&
           latestBuildInfo?.package_build_id &&
           status === "success" && (
             <Link

@@ -3,6 +3,10 @@
     {
       "owner": "seveibar",
       "name": "usb-c-flashlight"
+    },
+    {
+      "owner": "seveibar",
+      "name": "minimal-rp2040"
     }
   ]
 }
