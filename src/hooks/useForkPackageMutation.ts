@@ -25,6 +25,7 @@ export const useForkPackageMutation = ({
 
       const { data } = await axios.post("/packages/fork", {
         package_id: pkg?.package_id,
+        is_private: pkg?.is_private,
       })
       return data.package
     },

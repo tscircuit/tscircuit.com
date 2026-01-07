@@ -65,7 +65,10 @@ export default function PackageHeader({
 
   const handleForkClick = async () => {
     if (!packageInfo?.package_id || !isLoggedIn) return
-    await forkPackage(packageInfo.package_id)
+    await forkPackage({
+      packageId: packageInfo.package_id,
+      isPrivate,
+    })
   }
 
   useEffect(() => {
