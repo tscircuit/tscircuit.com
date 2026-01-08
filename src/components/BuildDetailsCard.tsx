@@ -48,32 +48,42 @@ export function BuildDetailsCard({
         )
       : null
 
+  // Priority: 3D -> PCB -> Schematic
+  const getPreviewImage = () => {
+    const priority = ["3d", "pcb", "schematic"]
+    for (const type of priority) {
+      const view = availableViews.find((v) => v.label.toLowerCase() === type)
+      if (view) return view
+    }
+    return availableViews[0] ?? null
+  }
+
+  const previewImage = getPreviewImage()
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg mb-6">
       <div className="p-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Preview Image */}
-          {Boolean(latestBuild) &&
-            status !== "error" &&
-            availableViews.length > 0 && (
-              <div className="flex-shrink-0 w-full lg:w-64 h-40 border rounded-lg overflow-hidden bg-gray-50">
-                {availableViews[0]?.isLoading ? (
-                  <Skeleton className="w-full h-full" />
-                ) : (
-                  <img
-                    src={availableViews[0]?.imageUrl}
-                    alt="Preview"
-                    className={`w-full h-full object-contain ${
-                      availableViews[0]?.label.toLowerCase() === "pcb"
-                        ? "bg-black"
-                        : availableViews[0]?.label.toLowerCase() === "schematic"
-                          ? "bg-[#F5F1ED]"
-                          : "bg-gray-100"
-                    }`}
-                  />
-                )}
-              </div>
-            )}
+          {Boolean(latestBuild) && status !== "error" && previewImage && (
+            <div className="flex-shrink-0 w-full lg:w-64 h-40 border rounded-lg overflow-hidden bg-gray-50">
+              {previewImage.isLoading ? (
+                <Skeleton className="w-full h-full" />
+              ) : (
+                <img
+                  src={previewImage.imageUrl}
+                  alt="Preview"
+                  className={`w-full h-full object-contain ${
+                    previewImage.label.toLowerCase() === "pcb"
+                      ? "bg-black"
+                      : previewImage.label.toLowerCase() === "schematic"
+                        ? "bg-[#F5F1ED]"
+                        : "bg-gray-100"
+                  }`}
+                />
+              )}
+            </div>
+          )}
 
           {/* Details Grid */}
           <div className="flex-1 space-y-4">

@@ -105,13 +105,9 @@ export default function ReleaseDetailPage() {
             </div>
           </div>
 
-          {/* Images Skeleton */}
+          {/* Build Details Card Skeleton */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))}
-            </div>
+            <Skeleton className="h-48 rounded-lg" />
           </div>
 
           {/* Main Content Skeleton */}
@@ -276,32 +272,6 @@ export default function ReleaseDetailPage() {
             status={status}
             availableViews={availableViews}
           />
-
-          {/* Images Grid - Only show for successful builds */}
-          {Boolean(latestBuild) && status !== "error" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {availableViews.length > 0
-                ? availableViews.map((view) => (
-                    <div
-                      key={view.id}
-                      className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
-                    >
-                      {view.isLoading ? (
-                        <Skeleton className="w-full h-full" />
-                      ) : (
-                        <img
-                          src={view.imageUrl}
-                          alt={`${view.label} preview`}
-                          className={`w-full h-full object-contain ${view.label.toLowerCase() === "pcb" ? "bg-black" : view.label.toLowerCase() === "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
-                        />
-                      )}
-                    </div>
-                  ))
-                : [1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-48 rounded-lg" />
-                  ))}
-            </div>
-          )}
         </div>
 
         {/* Main Content */}
