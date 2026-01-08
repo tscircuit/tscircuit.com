@@ -230,20 +230,22 @@ export default function ReleaseDetailPage() {
                 )
               ) : (
                 <>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      if (packageRelease.package_release_website_url) {
-                        window.open(
-                          packageRelease.package_release_website_url,
-                          "_blank",
-                        )
-                      }
-                    }}
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Visit
-                  </Button>
+                  {packageRelease.package_release_website_url && (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (packageRelease.package_release_website_url) {
+                          window.open(
+                            packageRelease.package_release_website_url,
+                            "_blank",
+                          )
+                        }
+                      }}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Visit
+                    </Button>
+                  )}
                 </>
               )}
             </div>

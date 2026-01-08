@@ -150,6 +150,12 @@ export function BuildDetailsCard({
                   <span className="text-sm font-medium">
                     {buildDuration !== null ? `${buildDuration}s` : "N/A"}
                   </span>
+                  {latestBuild?.user_code_job_started_at &&
+                    latestBuild?.user_code_job_completed_at && (
+                      <span className="text-sm text-gray-500">
+                        {formatTimeAgo(latestBuild.user_code_job_completed_at)}
+                      </span>
+                    )}
                 </div>
               </div>
 
