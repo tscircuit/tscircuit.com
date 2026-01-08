@@ -65,16 +65,20 @@ export default function ReleaseBuildsPage() {
       <div className="min-h-screen bg-white">
         <div className="bg-gray-50 border-b py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PackageBreadcrumb
-              author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
-              packageName={packageName || ""}
-              unscopedName={pkg.unscoped_name}
-              currentPage="builds"
-              releaseVersion={
-                packageRelease.version ||
-                `v${packageRelease.package_release_id.slice(-6)}`
-              }
-            />
+            <div className="mb-4">
+              <PackageBreadcrumb
+                author={
+                  pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]
+                }
+                packageName={packageName || ""}
+                unscopedName={pkg.unscoped_name}
+                currentPage="builds"
+                releaseVersion={
+                  packageRelease.version ||
+                  `v${packageRelease.package_release_id.slice(-6)}`
+                }
+              />
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
