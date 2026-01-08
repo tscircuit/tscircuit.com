@@ -95,7 +95,7 @@ export default function ReleaseDetailPage() {
         <div className="min-h-screen bg-white">
           {/* Page Header Skeleton */}
           <div className="bg-gray-50 border-b py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <Skeleton className="h-6 w-64 mb-4" />
               <div className="flex items-center gap-4">
                 <Skeleton className="h-4 w-20" />
@@ -105,7 +105,7 @@ export default function ReleaseDetailPage() {
           </div>
 
           {/* Images Skeleton */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-48 rounded-lg" />
@@ -114,7 +114,7 @@ export default function ReleaseDetailPage() {
           </div>
 
           {/* Main Content Skeleton */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <Skeleton className="h-64 w-full" />
           </div>
         </div>
@@ -139,21 +139,21 @@ export default function ReleaseDetailPage() {
       <div className="min-h-screen bg-white">
         {/* Page Header */}
         <div className="bg-gray-50 border-b py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Breadcrumb */}
-            <PackageBreadcrumb
-              author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
-              packageName={pkg.name}
-              unscopedName={pkg.unscoped_name}
-              releaseVersion={
-                packageRelease.version ||
-                `v${packageRelease.package_release_id.slice(-6)}`
-              }
-            />
-
-            {/* Header Content */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Breadcrumb and Rebuild Button */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <PackageBreadcrumb
+                  author={
+                    pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]
+                  }
+                  packageName={pkg.name}
+                  unscopedName={pkg.unscoped_name}
+                  releaseVersion={
+                    packageRelease.version ||
+                    `v${packageRelease.package_release_id.slice(-6)}`
+                  }
+                />
                 {packageRelease.is_pr_preview && (
                   <TooltipProvider>
                     <Tooltip>
@@ -162,7 +162,7 @@ export default function ReleaseDetailPage() {
                           href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1 hover:text-gray-800 transition-colors"
+                          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 transition-colors"
                         >
                           <GitBranch className="w-4 h-4" />
                           <Badge variant="outline" className="text-xs">
@@ -206,7 +206,7 @@ export default function ReleaseDetailPage() {
 
         {/* Images Section - Always show with skeletons while loading */}
         {Boolean(latestBuild) && status != "error" && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {availableViews.length > 0
                 ? availableViews.map((view) => (
