@@ -1,17 +1,12 @@
 import { useState, useEffect, useRef } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   Clock,
-  GitBranch,
   CheckCircle,
   AlertCircle,
   Loader2,
   ExternalLink,
   ChevronRight,
-  User,
-  Hash,
-  GitCommit,
   PackageOpen,
   RefreshCw,
 } from "lucide-react"
@@ -20,8 +15,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { getBuildStatus, StatusIcon } from "."
-import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import {
   Package,
   PackageBuild,
@@ -41,7 +34,6 @@ export const ConnectedRepoOverview = ({
   pkg: Package
   packageRelease: PublicPackageRelease
 }) => {
-  const { status, label } = getBuildStatus(packageBuild)
   const [openSections, setOpenSections] = useState({
     userCode: true,
   })
@@ -76,36 +68,19 @@ export const ConnectedRepoOverview = ({
   if (isLoadingBuild) {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
-        <div className="bg-white border border-gray-200 rounded-lg">
-          <div className="px-6 py-6 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-7 w-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                </div>
-              </div>
-              <div className="w-24 h-9 bg-gray-200 rounded animate-pulse" />
-            </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
           </div>
-          <div className="px-6 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array(4)
-                .fill(0)
-                .map((_, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
-                    <div className="space-y-2">
-                      <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                      <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                  </div>
-                ))}
-            </div>
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mb-2" />
-              <div className="h-5 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+                <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
+              </div>
+              <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
             </div>
           </div>
         </div>
@@ -140,10 +115,6 @@ export const ConnectedRepoOverview = ({
     )
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
   const getErrorMessage = (error: any): string => {
     if (!error) return ""
     if (typeof error === "string") return error
@@ -153,23 +124,6 @@ export const ConnectedRepoOverview = ({
     return String(error)
   }
 
-  const buildDuration = (() => {
-    const userCodeJobDuration = packageBuild?.user_code_job_started_at
-      ? Math.floor(
-          (new Date(
-            packageBuild.user_code_job_completed_at || new Date(),
-          ).getTime() -
-            new Date(packageBuild.user_code_job_started_at).getTime()) /
-            1000,
-        )
-      : 0
-
-    if (!packageBuild?.user_code_job_started_at) {
-      return null
-    }
-
-    return userCodeJobDuration
-  })()
   const toggleSection = (section: keyof typeof openSections) => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
@@ -200,156 +154,7 @@ export const ConnectedRepoOverview = ({
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
-      <div className="bg-white border border-gray-200 rounded-lg">
-        <div className="px-6 py-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <StatusIcon status={status} />
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
-                  <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
-                    Build {label}
-                  </h1>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  <time dateTime={packageBuild.created_at}>
-                    Built {formatTimeAgo(packageBuild.created_at)}
-                  </time>
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {status !== "error" && (
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 min-w-[80px] h-9"
-                  onClick={() =>
-                    window.open(
-                      `/${pkg.name}/releases/${packageBuild.package_release_id}/preview`,
-                      "_blank",
-                    )
-                  }
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Preview
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="px-6 py-4 select-none">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-center gap-3 group">
-              <Hash className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Build ID
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      copyToClipboard(packageBuild.package_build_id)
-                    }
-                    className="group-hover:text-blue-500 text-xs rounded text-left transition-colors"
-                  >
-                    {packageBuild.package_build_id}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {pkg.github_repo_full_name && (
-              <div className="flex items-center gap-3 group">
-                {packageRelease?.is_pr_preview ? (
-                  <GitBranch className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-                ) : (
-                  <GitCommit className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-                )}
-                <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">
-                    {packageRelease?.is_pr_preview ? "PR" : "Branch"}
-                  </p>
-                  <a
-                    href={
-                      packageRelease?.is_pr_preview
-                        ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease?.github_pr_number}`
-                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease?.github_branch_name || "main"}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block"
-                  >
-                    <Badge
-                      variant="outline"
-                      className="text-xs mt-1 hover:bg-gray-100 cursor-pointer transition-colors"
-                    >
-                      {packageRelease?.is_pr_preview
-                        ? `#${packageRelease.github_pr_number}`
-                        : packageRelease?.github_branch_name || "main"}
-                    </Badge>
-                  </a>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 group">
-              <User className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Author
-                </p>
-                <a
-                  href={`https://github.com/${pkg.owner_github_username}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium hover:text-blue-500 transition-colors"
-                >
-                  {pkg.owner_github_username || "Unknown"}
-                </a>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 group">
-              <Clock className="w-4 h-4 text-gray-500 group-hover:text-blue-500 transition-colors" />
-              <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">
-                  Duration
-                </p>
-                <p
-                  className="text-sm font-medium hover:text-blue-500 transition-colors cursor-help"
-                  title={`Build started at ${packageBuild.user_code_job_started_at}`}
-                >
-                  {buildDuration !== null ? buildDuration : "N/A"}s
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* {packageRelease?.commit_message && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
-              <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
-                Commit Message
-              </p>
-              <p className="text-sm text-gray-900 group-hover:text-gray-700 transition-colors">
-                {packageRelease?.commit_message}
-              </p>
-            </div>
-          )} */}
-        </div>
-      </div>
-
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Latest Build Logs
-          </h2>
-          <Link
-            href={`/${pkg.name.split("/")[0]}/${pkg.name.split("/")[1]}/releases/${packageRelease.package_release_id}/builds`}
-            className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            (previous builds)
-          </Link>
-        </div>
         <Collapsible
           open={openSections.userCode}
           onOpenChange={() => toggleSection("userCode")}
