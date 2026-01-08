@@ -207,48 +207,26 @@ export default function ReleaseDetailPage() {
             <h2 className="text-2xl font-semibold text-gray-900">
               Build Details
             </h2>
-            <div className="flex items-center gap-2">
-              {status === "error" || !latestBuild ? (
-                canManagePackage && (
+            {status !== "error" &&
+              latestBuild &&
+              packageRelease.package_release_website_url && (
+                <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
                     size="sm"
-                    className="border-gray-300 bg-white hover:bg-gray-50"
-                    disabled={isRebuildLoading || !packageRelease}
-                    onClick={() =>
-                      packageRelease &&
-                      rebuildPackage({
-                        package_release_id: packageRelease.package_release_id,
-                      })
-                    }
+                    onClick={() => {
+                      if (packageRelease.package_release_website_url) {
+                        window.open(
+                          packageRelease.package_release_website_url,
+                          "_blank",
+                        )
+                      }
+                    }}
                   >
-                    <RefreshCw
-                      className={`w-4 h-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
-                    />
-                    {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Visit
                   </Button>
-                )
-              ) : (
-                <>
-                  {packageRelease.package_release_website_url && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (packageRelease.package_release_website_url) {
-                          window.open(
-                            packageRelease.package_release_website_url,
-                            "_blank",
-                          )
-                        }
-                      }}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Visit
-                    </Button>
-                  )}
-                </>
+                </div>
               )}
-            </div>
           </div>
 
           {/* Build Details Card */}
