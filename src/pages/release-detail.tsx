@@ -14,7 +14,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { GitBranch, RefreshCw } from "lucide-react"
+import { GitBranch, RefreshCw, Share2, ExternalLink } from "lucide-react"
+import { BuildDetailsCard } from "@/components/BuildDetailsCard"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -104,13 +105,9 @@ export default function ReleaseDetailPage() {
             </div>
           </div>
 
-          {/* Images Skeleton */}
+          {/* Build Details Card Skeleton */}
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))}
-            </div>
+            <Skeleton className="h-48 rounded-lg" />
           </div>
 
           {/* Main Content Skeleton */}
@@ -204,33 +201,65 @@ export default function ReleaseDetailPage() {
           </div>
         </div>
 
-        {/* Images Section - Always show with skeletons while loading */}
-        {Boolean(latestBuild) && status != "error" && (
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {availableViews.length > 0
-                ? availableViews.map((view) => (
-                    <div
-                      key={view.id}
-                      className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
+        {/* Build Details Section */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Build Details
+            </h2>
+            <div className="flex items-center gap-2">
+              {status === "error" || !latestBuild ? (
+                canManagePackage && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 bg-white hover:bg-gray-50"
+                    disabled={isRebuildLoading || !packageRelease}
+                    onClick={() =>
+                      packageRelease &&
+                      rebuildPackage({
+                        package_release_id: packageRelease.package_release_id,
+                      })
+                    }
+                  >
+                    <RefreshCw
+                      className={`w-4 h-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
+                    />
+                    {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
+                  </Button>
+                )
+              ) : (
+                <>
+                  {packageRelease.package_release_website_url && (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (packageRelease.package_release_website_url) {
+                          window.open(
+                            packageRelease.package_release_website_url,
+                            "_blank",
+                          )
+                        }
+                      }}
                     >
-                      {view.isLoading ? (
-                        <Skeleton className="w-full h-full" />
-                      ) : (
-                        <img
-                          src={view.imageUrl}
-                          alt={`${view.label} preview`}
-                          className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
-                        />
-                      )}
-                    </div>
-                  ))
-                : [1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-48 rounded-lg" />
-                  ))}
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Visit
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
           </div>
-        )}
+
+          {/* Build Details Card */}
+          <BuildDetailsCard
+            pkg={pkg}
+            packageRelease={packageRelease}
+            latestBuild={latestBuild ?? null}
+            status={status}
+            availableViews={availableViews}
+          />
+        </div>
 
         {/* Main Content */}
         <ConnectedRepoOverview
