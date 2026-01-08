@@ -14,8 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Calendar, GitBranch, RefreshCw } from "lucide-react"
-import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
+import { GitBranch, RefreshCw } from "lucide-react"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -155,12 +154,6 @@ export default function ReleaseDetailPage() {
             {/* Header Content */}
             <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    Created {formatTimeAgo(packageRelease.created_at)}
-                  </span>
-                </div>{" "}
                 {packageRelease.is_pr_preview && (
                   <TooltipProvider>
                     <Tooltip>
