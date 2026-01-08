@@ -67,7 +67,7 @@ export const ConnectedRepoOverview = ({
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
@@ -153,7 +153,7 @@ export const ConnectedRepoOverview = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 focus:outline-none">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
       <div className="space-y-3">
         <Collapsible
           open={openSections.userCode}
@@ -167,15 +167,7 @@ export const ConnectedRepoOverview = ({
                 <ChevronRight
                   className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
                 />
-                {packageBuild.user_code_job_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.user_code_job_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : userCodeJobInProgress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
+
                 <span className="font-medium">Build Logs</span>
               </div>
               <div className="flex items-center gap-2">
@@ -190,32 +182,15 @@ export const ConnectedRepoOverview = ({
                     )}
                   </span>
                 )}
-                <Badge
-                  variant={
-                    getStepStatus(
-                      packageBuild.user_code_job_error?.message || null,
-                      packageBuild.user_code_job_completed_at,
-                      userCodeJobInProgress,
-                    ) === "success"
-                      ? "default"
-                      : getStepStatus(
-                            packageBuild.user_code_job_error?.message || null,
-                            packageBuild.user_code_job_completed_at,
-                            userCodeJobInProgress,
-                          ) === "error"
-                        ? "destructive"
-                        : "secondary"
-                  }
-                  className="text-xs"
-                >
-                  {packageBuild.user_code_job_error
-                    ? "Failed"
-                    : packageBuild.user_code_job_completed_at
-                      ? "Completed"
-                      : userCodeJobInProgress
-                        ? "Running"
-                        : "Queued"}
-                </Badge>
+                {packageBuild.user_code_job_error ? (
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                ) : packageBuild.user_code_job_completed_at ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : userCodeJobInProgress ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                ) : (
+                  <Clock className="w-5 h-5 text-gray-400" />
+                )}
               </div>
             </div>
           </CollapsibleTrigger>

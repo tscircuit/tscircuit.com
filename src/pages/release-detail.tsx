@@ -231,21 +231,6 @@ export default function ReleaseDetailPage() {
               ) : (
                 <>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-gray-300 bg-white hover:bg-gray-50"
-                    onClick={() => {
-                      if (packageRelease.package_release_website_url) {
-                        navigator.clipboard.writeText(
-                          packageRelease.package_release_website_url,
-                        )
-                      }
-                    }}
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Share
-                  </Button>
-                  <Button
                     size="sm"
                     onClick={() => {
                       if (packageRelease.package_release_website_url) {

@@ -61,7 +61,7 @@ export function BuildDetailsCard({
   const previewImage = getPreviewImage()
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg mb-6">
+    <div className="bg-white border border-gray-200 rounded-lg">
       <div className="p-6">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Preview Image */}
