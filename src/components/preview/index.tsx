@@ -104,32 +104,9 @@ export const getBuildErrorMessage = (
   if (build.user_code_job_error) {
     if (typeof build.user_code_job_error === "string")
       return build.user_code_job_error
-    if ((build.user_code_job_error as any).message)
-      return (build.user_code_job_error as any).message
+    if ((build.user_code_job_error as { message: string }).message)
+      return (build.user_code_job_error as { message: string }).message
     return "User code job failed"
-  }
-
-  if (build.build_error) {
-    if (typeof build.build_error === "string") return build.build_error
-    if ((build.build_error as any).message)
-      return (build.build_error as any).message
-    return "Build failed"
-  }
-
-  if (build.transpilation_error) {
-    if (typeof build.transpilation_error === "string")
-      return build.transpilation_error
-    if ((build.transpilation_error as any).message)
-      return (build.transpilation_error as any).message
-    return "Transpilation failed"
-  }
-
-  if (build.circuit_json_build_error) {
-    if (typeof build.circuit_json_build_error === "string")
-      return build.circuit_json_build_error
-    if ((build.circuit_json_build_error as any).message)
-      return (build.circuit_json_build_error as any).message
-    return "Circuit JSON build failed"
   }
 
   return null
