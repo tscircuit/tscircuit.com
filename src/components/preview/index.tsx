@@ -9,10 +9,18 @@ export {
 import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
 import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
+export interface DropdownAction {
+  label: string
+  onClick: (e: React.MouseEvent) => void
+  hidden?: boolean
+}
+
+export type Status = "pending" | "building" | "success" | "error" | "queued"
+
 export const getBuildStatus = (
   build?: PackageBuild | null,
 ): {
-  status: "pending" | "building" | "success" | "error" | "queued"
+  status: Status
   label: string
 } => {
   if (!build) {
@@ -86,4 +94,20 @@ export const StatusIcon = ({ status }: { status: string }) => {
     default:
       return <Clock className="w-4 h-4 text-gray-500" />
   }
+}
+
+export const getBuildErrorMessage = (
+  build?: PackageBuild | null,
+): string | null => {
+  if (!build) return null
+
+  if (build.user_code_job_error) {
+    if (typeof build.user_code_job_error === "string")
+      return build.user_code_job_error
+    if ((build.user_code_job_error as { message: string }).message)
+      return (build.user_code_job_error as { message: string }).message
+    return "User code job failed"
+  }
+
+  return null
 }
