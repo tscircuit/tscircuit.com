@@ -26,6 +26,7 @@ interface BuildItemRowProps {
   onClick?: () => void
   dropdownActions?: DropdownAction[]
   isLatest?: boolean
+  errorMessage?: string | null
 }
 
 export const BuildItemRow = ({
@@ -37,6 +38,7 @@ export const BuildItemRow = ({
   onClick,
   dropdownActions,
   isLatest,
+  errorMessage,
 }: BuildItemRowProps) => {
   const [copied, setCopied] = useState(false)
 
@@ -88,6 +90,12 @@ export const BuildItemRow = ({
             </span>
           </div>
         </div>
+
+        {errorMessage && (
+          <div className="text-xs text-red-600 font-mono break-all">
+            {errorMessage}
+          </div>
+        )}
 
         <div className="flex justify-between items-end">
           <div className="space-y-1">
@@ -150,9 +158,20 @@ export const BuildItemRow = ({
         </div>
 
         <div className="col-span-4 flex flex-col justify-center min-w-0">
-          <span className="text-sm text-gray-500 mt-1 pl-6">
-            {duration || "—"}
-          </span>
+          {errorMessage ? (
+            <div className="flex items-start pl-6">
+              <span
+                className="text-xs text-red-600 font-mono truncate max-w-full"
+                title={errorMessage}
+              >
+                {errorMessage}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm text-gray-500 mt-1 pl-6">
+              {duration || "—"}
+            </span>
+          )}
         </div>
 
         <div className="col-span-3 flex items-center justify-end gap-4 min-w-0">

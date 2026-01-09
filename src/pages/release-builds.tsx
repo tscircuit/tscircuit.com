@@ -14,7 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getBuildStatus, formatBuildDuration } from "@/components/preview"
+import {
+  getBuildStatus,
+  formatBuildDuration,
+  getBuildErrorMessage,
+} from "@/components/preview"
 import {
   BuildItemRow,
   BuildItemRowSkeleton,
@@ -218,6 +222,7 @@ export default function ReleaseBuildsPage() {
                         build.user_code_job_started_at,
                         build.user_code_job_completed_at,
                       )
+                      const errorMessage = getBuildErrorMessage(build)
 
                       return (
                         <BuildItemRow
@@ -227,6 +232,7 @@ export default function ReleaseBuildsPage() {
                           statusLabel={label}
                           duration={buildDuration || null}
                           createdAt={build.created_at}
+                          errorMessage={errorMessage}
                           dropdownActions={[
                             {
                               label: "Copy Build ID",
