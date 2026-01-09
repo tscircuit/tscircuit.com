@@ -158,7 +158,7 @@ export default function ReleaseBuildsPage() {
       </Helmet>
       <Header />
       <div className="min-h-screen bg-white">
-        <div className="bg-white border-b border-gray-100 py-8">
+        <div className="bg-white border-b border-gray-100 pt-8 pb-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PackageBreadcrumb
               author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
@@ -169,11 +169,8 @@ export default function ReleaseBuildsPage() {
             />
             <div className="mt-4">
               <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-                Deployments
+                Builds
               </h1>
-              <p className="text-gray-500 mt-1 text-sm">
-                View and manage builds for {pkg.name} release {releaseVersion}
-              </p>
             </div>
           </div>
         </div>
