@@ -244,7 +244,10 @@ export default function ReleaseBuildsPage() {
                               },
                             },
                           ]}
-                          isLatest={idx === 0}
+                          isLatest={
+                            builds?.[0]?.package_build_id ===
+                            build.package_build_id
+                          }
                         />
                       )
                     })}
