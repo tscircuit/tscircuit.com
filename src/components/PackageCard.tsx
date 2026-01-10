@@ -89,11 +89,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     : pkg?.unscoped_name
   const cardContent = (
     <div
-      className={`border border-gray-200 rounded-lg p-3 hover:bg-gray-50 ${compact ? "" : "xl:min-h-[140px]"} ${className}`}
+      className={`border border-gray-200 rounded-lg p-3 hover:bg-gray-50 ${compact ? "" : "md:min-h-[140px]"} ${className}`}
     >
       <div className="flex items-center gap-2">
         <div
-          className={`${compact ? imageSize : `${imageSize} xl:size-32`} mr-1 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
+          className={`${compact ? imageSize : `${imageSize} md:size-32`} mr-1 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
           {previewImageUrl ? (
             <img
@@ -111,7 +111,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             className={`${previewImageUrl ? "hidden" : "flex"} items-center justify-center h-full w-full`}
           >
             <CircuitBoard
-              className={`${compact ? "size-6" : "size-6 xl:size-10"} text-gray-300`}
+              className={`${compact ? "size-6" : "size-6 md:size-10"} text-gray-300`}
             />
           </div>
         </div>
@@ -129,7 +129,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 <span>{packageName}</span>
               </h2>
               <p
-                className={`${compact ? "line-clamp-1" : "line-clamp-1 xl:line-clamp-2 xl:h-10 xl:mb-2"} text-sm text-gray-600 overflow-hidden`}
+                className={`${compact ? "line-clamp-1" : "line-clamp-1 md:line-clamp-2 md:h-10 md:mb-2"} text-sm text-gray-600 overflow-hidden`}
               >
                 {pkg.description || "No description available"}
               </p>
