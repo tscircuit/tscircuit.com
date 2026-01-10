@@ -8,7 +8,10 @@ export {
   PackageReleaseOrBuildItemRowSkeleton,
   formatBuildDuration,
 } from "./PackageReleaseOrBuildItemRow"
-import { PackageBuild } from "fake-snippets-api/lib/db/schema"
+import {
+  PackageBuild,
+  PublicPackageRelease,
+} from "fake-snippets-api/lib/db/schema"
 import { Clock, AlertCircle, Loader2, CircleCheck } from "lucide-react"
 
 export interface DropdownAction {
@@ -20,7 +23,7 @@ export interface DropdownAction {
 export type Status = "pending" | "building" | "success" | "error" | "queued"
 
 export const getBuildStatus = (
-  build?: PackageBuild | null,
+  build?: PackageBuild | PublicPackageRelease | null,
 ): {
   status: Status
   label: string
@@ -56,32 +59,6 @@ export const getBuildStatus = (
   ) {
     return { status: "error", label: "Failed" }
   }
-
-  if (
-    build?.build_error ||
-    build?.transpilation_error ||
-    build?.circuit_json_build_error
-  ) {
-    return { status: "error", label: "Failed" }
-  }
-  if (
-    build?.build_in_progress ||
-    build?.transpilation_in_progress ||
-    build?.circuit_json_build_in_progress
-  ) {
-    return { status: "building", label: "Building" }
-  }
-  if (
-    !build?.build_error &&
-    !build?.transpilation_error &&
-    !build?.circuit_json_build_error &&
-    !build?.build_in_progress &&
-    !build?.transpilation_in_progress &&
-    !build?.circuit_json_build_in_progress &&
-    build?.transpilation_completed_at
-  ) {
-    return { status: "success", label: "Ready" }
-  }
   return { status: "queued", label: "Queued" }
 }
 
@@ -99,7 +76,7 @@ export const StatusIcon = ({ status }: { status: string }) => {
 }
 
 export const getBuildErrorMessage = (
-  build?: PackageBuild | null,
+  build?: PackageBuild | PublicPackageRelease | null,
 ): string | null => {
   if (!build) return null
 
