@@ -620,6 +620,7 @@ export default () => (
   })
   db.updatePackage(test2Package.package_id, {
     github_repo_full_name: "testuser/test2-package",
+    github_installation_id: "1234567890",
   })
   const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
     package_id: test2Package.package_id,
