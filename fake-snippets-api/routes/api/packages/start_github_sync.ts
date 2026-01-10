@@ -1,12 +1,11 @@
 import { z } from "zod"
-import { packageSchema } from "../../../lib/db/schema"
 import { withRouteSpec } from "../../../lib/middleware/with-winter-spec"
 
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
   jsonBody: z.object({
-    package_id: z.string().uuid(),
+    package_id: z.string(),
   }),
   jsonResponse: z.object({
     start_github_sync_result: z.object({
@@ -26,13 +25,15 @@ export default withRouteSpec({
     })
   }
 
-  const canManagePackage = ctx.db
-    .getState()
-    .orgAccounts.some(
-      (oa) =>
-        oa.account_id === ctx.auth.account_id &&
-        oa.org_id === existingPackage.owner_org_id,
-    )
+  const canManagePackage =
+    existingPackage.owner_org_id === ctx.auth.personal_org_id ||
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (oa) =>
+          oa.account_id === ctx.auth.account_id &&
+          oa.org_id === existingPackage.owner_org_id,
+      )
 
   if (!canManagePackage) {
     return ctx.error(403, {
