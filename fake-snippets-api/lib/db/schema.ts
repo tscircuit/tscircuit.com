@@ -465,6 +465,7 @@ export const packageSchema = z.object({
   latest_pcb_preview_image_url: z.string().nullable().optional(),
   latest_sch_preview_image_url: z.string().nullable().optional(),
   latest_cad_preview_image_url: z.string().nullable().optional(),
+  github_installation_id: z.string().nullable().optional(),
 })
 export type Package = z.infer<typeof packageSchema>
 
@@ -582,7 +583,7 @@ export type OrgInvitation = z.infer<typeof orgInvitationSchema>
 
 export const userPermissionsSchema = z.object({
   can_manage_org: z.boolean().optional(),
-  can_manage_package: z.boolean().optional(),
+  can_manage_packages: z.boolean().optional(),
 })
 export type UserPermissions = z.infer<typeof userPermissionsSchema>
 
