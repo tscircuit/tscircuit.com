@@ -196,10 +196,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
     <>
       <div className="flex items-center gap-2 px-2 border-b md:py-2 border-gray-200">
         <button
-          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${sidebarOpen
+          className={`text-gray-400 scale-90 p-0 transition-[width,opacity] duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen
               ? "w-0 pointer-events-none opacity-0"
               : "w-6 opacity-100"
-            }`}
+          }`}
           onClick={() => setSidebarOpen(true)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
@@ -209,8 +210,9 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         <div>
           <Select value={currentFile || ""} onValueChange={handleFileChange}>
             <SelectTrigger
-              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${sidebarOpen ? "-ml-2" : "-ml-1"
-                }`}
+              className={`h-7 w-32 sm:w-48 px-3 bg-white select-none transition-[margin] duration-300 ease-in-out ${
+                sidebarOpen ? "-ml-2" : "-ml-1"
+              }`}
             >
               <SelectValue
                 placeholder={
@@ -235,10 +237,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 .map((filename) => (
                   <SelectItem className="py-1" key={filename} value={filename}>
                     <span
-                      className={`text-xs pr-1 block truncate ${sidebarOpen
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen
                           ? "max-w-[8rem] sm:max-w-[12rem]"
                           : "max-w-[12rem] sm:max-w-[16rem]"
-                        }`}
+                      }`}
                     >
                       {filename}
                     </span>
@@ -253,10 +256,11 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
                 ) && (
                   <SelectItem className="select-none py-1" value={currentFile}>
                     <span
-                      className={`text-xs pr-1 block truncate ${sidebarOpen
+                      className={`text-xs pr-1 block truncate ${
+                        sidebarOpen
                           ? "max-w-[8rem] sm:max-w-[12rem]"
                           : "max-w-[12rem] sm:max-w-[16rem]"
-                        }`}
+                      }`}
                     >
                       {currentFile}
                     </span>
