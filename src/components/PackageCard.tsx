@@ -41,6 +41,8 @@ export interface PackageCardProps {
   withLink?: boolean
   /** Custom render function for actions */
   renderActions?: (pkg: Package) => React.ReactNode
+  /** Whether to render the card in compact mode */
+  compact?: boolean
 }
 
 export const PackageCard: React.FC<PackageCardProps> = ({
@@ -50,9 +52,10 @@ export const PackageCard: React.FC<PackageCardProps> = ({
   onDeleteClick,
   className = "",
   imageSize = "h-16 w-16",
-  imageTransform = "transition-transform duration-300 -rotate-45 hover:rotate-0 hover:scale-110 scale-150",
+  imageTransform = "transition-transform duration-300 scale-110 hover:scale-125",
   withLink = true,
   renderActions,
+  compact = false,
 }) => {
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault() // Prevent navigation
@@ -86,11 +89,11 @@ export const PackageCard: React.FC<PackageCardProps> = ({
     : pkg?.unscoped_name
   const cardContent = (
     <div
-      className={`border border-gray-200 rounded-lg p-3 hover:bg-gray-50 min-h-[120px] ${className}`}
+      className={`border border-gray-200 rounded-lg p-3 hover:bg-gray-50 ${compact ? "" : "md:min-h-[140px]"} ${className}`}
     >
       <div className="flex items-center gap-2">
         <div
-          className={`${imageSize} flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
+          className={`${compact ? imageSize : `${imageSize} md:size-32`} mr-1 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center`}
         >
           {previewImageUrl ? (
             <img
@@ -107,7 +110,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           <div
             className={`${previewImageUrl ? "hidden" : "flex"} items-center justify-center h-full w-full`}
           >
-            <CircuitBoard className="w-6 h-6 text-gray-300" />
+            <CircuitBoard
+              className={`${compact ? "size-6" : "size-6 md:size-10"} text-gray-300`}
+            />
           </div>
         </div>
 
@@ -123,7 +128,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
                 )}
                 <span>{packageName}</span>
               </h2>
-              <p className="h-10 text-sm text-gray-600 mb-2 line-clamp-2 overflow-hidden">
+              <p
+                className={`${compact ? "line-clamp-1" : "line-clamp-1 md:line-clamp-2 md:h-10 md:mb-2"} text-sm text-gray-600 overflow-hidden`}
+              >
                 {pkg.description || "No description available"}
               </p>
             </div>

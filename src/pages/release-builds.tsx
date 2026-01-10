@@ -5,7 +5,6 @@ import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
 import { usePackageBuildsByReleaseId } from "@/hooks/use-package-builds"
 import Header from "@/components/Header"
-import { useLocation } from "wouter"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -26,8 +25,6 @@ export default function ReleaseBuildsPage() {
     params?.author && params?.packageName
       ? `${params.author}/${params.packageName}`
       : null
-
-  const [, setLocation] = useLocation()
 
   const {
     data: pkg,
@@ -69,7 +66,7 @@ export default function ReleaseBuildsPage() {
         <div className="bg-gray-50 border-b py-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PackageBreadcrumb
-              author={params?.author || ""}
+              author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
               packageName={packageName || ""}
               unscopedName={pkg.unscoped_name}
               currentPage="builds"

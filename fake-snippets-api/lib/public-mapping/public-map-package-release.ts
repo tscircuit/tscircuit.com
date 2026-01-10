@@ -11,7 +11,7 @@ export const publicMapPackageRelease = (
     include_logs: false,
     include_ai_review: false,
   },
-): ZT.PackageRelease => {
+): ZT.PublicPackageRelease => {
   const result = {
     ...internal_package_release,
     created_at: internal_package_release.created_at,
@@ -48,10 +48,10 @@ export const publicMapPackageRelease = (
     image_generation_display_status:
       internal_package_release.image_generation_display_status,
     is_pr_preview: Boolean(internal_package_release.is_pr_preview),
-    github_pr_number: internal_package_release.github_pr_number,
-    branch_name: internal_package_release.branch_name,
-    commit_message: internal_package_release.commit_message ?? null,
-    commit_author: internal_package_release.commit_author ?? null,
+    github_pr_number: internal_package_release.pr_number ?? null,
+    github_pr_title: internal_package_release.pr_title ?? null,
+    github_branch_name: internal_package_release.branch_name ?? null,
+    github_commit_sha: internal_package_release.commit_sha ?? null,
     pcb_preview_image_url:
       internal_package_release.pcb_preview_image_url ?? null,
     sch_preview_image_url:

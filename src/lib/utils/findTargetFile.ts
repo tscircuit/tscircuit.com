@@ -26,6 +26,30 @@ export const findMainEntrypointFileFromTscircuitConfig = (
   return null
 }
 
+export const findPreviewComponentFileFromTscircuitConfig = (
+  files: PackageFile[],
+): PackageFile | null => {
+  const configFile = files.find((file) => file.path === "tscircuit.config.json")
+
+  if (configFile) {
+    try {
+      const config = JSON.parse(configFile.content)
+
+      if (config && typeof config.previewComponentPath === "string") {
+        const previewComponentPath = config.previewComponentPath
+
+        const normalizedPath = previewComponentPath.startsWith("./")
+          ? previewComponentPath.substring(2)
+          : previewComponentPath
+
+        return files.find((file) => file.path === normalizedPath) ?? null
+      }
+    } catch {}
+  }
+
+  return null
+}
+
 export const findTargetFile = ({
   files,
   filePathFromUrl,
@@ -64,7 +88,9 @@ export const findTargetFile = ({
   }
 
   if (!targetFile) {
-    targetFile = findMainEntrypointFileFromTscircuitConfig(files)
+    targetFile =
+      findMainEntrypointFileFromTscircuitConfig(files) ??
+      findPreviewComponentFileFromTscircuitConfig(files)
   }
   if (!targetFile) {
     targetFile =
