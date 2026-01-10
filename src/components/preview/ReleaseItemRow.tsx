@@ -229,6 +229,7 @@ export const ReleaseItemRow = ({
                     <DropdownMenuItem
                       key={action.label}
                       onClick={(e) => {
+                        e.stopPropagation()
                         setIsDropdownOpen(false)
                         action.onClick(e)
                       }}
