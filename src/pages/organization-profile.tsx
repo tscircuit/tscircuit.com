@@ -146,6 +146,7 @@ export const OrganizationProfilePageContent = ({
                     {filteredPackages?.length !== 0 ? (
                       filteredPackages?.map((pkg) => (
                         <PackageCard
+                          compact
                           key={pkg.package_id}
                           pkg={pkg}
                           showOwner={false}
