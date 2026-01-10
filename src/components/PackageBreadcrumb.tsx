@@ -25,7 +25,7 @@ export function PackageBreadcrumb({
 }: PackageBreadcrumbProps) {
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BreadcrumbList className="select-none">
         {/* Author */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

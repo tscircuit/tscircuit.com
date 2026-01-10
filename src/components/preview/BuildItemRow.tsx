@@ -66,8 +66,8 @@ export const BuildItemRow = ({
                 {build_id.slice(0, 8)}
               </span>
               {isLatest && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-600 rounded-full border border-blue-200">
-                  Current
+                <span className="px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-600 rounded-full border border-gray-200">
+                  Latest
                 </span>
               )}
             </div>
@@ -241,11 +241,9 @@ export const BuildItemRowSkeleton = () => (
           <Skeleton className="h-4 w-4 rounded-full" />
           <Skeleton className="h-4 w-16" />
         </div>
-        <Skeleton className="h-4 w-12 ml-6" />
       </div>
       <div className="col-span-4 space-y-2">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-5 w-48" />
       </div>
       <div className="col-span-3 flex justify-end">
         <Skeleton className="h-4 w-32" />

@@ -8,8 +8,8 @@ export {
   PackageReleaseOrBuildItemRowSkeleton,
   formatBuildDuration,
 } from "./PackageReleaseOrBuildItemRow"
-import { PackageBuild, PackageRelease } from "fake-snippets-api/lib/db/schema"
-import { Clock, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { PackageBuild } from "fake-snippets-api/lib/db/schema"
+import { Clock, AlertCircle, Loader2, CircleCheck } from "lucide-react"
 
 export interface DropdownAction {
   label: string
@@ -88,7 +88,7 @@ export const getBuildStatus = (
 export const StatusIcon = ({ status }: { status: string }) => {
   switch (status) {
     case "success":
-      return <CheckCircle className="w-4 h-4 text-green-500" />
+      return <CircleCheck className="w-4 h-4 text-green-500" />
     case "error":
       return <AlertCircle className="w-4 h-4 text-red-500" />
     case "building":
