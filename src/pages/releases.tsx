@@ -144,7 +144,7 @@ export default function ReleasesPage() {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  placeholder="Search releases..."
+                  placeholder="Search releases via version or release id..."
                   className="pl-9 bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}

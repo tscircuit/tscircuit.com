@@ -186,7 +186,7 @@ export default function ReleaseBuildsPage() {
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  placeholder="Search builds..."
+                  placeholder="Search builds via build id..."
                   className="pl-9 bg-white"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
