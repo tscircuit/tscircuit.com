@@ -27,7 +27,7 @@ import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import tsModule from "typescript"
 import CodeEditorHeader, {
   FileName,
@@ -52,6 +52,8 @@ import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Loader2 } from "lucide-react"
 import { useAxios } from "@/hooks/use-axios"
+import { useToast } from "@/hooks/use-toast"
+import { handleFormatFile as handleFormatFileRaw } from "@/lib/utils/handle-format-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -139,6 +141,11 @@ export const CodeEditor = ({
     })
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
+  const { toast } = useToast()
+
+  const handleFormatFile = useCallback(() => {
+    handleFormatFileRaw({ files, currentFile, updateFileContent, toast })
+  }, [currentFile, files, toast])
 
   const entryPointFileName = useMemo(() => {
     const entryPointFile = findTargetFile({ files, filePathFromUrl: null })
@@ -212,7 +219,7 @@ export const CodeEditor = ({
     files.forEach(({ path, content }) => {
       fsMap.set(`${path.startsWith("/") ? "" : "/"}${path}`, content)
     })
-    ;(window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
+      ; (window as any).__DEBUG_CODE_EDITOR_FS_MAP = fsMap
 
     loadDefaultLibMap().then((defaultFsMap) => {
       defaultFsMap.forEach((content, filename) => {
@@ -308,6 +315,13 @@ export const CodeEditor = ({
               return true
             },
           },
+          {
+            key: "Shift-Alt-f",
+            run: () => {
+              handleFormatFile()
+              return true
+            },
+          },
         ]),
       ),
       keymap.of([indentWithTab]),
@@ -387,237 +401,237 @@ export const CodeEditor = ({
     const tsExtensions =
       currentFile?.endsWith(".tsx") || currentFile?.endsWith(".ts")
         ? [
-            tsFacet.of({
-              env,
-              path: currentFile?.endsWith(".ts")
-                ? currentFile?.replace(/\.ts$/, ".tsx")
-                : currentFile,
-            }),
-            tsSync(),
-            linter(async (view) => {
-              if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
-                return []
+          tsFacet.of({
+            env,
+            path: currentFile?.endsWith(".ts")
+              ? currentFile?.replace(/\.ts$/, ".tsx")
+              : currentFile,
+          }),
+          tsSync(),
+          linter(async (view) => {
+            if (Date.now() - lastReceivedTsFileTimeRef.current < 3000) {
+              return []
+            }
+            const config = view.state.facet(tsFacet)
+            return config
+              ? getLints({
+                ...config,
+                diagnosticCodesToIgnore: [],
+              })
+              : []
+          }),
+          autocompletion({ override: [tsAutocomplete()] }),
+          hoverTooltip((view, pos) => {
+            const line = view.state.doc.lineAt(pos)
+            const lineStart = line.from
+            const lineEnd = line.to
+            const lineText = view.state.sliceDoc(lineStart, lineEnd)
+
+            // Check for TSCI package imports
+            const packageMatches = Array.from(
+              lineText.matchAll(TSCI_PACKAGE_PATTERN),
+            )
+
+            for (const match of packageMatches) {
+              if (match.index !== undefined) {
+                const start = lineStart + match.index
+                const end = start + match[0].length
+                if (pos >= start && pos <= end) {
+                  return {
+                    pos: start,
+                    end: end,
+                    above: true,
+                    create() {
+                      const dom = document.createElement("div")
+                      dom.textContent = "Ctrl/Cmd+Click to open package"
+                      return { dom }
+                    },
+                  }
+                }
               }
-              const config = view.state.facet(tsFacet)
-              return config
-                ? getLints({
-                    ...config,
-                    diagnosticCodesToIgnore: [],
-                  })
-                : []
-            }),
-            autocompletion({ override: [tsAutocomplete()] }),
-            hoverTooltip((view, pos) => {
+            }
+            const facet = view.state.facet(tsFacet)
+            if (!facet) return null
+
+            const { env, path } = facet
+            const info = env.languageService.getQuickInfoAtPosition(path, pos)
+            if (!info) return null
+
+            const start = info.textSpan.start
+            const end = start + info.textSpan.length
+            const content = tsModule?.displayPartsToString(
+              info.displayParts || [],
+            )
+
+            const dom = document.createElement("div")
+            if (highlighter) {
+              dom.innerHTML = highlighter.codeToHtml(content, {
+                lang: "tsx",
+                themes: {
+                  light: "github-light",
+                  dark: "github-dark",
+                },
+              })
+
+              return {
+                pos: start,
+                end,
+                above: true,
+                create: () => ({ dom }),
+              }
+            }
+            return null
+          }),
+          EditorView.domEventHandlers({
+            click: (event, view) => {
+              if (!event.ctrlKey && !event.metaKey) return false
+              const pos = view.posAtCoords({
+                x: event.clientX,
+                y: event.clientY,
+              })
+              if (pos === null) return false
+
               const line = view.state.doc.lineAt(pos)
               const lineStart = line.from
               const lineEnd = line.to
               const lineText = view.state.sliceDoc(lineStart, lineEnd)
 
-              // Check for TSCI package imports
+              // Check for TSCI package imports first
               const packageMatches = Array.from(
                 lineText.matchAll(TSCI_PACKAGE_PATTERN),
               )
-
               for (const match of packageMatches) {
                 if (match.index !== undefined) {
                   const start = lineStart + match.index
                   const end = start + match[0].length
                   if (pos >= start && pos <= end) {
-                    return {
-                      pos: start,
-                      end: end,
-                      above: true,
-                      create() {
-                        const dom = document.createElement("div")
-                        dom.textContent = "Ctrl/Cmd+Click to open package"
-                        return { dom }
-                      },
-                    }
+                    const importName = match[0]
+                    // Handle potential dots and dashes in package names
+                    const [owner, name] = importName
+                      .replace("@tsci/", "")
+                      .split(".")
+                    window.open(`/${owner}/${name}`, "_blank")
+                    return true
                   }
                 }
               }
+              // TypeScript "Go to Definition" functionality
               const facet = view.state.facet(tsFacet)
-              if (!facet) return null
+              if (facet) {
+                const { env, path } = facet
+                const definitions =
+                  env.languageService.getDefinitionAtPosition(path, pos)
+                if (definitions && definitions.length > 0) {
+                  const definition = definitions[0]
+                  const definitionFileName = definition.fileName
+                  if (definitionFileName) {
+                    const localFilePath = definitionFileName.startsWith("/")
+                      ? definitionFileName.replace("/", "")
+                      : definitionFileName
+                    if (fileMap[localFilePath]) {
+                      const definitionContent = fileMap[localFilePath]
+                      const lines = definitionContent
+                        ?.substring(0, definition.textSpan.start)
+                        .split("\n")
+                      const lineNumber = lines?.length
 
-              const { env, path } = facet
-              const info = env.languageService.getQuickInfoAtPosition(path, pos)
-              if (!info) return null
-
-              const start = info.textSpan.start
-              const end = start + info.textSpan.length
-              const content = tsModule?.displayPartsToString(
-                info.displayParts || [],
-              )
-
-              const dom = document.createElement("div")
-              if (highlighter) {
-                dom.innerHTML = highlighter.codeToHtml(content, {
-                  lang: "tsx",
-                  themes: {
-                    light: "github-light",
-                    dark: "github-dark",
-                  },
-                })
-
-                return {
-                  pos: start,
-                  end,
-                  above: true,
-                  create: () => ({ dom }),
-                }
-              }
-              return null
-            }),
-            EditorView.domEventHandlers({
-              click: (event, view) => {
-                if (!event.ctrlKey && !event.metaKey) return false
-                const pos = view.posAtCoords({
-                  x: event.clientX,
-                  y: event.clientY,
-                })
-                if (pos === null) return false
-
-                const line = view.state.doc.lineAt(pos)
-                const lineStart = line.from
-                const lineEnd = line.to
-                const lineText = view.state.sliceDoc(lineStart, lineEnd)
-
-                // Check for TSCI package imports first
-                const packageMatches = Array.from(
-                  lineText.matchAll(TSCI_PACKAGE_PATTERN),
-                )
-                for (const match of packageMatches) {
-                  if (match.index !== undefined) {
-                    const start = lineStart + match.index
-                    const end = start + match[0].length
-                    if (pos >= start && pos <= end) {
-                      const importName = match[0]
-                      // Handle potential dots and dashes in package names
-                      const [owner, name] = importName
-                        .replace("@tsci/", "")
-                        .split(".")
-                      window.open(`/${owner}/${name}`, "_blank")
+                      onFileSelect(localFilePath, lineNumber)
+                      return true
+                    } else {
+                      const definitionContent =
+                        env
+                          .getSourceFile(definitionFileName)
+                          ?.getFullText() || ""
+                      const lines = definitionContent
+                        .substring(0, definition.textSpan.start)
+                        .split("\n")
+                      const lineNumber = lines.length
+                      openViewTsFilesDialog({
+                        initialFile: definitionFileName,
+                        initialLine: lineNumber,
+                      })
                       return true
                     }
                   }
                 }
-                // TypeScript "Go to Definition" functionality
-                const facet = view.state.facet(tsFacet)
-                if (facet) {
-                  const { env, path } = facet
-                  const definitions =
-                    env.languageService.getDefinitionAtPosition(path, pos)
-                  if (definitions && definitions.length > 0) {
-                    const definition = definitions[0]
-                    const definitionFileName = definition.fileName
-                    if (definitionFileName) {
-                      const localFilePath = definitionFileName.startsWith("/")
-                        ? definitionFileName.replace("/", "")
-                        : definitionFileName
-                      if (fileMap[localFilePath]) {
-                        const definitionContent = fileMap[localFilePath]
-                        const lines = definitionContent
-                          ?.substring(0, definition.textSpan.start)
-                          .split("\n")
-                        const lineNumber = lines?.length
-
-                        onFileSelect(localFilePath, lineNumber)
-                        return true
-                      } else {
-                        const definitionContent =
-                          env
-                            .getSourceFile(definitionFileName)
-                            ?.getFullText() || ""
-                        const lines = definitionContent
-                          .substring(0, definition.textSpan.start)
-                          .split("\n")
-                        const lineNumber = lines.length
-                        openViewTsFilesDialog({
-                          initialFile: definitionFileName,
-                          initialLine: lineNumber,
-                        })
-                        return true
-                      }
-                    }
-                  }
-                }
-
-                return false
-              },
-              keydown: (event) => {
-                if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                  event.preventDefault()
-                  return true
-                }
-                return false
-              },
-            }),
-            EditorView.theme({
-              ".cm-tooltip-hover": {
-                maxWidth: "600px",
-                padding: "12px",
-                maxHeight: "400px",
-                borderRadius: "0.5rem",
-                backgroundColor: "#fff",
-                color: "#0f172a",
-                border: "1px solid #e2e8f0",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                fontSize: "14px",
-                fontFamily: "monospace",
-                whiteSpace: "pre-wrap",
-                lineHeight: "1.6",
-                overflow: "auto",
-                zIndex: "9999",
-              },
-              ".cm-import:hover": {
-                textDecoration: "underline",
-                textDecorationColor: "#aa1111",
-                textUnderlineOffset: "1px",
-                filter: "brightness(0.7)",
-              },
-            }),
-            EditorView.decorations.of((view) => {
-              const decorations = []
-              for (const { from, to } of view.visibleRanges) {
-                for (let pos = from; pos < to; ) {
-                  const line = view.state.doc.lineAt(pos)
-                  const lineText = line.text
-
-                  // Add decorations for TSCI package imports
-                  const packageMatches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
-                  for (const match of packageMatches) {
-                    if (match.index !== undefined) {
-                      const start = line.from + match.index
-                      const end = start + match[0].length
-                      decorations.push(
-                        Decoration.mark({
-                          class: "cm-import cursor-pointer",
-                        }).range(start, end),
-                      )
-                    }
-                  }
-
-                  // Add decorations for local file imports
-                  const localFileMatches = lineText.matchAll(
-                    LOCAL_FILE_IMPORT_PATTERN,
-                  )
-                  for (const match of localFileMatches) {
-                    if (match.index !== undefined) {
-                      const start = line.from + match.index
-                      const end = start + match[0].length
-                      decorations.push(
-                        Decoration.mark({
-                          class: "cm-import cursor-pointer",
-                        }).range(start, end),
-                      )
-                    }
-                  }
-                  pos = line.to + 1
-                }
               }
-              return Decoration.set(decorations)
-            }),
-          ]
+
+              return false
+            },
+            keydown: (event) => {
+              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                event.preventDefault()
+                return true
+              }
+              return false
+            },
+          }),
+          EditorView.theme({
+            ".cm-tooltip-hover": {
+              maxWidth: "600px",
+              padding: "12px",
+              maxHeight: "400px",
+              borderRadius: "0.5rem",
+              backgroundColor: "#fff",
+              color: "#0f172a",
+              border: "1px solid #e2e8f0",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+              fontSize: "14px",
+              fontFamily: "monospace",
+              whiteSpace: "pre-wrap",
+              lineHeight: "1.6",
+              overflow: "auto",
+              zIndex: "9999",
+            },
+            ".cm-import:hover": {
+              textDecoration: "underline",
+              textDecorationColor: "#aa1111",
+              textUnderlineOffset: "1px",
+              filter: "brightness(0.7)",
+            },
+          }),
+          EditorView.decorations.of((view) => {
+            const decorations = []
+            for (const { from, to } of view.visibleRanges) {
+              for (let pos = from; pos < to;) {
+                const line = view.state.doc.lineAt(pos)
+                const lineText = line.text
+
+                // Add decorations for TSCI package imports
+                const packageMatches = lineText.matchAll(TSCI_PACKAGE_PATTERN)
+                for (const match of packageMatches) {
+                  if (match.index !== undefined) {
+                    const start = line.from + match.index
+                    const end = start + match[0].length
+                    decorations.push(
+                      Decoration.mark({
+                        class: "cm-import cursor-pointer",
+                      }).range(start, end),
+                    )
+                  }
+                }
+
+                // Add decorations for local file imports
+                const localFileMatches = lineText.matchAll(
+                  LOCAL_FILE_IMPORT_PATTERN,
+                )
+                for (const match of localFileMatches) {
+                  if (match.index !== undefined) {
+                    const start = line.from + match.index
+                    const end = start + match[0].length
+                    decorations.push(
+                      Decoration.mark({
+                        class: "cm-import cursor-pointer",
+                      }).range(start, end),
+                    )
+                  }
+                }
+                pos = line.to + 1
+              }
+            }
+            return Decoration.set(decorations)
+          }),
+        ]
         : []
 
     const state = EditorState.create({
@@ -734,7 +748,7 @@ export const CodeEditor = ({
         urlParams.delete("line")
       }
       window.history.replaceState(null, "", `?${urlParams.toString()}`)
-    } catch {}
+    } catch { }
 
     // Navigate to line after a short delay to ensure editor is ready
     if (lineNumber) {
@@ -838,6 +852,7 @@ export const CodeEditor = ({
               aiAutocompleteEnabled,
               setAiAutocompleteEnabled,
             ]}
+            handleFormatFile={handleFormatFile}
           />
         )}
         <div
