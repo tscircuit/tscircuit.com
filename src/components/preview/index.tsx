@@ -1,5 +1,7 @@
 export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
 export { BuildsList } from "./BuildsList"
+export { ReleasesList } from "./ReleasesList"
+export { ReleaseItemRow, ReleaseItemRowSkeleton } from "./ReleaseItemRow"
 export { PackageReleasesDashboard } from "./PackageReleasesDashboard"
 export {
   PackageReleaseOrBuildItemRow,

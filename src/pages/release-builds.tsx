@@ -61,6 +61,23 @@ export default function ReleaseBuildsPage() {
     error: buildsError,
   } = usePackageBuildsByReleaseId(params?.releaseId ?? null)
 
+  const releaseVersion =
+    packageRelease?.version ||
+    `v${packageRelease?.package_release_id.slice(-6)}`
+
+  const filteredBuilds = builds?.filter((build) => {
+    const matchesSearch = build.package_build_id
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+
+    const { status } = getBuildStatus(build)
+
+    const matchesStatus =
+      statusFilter === "all-Status" || status === statusFilter
+
+    return matchesSearch && matchesStatus
+  })
+
   if (buildsError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -105,7 +122,6 @@ export default function ReleaseBuildsPage() {
               </div>
               <div className="mt-4 space-y-2">
                 <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-96" />
               </div>
             </div>
           </div>
@@ -138,22 +154,6 @@ export default function ReleaseBuildsPage() {
   if (releaseError?.status === 404 || !packageRelease) {
     return <NotFoundPage heading="Release Not Found" />
   }
-
-  const releaseVersion =
-    packageRelease.version || `v${packageRelease.package_release_id.slice(-6)}`
-
-  const filteredBuilds = builds?.filter((build) => {
-    const matchesSearch = build.package_build_id
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-
-    const { status } = getBuildStatus(build)
-
-    const matchesStatus =
-      statusFilter === "all-Status" || status === statusFilter
-
-    return matchesSearch && matchesStatus
-  })
 
   return (
     <>
