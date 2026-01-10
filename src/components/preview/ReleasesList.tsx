@@ -45,8 +45,6 @@ export const ReleasesList = ({
       })),
   )
 
-  const isResolvingBuilds = latestBuildQueries.some((q) => q.isLoading)
-
   const latestBuildsMap = new Map<string, PackageBuild>()
 
   latestBuildQueries.forEach((query, index) => {
@@ -110,7 +108,7 @@ export const ReleasesList = ({
               key={release.package_release_id}
               release={release}
               status={status}
-              statusLabel={label}
+              statusLabel={latestBuild ? label : "Fetching"}
               isLatest={release.is_latest}
               errorMessage={errorMessage}
               onClick={() => {

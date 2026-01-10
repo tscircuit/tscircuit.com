@@ -131,7 +131,7 @@ export default function ReleasesPage() {
               currentPage="releases"
             />
             <div className="mt-4">
-              <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+              <h1 className="text-3xl font-semibold select-none text-gray-900 tracking-tight">
                 Releases
               </h1>
             </div>
