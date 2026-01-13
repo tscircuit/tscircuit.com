@@ -165,6 +165,7 @@ export default function ReleaseDetailPage() {
                 package_release_id: packageRelease.package_release_id,
               })
             }
+            organization={organization}
           />
         </div>
 

@@ -1,7 +1,6 @@
 import { useTscircuitStatus } from "@/hooks/use-tscircuit-status"
 import {
   Globe,
-  User,
   GitBranch,
   GitCommit,
   ExternalLink,
@@ -15,9 +14,11 @@ import type {
   Package,
   PackageBuild,
   PublicPackageRelease,
+  PublicOrgSchema,
 } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import { Link } from "wouter"
+import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 
 type BuildStatus = "success" | "error" | "building" | "queued" | "pending"
 
@@ -29,6 +30,7 @@ interface ReleaseDeploymentDetailsProps {
   canManagePackage?: boolean
   isRebuildLoading?: boolean
   onRebuild?: () => void
+  organization?: PublicOrgSchema | null
 }
 
 export function ReleaseDeploymentDetails({
@@ -39,6 +41,7 @@ export function ReleaseDeploymentDetails({
   canManagePackage = false,
   isRebuildLoading = false,
   onRebuild,
+  organization,
 }: ReleaseDeploymentDetailsProps) {
   const { data: statusData } = useTscircuitStatus()
   const userCodeStatus = statusData?.checks.find(
@@ -154,12 +157,19 @@ export function ReleaseDeploymentDetails({
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-1.5">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                Created
+                Owner
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-gray-500" />
-                </div>
+                <GithubAvatarWithFallback
+                  username={
+                    organization?.tscircuit_handle ||
+                    pkg.org_owner_tscircuit_handle
+                  }
+                  imageUrl={organization?.avatar_url}
+                  className="size-8 sm:size-10 flex-shrink-0 border border-gray-200"
+                  fallbackClassName="text-xs sm:text-sm font-medium"
+                  colorClassName="bg-gray-100 text-gray-600"
+                />
                 <div className="flex flex-col min-w-0">
                   <Link
                     to={`/${pkg.org_owner_tscircuit_handle}`}
