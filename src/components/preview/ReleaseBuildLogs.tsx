@@ -25,10 +25,12 @@ export const ReleaseBuildLogs = ({
   packageBuild,
   isLoadingBuild,
   packageRelease,
+  canManagePackage,
 }: {
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
   packageRelease: PublicPackageRelease
+  canManagePackage: boolean
 }) => {
   const [openSections, setOpenSections] = useState({
     userCode: true,
@@ -81,10 +83,10 @@ export const ReleaseBuildLogs = ({
 
   if (!packageBuild) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-gray-100 border flex items-center justify-center">
               <PackageOpen className="w-10 h-10 text-gray-400" />
             </div>
             <div className="space-y-2">
@@ -92,12 +94,11 @@ export const ReleaseBuildLogs = ({
                 No build available
               </h3>
               <p className="text-sm text-gray-600 max-w-md">
-                This package release hasn't been built yet. Click the{" "}
-                <span className="inline-flex items-center gap-1 font-medium text-gray-700">
-                  <RefreshCw className="w-3 h-3" />
-                  Rebuild
-                </span>{" "}
-                button above to start a build.
+                This package release hasn't been built yet.
+                <br />
+                {canManagePackage && (
+                  <>Click the Rebuild button above to start a build.</>
+                )}
               </p>
             </div>
           </div>

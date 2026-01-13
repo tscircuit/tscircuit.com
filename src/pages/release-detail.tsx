@@ -174,6 +174,7 @@ export default function ReleaseDetailPage() {
           packageBuild={latestBuild ?? null}
           isLoadingBuild={isLoadingBuild}
           packageRelease={packageRelease}
+          canManagePackage={canManagePackage}
         />
       </div>
     </>
