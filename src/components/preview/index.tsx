@@ -1,4 +1,4 @@
-export { ConnectedRepoOverview } from "./ConnectedRepoOverview"
+export { ReleaseBuildLogs } from "./ReleaseBuildLogs"
 export { BuildsList } from "./BuildsList"
 export { ReleasesList } from "./ReleasesList"
 export { ReleaseItemRow, ReleaseItemRowSkeleton } from "./ReleaseItemRow"

@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react"
-import { Badge } from "@/components/ui/badge"
 import {
   Clock,
-  CheckCircle,
   AlertCircle,
   Loader2,
   ExternalLink,
   ChevronRight,
   PackageOpen,
   RefreshCw,
+  CheckCircle2,
 } from "lucide-react"
 import {
   Collapsible,
@@ -21,17 +20,14 @@ import {
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
-import { Link } from "wouter"
 
-export const ConnectedRepoOverview = ({
+export const ReleaseBuildLogs = ({
   packageBuild,
-  pkg,
   isLoadingBuild,
   packageRelease,
 }: {
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
-  pkg: Package
   packageRelease: PublicPackageRelease
 }) => {
   const [openSections, setOpenSections] = useState({
@@ -67,17 +63,12 @@ export const ConnectedRepoOverview = ({
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-          </div>
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse" />
                 <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
               </div>
               <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
@@ -153,22 +144,24 @@ export const ConnectedRepoOverview = ({
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
       <div className="space-y-3">
         <Collapsible
           open={openSections.userCode}
           onOpenChange={() => toggleSection("userCode")}
+          className="border border-gray-200 rounded-lg bg-white overflow-hidden"
         >
           <CollapsibleTrigger asChild>
-            <div
-              className={`flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 ${openSections.userCode ? "rounded-b-none border-b-0" : ""}`}
-            >
+            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors data-[state=open]:border-b data-[state=open]:border-gray-200">
               <div className="flex items-center gap-3">
                 <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
+                  className={`w-4 h-4 text-gray-500 transition-all ${
+                    openSections.userCode ? "rotate-90" : ""
+                  }`}
                 />
-
-                <span className="font-medium">Build Logs</span>
+                <span className="font-medium text-gray-900 select-none">
+                  Build Logs
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {getStepDuration(
@@ -185,7 +178,7 @@ export const ConnectedRepoOverview = ({
                 {packageBuild.user_code_job_error ? (
                   <AlertCircle className="w-5 h-5 text-red-500" />
                 ) : packageBuild.user_code_job_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
                 ) : userCodeJobInProgress ? (
                   <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
                 ) : (
@@ -195,7 +188,7 @@ export const ConnectedRepoOverview = ({
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
+            <div className="p-4 bg-gray-50/50">
               <div className="font-mono text-xs space-y-2">
                 {packageBuild.user_code_job_error && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
