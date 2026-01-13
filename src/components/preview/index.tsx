@@ -66,17 +66,25 @@ export const StatusIcon = ({
   status,
   size = 4,
 }: { status: Status; size?: number }) => {
+  const sizeClasses: Record<number, string> = {
+    3: "w-3 h-3",
+    4: "w-4 h-4",
+    5: "w-5 h-5",
+    6: "w-6 h-6",
+    8: "w-8 h-8",
+    10: "w-10 h-10",
+  }
+  const sizeClass = sizeClasses[size] || sizeClasses[4]
+
   switch (status) {
     case "success":
-      return <CircleCheck className={`w-${size} h-${size} text-green-500`} />
+      return <CircleCheck className={`${sizeClass} text-green-500`} />
     case "error":
-      return <AlertCircle className={`w-${size} h-${size} text-red-500`} />
+      return <AlertCircle className={`${sizeClass} text-red-500`} />
     case "building":
-      return (
-        <Loader2 className={`w-${size} h-${size} text-blue-500 animate-spin`} />
-      )
+      return <Loader2 className={`${sizeClass} text-blue-500 animate-spin`} />
     default:
-      return <Clock className={`w-${size} h-${size} text-gray-500`} />
+      return <Clock className={`${sizeClass} text-gray-500`} />
   }
 }
 
