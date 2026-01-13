@@ -1,4 +1,4 @@
-import { useTscircuitStatus } from "@/hooks/use-tscircuit-status"
+import { useUsercodeApiStatus } from "@/hooks/use-usercode-api-status"
 import {
   Globe,
   GitBranch,
@@ -43,7 +43,7 @@ export function ReleaseDeploymentDetails({
   onRebuild,
   organization,
 }: ReleaseDeploymentDetailsProps) {
-  const { data: statusData } = useTscircuitStatus()
+  const { data: statusData } = useUsercodeApiStatus()
   const userCodeStatus = statusData?.checks.find(
     (c) => c.service === "usercode_api",
   )

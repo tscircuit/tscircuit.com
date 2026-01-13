@@ -11,9 +11,9 @@ export interface StatusLog {
   checks: ServiceCheck[]
 }
 
-export const useTscircuitStatus = () => {
+export const useUsercodeApiStatus = () => {
   return useQuery<StatusLog | null>(
-    ["tscircuit-status"],
+    ["usercode-status"],
     async () => {
       const response = await fetch(
         "https://raw.githubusercontent.com/tscircuit/status/refs/heads/main/latest_statuses.jsonl",
