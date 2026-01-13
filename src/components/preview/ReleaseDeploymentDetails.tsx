@@ -121,28 +121,35 @@ export function ReleaseDeploymentDetails({
         <div className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-4 md:p-6 flex flex-col justify-center">
           {images.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
-              {images.map((img, idx) => (
-                <div
-                  key={img.label}
-                  className={`relative border rounded-lg overflow-hidden bg-gray-50 group flex flex-col items-center justify-center ${
-                    idx === 0 && images.length === 3
-                      ? "col-span-2 aspect-[2/1]"
-                      : "col-span-1 aspect-[4/3]"
-                  }`}
-                >
-                  <div className="w-full h-full flex items-center justify-center p-4">
-                    <img
-                      src={img.url!}
-                      alt={`${img.label} Preview`}
-                      className="max-w-full max-h-full w-auto h-auto object-contain"
-                    />
+              {images.map((img, idx) => {
+                let bgColor = "bg-gray-50"
+                if (img.label === "Schematic") bgColor = "bg-[#f5f1ed]"
+                else if (img.label === "PCB") bgColor = "bg-black"
+                else if (img.label === "3D") bgColor = "bg-gray-100"
+
+                return (
+                  <div
+                    key={img.label}
+                    className={`relative border rounded-lg overflow-hidden ${bgColor} group flex flex-col items-center justify-center ${
+                      idx === 0 && images.length === 3
+                        ? "col-span-2 aspect-[2/1]"
+                        : "col-span-1 aspect-[4/3]"
+                    }`}
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img
+                        src={img.url!}
+                        alt={`${img.label} Preview`}
+                        className="max-w-full max-h-full w-auto h-auto object-contain"
+                      />
+                    </div>
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-xs font-medium text-gray-700 flex items-center gap-1.5 shadow-sm">
+                      <img.icon className="w-3.5 h-3.5" />
+                      {img.label}
+                    </div>
                   </div>
-                  <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-xs font-medium text-gray-700 flex items-center gap-1.5 shadow-sm">
-                    <img.icon className="w-3.5 h-3.5" />
-                    {img.label}
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-32 md:h-full select-none bg-gray-50 rounded-lg border border-gray-100 text-gray-400">
