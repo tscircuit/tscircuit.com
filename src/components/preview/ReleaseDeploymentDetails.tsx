@@ -241,7 +241,7 @@ export function ReleaseDeploymentDetails({
               </div>
             </div>
 
-            {/* T ype */}
+            {/* T pe */}
             <div className="space-y-1.5">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Type
