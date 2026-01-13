@@ -11,7 +11,6 @@ import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { getBuildStatus } from "@/components/preview"
 import { useOrganization } from "@/hooks/use-organization"
 import { useMemo } from "react"
 import { ReleaseBuildLogs } from "@/components/preview/ReleaseBuildLogs"
@@ -61,7 +60,6 @@ export default function ReleaseDetailPage() {
   const session = useGlobalStore((s) => s.session)
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation()
-  const { status } = getBuildStatus(latestBuild ?? null)
 
   const { organization } = useOrganization(
     pkg?.owner_org_id
@@ -156,7 +154,6 @@ export default function ReleaseDetailPage() {
             pkg={pkg}
             packageRelease={packageRelease}
             latestBuild={latestBuild ?? null}
-            status={status}
             canManagePackage={canManagePackage}
             isRebuildLoading={isRebuildLoading}
             onRebuild={() =>

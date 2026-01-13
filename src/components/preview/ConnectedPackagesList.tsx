@@ -97,9 +97,7 @@ export const ConnectedPackageCard = ({
     return <ConnectedPackageCardSkeleton />
   }
 
-  const { status, label } = latestBuildInfo
-    ? getBuildStatus(latestBuildInfo)
-    : { status: "pending", label: "Pending" }
+  const { status, label } = getBuildStatus(latestBuildInfo)
 
   return (
     <Card

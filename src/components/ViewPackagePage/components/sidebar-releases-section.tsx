@@ -31,9 +31,7 @@ export default function SidebarReleasesSection() {
     )
   }
 
-  const { status, label } = latestBuild
-    ? getBuildStatus(latestBuild)
-    : { status: "pending", label: "pending" }
+  const { status, label } = getBuildStatus(latestBuild)
   return (
     <div className="mb-6">
       <h2 className="text-lg font-semibold mb-2">
