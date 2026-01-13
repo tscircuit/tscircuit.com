@@ -6,7 +6,6 @@ import {
   ExternalLink,
   ChevronRight,
   PackageOpen,
-  RefreshCw,
   CheckCircle2,
 } from "lucide-react"
 import {
@@ -15,11 +14,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import {
-  Package,
   PackageBuild,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
+import { getStepDuration } from "@/lib/utils/getStepDuration"
 
 export const ReleaseBuildLogs = ({
   packageBuild,
@@ -61,6 +61,17 @@ export const ReleaseBuildLogs = ({
       logsEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [usercodeStreamedLogs, userCodeJobInProgress, openSections.userCode])
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+  }
+
+  const buildStatus = getBuildStatus(packageBuild)
+  const buildErrorMessage = getBuildErrorMessage(packageBuild)
+  const buildDuration = getStepDuration(
+    packageBuild?.user_code_job_started_at,
+    packageBuild?.user_code_job_completed_at,
+  )
 
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
@@ -107,43 +118,6 @@ export const ReleaseBuildLogs = ({
     )
   }
 
-  const getErrorMessage = (error: any): string => {
-    if (!error) return ""
-    if (typeof error === "string") return error
-    if (typeof error === "object") {
-      return error.message || JSON.stringify(error)
-    }
-    return String(error)
-  }
-
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
-
-  const getStepStatus = (
-    error?: string | null,
-    completed?: string | null,
-    inProgress?: boolean,
-  ) => {
-    if (error) return "error"
-    if (completed) return "success"
-    if (inProgress) return "building"
-    return "queued"
-  }
-
-  const getStepDuration = (
-    started?: string | null,
-    completed?: string | null,
-  ) => {
-    if (started && completed) {
-      const duration = Math.floor(
-        (new Date(completed).getTime() - new Date(started).getTime()) / 1000,
-      )
-      return `${duration}s`
-    }
-    return null
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
       <div className="space-y-3">
@@ -165,36 +139,19 @@ export const ReleaseBuildLogs = ({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.user_code_job_started_at,
-                  packageBuild.user_code_job_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.user_code_job_started_at,
-                      packageBuild.user_code_job_completed_at,
-                    )}
-                  </span>
+                {buildDuration && (
+                  <span className="text-sm text-gray-600">{buildDuration}</span>
                 )}
-                {packageBuild.user_code_job_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.user_code_job_completed_at ? (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                ) : userCodeJobInProgress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
+                <StatusIcon size={5} status={buildStatus.status} />
               </div>
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="p-4 bg-gray-50/50">
               <div className="font-mono text-xs space-y-2">
-                {packageBuild.user_code_job_error && (
+                {buildErrorMessage && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
-                    <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageBuild.user_code_job_error)}
+                    <strong>Error:</strong> {buildErrorMessage}
                   </div>
                 )}
                 {userCodeJobInProgress &&

@@ -19,14 +19,12 @@ import type {
 import { Button } from "@/components/ui/button"
 import { Link } from "wouter"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
-
-type BuildStatus = "success" | "error" | "building" | "queued" | "pending"
+import { getBuildStatus, StatusIcon } from "."
 
 interface ReleaseDeploymentDetailsProps {
   pkg: Package
   packageRelease: PublicPackageRelease
   latestBuild: PackageBuild | null
-  status: BuildStatus
   canManagePackage?: boolean
   isRebuildLoading?: boolean
   onRebuild?: () => void
@@ -37,7 +35,6 @@ export function ReleaseDeploymentDetails({
   pkg,
   packageRelease,
   latestBuild,
-  status,
   canManagePackage = false,
   isRebuildLoading = false,
   onRebuild,
@@ -47,6 +44,7 @@ export function ReleaseDeploymentDetails({
   const userCodeStatus = statusData?.checks.find(
     (c) => c.service === "usercode_api",
   )
+  const buildStatus = getBuildStatus(latestBuild)
 
   const buildDuration =
     latestBuild?.user_code_job_started_at &&
@@ -200,26 +198,10 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Status
               </p>
-              <div className="flex items-center gap-2">
-                {status === "success" ? (
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                ) : status === "error" ? (
-                  <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                ) : status === "building" ? (
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
-                ) : (
-                  <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
-                )}
+              <div className="flex items-center gap-1">
+                <StatusIcon size={4} status={buildStatus.status} />
                 <span className="text-sm font-medium text-gray-900">
-                  {status === "success"
-                    ? "Ready"
-                    : status === "error"
-                      ? "Failed"
-                      : status === "building"
-                        ? "Building"
-                        : status === "pending"
-                          ? "Pending"
-                          : "Queued"}
+                  {buildStatus.label}
                 </span>
               </div>
             </div>
@@ -234,7 +216,7 @@ export function ReleaseDeploymentDetails({
                   {buildDuration !== null ? `${buildDuration}s` : "—"}
                 </span>
                 {latestBuild?.user_code_job_completed_at && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-sm text-gray-500">
                     {formatTimeAgo(latestBuild.user_code_job_completed_at)}
                   </span>
                 )}

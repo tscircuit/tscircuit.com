@@ -62,16 +62,21 @@ export const getBuildStatus = (
   return { status: "queued", label: "Queued" }
 }
 
-export const StatusIcon = ({ status }: { status: string }) => {
+export const StatusIcon = ({
+  status,
+  size = 4,
+}: { status: Status; size?: number }) => {
   switch (status) {
     case "success":
-      return <CircleCheck className="w-4 h-4 text-green-500" />
+      return <CircleCheck className={`w-${size} h-${size} text-green-500`} />
     case "error":
-      return <AlertCircle className="w-4 h-4 text-red-500" />
+      return <AlertCircle className={`w-${size} h-${size} text-red-500`} />
     case "building":
-      return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
+      return (
+        <Loader2 className={`w-${size} h-${size} text-blue-500 animate-spin`} />
+      )
     default:
-      return <Clock className="w-4 h-4 text-gray-500" />
+      return <Clock className={`w-${size} h-${size} text-gray-500`} />
   }
 }
 
