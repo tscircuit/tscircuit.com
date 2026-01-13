@@ -141,7 +141,7 @@ export const BuildItemRow = ({
           <div className="flex items-center gap-2 mt-1">
             <span className="text-sm text-gray-500 font-normal">Build</span>
             {isLatest && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full border border-gray-200">
+              <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded border border-gray-200">
                 Latest
               </span>
             )}
