@@ -271,7 +271,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         throw new Error(message)
       }
     },
-    [createFile, currentFile, files, toast, updateFileContent],
+    [createFile, files, toast],
   )
 
   const handleKicadStringSelected = useCallback(
