@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { useUsercodeApiStatus } from "@/hooks/use-usercode-api-status"
 import {
   Globe,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Link } from "wouter"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
+import { InstallCommand } from "@/components/InstallCommand"
 import { getBuildStatus, StatusIcon } from "."
 
 interface ReleaseDeploymentDetailsProps {
@@ -53,11 +55,26 @@ export function ReleaseDeploymentDetails({
     (c) => c.service === "usercode_api",
   )
   const buildStatus = getBuildStatus(latestBuild)
-  const isQueued =
-    // packageRelease.ready_to_build === true ||
-    buildStatus.status === "queued" ||
-    (isPollingAfterRebuild && buildStatus.status === "pending")
-  const isBuildInProgress = buildStatus.status === "building" || isQueued
+  const isWaitingForBuild =
+    isPollingAfterRebuild && buildStatus.status !== "building"
+  const isBuildInProgress =
+    buildStatus.status === "building" || isWaitingForBuild
+
+  const [waitingSeconds, setWaitingSeconds] = useState(0)
+
+  useEffect(() => {
+    if (!isWaitingForBuild) {
+      setWaitingSeconds(0)
+      return
+    }
+
+    setWaitingSeconds(1)
+    const interval = setInterval(() => {
+      setWaitingSeconds((s) => s + 1)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isWaitingForBuild])
 
   const buildDuration =
     latestBuild?.user_code_job_started_at &&
@@ -96,7 +113,7 @@ export function ReleaseDeploymentDetails({
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {canManagePackage && (
             <TooltipProvider>
-              <Tooltip open={isQueued ? undefined : false}>
+              <Tooltip open={isWaitingForBuild ? undefined : false}>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
@@ -113,11 +130,11 @@ export function ReleaseDeploymentDetails({
                       className={`size-3 sm:size-4 mr-2 ${isRebuildLoading || isBuildInProgress ? "animate-spin" : ""}`}
                     />
                     {buildStatus.status === "building"
-                      ? "Building"
+                      ? "Building..."
                       : isRebuildLoading
                         ? "Triggering..."
-                        : isQueued
-                          ? "Queued"
+                        : isWaitingForBuild
+                          ? `Waiting (${waitingSeconds}s)`
                           : "Rebuild"}
                   </Button>
                 </TooltipTrigger>
@@ -257,22 +274,6 @@ export function ReleaseDeploymentDetails({
               </div>
             </div>
 
-            {/* Tag */}
-            <div className="space-y-1.5">
-              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                Tags
-              </p>
-              <div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                  {packageRelease.is_latest
-                    ? "Latest"
-                    : !packageRelease.is_pr_preview
-                      ? "Preview"
-                      : "Pull Request"}
-                </span>
-              </div>
-            </div>
-
             {/* Source */}
             <div className="space-y-1.5">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
@@ -359,6 +360,14 @@ export function ReleaseDeploymentDetails({
                 </div>
               </div>
             )}
+
+            {/* Install Command */}
+            <div className="space-y-1.5">
+              <InstallCommand
+                packageName={pkg.name}
+                version={packageRelease.version}
+              />
+            </div>
           </div>
         </div>
       </div>

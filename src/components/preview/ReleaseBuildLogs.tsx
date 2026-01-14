@@ -39,19 +39,10 @@ export const ReleaseBuildLogs = ({
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
-  const isBuildCompleted = Boolean(
-    packageBuild?.user_code_job_completed_at ||
-      packageBuild?.user_code_job_error ||
-      packageRelease.user_code_job_completed_at ||
-      packageRelease.user_code_job_error,
-  )
-  const isQueued = packageRelease.ready_to_build === true && !isBuildCompleted
-  const userCodeJobInProgress = Boolean(
-    packageBuild?.build_in_progress ??
-      ((packageBuild?.user_code_job_started_at ||
-        packageRelease.user_code_job_started_at) &&
-        !isBuildCompleted),
-  )
+  const rawBuildStatus = getBuildStatus(packageBuild)
+  const isWaitingForBuild =
+    isPollingAfterRebuild && rawBuildStatus.status !== "building"
+  const userCodeJobInProgress = rawBuildStatus.status === "building"
 
   const logStreamUrl =
     packageBuild?.user_code_job_log_stream_url ||
@@ -59,11 +50,13 @@ export const ReleaseBuildLogs = ({
 
   const shouldStreamLogs = userCodeJobInProgress
 
+  const sseKey = `${packageBuild?.package_build_id || packageRelease.package_release_id}-${logStreamUrl || "none"}`
+
   // Use custom hook to manage SSE log streaming
   const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
     logStreamUrl,
     shouldStreamLogs,
-    packageBuild?.package_build_id || packageRelease.package_release_id,
+    sseKey,
   )
 
   // Auto-scroll to bottom when new logs arrive (only if section is open)
@@ -82,11 +75,9 @@ export const ReleaseBuildLogs = ({
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
 
-  const rawBuildStatus = getBuildStatus(packageBuild)
-  const buildStatus =
-    isQueued && isPollingAfterRebuild && !isBuildCompleted
-      ? { status: "queued" as const, label: "Queued" }
-      : rawBuildStatus
+  const buildStatus = isWaitingForBuild
+    ? { status: "queued" as const, label: "Waiting..." }
+    : rawBuildStatus
   const buildErrorMessage = getBuildErrorMessage(packageBuild)
   const buildDuration = getStepDuration(
     packageBuild?.user_code_job_started_at,
@@ -174,17 +165,14 @@ export const ReleaseBuildLogs = ({
                     <strong>Error:</strong> {buildErrorMessage}
                   </div>
                 )}
-                {isQueued &&
-                  isPollingAfterRebuild &&
-                  !userCodeJobInProgress &&
-                  !isBuildCompleted && (
-                    <div className="flex items-center gap-2 text-amber-600 mb-3 pb-2 border-b border-amber-200">
-                      <Clock className="w-3 h-3 animate-pulse" />
-                      <span className="text-xs font-medium">
-                        Build queued, waiting for logs...
-                      </span>
-                    </div>
-                  )}
+                {isWaitingForBuild && !userCodeJobInProgress && (
+                  <div className="flex items-center gap-2 text-amber-600 mb-3 pb-2 border-b border-amber-200">
+                    <Clock className="w-3 h-3 animate-pulse" />
+                    <span className="text-xs font-medium">
+                      Waiting for build to start...
+                    </span>
+                  </div>
+                )}
                 {userCodeJobInProgress &&
                   packageBuild?.user_code_job_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">

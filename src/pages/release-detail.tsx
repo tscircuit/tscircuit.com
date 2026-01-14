@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useOrganization } from "@/hooks/use-organization"
-import { useMemo, useState, useCallback } from "react"
+import { useMemo, useState, useCallback, useEffect } from "react"
 import { ReleaseBuildLogs } from "@/components/preview/ReleaseBuildLogs"
 import { getBuildStatus } from "@/components/preview"
 
@@ -38,59 +38,78 @@ export default function ReleaseDetailPage() {
     params?.releaseId ?? params?.packageReleaseId ?? null
 
   const [isPollingAfterRebuild, setIsPollingAfterRebuild] = useState(false)
+  const [buildIdWhenRebuildStarted, setBuildIdWhenRebuildStarted] = useState<
+    string | null
+  >(null)
 
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
+    refetch: refetchRelease,
   } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName, {
     include_logs: true,
-    refetchInterval: (res) => {
-      if (!isPollingAfterRebuild) return false
-      const isQueued = res?.ready_to_build === true
-      const status = getBuildStatus(res)
-      const isInProgress =
-        isQueued || status.status === "building" || status.status === "queued"
-      if (isInProgress) {
-        return 2000
-      }
-      setIsPollingAfterRebuild(false)
-      return false
-    },
   })
 
-  const isQueued = packageRelease?.ready_to_build === true
-  const buildStatus = getBuildStatus(packageRelease)
-  const isBuildInProgress =
-    isQueued ||
-    buildStatus.status === "building" ||
-    buildStatus.status === "queued"
+  const currentBuildId = packageRelease?.latest_package_build_id ?? null
 
   const {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
+    refetch: refetchBuild,
+  } = usePackageBuild(currentBuildId, {
     include_logs: true,
-    refetchInterval: (data) => {
-      if (!isPollingAfterRebuild && !isBuildInProgress) return false
-      const status = getBuildStatus(data)
-      if (
-        status.status === "building" ||
-        status.status === "queued" ||
-        isQueued
-      ) {
-        return 2000
-      }
-      return false
-    },
   })
+
+  const buildStatus = getBuildStatus(latestBuild)
+  const isBuildActive =
+    buildStatus.status === "building" || buildStatus.status === "queued"
+  const shouldPoll = isPollingAfterRebuild || isBuildActive
+
+  useEffect(() => {
+    if (!shouldPoll) return
+
+    const interval = setInterval(() => {
+      refetchRelease()
+      if (currentBuildId) {
+        refetchBuild()
+      }
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [shouldPoll, refetchRelease, refetchBuild, currentBuildId])
+
+  useEffect(() => {
+    if (!isPollingAfterRebuild) return
+    if (!latestBuild) return
+    if (
+      buildIdWhenRebuildStarted &&
+      currentBuildId === buildIdWhenRebuildStarted
+    )
+      return
+
+    const status = getBuildStatus(latestBuild)
+    if (status.status === "success" || status.status === "error") {
+      setIsPollingAfterRebuild(false)
+      setBuildIdWhenRebuildStarted(null)
+    }
+  }, [
+    latestBuild,
+    isPollingAfterRebuild,
+    currentBuildId,
+    buildIdWhenRebuildStarted,
+  ])
 
   const session = useGlobalStore((s) => s.session)
 
   const handleRebuildSuccess = useCallback(() => {
+    setBuildIdWhenRebuildStarted(currentBuildId)
     setIsPollingAfterRebuild(true)
-  }, [])
+    setTimeout(() => {
+      refetchRelease()
+    }, 500)
+  }, [refetchRelease, currentBuildId])
 
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation({
