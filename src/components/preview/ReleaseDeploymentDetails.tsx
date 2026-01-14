@@ -115,8 +115,8 @@ export function ReleaseDeploymentDetails({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Images Section - Main Card */}
-        <div className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-4 md:p-6 flex flex-col justify-center">
+        {/* Images Section */}
+        <div className="lg:col-span-1 flex flex-col justify-center">
           {images.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
               {images.map((img, idx) => {
@@ -150,158 +150,153 @@ export function ReleaseDeploymentDetails({
               })}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-32 md:h-full select-none bg-gray-50 rounded-lg border border-gray-100 text-gray-400">
+            <div className="flex flex-col items-center justify-center h-32 lg:h-full select-none bg-gray-50 rounded-lg border border-gray-100 text-gray-400">
               <Box className="w-10 h-10 mb-2 opacity-50" />
               <p>No preview images available</p>
             </div>
           )}
         </div>
 
-        {/* Right Column - Details & Builder Status */}
+        {/* Right Column - Details */}
         <div className="lg:col-span-1 flex flex-col gap-6">
-          {/* Details Section - Secondary Card */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-4 md:p-6 flex-grow">
-            <div className="flex flex-col gap-6 h-full">
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Owner
-                </p>
-                <div className="flex items-center gap-3">
-                  <GithubAvatarWithFallback
-                    username={
-                      organization?.tscircuit_handle ||
-                      pkg.org_owner_tscircuit_handle
-                    }
-                    imageUrl={organization?.avatar_url}
-                    className="size-8 sm:size-10 flex-shrink-0 border border-gray-200"
-                    fallbackClassName="text-xs sm:text-sm font-medium"
-                    colorClassName="bg-gray-100 text-gray-600"
-                  />
-                  <div className="flex flex-col min-w-0">
-                    <Link
-                      to={`/${pkg.org_owner_tscircuit_handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium hover:text-blue-600 leading-tight truncate"
-                    >
-                      {pkg.org_owner_tscircuit_handle || "Unknown"}
-                    </Link>
-                    {latestBuild?.created_at && (
-                      <span className="text-xs text-gray-500 mt-0.5">
-                        {formatTimeAgo(latestBuild.created_at)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Status
-                </p>
-                <div className="flex items-center gap-1">
-                  <StatusIcon size={4} status={buildStatus.status} />
-                  <span className="text-sm font-medium text-gray-900">
-                    {buildStatus.label}
-                  </span>
-                </div>
-              </div>
-
-              {/* Duration */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Duration
-                </p>
-                <div className="flex items-center gap-2 text-gray-900">
-                  <span className="text-sm font-medium">
-                    {buildDuration !== null ? `${buildDuration}s` : "—"}
-                  </span>
-                  {latestBuild?.user_code_job_completed_at && (
-                    <span className="text-sm text-gray-500">
-                      {formatTimeAgo(latestBuild.user_code_job_completed_at)}
+          <div className="flex flex-col gap-6 h-full">
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Owner
+              </p>
+              <div className="flex items-center gap-3">
+                <GithubAvatarWithFallback
+                  username={
+                    organization?.tscircuit_handle ||
+                    pkg.org_owner_tscircuit_handle
+                  }
+                  imageUrl={organization?.avatar_url}
+                  className="size-8 sm:size-10 flex-shrink-0 border border-gray-200"
+                  fallbackClassName="text-xs sm:text-sm font-medium"
+                  colorClassName="bg-gray-100 text-gray-600"
+                />
+                <div className="flex flex-col min-w-0">
+                  <Link
+                    to={`/${pkg.org_owner_tscircuit_handle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium hover:text-blue-600 leading-tight truncate"
+                  >
+                    {pkg.org_owner_tscircuit_handle || "Unknown"}
+                  </Link>
+                  {latestBuild?.created_at && (
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      {formatTimeAgo(latestBuild.created_at)}
                     </span>
                   )}
                 </div>
               </div>
+            </div>
 
-              {/* Type */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Type
-                </p>
-                <div>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                    {packageRelease.is_latest
-                      ? "Latest"
-                      : !packageRelease.is_pr_preview
-                        ? "Preview"
-                        : "Pull Request"}
+            {/* Status */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Status
+              </p>
+              <div className="flex items-center gap-1">
+                <StatusIcon size={4} status={buildStatus.status} />
+                <span className="text-sm font-medium text-gray-900">
+                  {buildStatus.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Duration */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Duration
+              </p>
+              <div className="flex items-center gap-2 text-gray-900">
+                <span className="text-sm font-medium">
+                  {buildDuration !== null ? `${buildDuration}s` : "—"}
+                </span>
+                {latestBuild?.user_code_job_completed_at && (
+                  <span className="text-sm text-gray-500">
+                    {formatTimeAgo(latestBuild.user_code_job_completed_at)}
                   </span>
-                </div>
-              </div>
-
-              {/* Source */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Source
-                </p>
-                {pkg.github_repo_full_name ? (
-                  <div className="flex items-center gap-2 min-w-0">
-                    {packageRelease.is_pr_preview ? (
-                      <GitBranch className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    ) : (
-                      <GitCommit className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    )}
-                    <a
-                      href={
-                        packageRelease.is_pr_preview
-                          ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`
-                          : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease.github_branch_name || "main"}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                    >
-                      {packageRelease.is_pr_preview
-                        ? `PR #${packageRelease.github_pr_number}`
-                        : packageRelease.github_branch_name || "main"}
-                    </a>
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-500">—</span>
-                )}
-              </div>
-
-              {/* Domains */}
-              <div className="space-y-1.5">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                  Domains
-                </p>
-                {packageRelease.package_release_website_url ? (
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <a
-                      href={packageRelease.package_release_website_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                    >
-                      {packageRelease.package_release_website_url.replace(
-                        /^https?:\/\//,
-                        "",
-                      )}
-                    </a>
-                  </div>
-                ) : (
-                  <span className="text-sm text-gray-500">—</span>
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Builder Status Card */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-4 md:p-6">
+            {/* Type */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Type
+              </p>
+              <div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                  {packageRelease.is_latest
+                    ? "Latest"
+                    : !packageRelease.is_pr_preview
+                      ? "Preview"
+                      : "Pull Request"}
+                </span>
+              </div>
+            </div>
+
+            {/* Source */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Source
+              </p>
+              {pkg.github_repo_full_name ? (
+                <div className="flex items-center gap-2 min-w-0">
+                  {packageRelease.is_pr_preview ? (
+                    <GitBranch className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  ) : (
+                    <GitCommit className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  )}
+                  <a
+                    href={
+                      packageRelease.is_pr_preview
+                        ? `https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`
+                        : `https://github.com/${pkg.github_repo_full_name}/tree/${packageRelease.github_branch_name || "main"}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                  >
+                    {packageRelease.is_pr_preview
+                      ? `PR #${packageRelease.github_pr_number}`
+                      : packageRelease.github_branch_name || "main"}
+                  </a>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-500">—</span>
+              )}
+            </div>
+
+            {/* Domains */}
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                Domains
+              </p>
+              {packageRelease.package_release_website_url ? (
+                <div className="flex items-center gap-2 min-w-0">
+                  <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <a
+                    href={packageRelease.package_release_website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                  >
+                    {packageRelease.package_release_website_url.replace(
+                      /^https?:\/\//,
+                      "",
+                    )}
+                  </a>
+                </div>
+              ) : (
+                <span className="text-sm text-gray-500">—</span>
+              )}
+            </div>
+
+            {/* Builder Status */}
             <div className="space-y-1.5">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Builder Status
@@ -314,9 +309,14 @@ export function ReleaseDeploymentDetails({
                       : "bg-red-500"
                   }`}
                 />
-                <span className="text-sm font-medium text-gray-900">
+                <a
+                  href="https://status.tscircuit.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-gray-900 hover:text-blue-600 hover:underline"
+                >
                   {userCodeStatus?.status === "ok" ? "Operational" : "Degraded"}
-                </span>
+                </a>
                 {userCodeStatus?.error && (
                   <span
                     className="text-xs text-red-500 truncate"

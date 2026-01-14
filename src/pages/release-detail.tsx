@@ -1,4 +1,4 @@
-import { useParams } from "wouter"
+import { useParams, Link } from "wouter"
 import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
@@ -173,6 +173,16 @@ export default function ReleaseDetailPage() {
           packageRelease={packageRelease}
           canManagePackage={canManagePackage}
         />
+
+        {/* Link to all builds */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+          <Link
+            to={`/${params?.author}/${params?.packageName}/releases/${packageRelease.package_release_id}/builds`}
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+          >
+            View all builds for this release &rarr;
+          </Link>
+        </div>
       </div>
     </>
   )
