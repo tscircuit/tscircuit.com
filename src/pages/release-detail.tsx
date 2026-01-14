@@ -51,6 +51,7 @@ export default function ReleaseDetailPage() {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
+    refetch: refetchRelease,
   } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName, {
     include_logs: true,
   })
@@ -59,6 +60,7 @@ export default function ReleaseDetailPage() {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
+    refetch: refetchBuild,
   } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
     include_logs: true,
   })
@@ -69,7 +71,12 @@ export default function ReleaseDetailPage() {
 
   const session = useGlobalStore((s) => s.session)
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
-    useRebuildPackageReleaseMutation()
+    useRebuildPackageReleaseMutation({
+      onSuccess: async () => {
+        await refetchRelease()
+        await refetchBuild()
+      },
+    })
   const { status } = getBuildStatus(latestBuild ?? null)
 
   const { organization } = useOrganization(

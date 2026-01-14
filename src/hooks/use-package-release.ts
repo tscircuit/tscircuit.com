@@ -56,6 +56,7 @@ export const usePackageRelease = (
       enabled: Boolean(query),
       refetchInterval: options?.refetchInterval,
       refetchOnWindowFocus: false,
+      staleTime: 0,
     },
   )
 }
