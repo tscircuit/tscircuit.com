@@ -1,8 +1,5 @@
-import React, { useState, useCallback, useMemo } from "react"
-import { Button } from "@/components/ui/button"
-import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +7,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { openJlcpcbImportIssue } from "@/hooks/use-jlcpcb-component-import"
+import { useToast } from "@/hooks/use-toast"
+import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
+import { handleManualEditsImportWithSupportForMultipleFiles } from "@/lib/handleManualEditsImportWithSupportForMultipleFiles"
+import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import {
+  JlcpcbComponentTsxLoadedPayload,
+  KicadStringSelectedPayload,
+  TscircuitPackageSelectedPayload,
+} from "@tscircuit/runframe/runner"
+import {
   AlertTriangle,
-  PanelRightClose,
   Bot,
   FileText,
-  Package,
   MoreHorizontal,
+  Package,
+  PanelRightClose,
 } from "lucide-react"
-import { checkIfManualEditsImported } from "@/lib/utils/checkIfManualEditsImported"
+import React, { useState, useCallback, useMemo } from "react"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import {
   Select,
   SelectContent,
@@ -25,21 +40,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
-  JlcpcbComponentTsxLoadedPayload,
-  KicadStringSelectedPayload,
-  TscircuitPackageSelectedPayload,
-} from "@tscircuit/runframe/runner"
-import { ICreateFileProps, ICreateFileResult } from "@/hooks/useFileManagement"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { openJlcpcbImportIssue } from "@/hooks/use-jlcpcb-component-import"
 export type FileName = string
 
 interface CodeEditorHeaderProps {
@@ -211,6 +211,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         const createFileResult = createFile({
           newFileName: componentPath,
           content: tsx,
+          openFile: false,
           onError: (error) => {
             throw error
           },
@@ -218,6 +219,24 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
 
         if (!createFileResult.newFileCreated) {
           throw new Error("Failed to create component file")
+        }
+
+        // Add import statement to the current file (like @tsci imports do)
+        if (currentFile) {
+          const existingContent = files[currentFile] ?? ""
+          const importPath = componentPath.startsWith("./")
+            ? componentPath.replace(/\.tsx$/, "")
+            : `./${componentPath.replace(/\.tsx$/, "")}`
+
+          // Extract the export name from the generated TSX
+          // Matches: export const ComponentName or export function ComponentName
+          const exportMatch = tsx.match(
+            /export\s+(?:const|function)\s+([A-Z][a-zA-Z0-9_]*)/,
+          )
+          const exportName = exportMatch ? exportMatch[1] : ""
+
+          const newContent = `import { ${exportName} } from "${importPath}"\n${existingContent}`
+          updateFileContent(currentFile, newContent)
         }
 
         toast({
@@ -252,7 +271,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
         throw new Error(message)
       }
     },
-    [createFile, files, toast],
+    [createFile, currentFile, files, toast, updateFileContent],
   )
 
   const handleKicadStringSelected = useCallback(
