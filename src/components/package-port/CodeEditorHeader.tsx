@@ -235,7 +235,7 @@ export const CodeEditorHeader: React.FC<CodeEditorHeaderProps> = ({
           )
           const exportName = exportMatch ? exportMatch[1] : ""
 
-          const newContent = `import { ${exportName} } from "${importPath}"\n${existingContent}`
+          const newContent = `import { ${exportName} } from "${importPath}"\n\n${existingContent}`
           updateFileContent(currentFile, newContent)
         }
 
