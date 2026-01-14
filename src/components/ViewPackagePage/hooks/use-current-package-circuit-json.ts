@@ -1,63 +1,75 @@
+import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
-import { usePackageFile } from "@/hooks/use-package-files"
-import { useEffect, useState } from "react"
+import { useUrlParams } from "@/hooks/use-url-params"
+import { useQuery } from "react-query"
+import { useParams } from "wouter"
+
+type PreviewCircuitJsonResponse = {
+  preview_circuit_json_response: {
+    circuit_json?: any[]
+    component_path?: string
+    circuit_json_found: boolean
+  }
+}
 
 export function useCurrentPackageCircuitJson() {
   const { packageId } = useCurrentPackageId()
+  const urlParams = useUrlParams()
+  const { author, packageName } = useParams()
+  const axios = useAxios()
 
-  const [circuitJson, setCircuitJson] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const version = urlParams.version
+  const releaseId = urlParams.package_release_id
 
-  // Try to load circuit.json from the new location (dist/index/circuit.json)
-  const { data: circuitJsonFileNew, isError: isErrorNew } = usePackageFile(
-    packageId
-      ? {
-          package_id: packageId,
-          file_path: "dist/index/circuit.json",
-        }
-      : null,
-    {
-      cacheTime: 60_000 * 2,
-      staleTime: 60_000 * 2,
-    },
-  )
+  let query: Record<string, string | boolean> | null = null
 
-  // Fallback to load circuit.json from the old location (dist/circuit.json)
-  const { data: circuitJsonFileOld, isError: isErrorOld } = usePackageFile(
-    packageId && isErrorNew
-      ? {
-          package_id: packageId,
-          file_path: "dist/circuit.json",
-        }
-      : null,
-    {
-      cacheTime: 60_000 * 2,
-      staleTime: 60_000 * 2,
-    },
-  )
+  if (author && packageName && !version && !releaseId) {
+    query = { package_name: `${author}/${packageName}`, is_latest: true }
+  } else if (releaseId) {
+    query = { package_release_id: releaseId }
+  } else if (version && author && packageName) {
+    query = { package_name_with_version: `${author}/${packageName}@${version}` }
+  } else if (packageId) {
+    query = { package_id: packageId, is_latest: true }
+  }
 
-  useEffect(() => {
-    setIsLoading(true)
-    setError(null)
-
-    // Use the new location if available, otherwise use the old location
-    const circuitJsonFile = circuitJsonFileNew || circuitJsonFileOld
-
-    if (circuitJsonFile) {
-      try {
-        const parsedCircuitJson = JSON.parse(circuitJsonFile.content_text!)
-        setCircuitJson(parsedCircuitJson)
-        setIsLoading(false)
-      } catch (e) {
-        setError("Invalid circuit.json format")
-        setIsLoading(false)
+  const { data, isLoading, error } = useQuery<
+    PreviewCircuitJsonResponse,
+    Error & { status: number }
+  >(
+    ["previewCircuitJson", query],
+    async () => {
+      if (!query) {
+        throw new Error("Missing package release info")
       }
-    } else if (isErrorNew && isErrorOld) {
-      setError("Circuit JSON not found in package")
-      setIsLoading(false)
-    }
-  }, [circuitJsonFileNew, circuitJsonFileOld, isErrorNew, isErrorOld])
 
-  return { circuitJson, isLoading, error }
+      const response = await axios.get<PreviewCircuitJsonResponse>(
+        "/package_releases/get_preview_circuit_json",
+        {
+          params: query,
+        },
+      )
+
+      return response.data
+    },
+    {
+      enabled: Boolean(query),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 60_000 * 2,
+      cacheTime: 60_000 * 2,
+    },
+  )
+
+  const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
+  const circuitJsonFound =
+    data?.preview_circuit_json_response.circuit_json_found ?? false
+
+  const errorMessage = error
+    ? error.message
+    : data && !circuitJsonFound
+      ? "Circuit JSON not found in package"
+      : null
+
+  return { circuitJson, isLoading, error: errorMessage }
 }
