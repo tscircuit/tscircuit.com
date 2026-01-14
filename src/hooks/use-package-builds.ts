@@ -86,6 +86,7 @@ export const usePackageBuild = (
       enabled: Boolean(packageBuildId),
       retry: false,
       refetchOnWindowFocus: false,
+      staleTime: 0,
     },
   )
 }
