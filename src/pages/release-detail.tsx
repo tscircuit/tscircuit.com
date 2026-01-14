@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { GitBranch, RefreshCw, Share2, ExternalLink } from "lucide-react"
+import { GitBranch, RefreshCw, ExternalLink } from "lucide-react"
 import { BuildDetailsCard } from "@/components/BuildDetailsCard"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
@@ -23,7 +23,8 @@ import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-re
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { getBuildStatus } from "@/components/preview"
 import { useOrganization } from "@/hooks/use-organization"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
+import { usePolling } from "@/hooks/use-polling"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -47,6 +48,8 @@ export default function ReleaseDetailPage() {
   const releaseIdOrVersion =
     params?.releaseId ?? params?.packageReleaseId ?? null
 
+  const previousBuildIdRef = useRef<string | null>(null)
+
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
@@ -56,14 +59,25 @@ export default function ReleaseDetailPage() {
     include_logs: true,
   })
 
-  const {
-    data: latestBuild,
-    isLoading: isLoadingBuild,
-    error: buildError,
-    refetch: refetchBuild,
-  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
-    include_logs: true,
-  })
+  // Poll for new build after rebuild is triggered
+  const { isPolling: isPollingForNewBuild, startPolling } = usePolling(
+    refetchRelease,
+    {
+      interval: 1_000,
+      timeout: 2 * 60 * 1_000, // 2 minutes
+      stopCondition: (data) => {
+        const newBuildId = data?.latest_package_build_id
+        return Boolean(newBuildId && newBuildId !== previousBuildIdRef.current)
+      },
+    },
+  )
+
+  const { data: latestBuild, isLoading: isLoadingBuild } = usePackageBuild(
+    packageRelease?.latest_package_build_id ?? null,
+    {
+      include_logs: true,
+    },
+  )
 
   const { availableViews } = usePackageReleaseDbImages({
     packageRelease,
@@ -73,8 +87,10 @@ export default function ReleaseDetailPage() {
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
     useRebuildPackageReleaseMutation({
       onSuccess: async () => {
-        await refetchRelease()
-        await refetchBuild()
+        // Store the current build ID before starting to poll
+        previousBuildIdRef.current =
+          packageRelease?.latest_package_build_id ?? null
+        startPolling()
       },
     })
   const { status } = getBuildStatus(latestBuild ?? null)
@@ -190,7 +206,9 @@ export default function ReleaseDetailPage() {
                   variant="outline"
                   size="sm"
                   className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
-                  disabled={isRebuildLoading || !packageRelease}
+                  disabled={
+                    isRebuildLoading || isPollingForNewBuild || !packageRelease
+                  }
                   onClick={() =>
                     packageRelease &&
                     rebuildPackage({
@@ -199,9 +217,13 @@ export default function ReleaseDetailPage() {
                   }
                 >
                   <RefreshCw
-                    className={`w-4 h-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
+                    className={`w-4 h-4 mr-2 ${isRebuildLoading || isPollingForNewBuild ? "animate-spin" : ""}`}
                   />
-                  {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
+                  {isRebuildLoading
+                    ? "Rebuilding..."
+                    : isPollingForNewBuild
+                      ? "Waiting for build..."
+                      : "Rebuild"}
                 </Button>
               )}
             </div>
