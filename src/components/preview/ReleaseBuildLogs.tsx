@@ -26,28 +26,44 @@ export const ReleaseBuildLogs = ({
   isLoadingBuild,
   packageRelease,
   canManagePackage,
+  isPollingAfterRebuild = false,
 }: {
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
   packageRelease: PublicPackageRelease
   canManagePackage: boolean
+  isPollingAfterRebuild?: boolean
 }) => {
   const [openSections, setOpenSections] = useState({
     userCode: true,
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
-  const userCodeJobInProgress = Boolean(
-    packageRelease.user_code_job_started_at &&
-      !packageRelease.user_code_job_completed_at &&
-      !packageRelease.user_code_job_error,
+  const isBuildCompleted = Boolean(
+    packageBuild?.user_code_job_completed_at ||
+      packageBuild?.user_code_job_error ||
+      packageRelease.user_code_job_completed_at ||
+      packageRelease.user_code_job_error,
   )
+  const isQueued = packageRelease.ready_to_build === true && !isBuildCompleted
+  const userCodeJobInProgress = Boolean(
+    packageBuild?.build_in_progress ??
+      ((packageBuild?.user_code_job_started_at ||
+        packageRelease.user_code_job_started_at) &&
+        !isBuildCompleted),
+  )
+
+  const logStreamUrl =
+    packageBuild?.user_code_job_log_stream_url ||
+    packageRelease.user_code_job_log_stream_url
+
+  const shouldStreamLogs = userCodeJobInProgress
 
   // Use custom hook to manage SSE log streaming
   const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
-    packageRelease.user_code_job_log_stream_url,
-    userCodeJobInProgress,
-    packageRelease.package_release_id,
+    logStreamUrl,
+    shouldStreamLogs,
+    packageBuild?.package_build_id || packageRelease.package_release_id,
   )
 
   // Auto-scroll to bottom when new logs arrive (only if section is open)
@@ -66,7 +82,11 @@ export const ReleaseBuildLogs = ({
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
 
-  const buildStatus = getBuildStatus(packageBuild)
+  const rawBuildStatus = getBuildStatus(packageBuild)
+  const buildStatus =
+    isQueued && isPollingAfterRebuild && !isBuildCompleted
+      ? { status: "queued" as const, label: "Queued" }
+      : rawBuildStatus
   const buildErrorMessage = getBuildErrorMessage(packageBuild)
   const buildDuration = getStepDuration(
     packageBuild?.user_code_job_started_at,
@@ -127,7 +147,7 @@ export const ReleaseBuildLogs = ({
           className="border border-gray-200 rounded-lg bg-white overflow-hidden"
         >
           <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors data-[state=open]:border-b data-[state=open]:border-gray-200">
+            <div className="flex  select-none items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors data-[state=open]:border-b data-[state=open]:border-gray-200">
               <div className="flex items-center gap-3">
                 <ChevronRight
                   className={`w-4 h-4 text-gray-500 transition-all ${
@@ -154,8 +174,19 @@ export const ReleaseBuildLogs = ({
                     <strong>Error:</strong> {buildErrorMessage}
                   </div>
                 )}
+                {isQueued &&
+                  isPollingAfterRebuild &&
+                  !userCodeJobInProgress &&
+                  !isBuildCompleted && (
+                    <div className="flex items-center gap-2 text-amber-600 mb-3 pb-2 border-b border-amber-200">
+                      <Clock className="w-3 h-3 animate-pulse" />
+                      <span className="text-xs font-medium">
+                        Build queued, waiting for logs...
+                      </span>
+                    </div>
+                  )}
                 {userCodeJobInProgress &&
-                  packageBuild.user_code_job_log_stream_url && (
+                  packageBuild?.user_code_job_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span className="text-xs font-medium">

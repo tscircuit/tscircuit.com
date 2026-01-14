@@ -17,6 +17,12 @@ import type {
   PublicOrgSchema,
 } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Link } from "wouter"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { getBuildStatus, StatusIcon } from "."
@@ -27,6 +33,7 @@ interface ReleaseDeploymentDetailsProps {
   latestBuild: PackageBuild | null
   canManagePackage?: boolean
   isRebuildLoading?: boolean
+  isPollingAfterRebuild?: boolean
   onRebuild?: () => void
   organization?: PublicOrgSchema | null
 }
@@ -37,14 +44,20 @@ export function ReleaseDeploymentDetails({
   latestBuild,
   canManagePackage = false,
   isRebuildLoading = false,
+  isPollingAfterRebuild = false,
   onRebuild,
   organization,
 }: ReleaseDeploymentDetailsProps) {
-  const { data: statusData } = useUsercodeApiStatus()
-  const userCodeStatus = statusData?.checks.find(
+  const { data: statusChecks } = useUsercodeApiStatus()
+  const userCodeStatus = statusChecks?.checks.find(
     (c) => c.service === "usercode_api",
   )
   const buildStatus = getBuildStatus(latestBuild)
+  const isQueued =
+    // packageRelease.ready_to_build === true ||
+    buildStatus.status === "queued" ||
+    (isPollingAfterRebuild && buildStatus.status === "pending")
+  const isBuildInProgress = buildStatus.status === "building" || isQueued
 
   const buildDuration =
     latestBuild?.user_code_job_started_at &&
@@ -78,22 +91,39 @@ export function ReleaseDeploymentDetails({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 border-b border-gray-100 pb-4">
         <h2 className="text-2xl sm:text-3xl font-semibold select-none text-gray-900 tracking-tight">
-          Release Details
+          Release v{packageRelease.version}
         </h2>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {canManagePackage && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
-              disabled={isRebuildLoading || !packageRelease}
-              onClick={onRebuild}
-            >
-              <RefreshCw
-                className={`size-3 sm:size-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
-              />
-              {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
-            </Button>
+            <TooltipProvider>
+              <Tooltip open={isQueued ? undefined : false}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
+                    disabled={
+                      isRebuildLoading ||
+                      buildStatus.status === "building" ||
+                      !packageRelease
+                    }
+                    onClick={onRebuild}
+                  >
+                    <RefreshCw
+                      className={`size-3 sm:size-4 mr-2 ${isRebuildLoading || isBuildInProgress ? "animate-spin" : ""}`}
+                    />
+                    {buildStatus.status === "building"
+                      ? "Building"
+                      : isRebuildLoading
+                        ? "Triggering..."
+                        : isQueued
+                          ? "Queued"
+                          : "Rebuild"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Click to force rebuild</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
           {packageRelease.package_release_website_url && (
             <Button
@@ -164,14 +194,14 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Owner
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
                 <GithubAvatarWithFallback
                   username={
                     organization?.tscircuit_handle ||
                     pkg.org_owner_tscircuit_handle
                   }
                   imageUrl={organization?.avatar_url}
-                  className="size-8 sm:size-10 flex-shrink-0 border border-gray-200"
+                  className="size-8 sm:size-6 flex-shrink-0 border border-gray-200"
                   fallbackClassName="text-xs sm:text-sm font-medium"
                   colorClassName="bg-gray-100 text-gray-600"
                 />
@@ -184,11 +214,6 @@ export function ReleaseDeploymentDetails({
                   >
                     {pkg.org_owner_tscircuit_handle || "Unknown"}
                   </Link>
-                  {latestBuild?.created_at && (
-                    <span className="text-xs text-gray-500 mt-0.5">
-                      {formatTimeAgo(latestBuild.created_at)}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -212,21 +237,30 @@ export function ReleaseDeploymentDetails({
                 Duration
               </p>
               <div className="flex items-center gap-2 text-gray-900">
-                <span className="text-sm font-medium">
-                  {buildDuration !== null ? `${buildDuration}s` : "—"}
-                </span>
-                {latestBuild?.user_code_job_completed_at && (
-                  <span className="text-sm text-gray-500">
-                    {formatTimeAgo(latestBuild.user_code_job_completed_at)}
-                  </span>
+                {buildDuration !== null &&
+                latestBuild?.user_code_job_completed_at ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-sm font-medium cursor-default">
+                          {buildDuration}s
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {formatTimeAgo(latestBuild.user_code_job_completed_at)}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  <span className="text-sm font-medium">—</span>
                 )}
               </div>
             </div>
 
-            {/* Type */}
+            {/* Tag */}
             <div className="space-y-1.5">
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                Type
+                Tags
               </p>
               <div>
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
@@ -297,36 +331,34 @@ export function ReleaseDeploymentDetails({
             </div>
 
             {/* Builder Status */}
-            <div className="space-y-1.5">
-              <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                Builder Status
-              </p>
-              <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                <div
-                  className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full flex-shrink-0 ${
-                    userCodeStatus?.status === "ok"
-                      ? "bg-green-500"
-                      : "bg-red-500"
-                  }`}
-                />
-                <a
-                  href="https://status.tscircuit.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-gray-900 hover:text-blue-600 hover:underline"
-                >
-                  {userCodeStatus?.status === "ok" ? "Operational" : "Degraded"}
-                </a>
-                {userCodeStatus?.error && (
-                  <span
-                    className="text-xs text-red-500 truncate"
-                    title={userCodeStatus.error}
+            {userCodeStatus?.status == "error" && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                  Cloud Build Service
+                </p>
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                  <div
+                    className={`w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full flex-shrink-0 bg-red-500`}
+                  />
+                  <a
+                    href="https://status.tscircuit.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 hover:underline"
                   >
-                    ({userCodeStatus.error})
-                  </span>
-                )}
+                    Degraded
+                  </a>
+                  {userCodeStatus?.error && (
+                    <span
+                      className="text-xs text-red-500 truncate"
+                      title={userCodeStatus.error}
+                    >
+                      ({userCodeStatus.error})
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

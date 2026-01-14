@@ -41,9 +41,12 @@ export const getBuildStatus = (
   }
 
   if (
-    build.user_code_job_started_at &&
-    !build.user_code_job_completed_at &&
-    !build.user_code_job_error
+    (build && "build_in_progress" in build && build.build_in_progress) ||
+    (build &&
+      "user_code_job_started_at" in build &&
+      build.user_code_job_started_at &&
+      !build.user_code_job_completed_at &&
+      !build.user_code_job_error)
   ) {
     return { status: "building", label: "Building" }
   }

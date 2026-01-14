@@ -34,8 +34,9 @@ export const useUsercodeApiStatus = () => {
       }
     },
     {
-      refetchInterval: 60000, // Refresh every minute
       retry: false,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
     },
   )
 }

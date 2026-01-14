@@ -7,13 +7,13 @@ import { usePackageBuild } from "@/hooks/use-package-builds"
 import Header from "@/components/Header"
 import { ReleaseDeploymentDetails } from "@/components/preview/ReleaseDeploymentDetails"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
-import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useOrganization } from "@/hooks/use-organization"
-import { useMemo } from "react"
+import { useMemo, useState, useCallback } from "react"
 import { ReleaseBuildLogs } from "@/components/preview/ReleaseBuildLogs"
+import { getBuildStatus } from "@/components/preview"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -37,13 +37,34 @@ export default function ReleaseDetailPage() {
   const releaseIdOrVersion =
     params?.releaseId ?? params?.packageReleaseId ?? null
 
+  const [isPollingAfterRebuild, setIsPollingAfterRebuild] = useState(false)
+
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
   } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName, {
     include_logs: true,
+    refetchInterval: (res) => {
+      if (!isPollingAfterRebuild) return false
+      const isQueued = res?.ready_to_build === true
+      const status = getBuildStatus(res)
+      const isInProgress =
+        isQueued || status.status === "building" || status.status === "queued"
+      if (isInProgress) {
+        return 2000
+      }
+      setIsPollingAfterRebuild(false)
+      return false
+    },
   })
+
+  const isQueued = packageRelease?.ready_to_build === true
+  const buildStatus = getBuildStatus(packageRelease)
+  const isBuildInProgress =
+    isQueued ||
+    buildStatus.status === "building" ||
+    buildStatus.status === "queued"
 
   const {
     data: latestBuild,
@@ -51,15 +72,30 @@ export default function ReleaseDetailPage() {
     error: buildError,
   } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
     include_logs: true,
-  })
-
-  const { availableViews } = usePackageReleaseDbImages({
-    packageRelease,
+    refetchInterval: (data) => {
+      if (!isPollingAfterRebuild && !isBuildInProgress) return false
+      const status = getBuildStatus(data)
+      if (
+        status.status === "building" ||
+        status.status === "queued" ||
+        isQueued
+      ) {
+        return 2000
+      }
+      return false
+    },
   })
 
   const session = useGlobalStore((s) => s.session)
+
+  const handleRebuildSuccess = useCallback(() => {
+    setIsPollingAfterRebuild(true)
+  }, [])
+
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
-    useRebuildPackageReleaseMutation()
+    useRebuildPackageReleaseMutation({
+      onSuccess: handleRebuildSuccess,
+    })
 
   const { organization } = useOrganization(
     pkg?.owner_org_id
@@ -156,6 +192,7 @@ export default function ReleaseDetailPage() {
             latestBuild={latestBuild ?? null}
             canManagePackage={canManagePackage}
             isRebuildLoading={isRebuildLoading}
+            isPollingAfterRebuild={isPollingAfterRebuild}
             onRebuild={() =>
               packageRelease &&
               rebuildPackage({
@@ -172,6 +209,7 @@ export default function ReleaseDetailPage() {
           isLoadingBuild={isLoadingBuild}
           packageRelease={packageRelease}
           canManagePackage={canManagePackage}
+          isPollingAfterRebuild={isPollingAfterRebuild}
         />
 
         {/* Link to all builds */}
