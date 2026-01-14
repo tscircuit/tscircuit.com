@@ -58,7 +58,13 @@ export const usePackageBuildsByReleaseId = (releaseId?: string | null) => {
 
 export const usePackageBuild = (
   packageBuildId: string | null,
-  options?: { include_logs?: boolean },
+  options?: {
+    include_logs?: boolean
+    refetchInterval?:
+      | number
+      | false
+      | ((data: PackageBuild | undefined) => number | false)
+  },
 ) => {
   const axios = useAxios()
 
@@ -86,7 +92,7 @@ export const usePackageBuild = (
       enabled: Boolean(packageBuildId),
       retry: false,
       refetchOnWindowFocus: false,
-      staleTime: 0,
+      refetchInterval: options?.refetchInterval,
     },
   )
 }

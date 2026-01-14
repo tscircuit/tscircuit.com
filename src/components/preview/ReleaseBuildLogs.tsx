@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from "react"
-import { Badge } from "@/components/ui/badge"
 import {
   Clock,
-  CheckCircle,
   AlertCircle,
   Loader2,
   ExternalLink,
   ChevronRight,
   PackageOpen,
-  RefreshCw,
+  CheckCircle2,
 } from "lucide-react"
 import {
   Collapsible,
@@ -16,40 +14,49 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import {
-  Package,
   PackageBuild,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 import { useSSELogStream } from "@/hooks/use-sse-log-stream"
-import { Link } from "wouter"
+import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
+import { getStepDuration } from "@/lib/utils/getStepDuration"
 
-export const ConnectedRepoOverview = ({
+export const ReleaseBuildLogs = ({
   packageBuild,
-  pkg,
   isLoadingBuild,
   packageRelease,
+  canManagePackage,
+  isPollingAfterRebuild = false,
 }: {
   packageBuild?: PackageBuild | null
   isLoadingBuild: boolean
-  pkg: Package
   packageRelease: PublicPackageRelease
+  canManagePackage: boolean
+  isPollingAfterRebuild?: boolean
 }) => {
   const [openSections, setOpenSections] = useState({
     userCode: true,
   })
   const logsEndRef = useRef<HTMLDivElement | null>(null)
 
-  const userCodeJobInProgress = Boolean(
-    packageRelease.user_code_job_started_at &&
-      !packageRelease.user_code_job_completed_at &&
-      !packageRelease.user_code_job_error,
-  )
+  const rawBuildStatus = getBuildStatus(packageBuild)
+  const isWaitingForBuild =
+    isPollingAfterRebuild && rawBuildStatus.status !== "building"
+  const userCodeJobInProgress = rawBuildStatus.status === "building"
+
+  const logStreamUrl =
+    packageBuild?.user_code_job_log_stream_url ||
+    packageRelease.user_code_job_log_stream_url
+
+  const shouldStreamLogs = userCodeJobInProgress
+
+  const sseKey = `${packageBuild?.package_build_id || packageRelease.package_release_id}-${logStreamUrl || "none"}`
 
   // Use custom hook to manage SSE log streaming
   const { streamedLogs: usercodeStreamedLogs } = useSSELogStream(
-    packageRelease.user_code_job_log_stream_url,
-    userCodeJobInProgress,
-    packageRelease.package_release_id,
+    logStreamUrl,
+    shouldStreamLogs,
+    sseKey,
   )
 
   // Auto-scroll to bottom when new logs arrive (only if section is open)
@@ -64,20 +71,28 @@ export const ConnectedRepoOverview = ({
     }
   }, [usercodeStreamedLogs, userCodeJobInProgress, openSections.userCode])
 
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
+  }
+
+  const buildStatus = isWaitingForBuild
+    ? { status: "queued" as const, label: "Waiting..." }
+    : rawBuildStatus
+  const buildErrorMessage = getBuildErrorMessage(packageBuild)
+  const buildDuration = getStepDuration(
+    packageBuild?.user_code_job_started_at,
+    packageBuild?.user_code_job_completed_at,
+  )
+
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-          </div>
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse" />
                 <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
               </div>
               <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
@@ -90,10 +105,10 @@ export const ConnectedRepoOverview = ({
 
   if (!packageBuild) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
           <div className="flex flex-col items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-gray-100 border flex items-center justify-center">
               <PackageOpen className="w-10 h-10 text-gray-400" />
             </div>
             <div className="space-y-2">
@@ -101,12 +116,11 @@ export const ConnectedRepoOverview = ({
                 No build available
               </h3>
               <p className="text-sm text-gray-600 max-w-md">
-                This package release hasn't been built yet. Click the{" "}
-                <span className="inline-flex items-center gap-1 font-medium text-gray-700">
-                  <RefreshCw className="w-3 h-3" />
-                  Rebuild
-                </span>{" "}
-                button above to start a build.
+                This package release hasn't been built yet.
+                <br />
+                {canManagePackage && (
+                  <>Click the Rebuild button above to start a build.</>
+                )}
               </p>
             </div>
           </div>
@@ -115,96 +129,52 @@ export const ConnectedRepoOverview = ({
     )
   }
 
-  const getErrorMessage = (error: any): string => {
-    if (!error) return ""
-    if (typeof error === "string") return error
-    if (typeof error === "object") {
-      return error.message || JSON.stringify(error)
-    }
-    return String(error)
-  }
-
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
-
-  const getStepStatus = (
-    error?: string | null,
-    completed?: string | null,
-    inProgress?: boolean,
-  ) => {
-    if (error) return "error"
-    if (completed) return "success"
-    if (inProgress) return "building"
-    return "queued"
-  }
-
-  const getStepDuration = (
-    started?: string | null,
-    completed?: string | null,
-  ) => {
-    if (started && completed) {
-      const duration = Math.floor(
-        (new Date(completed).getTime() - new Date(started).getTime()) / 1000,
-      )
-      return `${duration}s`
-    }
-    return null
-  }
-
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 focus:outline-none">
       <div className="space-y-3">
         <Collapsible
           open={openSections.userCode}
           onOpenChange={() => toggleSection("userCode")}
+          className="border border-gray-200 rounded-lg bg-white overflow-hidden"
         >
           <CollapsibleTrigger asChild>
-            <div
-              className={`flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 ${openSections.userCode ? "rounded-b-none border-b-0" : ""}`}
-            >
+            <div className="flex  select-none items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors data-[state=open]:border-b data-[state=open]:border-gray-200">
               <div className="flex items-center gap-3">
                 <ChevronRight
-                  className={`w-4 h-4 transition-transform ${openSections.userCode ? "rotate-90" : ""}`}
+                  className={`w-4 h-4 text-gray-500 transition-all ${
+                    openSections.userCode ? "rotate-90" : ""
+                  }`}
                 />
-
-                <span className="font-medium">Build Logs</span>
+                <span className="font-medium text-gray-900 select-none">
+                  Build Logs
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                {getStepDuration(
-                  packageBuild.user_code_job_started_at,
-                  packageBuild.user_code_job_completed_at,
-                ) && (
-                  <span className="text-sm text-gray-600">
-                    {getStepDuration(
-                      packageBuild.user_code_job_started_at,
-                      packageBuild.user_code_job_completed_at,
-                    )}
-                  </span>
+                {buildDuration && (
+                  <span className="text-sm text-gray-600">{buildDuration}</span>
                 )}
-                {packageBuild.user_code_job_error ? (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                ) : packageBuild.user_code_job_completed_at ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : userCodeJobInProgress ? (
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                ) : (
-                  <Clock className="w-5 h-5 text-gray-400" />
-                )}
+                <StatusIcon size={5} status={buildStatus.status} />
               </div>
             </div>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="bg-white border-x border-b border-gray-200 rounded-b-lg p-4">
+            <div className="p-4 bg-gray-50/50">
               <div className="font-mono text-xs space-y-2">
-                {packageBuild.user_code_job_error && (
+                {buildErrorMessage && (
                   <div className="text-red-600 whitespace-pre-wrap mb-4">
-                    <strong>Error:</strong>{" "}
-                    {getErrorMessage(packageBuild.user_code_job_error)}
+                    <strong>Error:</strong> {buildErrorMessage}
+                  </div>
+                )}
+                {isWaitingForBuild && !userCodeJobInProgress && (
+                  <div className="flex items-center gap-2 text-amber-600 mb-3 pb-2 border-b border-amber-200">
+                    <Clock className="w-3 h-3 animate-pulse" />
+                    <span className="text-xs font-medium">
+                      Waiting for build to start...
+                    </span>
                   </div>
                 )}
                 {userCodeJobInProgress &&
-                  packageBuild.user_code_job_log_stream_url && (
+                  packageBuild?.user_code_job_log_stream_url && (
                     <div className="flex items-center gap-2 text-blue-600 mb-3 pb-2 border-b border-blue-200">
                       <Loader2 className="w-3 h-3 animate-spin" />
                       <span className="text-xs font-medium">

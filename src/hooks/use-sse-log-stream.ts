@@ -20,8 +20,13 @@ export function useSSELogStream(
   const [streamedLogs, setStreamedLogs] = useState<string[]>([])
   const eventSourceRef = useRef<EventSource | null>(null)
   const seenLogIds = useRef<Set<string>>(new Set())
+  const hasReceivedDataRef = useRef(false)
+  const isClosedRef = useRef(false)
 
   useEffect(() => {
+    isClosedRef.current = false
+    hasReceivedDataRef.current = false
+
     if (!streamUrl || !isActive) {
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
@@ -45,6 +50,9 @@ export function useSSELogStream(
 
       // This function processes each incoming log message
       const handleLogMessage = (eventData: string) => {
+        if (isClosedRef.current) return
+
+        hasReceivedDataRef.current = true
         const logId = eventData
         if (seenLogIds.current.has(logId)) {
           return // Silently skip duplicates
@@ -79,19 +87,21 @@ export function useSSELogStream(
         handleLogMessage(event.data)
       })
 
-      eventSource.onerror = (error) => {
-        console.error("SSE connection error:", error)
-        if (eventSource.readyState === EventSource.CLOSED) {
-          eventSourceRef.current = null
-        }
-        // If readyState is CONNECTING (0), the browser will retry automatically
-        // EventSource has built-in reconnection logic with exponential backoff
+      // Error event (if the connection fails)
+      eventSource.onerror = () => {
+        if (isClosedRef.current) return
+        isClosedRef.current = true
+        eventSource.close()
+        eventSourceRef.current = null
       }
     } catch (error) {
-      console.error("Failed to create EventSource:", error)
+      console.error("Error setting up SSE connection", error)
+      isClosedRef.current = true
     }
 
     return () => {
+      // Cleanup: mark the connection as closed and close it
+      isClosedRef.current = true
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
         eventSourceRef.current = null
