@@ -97,9 +97,7 @@ export const ConnectedPackageCard = ({
     return <ConnectedPackageCardSkeleton />
   }
 
-  const { status, label } = latestBuildInfo
-    ? getBuildStatus(latestBuildInfo)
-    : { status: "pending", label: "Pending" }
+  const { status, label } = getBuildStatus(latestBuildInfo)
 
   return (
     <Card
@@ -182,7 +180,7 @@ export const ConnectedPackageCard = ({
             View
           </Button>
         </Link>
-        {latestBuildInfo?.preview_url &&
+        {latestBuildInfo?.package_build_website_url &&
           latestBuildInfo?.package_build_id &&
           status === "success" && (
             <Link

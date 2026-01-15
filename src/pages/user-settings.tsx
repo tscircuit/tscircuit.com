@@ -223,7 +223,7 @@ export default function UserSettingsPage() {
 
       <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="max-w-7xl mx-auto py-8">
-          <div className="mb-8">
+          <div className="mb-8 hidden md:block">
             <div className="flex items-center gap-4 mb-6">
               <GithubAvatarWithFallback
                 username={session.tscircuit_handle}
@@ -234,13 +234,10 @@ export default function UserSettingsPage() {
               />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  Account Settings
-                  <span className="hidden md:inline">
-                    {" "}
-                    {session.tscircuit_handle
-                      ? `- @${session.tscircuit_handle} `
-                      : ""}
-                  </span>
+                  Account Settings{" "}
+                  {session.tscircuit_handle
+                    ? `- @${session.tscircuit_handle} `
+                    : ""}
                 </h1>
               </div>
             </div>

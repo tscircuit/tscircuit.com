@@ -1,29 +1,19 @@
-import { useParams } from "wouter"
+import { useParams, Link } from "wouter"
 import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { usePackageReleaseByIdOrVersion } from "@/hooks/use-package-release-by-id-or-version"
 import { usePackageBuild } from "@/hooks/use-package-builds"
-import { ConnectedRepoOverview } from "@/components/preview/ConnectedRepoOverview"
 import Header from "@/components/Header"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Calendar, GitBranch, RefreshCw } from "lucide-react"
-import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
+import { ReleaseDeploymentDetails } from "@/components/preview/ReleaseDeploymentDetails"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
-import { usePackageReleaseDbImages } from "@/hooks/use-package-release-db-images"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { getBuildStatus } from "@/components/preview"
 import { useOrganization } from "@/hooks/use-organization"
-import { useMemo } from "react"
+import { useMemo, useState, useCallback, useEffect } from "react"
+import { ReleaseBuildLogs } from "@/components/preview/ReleaseBuildLogs"
+import { getBuildStatus } from "@/components/preview"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -47,30 +37,84 @@ export default function ReleaseDetailPage() {
   const releaseIdOrVersion =
     params?.releaseId ?? params?.packageReleaseId ?? null
 
+  const [isPollingAfterRebuild, setIsPollingAfterRebuild] = useState(false)
+  const [buildIdWhenRebuildStarted, setBuildIdWhenRebuildStarted] = useState<
+    string | null
+  >(null)
+
   const {
     data: packageRelease,
     isLoading: isLoadingRelease,
     error: releaseError,
+    refetch: refetchRelease,
   } = usePackageReleaseByIdOrVersion(releaseIdOrVersion, packageName, {
     include_logs: true,
   })
+
+  const currentBuildId = packageRelease?.latest_package_build_id ?? null
 
   const {
     data: latestBuild,
     isLoading: isLoadingBuild,
     error: buildError,
-  } = usePackageBuild(packageRelease?.latest_package_build_id ?? null, {
+    refetch: refetchBuild,
+  } = usePackageBuild(currentBuildId, {
     include_logs: true,
   })
 
-  const { availableViews } = usePackageReleaseDbImages({
-    packageRelease,
-  })
+  const buildStatus = getBuildStatus(latestBuild)
+  const isBuildActive =
+    buildStatus.status === "building" || buildStatus.status === "queued"
+  const shouldPoll = isPollingAfterRebuild || isBuildActive
+
+  useEffect(() => {
+    if (!shouldPoll) return
+
+    const interval = setInterval(() => {
+      refetchRelease()
+      if (currentBuildId) {
+        refetchBuild()
+      }
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [shouldPoll, refetchRelease, refetchBuild, currentBuildId])
+
+  useEffect(() => {
+    if (!isPollingAfterRebuild) return
+    if (!latestBuild) return
+    if (
+      buildIdWhenRebuildStarted &&
+      currentBuildId === buildIdWhenRebuildStarted
+    )
+      return
+
+    const status = getBuildStatus(latestBuild)
+    if (status.status === "success" || status.status === "error") {
+      setIsPollingAfterRebuild(false)
+      setBuildIdWhenRebuildStarted(null)
+    }
+  }, [
+    latestBuild,
+    isPollingAfterRebuild,
+    currentBuildId,
+    buildIdWhenRebuildStarted,
+  ])
 
   const session = useGlobalStore((s) => s.session)
+
+  const handleRebuildSuccess = useCallback(() => {
+    setBuildIdWhenRebuildStarted(currentBuildId)
+    setIsPollingAfterRebuild(true)
+    setTimeout(() => {
+      refetchRelease()
+    }, 500)
+  }, [refetchRelease, currentBuildId])
+
   const { mutate: rebuildPackage, isLoading: isRebuildLoading } =
-    useRebuildPackageReleaseMutation()
-  const { status } = getBuildStatus(latestBuild ?? null)
+    useRebuildPackageReleaseMutation({
+      onSuccess: handleRebuildSuccess,
+    })
 
   const { organization } = useOrganization(
     pkg?.owner_org_id
@@ -95,23 +139,22 @@ export default function ReleaseDetailPage() {
         <Header />
         <div className="min-h-screen bg-white">
           {/* Page Header Skeleton */}
-          <div className="bg-gray-50 border-b py-6">
+          <div className="bg-white border-b py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <Skeleton className="h-6 w-64 mb-4" />
-              <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
                 <Skeleton className="h-4 w-20" />
+                <span className="text-gray-300">/</span>
                 <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="mt-4 space-y-2">
+                <Skeleton className="h-8 w-48" />
               </div>
             </div>
           </div>
 
-          {/* Images Skeleton */}
+          {/* Build Details Card Skeleton */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-              ))}
-            </div>
+            <Skeleton className="h-48 rounded-lg" />
           </div>
 
           {/* Main Content Skeleton */}
@@ -137,115 +180,66 @@ export default function ReleaseDetailPage() {
         <title>{`${pkg.name} Release ${packageRelease.version || `v${packageRelease.package_release_id.slice(-6)}`} - tscircuit`}</title>
       </Helmet>
       <Header />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen pb-10 md:pb-14 bg-white">
         {/* Page Header */}
-        <div className="bg-gray-50 border-b py-6">
+        <div className="bg-white pt-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Breadcrumb */}
-            <PackageBreadcrumb
-              author={pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]}
-              packageName={pkg.name}
-              unscopedName={pkg.unscoped_name}
-              releaseVersion={
-                packageRelease.version ||
-                `v${packageRelease.package_release_id.slice(-6)}`
-              }
-            />
-
-            {/* Header Content */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    Created {formatTimeAgo(packageRelease.created_at)}
-                  </span>
-                </div>{" "}
-                {packageRelease.is_pr_preview && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <a
-                          href={`https://github.com/${pkg.github_repo_full_name}/pull/${packageRelease.github_pr_number}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 hover:text-gray-800 transition-colors"
-                        >
-                          <GitBranch className="w-4 h-4" />
-                          <Badge variant="outline" className="text-xs">
-                            PR #{packageRelease.github_pr_number}
-                          </Badge>
-                        </a>
-                      </TooltipTrigger>
-                      {packageRelease.github_pr_title && (
-                        <TooltipContent>
-                          {packageRelease.github_pr_title}
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
-              </div>
-
-              {/* Rebuild Button */}
-              {canManagePackage && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-300 bg-white hover:bg-gray-50 flex-shrink-0"
-                  disabled={isRebuildLoading || !packageRelease}
-                  onClick={() =>
-                    packageRelease &&
-                    rebuildPackage({
-                      package_release_id: packageRelease.package_release_id,
-                    })
-                  }
-                >
-                  <RefreshCw
-                    className={`w-4 h-4 mr-2 ${isRebuildLoading ? "animate-spin" : ""}`}
-                  />
-                  {isRebuildLoading ? "Rebuilding..." : "Rebuild"}
-                </Button>
-              )}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <PackageBreadcrumb
+                author={
+                  pkg.org_owner_tscircuit_handle || pkg.name.split("/")[0]
+                }
+                packageName={pkg.name}
+                unscopedName={pkg.unscoped_name}
+                releaseVersion={
+                  packageRelease.version ||
+                  `v${packageRelease.package_release_id.slice(-6)}`
+                }
+              />
             </div>
           </div>
         </div>
 
-        {/* Images Section - Always show with skeletons while loading */}
-        {Boolean(latestBuild) && status != "error" && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {availableViews.length > 0
-                ? availableViews.map((view) => (
-                    <div
-                      key={view.id}
-                      className="flex items-center justify-center border rounded-lg bg-gray-50 overflow-hidden h-48"
-                    >
-                      {view.isLoading ? (
-                        <Skeleton className="w-full h-full" />
-                      ) : (
-                        <img
-                          src={view.imageUrl}
-                          alt={`${view.label} preview`}
-                          className={`w-full h-full object-contain ${view.label.toLowerCase() == "pcb" ? "bg-black" : view.label.toLowerCase() == "schematic" ? "bg-[#F5F1ED]" : "bg-gray-100"}`}
-                        />
-                      )}
-                    </div>
-                  ))
-                : [1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-48 rounded-lg" />
-                  ))}
-            </div>
-          </div>
-        )}
+        {/* Release Details Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+          <div className="flex items-center justify-between mb-4"></div>
 
-        {/* Main Content */}
-        <ConnectedRepoOverview
+          {/* Release Details */}
+          <ReleaseDeploymentDetails
+            pkg={pkg}
+            packageRelease={packageRelease}
+            latestBuild={latestBuild ?? null}
+            canManagePackage={canManagePackage}
+            isRebuildLoading={isRebuildLoading}
+            isPollingAfterRebuild={isPollingAfterRebuild}
+            onRebuild={() =>
+              packageRelease &&
+              rebuildPackage({
+                package_release_id: packageRelease.package_release_id,
+              })
+            }
+            organization={organization}
+          />
+        </div>
+
+        {/* Build Logs */}
+        <ReleaseBuildLogs
           packageBuild={latestBuild ?? null}
           isLoadingBuild={isLoadingBuild}
-          pkg={pkg}
           packageRelease={packageRelease}
+          canManagePackage={canManagePackage}
+          isPollingAfterRebuild={isPollingAfterRebuild}
         />
+
+        {/* Link to all builds */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+          <Link
+            to={`/${params?.author}/${params?.packageName}/releases/${packageRelease.package_release_id}/builds`}
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+          >
+            View all builds for this release &rarr;
+          </Link>
+        </div>
       </div>
     </>
   )

@@ -142,8 +142,12 @@ export default function ImportantFilesView({
   const availableTabs = useMemo((): TabInfo[] => {
     const tabs: TabInfo[] = []
 
-    // Only show AI description tab if there's actual AI content
-    if (hasAiContent) {
+    const hasReadme = importantFiles.some((file) =>
+      isReadmeFile(file.file_path),
+    )
+
+    // Only show AI description tab if there's actual AI content and no README
+    if (hasAiContent && !hasReadme) {
       tabs.push({
         type: "ai",
         filePath: null,

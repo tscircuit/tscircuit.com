@@ -46,7 +46,7 @@ export const publicMapPackageBuild = (
     build_error: internalPackageBuild.build_error,
     build_error_last_updated_at:
       internalPackageBuild.build_error_last_updated_at,
-    preview_url: internalPackageBuild.preview_url,
+    package_build_website_url: internalPackageBuild.package_build_website_url,
     build_logs: options.include_logs ? internalPackageBuild.build_logs : null,
     user_code_job_started_at:
       internalPackageBuild.user_code_job_started_at ?? null,

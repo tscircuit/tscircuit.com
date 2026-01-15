@@ -575,7 +575,7 @@ export default () => (
     build_completed_at: new Date(Date.now() - 14000).toISOString(),
     build_error: "Build failed: Unable to complete transpilation step",
     build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
-    preview_url: null,
+    package_build_website_url: null,
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -620,6 +620,7 @@ export default () => (
   })
   db.updatePackage(test2Package.package_id, {
     github_repo_full_name: "testuser/test2-package",
+    github_installation_id: "1234567890",
   })
   const { package_release_id: test2PackageReleaseId } = db.addPackageRelease({
     package_id: test2Package.package_id,
@@ -1984,7 +1985,7 @@ export const SquareWaveModule = () => (
     build_completed_at: new Date(Date.now() - 14000).toISOString(),
     build_error: "Build failed: Unable to complete transpilation step",
     build_error_last_updated_at: new Date(Date.now() - 14000).toISOString(),
-    preview_url: null,
+    package_build_website_url: null,
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -2025,7 +2026,7 @@ export const SquareWaveModule = () => (
     build_completed_at: new Date().toISOString(), // Just completed
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
-    preview_url: "http://localhost:3000/preview/package_build_1",
+    package_build_website_url: "http://localhost:3000/preview/package_build_1",
     build_logs:
       "Build process:\n" +
       "1. Environment setup - OK\n" +
@@ -2069,6 +2070,7 @@ export const SquareWaveModule = () => (
     tscircuit_handle: "test-organization",
     github_handle: "tscircuit",
     owner_account_id: account_id,
+    org_id: "org-test-1234",
   })
 
   // Add org member
@@ -2292,7 +2294,8 @@ exports.TestComponent = TestComponent;
     build_completed_at: new Date().toISOString(),
     build_error: null,
     build_error_last_updated_at: new Date().toISOString(),
-    preview_url: "http://localhost:3000/preview/org_package_build",
+    package_build_website_url:
+      "http://localhost:3000/preview/org_package_build",
     build_logs: "Build completed successfully",
   })
 

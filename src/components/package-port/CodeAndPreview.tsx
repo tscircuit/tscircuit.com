@@ -6,7 +6,7 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
@@ -186,6 +186,18 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     isPackageThere: Boolean(pkg),
   })
 
+  const isMouseOverRunFrame = useRef(false)
+
+  useEffect(() => {
+    const handleKeyDown = () => {
+      if (isMouseOverRunFrame.current) {
+        ;(document.activeElement as HTMLElement)?.blur()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
   return (
     <div className="flex flex-col h-full">
       <EditorNav
@@ -256,6 +268,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               : "w-full md:w-1/2",
             !state.showPreview && "hidden",
           )}
+          onMouseEnter={() => (isMouseOverRunFrame.current = true)}
+          onMouseLeave={() => (isMouseOverRunFrame.current = false)}
         >
           <SuspenseRunFrame
             tscircuitSessionToken={sessionToken}

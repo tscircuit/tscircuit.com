@@ -1,16 +1,33 @@
 import { Badge } from "@/components/ui/badge"
-import { GitFork, Star, Settings, LinkIcon, Github, Plus } from "lucide-react"
+import {
+  GitFork,
+  Star,
+  Settings,
+  LinkIcon,
+  Github,
+  Plus,
+  RefreshCw,
+} from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import { useState, useEffect, useMemo } from "react"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
 import { useOrganization } from "@/hooks/use-organization"
+import { useAxios } from "@/hooks/use-axios"
+import { useToast } from "@/hooks/use-toast"
+import { useGetOrgMember } from "@/hooks/use-get-org-member"
 
 interface SidebarAboutSectionProps {
   packageInfo?: PackageInfo
@@ -69,19 +86,62 @@ export default function SidebarAboutSection({
     return false
   }, [isOwner, organization])
 
+  const currentAccountId = useGlobalStore((s) => s.session?.account_id)
+  const { data: orgMember } = useGetOrgMember({
+    orgId: packageInfo?.owner_org_id,
+    accountId: currentAccountId,
+  })
+
+  const canManagePackage = isOwner || Boolean(orgMember)
+
   // Local state to store updated values before the query refetches
   const [localDescription, setLocalDescription] = useState<string>("")
   const [localWebsite, setLocalWebsite] = useState<string>("")
+  const [isSyncing, setIsSyncing] = useState(false)
 
-  // Update local state when packageInfo changes
+  const axios = useAxios()
+  const { toast } = useToast()
+
+  const handleGitHubSync = async () => {
+    if (!packageInfo?.package_id) return
+    setIsSyncing(true)
+    try {
+      const response = await axios.post("/packages/start_github_sync", {
+        package_id: packageInfo.package_id,
+      })
+      if (response.data?.start_github_sync_result?.ok) {
+        toast({
+          title: "Sync started",
+          description: response.data.start_github_sync_result.message,
+        })
+      }
+    } catch (error: any) {
+      toast({
+        title: "Sync failed",
+        description: error?.data?.message || "Failed to start GitHub sync",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  // Update local state when packageInfo or packageRelease changes
   useEffect(() => {
     if (packageInfo) {
       setLocalDescription(
         packageInfo.description || packageInfo.ai_description || "",
       )
-      setLocalWebsite((packageInfo as any)?.website || "")
     }
   }, [packageInfo])
+
+  const websiteUrl =
+    packageRelease?.package_release_website_url || packageInfo?.website || ""
+  useEffect(() => {
+    if (packageRelease) {
+      setLocalWebsite(websiteUrl || "")
+    }
+  }, [packageRelease])
 
   const {
     Dialog: EditPackageDetailsDialog,
@@ -136,7 +196,7 @@ export default function SidebarAboutSection({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-semibold">About</h2>
-          {canManageOrg && (
+          {canManagePackage && (
             <Button
               variant="ghost"
               size="sm"
@@ -201,14 +261,36 @@ export default function SidebarAboutSection({
             <span>{(packageInfo as any)?.fork_count ?? "0"} forks</span>
           </div>
           {packageInfo?.github_repo_full_name ? (
-            <a
-              target="_blank"
-              href={`https://github.com/${packageInfo.github_repo_full_name}`}
-              className="flex items-center  hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
-            >
-              <Github className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-              <span>{packageInfo?.github_repo_full_name.split("/")[1]}</span>
-            </a>
+            <div className="flex items-center justify-between">
+              <a
+                target="_blank"
+                href={`https://github.com/${packageInfo.github_repo_full_name}`}
+                className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
+              >
+                <Github className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+                <span>{packageInfo?.github_repo_full_name.split("/")[1]}</span>
+              </a>
+              {canManagePackage && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={handleGitHubSync}
+                        disabled={isSyncing}
+                        className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+                      >
+                        <RefreshCw
+                          className={`h-3.5 w-3.5 text-gray-500 dark:text-[#8b949e] ${isSyncing ? "animate-spin" : ""}`}
+                        />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Manually sync from GitHub</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           ) : (
             <>
               {canManageOrg && (
@@ -239,7 +321,7 @@ export default function SidebarAboutSection({
             packageInfo.description || packageInfo?.ai_description || ""
           }
           currentLicense={currentLicense}
-          currentWebsite={(packageInfo as any)?.website || ""}
+          currentWebsite={packageRelease?.package_release_website_url || ""}
           isPrivate={Boolean(packageInfo.is_private)}
           packageAuthor={packageInfo.name.split("/")[0]}
           onUpdate={handlePackageUpdate}

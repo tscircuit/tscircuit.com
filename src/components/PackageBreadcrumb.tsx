@@ -24,8 +24,8 @@ export function PackageBreadcrumb({
   releaseVersion,
 }: PackageBreadcrumbProps) {
   return (
-    <Breadcrumb className="mb-4">
-      <BreadcrumbList>
+    <Breadcrumb>
+      <BreadcrumbList className="select-none">
         {/* Author */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

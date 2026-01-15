@@ -24,6 +24,8 @@ export const useRebuildPackageReleaseMutation = ({
           description: "The package build has been queued for rebuild.",
         })
         queryClient.invalidateQueries(["packageRelease"])
+        queryClient.invalidateQueries(["packageBuild"])
+        queryClient.invalidateQueries(["packageBuilds"])
         onSuccess?.(pkgRelease)
       },
       onError: (error: any) => {

@@ -15,11 +15,18 @@ export const useForkPackageMutation = ({
 
   return useMutation(
     ["forkPackage"],
-    async (packageId: string) => {
+    async ({
+      packageId,
+      isPrivate,
+    }: {
+      packageId: string
+      isPrivate?: boolean
+    }) => {
       if (!session) throw new Error("No session")
 
       const { data } = await axios.post("/packages/fork", {
         package_id: packageId,
+        is_private: isPrivate,
       })
 
       const forkedPackage: Package = data.package

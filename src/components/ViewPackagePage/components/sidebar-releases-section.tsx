@@ -31,9 +31,7 @@ export default function SidebarReleasesSection() {
     )
   }
 
-  const { status, label } = latestBuild
-    ? getBuildStatus(latestBuild)
-    : { status: "pending", label: "pending" }
+  const { status, label } = getBuildStatus(latestBuild)
   return (
     <div className="mb-6">
       <h2 className="text-lg font-semibold mb-2">
@@ -58,7 +56,7 @@ export default function SidebarReleasesSection() {
             {timeAgo(new Date(packageRelease.created_at))}
           </span>
         </div>
-        {latestBuild && (
+        {latestBuild && packageInfo && (
           <Link
             href={`/${packageInfo?.name}/releases`}
             className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8b949e]"
@@ -68,9 +66,6 @@ export default function SidebarReleasesSection() {
           </Link>
         )}
       </div>
-      {/* <a href="#" className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm">
-        Push a new release
-      </a> */}
     </div>
   )
 }

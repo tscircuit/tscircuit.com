@@ -1828,8 +1828,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
     if (filters?.tscircuit_handle) {
       orgs = orgs.filter(
-        (org) =>
-          org.tscircuit_handle === filters.tscircuit_handle?.toLowerCase(),
+        (org) => org.tscircuit_handle === filters.tscircuit_handle,
       )
     }
     if (orgs.length === 0) {
