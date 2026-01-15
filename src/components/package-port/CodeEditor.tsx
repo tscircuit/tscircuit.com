@@ -27,7 +27,7 @@ import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
 import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
 import { getLints } from "@valtown/codemirror-ts"
 import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import tsModule from "typescript"
 import CodeEditorHeader, {
   FileName,
@@ -52,6 +52,8 @@ import { inlineCopilot } from "codemirror-copilot"
 import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Loader2 } from "lucide-react"
 import { useAxios } from "@/hooks/use-axios"
+import { useToast } from "@/hooks/use-toast"
+import { handleFormatFile as handleFormatFileRaw } from "@/lib/utils/handle-format-file"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -139,6 +141,11 @@ export const CodeEditor = ({
     })
   const { Dialog: ViewTsFilesDialog, openDialog: openViewTsFilesDialog } =
     useViewTsFilesDialog()
+  const { toast } = useToast()
+
+  const handleFormatFile = useCallback(() => {
+    handleFormatFileRaw({ files, currentFile, updateFileContent, toast })
+  }, [currentFile, files, toast])
 
   const entryPointFileName = useMemo(() => {
     const entryPointFile = findTargetFile({ files, filePathFromUrl: null })
@@ -305,6 +312,13 @@ export const CodeEditor = ({
             key: "Mod-Shift-f",
             run: () => {
               setShowGlobalFindReplace(true)
+              return true
+            },
+          },
+          {
+            key: "Shift-Alt-f",
+            run: () => {
+              handleFormatFile()
               return true
             },
           },
@@ -838,6 +852,7 @@ export const CodeEditor = ({
               aiAutocompleteEnabled,
               setAiAutocompleteEnabled,
             ]}
+            handleFormatFile={handleFormatFile}
           />
         )}
         <div
