@@ -4,14 +4,13 @@ import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { Edit2, KeyRound, Package2, Plus, Sparkles } from "lucide-react"
+import { Edit2, KeyRound, Package2, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Link } from "wouter"
 import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
 import { useSignIn } from "@/hooks/use-sign-in"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { PackageCard } from "@/components/PackageCard"
@@ -121,7 +120,22 @@ export const DashboardPage = () => {
               </div>
             ) : (
               <>
-                {myPackages && myPackages.length > 0 && (
+                {isLoading && (
+                  <div className="mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center">
+                      <div className="hidden md:flex h-5 w-20 bg-gray-200 rounded animate-pulse mb-2 md:mb-0 md:mr-2" />
+                      <div className="flex gap-2 items-center overflow-x-auto no-scrollbar md:overflow-hidden">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-8 w-24 bg-gray-200 rounded animate-pulse"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!isLoading && myPackages && myPackages.length > 0 && (
                   <div className="mb-6">
                     <div className="flex flex-col md:flex-row md:items-center">
                       <h2 className="hidden md:flex text-sm mb-2 md:mb-0 md:mr-2 text-gray-600 whitespace-nowrap">
@@ -158,15 +172,15 @@ export const DashboardPage = () => {
                   )}
 
                   {isLoading && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {[...Array(6)].map((_, i) => (
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:mt-14">
+                      {[...Array(4)].map((_, i) => (
                         <PackageCardSkeleton key={i} />
                       ))}
                     </div>
                   )}
 
                   {myPackages && myPackages.length > 0 ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                       {myPackages.slice(0, 10).map((pkg) => (
                         <PackageCard
                           key={pkg.package_id}
