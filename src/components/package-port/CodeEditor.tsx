@@ -1,44 +1,11 @@
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { basicSetup } from "@/lib/codemirror/basic-setup"
-import {
-  autocompletion,
-  acceptCompletion,
-  completionStatus,
-} from "@codemirror/autocomplete"
-import { indentWithTab, indentMore } from "@codemirror/commands"
-import { javascript } from "@codemirror/lang-javascript"
-import { json } from "@codemirror/lang-json"
-import { EditorState, Prec, StateEffect, Compartment } from "@codemirror/state"
-import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import type { ATABootstrapConfig } from "@typescript/ata"
-import { setupTypeAcquisition } from "@typescript/ata"
-import { linter } from "@codemirror/lint"
-import {
-  TSCI_PACKAGE_PATTERN,
-  LOCAL_FILE_IMPORT_PATTERN,
-} from "@/lib/constants"
-import {
-  createSystem,
-  createVirtualTypeScriptEnvironment,
-} from "@typescript/vfs"
-import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
-import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
-import { getLints } from "@valtown/codemirror-ts"
-import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
-import tsModule from "typescript"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import CodeEditorHeader, {
   FileName,
 } from "@/components/package-port/CodeEditorHeader"
-import FileSidebar from "../FileSidebar"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "@/types/package"
-import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useAxios } from "@/hooks/use-axios"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import QuickOpen from "./QuickOpen"
-import GlobalFindReplace from "./GlobalFindReplace"
 import {
   ICreateFileProps,
   ICreateFileResult,
@@ -47,11 +14,44 @@ import {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
+import {
+  LOCAL_FILE_IMPORT_PATTERN,
+  TSCI_PACKAGE_PATTERN,
+} from "@/lib/constants"
+import { fetchWithPackageCaching, loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
+import type { PackageFile } from "@/types/package"
+import {
+  acceptCompletion,
+  autocompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentMore, indentWithTab } from "@codemirror/commands"
+import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
+import { linter } from "@codemirror/lint"
+import { Compartment, EditorState, Prec, StateEffect } from "@codemirror/state"
+import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
+import type { ATABootstrapConfig } from "@typescript/ata"
+import { setupTypeAcquisition } from "@typescript/ata"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
+import { EditorView } from "codemirror"
 import { inlineCopilot } from "codemirror-copilot"
-import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
+import type { Package } from "fake-snippets-api/lib/db/schema"
 import { Loader2 } from "lucide-react"
-import { useAxios } from "@/hooks/use-axios"
+import { memo, useEffect, useMemo, useRef, useState } from "react"
+import tsModule from "typescript"
+import FileSidebar from "../FileSidebar"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import GlobalFindReplace from "./GlobalFindReplace"
+import QuickOpen from "./QuickOpen"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -59,7 +59,7 @@ import { Circuit, createUseComponent } from "@tscircuit/core"
 import type { CommonLayoutProps } from "@tscircuit/props"
 `
 
-export const CodeEditor = ({
+const _CodeEditor = ({
   onCodeChange,
   isPriorityFileFetched,
   readOnly = false,
@@ -111,6 +111,24 @@ export const CodeEditor = ({
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null)
   const highlightTimeoutRef = useRef<number | null>(null)
+  const debounceTimeoutRef = useRef<number | null>(null)
+  const currentCodeRef = useRef<string>(files[0]?.content || "")
+
+  // Debounced version of onCodeChange to reduce re-render frequency
+  const debouncedOnCodeChange = useMemo(() => {
+    return (newContent: string, filename?: string) => {
+      currentCodeRef.current = newContent
+
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+
+      debounceTimeoutRef.current = window.setTimeout(() => {
+        onCodeChange(newContent, filename)
+        onFileContentChanged?.(filename || "", newContent)
+      }, 200) // 200ms debounce
+    }
+  }, [onCodeChange, onFileContentChanged])
 
   const { highlighter } = useShikiHighlighter()
   const axios = useAxios()
@@ -163,6 +181,7 @@ export const CodeEditor = ({
         : undefined
       handleFileChange(targetFile.path, lineNumber)
       setCode(targetFile.content)
+      currentCodeRef.current = targetFile.content
     }
   }, [filePathFromUrl, lineNumberFromUrl, pkgFilesLoaded])
 
@@ -179,6 +198,7 @@ export const CodeEditor = ({
       files.find((f) => f.path === currentFile)?.content || ""
     if (currentFileContent !== code) {
       setCode(currentFileContent)
+      currentCodeRef.current = currentFileContent
       updateCurrentEditorContent(currentFileContent)
     }
   }, [files])
@@ -190,6 +210,7 @@ export const CodeEditor = ({
         files.find((f) => f.path === currentFile)?.content || ""
       if (code !== currentFileContent && currentFileContent) {
         setCode(currentFileContent)
+        currentCodeRef.current = currentFileContent
         setTimeout(() => {
           updateCurrentEditorContent(currentFileContent)
         }, 200)
@@ -320,8 +341,7 @@ export const CodeEditor = ({
           lastFilesEventContent[currentFile] = newContent
 
           // setCode(newContent)
-          onCodeChange(newContent, currentFile)
-          onFileContentChanged?.(currentFile, newContent)
+          debouncedOnCodeChange(newContent, currentFile)
         }
         if (update.selectionSet) {
           const pos = update.state.selection.main.head
@@ -641,6 +661,11 @@ export const CodeEditor = ({
         window.clearTimeout(highlightTimeoutRef.current)
         highlightTimeoutRef.current = null
       }
+      // Clean up debounce timeout
+      if (debounceTimeoutRef.current) {
+        window.clearTimeout(debounceTimeoutRef.current)
+        debounceTimeoutRef.current = null
+      }
     }
   }, [
     !isStreaming,
@@ -874,3 +899,5 @@ export const CodeEditor = ({
     </div>
   )
 }
+
+export const CodeEditor = memo(_CodeEditor)
