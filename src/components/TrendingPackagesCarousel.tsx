@@ -3,14 +3,14 @@ import { useAxios } from "@/hooks/use-axios"
 import { StarFilledIcon } from "@radix-ui/react-icons"
 import { Link } from "wouter"
 import { Package } from "fake-snippets-api/lib/db/schema"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { CircuitBoard } from "lucide-react"
-const CarouselItem = ({ pkg }: { pkg: Package }) => {
-  const previewImageUrl =
-    pkg.latest_cad_preview_image_url ??
-    pkg.latest_pcb_preview_image_url ??
-    pkg.latest_sch_preview_image_url ??
-    undefined
+
+const CarouselItem = ({
+  pkg,
+  onImageError,
+}: { pkg: Package; onImageError: () => void }) => {
+  const previewImageUrl = pkg.latest_cad_preview_image_url
 
   return (
     <Link href={`/${pkg.name}`}>
@@ -29,6 +29,7 @@ const CarouselItem = ({ pkg }: { pkg: Package }) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling?.classList.remove("hidden")
                 e.currentTarget.nextElementSibling?.classList.add("flex")
+                onImageError()
               }}
             />
           ) : null}
@@ -50,6 +51,7 @@ const CarouselItem = ({ pkg }: { pkg: Package }) => {
 export const TrendingPackagesCarousel = () => {
   const axios = useAxios()
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set())
 
   const { data: trendingPackages } = useQuery<Package[]>(
     "trendingPackages",
@@ -65,9 +67,18 @@ export const TrendingPackagesCarousel = () => {
     },
   )
 
+  const filteredPackages = (trendingPackages ?? []).filter(
+    (pkg) =>
+      pkg.latest_cad_preview_image_url && !failedImages.has(pkg.package_id),
+  )
+
+  const handleImageError = (packageId: string) => {
+    setFailedImages((prev) => new Set(prev).add(packageId))
+  }
+
   return (
     <div className="w-full bg-gray-50 py-8 min-h-[280px]">
-      {trendingPackages?.length ? (
+      {filteredPackages?.length ? (
         <>
           <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold mb-6">Trending Packages</h2>
@@ -77,11 +88,13 @@ export const TrendingPackagesCarousel = () => {
               ref={scrollRef}
               className="flex gap-6 transition-transform duration-1000 animate-carousel-left"
             >
-              {[...(trendingPackages ?? []), ...(trendingPackages ?? [])].map(
-                (pkg, i) => (
-                  <CarouselItem key={`${pkg.package_id}-${i}`} pkg={pkg} />
-                ),
-              )}
+              {[...filteredPackages, ...filteredPackages].map((pkg, i) => (
+                <CarouselItem
+                  key={`${pkg.package_id}-${i}`}
+                  pkg={pkg}
+                  onImageError={() => handleImageError(pkg.package_id)}
+                />
+              ))}
             </div>
           </div>
         </>
