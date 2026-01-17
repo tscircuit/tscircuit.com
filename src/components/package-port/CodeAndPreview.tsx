@@ -1,22 +1,22 @@
-import { CodeEditor } from "@/components/package-port/CodeEditor"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
+import { CodeEditor } from "@/components/package-port/CodeEditor"
+import EditorNav from "@/components/package-port/EditorNav"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
 import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
+import { useFileManagement } from "@/hooks/useFileManagement"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
+import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
+import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
+import { ManualEditEvent } from "@tscircuit/props"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useEffect, useMemo, useRef, useState } from "react"
-import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
-import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
-import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
-import { ManualEditEvent } from "@tscircuit/props"
-import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 
 interface Props {
   pkg?: Package
@@ -205,7 +205,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         pkg={pkg}
         isPackageFetched={isPackageFetched}
         packageType={packageType}
-        code={String(currentFileCode)}
         fsMap={fsMap}
         isSaving={isSaving}
         hasUnsavedChanges={hasUnsavedChanges}

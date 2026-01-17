@@ -1,5 +1,7 @@
+import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
+import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import { Button } from "@/components/ui/button"
-import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,12 +11,25 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useAxios } from "@/hooks/use-axios"
+import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { useOrganization } from "@/hooks/use-organization"
+import { useToast } from "@/hooks/use-toast"
+import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { cn } from "@/lib/utils"
-import { OpenInNewWindowIcon, LockClosedIcon } from "@radix-ui/react-icons"
+import { LockClosedIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons"
 import { AnyCircuitElement } from "circuit-json"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { GitFork, Loader2, Star } from "lucide-react"
 import {
   ChevronDown,
   CodeIcon,
@@ -31,34 +46,18 @@ import {
   Trash2,
   Undo2,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { Tag } from "lucide-react"
+import { memo, useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
 import { Link, useLocation } from "wouter"
-import { useAxios } from "@/hooks/use-axios"
-import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { useToast } from "@/hooks/use-toast"
-import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
-import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
-import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
-import { useForkPackageMutation } from "@/hooks/useForkPackageMutation"
-import { useOrganization } from "@/hooks/use-organization"
+import { CreateReleaseDialog } from "../CreateReleaseDialog"
 import { useRenamePackageDialog } from "../dialogs/rename-package-dialog"
 import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-description-dialog"
-import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
-import { Tag } from "lucide-react"
-import { CreateReleaseDialog } from "../CreateReleaseDialog"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
-export default function EditorNav({
+function EditorNav({
   isPackageFetched,
   circuitJson,
   pkg,
-  code,
   fsMap,
   hasUnsavedChanges,
   onTogglePreview,
@@ -76,7 +75,6 @@ export default function EditorNav({
   pkg?: Package | null
   isPackageFetched?: boolean
   circuitJson?: AnyCircuitElement[] | null
-  code: string
   fsMap: Record<string, string>
   packageType?: string
   hasUnsavedChanges: boolean
@@ -141,7 +139,6 @@ export default function EditorNav({
 
   const { mutate: forkSnippet, isLoading: isForking } = useForkPackageMutation({
     pkg: pkg!,
-    currentCode: code,
     onSuccess: (forkedPackage) => {
       navigate("/editor?package_id=" + forkedPackage.package_id)
       setTimeout(() => {
@@ -694,3 +691,5 @@ export default function EditorNav({
     </nav>
   )
 }
+
+export default memo(EditorNav)
