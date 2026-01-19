@@ -1,4 +1,4 @@
-import { useParams } from "wouter"
+import { useParams, useLocation } from "wouter"
 import { Helmet } from "react-helmet-async"
 import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
@@ -34,6 +34,7 @@ export default function ReleaseBuildsPage() {
     packageName: string
     releaseId: string
   }>()
+  const [, setLocation] = useLocation()
 
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all-Status")
@@ -229,11 +230,25 @@ export default function ReleaseBuildsPage() {
                           key={build.package_build_id}
                           build_id={build.package_build_id}
                           status={status}
+                          onClick={() =>
+                            setLocation(
+                              `/${params?.author}/${params?.packageName}/releases/${params?.releaseId}/builds/${build.package_build_id}`,
+                            )
+                          }
                           statusLabel={label}
                           duration={buildDuration || null}
                           createdAt={build.created_at}
                           errorMessage={errorMessage}
                           dropdownActions={[
+                            {
+                              label: "View Build Details",
+                              onClick: (e: React.MouseEvent) => {
+                                e.stopPropagation()
+                                setLocation(
+                                  `/${params?.author}/${params?.packageName}/releases/${params?.releaseId}/builds/${build.package_build_id}`,
+                                )
+                              },
+                            },
                             {
                               label: "Copy Build ID",
                               onClick: (e: React.MouseEvent) => {

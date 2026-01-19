@@ -84,6 +84,9 @@ const PackageEditorPage = lazyImport(async () => {
 const ReleasesPage = lazyImport(() => import("@/pages/releases"))
 const ReleaseDetailPage = lazyImport(() => import("@/pages/release-detail"))
 const ReleaseBuildsPage = lazyImport(() => import("@/pages/release-builds"))
+const ReleaseBuildDetailPage = lazyImport(
+  () => import("@/pages/release-build-detail"),
+)
 const ReleasePreviewPage = lazyImport(() => import("@/pages/preview-release"))
 const OrganizationSettingsPage = lazyImport(
   () => import("@/pages/organization-settings"),
@@ -294,6 +297,10 @@ function App() {
             <Route
               path="/:author/:packageName/releases/:releaseId/builds"
               component={ReleaseBuildsPage}
+            />
+            <Route
+              path="/:author/:packageName/releases/:releaseId/builds/:buildId"
+              component={ReleaseBuildDetailPage}
             />
             <Route
               path="/:author/:packageName/releases/:packageReleaseId/preview"
