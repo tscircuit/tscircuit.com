@@ -1,9 +1,4 @@
-import {
-  Package,
-  PackageBuild,
-  PublicPackageRelease,
-} from "fake-snippets-api/lib/db/schema"
-import { useAxios } from "@/hooks/use-axios"
+import { Package, PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 import { useLocation } from "wouter"
 import { getBuildStatus, getBuildErrorMessage } from "."
 import { ReleaseItemRow, ReleaseItemRowSkeleton } from "./ReleaseItemRow"
@@ -23,7 +18,6 @@ export const ReleasesList = ({
   statusFilter?: string
   releaseTypeFilter?: string
 }) => {
-  const axios = useAxios()
   const [, setLocation] = useLocation()
 
   const filteredReleases = releases?.filter((release) => {
@@ -119,6 +113,12 @@ export const ReleasesList = ({
                   },
                   hidden:
                     !pkg.github_repo_full_name || !release.github_commit_sha,
+                },
+                {
+                  label: "Copy Release ID",
+                  onClick: () => {
+                    navigator.clipboard.writeText(release.package_release_id)
+                  },
                 },
               ]}
             />

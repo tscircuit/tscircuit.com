@@ -50,7 +50,7 @@ export default function SidebarReleasesSection() {
       </h2>
       <div className="flex flex-col space-y-2">
         <Link
-          href={`/${packageInfo?.name}/releases/${packageRelease.version}`}
+          href={`/${packageInfo?.name}/releases/${packageRelease.package_release_id}`}
           className="flex items-center hover:underline"
         >
           <Tag className="h-4 w-4 mr-2 text-gray-500" />
