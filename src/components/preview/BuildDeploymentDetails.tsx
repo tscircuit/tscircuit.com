@@ -92,7 +92,7 @@ export function BuildDeploymentDetails({
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          {canManagePackage && (
+          {canManagePackage && false && (
             <TooltipProvider>
               <Tooltip open={isWaitingForBuild ? undefined : false}>
                 <TooltipTrigger asChild>
@@ -116,7 +116,7 @@ export function BuildDeploymentDetails({
                         ? "Triggering..."
                         : isWaitingForBuild
                           ? `Waiting (${waitingSeconds}s)`
-                          : "Rebuild"}
+                          : "Rebuild Release"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Click to trigger a new build</TooltipContent>
