@@ -1,4 +1,6 @@
 export { ReleaseBuildLogs } from "./ReleaseBuildLogs"
+export { SingleBuildLogs } from "./SingleBuildLogs"
+export { BuildDeploymentDetails } from "./BuildDeploymentDetails"
 export { BuildsList } from "./BuildsList"
 export { ReleasesList } from "./ReleasesList"
 export { ReleaseItemRow, ReleaseItemRowSkeleton } from "./ReleaseItemRow"

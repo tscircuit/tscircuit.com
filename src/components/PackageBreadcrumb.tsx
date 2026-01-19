@@ -14,6 +14,8 @@ interface PackageBreadcrumbProps {
   unscopedName?: string
   currentPage?: "releases" | "builds" | string
   releaseVersion?: string
+  buildId?: string
+  releaseId?: string
 }
 
 export function PackageBreadcrumb({
@@ -22,6 +24,8 @@ export function PackageBreadcrumb({
   unscopedName,
   currentPage,
   releaseVersion,
+  buildId,
+  releaseId,
 }: PackageBreadcrumbProps) {
   return (
     <Breadcrumb>
@@ -86,8 +90,28 @@ export function PackageBreadcrumb({
                   <span>/</span>
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>builds</BreadcrumbPage>
+                  {buildId ? (
+                    <BreadcrumbLink asChild>
+                      <Link
+                        href={`/${packageName}/releases/${releaseId}/builds`}
+                      >
+                        builds
+                      </Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>builds</BreadcrumbPage>
+                  )}
                 </BreadcrumbItem>
+                {buildId && (
+                  <>
+                    <BreadcrumbSeparator>
+                      <span>/</span>
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem>
+                      <BreadcrumbPage>{buildId}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                )}
               </>
             )}
           </>
