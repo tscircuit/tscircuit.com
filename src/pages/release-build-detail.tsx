@@ -130,7 +130,7 @@ export default function ReleaseBuildDetailPage() {
     return false
   }, [session, pkg, organization, session?.account_id, pkg?.creator_account_id])
 
-  if (isLoadingPackage || isLoadingRelease) {
+  if (isLoadingPackage || isLoadingRelease || isLoadingBuild) {
     return (
       <>
         <Header />

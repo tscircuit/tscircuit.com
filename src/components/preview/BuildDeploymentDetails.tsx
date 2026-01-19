@@ -116,7 +116,7 @@ export function BuildDeploymentDetails({
                         ? "Triggering..."
                         : isWaitingForBuild
                           ? `Waiting (${waitingSeconds}s)`
-                          : "Rebuild Release"}
+                          : "Rebuild"}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Click to trigger a new build</TooltipContent>
