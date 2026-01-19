@@ -45,7 +45,8 @@ export const ReleaseItemRow = ({
   errorMessage,
 }: ReleaseItemRowProps) => {
   const [copied, setCopied] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false)
+  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false)
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -130,12 +131,47 @@ export const ReleaseItemRow = ({
           </div>
         )}
 
-        <div className="flex justify-between items-end">
+        <div className="flex justify-between items-center">
           <div className="flex-1 min-w-0 pr-4">{renderGitInfo()}</div>
-          <div className="flex flex-col items-end flex-shrink-0">
-            <div className="text-xs font-medium text-gray-500">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span className="text-xs font-medium text-gray-500">
               {formatTimeAgo(release.created_at)}
-            </div>
+            </span>
+            {dropdownActions && dropdownActions.length > 0 && (
+              <DropdownMenu
+                open={isMobileDropdownOpen}
+                onOpenChange={setIsMobileDropdownOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 -mr-1"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
+                  >
+                    <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {dropdownActions
+                    .filter((action) => !action.hidden)
+                    .map((action) => (
+                      <DropdownMenuItem
+                        key={action.label}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsMobileDropdownOpen(false)
+                          action.onClick(e)
+                        }}
+                      >
+                        {action.label}
+                      </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
@@ -206,8 +242,8 @@ export const ReleaseItemRow = ({
 
           {dropdownActions && dropdownActions.length > 0 && (
             <DropdownMenu
-              open={isDropdownOpen}
-              onOpenChange={setIsDropdownOpen}
+              open={isDesktopDropdownOpen}
+              onOpenChange={setIsDesktopDropdownOpen}
             >
               <DropdownMenuTrigger asChild>
                 <Button
@@ -216,7 +252,6 @@ export const ReleaseItemRow = ({
                   className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={(e) => {
                     e.stopPropagation()
-                    setIsDropdownOpen(true)
                   }}
                 >
                   <MoreHorizontal className="w-4 h-4 text-gray-500" />
@@ -230,7 +265,7 @@ export const ReleaseItemRow = ({
                       key={action.label}
                       onClick={(e) => {
                         e.stopPropagation()
-                        setIsDropdownOpen(false)
+                        setIsDesktopDropdownOpen(false)
                         action.onClick(e)
                       }}
                     >

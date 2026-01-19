@@ -1,9 +1,15 @@
-import { Tag, Clock } from "lucide-react"
+import { Tag, Clock, Globe } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { getBuildStatus, StatusIcon } from "@/components/preview"
+import { getBuildStatus } from "@/components/preview"
 import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 
@@ -44,26 +50,36 @@ export default function SidebarReleasesSection() {
       </h2>
       <div className="flex flex-col space-y-2">
         <Link
-          href={`/${packageInfo?.name}/releases`}
+          href={`/${packageInfo?.name}/releases/${packageRelease.version}`}
           className="flex items-center hover:underline"
         >
-          <Tag className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+          <Tag className="h-4 w-4 mr-2 text-gray-500" />
           <span className="text-sm font-medium">v{packageRelease.version}</span>
         </Link>
         <div className="flex items-center">
-          <Clock className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-          <span className="text-sm text-gray-500 dark:text-[#8b949e]">
-            {timeAgo(new Date(packageRelease.created_at))}
-          </span>
+          <Clock className="h-4 w-4 mr-2 text-gray-500" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-sm text-gray-500  cursor-default">
+                  {timeAgo(new Date(packageRelease.created_at))}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {new Date(packageRelease.created_at).toLocaleString()}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        {latestBuild && packageInfo && (
-          <Link
-            href={`/${packageInfo?.name}/releases`}
-            className="flex items-center gap-2 text-sm text-gray-500 dark:text-[#8b949e]"
+        {packageRelease?.package_release_website_url && (
+          <a
+            href={packageRelease.package_release_website_url}
+            target="_blank"
+            className="flex items-center gap-2 text-sm text-gray-500  cursor-pointer"
           >
-            <StatusIcon status={status} />
-            <span>Package Preview {label}</span>
-          </Link>
+            <Globe className={`size-4 text-gray-500`} />
+            <span>Package Preview</span>
+          </a>
         )}
       </div>
     </div>
