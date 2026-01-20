@@ -827,7 +827,7 @@ export default function OrganizationSettingsPage() {
                     <Mail className="h-5 w-5" />
                     Invite member
                   </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
                     <div className="lg:col-span-4">
                       <Input
                         id="invite-email-input"
