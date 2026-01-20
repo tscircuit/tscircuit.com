@@ -116,9 +116,20 @@ export const NewPackageSavePromptDialog = ({
       setIsSaving(false)
     }
   }, [open])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !isFormInvalid) {
+      e.preventDefault()
+      handleSave()
+    }
+  }
+
+  const isFormInvalid =
+    orgsLoading || !session || isSaving || !!orgsError || !normalizedPackageName
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle>Creating new package</DialogTitle>
           <DialogDescription>
@@ -253,16 +264,7 @@ export const NewPackageSavePromptDialog = ({
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={
-              orgsLoading ||
-              !session ||
-              isSaving ||
-              !!orgsError ||
-              !normalizedPackageName
-            }
-          >
+          <Button onClick={handleSave} disabled={isFormInvalid}>
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </div>
