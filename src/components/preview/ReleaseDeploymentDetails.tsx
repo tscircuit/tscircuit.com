@@ -91,18 +91,28 @@ export function ReleaseDeploymentDetails({
       label: "3D",
       url: packageRelease.cad_preview_image_url,
       icon: Box,
+      tab: "cad",
     },
     {
       label: "Schematic",
       url: packageRelease.sch_preview_image_url,
       icon: Layers,
+      tab: "schematic",
     },
     {
       label: "PCB",
       url: packageRelease.pcb_preview_image_url,
       icon: Cpu,
+      tab: "pcb",
     },
   ].filter((img) => img.url)
+
+  const handleImageClick = (tab: string) => {
+    if (!packageRelease.package_release_website_url) return
+    const url = new URL(packageRelease.package_release_website_url)
+    url.searchParams.set("tab", tab)
+    window.open(url.toString(), "_blank")
+  }
 
   return (
     <div className="space-y-6">
@@ -179,7 +189,8 @@ export function ReleaseDeploymentDetails({
                       idx === 0 && images.length === 3
                         ? "col-span-2 aspect-[2/1]"
                         : "col-span-1 aspect-[4/3]"
-                    }`}
+                    } ${packageRelease.package_release_website_url ? "cursor-pointer hover:opacity-90 transition-opacity" : ""}`}
+                    onClick={() => handleImageClick(img.tab)}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       <img
