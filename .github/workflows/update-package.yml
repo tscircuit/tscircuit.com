@@ -35,6 +35,10 @@ jobs:
               bun update --latest "$package"
             fi
           done
+      - name: Sync runframe versions
+        run: bun run copy-runframe-versions
+      - name: Sync lockfile
+        run: bun install
       - name: Close existing PRs
         run: |
           gh pr list --repo ${{ github.repository }} --state open --author "tscircuitbot" --json number,title --jq '.[] | select(.title | startswith("chore:")) | .number' | xargs -I{} gh pr close {} --comment "Closing in favor of a new update PR"
