@@ -30,10 +30,16 @@ const fetchCircuitJson = async (fileRef: {
   filePath: string
   fileStaticAssetUrl: string
 }): Promise<object> => {
-  const res = await fetch(String(fileRef.fileStaticAssetUrl))
+  let res = await fetch(String(fileRef.fileStaticAssetUrl))
+  if (!res.ok) {
+    const fallbackUrl = fileRef.fileStaticAssetUrl.replace(
+      "file_path=dist/index/circuit.json",
+      "file_path=dist/circuit.json",
+    )
+    res = await fetch(fallbackUrl)
+  }
   const resJson = await res.json()
   const circuitJson = JSON.parse(resJson.package_file.content_text)
-  console.log(circuitJson)
   return circuitJson
 }
 
@@ -122,22 +128,6 @@ export default function PreviewBuildPage() {
                         {build?.package_build_id}
                       </Link>
                     </div>
-                    {/* {packageRelease?.commit_message && (
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <span className="text-xs text-gray-500 uppercase tracking-wide">
-                          Commit
-                        </span>
-                        <a
-                          title={packageRelease?.commit_message}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          href={`https://github.com/${pkg?.github_repo_full_name}/commit/${packageRelease?.commit_message}`}
-                          className="font-mono text-xs text-gray-600 bg-gray-50 px-2 text-right py-1 rounded truncate"
-                        >
-                          {packageRelease?.commit_message}
-                        </a>
-                      </div>
-                    )} */}
 
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <span className="text-xs text-gray-500 uppercase tracking-wide">
@@ -176,8 +166,8 @@ export default function PreviewBuildPage() {
                 <RunFrameStaticBuildViewer
                   files={[
                     {
-                      filePath: "dist/circuit.json",
-                      fileStaticAssetUrl: `${apiUrl}/package_files/get?file_path=dist/circuit.json&package_release_id=${build?.package_release_id}`,
+                      filePath: "circuit.json",
+                      fileStaticAssetUrl: `${apiUrl}/package_files/get?file_path=dist/index/circuit.json&package_release_id=${build?.package_release_id}`,
                     },
                   ]}
                   onFetchFile={fetchCircuitJson as any}
