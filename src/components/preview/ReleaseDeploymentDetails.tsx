@@ -91,18 +91,28 @@ export function ReleaseDeploymentDetails({
       label: "3D",
       url: packageRelease.cad_preview_image_url,
       icon: Box,
+      tab: "cad",
     },
     {
       label: "Schematic",
       url: packageRelease.sch_preview_image_url,
       icon: Layers,
+      tab: "schematic",
     },
     {
       label: "PCB",
       url: packageRelease.pcb_preview_image_url,
       icon: Cpu,
+      tab: "pcb",
     },
   ].filter((img) => img.url)
+
+  const handleImageClick = (tab: string) => {
+    if (!packageRelease.package_release_website_url) return
+    const url = new URL(packageRelease.package_release_website_url)
+    url.hash = `tab=${tab}`
+    window.open(url.toString(), "_blank")
+  }
 
   return (
     <div className="space-y-6">
@@ -175,17 +185,18 @@ export function ReleaseDeploymentDetails({
                 return (
                   <div
                     key={img.label}
-                    className={`relative border rounded-lg overflow-hidden ${bgColor} group flex flex-col items-center justify-center ${
+                    className={`relative group  border rounded-lg overflow-hidden ${bgColor} group flex flex-col items-center justify-center ${
                       idx === 0 && images.length === 3
                         ? "col-span-2 aspect-[2/1]"
                         : "col-span-1 aspect-[4/3]"
-                    }`}
+                    } ${packageRelease.package_release_website_url ? "cursor-pointer" : ""}`}
+                    onClick={() => handleImageClick(img.tab)}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       <img
                         src={img.url!}
                         alt={`${img.label} Preview`}
-                        className="max-w-full max-h-full w-auto h-auto object-contain"
+                        className={`max-w-full max-h-full w-auto h-auto object-contain ${packageRelease.package_release_website_url ? "group-hover:scale-[1.02] transition-transform" : ""}`}
                       />
                     </div>
                     <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-xs font-medium text-gray-700 flex items-center gap-1.5 shadow-sm">
