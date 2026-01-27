@@ -143,7 +143,6 @@
     "immer": "^10.1.1",
     "javascript-time-ago": "^2.5.11",
     "jose": "^5.9.3",
-    "jscad-electronics": "^0.0.113",
     "jszip": "^3.10.1",
     "kicad-converter": "^0.0.17",
     "kicadts": "^0.0.23",
