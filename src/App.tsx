@@ -92,6 +92,7 @@ const OrganizationSettingsPage = lazyImport(
   () => import("@/pages/organization-settings"),
 )
 const UserSettingsPage = lazyImport(() => import("@/pages/user-settings"))
+const PackageSettingsPage = lazyImport(() => import("@/pages/package-settings"))
 const AcceptOrgInvitationPage = lazyImport(
   () => import("@/pages/accept-org-invitation"),
 )
@@ -313,6 +314,10 @@ function App() {
             <Route
               path="/:author/:packageName/releases"
               component={ReleasesPage}
+            />
+            <Route
+              path="/:author/:packageName/settings"
+              component={PackageSettingsPage}
             />
             <Route path="/:author/:packageName" component={ViewPackagePage} />
             {/* 404 fallback */}
