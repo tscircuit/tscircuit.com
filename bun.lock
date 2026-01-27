@@ -52,13 +52,13 @@
         "@tscircuit/3d-viewer": "^0.0.501",
         "@tscircuit/assembly-viewer": "^0.0.5",
         "@tscircuit/create-snippet-url": "^0.0.8",
-        "@tscircuit/eval": "^0.0.608",
+        "@tscircuit/eval": "^0.0.610",
         "@tscircuit/layout": "^0.0.29",
         "@tscircuit/mm": "^0.0.8",
         "@tscircuit/pcb-viewer": "1.11.322",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/props": "^0.0.433",
-        "@tscircuit/runframe": "^0.0.1532",
+        "@tscircuit/runframe": "^0.0.1534",
         "@tscircuit/schematic-viewer": "^2.0.53",
         "@tscircuit/simple-3d-svg": "^0.0.41",
         "@types/babel__standalone": "^7.1.7",
@@ -90,7 +90,7 @@
         "circuit-json-to-spice": "^0.0.6",
         "circuit-json-to-step": "^0.0.2",
         "circuit-json-to-tscircuit": "^0.0.11",
-        "circuit-to-svg": "^0.0.318",
+        "circuit-to-svg": "^0.0.319",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.0.4",
@@ -754,6 +754,8 @@
 
     "@tailwindcss/typography": ["@tailwindcss/typography@0.5.19", "", { "dependencies": { "postcss-selector-parser": "6.0.10" }, "peerDependencies": { "tailwindcss": ">=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1" } }, "sha512-w31dd8HOx3k9vPtcQh5QHP9GwKcgbMp87j58qi6xgiBnFFtKEAgCWnDw4qUT8aHwkCp8bKvb/KGKWWHedP0AAg=="],
 
+    "@thednp/dommatrix": ["@thednp/dommatrix@2.0.12", "", {}, "sha512-eOshhlSShBXLfrMQqqhA450TppJXhKriaQdN43mmniOCMn9sD60QKF1Axsj7bKl339WH058LuGFS6H84njYH5w=="],
+
     "@tokenizer/token": ["@tokenizer/token@0.3.0", "", {}, "sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.22.0", "", { "dependencies": { "fast-glob": "^3.3.2", "minimatch": "^9.0.3", "mkdirp": "^3.0.1", "path-browserify": "^1.0.1" } }, "sha512-HqNBuV/oIlMKdkLshXd1zKBqNQCsuPEsgQOkfFQ/eUKjRlwndXW1AjN9LVkBEIukm00gGXSRmfkl0Wv5VXLnlw=="],
@@ -780,7 +782,7 @@
 
     "@tscircuit/create-snippet-url": ["@tscircuit/create-snippet-url@0.0.8", "", { "dependencies": { "fflate": "^0.8.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-VMixgwQRsOXlQGwVh2RZIFLLtsn8YWl2Bht61T26MHNM71A1Wzo5qGZtqcdbVkFnvlA42KmdVVjvxYDvEyWdJw=="],
 
-    "@tscircuit/eval": ["@tscircuit/eval@0.0.608", "", { "peerDependencies": { "@tscircuit/core": "*", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-wyB19iPCGTdzKUJyj+uXYzJ7ksHoP8ex5IZV6N0lrcp3uVV25MY+puDmRTy1r2M8stAsQcnEfmX+F3cN2uVoDw=="],
+    "@tscircuit/eval": ["@tscircuit/eval@0.0.610", "", { "peerDependencies": { "@tscircuit/core": "*", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-iSoSrbNaa7TcsmH1fDJ1UvF+RqBunflz7AnY2/P4JuIOTloq2xTelGJgQrx8I1JBhrUQ1MJld5h0klJRXBeVfQ=="],
 
     "@tscircuit/featured-snippets": ["@tscircuit/featured-snippets@0.0.1", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-SNUbCQmyaAaWq7DqqDbYlZkYttbfaObtp5rOheZvlJ2TGYvooECFpB8SzNo06bqKGoIwNjgaAGUTB2DcxdX7ow=="],
 
@@ -808,7 +810,7 @@
 
     "@tscircuit/props": ["@tscircuit/props@0.0.433", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-3a3i24bzbUDO/B/dZKALa+YhyfLzoleysM0a4OXRGgumbTkPkOVKeIb77d9MIB1bSn+OmX3NBVuxDFBDgD/OCg=="],
 
-    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.1532", "", { "dependencies": { "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-B9Jl8Qy06QFB0e0tf5wAug+UGNSHFAf1Wip5Zh/CDzg92uR3PXTqV2Un5NNUd+zXkW37HtQlnnptpDfH0kZ+nA=="],
+    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.1534", "", { "dependencies": { "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-XZexru1NesQOOHiXD+USUWavbM+7LgeX9GRGfR5WuQBA5tLU/D0IILjwUFTSb7dfZCeGMC+90Bf0me8poDzFzQ=="],
 
     "@tscircuit/schematic-autolayout": ["@tscircuit/schematic-autolayout@0.0.6", "", { "dependencies": { "@tscircuit/soup-util": "^0.0.38", "transformation-matrix": "^2.16.1" } }, "sha512-34cQxtlSylBKyHkzaMBCynaWJgN9c/mWm7cz63StTYIafKmfFs383K8Xoc4QX8HXCvVrHYl1aK15onZua9MxeA=="],
 
@@ -1118,7 +1120,7 @@
 
     "circuit-to-canvas": ["circuit-to-canvas@0.0.49", "", { "dependencies": { "transformation-matrix": "^3.1.0" }, "peerDependencies": { "@tscircuit/alphabet": "*", "typescript": "^5" } }, "sha512-lmnRwZBegNprW0IUqcRolP7yF6yyIf/tPSq+Xnhi+K+ngUWTlSB+nikVq/JjinKZZheBH1Wlmt0TmPvuWbGQvA=="],
 
-    "circuit-to-svg": ["circuit-to-svg@0.0.318", "", { "dependencies": { "@types/node": "^22.5.5", "bun-types": "^1.1.40", "calculate-elbow": "0.0.12", "svgson": "^5.3.1", "transformation-matrix": "^2.16.1" }, "peerDependencies": { "@tscircuit/alphabet": "*" } }, "sha512-JnDjGyLGRH0cTiIctE1THg9L8zBZM2l3/0dt0uvnE6purOIvDPzXVus4KUZPRpi4z76e2chUee24je8vHSOxOQ=="],
+    "circuit-to-svg": ["circuit-to-svg@0.0.319", "", { "dependencies": { "@types/node": "^22.5.5", "bun-types": "^1.1.40", "calculate-elbow": "0.0.12", "svg-path-commander": "^2.1.11", "svgson": "^5.3.1", "transformation-matrix": "^2.16.1" }, "peerDependencies": { "@tscircuit/alphabet": "*" } }, "sha512-oG/JuzgzKbU+xyxoSni0GaNvopuP/Mfp6l9v6p/sS2Pm9/VyP97YUZB37R+WxMoYU9W3NXEWb+BfYap4ATYY3Q=="],
 
     "class-variance-authority": ["class-variance-authority@0.7.1", "", { "dependencies": { "clsx": "^2.1.1" } }, "sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg=="],
 
@@ -2197,6 +2199,8 @@
     "sucrase": ["sucrase@3.35.0", "", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.2", "commander": "^4.0.0", "glob": "^10.3.10", "lines-and-columns": "^1.1.6", "mz": "^2.7.0", "pirates": "^4.0.1", "ts-interface-checker": "^0.1.9" }, "bin": { "sucrase": "bin/sucrase", "sucrase-node": "bin/sucrase-node" } }, "sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA=="],
 
     "supports-preserve-symlinks-flag": ["supports-preserve-symlinks-flag@1.0.0", "", {}, "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w=="],
+
+    "svg-path-commander": ["svg-path-commander@2.1.11", "", { "dependencies": { "@thednp/dommatrix": "^2.0.12" } }, "sha512-wmQ6QA3Od+HOcpIzLjPlbv59+x3yd3V5W6xitUOvAHmqZpP7wVrRM2CHqEm5viHUbZu6PjzFsjbTEFtIeUxaNA=="],
 
     "svgo": ["svgo@4.0.0", "", { "dependencies": { "commander": "^11.1.0", "css-select": "^5.1.0", "css-tree": "^3.0.1", "css-what": "^6.1.0", "csso": "^5.0.5", "picocolors": "^1.1.1", "sax": "^1.4.1" }, "bin": "./bin/svgo.js" }, "sha512-VvrHQ+9uniE+Mvx3+C9IEe/lWasXCU0nXMY2kZeLrHNICuRiC8uMPyM14UEaMOFA5mhyQqEkB02VoQ16n3DLaw=="],
 
