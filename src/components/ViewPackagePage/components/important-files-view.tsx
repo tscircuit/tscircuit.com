@@ -71,23 +71,13 @@ export default function ImportantFilesView({
         : {},
   )
 
-  // Memoized computed values
-  const hasAiContent = useMemo(
-    () => Boolean(pkg?.ai_description || pkg?.ai_usage_instructions),
-    [pkg?.ai_description, pkg?.ai_usage_instructions],
+  const hasAiContent = Boolean(
+    pkg?.ai_description || pkg?.ai_usage_instructions,
   )
-  const hasAiReview = useMemo(() => Boolean(aiReviewText), [aiReviewText])
-  const isOwner = useMemo(
-    () => user?.github_username === pkg?.owner_github_username,
-    [user?.github_username, pkg?.owner_github_username],
-  )
-  const canManagePackage = useMemo(() => {
-    if (isOwner) return isOwner
-    if (organization) {
-      return organization.user_permissions?.can_manage_org
-    }
-    return false
-  }, [isOwner, organization])
+  const hasAiReview = Boolean(aiReviewText)
+  const isOwner = user?.github_username === pkg?.owner_github_username
+  const canManagePackage =
+    isOwner || Boolean(organization?.user_permissions?.can_manage_org)
   // File type utilities
   const isLicenseFile = useCallback((filePath: string) => {
     const lowerPath = filePath.toLowerCase()
@@ -102,8 +92,8 @@ export default function ImportantFilesView({
   }, [])
 
   const isReadmeFile = useCallback((filePath: string) => {
-    const lowerPath = filePath.toLowerCase()
-    return lowerPath.endsWith("readme.md") || lowerPath.endsWith("readme")
+    const lowerPath = filePath.toLowerCase().replace(/^\//, "")
+    return lowerPath === "readme.md" || lowerPath === "readme"
   }, [])
 
   const isCodeFile = useCallback((filePath: string) => {
@@ -166,7 +156,15 @@ export default function ImportantFilesView({
       })
     }
 
-    importantFiles.forEach((file) => {
+    const filteredFiles = importantFiles.filter((file) => {
+      const lowerPath = file.file_path.toLowerCase()
+      const isSubdirReadme =
+        (lowerPath.endsWith("/readme.md") || lowerPath.endsWith("/readme")) &&
+        !isReadmeFile(file.file_path)
+      return !isSubdirReadme
+    })
+
+    filteredFiles.forEach((file) => {
       tabs.push({
         type: "file",
         filePath: file.file_path,
@@ -299,7 +297,7 @@ export default function ImportantFilesView({
 
   const activeFileContent = activeFileFull?.content_text || ""
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     let textToCopy = ""
 
     if (activeTab?.type === "ai-review" && aiReviewText) {
@@ -308,7 +306,7 @@ export default function ImportantFilesView({
       activeTab?.type === "ai" &&
       (pkg?.ai_description || pkg?.ai_usage_instructions)
     ) {
-      const parts = []
+      const parts: string[] = []
       if (pkg?.ai_description)
         parts.push(`# Description\n\n${pkg?.ai_description}`)
       if (pkg?.ai_usage_instructions)
@@ -323,7 +321,13 @@ export default function ImportantFilesView({
       setCopyState("copied")
       setTimeout(() => setCopyState("copy"), 500)
     }
-  }
+  }, [
+    activeTab?.type,
+    aiReviewText,
+    pkg?.ai_description,
+    pkg?.ai_usage_instructions,
+    activeFileContent,
+  ])
 
   // Render content based on active tab
   const renderAiContent = useCallback(() => {
@@ -559,10 +563,10 @@ export default function ImportantFilesView({
           ))}
         </div>
         <div className="ml-auto flex items-center">
-          {((activeTab?.type === "file" && activeFileContent) ||
-            (activeTab?.type === "ai-review" && aiReviewText) ||
-            (activeTab?.type === "ai" &&
-              (pkg?.ai_description || pkg?.ai_usage_instructions))) && (
+          {(activeTab?.type === "file" && activeFileContent) ||
+          (activeTab?.type === "ai-review" && aiReviewText) ||
+          (activeTab?.type === "ai" &&
+            (pkg?.ai_description || pkg?.ai_usage_instructions)) ? (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md transition-all duration-300"
               onClick={handleCopy}
@@ -574,20 +578,20 @@ export default function ImportantFilesView({
               )}
               <span className="sr-only">Copy</span>
             </button>
-          )}
+          ) : null}
           {activeTab?.type === "ai-review" &&
-            aiReviewText &&
-            canManagePackage && (
-              <button
-                className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
-                onClick={onRequestAiReview}
-                title="Re-request AI Review"
-              >
-                <RefreshCcwIcon className="h-4 w-4" />
-                <span className="sr-only">Re-request AI Review</span>
-              </button>
-            )}
-          {activeTab?.type === "ai" && hasAiContent && canManagePackage && (
+          aiReviewText &&
+          canManagePackage ? (
+            <button
+              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
+              onClick={onRequestAiReview}
+              title="Re-request AI Review"
+            >
+              <RefreshCcwIcon className="h-4 w-4" />
+              <span className="sr-only">Re-request AI Review</span>
+            </button>
+          ) : null}
+          {activeTab?.type === "ai" && hasAiContent && canManagePackage ? (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
               onClick={onRequestAiDescriptionUpdate}
@@ -596,8 +600,8 @@ export default function ImportantFilesView({
               <RefreshCcwIcon className="h-4 w-4" />
               <span className="sr-only">Regenerate AI Description</span>
             </button>
-          )}
-          {activeTab?.type === "file" && (
+          ) : null}
+          {activeTab?.type === "file" ? (
             <button
               className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md"
               onClick={() => onEditClicked?.(activeTab.filePath)}
@@ -605,7 +609,7 @@ export default function ImportantFilesView({
               <Edit className="h-4 w-4" />
               <span className="sr-only">Edit</span>
             </button>
-          )}
+          ) : null}
         </div>
       </div>
       <div className="p-4 bg-white dark:bg-[#0d1117]">{renderTabContent()}</div>
