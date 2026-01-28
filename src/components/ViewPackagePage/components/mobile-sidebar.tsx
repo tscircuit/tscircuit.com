@@ -12,11 +12,8 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
-import { useEditPackageDetailsDialog } from "@/components/dialogs/edit-package-details-dialog"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
-import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import PreviewImageSquares from "./preview-image-squares"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useOrganization } from "@/hooks/use-organization"
@@ -29,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Link, useLocation } from "wouter"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -39,26 +37,9 @@ const MobileSidebar = ({
   isLoading = false,
   onViewChange,
 }: MobileSidebarProps) => {
-  const { packageInfo, refetch: refetchPackageInfo } = useCurrentPackageInfo()
-  const { data: releaseFiles } = usePackageFiles(
-    packageInfo?.latest_package_release_id,
-  )
-  const licenseFileId = useMemo(() => {
-    return (
-      releaseFiles?.find((f) => f.file_path === "LICENSE")?.package_file_id ||
-      null
-    )
-  }, [releaseFiles])
-  const { data: licenseFileMeta } = usePackageFileById(licenseFileId)
-  const currentLicense = useMemo(() => {
-    if (packageInfo?.latest_license) {
-      return packageInfo?.latest_license
-    }
-    if (licenseFileMeta?.content_text) {
-      return getLicenseFromLicenseContent(licenseFileMeta.content_text)
-    }
-    return undefined
-  }, [licenseFileMeta, packageInfo?.latest_license])
+  const { packageInfo } = useCurrentPackageInfo()
+  const [, navigate] = useLocation()
+
   const topics = useMemo(
     () => (packageInfo?.is_package ? ["Package"] : ["Board"]),
     [packageInfo?.is_package],
@@ -121,51 +102,21 @@ const MobileSidebar = ({
     }
   }, [packageInfo?.package_id, axios, toast])
 
-  const {
-    Dialog: EditPackageDetailsDialog,
-    openDialog: openEditPackageDetailsDialog,
-  } = useEditPackageDetailsDialog()
+  const { packageRelease } = useCurrentPackageRelease()
+  const websiteUrl =
+    packageRelease?.package_release_website_url || packageInfo?.website || ""
 
-  // Auto-open dialog if redirected back from GitHub installation
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get("open_edit_package_dialog") === "true") {
-      openEditPackageDetailsDialog()
       params.delete("open_edit_package_dialog")
       const newSearch = params.toString()
       const newUrl =
         window.location.pathname + (newSearch ? `?${newSearch}` : "")
       window.history.replaceState({}, "", newUrl)
+      if (packageInfo) navigate(`/${packageInfo.name}/settings`)
     }
-  }, [openEditPackageDetailsDialog])
-
-  const [localDescription, setLocalDescription] = useState<string>("")
-  const [localWebsite, setLocalWebsite] = useState<string>("")
-  const { packageRelease } = useCurrentPackageRelease()
-  useEffect(() => {
-    if (packageInfo) {
-      setLocalDescription(
-        packageInfo.description || packageInfo.ai_description || "",
-      )
-    }
-  }, [packageInfo])
-
-  const websiteUrl =
-    packageRelease?.package_release_website_url || packageInfo?.website || ""
-  useEffect(() => {
-    if (packageRelease) {
-      setLocalWebsite(websiteUrl || "")
-    }
-  }, [packageRelease])
-
-  const handlePackageUpdate = useCallback(
-    (newDescription: string, newWebsite: string) => {
-      setLocalDescription(newDescription)
-      setLocalWebsite(newWebsite)
-      refetchPackageInfo()
-    },
-    [refetchPackageInfo],
-  )
+  }, [packageInfo, navigate])
 
   if (isLoading) {
     return (
@@ -194,33 +145,31 @@ const MobileSidebar = ({
     <div className="p-4 bg-white dark:bg-[#0d1117] border-b border-gray-200 dark:border-[#30363d] md:hidden">
       <div className="flex justify-between items-start mb-4">
         <p className="text-sm text-gray-700 dark:text-[#c9d1d9]">
-          {localDescription ||
-            packageInfo?.description ||
-            packageInfo?.ai_description ||
-            ""}
+          {packageInfo?.description || packageInfo?.ai_description || ""}
         </p>
-        {isOwner && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 ml-2 flex-shrink-0"
-            onClick={openEditPackageDetailsDialog}
-            title="Edit package details"
-          >
-            <Settings className="h-4 w-4 text-gray-500" />
-          </Button>
+        {isOwner && packageInfo && (
+          <Link href={`/${packageInfo.name}/settings`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 ml-2 flex-shrink-0"
+              title="Edit package details"
+            >
+              <Settings className="h-4 w-4 text-gray-500" />
+            </Button>
+          </Link>
         )}
       </div>
 
-      {localWebsite && (
+      {websiteUrl && (
         <a
-          href={localWebsite}
+          href={websiteUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
         >
           <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
-          <span className="truncate">{localWebsite}</span>
+          <span className="truncate">{websiteUrl}</span>
         </a>
       )}
 
@@ -271,10 +220,10 @@ const MobileSidebar = ({
           </div>
         ) : (
           <>
-            {canManageOrg && (
-              <div
+            {canManageOrg && packageInfo && (
+              <Link
+                href={`/${packageInfo.name}/settings`}
                 className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
-                onClick={openEditPackageDetailsDialog}
                 title="Connect GitHub"
               >
                 <div className="relative mr-2">
@@ -282,7 +231,7 @@ const MobileSidebar = ({
                   <Plus className="h-2 w-2 absolute -bottom-0.5 -right-0.5 text-gray-500 dark:text-[#8b949e] bg-white dark:bg-[#0d1117] rounded-full" />
                 </div>
                 <span>Connect GitHub</span>
-              </div>
+              </Link>
             )}
           </>
         )}
@@ -328,26 +277,6 @@ const MobileSidebar = ({
           onViewChange={onViewChange}
         />
       </div>
-      {packageInfo && (
-        <EditPackageDetailsDialog
-          currentAllowPrPreviews={packageInfo.allow_pr_previews}
-          packageReleaseId={packageInfo.latest_package_release_id}
-          packageId={packageInfo.package_id}
-          currentDescription={
-            packageInfo.description || packageInfo?.ai_description || ""
-          }
-          currentGithubRepoFullName={packageInfo.github_repo_full_name}
-          currentLicense={currentLicense}
-          currentWebsite={(packageInfo as any)?.website || ""}
-          isPrivate={Boolean(packageInfo.is_private)}
-          packageAuthor={packageInfo.name.split("/")[0]}
-          onUpdate={handlePackageUpdate}
-          packageName={packageInfo.name}
-          unscopedPackageName={packageInfo.unscoped_name}
-          currentDefaultView={packageInfo.default_view}
-          ownerOrgId={packageInfo.owner_org_id}
-        />
-      )}
     </div>
   )
 }
