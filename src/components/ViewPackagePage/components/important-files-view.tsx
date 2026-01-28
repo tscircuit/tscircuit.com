@@ -101,9 +101,9 @@ export default function ImportantFilesView({
     )
   }, [])
 
-  const isReadmeFile = useCallback((filePath: string) => {
-    const lowerPath = filePath.toLowerCase()
-    return lowerPath.endsWith("readme.md") || lowerPath.endsWith("readme")
+  const isRootReadmeFile = useCallback((filePath: string) => {
+    const lowerPath = filePath.toLowerCase().replace(/^\//, "")
+    return lowerPath === "readme.md" || lowerPath === "readme"
   }, [])
 
   const isCodeFile = useCallback((filePath: string) => {
@@ -117,9 +117,9 @@ export default function ImportantFilesView({
 
   const isMarkdownFile = useCallback(
     (filePath: string) => {
-      return filePath.endsWith(".md") || isReadmeFile(filePath)
+      return filePath.endsWith(".md") || isRootReadmeFile(filePath)
     },
-    [isReadmeFile],
+    [isRootReadmeFile],
   )
 
   const getFileName = useCallback((path: string) => {
@@ -143,7 +143,7 @@ export default function ImportantFilesView({
     const tabs: TabInfo[] = []
 
     const hasReadme = importantFiles.some((file) =>
-      isReadmeFile(file.file_path),
+      isRootReadmeFile(file.file_path),
     )
 
     // Only show AI description tab if there's actual AI content and no README
@@ -185,7 +185,7 @@ export default function ImportantFilesView({
     // Priority 1: README file
     const readmeTab = availableTabs.find(
       (tab) =>
-        tab.type === "file" && tab.filePath && isReadmeFile(tab.filePath),
+        tab.type === "file" && tab.filePath && isRootReadmeFile(tab.filePath),
     )
     if (readmeTab) return readmeTab
 
@@ -204,7 +204,7 @@ export default function ImportantFilesView({
     if (firstFileTab) return firstFileTab
 
     return null
-  }, [isFetched, availableTabs, isReadmeFile])
+  }, [isFetched, availableTabs, isRootReadmeFile])
 
   // Handle tab selection with validation
   const selectTab = useCallback(
