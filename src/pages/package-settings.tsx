@@ -343,7 +343,7 @@ export default function PackageSettingsPage() {
         if (response.status !== 200) throw new Error("Failed to update")
       }
 
-      await qc.refetchQueries(["package", packageSlug])
+      await qc.invalidateQueries(["package", packageSlug])
       toast({ title: "Saved", description: "Setting updated successfully." })
 
       if (
