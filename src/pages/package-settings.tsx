@@ -122,6 +122,7 @@ export default function PackageSettingsPage() {
     packageInfo,
     isLoading: isLoadingPackage,
     error: packageError,
+    packageSlug: currentPackageSlug,
   } = useCurrentPackageInfo()
   const { packageRelease } = useCurrentPackageRelease()
   const { data: organizations = [] } = useListUserOrgs()
@@ -234,7 +235,7 @@ export default function PackageSettingsPage() {
 
   const deletePackageMutation = useDeletePackage({
     onSuccess: async () => {
-      await qc.invalidateQueries(["packages"])
+      await qc.invalidateQueries(["package", packageSlug])
       navigate("/dashboard")
     },
   })
@@ -251,7 +252,7 @@ export default function PackageSettingsPage() {
       return response.data.package
     },
     onSuccess: async (pkg) => {
-      await qc.invalidateQueries(["packages"])
+      await qc.invalidateQueries(["package", packageSlug])
       setShowTransferDialog(false)
       toast({
         title: "Package transferred",
@@ -342,10 +343,7 @@ export default function PackageSettingsPage() {
         if (response.status !== 200) throw new Error("Failed to update")
       }
 
-      qc.invalidateQueries(["packages"])
-      qc.invalidateQueries(["packageFile"])
-      qc.invalidateQueries(["packageFiles"])
-      qc.invalidateQueries(["packageRelease"])
+      await qc.invalidateQueries(["package", packageSlug])
       toast({ title: "Saved", description: "Setting updated successfully." })
 
       if (
