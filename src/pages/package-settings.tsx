@@ -235,7 +235,7 @@ export default function PackageSettingsPage() {
 
   const deletePackageMutation = useDeletePackage({
     onSuccess: async () => {
-      await qc.invalidateQueries(["packages"])
+      await qc.invalidateQueries(["package", packageSlug])
       navigate("/dashboard")
     },
   })
@@ -252,7 +252,7 @@ export default function PackageSettingsPage() {
       return response.data.package
     },
     onSuccess: async (pkg) => {
-      await qc.invalidateQueries(["packages"])
+      await qc.invalidateQueries(["package", packageSlug])
       setShowTransferDialog(false)
       toast({
         title: "Package transferred",
