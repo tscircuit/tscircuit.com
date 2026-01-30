@@ -23,6 +23,8 @@ import {
   packageReleaseSchema,
   type PackageBuild,
   packageBuildSchema,
+  type PackageDeployment,
+  packageDeploymentSchema,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -2148,5 +2150,53 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       return { ...state, orgInvitations: updatedInvitations }
     })
     return updatedInvitation
+  },
+  addPackageDeployment: (
+    deployment: Omit<PackageDeployment, "package_deployment_id" | "created_at">,
+  ): PackageDeployment => {
+    const newDeployment = packageDeploymentSchema.parse({
+      package_deployment_id: crypto.randomUUID(),
+      created_at: new Date(),
+      ...deployment,
+    })
+    set((state) => ({
+      packageDeployments: [...state.packageDeployments, newDeployment],
+    }))
+    return newDeployment
+  },
+  getPackageDeploymentById: (
+    packageDeploymentId: string,
+  ): PackageDeployment | undefined => {
+    const state = get()
+    return state.packageDeployments.find(
+      (pd) => pd.package_deployment_id === packageDeploymentId,
+    )
+  },
+  getPackageDeploymentByFQDN: (
+    fullyQualifiedDomainName: string,
+  ): PackageDeployment | undefined => {
+    const state = get()
+    return state.packageDeployments.find(
+      (pd) => pd.fully_qualified_domain_name === fullyQualifiedDomainName,
+    )
+  },
+  updatePackageDeployment: (
+    packageDeploymentId: string,
+    updates: Partial<
+      Omit<PackageDeployment, "package_deployment_id" | "created_at">
+    >,
+  ): PackageDeployment | undefined => {
+    let updated: PackageDeployment | undefined
+    set((state) => {
+      const index = state.packageDeployments.findIndex(
+        (pd) => pd.package_deployment_id === packageDeploymentId,
+      )
+      if (index === -1) return state
+      const packageDeployments = [...state.packageDeployments]
+      packageDeployments[index] = { ...packageDeployments[index], ...updates }
+      updated = packageDeployments[index]
+      return { ...state, packageDeployments }
+    })
+    return updated
   },
 }))
