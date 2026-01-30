@@ -122,6 +122,7 @@ export default function PackageSettingsPage() {
     packageInfo,
     isLoading: isLoadingPackage,
     error: packageError,
+    packageSlug: currentPackageSlug,
   } = useCurrentPackageInfo()
   const { packageRelease } = useCurrentPackageRelease()
   const { data: organizations = [] } = useListUserOrgs()
@@ -342,10 +343,7 @@ export default function PackageSettingsPage() {
         if (response.status !== 200) throw new Error("Failed to update")
       }
 
-      qc.invalidateQueries(["packages"])
-      qc.invalidateQueries(["packageFile"])
-      qc.invalidateQueries(["packageFiles"])
-      qc.invalidateQueries(["packageRelease"])
+      await qc.refetchQueries(["package", packageSlug])
       toast({ title: "Saved", description: "Setting updated successfully." })
 
       if (
