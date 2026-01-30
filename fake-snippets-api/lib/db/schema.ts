@@ -604,6 +604,28 @@ export const publicOrgSchema = z.object({
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
 
+export const packageDeploymentSchema = z.object({
+  package_deployment_id: z.string(),
+  package_release_id: z.string(),
+  package_build_id: z.string(),
+  default_main_component_path: z.string().nullable().optional(),
+  fully_qualified_domain_name: z.string().nullable().optional(),
+  created_at: z.coerce.date(),
+})
+export type PackageDeployment = z.infer<typeof packageDeploymentSchema>
+
+export const publicPackageDeploymentSchema = z.object({
+  package_deployment_id: z.string(),
+  package_release_id: z.string(),
+  package_build_id: z.string(),
+  default_main_component_path: z.string().nullable().optional(),
+  fully_qualified_domain_name: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
+})
+export type PublicPackageDeployment = z.infer<
+  typeof publicPackageDeploymentSchema
+>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -629,6 +651,7 @@ export const databaseSchema = z.object({
   packageBuilds: z.array(packageBuildSchema).default([]),
   bugReports: z.array(bugReportSchema).default([]),
   bugReportFiles: z.array(bugReportFileSchema).default([]),
+  packageDeployments: z.array(packageDeploymentSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
 
