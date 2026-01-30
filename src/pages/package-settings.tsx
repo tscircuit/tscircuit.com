@@ -48,12 +48,6 @@ import {
   ArrowRightLeft,
   Search,
   CheckCircle2,
-  Globe,
-  ExternalLink,
-  RefreshCw,
-  GitBranch,
-  Terminal,
-  ArrowUpCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
