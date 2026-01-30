@@ -10,6 +10,7 @@ export const useCurrentPackageInfo = (): {
   error: (Error & { status: number }) | null
   refetch: () => Promise<unknown>
   isFetched: boolean
+  packageSlug: string | null
 } => {
   const urlParams = useUrlParams()
   const packageIdFromQuery = urlParams.package_id ?? null
@@ -35,5 +36,6 @@ export const useCurrentPackageInfo = (): {
     error,
     refetch,
     isFetched: queryById.isFetched || queryByName.isFetched,
+    packageSlug,
   }
 }
