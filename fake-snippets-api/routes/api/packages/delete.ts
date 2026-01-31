@@ -26,12 +26,15 @@ export default withRouteSpec({
 
   const pkg = ctx.db.packages[packageIndex]
 
-  const hasPermission = ctx.db
-    .getState()
-    .orgAccounts.some(
-      (oa) =>
-        oa.account_id === ctx.auth.account_id && oa.org_id === pkg.owner_org_id,
-    )
+  const hasPermission =
+    pkg.creator_account_id === ctx.auth.account_id ||
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (oa) =>
+          oa.account_id === ctx.auth.account_id &&
+          oa.org_id === pkg.owner_org_id,
+      )
   if (!hasPermission) {
     return ctx.error(403, {
       error_code: "forbidden",

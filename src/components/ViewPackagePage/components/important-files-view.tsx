@@ -80,14 +80,11 @@ export default function ImportantFilesView({
     isOwner || Boolean(organization?.user_permissions?.can_manage_org)
   // File type utilities
   const isLicenseFile = useCallback((filePath: string) => {
-    const lowerPath = filePath.toLowerCase()
+    const lowerPath = filePath.toLowerCase().replace(/^\//, "")
     return (
       lowerPath === "license" ||
-      lowerPath.endsWith("/license") ||
       lowerPath === "license.txt" ||
-      lowerPath.endsWith("/license.txt") ||
-      lowerPath === "license.md" ||
-      lowerPath.endsWith("/license.md")
+      lowerPath === "license.md"
     )
   }, [])
 
@@ -161,7 +158,12 @@ export default function ImportantFilesView({
       const isSubdirReadme =
         (lowerPath.endsWith("/readme.md") || lowerPath.endsWith("/readme")) &&
         !isReadmeFile(file.file_path)
-      return !isSubdirReadme
+      const isSubdirLicense =
+        (lowerPath.endsWith("/license") ||
+          lowerPath.endsWith("/license.txt") ||
+          lowerPath.endsWith("/license.md")) &&
+        !isLicenseFile(file.file_path)
+      return !isSubdirReadme && !isSubdirLicense
     })
 
     filteredFiles.forEach((file) => {

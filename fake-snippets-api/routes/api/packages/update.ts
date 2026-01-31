@@ -59,13 +59,15 @@ export default withRouteSpec({
   const existingPackage = ctx.db.packages[packageIndex]
 
   // Check if user has permission to update the package
-  const hasPermission = ctx.db
-    .getState()
-    .orgAccounts.some(
-      (oa) =>
-        oa.account_id === ctx.auth.account_id &&
-        oa.org_id === existingPackage.owner_org_id,
-    )
+  const hasPermission =
+    existingPackage.creator_account_id === ctx.auth.account_id ||
+    ctx.db
+      .getState()
+      .orgAccounts.some(
+        (oa) =>
+          oa.account_id === ctx.auth.account_id &&
+          oa.org_id === existingPackage.owner_org_id,
+      )
   if (!hasPermission) {
     return ctx.error(403, {
       error_code: "forbidden",
