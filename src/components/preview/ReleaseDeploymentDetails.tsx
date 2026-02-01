@@ -332,6 +332,19 @@ export function ReleaseDeploymentDetails({
               ) : (
                 <span className="text-sm text-gray-500">—</span>
               )}
+              {!isKicadPcmEnabled && (
+                <div className="flex items-center gap-2 min-w-0">
+                  <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <a
+                    href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                  >
+                    KiCad PCM Repository
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Domains */}
@@ -355,19 +368,6 @@ export function ReleaseDeploymentDetails({
                       )}
                     </a>
                   </div>
-                  {isKicadPcmEnabled && (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <a
-                        href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                      >
-                        KiCad PCM Repository
-                      </a>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <span className="text-sm text-gray-500">—</span>
