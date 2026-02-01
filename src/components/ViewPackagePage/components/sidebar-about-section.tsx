@@ -3,10 +3,11 @@ import {
   GitFork,
   Star,
   Settings,
-  LinkIcon,
+  Link as LinkIcon,
   Github,
   Plus,
   RefreshCw,
+  Boxes,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
@@ -55,6 +56,21 @@ export default function SidebarAboutSection({
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
   )
+  const { data: configFile } = usePackageFileById(
+    releaseFiles?.find((f) => f.file_path === "tscircuit.config.json")
+      ?.package_file_id ?? null,
+  )
+
+  const isKicadPcmEnabled = useMemo(() => {
+    if (!configFile?.content_text) return false
+    try {
+      const config = JSON.parse(configFile.content_text)
+      return config?.build?.kicadPcm === true
+    } catch (e) {
+      return false
+    }
+  }, [configFile])
+
   const licenseFileId = useMemo(() => {
     return (
       releaseFiles?.find((f) => f.file_path === "LICENSE")?.package_file_id ||
@@ -171,7 +187,7 @@ export default function SidebarAboutSection({
               className="h-8 w-8 p-0"
               title="Edit package details"
             >
-              <Settings className="h-4 w-4 text-gray-500" />
+              <Settings className="size-[0.9rem] text-gray-500" />
             </Button>
           </Link>
         )}
@@ -184,10 +200,24 @@ export default function SidebarAboutSection({
           href={websiteUrl}
           target="_blank"
           rel="noopener noreferrer"
+          className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-2 max-w-full overflow-hidden"
+        >
+          <LinkIcon className="size-[0.9rem] min-w-[16px] mr-1 flex-shrink-0" />
+          <span className="truncate">{websiteUrl}</span>
+        </a>
+      )}
+      {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
+        <a
+          href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
         >
-          <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
-          <span className="truncate">{websiteUrl}</span>
+          <Boxes
+            strokeWidth={1.5}
+            className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0"
+          />
+          <span className="truncate">KiCad PCM Repository</span>
         </a>
       )}
       <div className="flex flex-wrap gap-2 mb-4">

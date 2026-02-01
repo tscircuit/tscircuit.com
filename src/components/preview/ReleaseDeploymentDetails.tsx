@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useUsercodeApiStatus } from "@/hooks/use-usercode-api-status"
+import { usePackageFileByRelease } from "@/hooks/use-package-files"
 import {
   Globe,
   GitBranch,
   GitCommit,
   ExternalLink,
+  Boxes,
   Box,
   Cpu,
   Layers,
@@ -113,6 +115,21 @@ export function ReleaseDeploymentDetails({
     url.hash = `tab=${tab}`
     window.open(url.toString(), "_blank")
   }
+
+  const { data: configFile } = usePackageFileByRelease(
+    packageRelease.package_release_id,
+    "tscircuit.config.json",
+  )
+
+  const isKicadPcmEnabled = useMemo(() => {
+    if (!configFile?.content_text) return false
+    try {
+      const config = JSON.parse(configFile.content_text)
+      return config?.build?.kicadPcm === true
+    } catch (e) {
+      return false
+    }
+  }, [configFile])
 
   return (
     <div className="space-y-6">
@@ -323,19 +340,34 @@ export function ReleaseDeploymentDetails({
                 Domains
               </p>
               {packageRelease.package_release_website_url ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <a
-                    href={packageRelease.package_release_website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                  >
-                    {packageRelease.package_release_website_url.replace(
-                      /^https?:\/\//,
-                      "",
-                    )}
-                  </a>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <a
+                      href={packageRelease.package_release_website_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                    >
+                      {packageRelease.package_release_website_url.replace(
+                        /^https?:\/\//,
+                        "",
+                      )}
+                    </a>
+                  </div>
+                  {isKicadPcmEnabled && (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <a
+                        href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                      >
+                        KiCad PCM Repository
+                      </a>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <span className="text-sm text-gray-500">—</span>
