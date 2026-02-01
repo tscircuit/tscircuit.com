@@ -94,7 +94,7 @@ export const ViewPackagePage = () => {
     },
     [latestVersion],
   )
-
+  const currentVersion = versionFromUrl || packageInfo?.latest_version || null
   if (!isLoadingPackage && packageError) {
     const status = (packageError as any)?.status
     if (status === 403) {
@@ -175,7 +175,7 @@ export const ViewPackagePage = () => {
         packageInfo={packageInfo}
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
-        currentVersion={versionFromUrl || packageRelease?.version || null}
+        currentVersion={currentVersion}
         latestVersion={latestVersion}
         onVersionChange={handleVersionChange}
         onFileClicked={(file) => {

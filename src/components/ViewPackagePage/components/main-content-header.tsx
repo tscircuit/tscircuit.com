@@ -127,7 +127,6 @@ export default function MainContentHeader({
                 currentVersion={currentVersion || null}
                 onVersionChange={onVersionChange}
                 latestVersion={latestVersion}
-                compact
               />
             </div>
           )}

@@ -16,7 +16,6 @@ interface ReleaseVersionSelectorProps {
   currentVersion: string | null
   onVersionChange: (version: string, releaseId: string) => void
   latestVersion?: string
-  compact?: boolean
 }
 
 export default function ReleaseVersionSelector({
@@ -24,7 +23,6 @@ export default function ReleaseVersionSelector({
   currentVersion,
   onVersionChange,
   latestVersion,
-  compact = false,
 }: ReleaseVersionSelectorProps) {
   const { data: releases, isLoading } = usePackageReleasesByPackageId(packageId)
 

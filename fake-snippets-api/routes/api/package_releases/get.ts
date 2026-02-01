@@ -30,40 +30,42 @@ export default withRouteSpec({
     is_latest,
   } = req.jsonBody
 
-  // Handle package_name with is_latest
-  if (package_name && is_latest === true) {
-    const pkg = ctx.db.packages.find((x) => x.name === package_name)
+  // Handle package_name with is_latest or use_latest_version
+  if (package_name) {
+    if (is_latest === true) {
+      const normalizedPackageName = package_name.replace(/^@/, "").toLowerCase()
+      const pkg = ctx.db.packages.find(
+        (x) => x.name.replace(/^@/, "").toLowerCase() === normalizedPackageName,
+      )
 
-    if (!pkg) {
-      return ctx.error(404, {
-        error_code: "package_not_found",
-        message: "Package not found",
+      if (!pkg) {
+        return ctx.error(404, {
+          error_code: "package_not_found",
+          message: "Package not found",
+        })
+      }
+
+      const packageRelease = ctx.db.packageReleases.find(
+        (x) => x.package_id === pkg.package_id && x.is_latest,
+      )
+
+      if (!packageRelease) {
+        return ctx.error(404, {
+          error_code: "package_release_not_found",
+          message: "No latest release found for this package",
+        })
+      }
+
+      return ctx.json({
+        ok: true,
+        package_release: publicMapPackageRelease(packageRelease, {
+          include_ai_review: req.commonParams?.include_ai_review,
+          db: ctx.db,
+        }),
       })
     }
 
-    // Sort releases by version to find the latest one
-    const packageReleases = ctx.db.packageReleases
-      .filter((x) => x.package_id === pkg.package_id)
-      .sort((a, b) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-      })
-
-    if (packageReleases.length === 0) {
-      return ctx.error(404, {
-        error_code: "package_release_not_found",
-        message: "No releases found for this package",
-      })
-    }
-
-    return ctx.json({
-      ok: true,
-      package_release: publicMapPackageRelease(packageReleases[0], {
-        include_ai_review: req.commonParams?.include_ai_review,
-        db: ctx.db,
-      }),
-    })
+    // throw new Error("Either use_latest_version or is_latest must be true")
   }
 
   // Handle package_id with is_latest
