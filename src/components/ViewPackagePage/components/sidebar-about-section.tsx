@@ -3,7 +3,7 @@ import {
   GitFork,
   Star,
   Settings,
-  LinkIcon,
+  Link,
   Github,
   Plus,
   RefreshCw,
@@ -202,7 +202,7 @@ export default function SidebarAboutSection({
           rel="noopener noreferrer"
           className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-2 max-w-full overflow-hidden"
         >
-          <LinkIcon className="size-[0.9rem] min-w-[16px] mr-1 flex-shrink-0" />
+          <Link className="size-[0.9rem] min-w-[16px] mr-1 flex-shrink-0" />
           <span className="truncate">{websiteUrl}</span>
         </a>
       )}
