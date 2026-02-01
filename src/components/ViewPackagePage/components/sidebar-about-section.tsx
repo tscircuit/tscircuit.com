@@ -7,6 +7,7 @@ import {
   Github,
   Plus,
   RefreshCw,
+  Boxes,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
@@ -212,7 +213,7 @@ export default function SidebarAboutSection({
           rel="noopener noreferrer"
           className="text-blue-600 dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
         >
-          <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
+          <Boxes className="h-4 w-4 font-medium min-w-[16px] mr-1 flex-shrink-0" />
           <span className="truncate">KiCad PCM Repository</span>
         </a>
       )}
