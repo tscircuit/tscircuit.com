@@ -332,7 +332,7 @@ export function ReleaseDeploymentDetails({
               ) : (
                 <span className="text-sm text-gray-500">—</span>
               )}
-              {!isKicadPcmEnabled && (
+              {isKicadPcmEnabled && (
                 <div className="flex items-center gap-2 min-w-0">
                   <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
                   <a
