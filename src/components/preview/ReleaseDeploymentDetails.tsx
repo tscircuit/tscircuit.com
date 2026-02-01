@@ -6,6 +6,7 @@ import {
   GitBranch,
   GitCommit,
   ExternalLink,
+  Boxes,
   Box,
   Cpu,
   Layers,
@@ -356,7 +357,7 @@ export function ReleaseDeploymentDetails({
                   </div>
                   {isKicadPcmEnabled && (
                     <div className="flex items-center gap-2 min-w-0">
-                      <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       <a
                         href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
                         target="_blank"
