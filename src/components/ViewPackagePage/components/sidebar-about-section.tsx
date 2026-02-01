@@ -187,7 +187,7 @@ export default function SidebarAboutSection({
               className="h-8 w-8 p-0"
               title="Edit package details"
             >
-              <Settings className="h-4 w-4 text-gray-500" />
+              <Settings className="size-[0.9rem] text-gray-500" />
             </Button>
           </Link>
         )}
@@ -202,7 +202,7 @@ export default function SidebarAboutSection({
           rel="noopener noreferrer"
           className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-2 max-w-full overflow-hidden"
         >
-          <LinkIcon className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0" />
+          <LinkIcon className="size-[0.9rem] min-w-[16px] mr-1 flex-shrink-0" />
           <span className="truncate">{websiteUrl}</span>
         </a>
       )}
