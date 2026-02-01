@@ -234,6 +234,14 @@ export const CodeEditor = ({
     const tscircuitAliasDeclaration = `declare module "tscircuit" { export * from "@tscircuit/core"; }`
     env.createFile("tscircuit-alias.d.ts", tscircuitAliasDeclaration)
 
+    // Add declarations for @tsci modules that are missing types
+    const tsciModulesDeclaration = `
+      declare module "@tsci/seveibar.PICO_W";
+      declare module "@tsci/imrishabh18.TB6612FNG";
+      declare module "@tsci/seveibar.reg-5v-to-3v";
+    `
+    env.createFile("tsci-modules.d.ts", tsciModulesDeclaration)
+
     // Initialize ATA
     const ataConfig: ATABootstrapConfig = {
       projectName: "my-project",
