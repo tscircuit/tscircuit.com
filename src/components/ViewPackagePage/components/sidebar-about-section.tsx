@@ -206,19 +206,7 @@ export default function SidebarAboutSection({
           <span className="truncate">{websiteUrl}</span>
         </a>
       )}
-      {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
-        <a
-          href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 font-medium hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
-        >
-          <span className=" font-bold text-xs min-w-[16px] ml-1 flex-shrink-0">
-            K
-          </span>
-          <span className="truncate">KiCad PCM Repository</span>
-        </a>
-      )}
+
       <div className="flex flex-wrap gap-2 mb-4">
         {topics.map((topic, index) => (
           <Badge
