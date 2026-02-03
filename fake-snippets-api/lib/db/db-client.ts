@@ -1179,6 +1179,45 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
 
     return matchingAccounts
   },
+  searchOrgs: (
+    query: string,
+    limit?: number,
+    auth?: { account_id: string },
+  ) => {
+    const state = get()
+    const lowercaseQuery = query.toLowerCase()
+
+    const matchingOrgs = state.organizations
+      .filter((org) => {
+        return org.tscircuit_handle?.toLowerCase().includes(lowercaseQuery)
+      })
+      .slice(0, limit || 50)
+
+    return matchingOrgs.map((org) => {
+      const member_count = state.accounts.filter(
+        (account) => account.personal_org_id === org.org_id,
+      ).length
+
+      const package_count = state.packages.filter(
+        (pkg) => pkg.owner_org_id === org.org_id,
+      ).length
+
+      const orgAccount = state.orgAccounts.find(
+        (oa) => oa.org_id === org.org_id && oa.account_id === auth?.account_id,
+      )
+      const isOwner = org.owner_account_id === auth?.account_id
+      const can_manage_org = isOwner
+        ? true
+        : orgAccount?.can_manage_org || false
+
+      return {
+        ...org,
+        member_count,
+        package_count,
+        can_manage_org,
+      }
+    })
+  },
   deleteSnippet: (snippetId: string): boolean => {
     let deleted = false
     set((state) => {
