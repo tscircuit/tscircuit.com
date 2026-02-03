@@ -12,6 +12,8 @@ import { timeAgo } from "@/lib/utils/timeAgo"
 import { getBuildStatus } from "@/components/preview"
 import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
+import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
+import { useMemo } from "react"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -21,6 +23,24 @@ export default function SidebarReleasesSection() {
   const { data: latestBuild } = usePackageBuild(
     packageRelease?.latest_package_build_id ?? null,
   )
+
+  const { data: releaseFiles } = usePackageFiles(
+    packageInfo?.latest_package_release_id,
+  )
+  const { data: configFile } = usePackageFileById(
+    releaseFiles?.find((f) => f.file_path === "tscircuit.config.json")
+      ?.package_file_id ?? null,
+  )
+
+  const isKicadPcmEnabled = useMemo(() => {
+    if (!configFile?.content_text) return false
+    try {
+      const config = JSON.parse(configFile.content_text)
+      return config?.build?.kicadPcm === true
+    } catch (e) {
+      return false
+    }
+  }, [configFile])
 
   if (!packageRelease) {
     return (
@@ -79,6 +99,19 @@ export default function SidebarReleasesSection() {
           >
             <Globe className={`size-4 text-gray-500`} />
             <span>Package Preview</span>
+          </a>
+        )}
+        {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
+          <a
+            href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-blue-600 hover:underline cursor-pointer"
+          >
+            <span className="font-bold text-xs min-w-[16px] flex-shrink-0">
+              K
+            </span>
+            <span>KiCad PCM URL</span>
           </a>
         )}
       </div>

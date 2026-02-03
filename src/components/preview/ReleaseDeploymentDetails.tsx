@@ -6,11 +6,11 @@ import {
   GitBranch,
   GitCommit,
   ExternalLink,
-  Boxes,
   Box,
   Cpu,
   Layers,
   RefreshCw,
+  Minus,
 } from "lucide-react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import type {
@@ -30,6 +30,7 @@ import { Link } from "wouter"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { InstallCommand } from "@/components/InstallCommand"
 import { getBuildStatus, StatusIcon } from "."
+import { KicadPcmCommand } from "../KicadPcmCommand"
 
 interface ReleaseDeploymentDetailsProps {
   pkg: Package
@@ -239,27 +240,25 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Owner
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <GithubAvatarWithFallback
                   username={
                     organization?.tscircuit_handle ||
                     pkg.org_owner_tscircuit_handle
                   }
                   imageUrl={organization?.avatar_url}
-                  className="size-8 sm:size-6 flex-shrink-0 border border-gray-200"
-                  fallbackClassName="text-xs sm:text-sm font-medium"
+                  className="size-4 flex-shrink-0 border border-gray-200"
+                  fallbackClassName="text-[8px] font-medium"
                   colorClassName="bg-gray-100 text-gray-600"
                 />
-                <div className="flex flex-col min-w-0">
-                  <Link
-                    to={`/${pkg.org_owner_tscircuit_handle}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium hover:text-blue-600 leading-tight truncate"
-                  >
-                    {pkg.org_owner_tscircuit_handle || "Unknown"}
-                  </Link>
-                </div>
+                <Link
+                  to={`/${pkg.org_owner_tscircuit_handle}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm -translate-y-0.5 font-medium hover:text-blue-600 truncate"
+                >
+                  {pkg.org_owner_tscircuit_handle || "Unknown"}
+                </Link>
               </div>
             </div>
 
@@ -268,9 +267,9 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Status
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <StatusIcon size={4} status={buildStatus.status} />
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm -translate-y-[0.025rem] font-medium text-gray-900">
                   {buildStatus.label}
                 </span>
               </div>
@@ -297,7 +296,7 @@ export function ReleaseDeploymentDetails({
                     </Tooltip>
                   </TooltipProvider>
                 ) : (
-                  <span className="text-sm font-medium">—</span>
+                  <Minus className="w-4 h-4 text-gray-400" />
                 )}
               </div>
             </div>
@@ -322,7 +321,7 @@ export function ReleaseDeploymentDetails({
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                    className="text-sm -translate-y-[0.055rem] font-medium text-gray-900 hover:text-blue-600 truncate"
                   >
                     {packageRelease.is_pr_preview
                       ? `PR #${packageRelease.github_pr_number}`
@@ -330,20 +329,7 @@ export function ReleaseDeploymentDetails({
                   </a>
                 </div>
               ) : (
-                <span className="text-sm text-gray-500">—</span>
-              )}
-              {isKicadPcmEnabled && (
-                <div className="flex items-center gap-2 min-w-0">
-                  <Boxes className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <a
-                    href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                  >
-                    KiCad PCM Repository
-                  </a>
-                </div>
+                <Minus className="w-4 h-4 text-gray-400" />
               )}
             </div>
 
@@ -370,7 +356,7 @@ export function ReleaseDeploymentDetails({
                   </div>
                 </div>
               ) : (
-                <span className="text-sm text-gray-500">—</span>
+                <Minus className="w-4 h-4 text-gray-400" />
               )}
             </div>
 
@@ -410,6 +396,12 @@ export function ReleaseDeploymentDetails({
                 packageName={pkg.name}
                 version={packageRelease.version}
               />
+              {isKicadPcmEnabled &&
+                packageRelease.package_release_website_url && (
+                  <KicadPcmCommand
+                    url={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+                  />
+                )}
             </div>
           </div>
         </div>
