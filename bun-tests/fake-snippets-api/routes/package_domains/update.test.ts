@@ -1,11 +1,11 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("POST /api/package_deployments/update - successfully updates deployment", async () => {
+test("POST /api/package_domains/update - successfully updates domain", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-update-test",
+    name: "testuser/domain-update-test",
     description: "Test package",
   })
 
@@ -37,51 +37,51 @@ test("POST /api/package_deployments/update - successfully updates deployment", a
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "update-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
-  const res = await axios.post("/api/package_deployments/update", {
-    package_deployment_id,
+  const res = await axios.post("/api/package_domains/update", {
+    package_domain_id,
     default_main_component_path: "/src/updated.tsx",
     fully_qualified_domain_name: "updated-test.tscircuit.app",
   })
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.default_main_component_path).toBe(
+  expect(res.data.package_domain.default_main_component_path).toBe(
     "/src/updated.tsx",
   )
-  expect(res.data.package_deployment.fully_qualified_domain_name).toBe(
+  expect(res.data.package_domain.fully_qualified_domain_name).toBe(
     "updated-test.tscircuit.app",
   )
 })
 
-test("POST /api/package_deployments/update - returns 404 for non-existent deployment", async () => {
+test("POST /api/package_domains/update - returns 404 for non-existent domain", async () => {
   const { axios } = await getTestServer()
 
   const res = await axios.post(
-    "/api/package_deployments/update",
+    "/api/package_domains/update",
     {
-      package_deployment_id: "non-existent-id",
+      package_domain_id: "non-existent-id",
       default_main_component_path: "/src/test.tsx",
     },
     { validateStatus: () => true },
   )
 
   expect(res.status).toBe(404)
-  expect(res.data.error.error_code).toBe("package_deployment_not_found")
+  expect(res.data.error.error_code).toBe("package_domain_not_found")
 })
 
-test("POST /api/package_deployments/update - returns 400 for duplicate FQDN", async () => {
+test("POST /api/package_domains/update - returns 400 for duplicate FQDN", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-update-fqdn-test",
+    name: "testuser/domain-update-fqdn-test",
     description: "Test package",
   })
 
@@ -113,35 +113,36 @@ test("POST /api/package_deployments/update - returns 400 for duplicate FQDN", as
     package_build_website_url: null,
   })
 
-  await axios.post("/api/package_deployments/create", {
+  await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "existing-fqdn.tscircuit.app",
   })
 
-  const createRes2 = await axios.post("/api/package_deployments/create", {
+  const createRes2 = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "another-fqdn.tscircuit.app",
   })
 
   const res = await axios.post(
-    "/api/package_deployments/update",
+    "/api/package_domains/update",
     {
-      package_deployment_id:
-        createRes2.data.package_deployment.package_deployment_id,
+      package_domain_id: createRes2.data.package_domain.package_domain_id,
       fully_qualified_domain_name: "existing-fqdn.tscircuit.app",
     },
     { validateStatus: () => true },
   )
 
   expect(res.status).toBe(400)
-  expect(res.data.error.error_code).toBe("deployment_fqdn_exists")
+  expect(res.data.error.error_code).toBe("domain_fqdn_exists")
 })
 
-test("POST /api/package_deployments/update - returns existing deployment when no updates provided", async () => {
+test("POST /api/package_domains/update - returns existing domain when no updates provided", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-no-update-test",
+    name: "testuser/domain-no-update-test",
     description: "Test package",
   })
 
@@ -173,33 +174,31 @@ test("POST /api/package_deployments/update - returns existing deployment when no
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "no-update-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
-  const res = await axios.post("/api/package_deployments/update", {
-    package_deployment_id,
+  const res = await axios.post("/api/package_domains/update", {
+    package_domain_id,
   })
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.package_deployment_id).toBe(
-    package_deployment_id,
-  )
-  expect(res.data.package_deployment.fully_qualified_domain_name).toBe(
+  expect(res.data.package_domain.package_domain_id).toBe(package_domain_id)
+  expect(res.data.package_domain.fully_qualified_domain_name).toBe(
     "no-update-test.tscircuit.app",
   )
 })
 
-test("POST /api/package_deployments/update - can set fields to null", async () => {
+test("POST /api/package_domains/update - can set fields to null", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-null-test",
+    name: "testuser/domain-null-test",
     description: "Test package",
   })
 
@@ -231,23 +230,23 @@ test("POST /api/package_deployments/update - can set fields to null", async () =
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     default_main_component_path: "/src/index.tsx",
     fully_qualified_domain_name: "null-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
-  const res = await axios.post("/api/package_deployments/update", {
-    package_deployment_id,
+  const res = await axios.post("/api/package_domains/update", {
+    package_domain_id,
     default_main_component_path: null,
     fully_qualified_domain_name: null,
   })
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.default_main_component_path).toBeNull()
-  expect(res.data.package_deployment.fully_qualified_domain_name).toBeNull()
+  expect(res.data.package_domain.default_main_component_path).toBeNull()
+  expect(res.data.package_domain.fully_qualified_domain_name).toBeNull()
 })

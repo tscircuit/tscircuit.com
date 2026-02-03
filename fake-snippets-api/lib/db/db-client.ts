@@ -23,8 +23,8 @@ import {
   packageReleaseSchema,
   type PackageBuild,
   packageBuildSchema,
-  type PackageDeployment,
-  packageDeploymentSchema,
+  type PackageDomain,
+  packageDomainSchema,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -2190,51 +2190,49 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return updatedInvitation
   },
-  addPackageDeployment: (
-    deployment: Omit<PackageDeployment, "package_deployment_id" | "created_at">,
-  ): PackageDeployment => {
-    const newDeployment = packageDeploymentSchema.parse({
-      package_deployment_id: crypto.randomUUID(),
+  addPackageDomain: (
+    domain: Omit<PackageDomain, "package_domain_id" | "created_at">,
+  ): PackageDomain => {
+    const newDomain = packageDomainSchema.parse({
+      package_domain_id: crypto.randomUUID(),
       created_at: new Date(),
-      ...deployment,
+      ...domain,
     })
     set((state) => ({
-      packageDeployments: [...state.packageDeployments, newDeployment],
+      packageDomains: [...state.packageDomains, newDomain],
     }))
-    return newDeployment
+    return newDomain
   },
-  getPackageDeploymentById: (
-    packageDeploymentId: string,
-  ): PackageDeployment | undefined => {
+  getPackageDomainById: (
+    packageDomainId: string,
+  ): PackageDomain | undefined => {
     const state = get()
-    return state.packageDeployments.find(
-      (pd) => pd.package_deployment_id === packageDeploymentId,
+    return state.packageDomains.find(
+      (pd) => pd.package_domain_id === packageDomainId,
     )
   },
-  getPackageDeploymentByFQDN: (
+  getPackageDomainByFQDN: (
     fullyQualifiedDomainName: string,
-  ): PackageDeployment | undefined => {
+  ): PackageDomain | undefined => {
     const state = get()
-    return state.packageDeployments.find(
+    return state.packageDomains.find(
       (pd) => pd.fully_qualified_domain_name === fullyQualifiedDomainName,
     )
   },
-  updatePackageDeployment: (
-    packageDeploymentId: string,
-    updates: Partial<
-      Omit<PackageDeployment, "package_deployment_id" | "created_at">
-    >,
-  ): PackageDeployment | undefined => {
-    let updated: PackageDeployment | undefined
+  updatePackageDomain: (
+    packageDomainId: string,
+    updates: Partial<Omit<PackageDomain, "package_domain_id" | "created_at">>,
+  ): PackageDomain | undefined => {
+    let updated: PackageDomain | undefined
     set((state) => {
-      const index = state.packageDeployments.findIndex(
-        (pd) => pd.package_deployment_id === packageDeploymentId,
+      const index = state.packageDomains.findIndex(
+        (pd) => pd.package_domain_id === packageDomainId,
       )
       if (index === -1) return state
-      const packageDeployments = [...state.packageDeployments]
-      packageDeployments[index] = { ...packageDeployments[index], ...updates }
-      updated = packageDeployments[index]
-      return { ...state, packageDeployments }
+      const packageDomains = [...state.packageDomains]
+      packageDomains[index] = { ...packageDomains[index], ...updates }
+      updated = packageDomains[index]
+      return { ...state, packageDomains }
     })
     return updated
   },

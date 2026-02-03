@@ -1,11 +1,11 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { test, expect } from "bun:test"
 
-test("GET /api/package_deployments/get - by id", async () => {
+test("GET /api/package_domains/get - by id", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-get-test",
+    name: "testuser/domain-get-test",
     description: "Test package",
   })
 
@@ -37,30 +37,28 @@ test("GET /api/package_deployments/get - by id", async () => {
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "get-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
   const res = await axios.get(
-    `/api/package_deployments/get?package_deployment_id=${package_deployment_id}`,
+    `/api/package_domains/get?package_domain_id=${package_domain_id}`,
   )
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.package_deployment_id).toBe(
-    package_deployment_id,
-  )
+  expect(res.data.package_domain.package_domain_id).toBe(package_domain_id)
 })
 
-test("GET /api/package_deployments/get - by FQDN", async () => {
+test("GET /api/package_domains/get - by FQDN", async () => {
   const { axios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-fqdn-get-test",
+    name: "testuser/domain-fqdn-get-test",
     description: "Test package",
   })
 
@@ -92,29 +90,27 @@ test("GET /api/package_deployments/get - by FQDN", async () => {
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "fqdn-get-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
   const res = await axios.get(
-    `/api/package_deployments/get?fully_qualified_domain_name=fqdn-get-test.tscircuit.app`,
+    `/api/package_domains/get?fully_qualified_domain_name=fqdn-get-test.tscircuit.app`,
   )
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.package_deployment_id).toBe(
-    package_deployment_id,
-  )
+  expect(res.data.package_domain.package_domain_id).toBe(package_domain_id)
 })
 
-test("GET /api/package_deployments/get - returns 400 without parameters", async () => {
+test("GET /api/package_domains/get - returns 400 without parameters", async () => {
   const { axios } = await getTestServer()
 
-  const res = await axios.get("/api/package_deployments/get", {
+  const res = await axios.get("/api/package_domains/get", {
     validateStatus: () => true,
   })
 
@@ -122,23 +118,23 @@ test("GET /api/package_deployments/get - returns 400 without parameters", async 
   expect(res.data.error.error_code).toBe("missing_parameter")
 })
 
-test("GET /api/package_deployments/get - returns 404 for non-existent deployment", async () => {
+test("GET /api/package_domains/get - returns 404 for non-existent domain", async () => {
   const { axios } = await getTestServer()
 
   const res = await axios.get(
-    `/api/package_deployments/get?package_deployment_id=non-existent-id`,
+    `/api/package_domains/get?package_domain_id=non-existent-id`,
     { validateStatus: () => true },
   )
 
   expect(res.status).toBe(404)
-  expect(res.data.error.error_code).toBe("package_deployment_not_found")
+  expect(res.data.error.error_code).toBe("package_domain_not_found")
 })
 
-test("GET /api/package_deployments/get - works without authentication", async () => {
+test("GET /api/package_domains/get - works without authentication", async () => {
   const { axios, unauthenticatedAxios, db } = await getTestServer()
 
   const packageRes = await axios.post("/api/packages/create", {
-    name: "testuser/deployment-unauth-test",
+    name: "testuser/domain-unauth-test",
     description: "Test package",
   })
 
@@ -170,21 +166,19 @@ test("GET /api/package_deployments/get - works without authentication", async ()
     package_build_website_url: null,
   })
 
-  const createRes = await axios.post("/api/package_deployments/create", {
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
     package_build_id: packageBuild.package_build_id,
     fully_qualified_domain_name: "unauth-test.tscircuit.app",
   })
 
-  const package_deployment_id =
-    createRes.data.package_deployment.package_deployment_id
+  const package_domain_id = createRes.data.package_domain.package_domain_id
 
   const res = await unauthenticatedAxios.get(
-    `/api/package_deployments/get?package_deployment_id=${package_deployment_id}`,
+    `/api/package_domains/get?package_domain_id=${package_domain_id}`,
   )
 
   expect(res.status).toBe(200)
   expect(res.data.ok).toBe(true)
-  expect(res.data.package_deployment.package_deployment_id).toBe(
-    package_deployment_id,
-  )
+  expect(res.data.package_domain.package_domain_id).toBe(package_domain_id)
 })
