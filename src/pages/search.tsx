@@ -5,11 +5,11 @@ import { useSearchParams } from "wouter"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Input } from "@/components/ui/input"
-import { Search, User } from "lucide-react"
+import { Search, Building2 } from "lucide-react"
 import PackageSearchResults, {
   LoadingState,
 } from "@/components/PackageSearchResults"
-import { UserCard } from "@/components/UserCard"
+import { OrgCard } from "@/components/OrgCard"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
@@ -21,22 +21,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Package, Account } from "fake-snippets-api/lib/db/schema"
+import { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 interface ScoredPackage extends Package {
   score: number
   matches: number[]
 }
 
-interface ScoredAccount
-  extends Omit<
-    Account,
-    | "account_id"
-    | "is_tscircuit_staff"
-    | "tscircuit_handle"
-    | "created_at"
-    | "personal_org_id"
-  > {
+interface ScoredOrg extends Omit<PublicOrgSchema, "github_handle"> {
   score: number
   matches: number[]
 }
@@ -88,18 +80,18 @@ export const SearchPage = () => {
     },
   )
 
-  const { data: allAccounts = [], isLoading: isLoadingAccounts } = useQuery(
-    ["accountSearch", searchQuery],
+  const { data: allOrgs = [], isLoading: isLoadingOrgs } = useQuery(
+    ["orgSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
       try {
-        const { data } = await axios.post("/accounts/search", {
+        const { data } = await axios.post("/orgs/search", {
           query: searchQuery,
           limit: 20,
         })
-        return data.accounts || []
+        return data.orgs || []
       } catch (error) {
-        console.warn("Failed to fetch accounts:", error)
+        console.warn("Failed to fetch orgs:", error)
         return []
       }
     },
@@ -133,49 +125,50 @@ export const SearchPage = () => {
     return 0
   })
 
-  const accountSearchResults = useMemo((): ScoredAccount[] => {
+  const orgSearchResults = useMemo((): ScoredOrg[] => {
     if (!searchQuery) return []
 
-    // First, get scored accounts from API
-    const apiAccounts = allAccounts
-      .map((account: Account) => {
-        const { score, matches } = fuzzyMatch(
-          searchQuery,
-          account.github_username,
-        )
-        return { ...account, score, matches }
+    const apiOrgs = allOrgs
+      .map((org: PublicOrgSchema) => {
+        const handle = org.tscircuit_handle || ""
+        const { score, matches } = fuzzyMatch(searchQuery, handle)
+        return { ...org, score, matches }
       })
-      .filter((account: ScoredAccount) => account.score >= 0)
-
-    // Then, extract unique package owners not already in API accounts
-    const packageOwners: ScoredAccount[] = []
-    const existingUsernames = new Set(
-      apiAccounts.map((acc: Account) => acc.github_username),
+      .filter((org: ScoredOrg) => org.score >= 0)
+    const packageOwnerOrgs: ScoredOrg[] = []
+    const existingHandles = new Set(
+      apiOrgs.map((org: PublicOrgSchema) => org.tscircuit_handle),
     )
-
     filteredPackages.forEach((pkg) => {
-      if (
-        pkg.owner_github_username &&
-        !existingUsernames.has(pkg.owner_github_username)
-      ) {
-        packageOwners.push({
-          github_username: pkg.owner_github_username,
+      const ownerHandle = pkg.org_owner_tscircuit_handle
+
+      if (ownerHandle && !existingHandles.has(ownerHandle)) {
+        packageOwnerOrgs.push({
+          org_id: "",
+          owner_account_id: "",
+          name: ownerHandle,
+          member_count: 0,
+          is_personal_org: false,
+          package_count: 0,
+          tscircuit_handle: ownerHandle,
+          created_at: "",
           score: 1,
           matches: [],
         })
-        existingUsernames.add(pkg.owner_github_username)
+        console.log(ownerHandle)
+        existingHandles.add(ownerHandle)
       }
     })
-    return [...apiAccounts, ...packageOwners].sort(
-      (a: ScoredAccount, b: ScoredAccount) => b.score - a.score,
+    return [...apiOrgs, ...packageOwnerOrgs].sort(
+      (a: ScoredOrg, b: ScoredOrg) => b.score - a.score,
     )
-  }, [allAccounts, searchQuery, filteredPackages])
+  }, [allOrgs, searchQuery, filteredPackages])
 
   useEffect(() => {
-    if (accountSearchResults.length == 0 && !isLoadingAccounts) {
+    if (orgSearchResults.length == 0 && !isLoadingOrgs) {
       setActiveTab("packages")
     }
-  }, [accountSearchResults, isLoadingAccounts])
+  }, [orgSearchResults, isLoadingOrgs])
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -221,7 +214,7 @@ export const SearchPage = () => {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              {currentUser && accountSearchResults.length > 0 && (
+              {currentUser && orgSearchResults.length > 0 && (
                 <TabsList className="grid grid-cols-2 mb-6 select-none w-full max-w-md mx-auto">
                   <TabsTrigger
                     value="packages"
@@ -233,7 +226,7 @@ export const SearchPage = () => {
                     value="users"
                     className="flex items-center gap-2"
                   >
-                    Users
+                    Orgs
                   </TabsTrigger>
                 </TabsList>
               )}
@@ -253,32 +246,28 @@ export const SearchPage = () => {
               </TabsContent>
 
               <TabsContent value="users" className="w-full">
-                {isLoadingAccounts ? (
+                {isLoadingOrgs ? (
                   <div>
                     <LoadingState />
                   </div>
-                ) : accountSearchResults.length > 0 ? (
+                ) : orgSearchResults.length > 0 ? (
                   <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                    {accountSearchResults.map((account, i) => (
-                      <UserCard
-                        key={i}
-                        account={account as unknown as Account}
-                        className="w-full"
-                      />
+                    {orgSearchResults.map((org, i) => (
+                      <OrgCard key={i} org={org} className="w-full" />
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-12 px-4">
                     <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
-                      <User className="w-8 h-8 text-slate-400" />
+                      <Building2 className="w-8 h-8 text-slate-400" />
                     </div>
                     <h3 className="text-xl font-medium text-slate-900 mb-2">
-                      No Matching Users
+                      No Matching Organizations
                     </h3>
                     <p className="text-slate-500 max-w-md mx-auto mb-6">
                       {searchQuery
-                        ? `No users match your search for "${searchQuery}".`
-                        : "Please enter a search query to find users."}
+                        ? `No organizations match your search for "${searchQuery}".`
+                        : "Please enter a search query to find organizations."}
                     </p>
                   </div>
                 )}
