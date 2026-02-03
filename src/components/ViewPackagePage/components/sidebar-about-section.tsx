@@ -200,7 +200,7 @@ export default function SidebarAboutSection({
           href={websiteUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-2 max-w-full overflow-hidden"
+          className="text-blue-600 font-medium hover:underline text-sm flex items-center mb-2 max-w-full overflow-hidden"
         >
           <LinkIcon className="size-[0.9rem] min-w-[16px] mr-1 flex-shrink-0" />
           <span className="truncate">{websiteUrl}</span>
@@ -211,12 +211,11 @@ export default function SidebarAboutSection({
           href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 font-medium dark:text-[#58a6ff] hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
+          className="text-blue-600 font-medium hover:underline text-sm flex items-center mb-4 max-w-full overflow-hidden"
         >
-          <Boxes
-            strokeWidth={1.5}
-            className="h-4 w-4 min-w-[16px] mr-1 flex-shrink-0"
-          />
+          <span className=" font-bold text-xs min-w-[16px] ml-1 flex-shrink-0">
+            K
+          </span>
           <span className="truncate">KiCad PCM Repository</span>
         </a>
       )}
