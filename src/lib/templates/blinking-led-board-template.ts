@@ -1,18 +1,14 @@
 export const blinkingLedBoardTemplate = {
   type: "board",
   code: `
-import { useUsbC } from "@tsci/seveibar.smd-usb-c"
-import { useRedLed } from "@tsci/seveibar.red-led"
-import { useNE555P } from "@tsci/seveibar.a555timer"
+import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
+import { RedLed } from "@tsci/seveibar.red-led"
+import { A555Timer } from "@tsci/seveibar.a555timer"
 
 export const MyBlinkingLedCircuit = () => {
-  const USBC = useUsbC("USBC")
-  const Led = useRedLed("LED")
-  const A555Timer = useNE555P("B1")
-
   return (
     <board width="30mm" height="30mm" schAutoLayoutEnabled>
-      <USBC GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={-10} />
+      <SmdUsbC GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={-10} />
       <A555Timer
         name="B1"
         pin8="net.VBUS"
@@ -46,7 +42,7 @@ export const MyBlinkingLedCircuit = () => {
         pcbY={8}
       />
       
-      <Led pos="net.OUT" neg="net.GND" pcbX={5} pcbY={10} />
+      <RedLed pos="net.OUT" neg="net.GND" pcbX={5} pcbY={10} />
       
       <trace from=".USBC > .VBUS1" to=".R1 > .left" />
       <trace from=".R1 > .right" to=".R2 > .left" />
