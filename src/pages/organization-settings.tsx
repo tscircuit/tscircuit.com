@@ -8,10 +8,8 @@ import { normalizeName } from "@/lib/utils/normalizeName"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -37,7 +35,6 @@ import { useCreateOrgInvitationMutation } from "@/hooks/use-create-org-invitatio
 import { useListOrgInvitations } from "@/hooks/use-list-org-invitations"
 import { useRevokeOrgInvitationMutation } from "@/hooks/use-revoke-org-invitation-mutation"
 import {
-  SelectedMember,
   useEditOrgMemberPermissionsDialog,
 } from "@/components/dialogs/edit-org-member-permissions-dialog"
 import { InvitationStatusBadge } from "@/components/ui/invitation-status-badge"
@@ -47,13 +44,9 @@ import {
   Users,
   AlertTriangle,
   Loader2,
-  PlusIcon,
   ArrowLeft,
-  Building2,
   Trash2,
   Mail,
-  Clock,
-  X,
   Github,
   ImageUp,
   RotateCw,
@@ -64,10 +57,10 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import NotFoundPage from "@/pages/404"
 import { FullPageLoader } from "@/App"
-import { OrganizationHeader } from "@/components/organization/OrganizationHeader"
 import { useOrganization } from "@/hooks/use-organization"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
+import { cn } from "@/lib/utils"
 
 const organizationSettingsSchema = z.object({
   tscircuit_handle: z
@@ -84,11 +77,70 @@ const organizationSettingsSchema = z.object({
 
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
 
+type SettingsSection = "general" | "members" | "github" | "danger"
+
+const navItems: { id: SettingsSection; label: string }[] = [
+  { id: "general", label: "General" },
+  { id: "members", label: "Members" },
+  { id: "github", label: "GitHub" },
+  { id: "danger", label: "Danger Zone" },
+]
+
+function SettingCard({
+  title,
+  description,
+  children,
+  footer,
+  danger,
+}: {
+  title: string
+  description: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+  danger?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "border rounded-lg",
+        danger ? "border-red-200" : "border-gray-200",
+      )}
+    >
+      <div className="p-4 sm:p-6">
+        <h3
+          className={cn(
+            "text-sm sm:text-base font-semibold mb-1",
+            danger ? "text-red-600" : "text-gray-900",
+          )}
+        >
+          {title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-500 mb-4">{description}</p>
+        {children}
+      </div>
+      {footer && (
+        <div
+          className={cn(
+            "px-4 sm:px-6 py-3 border-t flex items-center justify-end",
+            danger
+              ? "bg-red-50/30 border-red-100"
+              : "bg-gray-50/50 border-gray-100",
+          )}
+        >
+          {footer}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function OrganizationSettingsPage() {
   const { orgname } = useParams()
   const [, navigate] = useLocation()
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
+
+  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
 
   const {
     organization,
@@ -316,28 +368,25 @@ export default function OrganizationSettingsPage() {
           <title>{pageTitle}</title>
         </Helmet>
         <Header />
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
           <div className="text-center">
-            <div className="mx-auto h-24 w-24 rounded-full bg-red-100 flex items-center justify-center mb-6">
-              <AlertTriangle className="h-12 w-12 text-red-600" />
+            <div className="mx-auto h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-red-50 flex items-center justify-center mb-4 sm:mb-6">
+              <AlertTriangle className="h-8 w-8 sm:h-10 sm:w-10 text-red-500" />
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
+            <h1 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">
               Access denied
             </h1>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <p className="text-gray-500 mb-6 sm:mb-8 text-sm">
               You don't have permission to manage this organization's settings.
-              Only organization owners and members with admin access can view
-              this page.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button variant="outline" onClick={() => navigate(`/${orgname}`)}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to {orgname}
-              </Button>
-              <Button onClick={() => navigate("/dashboard")}>
-                Go to Dashboard
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/${orgname}`)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to {orgname}
+            </Button>
           </div>
         </main>
         <Footer />
@@ -355,10 +404,6 @@ export default function OrganizationSettingsPage() {
       value: organization?.owner_account_id || "Not available",
     },
     {
-      label: "Organization Handle",
-      value: organization?.tscircuit_handle || "Not added",
-    },
-    {
       label: "GitHub Handle",
       value: organization?.github_handle || "Not connected",
     },
@@ -369,10 +414,6 @@ export default function OrganizationSettingsPage() {
     {
       label: "Package Count",
       value: organization?.package_count?.toString() || "0",
-    },
-    {
-      label: "Display Name",
-      value: organization?.display_name || "Not added",
     },
     {
       label: "Created At",
@@ -435,12 +476,10 @@ export default function OrganizationSettingsPage() {
   const handleSendInvitation = () => {
     if (!inviteeEmail.trim() || !organization) return
 
-    // Clear previous errors
     setInviteError("")
 
     const email = inviteeEmail.trim()
 
-    // Email validation using zod
     const emailSchema = z.string().email()
     const result = emailSchema.safeParse(email)
 
@@ -536,122 +575,65 @@ export default function OrganizationSettingsPage() {
       </Helmet>
       <Header />
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        <OrganizationHeader organization={organization} showActions={false} />
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+            Organization Settings
+          </h1>
+          <Link
+            href={`/${orgname}`}
+            className="inline-flex items-center text-xs sm:text-sm text-gray-500 mt-1"
+          >
+            <ArrowLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
+            Go to {orgname}
+          </Link>
+        </div>
+      </div>
 
-        <div className="py-8">
-          {/* Main Content */}
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* GitHub Connection */}
-            {canManageOrg && (
-              <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-                <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    GitHub connection
-                  </h2>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Install the tscircuit GitHub app for this organization to
-                    link packages to repositories and enable PR previews.
-                  </p>
-                </div>
+      <main className="max-w-7xl mx-auto md:min-h-[55vh] px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-12">
+          <aside className="w-full lg:w-48 shrink-0">
+            <nav className="lg:sticky lg:top-4">
+              <ul className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+                {navItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => setActiveSection(item.id)}
+                      className={cn(
+                        "w-full px-3 py-2 text-sm rounded-md font-normal text-left transition-all duration-150 whitespace-nowrap",
+                        activeSection === item.id
+                          ? item.id === "danger"
+                            ? "bg-red-50 text-red-700 font-[500]"
+                            : "bg-gray-100 text-gray-900 font-[500]"
+                          : item.id === "danger"
+                            ? "text-red-600 hover:bg-red-50"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
 
-                <div className="p-6 lg:p-8">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="p-3 bg-gray-100 rounded-lg">
-                        <Github className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Status</p>
-                        <p className="text-base font-semibold text-gray-900">
-                          {organization.github_installation_handles?.length
-                            ? `Connected to ${organization.github_installation_handles.length} GitHub account${organization.github_installation_handles.length > 1 ? "s" : ""}`
-                            : "Not connected"}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Use the button below to connect or update the GitHub
-                          installation for this organization.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                      <Button
-                        onClick={handleConnectGithub}
-                        className="sm:w-auto w-full"
-                      >
-                        <Github className="h-4 w-4 mr-2" />
-                        {organization.github_installation_handles?.length
-                          ? "Manage GitHub connection"
-                          : "Connect GitHub"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Connected GitHub accounts */}
-                  {organization.github_installation_handles &&
-                    organization.github_installation_handles.length > 0 && (
-                      <div className="mt-6 pt-6 border-t border-gray-200">
-                        <p className="text-sm font-medium text-gray-700 mb-3">
-                          Connected GitHub accounts
-                        </p>
-                        <div className="flex flex-wrap gap-3">
-                          {organization.github_installation_handles.map(
-                            (handle) => (
-                              <a
-                                key={handle}
-                                href={`https://github.com/${handle}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-                              >
-                                <GithubAvatarWithFallback
-                                  username={handle}
-                                  className="h-6 w-6"
-                                  fallbackClassName="text-xs"
-                                />
-                                <span className="text-sm font-medium text-gray-900">
-                                  @{handle}
-                                </span>
-                              </a>
-                            ),
-                          )}
-                        </div>
-                      </div>
-                    )}
-                </div>
-              </div>
-            )}
-
-            {/* Organization Profile */}
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Organization profile
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Update your organization's basic information and settings.
-                </p>
-              </div>
-
-              <div className="p-6 lg:p-8">
-                <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
-                  <GithubAvatarWithFallback
-                    username={organization.tscircuit_handle}
-                    fallback={organization.name}
-                    imageUrl={organization.avatar_url || undefined}
-                    className="shadow-sm size-24 md:size-16"
-                    fallbackClassName="font-semibold text-lg"
-                  />
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-gray-900">
-                      Organization avatar
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Upload a custom avatar to replace the default GitHub
-                      image.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
+            {activeSection === "general" && (
+              <>
+                <SettingCard
+                  title="Avatar"
+                  description="Upload a custom avatar to represent your organization."
+                >
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <GithubAvatarWithFallback
+                      username={organization.tscircuit_handle}
+                      fallback={organization.name}
+                      imageUrl={organization.avatar_url || undefined}
+                      className="shadow-sm size-16"
+                      fallbackClassName="font-semibold text-lg"
+                    />
+                    <div className="flex flex-col items-start gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -661,244 +643,188 @@ export default function OrganizationSettingsPage() {
                         Update avatar
                       </Button>
                       {organization.avatar_url && (
-                        <Badge variant="secondary" className="w-fit">
+                        <Badge variant="secondary" className="w-fit text-xs">
                           Custom avatar active
                         </Badge>
                       )}
                     </div>
                   </div>
-                </div>
+                </SettingCard>
 
                 <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="tscircuit_handle"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-                          <div className="lg:col-span-2">
-                            <FormLabel className="text-sm font-semibold text-gray-900">
-                              Organization handle
-                            </FormLabel>
-                            <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
-                              This is your organization's URL identifier. Choose
-                              carefully as this affects your organization's web
-                              address.
-                            </FormDescription>
-                          </div>
-                          <div className="lg:col-span-3">
-                            <FormControl>
-                              <Input
-                                type="text"
-                                autoComplete="off"
-                                spellCheck={false}
-                                placeholder="Enter organization handle"
-                                {...field}
-                                disabled={updateOrgMutation.isLoading}
-                                className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                              />
-                            </FormControl>
-                            <FormMessage className="mt-2" />
-                            {field.value &&
-                              normalizeName(field.value)?.length && (
-                                <p className="text-xs text-gray-500 mt-2">
-                                  This will be your URL.
-                                  <br />
-                                  <span className="font-mono text-gray-700">
+                  <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <SettingCard
+                      title="Organization Handle"
+                      description="This is your organization's URL identifier. Changing it will affect your web address."
+                      footer={
+                        <Button
+                          type="submit"
+                          size="sm"
+                          disabled={
+                            updateOrgMutation.isLoading ||
+                            !form.formState.isDirty
+                          }
+                        >
+                          {updateOrgMutation.isLoading && (
+                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                          )}
+                          Save
+                        </Button>
+                      }
+                    >
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="tscircuit_handle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-0">
+                                  <span className="text-xs sm:text-sm text-gray-500 bg-gray-50 border border-gray-200 sm:border-r-0 rounded-t-md sm:rounded-t-none sm:rounded-l-md px-3 py-2">
                                     tscircuit.com/
-                                    {normalizeName(field.value)}
                                   </span>
-                                </p>
-                              )}
-                          </div>
-                        </FormItem>
-                      )}
-                    />
+                                  <Input
+                                    type="text"
+                                    autoComplete="off"
+                                    spellCheck={false}
+                                    placeholder="Enter organization handle"
+                                    {...field}
+                                    disabled={updateOrgMutation.isLoading}
+                                    className="rounded-t-none sm:rounded-t-md sm:rounded-l-none flex-1 text-sm"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage className="mt-2" />
+                              {field.value &&
+                                normalizeName(field.value)?.length > 0 &&
+                                normalizeName(field.value) !== field.value && (
+                                  <p className="text-xs text-gray-500 mt-2">
+                                    Will be normalized to:{" "}
+                                    <span className="font-mono text-gray-700">
+                                      {normalizeName(field.value)}
+                                    </span>
+                                  </p>
+                                )}
+                            </FormItem>
+                          )}
+                        />
 
-                    <FormField
-                      control={form.control}
-                      name="display_name"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-                          <div className="lg:col-span-2">
-                            <FormLabel className="text-sm font-semibold text-gray-900">
-                              Display name
-                            </FormLabel>
-                            <FormDescription className="text-sm text-gray-500 mt-2 leading-relaxed">
-                              This is the name that will be displayed publicly.
-                              If left empty, the organization handle will be
-                              used.
-                            </FormDescription>
-                          </div>
-                          <div className="lg:col-span-3">
-                            <FormControl>
-                              <Input
-                                placeholder="Enter display name"
-                                {...field}
-                                disabled={updateOrgMutation.isLoading}
-                                className="w-full max-w-lg h-11 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                              />
-                            </FormControl>
-                            <FormMessage className="mt-2" />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
-                      <Button
-                        type="submit"
-                        disabled={
-                          updateOrgMutation.isLoading || !form.formState.isDirty
-                        }
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
-                      >
-                        {updateOrgMutation.isLoading && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Update organization
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => form.reset()}
-                        disabled={updateOrgMutation.isLoading}
-                        className="px-6 py-2.5 text-sm font-medium border-gray-300 hover:bg-gray-50"
-                      >
-                        Reset changes
-                      </Button>
-                    </div>
+                        <FormField
+                          control={form.control}
+                          name="display_name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <label className="text-sm font-medium text-gray-700">
+                                Display Name
+                              </label>
+                              <p className="text-xs text-gray-500 mb-1.5">
+                                Publicly visible name. If empty, the handle is
+                                used.
+                              </p>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter display name"
+                                  {...field}
+                                  disabled={updateOrgMutation.isLoading}
+                                  className="w-full sm:max-w-md text-sm"
+                                />
+                              </FormControl>
+                              <FormMessage className="mt-2" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </SettingCard>
                   </form>
                 </Form>
-              </div>
-            </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Organization information
-                </h2>
-              </div>
-              <div className="p-6 lg:p-8">
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                  {orgInfo.map((item) => (
-                    <div key={item.label} className="space-y-1">
-                      <dt className="text-sm font-semibold text-gray-900">
-                        {item.label}
-                      </dt>
-                      <dd className="text-sm text-gray-600 break-words">
-                        {item.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </div>
+                <SettingCard
+                  title="Organization Information"
+                  description="Read-only details about this organization."
+                >
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                    {orgInfo.map((item) => (
+                      <div key={item.label} className="space-y-0.5">
+                        <dt className="text-xs font-medium text-gray-500">
+                          {item.label}
+                        </dt>
+                        <dd className="text-sm text-gray-900 break-words">
+                          {item.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </SettingCard>
+              </>
+            )}
 
-            {/* Members Management */}
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                      Organization members
-                    </h2>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Manage who has access to this organization and their
-                      permissions.
-                    </p>
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className="text-sm px-3 py-1 bg-white border border-gray-200 self-start"
-                  >
-                    {members.length} member{members.length > 1 ? "s" : ""}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="p-6 lg:p-8">
-                {/* Invite Member Section */}
-                <div className="mb-8 p-6 bg-gray-50 rounded-xl">
-                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Mail className="h-5 w-5" />
-                    Invite member
-                  </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
-                    <div className="lg:col-span-4">
-                      <Input
-                        id="invite-email-input"
-                        type="email"
-                        placeholder="Enter email address"
-                        value={inviteeEmail}
-                        onChange={(e) => {
-                          setInviteeEmail(e.target.value)
-                          // Clear error when user starts typing
-                          if (inviteError) {
-                            setInviteError("")
-                          }
-                        }}
-                        disabled={createInvitationMutation.isLoading}
-                        className={`w-full h-11 text-base bg-white focus:border-blue-500 focus:ring-blue-500 ${
-                          inviteError
-                            ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-                            : "border-gray-300"
-                        }`}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            !createInvitationMutation.isLoading
-                          ) {
-                            handleSendInvitation()
-                          }
-                        }}
-                      />
-                      {inviteError && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {inviteError}
-                        </p>
+            {activeSection === "members" && (
+              <>
+                <SettingCard
+                  title="Invite Member"
+                  description="Send an email invitation to add a new member to this organization."
+                >
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      id="invite-email-input"
+                      type="email"
+                      placeholder="Enter email address"
+                      value={inviteeEmail}
+                      onChange={(e) => {
+                        setInviteeEmail(e.target.value)
+                        if (inviteError) setInviteError("")
+                      }}
+                      disabled={createInvitationMutation.isLoading}
+                      className={cn(
+                        "flex-1 text-sm",
+                        inviteError && "border-red-300",
                       )}
-                    </div>
-                    <div className="lg:col-span-1">
-                      <Button
-                        onClick={handleSendInvitation}
-                        disabled={
-                          !inviteeEmail.trim() ||
-                          createInvitationMutation.isLoading
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          !createInvitationMutation.isLoading
+                        ) {
+                          handleSendInvitation()
                         }
-                        className="w-full md:h-11 bg-blue-600 hover:bg-blue-700 text-white px-6 text-sm font-medium shadow-sm"
-                      >
-                        {createInvitationMutation.isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Mail className="h-4 w-4 mr-2" />
-                        )}
-                        Send Invitation
-                      </Button>
-                    </div>
+                      }}
+                    />
+                    <Button
+                      onClick={handleSendInvitation}
+                      disabled={
+                        !inviteeEmail.trim() ||
+                        createInvitationMutation.isLoading
+                      }
+                      size="sm"
+                      className="sm:w-auto w-full"
+                    >
+                      {createInvitationMutation.isLoading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                      ) : (
+                        <Mail className="h-3.5 w-3.5 mr-1.5" />
+                      )}
+                      Send Invitation
+                    </Button>
                   </div>
-                </div>
+                  {inviteError && (
+                    <p className="mt-2 text-xs text-red-600">{inviteError}</p>
+                  )}
+                </SettingCard>
 
-                {/* Members List */}
-                <div className="mb-8">
-                  <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                    <Users className="h-5 w-5" />
-                    Members
-                  </h3>
-                  <div className="space-y-0 border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden">
+                <SettingCard
+                  title="Members"
+                  description={`Manage who has access to this organization. ${members.length} member${members.length !== 1 ? "s" : ""} total.`}
+                >
+                  <div className="border border-gray-200 rounded-lg divide-y divide-gray-200 overflow-hidden">
                     {isLoadingMembers ? (
-                      <div className="flex items-center justify-center py-16">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
                       </div>
                     ) : members.length === 0 ? (
-                      <div className="text-center py-16 text-gray-500">
-                        <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                        <p className="text-lg font-medium">No members found</p>
-                        <p className="text-sm mt-1">
-                          Add your first team member to get started.
+                      <div className="text-center py-12 text-gray-500">
+                        <Users className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                        <p className="text-sm font-medium">No members found</p>
+                        <p className="text-xs mt-1">
+                          Add your first team member above.
                         </p>
                       </div>
                     ) : (
@@ -911,7 +837,7 @@ export default function OrganizationSettingsPage() {
                         return (
                           <div
                             key={member.account_id}
-                            className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between p-5 hover:bg-gray-50 transition-all duration-200"
+                            className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 hover:bg-gray-50 transition-colors"
                           >
                             <Link
                               href={
@@ -919,7 +845,7 @@ export default function OrganizationSettingsPage() {
                                   ? `/${member.tscircuit_handle}`
                                   : `#`
                               }
-                              className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0"
+                              className="flex items-center gap-3 group cursor-pointer flex-1 min-w-0"
                             >
                               <GithubAvatarWithFallback
                                 username={member.tscircuit_handle}
@@ -927,13 +853,13 @@ export default function OrganizationSettingsPage() {
                                 fallback={
                                   member.tscircuit_handle || member.account_id
                                 }
-                                className="h-12 w-12"
-                                fallbackClassName="text-sm font-medium"
+                                className="h-9 w-9"
+                                fallbackClassName="text-xs font-medium"
                                 colorClassName="text-black"
                               />
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <span className="font-semibold text-gray-900 text-base group-hover:text-blue-600 transition-colors truncate">
+                                  <span className="font-medium text-gray-900 text-sm group-hover:text-blue-600 transition-colors truncate">
                                     {member.tscircuit_handle ||
                                       member.account_id}
                                   </span>
@@ -942,109 +868,95 @@ export default function OrganizationSettingsPage() {
                                   )}
                                 </div>
                                 {member.email && (
-                                  <p className="text-sm text-gray-500 truncate">
+                                  <p className="text-xs text-gray-500 truncate">
                                     {member.email}
                                   </p>
                                 )}
                               </div>
                             </Link>
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6 flex-shrink-0 w-full lg:w-auto">
-                              <div className="flex flex-wrap gap-3 justify-start sm:justify-end">
-                                {member.account_id !==
-                                  organization.owner_account_id &&
-                                  member.account_id !== session?.account_id && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleRemoveMember(member)}
-                                      disabled={removeMemberMutation.isLoading}
-                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
-                                    >
-                                      Remove
-                                    </Button>
-                                  )}
-                                {member.account_id !==
-                                  organization.owner_account_id &&
-                                  member.account_id !== session?.account_id &&
-                                  organization.user_permissions
-                                    ?.can_manage_org && (
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        openEditMemberPermissionsDialog({
-                                          selectedMember: {
-                                            member,
-                                            orgId: organization.org_id,
-                                            currentPermissions:
-                                              member.org_member_permissions,
-                                          },
-                                        })
-                                      }}
-                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-4 py-2"
-                                    >
-                                      Edit
-                                    </Button>
-                                  )}
-                              </div>
+                            <div className="flex flex-wrap gap-2 justify-start sm:justify-end flex-shrink-0">
+                              {member.account_id !==
+                                organization.owner_account_id &&
+                                member.account_id !== session?.account_id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveMember(member)}
+                                    disabled={removeMemberMutation.isLoading}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 text-xs px-3 py-1.5 h-auto"
+                                  >
+                                    Remove
+                                  </Button>
+                                )}
+                              {member.account_id !==
+                                organization.owner_account_id &&
+                                member.account_id !== session?.account_id &&
+                                organization.user_permissions
+                                  ?.can_manage_org && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      openEditMemberPermissionsDialog({
+                                        selectedMember: {
+                                          member,
+                                          orgId: organization.org_id,
+                                          currentPermissions:
+                                            member.org_member_permissions,
+                                        },
+                                      })
+                                    }}
+                                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 text-xs px-3 py-1.5 h-auto"
+                                  >
+                                    Edit
+                                  </Button>
+                                )}
                             </div>
                           </div>
                         )
                       })
                     )}
                   </div>
-                </div>
+                </SettingCard>
 
-                {/* Invitations Section */}
                 {invitations.length > 0 && (
-                  <div className="mt-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                      <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                        <Mail className="h-5 w-5" />
-                        Invitations
-                      </h3>
-                      <div
-                        className="flex flex-wrap gap-2"
-                        role="group"
-                        aria-label="Filter invitations by status"
-                      >
-                        {(
-                          [
-                            "all",
-                            "pending",
-                            "accepted",
-                            "expired",
-                            "revoked",
-                          ] as const
-                        ).map((filter) => (
-                          <Button
-                            key={filter}
-                            variant={
-                              invitationFilter === filter
-                                ? "default"
-                                : "outline"
-                            }
-                            size="sm"
-                            onClick={() => setInvitationFilter(filter)}
-                            className="capitalize"
-                            aria-label={`Show ${filter} invitations`}
-                            aria-pressed={invitationFilter === filter}
-                          >
-                            {filter}
-                          </Button>
-                        ))}
-                      </div>
+                  <SettingCard
+                    title="Invitations"
+                    description="Track and manage pending invitations."
+                  >
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {(
+                        [
+                          "all",
+                          "pending",
+                          "accepted",
+                          "expired",
+                          "revoked",
+                        ] as const
+                      ).map((filter) => (
+                        <Button
+                          key={filter}
+                          variant={
+                            invitationFilter === filter ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setInvitationFilter(filter)}
+                          className="capitalize text-xs h-7 px-2.5"
+                        >
+                          {filter}
+                        </Button>
+                      ))}
                     </div>
 
-                    <div className="space-y-0 border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden">
+                    <div className="border border-gray-200 rounded-lg divide-y divide-gray-200 overflow-hidden">
                       {isLoadingInvitations ? (
-                        <div className="flex items-center justify-center py-16">
-                          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
                         </div>
                       ) : filteredInvitations.length === 0 ? (
-                        <div className="text-center py-16 text-gray-500">
-                          <Mail className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                          <p className="text-lg font-medium">
+                        <div className="text-center py-12 text-gray-500">
+                          <Mail className="h-10 w-10 mx-auto mb-3 text-gray-300" />
+                          <p className="text-sm font-medium">
                             No{" "}
                             {invitationFilter !== "all" ? invitationFilter : ""}{" "}
                             invitations
@@ -1067,16 +979,16 @@ export default function OrganizationSettingsPage() {
                           return (
                             <div
                               key={invitation.org_invitation_id}
-                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 hover:bg-gray-50 transition-all duration-200 gap-4 sm:gap-0"
+                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 hover:bg-gray-50 transition-colors gap-3 sm:gap-0"
                             >
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium text-gray-900">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="font-medium text-sm text-gray-900">
                                     {invitation.invitee_email || "No email"}
                                   </span>
                                   <InvitationStatusBadge status={status} />
                                 </div>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs text-gray-500">
                                   Invited by {inviterName} on{" "}
                                   {new Date(
                                     invitation.created_at,
@@ -1084,7 +996,7 @@ export default function OrganizationSettingsPage() {
                                 </p>
                                 {invitation.is_accepted &&
                                   invitation.accepted_at && (
-                                    <p className="text-xs text-green-600 mt-1">
+                                    <p className="text-xs text-green-600 mt-0.5">
                                       Accepted on{" "}
                                       {new Date(
                                         invitation.accepted_at,
@@ -1093,7 +1005,7 @@ export default function OrganizationSettingsPage() {
                                   )}
                                 {invitation.is_pending &&
                                   !invitation.is_expired && (
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 mt-0.5">
                                       Expires on{" "}
                                       {new Date(
                                         invitation.expires_at,
@@ -1101,7 +1013,7 @@ export default function OrganizationSettingsPage() {
                                     </p>
                                   )}
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-shrink-0">
                                 {(invitation.is_pending ||
                                   invitation.is_expired) &&
                                   !invitation.is_revoked &&
@@ -1120,14 +1032,14 @@ export default function OrganizationSettingsPage() {
                                         resendingInvitationId ===
                                         invitation.org_invitation_id
                                       }
-                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 px-4 py-2"
+                                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-200 hover:border-blue-300 text-xs px-3 py-1.5 h-auto"
                                     >
                                       {resendingInvitationId ===
                                       invitation.org_invitation_id ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                       ) : (
                                         <>
-                                          <RotateCw className="h-4 w-4 mr-1" />
+                                          <RotateCw className="h-3.5 w-3.5 mr-1" />
                                           Resend
                                         </>
                                       )}
@@ -1146,7 +1058,7 @@ export default function OrganizationSettingsPage() {
                                       disabled={
                                         revokeInvitationMutation.isLoading
                                       }
-                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 px-4 py-2"
+                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-300 text-xs px-3 py-1.5 h-auto"
                                     >
                                       Revoke
                                     </Button>
@@ -1157,64 +1069,112 @@ export default function OrganizationSettingsPage() {
                         })
                       )}
                     </div>
-                  </div>
+                  </SettingCard>
                 )}
-              </div>
-            </div>
+              </>
+            )}
 
-            {/* Danger Zone */}
-            <div className="bg-white border border-red-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-red-200 bg-red-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-red-900">
-                  Danger Zone
-                </h2>
-                <p className="text-sm text-red-600 mt-2">
-                  Irreversible and destructive actions for this organization.
-                </p>
-              </div>
-
-              <div className="p-6 lg:p-8">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                      Delete Organization
-                    </h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                      Permanently delete this organization and all associated
-                      data. This action cannot be undone and will remove all
-                      packages, snippets, and organization information.
+            {activeSection === "github" && (
+              <SettingCard
+                title="GitHub Connection"
+                description="Install the tscircuit GitHub app for this organization to link packages to repositories and enable PR previews."
+                footer={
+                  <Button size="sm" onClick={handleConnectGithub}>
+                    <Github className="h-3.5 w-3.5 mr-1.5" />
+                    {organization.github_installation_handles?.length
+                      ? "Manage connection"
+                      : "Connect GitHub"}
+                  </Button>
+                }
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 bg-gray-100 rounded-lg">
+                    <Github className="h-5 w-5 text-gray-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {organization.github_installation_handles?.length
+                        ? `Connected to ${organization.github_installation_handles.length} GitHub account${organization.github_installation_handles.length > 1 ? "s" : ""}`
+                        : "Not connected"}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Use the button below to connect or update the GitHub
+                      installation.
                     </p>
                   </div>
-                  <div className="flex-shrink-0">
-                    <Button
-                      variant="destructive"
-                      onClick={handleDeleteOrg}
-                      disabled={
-                        organization.owner_account_id !== session?.account_id
-                      }
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm w-full lg:w-auto"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Organization
-                    </Button>
-                  </div>
                 </div>
-              </div>
-            </div>
+
+                {organization.github_installation_handles &&
+                  organization.github_installation_handles.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <p className="text-xs font-medium text-gray-500 mb-2">
+                        Connected accounts
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {organization.github_installation_handles.map(
+                          (handle) => (
+                            <a
+                              key={handle}
+                              href={`https://github.com/${handle}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-200 transition-colors text-sm"
+                            >
+                              <GithubAvatarWithFallback
+                                username={handle}
+                                className="h-5 w-5"
+                                fallbackClassName="text-xs"
+                              />
+                              <span className="font-medium text-gray-900 text-xs">
+                                @{handle}
+                              </span>
+                            </a>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+              </SettingCard>
+            )}
+
+            {activeSection === "danger" && (
+              <SettingCard
+                title="Delete Organization"
+                description="Permanently delete this organization and all associated data including packages, snippets, and members. This action cannot be undone."
+                danger
+                footer={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteOrg}
+                    disabled={
+                      organization.owner_account_id !== session?.account_id
+                    }
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    Delete Organization
+                  </Button>
+                }
+              >
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Once you delete an organization, there is no going back.
+                  Please be certain.
+                </p>
+              </SettingCard>
+            )}
           </div>
         </div>
       </main>
 
       <Footer />
 
-      {/* Remove Member Confirmation Dialog */}
       <AlertDialog
         open={showRemoveMemberDialog.show}
         onOpenChange={(open) =>
           setShowRemoveMemberDialog({ ...showRemoveMemberDialog, show: open })
         }
       >
-        <AlertDialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4 sm:mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>Remove member</AlertDialogTitle>
             <AlertDialogDescription>
@@ -1226,12 +1186,14 @@ export default function OrganizationSettingsPage() {
               from this organization? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmRemoveMember}
               disabled={removeMemberMutation.isLoading}
-              className="bg-red-600 hover:bg-red-700"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               {removeMemberMutation.isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1253,7 +1215,7 @@ export default function OrganizationSettingsPage() {
           }
         }}
       >
-        <AlertDialogContent className="w-[90vw] md:w-auto rounded-md">
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4 sm:mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
@@ -1266,13 +1228,15 @@ export default function OrganizationSettingsPage() {
               organization data will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Cancel
+            </AlertDialogCancel>
             {!isConfirmingDelete ? (
               <Button
                 variant="destructive"
                 onClick={() => setIsConfirmingDelete(true)}
-                className="bg-red-600 hover:bg-red-700"
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
               >
                 Delete Organization
               </Button>
@@ -1281,7 +1245,7 @@ export default function OrganizationSettingsPage() {
                 variant="destructive"
                 onClick={confirmDeleteOrg}
                 disabled={deleteOrgMutation.isLoading}
-                className="bg-red-600 hover:bg-red-700"
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
               >
                 {deleteOrgMutation.isLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1293,12 +1257,11 @@ export default function OrganizationSettingsPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Revoke Invitation Confirmation Dialog */}
       <AlertDialog
         open={showRevokeDialog !== null}
         onOpenChange={(open) => !open && setShowRevokeDialog(null)}
       >
-        <AlertDialogContent className="w-[90vw] p-6 rounded-2xl shadow-lg">
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-md mx-4 sm:mx-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>Revoke invitation</AlertDialogTitle>
             <AlertDialogDescription>
@@ -1306,8 +1269,10 @@ export default function OrganizationSettingsPage() {
               link will no longer work.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (showRevokeDialog) {
@@ -1317,7 +1282,7 @@ export default function OrganizationSettingsPage() {
                 }
               }}
               disabled={revokeInvitationMutation.isLoading}
-              className="bg-red-600 hover:bg-red-700"
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
             >
               {revokeInvitationMutation.isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
