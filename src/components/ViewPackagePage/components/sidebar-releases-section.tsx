@@ -1,4 +1,5 @@
 import { Tag, Clock, Globe } from "lucide-react"
+import { KicadPcmCommand } from "@/components/KicadPcmCommand"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -102,17 +103,9 @@ export default function SidebarReleasesSection() {
           </a>
         )}
         {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
-          <a
-            href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-blue-600 hover:underline cursor-pointer"
-          >
-            <span className="font-bold text-xs min-w-[16px] flex-shrink-0">
-              K
-            </span>
-            <span>KiCad PCM URL</span>
-          </a>
+          <KicadPcmCommand
+            url={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+          />
         )}
       </div>
     </div>
