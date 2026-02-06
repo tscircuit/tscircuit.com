@@ -31,8 +31,8 @@ const AuthenticatePageInnerContent = () => {
         if (fromWorkOs) {
           setSession({
             account_id: "account-1234",
-            github_username: null,
-            tscircuit_handle: null,
+            github_username: "testuser",
+            tscircuit_handle: "testuser",
             email: "test@test.com",
             token: "1234",
             session_id: "session-1234",
