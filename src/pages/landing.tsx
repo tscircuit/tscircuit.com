@@ -116,11 +116,13 @@ export function LandingPage() {
                   </div>
                 </div>
                 <div className="w-full aspect-video relative">
-                  <OptimizedImage
-                    alt="Product preview"
+                  <iframe
                     className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
-                    src="/assets/editor_example_1_more_square.webp"
-                    priority={true}
+                    src="https://www.youtube.com/embed/HAd5_ZJgg50"
+                    title="TSCircuit product demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
                   />
                 </div>
               </div>
@@ -177,6 +179,173 @@ export function LandingPage() {
                   </p>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  AI-compatible Electronics
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Teach agents tscircuit instantly with{" "}
+                    <span className="font-semibold">
+                      npx agents add tscircuit
+                    </span>
+                  </li>
+                  <li>Run locally with any agent</li>
+                  <li>Ask for schematic and PCB reviews</li>
+                </ul>
+              </div>
+              <OptimizedImage
+                alt="AI-compatible electronics placeholder"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                src="/assets/fallback-image.svg"
+                height={360}
+                width={540}
+              />
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <OptimizedImage
+                alt="Share and display in the browser placeholder"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                src="/assets/fallback-image.svg"
+                height={360}
+                width={540}
+              />
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  Share and display in the browser
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Connect your GitHub or push to tscircuit.com to create
+                    shareable URLs for your project
+                  </li>
+                  <li>Every component file has a dedicated webpage</li>
+                  <li>
+                    React component library for displaying PCBs, Schematics,
+                    Assembly Diagrams, Bill of Materials and More
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  Analog Simulation
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Run analog simulations in your browser or on the command
+                    line via WebAssembly ngspice
+                  </li>
+                </ul>
+              </div>
+              <OptimizedImage
+                alt="Analog simulation placeholder"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                src="/assets/fallback-image.svg"
+                height={360}
+                width={540}
+              />
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                Extremely Fast Autorouting
+              </h2>
+              <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <li>
+                  Autoroute circuit boards using{" "}
+                  <a className="underline" href="#">
+                    freerouting
+                  </a>{" "}
+                  or{" "}
+                  <a className="underline" href="#">
+                    tscircuit&apos;s fast autorouter
+                  </a>
+                </li>
+                <li>
+                  Autoroute as few as 1 layer with automatically placed jumpers
+                </li>
+                <li>Route complex circuits in seconds</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  First Class KiCad Support
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Export to KiCad PCB and Schematic files{" "}
+                    <em>
+                      Just run{" "}
+                      <span className="font-semibold">
+                        tsci build --kicad-library
+                      </span>
+                    </em>
+                  </li>
+                  <li>
+                    Import KiCad files directly{" "}
+                    <em>import RP2040 from &quot;./RP2040.kicad_mod&quot;</em>
+                  </li>
+                  <li>
+                    Automatic KiCad PCM Server{" "}
+                    <span className="text-muted-foreground">
+                      Import your library anywhere. Enable KiCad PCM to have
+                      every tscircuit package automatically serve components and
+                      subcircuits as importable KiCad modules
+                    </span>
+                  </li>
+                </ul>
+              </div>
+              <OptimizedImage
+                alt="KiCad support placeholder"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                src="/assets/fallback-image.svg"
+                height={360}
+                width={540}
+              />
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                Zero Effort Bill of Materials and Inventory Checks
+              </h2>
+              <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <li>Integrations with major component suppliers</li>
+                <li>
+                  Automatic passive component selection based on component
+                  properties
+                </li>
+                <li>
+                  Supplier part numbers, pricing and inventory automatically
+                  queried
+                </li>
+              </ul>
             </div>
           </div>
         </section>

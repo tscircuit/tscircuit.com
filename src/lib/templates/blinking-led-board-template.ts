@@ -8,7 +8,7 @@ import { A555Timer } from "@tsci/seveibar.a555timer"
 export const MyBlinkingLedCircuit = () => {
   return (
     <board width="30mm" height="30mm" schAutoLayoutEnabled>
-      <SmdUsbC GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={-10} />
+      <SmdUsbC name="USBC" GND1="net.GND" VBUS1="net.VBUS" pcbX={-10} pcbY={-10} />
       <A555Timer
         name="B1"
         pin8="net.VBUS"
@@ -42,7 +42,7 @@ export const MyBlinkingLedCircuit = () => {
         pcbY={8}
       />
       
-      <RedLed pos="net.OUT" neg="net.GND" pcbX={5} pcbY={10} />
+      <RedLed name="LED" pos="net.OUT" neg="net.GND" pcbX={5} pcbY={10} />
       
       <trace from=".USBC > .VBUS1" to=".R1 > .left" />
       <trace from=".R1 > .right" to=".R2 > .left" />
