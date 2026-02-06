@@ -116,11 +116,13 @@ export function LandingPage() {
                   </div>
                 </div>
                 <div className="w-full aspect-video relative">
-                  <OptimizedImage
-                    alt="Product preview"
+                  <iframe
                     className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
-                    src="/assets/editor_example_1_more_square.webp"
-                    priority={true}
+                    src="https://www.youtube.com/embed/HAd5_ZJgg50"
+                    title="TSCircuit product demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
                   />
                 </div>
               </div>
