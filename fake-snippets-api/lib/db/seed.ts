@@ -597,6 +597,7 @@ export default () => (
     name: "testuser/test2-package",
     unscoped_name: "test2-package",
     creator_account_id: account_id,
+    org_owner_tscircuit_handle: "testuser",
     owner_org_id: "org-1234",
     owner_github_username: "testuser",
     description: "A test package for development",
@@ -908,6 +909,20 @@ export const DEFAULT_RESISTANCE = 50`,
 
   db.updatePackage(test2Package.package_id, {
     latest_package_release_id: test2PackageReleaseId4,
+  })
+
+  // Add package domains for test2-package
+  db.addPackageDomain({
+    points_to: "package_release",
+    package_release_id: test2PackageReleaseId4,
+    package_id: test2Package.package_id,
+    fully_qualified_domain_name: "test2-package.tscircuit.app",
+  })
+  db.addPackageDomain({
+    points_to: "package_release",
+    package_release_id: test2PackageReleaseId4,
+    package_id: test2Package.package_id,
+    fully_qualified_domain_name: "my-board-preview.tscircuit.app",
   })
 
   // Define the @tsci/seveibar.a555timer package
@@ -2310,6 +2325,12 @@ exports.TestComponent = TestComponent;
     github_handle: "tscircuit",
     is_personal_org: true,
     org_id: "org-1234",
+  })
+
+  db.addOrganizationAccount({
+    org_id: "org-1234",
+    account_id: account_id,
+    is_owner: true,
   })
 
   db.addOrganization({
