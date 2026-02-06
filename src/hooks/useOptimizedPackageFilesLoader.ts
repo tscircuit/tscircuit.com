@@ -10,6 +10,10 @@ function isTextContent(str: string): boolean {
   return !str.includes("\0")
 }
 
+function blobToBlobUrl(blob: Blob): string {
+  return URL.createObjectURL(blob)
+}
+
 export interface PackageFile {
   path: string
   content: string
@@ -96,7 +100,7 @@ export function useOptimizedPackageFilesLoader(
         if (isTextContent(text)) {
           content = text
         } else {
-          content = ""
+          content = blobToBlobUrl(blob)
           isBinary = true
           fileDownloadUrl = downloadUrl
         }
@@ -153,7 +157,7 @@ export function useOptimizedPackageFilesLoader(
             if (isTextContent(text)) {
               content = text
             } else {
-              content = ""
+              content = blobToBlobUrl(blob)
               isBinary = true
               fileDownloadUrl = downloadUrl
             }
