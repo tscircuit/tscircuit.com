@@ -1,44 +1,11 @@
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { useHotkeyCombo } from "@/hooks/use-hotkey"
-import { basicSetup } from "@/lib/codemirror/basic-setup"
-import {
-  autocompletion,
-  acceptCompletion,
-  completionStatus,
-} from "@codemirror/autocomplete"
-import { indentWithTab, indentMore } from "@codemirror/commands"
-import { javascript } from "@codemirror/lang-javascript"
-import { json } from "@codemirror/lang-json"
-import { EditorState, Prec, StateEffect, Compartment } from "@codemirror/state"
-import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
-import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
-import type { ATABootstrapConfig } from "@typescript/ata"
-import { setupTypeAcquisition } from "@typescript/ata"
-import { linter } from "@codemirror/lint"
-import {
-  TSCI_PACKAGE_PATTERN,
-  LOCAL_FILE_IMPORT_PATTERN,
-} from "@/lib/constants"
-import {
-  createSystem,
-  createVirtualTypeScriptEnvironment,
-} from "@typescript/vfs"
-import { loadDefaultLibMap, fetchWithPackageCaching } from "@/lib/ts-lib-cache"
-import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
-import { getLints } from "@valtown/codemirror-ts"
-import { EditorView } from "codemirror"
-import { useEffect, useMemo, useRef, useState } from "react"
-import tsModule from "typescript"
+import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
 import CodeEditorHeader, {
   FileName,
 } from "@/components/package-port/CodeEditorHeader"
-import FileSidebar from "../FileSidebar"
-import { findTargetFile } from "@/lib/utils/findTargetFile"
-import type { PackageFile } from "@/types/package"
-import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useAxios } from "@/hooks/use-axios"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import QuickOpen from "./QuickOpen"
-import GlobalFindReplace from "./GlobalFindReplace"
 import {
   ICreateFileProps,
   ICreateFileResult,
@@ -47,11 +14,44 @@ import {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { basicSetup } from "@/lib/codemirror/basic-setup"
+import {
+  LOCAL_FILE_IMPORT_PATTERN,
+  TSCI_PACKAGE_PATTERN,
+} from "@/lib/constants"
+import { fetchWithPackageCaching, loadDefaultLibMap } from "@/lib/ts-lib-cache"
+import { findTargetFile } from "@/lib/utils/findTargetFile"
+import type { PackageFile } from "@/types/package"
+import {
+  acceptCompletion,
+  autocompletion,
+  completionStatus,
+} from "@codemirror/autocomplete"
+import { indentMore, indentWithTab } from "@codemirror/commands"
+import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
+import { linter } from "@codemirror/lint"
+import { Compartment, EditorState, Prec, StateEffect } from "@codemirror/state"
+import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
+import type { ATABootstrapConfig } from "@typescript/ata"
+import { setupTypeAcquisition } from "@typescript/ata"
+import {
+  createSystem,
+  createVirtualTypeScriptEnvironment,
+} from "@typescript/vfs"
+import { tsAutocomplete, tsFacet, tsSync } from "@valtown/codemirror-ts"
+import { getLints } from "@valtown/codemirror-ts"
+import { EditorView } from "codemirror"
 import { inlineCopilot } from "codemirror-copilot"
-import { useViewTsFilesDialog } from "@/components/dialogs/view-ts-files-dialog"
-import { Loader2 } from "lucide-react"
-import { useAxios } from "@/hooks/use-axios"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { Download, FileWarning, Loader2 } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import tsModule from "typescript"
+import FileSidebar from "../FileSidebar"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import GlobalFindReplace from "./GlobalFindReplace"
+import QuickOpen from "./QuickOpen"
 
 const defaultImports = `
 import React from "@types/react/jsx-runtime"
@@ -106,6 +106,12 @@ export const CodeEditor = ({
   const apiUrl = useApiBaseUrl()
   const [cursorPosition, setCursorPosition] = useState<number | null>(null)
   const [code, setCode] = useState(files[0]?.content || "")
+  const currentFileData = useMemo(
+    () => files.find((f) => f.path === currentFile),
+    [files, currentFile],
+  )
+  const currentFileIsBinary = currentFileData?.isBinary === true
+  const currentFileDownloadUrl = currentFileData?.downloadUrl
   const [fontSize, setFontSize] = useState(14)
   const [showQuickOpen, setShowQuickOpen] = useState(false)
   const [showGlobalFindReplace, setShowGlobalFindReplace] = useState(false)
@@ -840,17 +846,39 @@ export const CodeEditor = ({
             ]}
           />
         )}
-        <div
-          ref={editorRef}
-          className={
-            "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
-          }
-          style={{ display: isPriorityFileFetched ? "none" : "block" }}
-        />
-        {isPriorityFileFetched && (
-          <div className="grid place-items-center h-full">
-            <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+        {currentFileIsBinary ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-gray-500">
+            <FileWarning className="w-16 h-16 text-gray-300" />
+            <p className="text-lg font-medium">Binary file</p>
+            <p className="text-sm text-gray-400">
+              This file cannot be displayed in the editor.
+            </p>
+            {currentFileDownloadUrl && (
+              <a
+                href={currentFileDownloadUrl}
+                download
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Download file
+              </a>
+            )}
           </div>
+        ) : (
+          <>
+            <div
+              ref={editorRef}
+              className={
+                "flex-1 overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:!h-full"
+              }
+              style={{ display: isPriorityFileFetched ? "none" : "block" }}
+            />
+            {isPriorityFileFetched && (
+              <div className="grid place-items-center h-full">
+                <Loader2 className="w-16 h-16 animate-spin text-gray-400" />
+              </div>
+            )}
+          </>
         )}
       </div>
       {showQuickOpen && (

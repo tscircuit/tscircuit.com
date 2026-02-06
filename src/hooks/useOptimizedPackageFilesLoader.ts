@@ -1,18 +1,20 @@
-import { useQuery, useQueries } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { usePackageFiles } from "@/hooks/use-package-files"
-import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useState, useMemo } from "react"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useMemo, useState } from "react"
+import { useQueries, useQuery } from "react-query"
 import { useGlobalStore } from "./use-global-store"
 
-function blobToBlobUrl(blob: Blob): string {
-  return URL.createObjectURL(blob)
+function isTextContent(str: string): boolean {
+  return !str.includes("\0")
 }
 
 export interface PackageFile {
   path: string
   content: string
+  isBinary?: boolean
+  downloadUrl?: string
 }
 
 export interface OptimizedLoadingState {
@@ -78,8 +80,9 @@ export function useOptimizedPackageFilesLoader(
       const packageFile = response.data.package_file
 
       let content: string
+      let isBinary = false
+      let fileDownloadUrl: string | undefined
       if (packageFile?.is_text === false) {
-        // Binary file - use download endpoint to get binary content
         const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${priorityFileData.package_file_id}`
         const binaryResponse = await fetch(downloadUrl, {
           headers: sessionToken
@@ -89,12 +92,22 @@ export function useOptimizedPackageFilesLoader(
             : {},
         })
         const blob = await binaryResponse.blob()
-        content = blobToBlobUrl(blob)
+        const text = await blob.text()
+        if (isTextContent(text)) {
+          content = text
+        } else {
+          content = ""
+          isBinary = true
+          fileDownloadUrl = downloadUrl
+        }
       } else {
-        // Text file
         content = packageFile?.content_text ?? ""
       }
-      const file = { path: priorityFileData.file_path, content }
+      const file: PackageFile = {
+        path: priorityFileData.file_path,
+        content,
+        ...(isBinary && { isBinary, downloadUrl: fileDownloadUrl }),
+      }
 
       setLoadedFiles((prev) => {
         const newMap = new Map(prev)
@@ -124,8 +137,9 @@ export function useOptimizedPackageFilesLoader(
           const packageFile = response.data.package_file
 
           let content: string
+          let isBinary = false
+          let fileDownloadUrl: string | undefined
           if (packageFile?.is_text === false) {
-            // Binary file - use download endpoint to get binary content
             const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
             const binaryResponse = await fetch(downloadUrl, {
               headers: sessionToken
@@ -135,12 +149,22 @@ export function useOptimizedPackageFilesLoader(
                 : {},
             })
             const blob = await binaryResponse.blob()
-            content = blobToBlobUrl(blob)
+            const text = await blob.text()
+            if (isTextContent(text)) {
+              content = text
+            } else {
+              content = ""
+              isBinary = true
+              fileDownloadUrl = downloadUrl
+            }
           } else {
-            // Text file
             content = packageFile?.content_text ?? ""
           }
-          const fileData = { path: file.file_path, content }
+          const fileData: PackageFile = {
+            path: file.file_path,
+            content,
+            ...(isBinary && { isBinary, downloadUrl: fileDownloadUrl }),
+          }
 
           setLoadedFiles((prev) => {
             const newMap = new Map(prev)
