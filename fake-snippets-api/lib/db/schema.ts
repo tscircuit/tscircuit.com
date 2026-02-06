@@ -604,27 +604,38 @@ export const publicOrgSchema = z.object({
 })
 export type PublicOrgSchema = z.infer<typeof publicOrgSchema>
 
-export const packageDeploymentSchema = z.object({
-  package_deployment_id: z.string(),
-  package_release_id: z.string(),
-  package_build_id: z.string(),
+export const packageDomainPointsToEnum = z.enum([
+  "package_release",
+  "package_build",
+  "package_release_with_tag",
+  "package",
+])
+
+export const packageDomainSchema = z.object({
+  package_domain_id: z.string(),
+  points_to: packageDomainPointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  package_build_id: z.string().nullable().optional(),
+  package_id: z.string().nullable().optional(),
+  tag: z.string().nullable().optional(),
   default_main_component_path: z.string().nullable().optional(),
   fully_qualified_domain_name: z.string().nullable().optional(),
   created_at: z.coerce.date(),
 })
-export type PackageDeployment = z.infer<typeof packageDeploymentSchema>
+export type PackageDomain = z.infer<typeof packageDomainSchema>
 
-export const publicPackageDeploymentSchema = z.object({
-  package_deployment_id: z.string(),
-  package_release_id: z.string(),
-  package_build_id: z.string(),
+export const publicPackageDomainSchema = z.object({
+  package_domain_id: z.string(),
+  points_to: packageDomainPointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  package_build_id: z.string().nullable().optional(),
+  package_id: z.string().nullable().optional(),
+  tag: z.string().nullable().optional(),
   default_main_component_path: z.string().nullable().optional(),
   fully_qualified_domain_name: z.string().nullable().optional(),
   created_at: z.string().datetime(),
 })
-export type PublicPackageDeployment = z.infer<
-  typeof publicPackageDeploymentSchema
->
+export type PublicPackageDomain = z.infer<typeof publicPackageDomainSchema>
 
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
@@ -651,7 +662,7 @@ export const databaseSchema = z.object({
   packageBuilds: z.array(packageBuildSchema).default([]),
   bugReports: z.array(bugReportSchema).default([]),
   bugReportFiles: z.array(bugReportFileSchema).default([]),
-  packageDeployments: z.array(packageDeploymentSchema).default([]),
+  packageDomains: z.array(packageDomainSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
 
