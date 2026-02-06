@@ -34,9 +34,7 @@ import { useDeleteOrgMutation } from "@/hooks/use-delete-org-mutation"
 import { useCreateOrgInvitationMutation } from "@/hooks/use-create-org-invitation-mutation"
 import { useListOrgInvitations } from "@/hooks/use-list-org-invitations"
 import { useRevokeOrgInvitationMutation } from "@/hooks/use-revoke-org-invitation-mutation"
-import {
-  useEditOrgMemberPermissionsDialog,
-} from "@/components/dialogs/edit-org-member-permissions-dialog"
+import { useEditOrgMemberPermissionsDialog } from "@/components/dialogs/edit-org-member-permissions-dialog"
 import { InvitationStatusBadge } from "@/components/ui/invitation-status-badge"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Account } from "fake-snippets-api/lib/db/schema"
