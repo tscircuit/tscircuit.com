@@ -32,6 +32,7 @@ import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useLogout } from "@/hooks/use-logout"
 import { useConfirmDeleteAccountDialog } from "@/components/dialogs/confirm-delete-account-dialog"
+import { cn } from "@/lib/utils"
 
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
@@ -46,6 +47,62 @@ const accountSettingsSchema = z.object({
 
 type AccountSettingsFormData = z.infer<typeof accountSettingsSchema>
 
+type SettingsSection = "general" | "github" | "danger"
+
+const navItems: { id: SettingsSection; label: string }[] = [
+  { id: "general", label: "General" },
+  { id: "github", label: "GitHub" },
+  { id: "danger", label: "Danger Zone" },
+]
+
+function SettingCard({
+  title,
+  description,
+  children,
+  footer,
+  danger,
+}: {
+  title: string
+  description: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+  danger?: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        "border rounded-lg",
+        danger ? "border-red-200" : "border-gray-200",
+      )}
+    >
+      <div className="p-4 sm:p-6">
+        <h3
+          className={cn(
+            "text-sm sm:text-base font-semibold mb-1",
+            danger ? "text-red-600" : "text-gray-900",
+          )}
+        >
+          {title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-500 mb-4">{description}</p>
+        {children}
+      </div>
+      {footer && (
+        <div
+          className={cn(
+            "px-4 sm:px-6 py-3 border-t flex items-center justify-end",
+            danger
+              ? "bg-red-50/30 border-red-100"
+              : "bg-gray-50/50 border-gray-100",
+          )}
+        >
+          {footer}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function UserSettingsPage() {
   const session = useGlobalStore((s) => s.session)
   const hasHydrated = useHydration()
@@ -53,6 +110,8 @@ export default function UserSettingsPage() {
   const { toast } = useToast()
   const apiBaseUrl = useApiBaseUrl()
   const { handleLogout } = useLogout()
+
+  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
 
   const { Dialog: DeleteAccountDialog, openDialog: openDeleteAccountDialog } =
     useConfirmDeleteAccountDialog()
@@ -221,59 +280,76 @@ export default function UserSettingsPage() {
       </Helmet>
       <Header />
 
-      <section className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        <div className="max-w-7xl mx-auto py-8">
-          <div className="mb-8 hidden md:block">
-            <div className="flex items-center gap-4 mb-6">
-              <GithubAvatarWithFallback
-                username={session.tscircuit_handle}
-                imageUrl={personalOrg?.avatar_url || undefined}
-                className="h-16 w-16 border-2 border-gray-200 shadow-sm"
-                fallbackClassName="text-lg font-medium"
-                colorClassName="text-black"
-              />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Account Settings{" "}
-                  {session.tscircuit_handle
-                    ? `- @${session.tscircuit_handle} `
-                    : ""}
-                </h1>
-              </div>
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center gap-4">
+            <GithubAvatarWithFallback
+              username={session.tscircuit_handle}
+              imageUrl={personalOrg?.avatar_url || undefined}
+              className="h-10 w-10 border border-gray-200"
+              fallbackClassName="text-sm font-medium"
+              colorClassName="text-black"
+            />
+            <div>
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+                Account Settings
+              </h1>
+              {session.tscircuit_handle && (
+                <p className="text-xs sm:text-sm text-gray-500">
+                  @{session.tscircuit_handle}
+                </p>
+              )}
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-8">
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Account profile
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Update your account's basic information and settings.
-                </p>
-              </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-12">
+          <aside className="w-full lg:w-48 shrink-0">
+            <nav className="lg:sticky lg:top-4">
+              <ul className="flex lg:flex-col gap-1 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+                {navItems.map((item) => (
+                  <li key={item.id}>
+                    <button
+                      onClick={() => setActiveSection(item.id)}
+                      className={cn(
+                        "w-full px-3 py-2 text-sm rounded-md font-normal text-left transition-all duration-150 whitespace-nowrap",
+                        activeSection === item.id
+                          ? item.id === "danger"
+                            ? "bg-red-50 text-red-700 font-[500]"
+                            : "bg-gray-100 text-gray-900 font-[500]"
+                          : item.id === "danger"
+                            ? "text-red-600 hover:bg-red-50"
+                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
 
-              <div className="p-6 lg:p-8">
-                <div className="flex flex-col items-center sm:flex-row sm:items-center gap-4 mb-6">
-                  <GithubAvatarWithFallback
-                    username={session?.tscircuit_handle}
-                    imageUrl={
-                      avatarPreview || personalOrg?.avatar_url || undefined
-                    }
-                    className="shadow-sm size-24 md:size-16 border-2 border-gray-200"
-                    fallbackClassName="font-semibold text-lg"
-                    colorClassName="text-black"
-                  />
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-gray-900">
-                      Profile avatar
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Upload a custom avatar to replace the default GitHub
-                      image.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
+            {activeSection === "general" && (
+              <>
+                <SettingCard
+                  title="Avatar"
+                  description="Upload a custom avatar to replace the default GitHub image."
+                >
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <GithubAvatarWithFallback
+                      username={session?.tscircuit_handle}
+                      imageUrl={
+                        avatarPreview || personalOrg?.avatar_url || undefined
+                      }
+                      className="shadow-sm size-16"
+                      fallbackClassName="font-semibold text-lg"
+                      colorClassName="text-black"
+                    />
+                    <div className="flex flex-col items-start gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -283,245 +359,211 @@ export default function UserSettingsPage() {
                         Update avatar
                       </Button>
                       {personalOrg?.avatar_url && (
-                        <Badge variant="secondary" className="w-fit">
+                        <Badge variant="secondary" className="w-fit text-xs">
                           Custom avatar active
                         </Badge>
                       )}
                     </div>
                   </div>
-                </div>
+                </SettingCard>
 
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="tscircuit_handle"
-                      render={({ field }) => (
-                        <FormItem className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-                          <div className="lg:col-span-2">
-                            <FormLabel className="text-sm font-semibold text-gray-900">
-                              Tscircuit Handle
-                              {!account?.tscircuit_handle && (
-                                <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                                  Required
-                                </span>
-                              )}
-                            </FormLabel>
-                            <FormDescription className="text-sm text-gray-500 leading-relaxed">
-                              This is your account's URL identifier.
-                            </FormDescription>
-                          </div>
-                          <div className="lg:col-span-3">
-                            <FormControl>
-                              <Input
-                                type="text"
-                                autoComplete="off"
-                                spellCheck={false}
-                                placeholder="Enter handle"
-                                {...field}
-                                disabled={updateAccountMutation.isLoading}
-                                className={`w-full max-w-lg h-11 text-base ${
-                                  !account?.tscircuit_handle
-                                    ? "border-blue-400 focus:border-blue-500 focus:ring-blue-500 ring-2 ring-blue-100"
-                                    : "border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                }`}
-                              />
-                            </FormControl>
-                            <FormMessage className="mt-2" />
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row gap-3">
+                <SettingCard
+                  title="Tscircuit Handle"
+                  description="This is your account's URL identifier."
+                  footer={
+                    <div className="flex gap-2">
                       <Button
-                        type="submit"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => form.reset()}
+                        disabled={updateAccountMutation.isLoading}
+                      >
+                        Reset
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={form.handleSubmit(onSubmit)}
                         disabled={
                           updateAccountMutation.isLoading ||
                           !form.formState.isDirty
                         }
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm"
                       >
                         {updateAccountMutation.isLoading && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                         )}
-                        Update account
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => form.reset()}
-                        disabled={updateAccountMutation.isLoading}
-                        className="px-6 py-2.5 text-sm font-medium border-gray-300 hover:bg-gray-50"
-                      >
-                        Reset changes
+                        Save
                       </Button>
                     </div>
-                  </form>
-                </Form>
-              </div>
-            </div>
+                  }
+                >
+                  <Form {...form}>
+                    <FormField
+                      control={form.control}
+                      name="tscircuit_handle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder="Enter handle"
+                              {...field}
+                              disabled={updateAccountMutation.isLoading}
+                              className={cn(
+                                "w-full sm:max-w-md text-sm",
+                                !account?.tscircuit_handle
+                                  ? "border-blue-400 focus:border-blue-500 focus:ring-blue-500 ring-2 ring-blue-100"
+                                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500",
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage className="mt-2" />
+                          {!account?.tscircuit_handle && (
+                            <p className="text-xs text-blue-600 mt-1.5">
+                              A handle is required to use your account.
+                            </p>
+                          )}
+                        </FormItem>
+                      )}
+                    />
+                  </Form>
+                </SettingCard>
 
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Account information
-                </h2>
-              </div>
-              <div className="p-6 lg:p-8">
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-                  {userInfo.map((item) => (
-                    <div key={item.label} className="space-y-1">
-                      <dt className="text-sm font-semibold text-gray-900">
-                        {item.label}
-                      </dt>
-                      <dd className="text-sm text-gray-600 break-words">
-                        {item.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  GitHub connection
-                </h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Install the tscircuit GitHub app for your account to link
-                  packages to repositories and enable PR previews.
-                </p>
-              </div>
+                <SettingCard
+                  title="Account Information"
+                  description="Your account details and session information."
+                >
+                  <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                    {userInfo.map((item) => (
+                      <div key={item.label} className="space-y-1">
+                        <dt className="text-xs font-medium text-gray-500">
+                          {item.label}
+                        </dt>
+                        <dd className="text-sm text-gray-900 break-words font-mono">
+                          {item.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </SettingCard>
+              </>
+            )}
 
-              <div className="p-6 lg:p-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="p-3 bg-gray-100 rounded-lg">
+            {activeSection === "github" && (
+              <SettingCard
+                title="GitHub Connection"
+                description="Install the tscircuit GitHub app for your account to link packages to repositories and enable PR previews."
+                footer={
+                  <Button size="sm" onClick={handleConnectGithub}>
+                    <Github className="h-3.5 w-3.5 mr-1.5" />
+                    {personalOrg?.github_installation_handles?.length
+                      ? "Manage connection"
+                      : "Connect GitHub"}
+                  </Button>
+                }
+              >
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-gray-100 rounded-lg">
                       <Github className="h-5 w-5 text-gray-700" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <p className="text-base font-semibold text-gray-900">
+                      <p className="text-sm font-medium text-gray-900">
                         {personalOrg?.github_installation_handles?.length
                           ? `Connected to ${personalOrg.github_installation_handles.length} GitHub account${personalOrg.github_installation_handles.length > 1 ? "s" : ""}`
                           : "Not connected"}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Use the button below to connect or update the GitHub
-                        installation for your account.
+                      <p className="text-xs text-gray-500">
+                        Connect or update the GitHub installation for your
+                        account.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                    <Button
-                      onClick={handleConnectGithub}
-                      className="sm:w-auto w-full"
-                    >
-                      <Github className="h-4 w-4 mr-2" />
-                      {personalOrg?.github_installation_handles?.length
-                        ? "Manage GitHub connection"
-                        : "Connect GitHub"}
-                    </Button>
-                  </div>
-                </div>
-
-                {personalOrg?.github_installation_handles &&
-                  personalOrg.github_installation_handles.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                      <p className="text-sm font-medium text-gray-700 mb-3">
-                        Connected GitHub accounts
-                      </p>
-                      <div className="flex flex-wrap gap-3">
-                        {personalOrg.github_installation_handles.map(
-                          (handle) => (
-                            <a
-                              key={handle}
-                              href={`https://github.com/${handle}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
-                            >
-                              <GithubAvatarWithFallback
-                                username={handle}
-                                className="h-6 w-6"
-                                fallbackClassName="text-xs"
-                              />
-                              <span className="text-sm font-medium text-gray-900">
-                                @{handle}
-                              </span>
-                            </a>
-                          ),
-                        )}
+                  {personalOrg?.github_installation_handles &&
+                    personalOrg.github_installation_handles.length > 0 && (
+                      <div className="pt-4 border-t border-gray-100">
+                        <p className="text-xs font-medium text-gray-500 mb-2">
+                          Connected accounts
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {personalOrg.github_installation_handles.map(
+                            (handle) => (
+                              <a
+                                key={handle}
+                                href={`https://github.com/${handle}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-200 transition-colors text-sm"
+                              >
+                                <GithubAvatarWithFallback
+                                  username={handle}
+                                  className="h-5 w-5"
+                                  fallbackClassName="text-xs"
+                                />
+                                <span className="font-medium text-gray-900">
+                                  @{handle}
+                                </span>
+                              </a>
+                            ),
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-              </div>
-            </div>
-            <div className="bg-white border border-red-200 rounded-xl shadow-sm">
-              <div className="px-6 py-5 border-b border-red-200 bg-red-50 rounded-t-xl">
-                <h2 className="text-xl font-semibold text-red-900">
-                  Account Actions
-                </h2>
-              </div>
+                    )}
+                </div>
+              </SettingCard>
+            )}
 
-              <div className="p-6 lg:p-8 space-y-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                      Delete Account
-                    </h3>
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                      Permanently delete your account and all associated data.{" "}
-                      <br />
-                      This action cannot be undone and will remove all your
-                      packages, and account information.
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0 w-full lg:w-1/5">
+            {activeSection === "danger" && (
+              <>
+                <SettingCard
+                  title="Logout"
+                  description="Sign out of your account on this device. You can log back in anytime with your credentials."
+                  danger
+                  footer={
                     <Button
                       variant="destructive"
-                      onClick={handleDeleteAccount}
-                      className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm w-full"
+                      size="sm"
+                      onClick={handleLogout}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                      Logout
+                    </Button>
+                  }
+                >
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    This will end your current session. You will need to sign in
+                    again to access your account.
+                  </p>
+                </SettingCard>
+
+                <SettingCard
+                  title="Delete Account"
+                  description="Permanently delete your account and all associated data. This action cannot be undone."
+                  danger
+                  footer={
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleDeleteAccount}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                       Delete Account
                     </Button>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                        Logout
-                      </h3>
-                      <p className="text-sm text-gray-500 leading-relaxed">
-                        Sign out of your account on this device. You can log
-                        back in anytime with your credentials.
-                      </p>
-                    </div>
-                    <div className="flex-shrink-0 w-full lg:w-1/5">
-                      <Button
-                        variant="destructive"
-                        onClick={handleLogout}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 text-sm font-medium shadow-sm w-full"
-                      >
-                        <LogOut className="mr-2 size-4" />
-                        Logout
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  }
+                >
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Once you delete your account, there is no going back. All
+                    your packages and account information will be permanently
+                    removed.
+                  </p>
+                </SettingCard>
+              </>
+            )}
           </div>
         </div>
-      </section>
+      </main>
 
       <Footer />
 
