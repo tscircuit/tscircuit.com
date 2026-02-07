@@ -29,6 +29,45 @@ export const usePackageDomains = (
   )
 }
 
+export const useCreatePackageDomain = () => {
+  const axios = useAxios()
+  const qc = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: async (params: {
+      points_to:
+        | "package_release"
+        | "package_build"
+        | "package_release_with_tag"
+        | "package"
+      package_release_id?: string
+      package_build_id?: string
+      package_id?: string
+      tag?: string
+      default_main_component_path?: string
+      fully_qualified_domain_name?: string
+    }) => {
+      const { data } = await axios.post("/package_domains/create", params)
+      return data.package_domain as PublicPackageDomain
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["packageDomains"])
+      toast({ title: "Created", description: "Domain created successfully." })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description:
+          error?.data?.error?.message ||
+          error?.message ||
+          "Failed to create domain.",
+        variant: "destructive",
+      })
+    },
+  })
+}
+
 export const useUpdatePackageDomain = () => {
   const axios = useAxios()
   const qc = useQueryClient()
