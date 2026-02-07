@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { useUsercodeApiStatus } from "@/hooks/use-usercode-api-status"
 import { usePackageFileByRelease } from "@/hooks/use-package-files"
+import { usePackageDomains } from "@/hooks/use-package-domains"
 import {
   Globe,
   GitBranch,
@@ -11,6 +12,7 @@ import {
   Layers,
   RefreshCw,
   Minus,
+  Pencil,
 } from "lucide-react"
 import { formatTimeAgo } from "@/lib/utils/formatTimeAgo"
 import type {
@@ -18,6 +20,7 @@ import type {
   PackageBuild,
   PublicPackageRelease,
   PublicOrgSchema,
+  PublicPackageDomain,
 } from "fake-snippets-api/lib/db/schema"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,6 +34,7 @@ import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { InstallCommand } from "@/components/InstallCommand"
 import { getBuildStatus, StatusIcon } from "."
 import { KicadPcmCommand } from "../KicadPcmCommand"
+import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
 
 interface ReleaseDeploymentDetailsProps {
   pkg: Package
@@ -58,10 +62,20 @@ export function ReleaseDeploymentDetails({
     (c) => c.service === "usercode_api",
   )
   const buildStatus = getBuildStatus(latestBuild)
+  const { data: domains = [] } = usePackageDomains({
+    package_release_id: packageRelease.package_release_id,
+  })
+  const [editingDomain, setEditingDomain] =
+    useState<PublicPackageDomain | null>(null)
   const isWaitingForBuild =
     isPollingAfterRebuild && buildStatus.status !== "building"
   const isBuildInProgress =
     buildStatus.status === "building" || isWaitingForBuild
+
+  const primaryWebsiteUrl =
+    domains.length > 0 && domains[0].fully_qualified_domain_name
+      ? `https://${domains[0].fully_qualified_domain_name}`
+      : packageRelease.package_release_website_url // fallback to the old website url
 
   const [waitingSeconds, setWaitingSeconds] = useState(0)
 
@@ -111,8 +125,8 @@ export function ReleaseDeploymentDetails({
   ].filter((img) => img.url)
 
   const handleImageClick = (tab: string) => {
-    if (!packageRelease.package_release_website_url) return
-    const url = new URL(packageRelease.package_release_website_url)
+    if (!primaryWebsiteUrl) return
+    const url = new URL(primaryWebsiteUrl)
     url.hash = `tab=${tab}`
     window.open(url.toString(), "_blank")
   }
@@ -170,16 +184,13 @@ export function ReleaseDeploymentDetails({
               </Tooltip>
             </TooltipProvider>
           )}
-          {packageRelease.package_release_website_url && (
+          {primaryWebsiteUrl && (
             <Button
               variant="outline"
               size="sm"
               className="flex-shrink-0"
               onClick={() => {
-                window.open(
-                  packageRelease.package_release_website_url!,
-                  "_blank",
-                )
+                window.open(primaryWebsiteUrl!, "_blank")
               }}
             >
               <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 mr-2" />
@@ -207,14 +218,14 @@ export function ReleaseDeploymentDetails({
                       idx === 0 && images.length === 3
                         ? "col-span-2 aspect-[2/1]"
                         : "col-span-1 aspect-[4/3]"
-                    } ${packageRelease.package_release_website_url ? "cursor-pointer" : ""}`}
+                    } ${primaryWebsiteUrl ? "cursor-pointer" : ""}`}
                     onClick={() => handleImageClick(img.tab)}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       <img
                         src={img.url!}
                         alt={`${img.label} Preview`}
-                        className={`max-w-full max-h-full w-auto h-auto object-contain ${packageRelease.package_release_website_url ? "group-hover:scale-[1.02] transition-transform" : ""}`}
+                        className={`max-w-full max-h-full w-auto h-auto object-contain ${primaryWebsiteUrl ? "group-hover:scale-[1.02] transition-transform" : ""}`}
                       />
                     </div>
                     <div className="absolute top-2 left-2 px-2 py-1 bg-white/90 backdrop-blur-sm rounded text-xs font-medium text-gray-700 flex items-center gap-1.5 shadow-sm">
@@ -338,22 +349,53 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Domains
               </p>
-              {packageRelease.package_release_website_url ? (
+              {domains.length > 0 ? (
                 <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <a
-                      href={packageRelease.package_release_website_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
-                    >
-                      {packageRelease.package_release_website_url.replace(
-                        /^https?:\/\//,
-                        "",
-                      )}
-                    </a>
-                  </div>
+                  {domains.map((domain) => {
+                    const fqdn = domain.fully_qualified_domain_name
+                    if (!fqdn) return null
+                    return (
+                      <div
+                        key={domain.package_domain_id}
+                        className="flex items-center gap-2 min-w-0"
+                      >
+                        <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <a
+                          href={`https://${fqdn}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                        >
+                          {fqdn}
+                        </a>
+                        {canManagePackage && (
+                          <button
+                            type="button"
+                            onClick={() => setEditingDomain(domain)}
+                            className="p-0.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 flex-shrink-0"
+                            title="Edit subdomain"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : packageRelease.package_release_website_url ? (
+                <div className="flex items-center gap-2 min-w-0">
+                  <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <a
+                    href={packageRelease.package_release_website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate"
+                  >
+                    {packageRelease.package_release_website_url.replace(
+                      /^https?:\/\//,
+                      "",
+                    )}
+                  </a>
                 </div>
               ) : (
                 <Minus className="w-4 h-4 text-gray-400" />
@@ -396,16 +438,26 @@ export function ReleaseDeploymentDetails({
                 packageName={pkg.name}
                 version={packageRelease.version}
               />
-              {isKicadPcmEnabled &&
-                packageRelease.package_release_website_url && (
-                  <KicadPcmCommand
-                    url={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-                  />
-                )}
+              {isKicadPcmEnabled && primaryWebsiteUrl && (
+                <KicadPcmCommand
+                  url={`${primaryWebsiteUrl}/pcm/repository.json`}
+                />
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {editingDomain && (
+        <EditSubdomainDialog
+          open={!!editingDomain}
+          onOpenChange={(open) => {
+            if (!open) setEditingDomain(null)
+          }}
+          packageDomainId={editingDomain.package_domain_id}
+          currentFqdn={editingDomain.fully_qualified_domain_name || ""}
+        />
+      )}
     </div>
   )
 }
