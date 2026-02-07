@@ -1,4 +1,4 @@
-import { CadViewer } from "@tscircuit/runframe"
+import { CadViewer } from "@tscircuit/3d-viewer"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { Suspense } from "react"
 
