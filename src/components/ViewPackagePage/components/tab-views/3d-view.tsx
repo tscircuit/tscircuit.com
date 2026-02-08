@@ -1,9 +1,34 @@
-import { CadViewer } from "@tscircuit/runframe"
+import { CadViewer } from "@tscircuit/3d-viewer"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useUrlParams } from "@/hooks/use-url-params"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
-import { Suspense } from "react"
+import { Suspense, useCallback } from "react"
+import { useParams } from "wouter"
 
 export default function ThreeDView() {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
+  const { author, packageName } = useParams()
+  const urlParams = useUrlParams()
+  const apiBaseUrl = useApiBaseUrl()
+
+  const version = urlParams.version
+  const releaseId = urlParams.package_release_id
+
+  const resolveStaticAsset = useCallback(
+    (assetPath: string) => {
+      const params = new URLSearchParams()
+      if (releaseId) {
+        params.set("package_release_id", releaseId)
+        params.set("file_path", assetPath)
+      } else if (author && packageName) {
+        const nameWithVersion = `${author}/${packageName}@${version || "latest"}`
+        params.set("package_name_with_version", nameWithVersion)
+        params.set("file_path", assetPath)
+      }
+      return `${apiBaseUrl}/package_files/download?${params.toString()}`
+    },
+    [author, packageName, version, releaseId, apiBaseUrl],
+  )
 
   if (isLoading) {
     return (
@@ -36,7 +61,11 @@ export default function ThreeDView() {
           </div>
         }
       >
-        <CadViewer clickToInteractEnabled circuitJson={circuitJson} />
+        <CadViewer
+          clickToInteractEnabled
+          circuitJson={circuitJson}
+          resolveStaticAsset={resolveStaticAsset}
+        />
       </Suspense>
     </div>
   )
