@@ -1,6 +1,9 @@
 import { findPackageReleaseId } from "fake-snippets-api/lib/package_release/find-package-release-id"
 import { withRouteSpec } from "fake-snippets-api/lib/with-winter-spec"
-import { normalizeProjectFilePathAndValidate } from "fake-snippets-api/utils/normalizeProjectFilePath"
+import {
+  normalizeProjectFilePath,
+  normalizeProjectFilePathAndValidate,
+} from "fake-snippets-api/utils/normalizeProjectFilePath"
 import { z } from "zod"
 
 const routeSpec = {
@@ -52,7 +55,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     const packageFile = ctx.db.packageFiles.find(
       (pf) =>
         pf.package_release_id === package_release_id &&
-        pf.file_path === normalizedPath,
+        normalizeProjectFilePath(pf.file_path) === normalizedPath,
     )
 
     if (!packageFile) {
@@ -70,7 +73,7 @@ export default withRouteSpec(routeSpec)(async (req, ctx) => {
     const packageFile = ctx.db.packageFiles.find(
       (pf) =>
         pf.package_release_id === package_release_id &&
-        pf.file_path === normalizedPath,
+        normalizeProjectFilePath(pf.file_path) === normalizedPath,
     )
 
     if (!packageFile) {
