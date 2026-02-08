@@ -32,7 +32,8 @@ const getPackageFileLookupParams = ({
   )
 
   if (externalPackageMatch) {
-    const [, externalAuthor, externalPackageName, filePath] = externalPackageMatch
+    const [, externalAuthor, externalPackageName, filePath] =
+      externalPackageMatch
     return {
       package_name_with_version: `${externalAuthor}/${externalPackageName}@latest`,
       file_path: filePath,
@@ -42,14 +43,14 @@ const getPackageFileLookupParams = ({
   if (releaseId) {
     return {
       package_release_id: releaseId,
-      file_path: assetUrl,
+      file_path: normalizedAssetUrl,
     }
   }
 
   if (author && packageName) {
     return {
       package_name_with_version: `${author}/${packageName}@${version || "latest"}`,
-      file_path: assetUrl,
+      file_path: normalizedAssetUrl,
     }
   }
 
@@ -152,7 +153,10 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   ])
 
   const resolveStaticAsset = useCallback(
-    (assetPath: string) => blobUrlMap[assetPath] ?? assetPath,
+    (assetPath: string) =>
+      blobUrlMap[assetPath] ??
+      blobUrlMap[normalizeAssetPath(assetPath)] ??
+      assetPath,
     [blobUrlMap],
   )
 
