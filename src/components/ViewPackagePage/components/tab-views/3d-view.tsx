@@ -2,6 +2,7 @@ import { CadViewer } from "@tscircuit/3d-viewer"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import { Suspense, useCallback } from "react"
 import { useParams } from "wouter"
 
@@ -10,6 +11,7 @@ export default function ThreeDView() {
   const { author, packageName } = useParams()
   const urlParams = useUrlParams()
   const apiBaseUrl = useApiBaseUrl()
+  const session = useGlobalStore((s) => s.session)
 
   const version = urlParams.version
   const releaseId = urlParams.package_release_id
@@ -25,9 +27,12 @@ export default function ThreeDView() {
         params.set("package_name_with_version", nameWithVersion)
         params.set("file_path", assetPath)
       }
+      if (session?.token) {
+        params.set("session_token", session.token)
+      }
       return `${apiBaseUrl}/package_files/download?${params.toString()}`
     },
-    [author, packageName, version, releaseId, apiBaseUrl],
+    [author, packageName, version, releaseId, apiBaseUrl, session?.token],
   )
 
   if (isLoading) {
