@@ -1,4 +1,4 @@
-import { ExternalLink, HelpCircle } from "lucide-react"
+import { HelpCircle } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -11,15 +11,15 @@ const KICAD_PCM_DOCS_URL =
 
 export function KicadPcmCommand({ url }: { url: string }) {
   return (
-    <div className="inline-flex ml-0.5 items-center gap-2 text-xs">
+    <div className="flex items-center gap-2 ml-0.5">
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 text-blue-600 hover:underline transition-all"
+        className="flex items-center gap-2 text-sm text-blue-600 group cursor-pointer"
       >
-        <ExternalLink className="w-3 h-3 flex-shrink-0" />
-        <span className="font-medium">KiCad PCM URL</span>
+        <span className="font-bold text-sm min-w-[18px] flex-shrink-0">K</span>
+        <span className="group-hover:underline">KiCad PCM URL</span>
       </a>
       <TooltipProvider>
         <Tooltip>
@@ -31,7 +31,7 @@ export function KicadPcmCommand({ url }: { url: string }) {
               className="text-gray-400 hover:text-gray-600 transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
-              <HelpCircle className="size-3" />
+              <HelpCircle className="w-3.5 h-3.5" />
             </a>
           </TooltipTrigger>
           <TooltipContent>

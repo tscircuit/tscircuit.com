@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { usePackageDomains } from "@/hooks/use-package-domains"
 import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
-import { useToast } from "@/hooks/use-toast"
+import { AddSubdomainDialog } from "@/components/dialogs/add-subdomain-dialog"
 import { Search, CheckCircle2 } from "lucide-react"
 import type { PublicPackageDomain } from "fake-snippets-api/lib/db/schema"
 
@@ -14,18 +14,17 @@ export function PackageDomainsList({
   packageReleaseId?: string | null
   packageId?: string | null
 }) {
-  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
   const [editingDomain, setEditingDomain] =
     useState<PublicPackageDomain | null>(null)
+  const [showAddDialog, setShowAddDialog] = useState(false)
 
   const { data: domains = [], isLoading } = usePackageDomains(
-    packageReleaseId || packageId
-      ? {
-          package_release_id: packageReleaseId,
-          package_id: packageId,
-        }
-      : null,
+    packageReleaseId
+      ? { package_release_id: packageReleaseId }
+      : packageId
+        ? { package_id: packageId }
+        : null,
   )
 
   const filteredDomains = domains.filter((d) =>
@@ -47,12 +46,7 @@ export function PackageDomainsList({
           <Button
             variant="outline"
             className="bg-white"
-            onClick={() =>
-              toast({
-                title: "Work in progress",
-                description: "This feature is coming soon",
-              })
-            }
+            onClick={() => setShowAddDialog(true)}
           >
             Add new subdomain
           </Button>
@@ -123,6 +117,13 @@ export function PackageDomainsList({
           currentFqdn={editingDomain.fully_qualified_domain_name || ""}
         />
       )}
+
+      <AddSubdomainDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        packageReleaseId={packageReleaseId}
+        packageId={packageId}
+      />
     </div>
   )
 }

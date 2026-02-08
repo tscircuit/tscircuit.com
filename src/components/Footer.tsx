@@ -28,7 +28,7 @@ export default function Footer() {
                 { name: "Sign In", href: "/login" },
                 {
                   name: "My Profile",
-                  href: `/${session?.github_username}`,
+                  href: `/${session?.tscircuit_handle}`,
                   hidden: !isLoggedIn,
                 },
               ]

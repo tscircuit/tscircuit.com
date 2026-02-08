@@ -1,4 +1,5 @@
-import { Tag, Clock, Globe, HelpCircle } from "lucide-react"
+import { Tag, Clock, Globe } from "lucide-react"
+import { KicadPcmCommand } from "@/components/KicadPcmCommand"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -102,36 +103,9 @@ export default function SidebarReleasesSection() {
           </a>
         )}
         {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
-          <div className="flex items-center gap-2 ml-0.5">
-            <a
-              href={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-blue-600 group cursor-pointer"
-            >
-              <span className="font-bold text-sm min-w-[18px] flex-shrink-0">
-                K
-              </span>
-              <span className="group-hover:underline">KiCad PCM URL</span>
-            </a>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://docs.tscircuit.com/command-line/tsci-dev#adding-the-pcm-repository-to-kicad"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <HelpCircle className="w-3.5 h-3.5" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Learn how to use this URL in KiCad</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          <KicadPcmCommand
+            url={`${packageRelease.package_release_website_url}/pcm/repository.json`}
+          />
         )}
       </div>
     </div>
