@@ -48,7 +48,7 @@ test("download package file by package_file_id", async () => {
     "attachment",
   )
   expect(downloadResponse.headers.get("content-disposition")).toContain(
-    "index.js",
+    `${addedFile.package_file_id}.js`,
   )
 })
 
@@ -85,7 +85,7 @@ test("download package file by package_name_with_version and file_path", async (
     created_at: new Date().toISOString(),
   }
 
-  db.addPackageFile(packageFile)
+  const addedFile2 = db.addPackageFile(packageFile)
 
   // Download the file by package_name_with_version and file_path
   const downloadResponse = await axios.get("/api/package_files/download", {
@@ -105,7 +105,7 @@ test("download package file by package_name_with_version and file_path", async (
     "attachment",
   )
   expect(downloadResponse.headers.get("content-disposition")).toContain(
-    "utils.js",
+    `${addedFile2.package_file_id}.js`,
   )
 })
 
