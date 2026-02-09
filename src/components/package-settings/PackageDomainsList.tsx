@@ -86,7 +86,7 @@ export function PackageDomainsList({
                       href={`https://${domain.fully_qualified_domain_name}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                      className="lg:opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
                       title="Open in new tab"
                     >
                       <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
