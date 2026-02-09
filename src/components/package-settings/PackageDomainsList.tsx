@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { usePackageDomains } from "@/hooks/use-package-domains"
 import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
 import { AddSubdomainDialog } from "@/components/dialogs/add-subdomain-dialog"
-import { Search, CheckCircle2 } from "lucide-react"
+import { Search, CheckCircle2, ExternalLink } from "lucide-react"
 import type { PublicPackageDomain } from "fake-snippets-api/lib/db/schema"
 
 export function PackageDomainsList({
@@ -74,14 +74,23 @@ export function PackageDomainsList({
             filteredDomains.map((domain) => (
               <div
                 key={domain.package_domain_id}
-                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"
+                className="group p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"
               >
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   <CheckCircle2 className="h-5 w-5 text-white fill-blue-500 shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 flex items-center gap-2">
                     <div className="font-medium text-gray-900 truncate">
                       {domain.fully_qualified_domain_name}
                     </div>
+                    <a
+                      href={`https://${domain.fully_qualified_domain_name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="lg:opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                      title="Open in new tab"
+                    >
+                      <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                    </a>
                   </div>
                 </div>
 
