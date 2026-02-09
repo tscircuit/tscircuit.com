@@ -78,23 +78,23 @@ export function PackageDomainsList({
               >
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   <CheckCircle2 className="h-5 w-5 text-white fill-blue-500 shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 flex items-center gap-2">
                     <div className="font-medium text-gray-900 truncate">
                       {domain.fully_qualified_domain_name}
                     </div>
+                    <a
+                      href={`https://${domain.fully_qualified_domain_name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                      title="Open in new tab"
+                    >
+                      <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                    </a>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 ml-8 sm:ml-0">
-                  <a
-                    href={`https://${domain.fully_qualified_domain_name}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-gray-100"
-                    title="Open in new tab"
-                  >
-                    <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                  </a>
                   <Button
                     variant="outline"
                     size="sm"
