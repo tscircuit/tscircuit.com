@@ -20,6 +20,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useGetOrgMember } from "@/hooks/use-get-org-member"
+import { usePackageDomains } from "@/hooks/use-package-domains"
 import {
   Tooltip,
   TooltipContent,
@@ -103,8 +104,13 @@ const MobileSidebar = ({
   }, [packageInfo?.package_id, axios, toast])
 
   const { packageRelease } = useCurrentPackageRelease()
+  const { data: domains = [] } = usePackageDomains({
+    package_release_id: packageRelease?.package_release_id,
+  })
   const websiteUrl =
-    packageRelease?.package_release_website_url || packageInfo?.website || ""
+    domains[0]?.fully_qualified_domain_name
+      ? `https://${domains[0].fully_qualified_domain_name}`
+      : packageRelease?.package_release_website_url || packageInfo?.website || ""
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
