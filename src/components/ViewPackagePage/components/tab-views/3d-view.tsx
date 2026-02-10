@@ -7,6 +7,56 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
 import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 
+const NODE_MODULES_TSCI_PACKAGE_ASSET_REGEX =
+  /^\.?\/?node_modules\/@tsci\/([^/.]+)\.([^/]+)\/(.+)$/
+
+const normalizeAssetPath = (assetPath: string) =>
+  assetPath.startsWith("./") ? assetPath.slice(2) : assetPath
+
+const getPackageFileLookupParams = ({
+  assetUrl,
+  releaseId,
+  author,
+  packageName,
+  version,
+}: {
+  assetUrl: string
+  releaseId?: string
+  author?: string
+  packageName?: string
+  version?: string
+}): Record<string, string> | null => {
+  const normalizedAssetUrl = normalizeAssetPath(assetUrl)
+  const externalPackageMatch = normalizedAssetUrl.match(
+    NODE_MODULES_TSCI_PACKAGE_ASSET_REGEX,
+  )
+
+  if (externalPackageMatch) {
+    const [, externalAuthor, externalPackageName, filePath] =
+      externalPackageMatch
+    return {
+      package_name_with_version: `${externalAuthor}/${externalPackageName}@latest`,
+      file_path: filePath,
+    }
+  }
+
+  if (releaseId) {
+    return {
+      package_release_id: releaseId,
+      file_path: normalizedAssetUrl,
+    }
+  }
+
+  if (author && packageName) {
+    return {
+      package_name_with_version: `${author}/${packageName}@${version || "latest"}`,
+      file_path: normalizedAssetUrl,
+    }
+  }
+
+  return null
+}
+
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   const { author, packageName } = useParams()
   const urlParams = useUrlParams()
@@ -45,15 +95,16 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
 
       await Promise.all(
         assetUrls.map(async (assetUrl) => {
-          const params = new URLSearchParams()
-          if (releaseId) {
-            params.set("package_release_id", releaseId)
-            params.set("file_path", assetUrl)
-          } else if (author && packageName) {
-            const nameWithVersion = `${author}/${packageName}@${version || "latest"}`
-            params.set("package_name_with_version", nameWithVersion)
-            params.set("file_path", assetUrl)
-          }
+          const lookupParams = getPackageFileLookupParams({
+            assetUrl,
+            releaseId,
+            author,
+            packageName,
+            version,
+          })
+          if (!lookupParams) return
+
+          const params = new URLSearchParams(lookupParams)
 
           const headers: Record<string, string> = {}
           if (session?.token) {
@@ -70,6 +121,7 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
             const blobUrl = URL.createObjectURL(blob)
             blobUrls.push(blobUrl)
             map[assetUrl] = blobUrl
+            map[normalizeAssetPath(assetUrl)] = blobUrl
           } catch {
             // Skip models that fail to load
           }
@@ -101,7 +153,10 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   ])
 
   const resolveStaticAsset = useCallback(
-    (assetPath: string) => blobUrlMap[assetPath] ?? assetPath,
+    (assetPath: string) =>
+      blobUrlMap[assetPath] ??
+      blobUrlMap[normalizeAssetPath(assetPath)] ??
+      assetPath,
     [blobUrlMap],
   )
 
