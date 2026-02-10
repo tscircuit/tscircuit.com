@@ -36,7 +36,7 @@ const getPackageFileLookupParams = ({
       externalPackageMatch
     return {
       package_name_with_version: `${externalAuthor}/${externalPackageName}@latest`,
-      file_path: filePath,
+      file_path: `dist/${filePath}`,
     }
   }
 
