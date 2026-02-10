@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
@@ -80,7 +79,7 @@
         "@vitejs/plugin-react": "^4.3.1",
         "autoprefixer": "^10.4.20",
         "circuit-json-to-bom-csv": "^0.0.7",
-        "circuit-json-to-gerber": "^0.0.46",
+        "circuit-json-to-gerber": "^0.0.47",
         "circuit-json-to-gltf": "^0.0.14",
         "circuit-json-to-kicad": "^0.0.34",
         "circuit-json-to-lbrn": "^0.0.23",
@@ -1098,7 +1097,7 @@
 
     "circuit-json-to-connectivity-map": ["circuit-json-to-connectivity-map@0.0.22", "", { "dependencies": { "@tscircuit/math-utils": "^0.0.9" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-HN8DiISjZZLTglGEkYNRpKeQ/DMG4dDo5j4Hck0UGSJbpux9aFwtJOGszMf06Inh/gu5oKBrpZJIeWxaNacKUg=="],
 
-    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.46", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.2", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "*", "tscircuit": "*", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-LmeMoz2UtnN7EsdDsaF8XL0tYaX7C/WrMtam5pSr7+KdZ8LblCiEcNa+5q7MjxmZ9hGTOno5XZmUlEiVzGtoSw=="],
+    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.47", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.2", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "*", "tscircuit": "*", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-ZZ5y44DnDKqJO9zi84bppVbMMPUSiwsjHJRQty6ySXpPgz2bnnsjEPeH7XQmU+2U80Yc5hIvjqub57GWQUvsYQ=="],
 
     "circuit-json-to-gltf": ["circuit-json-to-gltf@0.0.14", "", { "peerDependencies": { "@resvg/resvg-js": "2", "@resvg/resvg-wasm": "2", "@tscircuit/circuit-json-util": "*", "circuit-json": "*", "circuit-to-svg": "*", "typescript": "^5" }, "optionalPeers": ["@resvg/resvg-wasm"] }, "sha512-z+O7vlCpe5zhmsbZXdvG73S0t4XDwXyvCe4q+imR7oMMCqMv4xhIqSyHdazYnHuHrA/taTTrGQwWrFtFr18dTA=="],
 
