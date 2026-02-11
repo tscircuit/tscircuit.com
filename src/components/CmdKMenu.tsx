@@ -197,7 +197,7 @@ const CmdKMenu = () => {
 
     return allOrgs
       .map((org: PublicOrgSchema) => {
-        const handle = org.tscircuit_handle || org.github_handle || ""
+        const handle = org.tscircuit_handle ||""
         const { score, matches } = fuzzyMatch(searchQuery, handle)
         return { ...org, score, matches }
       })
@@ -378,7 +378,7 @@ const CmdKMenu = () => {
           setOpen(false)
           break
         case "org":
-          window.location.href = `/${item.tscircuit_handle || item.github_handle}`
+          window.location.href = `/${item.tscircuit_handle}`
           setOpen(false)
           break
         case "blank":
@@ -480,12 +480,8 @@ const CmdKMenu = () => {
           )
 
         case "org": {
-          const orgHandle = data.tscircuit_handle || data.github_handle || ""
-          const avatarSrc =
-            data.avatar_url ||
-            (data.github_handle
-              ? `https://github.com/${data.github_handle}.png`
-              : undefined)
+          const orgHandle = data.tscircuit_handle || ""
+          const avatarSrc = data.avatar_url
           return (
             <div
               key={`org-${data.org_id}`}
