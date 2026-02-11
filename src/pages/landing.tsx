@@ -20,6 +20,7 @@ import { FAQ } from "@/components/FAQ"
 import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
+import analogSimulationImg from "@/assets/analogsimulation.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
 
@@ -314,7 +315,7 @@ export function LandingPage() {
               <OptimizedImage
                 alt="Analog simulation"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/analogsimulation.png"
+                src={analogSimulationImg}
                 height={360}
                 width={540}
               />
