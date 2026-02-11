@@ -193,11 +193,13 @@ export function LandingPage() {
                   <li>
                     Teach agents tscircuit instantly with{" "}
                     <span className="font-semibold">
-                      npx agents add tscircuit
+                      npx skills add tscircuit/skill
                     </span>
                   </li>
-                  <li>Run locally with any agent</li>
-                  <li>Ask for schematic and PCB reviews</li>
+                  <li>Bring your own agent (Claude Code, Codex, OpenCode)</li>
+                  <li>
+                    Ask to initialize, change and review schematics and PCBs
+                  </li>
                 </ul>
               </div>
               <OptimizedImage
@@ -320,9 +322,9 @@ export function LandingPage() {
                 </ul>
               </div>
               <OptimizedImage
-                alt="KiCad support placeholder"
+                alt="KiCad support via PCB Server"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/fallback-image.svg"
+                src="/assets/05-install-library-from-libraries-tab-9f09a94baefabdad961f56f2360a305b.png"
                 height={360}
                 width={540}
               />

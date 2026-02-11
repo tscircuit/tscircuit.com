@@ -32,7 +32,8 @@ interface OptimizedImageProps
 }
 
 const getImageSizes = (src: string) => {
-  if (src.endsWith(".svg")) return { srcSet: src, sizes: "100vw" }
+  if (src.endsWith(".svg") || src.endsWith(".png"))
+    return { srcSet: src, sizes: "100vw" }
 
   const widths = [400, 600, 800, 1000, 1200, 1600, 2000]
   const basePath = src.substring(0, src.lastIndexOf("."))
@@ -65,7 +66,11 @@ export function OptimizedImage({
       link.rel = "preload"
       link.as = "image"
       link.href = src
-      link.type = src.endsWith(".svg") ? "image/svg+xml" : "image/webp"
+      link.type = src.endsWith(".svg")
+        ? "image/svg+xml"
+        : src.endsWith(".png")
+          ? "image/png"
+          : "image/webp"
       link.imageSrcset = srcSet
       link.imageSizes = sizes
       document.head.appendChild(link)
