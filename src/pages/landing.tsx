@@ -303,7 +303,7 @@ export function LandingPage() {
                 </a>
                 {analogSimulationHtml ? (
                   <div
-                    className="rounded-lg text-sm overflow-x-auto max-w-full [&>pre]:p-4 [&>pre]:w-max [&>pre]:min-w-full"
+                    className="rounded-lg text-sm overflow-x-auto max-w-full [&>pre]:p-4 [&>pre]:w-max [&>pre]:min-w-full [&>pre]:rounded-lg"
                     dangerouslySetInnerHTML={{ __html: analogSimulationHtml }}
                   />
                 ) : (
