@@ -162,6 +162,37 @@ export default function FilesView({
 
   const toggleHiddenFiles = () => setShowHiddenFiles((prev) => !prev)
 
+  const renderBreadcrumbs = () => {
+    if (!activeDir) return "Files"
+
+    const parts = activeDir.split("/")
+    return (
+      <>
+        Files in{" "}
+        <span
+          className="hover:underline cursor-pointer"
+          onClick={() => setActiveDir("")}
+        >
+          .
+        </span>
+        {parts.map((part, index) => {
+          const path = parts.slice(0, index + 1).join("/")
+          return (
+            <span key={path}>
+              /
+              <span
+                className="hover:underline cursor-pointer"
+                onClick={() => setActiveDir(path)}
+              >
+                {part}
+              </span>
+            </span>
+          )
+        })}
+      </>
+    )
+  }
+
   if (!arePackageFilesFetched) {
     return (
       <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
@@ -197,7 +228,7 @@ export default function FilesView({
         {/* Desktop view */}
         <div className="hidden md:flex items-center text-xs">
           <span className="text-gray-500 dark:text-[#8b949e]">
-            {activeDir ? `Files in ${activeDir}` : "Files"}
+            {renderBreadcrumbs()}
           </span>
         </div>
         <div className="hidden md:flex ml-auto items-center text-xs text-gray-500 dark:text-[#8b949e]">
@@ -215,7 +246,7 @@ export default function FilesView({
         <div className="md:hidden flex items-center justify-between w-full">
           <div className="flex items-center">
             <span className="text-xs text-gray-500 dark:text-[#8b949e]">
-              {activeDir ? `Files in ${activeDir}` : "Files"}
+              {renderBreadcrumbs()}
             </span>
           </div>
           <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
