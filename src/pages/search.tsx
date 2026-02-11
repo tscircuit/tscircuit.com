@@ -155,7 +155,6 @@ export const SearchPage = () => {
           score: 1,
           matches: [],
         })
-        console.log(ownerHandle)
         existingHandles.add(ownerHandle)
       }
     })
