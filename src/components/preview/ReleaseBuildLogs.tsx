@@ -17,7 +17,7 @@ import {
   PackageBuild,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
-import { useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
 import { getStepDuration } from "@/lib/utils/getStepDuration"
 
@@ -199,12 +199,16 @@ export const ReleaseBuildLogs = ({
                   )}
                 {usercodeStreamedLogs.length > 0 && (
                   <>
-                    {usercodeStreamedLogs.map((log: string, i: number) => (
+                    {usercodeStreamedLogs.map((log: StreamedLogEntry, i: number) => (
                       <div
                         key={`streamed-log-${i}`}
-                        className="text-gray-600 whitespace-pre-wrap break-words"
+                        className={`whitespace-pre-wrap break-words ${
+                          log.eventType === "stderr"
+                            ? "text-red-600"
+                            : "text-gray-600"
+                        }`}
                       >
-                        {log}
+                        {log.message}
                       </div>
                     ))}
                     <div ref={logsEndRef} />

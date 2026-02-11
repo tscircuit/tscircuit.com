@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react"
 
+export type StreamedLogEntry = {
+  message: string
+  eventType: "log" | "stdout" | "stderr"
+}
+
 /**
  * Custom hook to manage Server-Sent Events (SSE) log streaming
  *
@@ -17,7 +22,7 @@ export function useSSELogStream(
   isActive: boolean,
   releaseId: string,
 ) {
-  const [streamedLogs, setStreamedLogs] = useState<string[]>([])
+  const [streamedLogs, setStreamedLogs] = useState<StreamedLogEntry[]>([])
   const eventSourceRef = useRef<EventSource | null>(null)
   const seenLogIds = useRef<Set<string>>(new Set())
   const hasReceivedDataRef = useRef(false)
@@ -49,11 +54,14 @@ export function useSSELogStream(
       eventSourceRef.current = eventSource
 
       // This function processes each incoming log message
-      const handleLogMessage = (eventData: string) => {
+      const handleLogMessage = (
+        eventData: string,
+        eventType: StreamedLogEntry["eventType"],
+      ) => {
         if (isClosedRef.current) return
 
         hasReceivedDataRef.current = true
-        const logId = eventData
+        const logId = `${eventType}:${eventData}`
         if (seenLogIds.current.has(logId)) {
           return // Silently skip duplicates
         }
@@ -65,10 +73,13 @@ export function useSSELogStream(
           // Try to parse as JSON first
           const data = JSON.parse(eventData)
           const logMessage = data.msg || data.message || JSON.stringify(data)
-          setStreamedLogs((prev) => [...prev, logMessage])
+          setStreamedLogs((prev) => [
+            ...prev,
+            { message: logMessage, eventType },
+          ])
         } catch (error) {
           // If parsing fails, treat the event data as a plain string
-          setStreamedLogs((prev) => [...prev, eventData])
+          setStreamedLogs((prev) => [...prev, { message: eventData, eventType }])
         }
       }
 
@@ -79,12 +90,20 @@ export function useSSELogStream(
 
       // Standard message event (most SSE servers use this)
       eventSource.onmessage = (event) => {
-        handleLogMessage(event.data)
+        handleLogMessage(event.data, "log")
       }
 
       // Custom "log" event type (if the server sends named events)
       eventSource.addEventListener("log", (event: any) => {
-        handleLogMessage(event.data)
+        handleLogMessage(event.data, "log")
+      })
+
+      eventSource.addEventListener("stdout", (event: any) => {
+        handleLogMessage(event.data, "stdout")
+      })
+
+      eventSource.addEventListener("stderr", (event: any) => {
+        handleLogMessage(event.data, "stderr")
       })
 
       // Error event (if the connection fails)
