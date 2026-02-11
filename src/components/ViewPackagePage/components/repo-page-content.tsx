@@ -14,6 +14,7 @@ import {
   isPackageFileImportant,
   scorePackageFileImportance,
 } from "../utils/is-package-file-important"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import PackageHeader from "./package-header"
@@ -76,14 +77,9 @@ export default function RepoPageContent({
   }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
 
-  // Check if circuit.json exists without downloading it
-  const circuitJsonExists = useMemo(() => {
-    return packageFiles?.some(
-      (file) =>
-        file.file_path === "dist/circuit.json" ||
-        file.file_path === "dist/index/circuit.json",
-    )
-  }, [packageFiles])
+  const { circuitJsonFound, isLoading: isCircuitJsonLoading } =
+    useCurrentPackageCircuitJson()
+  const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
 
   const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
     useRequestAiReviewMutation({
@@ -109,28 +105,30 @@ export default function RepoPageContent({
   useEffect(() => {
     if (!packageInfo || !arePackageFilesFetched) return
     const hash = window.location.hash.slice(1)
-    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
-    const circuitDependentViews = ["3d", "pcb", "schematic", "bom"]
 
+    const circuitDependentViews = new Set(["3d", "pcb", "schematic", "bom"])
+    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
     const availableViews = circuitJsonExists
       ? validViews
-      : validViews.filter((view) => !circuitDependentViews.includes(view))
+      : validViews.filter((view) => !circuitDependentViews.has(view))
 
-    if (hash && availableViews.includes(hash)) {
+    const availableViewSet = new Set(availableViews)
+
+    if (hash && availableViewSet.has(hash)) {
       setActiveView(hash)
     } else if (
       packageInfo?.default_view &&
-      availableViews.includes(packageInfo.default_view)
+      availableViewSet.has(packageInfo.default_view)
     ) {
       setActiveView(packageInfo.default_view)
       window.location.hash = packageInfo.default_view
     } else {
       setActiveView("files")
-      if (!hash || !availableViews.includes(hash)) {
+      if (!hash || !availableViewSet.has(hash)) {
         window.location.hash = "files"
       }
     }
-  }, [packageInfo?.default_view, circuitJsonExists])
+  }, [packageInfo?.default_view, arePackageFilesFetched, circuitJsonExists])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
