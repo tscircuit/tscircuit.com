@@ -72,10 +72,19 @@ export function useSSELogStream(
         try {
           // Try to parse as JSON first
           const data = JSON.parse(eventData)
+          const normalizedEventType =
+            eventType === "log" &&
+            [data.event, data.stream, data.source, data.type]
+              .map((v: unknown) =>
+                typeof v === "string" ? v.toLowerCase() : "",
+              )
+              .includes("stderr")
+              ? "stderr"
+              : eventType
           const logMessage = data.msg || data.message || JSON.stringify(data)
           setStreamedLogs((prev) => [
             ...prev,
-            { message: logMessage, eventType },
+            { message: logMessage, eventType: normalizedEventType },
           ])
         } catch (error) {
           // If parsing fails, treat the event data as a plain string

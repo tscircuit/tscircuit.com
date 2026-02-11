@@ -21,6 +21,16 @@ import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
 import { getStepDuration } from "@/lib/utils/getStepDuration"
 
+const isStderrLog = (log: any): boolean => {
+  if (!log) return false
+
+  const possibleEventTypes = [log.event, log.stream, log.source, log.type]
+    .filter((v: unknown) => typeof v === "string")
+    .map((v: string) => v.toLowerCase())
+
+  return possibleEventTypes.includes("stderr")
+}
+
 export const ReleaseBuildLogs = ({
   packageBuild,
   isLoadingBuild,
@@ -189,7 +199,11 @@ export const ReleaseBuildLogs = ({
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
-                            className="text-gray-600 whitespace-pre-wrap break-words"
+                            className={`whitespace-pre-wrap break-words ${
+                              isStderrLog(log)
+                                ? "text-red-600"
+                                : "text-gray-600"
+                            }`}
                           >
                             {log.msg || log.message || JSON.stringify(log)}
                           </div>
