@@ -303,13 +303,15 @@ export function LandingPage() {
                 </a>
                 {analogSimulationHtml ? (
                   <div
-                    className="rounded-lg text-sm overflow-x-auto [&>pre]:p-4 [&>pre]:rounded-lg max-w-full"
+                    className="rounded-lg text-sm overflow-x-auto max-w-full [&>pre]:p-4 [&>pre]:w-max [&>pre]:min-w-full"
                     dangerouslySetInnerHTML={{ __html: analogSimulationHtml }}
                   />
                 ) : (
-                  <pre className="rounded-lg bg-gray-900 p-4 text-sm text-gray-100 overflow-x-auto max-w-full">
-                    <code>{analogSimulationCode}</code>
-                  </pre>
+                  <div className="rounded-lg overflow-x-auto max-w-full">
+                    <pre className="bg-gray-900 p-4 text-sm text-gray-100 w-max min-w-full rounded-lg">
+                      <code>{analogSimulationCode}</code>
+                    </pre>
+                  </div>
                 )}
               </div>
               <OptimizedImage
