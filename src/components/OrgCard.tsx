@@ -55,8 +55,15 @@ export const OrgCard: React.FC<OrgCardProps> = ({
         <div className="flex-1 min-w-0 flex flex-col justify-center my-auto">
           <div className="flex justify-between items-start">
             <h2 className="text-md font-semibold truncate pr-[30px]">
-              <span className="text-gray-900">
-                {org.display_name || org.name || handle}
+              <span className="flex items-center gap-1.5 text-gray-900">
+                {org.display_name?.match(
+                  /^org-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+                )
+                  ? handle
+                  : org.display_name}
+                {!org.is_personal_org && (
+                  <Building2 className="h-3.5 w-3.5 flex-shrink-0 text-gray-500" />
+                )}
               </span>
             </h2>
           </div>
