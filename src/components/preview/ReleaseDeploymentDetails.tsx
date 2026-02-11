@@ -266,7 +266,7 @@ export function ReleaseDeploymentDetails({
                   to={`/${pkg.org_owner_tscircuit_handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm -translate-y-0.5 font-medium hover:text-blue-600 truncate"
+                  className="text-sm font-medium hover:text-blue-600 truncate"
                 >
                   {pkg.org_owner_tscircuit_handle || "Unknown"}
                 </Link>
