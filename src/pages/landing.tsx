@@ -292,6 +292,14 @@ export function LandingPage() {
                     line via WebAssembly ngspice
                   </li>
                 </ul>
+                <a
+                  href="https://docs.tscircuit.com/category/spice-simulation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-primary underline underline-offset-4 hover:text-primary/80 md:text-lg"
+                >
+                  Read the Analog Simulation Guide &rarr;
+                </a>
                 {analogSimulationHtml ? (
                   <div
                     className="rounded-lg text-sm overflow-x-auto [&>pre]:p-4 [&>pre]:rounded-lg"
