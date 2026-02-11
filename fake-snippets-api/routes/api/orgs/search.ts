@@ -12,10 +12,10 @@ export default withRouteSpec({
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
-    orgs: z.array(publicOrgSchema),
+    orgs: z.array(publicOrgSchema.omit({ user_permissions: true })),
   }),
 })(async (req, ctx) => {
   const { query, limit } = req.jsonBody
-  const orgs = ctx.db.searchOrgs(query, limit, ctx.auth)
+  const orgs = ctx.db.searchOrgs(query, limit)
   return ctx.json({ orgs: orgs.map((org) => publicMapOrg(org)), ok: true })
 })
