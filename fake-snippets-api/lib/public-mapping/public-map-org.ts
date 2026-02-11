@@ -5,7 +5,7 @@ export const publicMapOrg = (
   internal_org: ZT.Organization & {
     member_count: number
     package_count: number
-    can_manage_org: boolean
+    can_manage_org?: boolean
   },
 ): z.infer<typeof ZT.publicOrgSchema> => {
   const {
