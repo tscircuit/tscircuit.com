@@ -157,7 +157,9 @@ const CmdKMenu = () => {
     },
   )
 
-  const { data: allOrgs = [], isLoading: isSearchingOrgs } = useQuery(
+  const { data: allOrgs = [], isLoading: isSearchingOrgs } = useQuery<
+    PublicOrgSchema[]
+  >(
     ["orgSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
@@ -166,7 +168,11 @@ const CmdKMenu = () => {
           query: searchQuery,
           limit: 5,
         })
-        return data.orgs || []
+        return (
+          data.orgs?.filter((x: PublicOrgSchema) =>
+            Boolean(x.tscircuit_handle),
+          ) || []
+        )
       } catch (error) {
         console.warn("Failed to fetch orgs:", error)
         return []
@@ -196,8 +202,8 @@ const CmdKMenu = () => {
     if (!searchQuery || !allOrgs.length) return []
 
     return allOrgs
-      .map((org: PublicOrgSchema) => {
-        const handle = org.tscircuit_handle ||""
+      .map((org) => {
+        const handle = org.tscircuit_handle || ""
         const { score, matches } = fuzzyMatch(searchQuery, handle)
         return { ...org, score, matches }
       })
