@@ -282,8 +282,8 @@ export function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-              <div className="space-y-4">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
+              <div className="space-y-4 min-w-0">
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
                   Analog Simulation
                 </h2>
@@ -303,11 +303,11 @@ export function LandingPage() {
                 </a>
                 {analogSimulationHtml ? (
                   <div
-                    className="rounded-lg text-sm overflow-x-auto [&>pre]:p-4 [&>pre]:rounded-lg"
+                    className="rounded-lg text-sm overflow-x-auto [&>pre]:p-4 [&>pre]:rounded-lg max-w-full"
                     dangerouslySetInnerHTML={{ __html: analogSimulationHtml }}
                   />
                 ) : (
-                  <pre className="rounded-lg bg-gray-900 p-4 text-sm text-gray-100 overflow-x-auto">
+                  <pre className="rounded-lg bg-gray-900 p-4 text-sm text-gray-100 overflow-x-auto max-w-full">
                     <code>{analogSimulationCode}</code>
                   </pre>
                 )}
