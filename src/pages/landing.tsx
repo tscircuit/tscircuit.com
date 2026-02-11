@@ -19,10 +19,49 @@ import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
 import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { Link } from "wouter"
+import importKicadLibraryImg from "@/assets/import-kicad-library.png"
+import analogSimulationImg from "@/assets/analogsimulation.png"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import { useMemo } from "react"
+
+const analogSimulationCode = `export default () => (
+    <board schMaxTraceDistance={10} routingDisabled>
+      <voltagesource
+        name="V1"
+        voltage="5V"
+        frequency="40Hz"
+        waveShape="sinewave"
+      />
+      <diode name="D1" />
+      <resistor name="R1" resistance="640ohm" />
+
+      <trace from="V1.pin1" to="D1.anode" />
+      <trace from="D1.cathode" to="R1.pin1" />
+      <trace from="V1.pin2" to="R1.pin2" />
+
+      <voltageprobe name="VP_IN" connectsTo="V1.pin1" />
+      <voltageprobe name="VP_OUT" connectsTo="R1.pin1" />
+
+      <analogsimulation
+        duration="50ms"
+        timePerStep="0.1ms"
+        spiceEngine="ngspice"
+      />
+    </board>
+)`
 
 export function LandingPage() {
   const signIn = useSignIn()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+  const { highlighter } = useShikiHighlighter()
+  const analogSimulationHtml = useMemo(
+    () =>
+      highlighter?.codeToHtml(analogSimulationCode, {
+        lang: "tsx",
+        theme: "github-dark",
+      }),
+    [highlighter],
+  )
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
@@ -254,11 +293,29 @@ export function LandingPage() {
                     line via WebAssembly ngspice
                   </li>
                 </ul>
+                <a
+                  href="https://docs.tscircuit.com/category/spice-simulation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-primary underline underline-offset-4 hover:text-primary/80 md:text-lg"
+                >
+                  Read the Analog Simulation Guide &rarr;
+                </a>
+                {analogSimulationHtml ? (
+                  <div
+                    className="rounded-lg text-sm overflow-x-auto [&>pre]:p-4 [&>pre]:rounded-lg"
+                    dangerouslySetInnerHTML={{ __html: analogSimulationHtml }}
+                  />
+                ) : (
+                  <pre className="rounded-lg bg-gray-900 p-4 text-sm text-gray-100 overflow-x-auto">
+                    <code>{analogSimulationCode}</code>
+                  </pre>
+                )}
               </div>
               <OptimizedImage
-                alt="Analog simulation placeholder"
+                alt="Analog simulation"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/fallback-image.svg"
+                src={analogSimulationImg}
                 height={360}
                 width={540}
               />
@@ -324,7 +381,7 @@ export function LandingPage() {
               <OptimizedImage
                 alt="KiCad support via PCB Server"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/05-install-library-from-libraries-tab-9f09a94baefabdad961f56f2360a305b.png"
+                src={importKicadLibraryImg}
                 height={360}
                 width={540}
               />

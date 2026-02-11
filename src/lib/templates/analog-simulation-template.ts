@@ -19,7 +19,6 @@ export default () => (
     <trace from=".V1 > .pin1" to=".R_base > .pin1" />
     <trace from=".R_base > .pin2" to=".SW1 > .pin1" />
     <trace from=".SW1 > .pin2" to=".Q1 > .base" />
-
     <trace from=".V1 > .pin1" to=".R_collector > .pin1" />
     <trace from=".R_collector > .pin2" to=".Q1 > .collector" />
 
