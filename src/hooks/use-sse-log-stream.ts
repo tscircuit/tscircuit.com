@@ -79,7 +79,10 @@ export function useSSELogStream(
           ])
         } catch (error) {
           // If parsing fails, treat the event data as a plain string
-          setStreamedLogs((prev) => [...prev, { message: eventData, eventType }])
+          setStreamedLogs((prev) => [
+            ...prev,
+            { message: eventData, eventType },
+          ])
         }
       }
 

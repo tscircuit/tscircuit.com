@@ -199,18 +199,20 @@ export const ReleaseBuildLogs = ({
                   )}
                 {usercodeStreamedLogs.length > 0 && (
                   <>
-                    {usercodeStreamedLogs.map((log: StreamedLogEntry, i: number) => (
-                      <div
-                        key={`streamed-log-${i}`}
-                        className={`whitespace-pre-wrap break-words ${
-                          log.eventType === "stderr"
-                            ? "text-red-600"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {log.message}
-                      </div>
-                    ))}
+                    {usercodeStreamedLogs.map(
+                      (log: StreamedLogEntry, i: number) => (
+                        <div
+                          key={`streamed-log-${i}`}
+                          className={`whitespace-pre-wrap break-words ${
+                            log.eventType === "stderr"
+                              ? "text-red-600"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {log.message}
+                        </div>
+                      ),
+                    )}
                     <div ref={logsEndRef} />
                   </>
                 )}
