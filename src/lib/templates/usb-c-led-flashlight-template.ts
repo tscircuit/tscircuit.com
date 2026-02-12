@@ -17,7 +17,7 @@ export default () => {
       <trace from="USBC.GND1" to="net.GND" />
       <trace from="USBC.GND2" to="net.GND" />
       <trace from="USBC.VBUS1" to="net.VBUS" />
-      <trace from="USBC.VBUS1" to="net.VBUS" />
+      <trace from="USBC.VBUS2" to="net.VBUS" />
       
       <trace from="LED.neg" to="net.GND" />
       <trace from=".R1 > .neg" to="LED.pos" />
