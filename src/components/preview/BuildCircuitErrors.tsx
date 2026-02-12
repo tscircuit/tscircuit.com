@@ -256,7 +256,7 @@ const CircuitFileSection = memo(
                 <Link
                   href={editorHref}
                   onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity pw-1 rounded-md hover:bg-gray-100 shrink-0"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
                   title="Open in editor"
                 >
                   <ExternalLink className="w-3.5 h-3.5 text-gray-500 hover:text-gray-700" />
