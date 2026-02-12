@@ -6,7 +6,7 @@ import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
 import { Command } from "cmdk"
-import { Package, Account } from "fake-snippets-api/lib/db/schema"
+import { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery } from "react-query"
 import {
@@ -19,6 +19,7 @@ import {
   ArrowRight,
   Star,
   User,
+  Building2,
 } from "lucide-react"
 import {
   Dialog,
@@ -50,7 +51,7 @@ interface ScoredPackage extends Package {
   matches: number[]
 }
 
-interface ScoredAccount extends Account {
+interface ScoredOrg extends PublicOrgSchema {
   score: number
   matches: number[]
 }
@@ -156,18 +157,24 @@ const CmdKMenu = () => {
     },
   )
 
-  const { data: allAccounts = [], isLoading: isSearchingAccounts } = useQuery(
-    ["accountSearch", searchQuery],
+  const { data: allOrgs = [], isLoading: isSearchingOrgs } = useQuery<
+    PublicOrgSchema[]
+  >(
+    ["orgSearch", searchQuery],
     async () => {
       if (!searchQuery) return []
       try {
-        const { data } = await axios.post("/accounts/search", {
+        const { data } = await axios.post("/orgs/search", {
           query: searchQuery,
           limit: 5,
         })
-        return data.accounts || []
+        return (
+          data.orgs?.filter((x: PublicOrgSchema) =>
+            Boolean(x.tscircuit_handle),
+          ) || []
+        )
       } catch (error) {
-        console.warn("Failed to fetch accounts:", error)
+        console.warn("Failed to fetch orgs:", error)
         return []
       }
     },
@@ -191,21 +198,19 @@ const CmdKMenu = () => {
       .slice(0, 6)
   }, [allPackages, searchQuery])
 
-  const accountSearchResults = useMemo((): ScoredAccount[] => {
-    if (!searchQuery || !allAccounts.length) return []
+  const orgSearchResults = useMemo((): ScoredOrg[] => {
+    if (!searchQuery || !allOrgs.length) return []
 
-    return allAccounts
-      .map((account: Account) => {
-        const { score, matches } = fuzzyMatch(
-          searchQuery,
-          account.github_username,
-        )
-        return { ...account, score, matches }
+    return allOrgs
+      .map((org) => {
+        const handle = org.tscircuit_handle || ""
+        const { score, matches } = fuzzyMatch(searchQuery, handle)
+        return { ...org, score, matches }
       })
-      .filter((account: ScoredAccount) => account.score >= 0)
-      .sort((a: ScoredAccount, b: ScoredAccount) => b.score - a.score)
+      .filter((org: ScoredOrg) => org.score >= 0)
+      .sort((a: ScoredOrg, b: ScoredOrg) => b.score - a.score)
       .slice(0, 5)
-  }, [allAccounts, searchQuery])
+  }, [allOrgs, searchQuery])
 
   const { data: recentPackages = [] } = useQuery<Package[]>(
     ["cmdKMenuPackages", currentUserAccountId],
@@ -276,7 +281,7 @@ const CmdKMenu = () => {
 
   const allItems = useMemo(() => {
     const items: Array<{
-      type: "package" | "account" | "recent" | "template" | "blank" | "import"
+      type: "package" | "org" | "recent" | "template" | "blank" | "import"
       item: any
       disabled?: boolean
     }> = []
@@ -287,9 +292,9 @@ const CmdKMenu = () => {
       })
     }
 
-    if (searchQuery && accountSearchResults.length > 0) {
-      accountSearchResults.forEach((account) => {
-        items.push({ type: "account", item: account })
+    if (searchQuery && orgSearchResults.length > 0) {
+      orgSearchResults.forEach((org) => {
+        items.push({ type: "org", item: org })
       })
     }
 
@@ -315,7 +320,7 @@ const CmdKMenu = () => {
   }, [
     searchQuery,
     searchResults,
-    accountSearchResults,
+    orgSearchResults,
     recentPackages,
     filteredStaticOptions,
   ])
@@ -378,8 +383,8 @@ const CmdKMenu = () => {
           window.location.href = `/${item.name}`
           setOpen(false)
           break
-        case "account":
-          window.location.href = `/${item.github_username}`
+        case "org":
+          window.location.href = `/${item.tscircuit_handle}`
           setOpen(false)
           break
         case "blank":
@@ -480,40 +485,66 @@ const CmdKMenu = () => {
             </div>
           )
 
-        case "account":
+        case "org": {
+          const orgHandle = data.tscircuit_handle || ""
+          const avatarSrc = data.avatar_url
           return (
             <div
-              key={`account-${data.account_id}`}
+              key={`org-${data.org_id}`}
               ref={isSelected ? selectedItemRef : null}
               className={baseClasses}
               onClick={() => !disabled && handleItemSelect(item)}
             >
               <div className="flex items-center gap-2 min-w-0 flex-1">
-                <img
-                  src={`https://github.com/${data.github_username}.png`}
-                  alt={`${data.github_username} avatar`}
-                  className="w-6 h-6 rounded-full flex-shrink-0"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement
-                    target.style.display = "none"
-                    target.nextElementSibling?.classList.remove("hidden")
-                  }}
-                />
-                <User className="w-6 h-6 text-gray-400 flex-shrink-0 hidden" />
+                {avatarSrc ? (
+                  <img
+                    src={avatarSrc}
+                    alt={`${orgHandle} avatar`}
+                    className="w-6 h-6 rounded-full flex-shrink-0"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = "none"
+                      target.nextElementSibling?.classList.remove("hidden")
+                    }}
+                  />
+                ) : null}
+                {data.is_personal_org ? (
+                  <div
+                    className={`size-6 bg-gray-100 flex-shrink-0 rounded-full flex items-center justify-center ${avatarSrc ? "hidden" : ""}`}
+                  >
+                    <User className="size-4 text-gray-400" />
+                  </div>
+                ) : (
+                  <div
+                    className={`size-6 bg-gray-100 flex-shrink-0 rounded-full flex items-center justify-center ${avatarSrc ? "hidden" : ""}`}
+                  >
+                    <Building2 className="size-4 text-gray-400" />
+                  </div>
+                )}
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-gray-900 truncate">
-                    {renderHighlighted(data, data.github_username)}
+                    {renderHighlighted(data, orgHandle)}
                   </span>
+                  {data.display_name && data.display_name !== orgHandle && (
+                    <span className="text-xs text-gray-500 truncate">
+                      {data.display_name?.match(
+                        /^org-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+                      )
+                        ? orgHandle
+                        : data.display_name}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
                 <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded hidden sm:inline">
-                  user
+                  {data.is_personal_org ? "user" : "org"}
                 </span>
                 {isSelected && <ArrowRight className="w-3 h-3 text-gray-400" />}
               </div>
             </div>
           )
+        }
 
         case "blank":
         case "template":
@@ -607,7 +638,7 @@ const CmdKMenu = () => {
             </div>
 
             <Command.List className="max-h-[60vh] sm:max-h-[50vh] overflow-y-auto p-2 sm:p-3 space-y-3 no-scrollbar">
-              {isSearching || isSearchingAccounts ? (
+              {isSearching || isSearchingOrgs ? (
                 <Command.Loading className="p-6 text-center text-gray-500">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -633,22 +664,19 @@ const CmdKMenu = () => {
                     </div>
                   )}
 
-                  {searchQuery && accountSearchResults.length > 0 && (
+                  {searchQuery && orgSearchResults.length > 0 && (
                     <div>
                       <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-2">
-                        Users
+                        Users & Orgs
                       </h3>
                       <div className="space-y-1">
-                        {accountSearchResults
-                          .slice(0, 5)
-                          .map((account, localIndex) => {
-                            const globalIndex =
-                              searchResults.length + localIndex
-                            return renderItem(
-                              { type: "account", item: account },
-                              globalIndex,
-                            )
-                          })}
+                        {orgSearchResults.slice(0, 5).map((org, localIndex) => {
+                          const globalIndex = searchResults.length + localIndex
+                          return renderItem(
+                            { type: "org", item: org },
+                            globalIndex,
+                          )
+                        })}
                       </div>
                     </div>
                   )}
@@ -681,8 +709,7 @@ const CmdKMenu = () => {
                           (template, localIndex) => {
                             const globalIndex =
                               (searchQuery
-                                ? searchResults.length +
-                                  accountSearchResults.length
+                                ? searchResults.length + orgSearchResults.length
                                 : recentPackages.length) + localIndex
                             return renderItem(
                               {
@@ -708,8 +735,7 @@ const CmdKMenu = () => {
                           (template, localIndex) => {
                             const globalIndex =
                               (searchQuery
-                                ? searchResults.length +
-                                  accountSearchResults.length
+                                ? searchResults.length + orgSearchResults.length
                                 : recentPackages.length) +
                               filteredStaticOptions.blankTemplates.length +
                               localIndex
@@ -733,8 +759,7 @@ const CmdKMenu = () => {
                           (option, localIndex) => {
                             const globalIndex =
                               (searchQuery
-                                ? searchResults.length +
-                                  accountSearchResults.length
+                                ? searchResults.length + orgSearchResults.length
                                 : recentPackages.length) +
                               filteredStaticOptions.blankTemplates.length +
                               filteredStaticOptions.templates.length +
@@ -751,12 +776,12 @@ const CmdKMenu = () => {
 
                   {searchQuery &&
                     !searchResults.length &&
-                    !accountSearchResults.length &&
+                    !orgSearchResults.length &&
                     !filteredStaticOptions.blankTemplates.length &&
                     !filteredStaticOptions.templates.length &&
                     !filteredStaticOptions.importOptions.length &&
                     !isSearching &&
-                    !isSearchingAccounts && (
+                    !isSearchingOrgs && (
                       <Command.Empty className="py-8 text-center">
                         <div className="text-gray-400 mb-1">
                           No results found

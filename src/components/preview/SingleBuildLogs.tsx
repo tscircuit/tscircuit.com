@@ -12,9 +12,19 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
-import { useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
 import { getStepDuration } from "@/lib/utils/getStepDuration"
+
+const isStderrLog = (log: any): boolean => {
+  if (!log) return false
+
+  const possibleEventTypes = [log.event, log.stream, log.source, log.type]
+    .filter((v: unknown) => typeof v === "string")
+    .map((v: string) => v.toLowerCase())
+
+  return possibleEventTypes.includes("stderr")
+}
 
 export const SingleBuildLogs = ({
   packageBuild,
@@ -171,7 +181,11 @@ export const SingleBuildLogs = ({
                         (log: any, i: number) => (
                           <div
                             key={`build-log-${i}`}
-                            className="text-gray-600 whitespace-pre-wrap break-words"
+                            className={`whitespace-pre-wrap break-words ${
+                              isStderrLog(log)
+                                ? "text-red-600"
+                                : "text-gray-600"
+                            }`}
                           >
                             {log.msg || log.message || JSON.stringify(log)}
                           </div>
@@ -181,14 +195,20 @@ export const SingleBuildLogs = ({
                   )}
                 {usercodeStreamedLogs.length > 0 && (
                   <>
-                    {usercodeStreamedLogs.map((log: string, i: number) => (
-                      <div
-                        key={`streamed-log-${i}`}
-                        className="text-gray-600 whitespace-pre-wrap break-words"
-                      >
-                        {log}
-                      </div>
-                    ))}
+                    {usercodeStreamedLogs.map(
+                      (log: StreamedLogEntry, i: number) => (
+                        <div
+                          key={`streamed-log-${i}`}
+                          className={`whitespace-pre-wrap break-words ${
+                            log.eventType === "stderr"
+                              ? "text-red-600"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          {log.message}
+                        </div>
+                      ),
+                    )}
                     <div ref={logsEndRef} />
                   </>
                 )}
