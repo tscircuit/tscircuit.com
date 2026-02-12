@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from "react"
+import { useState, useMemo } from "react"
 import { useQuery } from "react-query"
 import {
   ChevronRight,
@@ -59,7 +59,7 @@ const filePathToComponentName = (filePath: string): string => {
 }
 
 const formatErrorType = (errorType: string): string =>
-  errorType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+  errorType?.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 
 const serializeError = (error: CircuitError): string => {
   const parts: string[] = []
@@ -69,19 +69,16 @@ const serializeError = (error: CircuitError): string => {
   return parts.join("\n")
 }
 
-const CopyButton = (({ text }: { text: string }) => {
+function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
 
-  const handleCopy = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation()
-      navigator.clipboard.writeText(text).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
-    },
-    [text],
-  )
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   return (
     <button
@@ -96,219 +93,213 @@ const CopyButton = (({ text }: { text: string }) => {
       )}
     </button>
   )
-})
+}
 
-const ErrorItem = (
-  ({
-    error,
-    variant = "error",
-  }: {
-    error: CircuitError
-    variant?: "error" | "warning"
-  }) => {
-    const isWarning = variant === "warning"
-    const errorText = serializeError(error)
-    const Icon = isWarning ? AlertTriangle : AlertCircle
+function ErrorItem({
+  error,
+  variant = "error",
+}: {
+  error: CircuitError
+  variant?: "error" | "warning"
+}) {
+  const isWarning = variant === "warning"
+  const errorText = serializeError(error)
+  const Icon = isWarning ? AlertTriangle : AlertCircle
 
-    return (
-      <div
+  return (
+    <div
+      className={cn(
+        "flex items-start gap-2 p-2.5 sm:p-3 rounded-md border text-sm",
+        isWarning
+          ? "bg-amber-50/50 border-amber-100"
+          : "bg-red-50/50 border-red-100",
+      )}
+    >
+      <Icon
         className={cn(
-          "flex items-start gap-2 p-2.5 sm:p-3 rounded-md border text-sm",
-          isWarning
-            ? "bg-amber-50/50 border-amber-100"
-            : "bg-red-50/50 border-red-100",
+          "w-4 h-4 mt-0.5 shrink-0",
+          isWarning ? "text-amber-500" : "text-red-500",
         )}
-      >
-        <Icon
-          className={cn(
-            "w-4 h-4 mt-0.5 shrink-0",
-            isWarning ? "text-amber-500" : "text-red-500",
-          )}
-        />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className={cn(
-                "font-mono text-xs px-1.5 py-0.5 rounded",
-                isWarning
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-red-100 text-red-700",
-              )}
-            >
-              {formatErrorType(error.error_type || error.type)}
-            </span>
-            {error.component_name && (
-              <span className="font-mono text-xs text-gray-600">
-                {error.component_name}
-              </span>
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={cn(
+              "font-mono text-xs px-1.5 py-0.5 rounded",
+              isWarning
+                ? "bg-amber-100 text-amber-700"
+                : "bg-red-100 text-red-700",
             )}
-          </div>
-          {error.message && (
-            <p className="mt-1.5 text-gray-700 text-xs font-mono break-words whitespace-pre-wrap leading-relaxed">
-              {error.message}
-            </p>
+          >
+            {formatErrorType(error.error_type || error.type)}
+          </span>
+          {error.component_name && (
+            <span className="font-mono text-xs text-gray-600">
+              {error.component_name}
+            </span>
           )}
         </div>
-        <CopyButton text={errorText} />
+        {error.message && (
+          <p className="mt-1.5 text-gray-700 text-xs font-mono break-words whitespace-pre-wrap leading-relaxed">
+            {error.message}
+          </p>
+        )}
       </div>
-    )
-  },
-)
+      <CopyButton text={errorText} />
+    </div>
+  )
+}
 
-const ErrorCategorySection = (
-  ({
-    title,
-    errors,
-    defaultOpen,
-    variant = "error",
-  }: {
-    title: string
-    errors: CircuitError[]
-    defaultOpen: boolean
-    variant?: "error" | "warning"
-  }) => {
-    const [open, setOpen] = useState(defaultOpen)
-    const [visibleCount, setVisibleCount] = useState(ERRORS_PER_PAGE)
+function ErrorCategorySection({
+  title,
+  errors,
+  defaultOpen,
+  variant = "error",
+}: {
+  title: string
+  errors: CircuitError[]
+  defaultOpen: boolean
+  variant?: "error" | "warning"
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  const [visibleCount, setVisibleCount] = useState(ERRORS_PER_PAGE)
 
-    if (errors.length === 0) return null
+  if (errors.length === 0) return null
 
-    const visibleErrors = errors.slice(0, visibleCount)
-    const hasMore = visibleCount < errors.length
+  const visibleErrors = errors.slice(0, visibleCount)
+  const hasMore = visibleCount < errors.length
 
-    return (
-      <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-gray-50 rounded-md transition-colors select-none">
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-gray-50 rounded-md transition-colors select-none">
+          <ChevronRight
+            className={cn(
+              "w-3.5 h-3.5 text-gray-400 transition-transform",
+              open && "rotate-90",
+            )}
+          />
+          <span className="text-sm font-medium text-gray-700">{title}</span>
+          <span
+            className={cn(
+              "text-xs font-mono px-1.5 py-0.5 rounded-full",
+              variant === "warning"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-red-100 text-red-700",
+            )}
+          >
+            {errors.length}
+          </span>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="pl-3 sm:pl-6 pr-1 sm:pr-2 pb-2 space-y-2">
+          {visibleErrors.map((error, i) => (
+            <ErrorItem
+              key={`${error.error_type || error.type}-${error.component_name || ""}-${i}`}
+              error={error}
+              variant={variant}
+            />
+          ))}
+          {hasMore && (
+            <button
+              onClick={() => setVisibleCount((c) => c + ERRORS_PER_PAGE)}
+              className="text-xs text-blue-600 hover:text-blue-800 py-1 px-2 hover:underline"
+            >
+              Show {Math.min(ERRORS_PER_PAGE, errors.length - visibleCount)}{" "}
+              more…
+            </button>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+function CircuitFileSection({
+  fileErrors,
+  packageId,
+}: {
+  fileErrors: CircuitFileErrors
+  packageId?: string | null
+}) {
+  const [open, setOpen] = useState(false)
+
+  const editorHref = packageId
+    ? `/editor?package_id=${packageId}&file_path=${encodeURIComponent(fileErrors.componentName)}`
+    : null
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger asChild>
+        <div className="group flex items-center justify-between gap-2 py-2.5 px-3 cursor-pointer hover:bg-gray-50 rounded-md transition-colors select-none">
+          <div className="flex items-center gap-2.5 min-w-0">
             <ChevronRight
               className={cn(
-                "w-3.5 h-3.5 text-gray-400 transition-transform",
+                "w-4 h-4 text-gray-400 transition-transform shrink-0",
                 open && "rotate-90",
               )}
             />
-            <span className="text-sm font-medium text-gray-700">{title}</span>
-            <span
-              className={cn(
-                "text-xs font-mono px-1.5 py-0.5 rounded-full",
-                variant === "warning"
-                  ? "bg-amber-100 text-amber-700"
-                  : "bg-red-100 text-red-700",
-              )}
-            >
-              {errors.length}
+            <FileCode className="w-4 h-4 text-gray-500 shrink-0 hidden sm:block" />
+            <span className="font-medium text-sm text-gray-900 truncate">
+              {fileErrors.componentName}
             </span>
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="pl-3 sm:pl-6 pr-1 sm:pr-2 pb-2 space-y-2">
-            {visibleErrors.map((error, i) => (
-              <ErrorItem
-                key={`${error.error_type || error.type}-${error.component_name || ""}-${i}`}
-                error={error}
-                variant={variant}
-              />
-            ))}
-            {hasMore && (
-              <button
-                onClick={() => setVisibleCount((c) => c + ERRORS_PER_PAGE)}
-                className="text-xs text-blue-600 hover:text-blue-800 py-1 px-2 hover:underline"
+            {editorHref && (
+              <Link
+                href={editorHref}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                title="Open in editor"
               >
-                Show {Math.min(ERRORS_PER_PAGE, errors.length - visibleCount)}{" "}
-                more…
-              </button>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-500 hover:text-gray-700" />
+              </Link>
             )}
           </div>
-        </CollapsibleContent>
-      </Collapsible>
-    )
-  },
-)
-
-const CircuitFileSection = (
-  ({
-    fileErrors,
-    packageId,
-  }: {
-    fileErrors: CircuitFileErrors
-    packageId?: string | null
-  }) => {
-    const [open, setOpen] = useState(false)
-
-    const editorHref = packageId
-      ? `/editor?package_id=${packageId}&file_path=${encodeURIComponent(fileErrors.componentName)}`
-      : null
-
-    return (
-      <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger asChild>
-          <div className="group flex items-center justify-between gap-2 py-2.5 px-3 cursor-pointer hover:bg-gray-50 rounded-md transition-colors select-none">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <ChevronRight
-                className={cn(
-                  "w-4 h-4 text-gray-400 transition-transform shrink-0",
-                  open && "rotate-90",
-                )}
+          {fileErrors.totalErrors > 0 ? (
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700 shrink-0">
+              {fileErrors.totalErrors} error
+              {fileErrors.totalErrors !== 1 ? "s" : ""}
+            </span>
+          ) : (
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 flex items-center gap-1 shrink-0">
+              <CircleCheck className="w-3 h-3" />
+              Clean
+            </span>
+          )}
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="pl-2 sm:pl-4 pb-1">
+          {fileErrors.totalErrors === 0 ? (
+            <p className="text-sm text-gray-500 px-3 py-2">
+              No errors found in this circuit.
+            </p>
+          ) : (
+            <>
+              <ErrorCategorySection
+                title="Source Errors"
+                errors={fileErrors.sourceErrors}
+                defaultOpen={false}
               />
-              <FileCode className="w-4 h-4 text-gray-500 shrink-0 hidden sm:block" />
-              <span className="font-medium text-sm text-gray-900 truncate">
-                {fileErrors.componentName}
-              </span>
-              {editorHref && (
-                <Link
-                  href={editorHref}
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
-                  title="Open in editor"
-                >
-                  <ExternalLink className="w-3.5 h-3.5 text-gray-500 hover:text-gray-700" />
-                </Link>
+              <ErrorCategorySection
+                title="Autorouter Errors"
+                errors={fileErrors.autorouterErrors}
+                defaultOpen={false}
+              />
+              {fileErrors.otherErrors.length > 0 && (
+                <ErrorCategorySection
+                  title="Other Errors"
+                  errors={fileErrors.otherErrors}
+                  defaultOpen={false}
+                />
               )}
-            </div>
-            {fileErrors.totalErrors > 0 ? (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700 shrink-0">
-                {fileErrors.totalErrors} error
-                {fileErrors.totalErrors !== 1 ? "s" : ""}
-              </span>
-            ) : (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700 flex items-center gap-1 shrink-0">
-                <CircleCheck className="w-3 h-3" />
-                Clean
-              </span>
-            )}
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="pl-2 sm:pl-4 pb-1">
-            {fileErrors.totalErrors === 0 ? (
-              <p className="text-sm text-gray-500 px-3 py-2">
-                No errors found in this circuit.
-              </p>
-            ) : (
-              <>
-                <ErrorCategorySection
-                  title="Source Errors"
-                  errors={fileErrors.sourceErrors}
-                  defaultOpen={false}
-                />
-                <ErrorCategorySection
-                  title="Autorouter Errors"
-                  errors={fileErrors.autorouterErrors}
-                  defaultOpen={false}
-                />
-                {fileErrors.otherErrors.length > 0 && (
-                  <ErrorCategorySection
-                    title="Other Errors"
-                    errors={fileErrors.otherErrors}
-                    defaultOpen={false}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-    )
-  },
-)
+            </>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
 
 export const BuildCircuitErrors = ({
   packageReleaseId,
