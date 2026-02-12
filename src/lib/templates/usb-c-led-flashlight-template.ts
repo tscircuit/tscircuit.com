@@ -8,11 +8,22 @@ import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
 export default () => {
   return (
     <board width="12mm" height="30mm" schAutoLayoutEnabled>
-      <SmdUsbC GND1="net.GND" GND2="net.GND" pcbY={-10} VBUS1="net.VBUS" VBUS2="net.VBUS" />
-      <RedLed name="Led" neg="net.GND" pcbY={12} />
-      <PushButton name="SW1" pcbY={0} pin2=".R1 > .pos" pin3="net.VBUS" />
+      <SmdUsbC name="USBC" pcbY={-10} />
+      <RedLed name="LED" pcbY={12} />
+      <PushButton name="SW1" pcbY={0} />
       <resistor name="R1" footprint="0603" resistance="1k" pcbY={7} />
-      <trace from=".R1 > .neg" to={"Led.pos"} />
+
+      {/* USBC Power Connections */}
+      <trace from="USBC.GND1" to="net.GND" />
+      <trace from="USBC.GND2" to="net.GND" />
+      <trace from="USBC.VBUS1" to="net.VBUS" />
+      <trace from="USBC.VBUS1" to="net.VBUS" />
+      
+      <trace from="LED.neg" to="net.GND" />
+      <trace from=".R1 > .neg" to="LED.pos" />
+      
+      <trace from="SW1.pin2" to="R1.pos" />
+      <trace from="SW1.pin3" to="net.VBUS" />
     </board>
   )
 }`.trim(),
