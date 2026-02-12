@@ -69,7 +69,7 @@ const serializeError = (error: CircuitError): string => {
   return parts.join("\n")
 }
 
-const CopyButton = memo(({ text }: { text: string }) => {
+const CopyButton = (({ text }: { text: string }) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = useCallback(
@@ -98,7 +98,7 @@ const CopyButton = memo(({ text }: { text: string }) => {
   )
 })
 
-const ErrorItem = memo(
+const ErrorItem = (
   ({
     error,
     variant = "error",
@@ -155,7 +155,7 @@ const ErrorItem = memo(
   },
 )
 
-const ErrorCategorySection = memo(
+const ErrorCategorySection = (
   ({
     title,
     errors,
@@ -223,7 +223,7 @@ const ErrorCategorySection = memo(
   },
 )
 
-const CircuitFileSection = memo(
+const CircuitFileSection = (
   ({
     fileErrors,
     packageId,
