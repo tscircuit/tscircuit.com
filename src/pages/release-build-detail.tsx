@@ -7,6 +7,7 @@ import { usePackageBuild } from "@/hooks/use-package-builds"
 import Header from "@/components/Header"
 import { BuildDeploymentDetails } from "@/components/preview/BuildDeploymentDetails"
 import { SingleBuildLogs } from "@/components/preview/SingleBuildLogs"
+import { BuildCircuitErrors } from "@/components/preview/BuildCircuitErrors"
 import { PackageBreadcrumb } from "@/components/PackageBreadcrumb"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRebuildPackageReleaseMutation } from "@/hooks/use-rebuild-package-release-mutation"
@@ -224,6 +225,12 @@ export default function ReleaseBuildDetailPage() {
           packageBuild={packageBuild ?? null}
           isLoadingBuild={isLoadingBuild}
           isPollingAfterRebuild={isPollingAfterRebuild}
+        />
+
+        <BuildCircuitErrors
+          packageReleaseId={packageRelease?.package_release_id ?? null}
+          packageId={pkg?.package_id}
+          isBuildActive={isBuildActive}
         />
       </div>
     </>
