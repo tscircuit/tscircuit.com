@@ -402,7 +402,7 @@ export const BuildCircuitErrors = ({
   const hasErrors = totalErrors > 0
   const hasCircuitFiles = circuitJsonPaths.length > 0
 
-  if (!hasCircuitFiles && !isLoading && !isBuildActive) return null
+  if (!hasCircuitFiles && !isLoading) return null
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-6">
