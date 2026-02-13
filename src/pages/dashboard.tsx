@@ -103,20 +103,26 @@ export const DashboardPage = () => {
         <div className="flex md:flex-row flex-col">
           <div className="md:w-3/4 p-0 md:pr-6">
             {!isLoggedIn ? (
-              <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
-                  <KeyRound className="text-blue-500" size={32} />
+              <div className="flex flex-col items-center justify-center py-20 px-6 bg-white rounded-xl border border-gray-100 shadow-sm text-center">
+                <div className="p-5 mb-6 rounded-full bg-blue-50">
+                  <KeyRound className="text-blue-600" size={40} />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-                  You're not logged in
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  Sign in to view your dashboard
                 </h2>
-
-                <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
-                  Log in to access your dashboard and manage your packages.
+                <p className="text-gray-500 mb-8 max-w-md text-base leading-relaxed">
+                  Join tscircuit to manage your packages, contribute to organizations, and build electronics with React.
                 </p>
-                <Button onClick={() => signIn()} variant="default">
-                  Log In
-                </Button>
+                <div className="flex gap-4">
+                  <Button onClick={() => signIn()} size="lg" className="px-8 font-semibold">
+                    Log In
+                  </Button>
+                  <Link href="/register">
+                    <Button variant="outline" size="lg" className="px-8 font-semibold">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
               </div>
             ) : (
               <>
