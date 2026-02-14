@@ -11,14 +11,16 @@ const KICAD_PCM_DOCS_URL =
 
 export function KicadPcmCommand({ url }: { url: string }) {
   return (
-    <div className="flex items-center gap-2 ml-0.5">
+    <div className="flex items-center gap-2">
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-2 text-sm text-blue-600 group cursor-pointer"
       >
-        <span className="font-bold text-sm min-w-[18px] flex-shrink-0">K</span>
+        <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold text-blue-600 flex-shrink-0">
+          K
+        </span>
         <span className="group-hover:underline">KiCad PCM URL</span>
       </a>
       <TooltipProvider>
