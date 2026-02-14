@@ -21,6 +21,7 @@ import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
+import projectWebpage from "@/assets/project-webpage.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
 
@@ -255,9 +256,9 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <OptimizedImage
-                alt="Share and display in the browser placeholder"
+                alt="Share and display in the browser"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/fallback-image.svg"
+                src={projectWebpage}
                 height={360}
                 width={540}
               />
