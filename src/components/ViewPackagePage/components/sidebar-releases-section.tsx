@@ -60,7 +60,7 @@ export default function SidebarReleasesSection() {
 
   const { status, label } = getBuildStatus(latestBuild)
   return (
-    <div className="mb-6">
+    <div className="mb-6 text-sm">
       <h2 className="text-lg font-semibold mb-2">
         <Link
           href={`/${packageInfo?.name}/releases`}
@@ -69,20 +69,20 @@ export default function SidebarReleasesSection() {
           Releases
         </Link>
       </h2>
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col items-start space-y-2">
         <Link
           href={`/${packageInfo?.name}/releases/${packageRelease.package_release_id}`}
-          className="flex items-center hover:underline"
+          className="flex items-center w-full justify-start hover:underline"
         >
           <Tag className="h-4 w-4 mr-2 text-gray-500" />
           <span className="text-sm font-medium">v{packageRelease.version}</span>
         </Link>
-        <div className="flex items-center">
+        <div className="flex items-center w-full justify-start">
           <Clock className="h-4 w-4 mr-2 text-gray-500" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="text-sm text-gray-500  cursor-default">
+                <span className="text-sm text-gray-500 cursor-default">
                   {timeAgo(new Date(packageRelease.created_at))}
                 </span>
               </TooltipTrigger>
