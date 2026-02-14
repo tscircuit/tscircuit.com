@@ -18,7 +18,7 @@ export function KicadPcmCommand({ url }: { url: string }) {
         rel="noopener noreferrer"
         className="flex items-center gap-2 text-sm text-blue-600 group cursor-pointer"
       >
-        <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold text-blue-600 flex-shrink-0">
+        <span className="inline-flex items-center justify-center h-4 w-4 font-bold text-sm text-blue-600 flex-shrink-0">
           K
         </span>
         <span className="group-hover:underline">KiCad PCM URL</span>
