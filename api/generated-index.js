@@ -614,6 +614,41 @@ async function handleReleases(req, res) {
   res.status(200).send(html)
 }
 
+export async function handleAvatarRedirect(req, res) {
+  const urlPath = req.url.split("?")[0]
+
+  // Check if URL ends with .png
+  if (!urlPath.endsWith(".png")) {
+    throw new Error("Not an avatar redirect")
+  }
+
+  const pathParts = urlPath.split("/")
+  const lastPart = pathParts[pathParts.length - 1]
+  const username = lastPart.replace(".png", "")
+
+  if (!username) {
+    throw new Error("Username not provided")
+  }
+
+  const orgData = await ky
+    .get(`${REGISTRY_URL}/orgs/get`, {
+      searchParams: {
+        tscircuit_handle: username,
+      },
+    })
+    .json()
+
+  const { org } = orgData
+
+  if (org.avatar_url) {
+    res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600")
+    res.redirect(301, org.avatar_url)
+    return
+  }
+
+  throw new Error("Avatar not found")
+}
+
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
   if (urlPath === "/api/generated-index") {
@@ -625,6 +660,13 @@ export default async function handler(req, res) {
   }
 
   const pathParts = req.url.split("?")[0].split("/")
+
+  try {
+    await handleAvatarRedirect(req, res)
+    return
+  } catch (e) {
+    console.warn(e)
+  }
 
   try {
     await handleReleasePreview(req, res)
