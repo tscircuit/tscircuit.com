@@ -617,14 +617,14 @@ async function handleReleases(req, res) {
 export async function handleAvatarRedirect(req, res) {
   const urlPath = req.url.split("?")[0]
 
-  // Check if URL ends with .png
-  if (!urlPath.endsWith(".png")) {
+  // Check if URL ends with .jpeg
+  if (!urlPath.endsWith(".jpeg")) {
     throw new Error("Not an avatar redirect")
   }
 
   const pathParts = urlPath.split("/")
   const lastPart = pathParts[pathParts.length - 1]
-  const username = lastPart.replace(".png", "")
+  const username = lastPart.replace(".jpeg", "")
 
   if (!username) {
     throw new Error("Username not provided")
