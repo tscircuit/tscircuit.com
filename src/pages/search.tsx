@@ -213,7 +213,7 @@ export const SearchPage = () => {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              {currentUser && orgSearchResults.length > 0 && (
+              {orgSearchResults.length > 0 && (
                 <TabsList className="grid grid-cols-2 mb-6 select-none w-full max-w-md mx-auto">
                   <TabsTrigger
                     value="packages"
