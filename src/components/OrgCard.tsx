@@ -35,7 +35,7 @@ export const OrgCard: React.FC<OrgCardProps> = ({
         <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center">
           {org.avatar_url ? (
             <img
-              src={org.avatar_url}
+              src={`/${handle}.jpeg`}
               alt={`${handle} avatar`}
               className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
               onError={(e) => {
