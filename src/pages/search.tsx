@@ -141,14 +141,16 @@ export const SearchPage = () => {
     )
     filteredPackages.forEach((pkg) => {
       const ownerHandle = pkg.org_owner_tscircuit_handle
+      const name = pkg.name?.split("/")[0]
 
       if (ownerHandle && !existingHandles.has(ownerHandle)) {
         packageOwnerOrgs.push({
           org_id: "",
           owner_account_id: "",
-          name: ownerHandle,
+          name: name || ownerHandle,
+          display_name: name || ownerHandle,
           member_count: 0,
-          is_personal_org: false,
+          is_personal_org: true,
           package_count: 0,
           tscircuit_handle: ownerHandle,
           created_at: "",
