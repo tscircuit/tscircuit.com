@@ -25,7 +25,6 @@ export const OrgCard: React.FC<OrgCardProps> = ({
       window.location.href = `/${handle}`
     }
   }
-
   const cardContent = (
     <div
       className={`border p-4 rounded-md hover:shadow-md transition-shadow flex flex-col gap-4 cursor-pointer ${className}`}
@@ -33,22 +32,19 @@ export const OrgCard: React.FC<OrgCardProps> = ({
     >
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-50 border flex items-center justify-center">
-          {org.avatar_url ? (
-            <img
-              src={org.avatar_url}
-              alt={`${handle} avatar`}
-              className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.style.display = "none"
-                target.nextElementSibling?.classList.remove("hidden")
-                target.nextElementSibling?.classList.add("flex")
-              }}
-            />
-          ) : null}
-          <div
-            className={`${org.avatar_url ? "hidden" : "flex"} items-center justify-center h-full w-full`}
-          >
+          <img
+            src={`https://tscircuit.com/${handle}.jpeg`}
+            alt={`${handle} avatar`}
+            loading="lazy"
+            className="object-cover h-full w-full transition-transform duration-300 hover:scale-110"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.style.display = "none"
+              target.nextElementSibling?.classList.remove("hidden")
+              target.nextElementSibling?.classList.add("flex")
+            }}
+          />
+          <div className={`hidden items-center justify-center h-full w-full`}>
             <Building2 className="w-6 h-6 text-gray-300" />
           </div>
         </div>
