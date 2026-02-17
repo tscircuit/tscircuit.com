@@ -1,11 +1,15 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { usePackageDomains } from "@/hooks/use-package-domains"
 import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
 import { AddSubdomainDialog } from "@/components/dialogs/add-subdomain-dialog"
 import { Search, CheckCircle2, ExternalLink } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import type { PublicPackageDomain } from "fake-snippets-api/lib/db/schema"
+import { getPackageDomainTargetInfo } from "@/lib/package-domain-target"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { usePackageBuildsByPackageId } from "@/hooks/use-package-builds"
 
 export function PackageDomainsList({
   packageReleaseId,
@@ -25,6 +29,29 @@ export function PackageDomainsList({
       : packageId
         ? { package_id: packageId }
         : null,
+  )
+  const { data: releases = [] } = usePackageReleasesByPackageId(
+    packageId ?? null,
+  )
+  const { data: builds = [] } = usePackageBuildsByPackageId(packageId ?? null)
+
+  const releaseVersionById = useMemo(
+    () =>
+      Object.fromEntries(
+        releases.map((release) => [
+          release.package_release_id,
+          release.version || null,
+        ]),
+      ),
+    [releases],
+  )
+
+  const buildById = useMemo(
+    () =>
+      Object.fromEntries(
+        builds.map((build) => [build.package_build_id, build]),
+      ),
+    [builds],
   )
 
   const filteredDomains = domains.filter((d) =>
@@ -71,41 +98,59 @@ export function PackageDomainsList({
               Loading domains...
             </div>
           ) : filteredDomains.length > 0 ? (
-            filteredDomains.map((domain) => (
-              <div
-                key={domain.package_domain_id}
-                className="group p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"
-              >
-                <div className="flex items-start gap-3 min-w-0 flex-1">
-                  <CheckCircle2 className="h-5 w-5 text-white fill-blue-500 shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1 flex items-center gap-2">
-                    <div className="font-medium text-gray-900 truncate">
-                      {domain.fully_qualified_domain_name}
+            filteredDomains.map((domain) => {
+              const targetInfo = getPackageDomainTargetInfo(domain, {
+                releaseVersionById,
+                buildById,
+              })
+
+              return (
+                <div
+                  key={domain.package_domain_id}
+                  className="group p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors"
+                >
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    <CheckCircle2 className="h-5 w-5 text-white fill-blue-500 shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="font-medium text-gray-900 truncate">
+                          {domain.fully_qualified_domain_name}
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className="text-[10px] uppercase tracking-wide"
+                        >
+                          {targetInfo.badgeLabel}
+                        </Badge>
+                        <a
+                          href={`https://${domain.fully_qualified_domain_name}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="lg:opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                          title="Open in new tab"
+                        >
+                          <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+                        </a>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 truncate">
+                        {targetInfo.description}
+                      </p>
                     </div>
-                    <a
-                      href={`https://${domain.fully_qualified_domain_name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="lg:opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
-                      title="Open in new tab"
+                  </div>
+
+                  <div className="flex items-center gap-2 ml-8 sm:ml-0">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 px-3 bg-white"
+                      onClick={() => setEditingDomain(domain)}
                     >
-                      <ExternalLink className="h-4 w-4 text-gray-500 hover:text-gray-700" />
-                    </a>
+                      Edit
+                    </Button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 ml-8 sm:ml-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 px-3 bg-white"
-                    onClick={() => setEditingDomain(domain)}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              </div>
-            ))
+              )
+            })
           ) : (
             <div className="p-8 text-center text-gray-500 text-sm">
               {searchQuery
@@ -124,6 +169,10 @@ export function PackageDomainsList({
           }}
           packageDomainId={editingDomain.package_domain_id}
           currentFqdn={editingDomain.fully_qualified_domain_name || ""}
+          targetInfo={getPackageDomainTargetInfo(editingDomain, {
+            releaseVersionById,
+            buildById,
+          })}
         />
       )}
 

@@ -26,11 +26,13 @@ export const EditSubdomainDialog = ({
   onOpenChange,
   packageDomainId,
   currentFqdn,
+  targetInfo,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageDomainId: string
   currentFqdn: string
+  targetInfo?: { badgeLabel: string; description: string } | null
 }) => {
   const [subdomain, setSubdomain] = useState(extractSubdomain(currentFqdn))
   const updateMutation = useUpdatePackageDomain()
@@ -77,6 +79,16 @@ export const EditSubdomainDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          {targetInfo && (
+            <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
+              <p className="text-xs font-medium text-gray-700">
+                {targetInfo.badgeLabel}
+              </p>
+              <p className="mt-1 text-xs text-gray-600">
+                {targetInfo.description}
+              </p>
+            </div>
+          )}
           <div className="flex items-center gap-0">
             <Input
               value={subdomain}
