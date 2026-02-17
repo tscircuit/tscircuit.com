@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
-import { join, dirname } from "node:path"
+import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { DbClient } from "./db-client"
 import { loadAutoloadPackages } from "./autoload-dev-packages"
+import { DbClient } from "./db-client"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -2384,6 +2384,13 @@ exports.TestComponent = TestComponent;
   // Update the package to link to the release
   db.updatePackage(glbModelPackage.package_id, {
     latest_package_release_id: glbModelReleaseId,
+  })
+
+  db.addPackageDomain({
+    points_to: "package_release",
+    package_release_id: glbModelReleaseId,
+    package_id: glbModelPackage.package_id,
+    fully_qualified_domain_name: "custom-3d-model.tscircuit.app",
   })
 
   // Add the index.tsx file

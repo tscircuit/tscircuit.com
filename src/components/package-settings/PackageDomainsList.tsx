@@ -1,11 +1,19 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { usePackageDomains } from "@/hooks/use-package-domains"
 import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
 import { AddSubdomainDialog } from "@/components/dialogs/add-subdomain-dialog"
 import { Search, CheckCircle2, ExternalLink } from "lucide-react"
 import type { PublicPackageDomain } from "fake-snippets-api/lib/db/schema"
+
+const pointsToLabelMap: Record<PublicPackageDomain["points_to"], string> = {
+  package: "Package",
+  package_release: "Release",
+  package_build: "Build",
+  package_release_with_tag: "Release Tag",
+}
 
 export function PackageDomainsList({
   packageReleaseId,
@@ -82,6 +90,9 @@ export function PackageDomainsList({
                     <div className="font-medium text-gray-900 truncate">
                       {domain.fully_qualified_domain_name}
                     </div>
+                    <Badge variant="secondary" className="shrink-0 capitalize">
+                      {pointsToLabelMap[domain.points_to] ?? domain.points_to}
+                    </Badge>
                     <a
                       href={`https://${domain.fully_qualified_domain_name}`}
                       target="_blank"
