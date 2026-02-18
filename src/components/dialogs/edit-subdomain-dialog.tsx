@@ -37,6 +37,7 @@ export const EditSubdomainDialog = ({
   packageId,
   currentPointsTo,
   currentPackageReleaseId,
+  currentTag,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -44,12 +45,23 @@ export const EditSubdomainDialog = ({
   currentFqdn: string
   targetInfo?: { badgeLabel: string; description: string } | null
   packageId?: string | null
-  currentPointsTo?: "package" | "package_release" | string | null
+  currentPointsTo?:
+    | "package"
+    | "package_release"
+    | "package_release_with_tag"
+    | string
+    | null
   currentPackageReleaseId?: string | null
+  currentTag?: string | null
 }) => {
   const [subdomain, setSubdomain] = useState(extractSubdomain(currentFqdn))
+  const isCurrentlyLatest =
+    currentPointsTo === "package" ||
+    (currentPointsTo === "package_release_with_tag" && currentTag === "latest")
   const [targetType, setTargetType] = useState<"latest" | "release">(
-    currentPointsTo === "package_release" ? "release" : "latest",
+    isCurrentlyLatest || currentPointsTo !== "package_release"
+      ? "latest"
+      : "release",
   )
   const [selectedReleaseId, setSelectedReleaseId] = useState(
     currentPackageReleaseId || "",
@@ -59,16 +71,23 @@ export const EditSubdomainDialog = ({
   const { data: releases = [] } = usePackageReleasesByPackageId(
     packageId ?? null,
   )
+  const latestRelease = releases[0]
 
   useEffect(() => {
     if (open) {
       setSubdomain(extractSubdomain(currentFqdn))
+      const isLatest =
+        currentPointsTo === "package" ||
+        (currentPointsTo === "package_release_with_tag" &&
+          currentTag === "latest")
       setTargetType(
-        currentPointsTo === "package_release" ? "release" : "latest",
+        !isLatest && currentPointsTo === "package_release"
+          ? "release"
+          : "latest",
       )
       setSelectedReleaseId(currentPackageReleaseId || "")
     }
-  }, [open, currentFqdn, currentPointsTo, currentPackageReleaseId])
+  }, [open, currentFqdn, currentPointsTo, currentPackageReleaseId, currentTag])
 
   const releaseOptions = useMemo(
     () =>
@@ -91,13 +110,18 @@ export const EditSubdomainDialog = ({
   const domainChanged = newFqdn !== currentFqdn
   const targetChanged =
     targetType === "latest"
-      ? currentPointsTo !== "package"
+      ? !(
+          currentPointsTo === "package_release_with_tag" &&
+          currentTag === "latest"
+        )
       : currentPointsTo !== "package_release" ||
         currentPackageReleaseId !== selectedReleaseId
 
   const hasChanged = domainChanged || targetChanged
   const isDomainValid = normalizedSubdomain.length > 0
-  const isTargetValid = targetType === "latest" || Boolean(selectedReleaseId)
+  const isTargetValid =
+    (targetType === "latest" && Boolean(latestRelease)) ||
+    (targetType === "release" && Boolean(selectedReleaseId))
 
   const handleSave = () => {
     if (!isDomainValid || !isTargetValid || !hasChanged) return
@@ -108,9 +132,9 @@ export const EditSubdomainDialog = ({
         fully_qualified_domain_name: newFqdn,
         ...(targetType === "latest"
           ? {
-              points_to: "package" as const,
-              package_id: packageId || null,
-              package_release_id: null,
+              points_to: "package_release_with_tag" as const,
+              tag: "latest",
+              package_release_id: latestRelease?.package_release_id ?? null,
             }
           : {
               points_to: "package_release" as const,

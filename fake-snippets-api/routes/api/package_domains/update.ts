@@ -10,6 +10,18 @@ export default withRouteSpec({
     package_domain_id: z.string(),
     default_main_component_path: z.string().nullable().optional(),
     fully_qualified_domain_name: z.string().nullable().optional(),
+    points_to: z
+      .enum([
+        "package_release",
+        "package_build",
+        "package_release_with_tag",
+        "package",
+      ])
+      .optional(),
+    package_release_id: z.string().optional(),
+    package_build_id: z.string().optional(),
+    package_id: z.string().optional(),
+    tag: z.string().optional(),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),
@@ -20,6 +32,11 @@ export default withRouteSpec({
     package_domain_id,
     default_main_component_path,
     fully_qualified_domain_name,
+    points_to,
+    package_release_id,
+    package_build_id,
+    package_id,
+    tag,
   } = req.jsonBody
 
   const existingDomain = ctx.db.getPackageDomainById(package_domain_id)
@@ -51,6 +68,70 @@ export default withRouteSpec({
     }
   }
 
+  // Validate the points_to constraint if points_to is being updated
+  if (points_to !== undefined) {
+    if (points_to === "package_release") {
+      if (!package_release_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_release_id",
+          message:
+            "package_release_id is required when points_to is 'package_release'",
+        })
+      }
+      if (package_build_id || tag || package_id) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_build_id, tag, and package_id must not be provided when points_to is 'package_release'",
+        })
+      }
+    } else if (points_to === "package_build") {
+      if (!package_build_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_build_id",
+          message:
+            "package_build_id is required when points_to is 'package_build'",
+        })
+      }
+      if (package_release_id || tag || package_id) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_release_id, tag, and package_id must not be provided when points_to is 'package_build'",
+        })
+      }
+    } else if (points_to === "package_release_with_tag") {
+      if (!package_release_id || !tag) {
+        return ctx.error(400, {
+          error_code: "missing_params",
+          message:
+            "package_release_id and tag are required when points_to is 'package_release_with_tag'",
+        })
+      }
+      if (package_build_id || package_id) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_build_id and package_id must not be provided when points_to is 'package_release_with_tag'",
+        })
+      }
+    } else if (points_to === "package") {
+      if (!package_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_id",
+          message: "package_id is required when points_to is 'package'",
+        })
+      }
+      if (package_release_id || package_build_id || tag) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_release_id, package_build_id, and tag must not be provided when points_to is 'package'",
+        })
+      }
+    }
+  }
+
   const updateValues: Record<string, unknown> = {}
 
   if (default_main_component_path !== undefined) {
@@ -59,6 +140,15 @@ export default withRouteSpec({
 
   if (fully_qualified_domain_name !== undefined) {
     updateValues.fully_qualified_domain_name = fully_qualified_domain_name
+  }
+
+  if (points_to !== undefined) {
+    updateValues.points_to = points_to
+    // Clear all pointer fields and set the appropriate ones
+    updateValues.package_release_id = package_release_id ?? null
+    updateValues.package_build_id = package_build_id ?? null
+    updateValues.package_id = package_id ?? null
+    updateValues.tag = tag ?? null
   }
 
   if (Object.keys(updateValues).length === 0) {
