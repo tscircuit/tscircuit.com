@@ -134,7 +134,7 @@ export const EditSubdomainDialog = ({
           ? {
               points_to: "package_release_with_tag" as const,
               tag: "latest",
-              package_release_id: latestRelease?.package_release_id ?? null,
+              package_id: packageId,
             }
           : {
               points_to: "package_release" as const,
