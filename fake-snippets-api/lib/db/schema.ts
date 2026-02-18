@@ -637,6 +637,51 @@ export const publicPackageDomainSchema = z.object({
 })
 export type PublicPackageDomain = z.infer<typeof publicPackageDomainSchema>
 
+export const orgDomainPointsToEnum = z.enum(["merged_pcm_repositories"])
+
+export const orgDomainLinkedPackagePointsToEnum = z.enum(["package_release"])
+
+export const orgDomainLinkedPackageSchema = z.object({
+  org_domain_linked_package_id: z.string(),
+  org_domain_id: z.string(),
+  points_to: orgDomainLinkedPackagePointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  created_at: z.coerce.date(),
+})
+export type OrgDomainLinkedPackage = z.infer<
+  typeof orgDomainLinkedPackageSchema
+>
+
+export const publicOrgDomainLinkedPackageSchema = z.object({
+  org_domain_linked_package_id: z.string(),
+  org_domain_id: z.string(),
+  points_to: orgDomainLinkedPackagePointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
+})
+export type PublicOrgDomainLinkedPackage = z.infer<
+  typeof publicOrgDomainLinkedPackageSchema
+>
+
+export const orgDomainSchema = z.object({
+  org_domain_id: z.string(),
+  org_id: z.string(),
+  fully_qualified_domain_name: z.string(),
+  points_to: orgDomainPointsToEnum,
+  created_at: z.coerce.date(),
+})
+export type OrgDomain = z.infer<typeof orgDomainSchema>
+
+export const publicOrgDomainSchema = z.object({
+  org_domain_id: z.string(),
+  org_id: z.string(),
+  fully_qualified_domain_name: z.string(),
+  points_to: orgDomainPointsToEnum,
+  created_at: z.string().datetime(),
+  linked_packages: z.array(publicOrgDomainLinkedPackageSchema),
+})
+export type PublicOrgDomain = z.infer<typeof publicOrgDomainSchema>
+
 export const databaseSchema = z.object({
   idCounter: z.number().default(0),
   snippets: z.array(snippetSchema).default([]),
@@ -663,6 +708,8 @@ export const databaseSchema = z.object({
   bugReports: z.array(bugReportSchema).default([]),
   bugReportFiles: z.array(bugReportFileSchema).default([]),
   packageDomains: z.array(packageDomainSchema).default([]),
+  orgDomains: z.array(orgDomainSchema).default([]),
+  orgDomainLinkedPackages: z.array(orgDomainLinkedPackageSchema).default([]),
 })
 export type DatabaseSchema = z.infer<typeof databaseSchema>
 

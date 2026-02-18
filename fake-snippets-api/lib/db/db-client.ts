@@ -25,6 +25,10 @@ import {
   packageBuildSchema,
   type PackageDomain,
   packageDomainSchema,
+  type OrgDomain,
+  orgDomainSchema,
+  type OrgDomainLinkedPackage,
+  orgDomainLinkedPackageSchema,
   type AiReview,
   aiReviewSchema,
   type Datasheet,
@@ -2205,6 +2209,97 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     return state.packageDomains.find(
       (pd) => pd.fully_qualified_domain_name === fullyQualifiedDomainName,
     )
+  },
+
+  addOrgDomain: (
+    domain: Omit<OrgDomain, "org_domain_id" | "created_at">,
+  ): OrgDomain => {
+    const newDomain = orgDomainSchema.parse({
+      org_domain_id: crypto.randomUUID(),
+      created_at: new Date(),
+      ...domain,
+    })
+    set((state) => ({
+      orgDomains: [...state.orgDomains, newDomain],
+    }))
+    return newDomain
+  },
+  getOrgDomainById: (orgDomainId: string): OrgDomain | undefined => {
+    const state = get()
+    return state.orgDomains.find((od) => od.org_domain_id === orgDomainId)
+  },
+  getOrgDomainByFQDN: (
+    fullyQualifiedDomainName: string,
+  ): OrgDomain | undefined => {
+    const state = get()
+    return state.orgDomains.find(
+      (od) => od.fully_qualified_domain_name === fullyQualifiedDomainName,
+    )
+  },
+  listOrgDomains: (filters?: { org_id?: string }): OrgDomain[] => {
+    const state = get()
+    let domains = state.orgDomains
+    if (filters?.org_id) {
+      domains = domains.filter((od) => od.org_id === filters.org_id)
+    }
+    return [...domains].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+  },
+  addOrgDomainLinkedPackage: (
+    linkedPackage: Omit<
+      OrgDomainLinkedPackage,
+      "org_domain_linked_package_id" | "created_at"
+    >,
+  ): OrgDomainLinkedPackage => {
+    const newLinkedPackage = orgDomainLinkedPackageSchema.parse({
+      org_domain_linked_package_id: crypto.randomUUID(),
+      created_at: new Date(),
+      ...linkedPackage,
+    })
+    set((state) => ({
+      orgDomainLinkedPackages: [
+        ...state.orgDomainLinkedPackages,
+        newLinkedPackage,
+      ],
+    }))
+    return newLinkedPackage
+  },
+  getOrgDomainLinkedPackageById: (
+    orgDomainLinkedPackageId: string,
+  ): OrgDomainLinkedPackage | undefined => {
+    const state = get()
+    return state.orgDomainLinkedPackages.find(
+      (lp) => lp.org_domain_linked_package_id === orgDomainLinkedPackageId,
+    )
+  },
+  listOrgDomainLinkedPackages: (
+    orgDomainId: string,
+  ): OrgDomainLinkedPackage[] => {
+    const state = get()
+    return state.orgDomainLinkedPackages
+      .filter((lp) => lp.org_domain_id === orgDomainId)
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+  },
+  removeOrgDomainLinkedPackage: (
+    orgDomainLinkedPackageId: string,
+  ): OrgDomainLinkedPackage | undefined => {
+    let removed: OrgDomainLinkedPackage | undefined
+    set((state) => {
+      const index = state.orgDomainLinkedPackages.findIndex(
+        (lp) => lp.org_domain_linked_package_id === orgDomainLinkedPackageId,
+      )
+      if (index === -1) return state
+      const orgDomainLinkedPackages = [...state.orgDomainLinkedPackages]
+      removed = orgDomainLinkedPackages[index]
+      orgDomainLinkedPackages.splice(index, 1)
+      return { ...state, orgDomainLinkedPackages }
+    })
+    return removed
   },
   updatePackageDomain: (
     packageDomainId: string,
