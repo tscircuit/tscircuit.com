@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import { useAllPackageLinkedDomains } from "@/hooks/use-package-domains"
 import { EditSubdomainDialog } from "@/components/dialogs/edit-subdomain-dialog"
 import { AddSubdomainDialog } from "@/components/dialogs/add-subdomain-dialog"
 import { Search, CheckCircle2, ExternalLink } from "lucide-react"
@@ -23,12 +23,8 @@ export function PackageDomainsList({
     useState<PublicPackageDomain | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
 
-  const { data: domains = [], isLoading } = usePackageDomains(
-    packageReleaseId
-      ? { package_release_id: packageReleaseId }
-      : packageId
-        ? { package_id: packageId }
-        : null,
+  const { data: domains = [], isLoading } = useAllPackageLinkedDomains(
+    packageId ?? null,
   )
   const { data: releases = [] } = usePackageReleasesByPackageId(
     packageId ?? null,
