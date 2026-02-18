@@ -59,6 +59,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 import { cn } from "@/lib/utils"
+import { OrgDomainsList } from "@/components/org-settings/OrgDomainsList"
 
 const organizationSettingsSchema = z.object({
   tscircuit_handle: z
@@ -75,11 +76,12 @@ const organizationSettingsSchema = z.object({
 
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
 
-type SettingsSection = "general" | "members" | "github" | "danger"
+type SettingsSection = "general" | "members" | "domains" | "github" | "danger"
 
 const navItems: { id: SettingsSection; label: string }[] = [
   { id: "general", label: "General" },
   { id: "members", label: "Members" },
+  { id: "domains", label: "Domains" },
   { id: "github", label: "GitHub" },
   { id: "danger", label: "Danger Zone" },
 ]
@@ -1070,6 +1072,10 @@ export default function OrganizationSettingsPage() {
                   </SettingCard>
                 )}
               </>
+            )}
+
+            {activeSection === "domains" && (
+              <OrgDomainsList orgId={organization.org_id} />
             )}
 
             {activeSection === "github" && (
