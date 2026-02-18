@@ -2382,8 +2382,9 @@ exports.TestComponent = TestComponent;
   })
 
   db.addPackageDomain({
-    points_to: "package_release",
-    package_release_id: glbModelReleaseId,
+    points_to: "package_release_with_tag",
+    package_id: glbModelPackage.package_id,
+    tag: "latest",
     fully_qualified_domain_name: "custom-3d-model.tscircuit.app",
   })
 
@@ -2609,5 +2610,16 @@ export default () => (
       "3. Code compilation - OK\n" +
       "4. 3D model validation - OK\n" +
       "Build completed successfully",
+  })
+
+  // Create a new release for the GLB model package
+  const { package_release_id: glbModelReleaseId2 } = db.addPackageRelease({
+    package_id: glbModelPackage.package_id,
+    version: "0.0.2",
+    created_at: new Date().toISOString(),
+    is_latest: true,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
   })
 }
