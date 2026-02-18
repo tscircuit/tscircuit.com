@@ -85,7 +85,7 @@
     "@tscircuit/3d-viewer": "^0.0.517",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
-    "@tscircuit/eval": "^0.0.649",
+    "@tscircuit/eval": "^0.0.651",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "1.11.341",
