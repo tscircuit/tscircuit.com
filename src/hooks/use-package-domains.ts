@@ -156,9 +156,15 @@ export const useUpdatePackageDomain = () => {
     mutationFn: async (params: {
       package_domain_id: string
       fully_qualified_domain_name?: string | null
-      points_to?: "package_release" | "package"
+      points_to?:
+        | "package_release"
+        | "package_build"
+        | "package_release_with_tag"
+        | "package"
       package_release_id?: string | null
+      package_build_id?: string | null
       package_id?: string | null
+      tag?: string | null
     }) => {
       const { data } = await axios.post("/package_domains/update", params)
       return data.package_domain as PublicPackageDomain

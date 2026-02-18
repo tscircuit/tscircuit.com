@@ -459,6 +459,7 @@ export function ReleaseDeploymentDetails({
           packageId={pkg.package_id}
           currentPointsTo={editingDomain.points_to}
           currentPackageReleaseId={editingDomain.package_release_id}
+          currentTag={editingDomain.tag}
         />
       )}
     </div>

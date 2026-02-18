@@ -172,6 +172,7 @@ export function PackageDomainsList({
           packageId={packageId}
           currentPointsTo={editingDomain.points_to}
           currentPackageReleaseId={editingDomain.package_release_id}
+          currentTag={editingDomain.tag}
         />
       )}
 

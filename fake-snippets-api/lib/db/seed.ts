@@ -2381,6 +2381,12 @@ exports.TestComponent = TestComponent;
     transpilation_error: null,
   })
 
+  db.addPackageDomain({
+    points_to: "package_release",
+    package_release_id: glbModelReleaseId,
+    fully_qualified_domain_name: "custom-3d-model.tscircuit.app",
+  })
+
   // Update the package to link to the release
   db.updatePackage(glbModelPackage.package_id, {
     latest_package_release_id: glbModelReleaseId,
