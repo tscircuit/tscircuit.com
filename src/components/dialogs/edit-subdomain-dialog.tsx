@@ -7,9 +7,11 @@ import {
 } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { createUseDialog } from "./create-use-dialog"
 import { useUpdatePackageDomain } from "@/hooks/use-package-domains"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Loader2 } from "lucide-react"
 
 const DOMAIN_SUFFIX = ".tscircuit.app"
@@ -21,27 +23,61 @@ function extractSubdomain(fqdn: string): string {
   return fqdn
 }
 
+function toVersionLabel(version: string | null | undefined) {
+  if (!version) return "Unknown version"
+  return version.startsWith("v") ? version : `v${version}`
+}
+
 export const EditSubdomainDialog = ({
   open,
   onOpenChange,
   packageDomainId,
   currentFqdn,
   targetInfo,
+  packageId,
+  currentPointsTo,
+  currentPackageReleaseId,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   packageDomainId: string
   currentFqdn: string
   targetInfo?: { badgeLabel: string; description: string } | null
+  packageId?: string | null
+  currentPointsTo?: "package" | "package_release" | string | null
+  currentPackageReleaseId?: string | null
 }) => {
   const [subdomain, setSubdomain] = useState(extractSubdomain(currentFqdn))
+  const [targetType, setTargetType] = useState<"latest" | "release">(
+    currentPointsTo === "package_release" ? "release" : "latest",
+  )
+  const [selectedReleaseId, setSelectedReleaseId] = useState(
+    currentPackageReleaseId || "",
+  )
+
   const updateMutation = useUpdatePackageDomain()
+  const { data: releases = [] } = usePackageReleasesByPackageId(
+    packageId ?? null,
+  )
 
   useEffect(() => {
     if (open) {
       setSubdomain(extractSubdomain(currentFqdn))
+      setTargetType(
+        currentPointsTo === "package_release" ? "release" : "latest",
+      )
+      setSelectedReleaseId(currentPackageReleaseId || "")
     }
-  }, [open, currentFqdn])
+  }, [open, currentFqdn, currentPointsTo, currentPackageReleaseId])
+
+  const releaseOptions = useMemo(
+    () =>
+      releases.map((release) => ({
+        value: release.package_release_id,
+        label: toVersionLabel(release.version),
+      })),
+    [releases],
+  )
 
   const normalizedSubdomain = subdomain
     .trim()
@@ -52,15 +88,34 @@ export const EditSubdomainDialog = ({
     ? `${normalizedSubdomain}${DOMAIN_SUFFIX}`
     : ""
 
-  const hasChanged = newFqdn !== currentFqdn
-  const isValid = normalizedSubdomain.length > 0
+  const domainChanged = newFqdn !== currentFqdn
+  const targetChanged =
+    targetType === "latest"
+      ? currentPointsTo !== "package"
+      : currentPointsTo !== "package_release" ||
+        currentPackageReleaseId !== selectedReleaseId
+
+  const hasChanged = domainChanged || targetChanged
+  const isDomainValid = normalizedSubdomain.length > 0
+  const isTargetValid = targetType === "latest" || Boolean(selectedReleaseId)
 
   const handleSave = () => {
-    if (!isValid || !hasChanged) return
+    if (!isDomainValid || !isTargetValid || !hasChanged) return
+
     updateMutation.mutate(
       {
         package_domain_id: packageDomainId,
         fully_qualified_domain_name: newFqdn,
+        ...(targetType === "latest"
+          ? {
+              points_to: "package" as const,
+              package_id: packageId || null,
+              package_release_id: null,
+            }
+          : {
+              points_to: "package_release" as const,
+              package_release_id: selectedReleaseId,
+            }),
       },
       {
         onSuccess: () => onOpenChange(false),
@@ -74,8 +129,8 @@ export const EditSubdomainDialog = ({
         <DialogHeader>
           <DialogTitle>Edit Subdomain</DialogTitle>
           <DialogDescription>
-            Change the subdomain for this domain. Only lowercase letters,
-            numbers, and hyphens are allowed.
+            Change the subdomain and where this domain points. Only lowercase
+            letters, numbers, and hyphens are allowed.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -89,30 +144,64 @@ export const EditSubdomainDialog = ({
               </p>
             </div>
           )}
-          <div className="flex items-center gap-0">
-            <Input
-              value={subdomain}
-              onChange={(e) => setSubdomain(e.target.value)}
-              placeholder="my-board"
-              className="rounded-r-none text-sm"
-              autoComplete="off"
-              disabled={updateMutation.isLoading}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && isValid && hasChanged) {
-                  handleSave()
-                }
-              }}
-            />
-            <span className="text-sm text-gray-500 bg-gray-50 border border-l-0 border-gray-200 rounded-r-md px-3 py-2 whitespace-nowrap">
-              {DOMAIN_SUFFIX}
-            </span>
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-700">Subdomain</p>
+            <div className="flex items-center gap-0">
+              <Input
+                value={subdomain}
+                onChange={(e) => setSubdomain(e.target.value)}
+                placeholder="my-board"
+                className="rounded-r-none text-sm"
+                autoComplete="off"
+                disabled={updateMutation.isLoading}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    isDomainValid &&
+                    isTargetValid &&
+                    hasChanged
+                  ) {
+                    handleSave()
+                  }
+                }}
+              />
+              <span className="text-sm text-gray-500 bg-gray-50 border border-l-0 border-gray-200 rounded-r-md px-3 py-2 whitespace-nowrap">
+                {DOMAIN_SUFFIX}
+              </span>
+            </div>
           </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-700">Points to</p>
+            <SearchableSelect
+              value={targetType}
+              onChange={(value) => setTargetType(value as "latest" | "release")}
+              options={[
+                { value: "latest", label: "Latest package release" },
+                { value: "release", label: "Specific package release" },
+              ]}
+            />
+          </div>
+
+          {targetType === "release" && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">
+                Target package release
+              </p>
+              <SearchableSelect
+                value={selectedReleaseId}
+                onChange={setSelectedReleaseId}
+                options={releaseOptions}
+              />
+            </div>
+          )}
+
           {subdomain.trim() && normalizedSubdomain !== subdomain.trim() && (
             <p className="text-xs text-gray-500">
               Will be normalized to: {normalizedSubdomain}
             </p>
           )}
-          {newFqdn && hasChanged && (
+          {newFqdn && domainChanged && (
             <p className="text-xs text-gray-500">
               New domain: <span className="font-medium">{newFqdn}</span>
             </p>
@@ -129,7 +218,12 @@ export const EditSubdomainDialog = ({
             <Button
               size="sm"
               onClick={handleSave}
-              disabled={!isValid || !hasChanged || updateMutation.isLoading}
+              disabled={
+                !isDomainValid ||
+                !isTargetValid ||
+                !hasChanged ||
+                updateMutation.isLoading
+              }
             >
               {updateMutation.isLoading && (
                 <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />

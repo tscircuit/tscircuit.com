@@ -456,6 +456,9 @@ export function ReleaseDeploymentDetails({
           }}
           packageDomainId={editingDomain.package_domain_id}
           currentFqdn={editingDomain.fully_qualified_domain_name || ""}
+          packageId={pkg.package_id}
+          currentPointsTo={editingDomain.points_to}
+          currentPackageReleaseId={editingDomain.package_release_id}
         />
       )}
     </div>
