@@ -29,6 +29,80 @@ export const usePackageDomains = (
   )
 }
 
+export const useAllPackageLinkedDomains = (packageId: string | null) => {
+  const axios = useAxios()
+
+  return useQuery<PublicPackageDomain[], Error & { status: number }>(
+    ["packageDomains", "linked", packageId],
+    async () => {
+      if (!packageId) return []
+
+      const [{ data: releaseData }, { data: buildData }] = await Promise.all([
+        axios.post<{ package_releases: Array<{ package_release_id: string }> }>(
+          "/package_releases/list",
+          { package_id: packageId },
+        ),
+        axios.get<{ package_builds: Array<{ package_build_id: string }> }>(
+          "/package_builds/list",
+          { params: { package_id: packageId } },
+        ),
+      ])
+
+      const releaseIds = (releaseData.package_releases || []).map(
+        (release) => release.package_release_id,
+      )
+      const buildIds = (buildData.package_builds || []).map(
+        (build) => build.package_build_id,
+      )
+
+      const domainRequests = [
+        axios.get<{ package_domains: PublicPackageDomain[] }>(
+          "/package_domains/list",
+          {
+            params: { package_id: packageId },
+          },
+        ),
+        ...releaseIds.map((package_release_id) =>
+          axios.get<{ package_domains: PublicPackageDomain[] }>(
+            "/package_domains/list",
+            {
+              params: { package_release_id },
+            },
+          ),
+        ),
+        ...buildIds.map((package_build_id) =>
+          axios.get<{ package_domains: PublicPackageDomain[] }>(
+            "/package_domains/list",
+            {
+              params: { package_build_id },
+            },
+          ),
+        ),
+      ]
+
+      const domainResults = await Promise.all(domainRequests)
+      const domainMap = new Map<string, PublicPackageDomain>()
+
+      for (const result of domainResults) {
+        for (const domain of result.data.package_domains || []) {
+          domainMap.set(domain.package_domain_id, domain)
+        }
+      }
+
+      return [...domainMap.values()].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+    },
+    {
+      enabled: Boolean(packageId),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+    },
+  )
+}
+
 export const useCreatePackageDomain = () => {
   const axios = useAxios()
   const qc = useQueryClient()
