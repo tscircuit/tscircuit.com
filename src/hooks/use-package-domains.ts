@@ -37,22 +37,27 @@ export const useAllPackageLinkedDomains = (packageId: string | null) => {
     async () => {
       if (!packageId) return []
 
-      const [{ data: releaseData }, { data: buildData }] = await Promise.all([
-        axios.post<{ package_releases: Array<{ package_release_id: string }> }>(
-          "/package_releases/list",
-          { package_id: packageId },
-        ),
-        axios.get<{ package_builds: Array<{ package_build_id: string }> }>(
-          "/package_builds/list",
-          { params: { package_id: packageId } },
-        ),
-      ])
+      const { data: releaseData } = await axios.post<{
+        package_releases: Array<{ package_release_id: string }>
+      }>("/package_releases/list", { package_id: packageId })
 
       const releaseIds = (releaseData.package_releases || []).map(
         (release) => release.package_release_id,
       )
-      const buildIds = (buildData.package_builds || []).map(
-        (build) => build.package_build_id,
+
+      const buildResults = await Promise.all(
+        releaseIds.map((package_release_id) =>
+          axios.get<{ package_builds: Array<{ package_build_id: string }> }>(
+            "/package_builds/list",
+            { params: { package_release_id } },
+          ),
+        ),
+      )
+
+      const buildIds = buildResults.flatMap((result) =>
+        (result.data.package_builds || []).map(
+          (build) => build.package_build_id,
+        ),
       )
 
       const domainRequests = [
