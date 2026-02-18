@@ -1,4 +1,7 @@
-import { publicPackageDomainSchema } from "fake-snippets-api/lib/db/schema"
+import {
+  packageDomainPointsToEnum,
+  publicPackageDomainSchema,
+} from "fake-snippets-api/lib/db/schema"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { publicMapPackageDomain } from "fake-snippets-api/lib/public-mapping/public-map-package-domain"
 import { z } from "zod"
@@ -8,6 +11,11 @@ export default withRouteSpec({
   auth: "session",
   jsonBody: z.object({
     package_domain_id: z.string(),
+    points_to: packageDomainPointsToEnum.optional(),
+    package_release_id: z.string().nullable().optional(),
+    package_build_id: z.string().nullable().optional(),
+    package_id: z.string().nullable().optional(),
+    tag: z.string().nullable().optional(),
     default_main_component_path: z.string().nullable().optional(),
     fully_qualified_domain_name: z.string().nullable().optional(),
   }),
@@ -18,6 +26,11 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const {
     package_domain_id,
+    points_to,
+    package_release_id,
+    package_build_id,
+    package_id,
+    tag,
     default_main_component_path,
     fully_qualified_domain_name,
   } = req.jsonBody
@@ -51,6 +64,69 @@ export default withRouteSpec({
     }
   }
 
+  if (points_to) {
+    if (points_to === "package_release") {
+      if (!package_release_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_release_id",
+          message:
+            "package_release_id is required when points_to is package_release",
+        })
+      }
+      if (package_build_id || package_id || tag) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_build_id, package_id, and tag must not be provided when points_to is package_release",
+        })
+      }
+    } else if (points_to === "package") {
+      if (!package_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_id",
+          message: "package_id is required when points_to is package",
+        })
+      }
+      if (package_release_id || package_build_id || tag) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_release_id, package_build_id, and tag must not be provided when points_to is package",
+        })
+      }
+    } else if (points_to === "package_build") {
+      if (!package_build_id) {
+        return ctx.error(400, {
+          error_code: "missing_package_build_id",
+          message:
+            "package_build_id is required when points_to is package_build",
+        })
+      }
+      if (package_release_id || package_id || tag) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_release_id, package_id, and tag must not be provided when points_to is package_build",
+        })
+      }
+    } else if (points_to === "package_release_with_tag") {
+      if (!package_release_id || !tag) {
+        return ctx.error(400, {
+          error_code: "missing_params",
+          message:
+            "package_release_id and tag are required when points_to is package_release_with_tag",
+        })
+      }
+      if (package_build_id || package_id) {
+        return ctx.error(400, {
+          error_code: "invalid_params",
+          message:
+            "package_build_id and package_id must not be provided when points_to is package_release_with_tag",
+        })
+      }
+    }
+  }
+
   const updateValues: Record<string, unknown> = {}
 
   if (default_main_component_path !== undefined) {
@@ -59,6 +135,14 @@ export default withRouteSpec({
 
   if (fully_qualified_domain_name !== undefined) {
     updateValues.fully_qualified_domain_name = fully_qualified_domain_name
+  }
+
+  if (points_to !== undefined) {
+    updateValues.points_to = points_to
+    updateValues.package_release_id = package_release_id ?? null
+    updateValues.package_build_id = package_build_id ?? null
+    updateValues.package_id = package_id ?? null
+    updateValues.tag = tag ?? null
   }
 
   if (Object.keys(updateValues).length === 0) {

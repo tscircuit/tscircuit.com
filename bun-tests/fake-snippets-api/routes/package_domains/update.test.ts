@@ -162,3 +162,78 @@ test("update package domain - duplicate FQDN", async () => {
     expect(error.data.error.error_code).toBe("domain_fqdn_exists")
   }
 })
+
+test("update package domain - retarget to specific package_release", async () => {
+  const { axios } = await getTestServer()
+
+  const packageRes = await axios.post("/api/packages/create", {
+    name: "testuser/test-update-retarget-release",
+    description: "Test",
+  })
+  const pkg = packageRes.data.package
+
+  const releaseOneRes = await axios.post("/api/package_releases/create", {
+    package_id: pkg.package_id,
+    version: "1.0.0",
+    is_latest: false,
+  })
+  const releaseTwoRes = await axios.post("/api/package_releases/create", {
+    package_id: pkg.package_id,
+    version: "1.1.0",
+    is_latest: true,
+  })
+
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package",
+    package_id: pkg.package_id,
+    fully_qualified_domain_name: "retarget-release.example.com",
+  })
+
+  const updateRes = await axios.post("/api/package_domains/update", {
+    package_domain_id: createRes.data.package_domain.package_domain_id,
+    points_to: "package_release",
+    package_release_id: releaseOneRes.data.package_release.package_release_id,
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.package_domain.points_to).toBe("package_release")
+  expect(updateRes.data.package_domain.package_release_id).toBe(
+    releaseOneRes.data.package_release.package_release_id,
+  )
+  expect(updateRes.data.package_domain.package_id).toBeNull()
+
+  expect(releaseTwoRes.status).toBe(200)
+})
+
+test("update package domain - retarget back to package latest", async () => {
+  const { axios } = await getTestServer()
+
+  const packageRes = await axios.post("/api/packages/create", {
+    name: "testuser/test-update-retarget-package",
+    description: "Test",
+  })
+  const pkg = packageRes.data.package
+
+  const releaseRes = await axios.post("/api/package_releases/create", {
+    package_id: pkg.package_id,
+    version: "2.0.0",
+    is_latest: true,
+  })
+
+  const createRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_release",
+    package_release_id: releaseRes.data.package_release.package_release_id,
+    fully_qualified_domain_name: "retarget-package.example.com",
+  })
+
+  const updateRes = await axios.post("/api/package_domains/update", {
+    package_domain_id: createRes.data.package_domain.package_domain_id,
+    points_to: "package",
+    package_id: pkg.package_id,
+  })
+
+  expect(updateRes.status).toBe(200)
+  expect(updateRes.data.package_domain.points_to).toBe("package")
+  expect(updateRes.data.package_domain.package_id).toBe(pkg.package_id)
+  expect(updateRes.data.package_domain.package_release_id).toBeNull()
+})

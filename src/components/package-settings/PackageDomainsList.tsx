@@ -167,8 +167,8 @@ export function PackageDomainsList({
           onOpenChange={(open) => {
             if (!open) setEditingDomain(null)
           }}
-          packageDomainId={editingDomain.package_domain_id}
-          currentFqdn={editingDomain.fully_qualified_domain_name || ""}
+          packageDomain={editingDomain}
+          releases={releases}
           targetInfo={getPackageDomainTargetInfo(editingDomain, {
             releaseVersionById,
             buildById,

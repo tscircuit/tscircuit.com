@@ -3,6 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "react-query"
 import { useAxios } from "./use-axios"
 import { useToast } from "./use-toast"
 
+type PackageDomainPointsTo =
+  | "package_release"
+  | "package_build"
+  | "package_release_with_tag"
+  | "package"
+
 export const usePackageDomains = (
   query: {
     package_release_id?: string | null
@@ -36,11 +42,7 @@ export const useCreatePackageDomain = () => {
 
   return useMutation({
     mutationFn: async (params: {
-      points_to:
-        | "package_release"
-        | "package_build"
-        | "package_release_with_tag"
-        | "package"
+      points_to: PackageDomainPointsTo
       package_release_id?: string
       package_build_id?: string
       package_id?: string
@@ -77,6 +79,11 @@ export const useUpdatePackageDomain = () => {
     mutationFn: async (params: {
       package_domain_id: string
       fully_qualified_domain_name?: string | null
+      points_to?: PackageDomainPointsTo
+      package_release_id?: string | null
+      package_build_id?: string | null
+      package_id?: string | null
+      tag?: string | null
     }) => {
       const { data } = await axios.post("/package_domains/update", params)
       return data.package_domain as PublicPackageDomain
