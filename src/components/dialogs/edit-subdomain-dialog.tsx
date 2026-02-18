@@ -71,7 +71,7 @@ export const EditSubdomainDialog = ({
   const { data: releases = [] } = usePackageReleasesByPackageId(
     packageId ?? null,
   )
-  const latestRelease = releases[0]
+  const latestRelease = releases.find((r) => r.is_latest) ?? releases[0]
 
   useEffect(() => {
     if (open) {
