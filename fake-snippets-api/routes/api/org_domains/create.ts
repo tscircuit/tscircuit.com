@@ -14,6 +14,7 @@ export default withRouteSpec({
     org_id: z.string(),
     fully_qualified_domain_name: z.string(),
     points_to: orgDomainPointsToEnum,
+    pcm_repository_name: z.string().nullable().optional(),
     linked_packages: z
       .array(
         z.object({
@@ -28,8 +29,13 @@ export default withRouteSpec({
     org_domain: publicOrgDomainSchema,
   }),
 })(async (req, ctx) => {
-  const { org_id, fully_qualified_domain_name, points_to, linked_packages } =
-    req.jsonBody
+  const {
+    org_id,
+    fully_qualified_domain_name,
+    points_to,
+    pcm_repository_name,
+    linked_packages,
+  } = req.jsonBody
 
   const org = ctx.db.getOrg({ org_id }, ctx.auth)
   if (!org) {
@@ -70,6 +76,7 @@ export default withRouteSpec({
     org_id,
     fully_qualified_domain_name,
     points_to,
+    pcm_repository_name: pcm_repository_name ?? null,
   })
 
   const createdLinkedPackages = (linked_packages ?? []).map((linkedPackage) =>

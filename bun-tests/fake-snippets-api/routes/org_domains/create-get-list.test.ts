@@ -28,6 +28,7 @@ test("org_domains create, get, and list", async () => {
     org_id,
     fully_qualified_domain_name: "registry.acmeorgdomain.tscircuit.app",
     points_to: "merged_pcm_repositories",
+    pcm_repository_name: "Acme Registry",
     linked_packages: [
       {
         points_to: "package_release",
@@ -41,6 +42,9 @@ test("org_domains create, get, and list", async () => {
   expect(createDomainRes.data.org_domain.org_id).toBe(org_id)
   expect(createDomainRes.data.org_domain.points_to).toBe(
     "merged_pcm_repositories",
+  )
+  expect(createDomainRes.data.org_domain.pcm_repository_name).toBe(
+    "Acme Registry",
   )
   expect(createDomainRes.data.org_domain.linked_packages.length).toBe(1)
   expect(createDomainRes.data.org_domain.linked_packages[0].points_to).toBe(
@@ -62,6 +66,7 @@ test("org_domains create, get, and list", async () => {
 
   expect(getByIdRes.data.ok).toBe(true)
   expect(getByIdRes.data.org_domain.org_domain_id).toBe(org_domain_id)
+  expect(getByIdRes.data.org_domain.pcm_repository_name).toBe("Acme Registry")
   expect(getByIdRes.data.org_domain.linked_packages.length).toBe(1)
   expect(getByIdRes.data.org_domain.linked_packages[0].package_release_id).toBe(
     package_release_id,
@@ -73,6 +78,7 @@ test("org_domains create, get, and list", async () => {
 
   expect(getByFqdnRes.data.ok).toBe(true)
   expect(getByFqdnRes.data.org_domain.org_domain_id).toBe(org_domain_id)
+  expect(getByFqdnRes.data.org_domain.pcm_repository_name).toBe("Acme Registry")
   expect(getByFqdnRes.data.org_domain.linked_packages.length).toBe(1)
 
   const listRes = await jane_axios.get(`/api/org_domains/list?org_id=${org_id}`)
@@ -91,6 +97,7 @@ test("org_domains create, get, and list", async () => {
       orgDomain.org_domain_id === org_domain_id,
   )
 
+  expect(listedDomain.pcm_repository_name).toBe("Acme Registry")
   expect(listedDomain.linked_packages.length).toBe(1)
   expect(listedDomain.linked_packages[0].package_release_id).toBe(
     package_release_id,
