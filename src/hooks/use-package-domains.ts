@@ -37,15 +37,14 @@ export const useAllPackageLinkedDomains = (packageId: string | null) => {
     async () => {
       if (!packageId) return []
 
-      const { data } = await axios.get<{ package_domains: PublicPackageDomain[] }>(
-        "/package_domains/list",
-        {
-          params: {
-            package_id: packageId,
-            filter_preset: "package_id_default_resolution",
-          },
+      const { data } = await axios.get<{
+        package_domains: PublicPackageDomain[]
+      }>("/package_domains/list", {
+        params: {
+          package_id: packageId,
+          filter_preset: "package_id_default_resolution",
         },
-      )
+      })
 
       return [...(data.package_domains || [])].sort(
         (a, b) =>
