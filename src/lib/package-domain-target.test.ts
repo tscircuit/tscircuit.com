@@ -18,6 +18,17 @@ const baseDomain: PublicPackageDomain = {
 }
 
 describe("getPackageDomainTargetInfo", () => {
+  it("uses the specific tag as badge label for package_release_with_tag", () => {
+    const info = getPackageDomainTargetInfo({
+      ...baseDomain,
+      points_to: "package_release_with_tag",
+      tag: "latest",
+    })
+
+    expect(info.badgeLabel).toBe("Latest")
+    expect(info.description).toBe('Points to releases tagged "latest".')
+  })
+
   it("uses release version in description for package_release", () => {
     const info = getPackageDomainTargetInfo(
       {
