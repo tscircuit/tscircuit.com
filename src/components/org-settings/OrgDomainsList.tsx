@@ -25,6 +25,15 @@ import type {
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
 
+type OrgDomainLinkedPackageCompat = Omit<
+  PublicOrgDomain["linked_packages"][number],
+  "points_to"
+> & {
+  points_to?: "package_release" | "package_release_with_tag" | string | null
+  tag?: string | null
+  package_id?: string | null
+}
+
 export function OrgDomainsList({ orgId }: { orgId: string }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddDomainDialog, setShowAddDomainDialog] = useState(false)
@@ -55,6 +64,14 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
     () => orgPackages.map((p) => p.package_id),
     [orgPackages],
   )
+
+  const packageNameById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const pkg of orgPackages) {
+      map.set(pkg.package_id, pkg.unscoped_name || pkg.name || pkg.package_id)
+    }
+    return map
+  }, [orgPackages])
 
   const { data: allReleases = [] } = useQuery<PublicPackageRelease[]>(
     ["orgPackageReleases", orgId, packageIds],
@@ -108,6 +125,17 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
         .filter(Boolean) as string[])
     : []
 
+  const existingLatestPackageIds = activeDomain
+    ? (activeDomain.linked_packages
+        .map((lp) => lp as OrgDomainLinkedPackageCompat)
+        .filter(
+          (lp) =>
+            lp.points_to === "package_release_with_tag" && lp.tag === "latest",
+        )
+        .map((lp) => lp.package_id)
+        .filter(Boolean) as string[])
+    : []
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -153,6 +181,7 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
                 key={domain.org_domain_id}
                 domain={domain}
                 releaseInfoById={releaseInfoById}
+                packageNameById={packageNameById}
                 onAddPackage={() =>
                   setAddLinkedPackageDomainId(domain.org_domain_id)
                 }
@@ -190,6 +219,7 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
           orgDomainId={addLinkedPackageDomainId}
           orgId={orgId}
           existingReleaseIds={existingReleaseIds}
+          existingLatestPackageIds={existingLatestPackageIds}
         />
       )}
     </div>
@@ -199,12 +229,14 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
 function OrgDomainCard({
   domain,
   releaseInfoById,
+  packageNameById,
   onAddPackage,
   onRemoveLinkedPackage,
   isRemoving,
 }: {
   domain: PublicOrgDomain
   releaseInfoById: Map<string, { packageName: string; version: string | null }>
+  packageNameById: Map<string, string>
   onAddPackage: () => void
   onRemoveLinkedPackage: (linkedPackageId: string) => void
   isRemoving: boolean
@@ -257,12 +289,22 @@ function OrgDomainCard({
             Linked packages ({domain.linked_packages.length})
           </p>
           {domain.linked_packages.map((lp) => {
+            const linkedPackage = lp as OrgDomainLinkedPackageCompat
             const info = lp.package_release_id
               ? releaseInfoById.get(lp.package_release_id)
               : null
-            const label = info
-              ? `${info.packageName}${info.version ? ` ${info.version.startsWith("v") ? info.version : `v${info.version}`}` : ""}`
-              : lp.package_release_id || "Unknown"
+            const latestLabel =
+              linkedPackage.points_to === "package_release_with_tag" &&
+              linkedPackage.tag === "latest" &&
+              linkedPackage.package_id
+                ? `${packageNameById.get(linkedPackage.package_id) || linkedPackage.package_id} (Latest Version)`
+                : null
+
+            const label = latestLabel
+              ? latestLabel
+              : info
+                ? `${info.packageName}${info.version ? ` ${info.version.startsWith("v") ? info.version : `v${info.version}`}` : ""}`
+                : lp.package_release_id || "Unknown"
 
             return (
               <div

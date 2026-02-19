@@ -63,8 +63,10 @@ export const useAddOrgDomainLinkedPackage = () => {
   return useMutation({
     mutationFn: async (params: {
       org_domain_id: string
-      points_to: "package_release"
-      package_release_id: string
+      points_to: "package_release" | "package_release_with_tag"
+      package_release_id?: string
+      package_id?: string
+      tag?: string
     }) => {
       const { data } = await axios.post(
         "/org_domains/add_linked_package",

@@ -6,6 +6,7 @@ import {
   DialogDescription,
 } from "../ui/dialog"
 import { Button } from "../ui/button"
+import { Checkbox } from "../ui/checkbox"
 import { useState, useEffect } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
@@ -21,15 +22,18 @@ export const AddLinkedPackageDialog = ({
   orgDomainId,
   orgId,
   existingReleaseIds,
+  existingLatestPackageIds,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   orgDomainId: string
   orgId: string
   existingReleaseIds: string[]
+  existingLatestPackageIds: string[]
 }) => {
   const [selectedPackageId, setSelectedPackageId] = useState("")
   const [selectedReleaseId, setSelectedReleaseId] = useState("")
+  const [useLatestVersion, setUseLatestVersion] = useState(true)
   const axios = useAxios()
   const addMutation = useAddOrgDomainLinkedPackage()
 
@@ -37,6 +41,7 @@ export const AddLinkedPackageDialog = ({
     if (open) {
       setSelectedPackageId("")
       setSelectedReleaseId("")
+      setUseLatestVersion(true)
     }
   }, [open])
 
@@ -64,6 +69,8 @@ export const AddLinkedPackageDialog = ({
     label: p.unscoped_name || p.name || p.package_id,
   }))
 
+  const latestRelease = releases.find((r) => r.is_latest) ?? releases[0]
+
   const releaseOptions = releases
     .filter((r) => !existingReleaseIds.includes(r.package_release_id))
     .map((r) => ({
@@ -75,14 +82,32 @@ export const AddLinkedPackageDialog = ({
         : r.package_release_id,
     }))
 
+  const packageAlreadyLinkedToLatest =
+    existingLatestPackageIds.includes(selectedPackageId)
+
+  const latestReleaseLabel = latestRelease?.version
+    ? latestRelease.version.startsWith("v")
+      ? latestRelease.version
+      : `v${latestRelease.version}`
+    : "latest"
+
   const handleAdd = () => {
-    if (!selectedReleaseId) return
+    if (useLatestVersion && !selectedPackageId) return
+    if (!useLatestVersion && !selectedReleaseId) return
+
     addMutation.mutate(
-      {
-        org_domain_id: orgDomainId,
-        points_to: "package_release",
-        package_release_id: selectedReleaseId,
-      },
+      useLatestVersion
+        ? {
+            org_domain_id: orgDomainId,
+            points_to: "package_release_with_tag",
+            package_id: selectedPackageId,
+            tag: "latest",
+          }
+        : {
+            org_domain_id: orgDomainId,
+            points_to: "package_release",
+            package_release_id: selectedReleaseId,
+          },
       {
         onSuccess: () => onOpenChange(false),
       },
@@ -95,8 +120,8 @@ export const AddLinkedPackageDialog = ({
         <DialogHeader>
           <DialogTitle>Add Linked Package</DialogTitle>
           <DialogDescription>
-            Select a package and release to include in this domain's merged PCM
-            repository.
+            Select a package and release to include in this domain&apos;s merged
+            PCM repository.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -112,24 +137,56 @@ export const AddLinkedPackageDialog = ({
             />
           </div>
           {selectedPackageId && (
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-700">
-                Release
-              </label>
-              {releases.length === 0 ? (
-                <p className="text-xs text-gray-500">
-                  No releases found for this package.
-                </p>
-              ) : releaseOptions.length === 0 ? (
-                <p className="text-xs text-gray-500">
-                  All releases are already linked.
-                </p>
-              ) : (
-                <SearchableSelect
-                  value={selectedReleaseId}
-                  onChange={setSelectedReleaseId}
-                  options={releaseOptions}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="useLatestVersion"
+                  checked={useLatestVersion}
+                  onCheckedChange={(checked) => {
+                    const nextUseLatest = Boolean(checked)
+                    setUseLatestVersion(nextUseLatest)
+                    if (nextUseLatest) {
+                      setSelectedReleaseId("")
+                    }
+                  }}
                 />
+                <label
+                  htmlFor="useLatestVersion"
+                  className="text-xs font-medium text-gray-700"
+                >
+                  Use Latest Version
+                </label>
+              </div>
+
+              {!useLatestVersion && (
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-700">
+                    Release
+                  </label>
+                  {releases.length === 0 ? (
+                    <p className="text-xs text-gray-500">
+                      No releases found for this package.
+                    </p>
+                  ) : releaseOptions.length === 0 ? (
+                    <p className="text-xs text-gray-500">
+                      All releases are already linked.
+                    </p>
+                  ) : (
+                    <SearchableSelect
+                      value={selectedReleaseId}
+                      onChange={setSelectedReleaseId}
+                      options={releaseOptions}
+                    />
+                  )}
+                </div>
+              )}
+
+              {useLatestVersion && (
+                <p className="text-xs text-gray-500">
+                  {packageAlreadyLinkedToLatest
+                    ? "This package is already linked with Latest Version."
+                    : `Will track the latest release${latestRelease ? ` (currently ${latestReleaseLabel})` : ""}.`}
+                </p>
               )}
             </div>
           )}
@@ -145,7 +202,12 @@ export const AddLinkedPackageDialog = ({
             <Button
               size="sm"
               onClick={handleAdd}
-              disabled={!selectedReleaseId || addMutation.isLoading}
+              disabled={
+                !selectedPackageId ||
+                (!useLatestVersion && !selectedReleaseId) ||
+                (useLatestVersion && packageAlreadyLinkedToLatest) ||
+                addMutation.isLoading
+              }
             >
               {addMutation.isLoading && (
                 <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
