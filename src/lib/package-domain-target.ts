@@ -18,6 +18,11 @@ function formatVersion(version?: string | null): string | null {
   return version.startsWith("v") ? version : `v${version}`
 }
 
+function formatTagLabel(tag?: string | null): string {
+  if (!tag) return "Tag"
+  return tag.charAt(0).toUpperCase() + tag.slice(1)
+}
+
 export function getPackageDomainTargetInfo(
   domain: PublicPackageDomain,
   context: PackageDomainTargetContext = {},
@@ -34,7 +39,7 @@ export function getPackageDomainTargetInfo(
 
     case "package_release_with_tag":
       return {
-        badgeLabel: "Tag",
+        badgeLabel: formatTagLabel(domain.tag),
         description: domain.tag
           ? `Points to releases tagged "${domain.tag}".`
           : "Points to releases selected by tag.",
