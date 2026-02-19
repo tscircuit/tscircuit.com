@@ -667,6 +667,7 @@ export const orgDomainSchema = z.object({
   org_domain_id: z.string(),
   org_id: z.string(),
   fully_qualified_domain_name: z.string(),
+  pcm_repository_name: z.string().nullable().optional(),
   points_to: orgDomainPointsToEnum,
   created_at: z.coerce.date(),
 })
@@ -676,6 +677,7 @@ export const publicOrgDomainSchema = z.object({
   org_domain_id: z.string(),
   org_id: z.string(),
   fully_qualified_domain_name: z.string(),
+  pcm_repository_name: z.string().nullable().optional(),
   points_to: orgDomainPointsToEnum,
   created_at: z.string().datetime(),
   linked_packages: z.array(publicOrgDomainLinkedPackageSchema),

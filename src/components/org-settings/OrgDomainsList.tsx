@@ -6,10 +6,18 @@ import { Badge } from "@/components/ui/badge"
 import {
   useOrgDomains,
   useRemoveOrgDomainLinkedPackage,
+  useUpdateOrgDomain,
 } from "@/hooks/use-org-domains"
 import { useAxios } from "@/hooks/use-axios"
 import { AddOrgSubdomainDialog } from "@/components/dialogs/add-org-subdomain-dialog"
 import { AddLinkedPackageDialog } from "@/components/dialogs/add-linked-package-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   Search,
   CheckCircle2,
@@ -18,6 +26,7 @@ import {
   Trash2,
   Loader2,
   Package,
+  Pencil,
 } from "lucide-react"
 import type {
   PublicOrgDomain,
@@ -40,10 +49,13 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
   const [addLinkedPackageDomainId, setAddLinkedPackageDomainId] = useState<
     string | null
   >(null)
+  const [editDomain, setEditDomain] = useState<PublicOrgDomain | null>(null)
+  const [pcmRepositoryName, setPcmRepositoryName] = useState("")
 
   const axios = useAxios()
   const { data: domains = [], isLoading } = useOrgDomains(orgId)
   const removeMutation = useRemoveOrgDomainLinkedPackage()
+  const updateDomainMutation = useUpdateOrgDomain()
 
   const { data: orgPackages = [] } = useQuery<PackageType[]>(
     ["orgPackages", orgId],
@@ -185,6 +197,10 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
                 onAddPackage={() =>
                   setAddLinkedPackageDomainId(domain.org_domain_id)
                 }
+                onEditDomain={() => {
+                  setEditDomain(domain)
+                  setPcmRepositoryName(domain.pcm_repository_name ?? "")
+                }}
                 onRemoveLinkedPackage={(linkedPackageId) =>
                   removeMutation.mutate({
                     org_domain_id: domain.org_domain_id,
@@ -203,6 +219,79 @@ export function OrgDomainsList({ orgId }: { orgId: string }) {
           )}
         </div>
       </div>
+
+      <Dialog
+        open={Boolean(editDomain)}
+        onOpenChange={(open) => {
+          if (!open && !updateDomainMutation.isLoading) {
+            setEditDomain(null)
+          }
+        }}
+      >
+        <DialogContent className="max-w-[90vw] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Domain</DialogTitle>
+            <DialogDescription>
+              Configure how this merged PCM repository appears in the KiCad PCM
+              dropdown.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">Domain</p>
+              <p className="text-sm text-gray-600">
+                {editDomain?.fully_qualified_domain_name}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">
+                PCM Repository Name
+              </p>
+              <Input
+                value={pcmRepositoryName}
+                onChange={(e) => setPcmRepositoryName(e.target.value)}
+                placeholder="Acme Components"
+                disabled={updateDomainMutation.isLoading}
+              />
+              <p className="text-xs text-gray-500">
+                This is how the PCM repository will appear in the KiCad PCM
+                dropdown.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditDomain(null)}
+                disabled={updateDomainMutation.isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                disabled={!editDomain || updateDomainMutation.isLoading}
+                onClick={() => {
+                  if (!editDomain) return
+                  updateDomainMutation.mutate(
+                    {
+                      org_domain_id: editDomain.org_domain_id,
+                      pcm_repository_name: pcmRepositoryName.trim() || null,
+                    },
+                    {
+                      onSuccess: () => setEditDomain(null),
+                    },
+                  )
+                }}
+              >
+                {updateDomainMutation.isLoading && (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                )}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AddOrgSubdomainDialog
         open={showAddDomainDialog}
@@ -231,6 +320,7 @@ function OrgDomainCard({
   releaseInfoById,
   packageNameById,
   onAddPackage,
+  onEditDomain,
   onRemoveLinkedPackage,
   isRemoving,
 }: {
@@ -238,6 +328,7 @@ function OrgDomainCard({
   releaseInfoById: Map<string, { packageName: string; version: string | null }>
   packageNameById: Map<string, string>
   onAddPackage: () => void
+  onEditDomain: () => void
   onRemoveLinkedPackage: (linkedPackageId: string) => void
   isRemoving: boolean
 }) {
@@ -270,17 +361,33 @@ function OrgDomainCard({
             <p className="mt-1 text-xs text-gray-500">
               Created {new Date(domain.created_at).toLocaleDateString()}
             </p>
+            {domain.pcm_repository_name && (
+              <p className="mt-1 text-xs text-gray-500">
+                PCM repository name: {domain.pcm_repository_name}
+              </p>
+            )}
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 px-3 bg-white shrink-0"
-          onClick={onAddPackage}
-        >
-          <Plus className="h-3.5 w-3.5 mr-1" />
-          Add package
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 bg-white shrink-0"
+            onClick={onEditDomain}
+          >
+            <Pencil className="h-3.5 w-3.5 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 px-3 bg-white shrink-0"
+            onClick={onAddPackage}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            Add package
+          </Button>
+        </div>
       </div>
 
       {domain.linked_packages.length > 0 && (

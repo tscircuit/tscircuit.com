@@ -129,3 +129,33 @@ export const useRemoveOrgDomainLinkedPackage = () => {
     },
   })
 }
+
+export const useUpdateOrgDomain = () => {
+  const axios = useAxios()
+  const qc = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: async (params: {
+      org_domain_id: string
+      pcm_repository_name?: string | null
+    }) => {
+      const { data } = await axios.post("/org_domains/update", params)
+      return data.org_domain as PublicOrgDomain
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["orgDomains"])
+      toast({ title: "Saved", description: "Domain updated successfully." })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description:
+          error?.data?.error?.message ||
+          error?.message ||
+          "Failed to update domain.",
+        variant: "destructive",
+      })
+    },
+  })
+}

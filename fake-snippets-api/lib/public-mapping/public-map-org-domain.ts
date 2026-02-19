@@ -9,6 +9,7 @@ export const publicMapOrgDomain = (
     org_id: internal_org_domain.org_id,
     fully_qualified_domain_name:
       internal_org_domain.fully_qualified_domain_name,
+    pcm_repository_name: internal_org_domain.pcm_repository_name ?? null,
     points_to: internal_org_domain.points_to,
     created_at: internal_org_domain.created_at.toISOString(),
     linked_packages: linked_packages.map((lp) => ({

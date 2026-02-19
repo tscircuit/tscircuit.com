@@ -2247,6 +2247,23 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
   },
+  updateOrgDomain: (
+    orgDomainId: string,
+    updates: Partial<Omit<OrgDomain, "org_domain_id" | "created_at">>,
+  ): OrgDomain | undefined => {
+    let updated: OrgDomain | undefined
+    set((state) => {
+      const index = state.orgDomains.findIndex(
+        (od) => od.org_domain_id === orgDomainId,
+      )
+      if (index === -1) return state
+      const orgDomains = [...state.orgDomains]
+      orgDomains[index] = { ...orgDomains[index], ...updates }
+      updated = orgDomains[index]
+      return { ...state, orgDomains }
+    })
+    return updated
+  },
   addOrgDomainLinkedPackage: (
     linkedPackage: Omit<
       OrgDomainLinkedPackage,
