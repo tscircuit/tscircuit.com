@@ -155,3 +155,130 @@ test("list package domains - empty result for non-existent filter", async () => 
   expect(listRes.data.ok).toBe(true)
   expect(listRes.data.package_domains).toHaveLength(0)
 })
+
+test("list package domains - filter_preset returns tagged and latest release/build", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageRes = await axios.post("/api/packages/create", {
+    name: "testuser/test-filter-preset",
+    description: "Test",
+  })
+  const pkg = packageRes.data.package
+
+  const release1Res = await axios.post("/api/package_releases/create", {
+    package_id: pkg.package_id,
+    version: "1.0.0",
+    is_latest: false,
+  })
+  const release2Res = await axios.post("/api/package_releases/create", {
+    package_id: pkg.package_id,
+    version: "1.0.1",
+    is_latest: true,
+  })
+
+  const release1 = release1Res.data.package_release
+  const release2 = release2Res.data.package_release
+
+  const build1 = db.addPackageBuild({
+    package_release_id: release1.package_release_id,
+    created_at: new Date("2099-01-01T00:00:05.000Z").toISOString(),
+    transpilation_logs: null,
+    circuit_json_build_logs: null,
+    build_error_last_updated_at: new Date(
+      "2099-01-01T00:00:05.000Z",
+    ).toISOString(),
+  })
+  const build2 = db.addPackageBuild({
+    package_release_id: release2.package_release_id,
+    created_at: new Date("2099-01-01T00:00:06.000Z").toISOString(),
+    transpilation_logs: null,
+    circuit_json_build_logs: null,
+    build_error_last_updated_at: new Date(
+      "2099-01-01T00:00:06.000Z",
+    ).toISOString(),
+  })
+
+  const tagged1Res = await axios.post("/api/package_domains/create", {
+    points_to: "package_release_with_tag",
+    package_release_id: release1.package_release_id,
+    tag: "latest",
+    fully_qualified_domain_name: "preset-tagged-1.example.com",
+  })
+  const tagged2Res = await axios.post("/api/package_domains/create", {
+    points_to: "package_release_with_tag",
+    package_release_id: release2.package_release_id,
+    tag: "stable",
+    fully_qualified_domain_name: "preset-tagged-2.example.com",
+  })
+  await axios.post("/api/package_domains/create", {
+    points_to: "package_release",
+    package_release_id: release1.package_release_id,
+    fully_qualified_domain_name: "preset-release-old.example.com",
+  })
+  const newestReleaseRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_release",
+    package_release_id: release2.package_release_id,
+    fully_qualified_domain_name: "preset-release-new.example.com",
+  })
+  await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
+    package_build_id: build1.package_build_id,
+    fully_qualified_domain_name: "preset-build-old.example.com",
+  })
+  const newestBuildRes = await axios.post("/api/package_domains/create", {
+    points_to: "package_build",
+    package_build_id: build2.package_build_id,
+    fully_qualified_domain_name: "preset-build-new.example.com",
+  })
+  await axios.post("/api/package_domains/create", {
+    points_to: "package",
+    package_id: pkg.package_id,
+    fully_qualified_domain_name: "preset-package.example.com",
+  })
+
+  const listRes = await axios.post("/api/package_domains/list", {
+    package_id: pkg.package_id,
+    filter_preset: "package_id_default_resolution",
+  })
+
+  expect(listRes.status).toBe(200)
+  expect(listRes.data.package_domains).toHaveLength(4)
+
+  const returnedDomainIds = listRes.data.package_domains.map(
+    (domain: { package_domain_id: string }) => domain.package_domain_id,
+  )
+
+  expect(returnedDomainIds).toContain(
+    newestReleaseRes.data.package_domain.package_domain_id,
+  )
+  expect(returnedDomainIds).toContain(
+    newestBuildRes.data.package_domain.package_domain_id,
+  )
+  expect(returnedDomainIds).toEqual(
+    expect.arrayContaining([
+      tagged1Res.data.package_domain.package_domain_id,
+      tagged2Res.data.package_domain.package_domain_id,
+    ]),
+  )
+  expect(
+    listRes.data.package_domains.some(
+      (domain: { points_to: string }) => domain.points_to === "package",
+    ),
+  ).toBe(false)
+})
+
+test("list package domains - filter_preset requires package_id", async () => {
+  const { axios } = await getTestServer()
+
+  let errorResponse
+  try {
+    await axios.post("/api/package_domains/list", {
+      filter_preset: "package_id_default_resolution",
+    })
+  } catch (error: any) {
+    errorResponse = error
+  }
+
+  expect(errorResponse.status).toBe(400)
+  expect(errorResponse.data.error.error_code).toBe("missing_parameter")
+})
