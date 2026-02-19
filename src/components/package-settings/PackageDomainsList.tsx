@@ -10,6 +10,8 @@ import type { PublicPackageDomain } from "fake-snippets-api/lib/db/schema"
 import { getPackageDomainTargetInfo } from "@/lib/package-domain-target"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { usePackageBuildsByPackageId } from "@/hooks/use-package-builds"
+import { usePackageFileByRelease } from "@/hooks/use-package-files"
+import { useToast } from "@/hooks/use-toast"
 
 export function PackageDomainsList({
   packageReleaseId,
@@ -22,6 +24,7 @@ export function PackageDomainsList({
   const [editingDomain, setEditingDomain] =
     useState<PublicPackageDomain | null>(null)
   const [showAddDialog, setShowAddDialog] = useState(false)
+  const { toast } = useToast()
 
   const { data: domains = [], isLoading } = useAllPackageLinkedDomains(
     packageId ?? null,
@@ -30,6 +33,21 @@ export function PackageDomainsList({
     packageId ?? null,
   )
   const { data: builds = [] } = usePackageBuildsByPackageId(packageId ?? null)
+  const { data: configFile } = usePackageFileByRelease(
+    packageReleaseId ?? null,
+    "tscircuit.config.json",
+  )
+
+  const isKicadPcmEnabled = useMemo(() => {
+    if (!configFile?.content_text) return false
+
+    try {
+      const config = JSON.parse(configFile.content_text)
+      return config?.build?.kicadPcm === true
+    } catch {
+      return false
+    }
+  }, [configFile])
 
   const releaseVersionById = useMemo(
     () =>
@@ -135,6 +153,35 @@ export function PackageDomainsList({
                   </div>
 
                   <div className="flex items-center gap-2 ml-8 sm:ml-0">
+                    {isKicadPcmEnabled &&
+                      domain.fully_qualified_domain_name && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-3 bg-white"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(
+                                `https://${domain.fully_qualified_domain_name}/pcm/repository.json`,
+                              )
+                              toast({
+                                title: "Copied",
+                                description:
+                                  "KiCad PCM URL copied to clipboard.",
+                              })
+                            } catch {
+                              toast({
+                                title: "Copy failed",
+                                description:
+                                  "Unable to copy KiCad PCM URL to clipboard.",
+                                variant: "destructive",
+                              })
+                            }
+                          }}
+                        >
+                          Copy PCM URL
+                        </Button>
+                      )}
                     <Button
                       variant="outline"
                       size="sm"
