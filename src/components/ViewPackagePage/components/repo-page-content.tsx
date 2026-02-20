@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import MainContentHeader from "./main-content-header"
 import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
 import ImportantFilesView from "./important-files-view"
+import { useHotkeyCombo } from "@/hooks/use-hotkey"
 
 // Tab Views
 import FilesView from "./tab-views/files-view"
@@ -76,6 +77,11 @@ export default function RepoPageContent({
     }
   }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
+
+  useHotkeyCombo(
+    "ctrl+Enter",
+    useCallback(() => onEditClicked?.(), [onEditClicked]),
+  )
 
   const { circuitJsonFound, isLoading: isCircuitJsonLoading } =
     useCurrentPackageCircuitJson()
