@@ -8,7 +8,7 @@ import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
 export default () => {
   return (
     <board width="12mm" height="30mm" schAutoLayoutEnabled>
-      <SmdUsbC name="USBC" pcbY={-10} />
+      <SmdUsbC name="USBC" pcbY={-10} /> 
       <RedLed name="LED" pcbY={12} />
       <PushButton name="SW1" pcbY={0} />
       <resistor name="R1" footprint="0603" resistance="1k" pcbY={7} />
