@@ -118,7 +118,7 @@ export const GitHubRepositorySelector = ({
     const repos = repositoriesData?.repos || []
     const repoOptions = repos.map((repo: any) => ({
       value: repo.full_name,
-      label: repo.unscoped_name,
+      label: repo.full_name,
       isPrivate: repo.private,
       type: "repo" as const,
     }))
