@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/collapsible"
 import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
 import { getStepDuration } from "@/lib/utils/getStepDuration"
+import { formatLogTimestamp } from "@/lib/utils/formatLogTimestamp"
 import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import {
   ChevronRight,
@@ -24,16 +25,6 @@ const isStderrLog = (log: any): boolean => {
     .map((v: string) => v.toLowerCase())
 
   return possibleEventTypes.includes("stderr")
-}
-
-const formatLogTimestamp = (timestamp?: string) => {
-  if (timestamp === undefined) return null
-
-  const date = new Date(timestamp)
-  if (Number.isNaN(date.getTime())) return timestamp
-
-  const millis = String(date.getMilliseconds()).padStart(3, "0")
-  return `${date.toLocaleTimeString("en-US", { hour12: false })}.${millis}`
 }
 
 export const SingleBuildLogs = ({

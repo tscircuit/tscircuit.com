@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
+import { formatLogTimestamp } from "@/lib/utils/formatLogTimestamp"
 
 const isStderrLog = (log: any): boolean => {
   if (!log) return false
@@ -27,16 +28,6 @@ const isStderrLog = (log: any): boolean => {
     .map((v: string) => v.toLowerCase())
 
   return possibleEventTypes.includes("stderr")
-}
-
-const formatLogTimestamp = (timestamp?: string) => {
-  if (timestamp === undefined) return null
-
-  const date = new Date(timestamp)
-  if (Number.isNaN(date.getTime())) return timestamp
-
-  const millis = String(date.getMilliseconds()).padStart(3, "0")
-  return `${date.toLocaleTimeString("en-US", { hour12: false })}.${millis}`
 }
 
 export const ReleaseBuildLogs = ({
