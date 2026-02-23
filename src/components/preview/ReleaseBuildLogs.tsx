@@ -1,25 +1,23 @@
-import { useState, useEffect, useRef } from "react"
-import {
-  Clock,
-  AlertCircle,
-  Loader2,
-  ExternalLink,
-  ChevronRight,
-  PackageOpen,
-  CheckCircle2,
-} from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { getStepDuration } from "@/lib/utils/getStepDuration"
 import {
   PackageBuild,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
-import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
+import {
+  ChevronRight,
+  Clock,
+  ExternalLink,
+  Loader2,
+  PackageOpen,
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
-import { getStepDuration } from "@/lib/utils/getStepDuration"
 
 const isStderrLog = (log: any): boolean => {
   if (!log) return false
@@ -29,6 +27,16 @@ const isStderrLog = (log: any): boolean => {
     .map((v: string) => v.toLowerCase())
 
   return possibleEventTypes.includes("stderr")
+}
+
+const formatLogTimestamp = (timestamp?: string) => {
+  if (timestamp === undefined) return null
+
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return timestamp
+
+  const millis = String(date.getMilliseconds()).padStart(3, "0")
+  return `${date.toLocaleTimeString("en-US", { hour12: false })}.${millis}`
 }
 
 export const ReleaseBuildLogs = ({
@@ -196,36 +204,64 @@ export const ReleaseBuildLogs = ({
                   packageBuild.user_code_job_completed_logs.length > 0 && (
                     <>
                       {packageBuild.user_code_job_completed_logs.map(
-                        (log: any, i: number) => (
-                          <div
-                            key={`build-log-${i}`}
-                            className={`whitespace-pre-wrap break-words ${
-                              isStderrLog(log)
-                                ? "text-red-600"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            {log.msg || log.message || JSON.stringify(log)}
-                          </div>
-                        ),
+                        (log: StreamedLogEntry, i: number) => {
+                          const timestampText = formatLogTimestamp(
+                            log.timestamp,
+                          )
+
+                          return (
+                            <div
+                              key={`build-log-${i}`}
+                              className="flex items-start gap-2"
+                            >
+                              {timestampText && (
+                                <span className="shrink-0 text-gray-400">
+                                  {timestampText}
+                                </span>
+                              )}
+                              <span
+                                className={`whitespace-pre-wrap break-words ${
+                                  isStderrLog(log)
+                                    ? "text-red-600"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {log.msg || JSON.stringify(log)}
+                              </span>
+                            </div>
+                          )
+                        },
                       )}
                     </>
                   )}
                 {usercodeStreamedLogs.length > 0 && (
                   <>
                     {usercodeStreamedLogs.map(
-                      (log: StreamedLogEntry, i: number) => (
-                        <div
-                          key={`streamed-log-${i}`}
-                          className={`whitespace-pre-wrap break-words ${
-                            log.eventType === "stderr"
-                              ? "text-red-600"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          {log.message}
-                        </div>
-                      ),
+                      (log: StreamedLogEntry, i: number) => {
+                        const timestampText = formatLogTimestamp(log.timestamp)
+
+                        return (
+                          <div
+                            key={`streamed-log-${i}`}
+                            className="flex items-start gap-2"
+                          >
+                            {timestampText && (
+                              <span className="shrink-0 text-gray-400">
+                                {timestampText}
+                              </span>
+                            )}
+                            <span
+                              className={`whitespace-pre-wrap break-words ${
+                                log.eventType === "stderr"
+                                  ? "text-red-600"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {log.msg}
+                            </span>
+                          </div>
+                        )
+                      },
                     )}
                     <div ref={logsEndRef} />
                   </>
