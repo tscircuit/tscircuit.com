@@ -907,6 +907,62 @@ export const DEFAULT_RESISTANCE = 50`,
     is_text: true,
   })
 
+  const { package_release_id: test2PackageReleaseId5 } = db.addPackageRelease({
+    package_id: test2Package.package_id,
+    version: "0.0.6",
+    created_at: new Date().toISOString(),
+    is_latest: false,
+    is_locked: false,
+    has_transpiled: true,
+    transpilation_error: null,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId5,
+    file_path: "index.tsx",
+    content_text: `import { formatResistance, DEFAULT_RESISTANCE } from "./utils"
+import type { ComponentProps } from "./types"
+
+export const TestComponent = ({ name, value = DEFAULT_RESISTANCE }: ComponentProps) => (
+  <resistor name={name} resistance={formatResistance(value)} />
+)`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId5,
+    file_path: "utils.ts",
+    content_text: `export const formatResistance = (value: number) => \`\${value}k\`
+export const DEFAULT_RESISTANCE = 50`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId5,
+    file_path: "types.ts",
+    content_text: `export interface ComponentProps {
+  name: string
+  value?: number
+}`,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+  db.addPackageFile({
+    package_release_id: test2PackageReleaseId5,
+    file_path: "README.md",
+    content_text: `# Test2 Package v0.0.6
+
+Unreleased version - not marked as latest.
+
+## Usage
+\`\`\`tsx
+import { TestComponent } from "@tsci/testuser.test2-package"
+
+<TestComponent name="R1" value={50} />
+\`\`\``,
+    created_at: new Date().toISOString(),
+    is_text: true,
+  })
+
   db.updatePackage(test2Package.package_id, {
     latest_package_release_id: test2PackageReleaseId4,
   })

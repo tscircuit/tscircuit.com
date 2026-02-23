@@ -7,34 +7,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Skeleton } from "@/components/ui/skeleton"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 interface ReleaseVersionSelectorProps {
-  packageId: string | null
   currentVersion: string | null
   onVersionChange: (version: string, releaseId: string) => void
   latestVersion?: string
+  allReleases?: PublicPackageRelease[]
+  isAllReleasesLoading?: boolean
 }
 
 export default function ReleaseVersionSelector({
-  packageId,
+  allReleases,
+  isAllReleasesLoading,
   currentVersion,
   onVersionChange,
   latestVersion,
 }: ReleaseVersionSelectorProps) {
-  const { data: releases, isLoading } = usePackageReleasesByPackageId(packageId)
-
-  if (isLoading) {
+  if (isAllReleasesLoading) {
     return <Skeleton className="h-8 w-24 rounded-md" />
   }
 
-  if (!releases || releases.length === 0) {
+  if (!allReleases || allReleases.length === 0) {
     return null
   }
 
-  const sortedReleases = [...releases].sort(
+  const sortedReleases = [...allReleases].sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )

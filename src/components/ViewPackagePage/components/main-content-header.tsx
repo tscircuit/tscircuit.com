@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DownloadButtonAndMenu } from "@/components/DownloadButtonAndMenu"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import { useLocation } from "wouter"
 import {
   Package,
   PackageFile,
@@ -37,6 +36,8 @@ import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -95,9 +96,14 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
+  const { data: allReleases, isLoading: isAllReleasesLoading } =
+    usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
 
   const isViewingOlderVersion =
-    currentVersion && latestVersion && currentVersion !== latestVersion
+    currentVersion &&
+    latestVersion &&
+    currentVersion !== latestVersion &&
+    isVersionOlderByTime(currentVersion, latestVersion, allReleases || [])
 
   return (
     <div className="flex flex-col gap-2 mb-4">
@@ -106,7 +112,8 @@ export default function MainContentHeader({
           {onVersionChange && packageInfo?.package_id && (
             <div className="flex-1 min-w-0">
               <ReleaseVersionSelector
-                packageId={packageInfo.package_id}
+                allReleases={allReleases}
+                isAllReleasesLoading={isAllReleasesLoading}
                 currentVersion={currentVersion || null}
                 onVersionChange={onVersionChange}
                 latestVersion={latestVersion}
@@ -123,7 +130,8 @@ export default function MainContentHeader({
           {onVersionChange && packageInfo?.package_id && (
             <div className="hidden md:block">
               <ReleaseVersionSelector
-                packageId={packageInfo.package_id}
+                allReleases={allReleases}
+                isAllReleasesLoading={isAllReleasesLoading}
                 currentVersion={currentVersion || null}
                 onVersionChange={onVersionChange}
                 latestVersion={latestVersion}
