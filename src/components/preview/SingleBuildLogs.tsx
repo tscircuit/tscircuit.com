@@ -1,20 +1,21 @@
-import { useState, useEffect, useRef } from "react"
-import {
-  Clock,
-  Loader2,
-  ExternalLink,
-  ChevronRight,
-  PackageOpen,
-} from "lucide-react"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
-import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
 import { getStepDuration } from "@/lib/utils/getStepDuration"
+import { formatLogTimestamp } from "@/lib/utils/formatLogTimestamp"
+import { PackageBuild } from "fake-snippets-api/lib/db/schema"
+import {
+  ChevronRight,
+  Clock,
+  ExternalLink,
+  Loader2,
+  PackageOpen,
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { StatusIcon, getBuildErrorMessage, getBuildStatus } from "."
 
 const isStderrLog = (log: any): boolean => {
   if (!log) return false
@@ -178,36 +179,64 @@ export const SingleBuildLogs = ({
                   packageBuild.user_code_job_completed_logs.length > 0 && (
                     <>
                       {packageBuild.user_code_job_completed_logs.map(
-                        (log: any, i: number) => (
-                          <div
-                            key={`build-log-${i}`}
-                            className={`whitespace-pre-wrap break-words ${
-                              isStderrLog(log)
-                                ? "text-red-600"
-                                : "text-gray-600"
-                            }`}
-                          >
-                            {log.msg || log.message || JSON.stringify(log)}
-                          </div>
-                        ),
+                        (log: StreamedLogEntry, i: number) => {
+                          const timestampText = formatLogTimestamp(
+                            log.timestamp,
+                          )
+
+                          return (
+                            <div
+                              key={`build-log-${i}`}
+                              className="flex items-start gap-2"
+                            >
+                              {timestampText && (
+                                <span className="shrink-0 text-gray-400">
+                                  {timestampText}
+                                </span>
+                              )}
+                              <span
+                                className={`whitespace-pre-wrap break-words ${
+                                  isStderrLog(log)
+                                    ? "text-red-600"
+                                    : "text-gray-600"
+                                }`}
+                              >
+                                {log.msg || JSON.stringify(log)}
+                              </span>
+                            </div>
+                          )
+                        },
                       )}
                     </>
                   )}
                 {usercodeStreamedLogs.length > 0 && (
                   <>
                     {usercodeStreamedLogs.map(
-                      (log: StreamedLogEntry, i: number) => (
-                        <div
-                          key={`streamed-log-${i}`}
-                          className={`whitespace-pre-wrap break-words ${
-                            log.eventType === "stderr"
-                              ? "text-red-600"
-                              : "text-gray-600"
-                          }`}
-                        >
-                          {log.message}
-                        </div>
-                      ),
+                      (log: StreamedLogEntry, i: number) => {
+                        const timestampText = formatLogTimestamp(log.timestamp)
+
+                        return (
+                          <div
+                            key={`streamed-log-${i}`}
+                            className="flex items-start gap-2"
+                          >
+                            {timestampText && (
+                              <span className="shrink-0 text-gray-400">
+                                {timestampText}
+                              </span>
+                            )}
+                            <span
+                              className={`whitespace-pre-wrap break-words ${
+                                log.eventType === "stderr"
+                                  ? "text-red-600"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {log.msg}
+                            </span>
+                          </div>
+                        )
+                      },
                     )}
                     <div ref={logsEndRef} />
                   </>

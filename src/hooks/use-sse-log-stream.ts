@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 
 export type StreamedLogEntry = {
-  message: string
+  msg: string
   eventType: "log" | "stdout" | "stderr"
+  timestamp?: string
 }
 
 /**
@@ -81,17 +82,19 @@ export function useSSELogStream(
               .includes("stderr")
               ? "stderr"
               : eventType
-          const logMessage = data.msg || data.message || JSON.stringify(data)
+          const logMessage = data.msg ?? JSON.stringify(data)
+          const timestamp = data.timestamp as string
           setStreamedLogs((prev) => [
             ...prev,
-            { message: logMessage, eventType: normalizedEventType },
+            {
+              msg: logMessage,
+              eventType: normalizedEventType,
+              timestamp,
+            },
           ])
         } catch (error) {
           // If parsing fails, treat the event data as a plain string
-          setStreamedLogs((prev) => [
-            ...prev,
-            { message: eventData, eventType },
-          ])
+          setStreamedLogs((prev) => [...prev, { msg: eventData, eventType }])
         }
       }
 
