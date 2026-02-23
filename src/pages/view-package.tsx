@@ -29,13 +29,15 @@ export const ViewPackagePage = () => {
 
   const latestVersion = useMemo(() => {
     if (!allReleases || allReleases.length === 0) return undefined
+    const latestRelease = allReleases.find((r) => r.is_latest)
+    if (latestRelease?.version) return latestRelease.version
     if (
       packageInfo?.latest_version &&
       allReleases.some((r) => r.version === packageInfo?.latest_version)
     ) {
       return packageInfo?.latest_version
     }
-  }, [allReleases])
+  }, [allReleases, packageInfo?.latest_version])
 
   const isVersionValid = useMemo(() => {
     if (!versionFromUrl) return true
@@ -94,7 +96,7 @@ export const ViewPackagePage = () => {
     },
     [latestVersion],
   )
-  const currentVersion = versionFromUrl || packageInfo?.latest_version || null
+  const currentVersion = versionFromUrl || latestVersion || null
   if (!isLoadingPackage && packageError) {
     const status = (packageError as any)?.status
     if (status === 403) {
