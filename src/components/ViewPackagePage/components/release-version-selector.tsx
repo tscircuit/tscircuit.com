@@ -60,7 +60,7 @@ export default function ReleaseVersionSelector({
         {sortedReleases.map((release: PublicPackageRelease) => {
           const isSelected = currentVersion
             ? release.version === currentVersion
-            : release.is_latest
+            : release.version === latestVersion
           const isReleaseLatest = release.is_latest
 
           return (
