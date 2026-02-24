@@ -346,11 +346,18 @@ export default function PackageSettingsPage() {
         qc.invalidateQueries(["package", packageSlug]),
       ]
       if (fieldName === "license") {
-        invalidations.push(
-          qc.invalidateQueries({ queryKey: ["packageRelease"] }),
-          qc.invalidateQueries({ queryKey: ["packageFiles"] }),
-          qc.invalidateQueries({ queryKey: ["packageFile"] }),
-        )
+        const releaseId = packageInfo.latest_package_release_id
+        if (releaseId) {
+          invalidations.push(qc.invalidateQueries(["packageFiles", releaseId]))
+        }
+        if (licenseFileId) {
+          invalidations.push(
+            qc.invalidateQueries([
+              "packageFile",
+              { package_file_id: licenseFileId },
+            ]),
+          )
+        }
       }
       await Promise.all(invalidations)
       toast({ title: "Saved", description: "Setting updated successfully." })
