@@ -44,6 +44,7 @@ interface RepoPageContentProps {
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: () => void
   arePackageFilesFetched?: boolean
+  packageFilesError?: Error | null
   currentVersion?: string | null
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
@@ -52,6 +53,7 @@ interface RepoPageContentProps {
 export default function RepoPageContent({
   packageFiles,
   arePackageFilesFetched = false,
+  packageFilesError = null,
   packageInfo,
   packageRelease,
   onFileClicked,
@@ -166,6 +168,7 @@ export default function RepoPageContent({
           <FilesView
             packageFiles={packageFiles}
             arePackageFilesFetched={arePackageFilesFetched}
+            packageFilesError={packageFilesError}
             onFileClicked={onFileClicked}
           />
         )
@@ -182,6 +185,7 @@ export default function RepoPageContent({
           <FilesView
             packageFiles={packageFiles}
             arePackageFilesFetched={arePackageFilesFetched}
+            packageFilesError={packageFilesError}
             onFileClicked={onFileClicked}
           />
         )
