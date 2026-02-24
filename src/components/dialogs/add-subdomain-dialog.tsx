@@ -80,7 +80,7 @@ export const AddSubdomainDialog = ({
               value={subdomain}
               onChange={(e) => setSubdomain(e.target.value)}
               placeholder="my-board"
-              className="rounded-r-none text-sm"
+              className="rounded-r-none text-sm z-[152]"
               autoComplete="off"
               disabled={createMutation.isLoading}
               onKeyDown={(e) => {

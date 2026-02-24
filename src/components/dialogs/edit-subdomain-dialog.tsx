@@ -175,7 +175,7 @@ export const EditSubdomainDialog = ({
                 value={subdomain}
                 onChange={(e) => setSubdomain(e.target.value)}
                 placeholder="my-board"
-                className="rounded-r-none text-sm"
+                className="rounded-r-none text-sm z-[152]"
                 autoComplete="off"
                 disabled={updateMutation.isLoading}
                 onKeyDown={(e) => {

@@ -494,7 +494,7 @@ export default function PackageSettingsPage() {
                   }
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center gap-0">
-                    <span className="text-xs sm:text-sm text-gray-500 bg-gray-50 border border-gray-200 sm:border-r-0 rounded-t-md sm:rounded-t-none sm:rounded-l-md px-3 py-2 truncate">
+                    <span className="text-xs sm:text-sm text-gray-500 bg-gray-50 border border-gray-200 sm:border-r-0 rounded-t-md md:rounded-r-none md:rounded-md px-3 py-2 truncate">
                       tscircuit.com/{author}/
                     </span>
                     <Input
@@ -505,7 +505,7 @@ export default function PackageSettingsPage() {
                           unscopedPackageName: e.target.value,
                         }))
                       }
-                      className="rounded-t-none sm:rounded-t-md sm:rounded-l-none flex-1 text-sm"
+                      className="rounded-t-none md:!rounded-l-none md:rounded-md flex-1 text-sm"
                       autoComplete="off"
                     />
                   </div>
