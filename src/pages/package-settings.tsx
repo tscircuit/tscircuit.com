@@ -342,7 +342,17 @@ export default function PackageSettingsPage() {
         if (response.status !== 200) throw new Error("Failed to update")
       }
 
-      await qc.invalidateQueries(["package", packageSlug])
+      const invalidations: Promise<void>[] = [
+        qc.invalidateQueries(["package", packageSlug]),
+      ]
+      if (fieldName === "license") {
+        invalidations.push(
+          qc.invalidateQueries({ queryKey: ["packageRelease"] }),
+          qc.invalidateQueries({ queryKey: ["packageFiles"] }),
+          qc.invalidateQueries({ queryKey: ["packageFile"] }),
+        )
+      }
+      await Promise.all(invalidations)
       toast({ title: "Saved", description: "Setting updated successfully." })
 
       if (
