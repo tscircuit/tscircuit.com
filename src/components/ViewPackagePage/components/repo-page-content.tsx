@@ -148,7 +148,7 @@ export default function RepoPageContent({
 
     return packageFiles
       .filter((file) =>
-        importantFilePaths.some((path) => file.file_path.endsWith(path)),
+        importantFilePaths.some((path) => file.file_path === path),
       )
       .sort((a, b) => {
         const aImportance = scorePackageFileImportance(a.file_path)
