@@ -1,5 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton"
-import { FileText, Folder } from "lucide-react"
+import { FileText, Folder, Loader2, AlertTriangle } from "lucide-react"
 import { useMemo, useState } from "react"
 import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
@@ -29,11 +28,13 @@ interface FilesViewProps {
   packageFiles?: PackageFile[]
   onFileClicked?: (file: PackageFile) => void
   arePackageFilesFetched?: boolean
+  packageFilesError?: Error | null
 }
 
 export default function FilesView({
   packageFiles = [],
   arePackageFilesFetched = false,
+  packageFilesError = null,
   onFileClicked,
 }: FilesViewProps) {
   const [activeDir, setActiveDir] = useState("")
@@ -193,63 +194,73 @@ export default function FilesView({
     )
   }
 
-  if (!arePackageFilesFetched) {
+  if (packageFilesError) {
     return (
-      <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
-        <div className="flex items-center px-4 py-2 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
-          <Skeleton className="h-4 w-24" />
-          <div className="ml-auto flex items-center space-x-4">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-24" />
-          </div>
+      <div className="mb-4 min-w-0 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
+        <div className="flex items-center px-3 py-2 sm:px-4 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
+          <span className="text-xs text-gray-500 dark:text-[#8b949e]">
+            Files
+          </span>
         </div>
         <div className="bg-white dark:bg-[#0d1117]">
-          {[...Array(5)].map((_, index) => (
-            <div
-              key={index}
-              className="flex items-center px-4 py-2 border-b border-gray-200 dark:border-[#30363d]"
-            >
-              <Skeleton className="h-4 w-4 mr-2" />
-              <Skeleton className="h-4 w-32" />
-              <div className="ml-auto flex items-center space-x-4">
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-4 w-16" />
-              </div>
+          <div className="flex flex-col items-center justify-center px-4 py-8 sm:py-12 text-center">
+            <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 dark:bg-red-900/30 mb-3 sm:mb-4">
+              <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-red-400" />
             </div>
-          ))}
+            <p className="text-sm font-medium text-gray-900 dark:text-[#c9d1d9] mb-1">
+              Failed to load files
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-[#8b949e] max-w-full sm:max-w-md px-2 break-words">
+              {packageFilesError.message}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!arePackageFilesFetched) {
+    return (
+      <div className="mb-4 min-w-0 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
+        <div className="flex items-center px-3 py-2 sm:px-4 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
+          <span className="text-xs text-gray-500 dark:text-[#8b949e]">
+            Files
+          </span>
+        </div>
+        <div className="bg-white dark:bg-[#0d1117]">
+          <div className="flex items-center justify-center px-4 py-8 sm:py-12">
+            <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-gray-500 dark:text-[#8b949e]" />
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="mb-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
-      <div className="flex items-center px-4 py-2 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
-        {/* Desktop view */}
-        <div className="hidden md:flex items-center text-xs">
-          <span className="text-gray-500 dark:text-[#8b949e]">
+    <div className="mb-4 min-w-0 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 sm:px-4 md:py-3 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
+        <div className="hidden md:flex items-center min-w-0 flex-1 text-xs">
+          <span className="text-gray-500 dark:text-[#8b949e] truncate">
             {renderBreadcrumbs()}
           </span>
         </div>
-        <div className="hidden md:flex ml-auto items-center text-xs text-gray-500 dark:text-[#8b949e]">
+        <div className="hidden md:flex ml-auto flex-shrink-0 items-center gap-3 text-xs text-gray-500 dark:text-[#8b949e]">
           <span>
             {files.length} files, {directories.length} directories
           </span>
-
           <HiddenFilesDropdown
             showHiddenFiles={showHiddenFiles}
             onToggleHiddenFiles={toggleHiddenFiles}
           />
         </div>
 
-        {/* Mobile view */}
-        <div className="md:hidden flex items-center justify-between w-full">
-          <div className="flex items-center">
-            <span className="text-xs text-gray-500 dark:text-[#8b949e]">
+        <div className="md:hidden flex items-center justify-between min-w-0 flex-1 gap-2">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <span className="text-xs text-gray-500 dark:text-[#8b949e] truncate block">
               {renderBreadcrumbs()}
             </span>
           </div>
-          <div className="flex items-center text-xs text-gray-500 dark:text-[#8b949e]">
+          <div className="flex flex-shrink-0 items-center gap-2 text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
             <HiddenFilesDropdown
               showHiddenFiles={showHiddenFiles}
@@ -258,29 +269,28 @@ export default function FilesView({
           </div>
         </div>
       </div>
-      {/* Files and Directories */}
       <div className="bg-white dark:bg-[#0d1117]">
         {items.length === 0 && !activeDir ? (
-          <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">
+          <div className="px-3 py-6 sm:px-4 sm:py-8 text-center text-sm text-gray-500 dark:text-[#8b949e]">
             No files found
           </div>
         ) : (
           <>
-            {/* Parent directory navigation option */}
             {activeDir && (
               <div
-                className="flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
+                className="flex items-center min-w-0 px-3 py-2 sm:px-4 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
                 onClick={handleParentDirectoryClick}
               >
-                <Folder className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-                <span className="text-sm group-hover:underline">..</span>
-                <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
+                <Folder className="h-4 w-4 mr-2 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
+                <span className="text-sm group-hover:underline truncate">
+                  ..
+                </span>
+                <span className="ml-auto flex-shrink-0 text-xs text-gray-500 dark:text-[#8b949e] hidden sm:inline">
                   Parent directory
                 </span>
               </div>
             )}
 
-            {/* Directory contents */}
             {items
               .filter((item) =>
                 isWithinDirectory({ dir: activeDir, path: item.path }),
@@ -288,33 +298,34 @@ export default function FilesView({
               .map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
+                  className="flex items-center min-w-0 gap-2 px-3 py-2 sm:px-4 hover:bg-gray-50 dark:hover:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d] cursor-pointer group"
                   onClick={() => handleItemClick(item)}
                 >
                   {item.type === "directory" ? (
-                    <Folder className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+                    <Folder className="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
                   ) : (
-                    <FileText className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
+                    <FileText className="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
                   )}
-                  <span className="text-sm group-hover:underline">
+                  <span className="text-sm group-hover:underline truncate min-w-0 flex-1">
                     {item.name}
                   </span>
-                  <span className="ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
-                    {item.message}
-                  </span>
-                  {item.time && (
-                    <span className="ml-4 text-xs text-gray-500 dark:text-[#8b949e]">
+                  {item.message ? (
+                    <span className="hidden sm:inline ml-auto text-xs text-gray-500 dark:text-[#8b949e]">
+                      {item.message}
+                    </span>
+                  ) : null}
+                  {item.time ? (
+                    <span className="flex-shrink-0 text-xs text-gray-500 dark:text-[#8b949e]">
                       {item.time}
                     </span>
-                  )}
+                  ) : null}
                 </div>
               ))}
 
-            {/* No files in current directory */}
             {items.filter((item) =>
               isWithinDirectory({ dir: activeDir, path: item.path }),
             ).length === 0 && (
-              <div className="px-4 py-8 text-center text-gray-500 dark:text-[#8b949e]">
+              <div className="px-3 py-6 sm:px-4 sm:py-8 text-center text-sm text-gray-500 dark:text-[#8b949e]">
                 No files in this directory
               </div>
             )}

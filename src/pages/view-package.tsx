@@ -75,8 +75,11 @@ export const ViewPackagePage = () => {
       data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
   })
 
-  const { data: packageFiles, isFetched: arePackageFilesFetched } =
-    usePackageFiles(packageRelease?.package_release_id)
+  const {
+    data: packageFiles,
+    isFetched: arePackageFilesFetched,
+    error: packageFilesError,
+  } = usePackageFiles(packageRelease?.package_release_id)
 
   const handleVersionChange = useCallback(
     (version: string, _releaseId: string) => {
@@ -174,6 +177,7 @@ export const ViewPackagePage = () => {
       <RepoPageContent
         packageFiles={packageFiles ?? []}
         arePackageFilesFetched={arePackageFilesFetched}
+        packageFilesError={packageFilesError}
         packageInfo={packageInfo}
         packageRelease={packageRelease}
         importantFilePaths={["README.md", "LICENSE", "package.json"]}
