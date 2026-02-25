@@ -52,6 +52,7 @@ export const GitHubRepositorySelector = ({
   const initialValue = useRef(selectedRepository).current
   const [comboboxOpen, setComboboxOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
+  const [isRefreshing, setIsRefreshing] = useState(false)
   // Fetch available repositories
   const {
     data: repositoriesData,
@@ -101,15 +102,26 @@ export const GitHubRepositorySelector = ({
   }
 
   const handleRefreshRepositories = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
     try {
-      // First call the refresh endpoint to update repositories
       await axios.post("/github/repos/refresh", orgId ? { org_id: orgId } : {})
-      // Then refetch the repositories list
-      refetchRepositories()
-    } catch (error) {
+      await refetchRepositories()
+    } catch (error: any) {
       console.error("Failed to refresh repositories:", error)
-      // Still try to refetch in case the error is not critical
+      const message =
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.message ||
+        "Failed to refresh repositories"
+      toast({
+        variant: "destructive",
+        title: "Refresh failed",
+        description: message,
+      })
       refetchRepositories()
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -188,11 +200,12 @@ export const GitHubRepositorySelector = ({
               variant="ghost"
               size="sm"
               onClick={handleRefreshRepositories}
-              disabled={disabled || isLoading}
-              className="h-auto p-1"
+              disabled={disabled || isLoading || isRefreshing}
+              className="h-9 w-9 min-h-9 min-w-9 p-0 sm:h-7 sm:min-h-7 sm:w-7 sm:min-w-7 sm:p-1"
+              aria-label="Refresh repositories"
             >
               <RefreshCw
-                className={`w-3 h-3 ${isLoading ? "animate-spin" : ""}`}
+                className={`w-3.5 h-3.5 sm:w-3 sm:h-3 ${isRefreshing || isLoading ? "animate-spin" : ""}`}
               />
             </Button>
           )}
