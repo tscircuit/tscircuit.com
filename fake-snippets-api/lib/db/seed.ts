@@ -32,6 +32,16 @@ export const seed = (db: DbClient) => {
     email: "example@tscircuit.com",
   })
 
+  db.githubInstallations.push({
+    github_installation_id: "1234567890",
+    account_id,
+    installation_id: "1234567890",
+    github_username: "testuser",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    is_active: true,
+  })
+
   if (process.env.AUTOLOAD_PACKAGES === "true") {
     loadAutoloadPackages(db)
   }
