@@ -16,6 +16,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useMemo, useState, useCallback, useEffect } from "react"
 import { getBuildStatus } from "@/components/preview"
 import { ArrowLeft } from "lucide-react"
+import { ScrollToTopButton } from "@/components/ScrollToTopButton"
 
 export default function ReleaseBuildDetailPage() {
   const params = useParams<{
@@ -233,6 +234,7 @@ export default function ReleaseBuildDetailPage() {
           isBuildActive={isBuildActive}
         />
       </div>
+      <ScrollToTopButton />
     </>
   )
 }

@@ -14,6 +14,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useMemo, useState, useCallback, useEffect } from "react"
 import { ReleaseBuildLogs } from "@/components/preview/ReleaseBuildLogs"
 import { getBuildStatus } from "@/components/preview"
+import { ScrollToTopButton } from "@/components/ScrollToTopButton"
 
 export default function ReleaseDetailPage() {
   const params = useParams<{
@@ -241,6 +242,7 @@ export default function ReleaseDetailPage() {
           </Link>
         </div>
       </div>
+      <ScrollToTopButton />
     </>
   )
 }
