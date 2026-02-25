@@ -3,7 +3,7 @@ import { ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-const SCROLL_THRESHOLD = 300
+const SCROLL_THRESHOLD = 400
 
 export function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)
