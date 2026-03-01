@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import PreviewImageSquares from "./preview-image-squares"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { useOrganization } from "@/hooks/use-organization"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
@@ -103,13 +102,14 @@ const MobileSidebar = ({
     }
   }, [packageInfo?.package_id, axios, toast])
 
-  const { packageRelease } = useCurrentPackageRelease()
-  const { data: domains = [] } = usePackageDomains({
-    package_id: packageInfo?.package_id,
-  })
-  const websiteUrl = domains[0]?.fully_qualified_domain_name
-    ? `https://${domains[0].fully_qualified_domain_name}`
-    : packageInfo?.website || ""
+  const { data: domains = [] } = usePackageDomains(
+    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
+  )
+  const websiteUrl =
+    packageInfo?.website ||
+    (domains[0]?.fully_qualified_domain_name
+      ? `https://${domains[0].fully_qualified_domain_name}`
+      : "")
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -286,4 +286,4 @@ const MobileSidebar = ({
   )
 }
 
-export default React.memo(MobileSidebar)
+export default MobileSidebar

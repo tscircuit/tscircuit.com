@@ -44,9 +44,9 @@ export default function SidebarAboutSection({
   const { packageRelease } = useCurrentPackageRelease({
     include_ai_review: true,
   })
-  const { data: domains = [] } = usePackageDomains({
-    package_id: packageInfo?.package_id,
-  })
+  const { data: domains = [] } = usePackageDomains(
+    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
+  )
   const [, navigate] = useLocation()
 
   const { organization } = useOrganization(
@@ -64,16 +64,6 @@ export default function SidebarAboutSection({
     releaseFiles?.find((f) => f.file_path === "tscircuit.config.json")
       ?.package_file_id ?? null,
   )
-
-  const isKicadPcmEnabled = useMemo(() => {
-    if (!configFile?.content_text) return false
-    try {
-      const config = JSON.parse(configFile.content_text)
-      return config?.build?.kicadPcm === true
-    } catch (e) {
-      return false
-    }
-  }, [configFile])
 
   const licenseFileId = useMemo(() => {
     return (
@@ -144,9 +134,11 @@ export default function SidebarAboutSection({
     }
   }
 
-  const websiteUrl = domains[0]?.fully_qualified_domain_name
-    ? `https://${domains[0].fully_qualified_domain_name}`
-    : packageInfo?.website || ""
+  const websiteUrl =
+    packageInfo?.website ||
+    (domains[0]?.fully_qualified_domain_name
+      ? `https://${domains[0].fully_qualified_domain_name}`
+      : "")
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
