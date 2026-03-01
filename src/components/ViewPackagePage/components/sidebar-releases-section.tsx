@@ -71,7 +71,6 @@ export default function SidebarReleasesSection() {
     )
   }
 
-  const { status, label } = getBuildStatus(latestBuild)
   return (
     <div className="mb-6 text-sm">
       <h2 className="text-lg font-semibold mb-2">
@@ -106,14 +105,24 @@ export default function SidebarReleasesSection() {
           </TooltipProvider>
         </div>
         {previewUrl && (
-          <a
-            href={previewUrl}
-            target="_blank"
-            className="flex items-center gap-2 text-sm text-gray-500  cursor-pointer"
-          >
-            <Globe className={`size-4 text-gray-500`} />
-            <span>Package Preview</span>
-          </a>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
+                >
+                  <Globe className="size-4 text-gray-500" />
+                  <span>Package Preview</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs break-all">
+                {previewUrl}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
         {isKicadPcmEnabled && previewUrl && (
           <KicadPcmCommand url={`${previewUrl}/pcm/repository.json`} />

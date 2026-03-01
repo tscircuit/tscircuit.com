@@ -65,12 +65,16 @@ function SettingCard({
   children,
   footer,
   danger,
+  onSave,
+  saveDisabled,
 }: {
   title: string
   description: string
   children: React.ReactNode
   footer?: React.ReactNode
   danger?: boolean
+  onSave?: () => void
+  saveDisabled?: boolean
 }) {
   return (
     <div
@@ -78,6 +82,17 @@ function SettingCard({
         "border rounded-lg",
         danger ? "border-red-200" : "border-gray-200",
       )}
+      onKeyDown={(e) => {
+        if (
+          onSave &&
+          !saveDisabled &&
+          (e.ctrlKey || e.metaKey) &&
+          e.key === "Enter"
+        ) {
+          e.preventDefault()
+          onSave()
+        }
+      }}
     >
       <div className="p-4 sm:p-6">
         <h3
@@ -493,6 +508,12 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="Package Name"
                   description="Used to identify your package in URLs and when installing via the CLI."
+                  onSave={() => saveField("name")}
+                  saveDisabled={
+                    !hasNameChanged ||
+                    savingField === "name" ||
+                    !normalizedPackageName
+                  }
                   footer={
                     <Button
                       size="sm"
@@ -539,6 +560,10 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="Description"
                   description="A short description of what your package does. This appears on your package page and in search results."
+                  onSave={() => saveField("description")}
+                  saveDisabled={
+                    !hasDescriptionChanged || savingField === "description"
+                  }
                   footer={
                     <Button
                       size="sm"
@@ -571,6 +596,12 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="Website"
                   description="A link to your package's homepage, documentation, or repository."
+                  onSave={() => saveField("website")}
+                  saveDisabled={
+                    !hasWebsiteChanged ||
+                    savingField === "website" ||
+                    !!websiteError
+                  }
                   footer={
                     <Button
                       size="sm"
@@ -613,6 +644,10 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="Visibility"
                   description="Control who can view and access your package. Private packages are only visible to you and your organization members."
+                  onSave={() => saveField("visibility")}
+                  saveDisabled={
+                    !hasVisibilityChanged || savingField === "visibility"
+                  }
                   footer={
                     <Button
                       size="sm"
@@ -647,6 +682,10 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="License"
                   description="Choose a license for your package. This determines how others can use, modify, and distribute your code."
+                  onSave={() => saveField("license")}
+                  saveDisabled={
+                    !hasLicenseFieldChanged || savingField === "license"
+                  }
                   footer={
                     <Button
                       size="sm"
@@ -687,6 +726,10 @@ export default function PackageSettingsPage() {
                 <SettingCard
                   title="Default View"
                   description="The default tab shown when someone visits your package page."
+                  onSave={() => saveField("defaultView")}
+                  saveDisabled={
+                    !hasDefaultViewChanged || savingField === "defaultView"
+                  }
                   footer={
                     <Button
                       size="sm"
