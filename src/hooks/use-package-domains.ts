@@ -99,6 +99,33 @@ export const useCreatePackageDomain = () => {
   })
 }
 
+export const useDeletePackageDomain = () => {
+  const axios = useAxios()
+  const qc = useQueryClient()
+  const { toast } = useToast()
+
+  return useMutation({
+    mutationFn: async (params: { package_domain_id: string }) => {
+      const { data } = await axios.post("/package_domains/delete", params)
+      return data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries(["packageDomains"])
+      toast({ title: "Deleted", description: "Domain deleted successfully." })
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description:
+          error?.data?.error?.message ||
+          error?.message ||
+          "Failed to delete domain.",
+        variant: "destructive",
+      })
+    },
+  })
+}
+
 export const useUpdatePackageDomain = () => {
   const axios = useAxios()
   const qc = useQueryClient()

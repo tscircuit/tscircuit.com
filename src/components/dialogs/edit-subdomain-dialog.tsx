@@ -9,10 +9,13 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { useState, useEffect, useMemo } from "react"
 import { createUseDialog } from "./create-use-dialog"
-import { useUpdatePackageDomain } from "@/hooks/use-package-domains"
+import {
+  useUpdatePackageDomain,
+  useDeletePackageDomain,
+} from "@/hooks/use-package-domains"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { SearchableSelect } from "@/components/ui/searchable-select"
-import { Loader2 } from "lucide-react"
+import { ChevronDown, Loader2 } from "lucide-react"
 
 const DOMAIN_SUFFIX = ".tscircuit.app"
 
@@ -67,7 +70,11 @@ export const EditSubdomainDialog = ({
     currentPackageReleaseId || "",
   )
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [dangerOpen, setDangerOpen] = useState(false)
+
   const updateMutation = useUpdatePackageDomain()
+  const deleteMutation = useDeletePackageDomain()
   const { data: releases = [] } = usePackageReleasesByPackageId(
     packageId ?? null,
   )
@@ -147,117 +154,195 @@ export const EditSubdomainDialog = ({
     )
   }
 
+  const isMutating = updateMutation.isLoading || deleteMutation.isLoading
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Edit Subdomain</DialogTitle>
-          <DialogDescription>
-            Change the subdomain and where this domain points. Only lowercase
-            letters, numbers, and hyphens are allowed.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
-          {targetInfo && (
-            <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
-              <p className="text-xs font-medium text-gray-700">
-                {targetInfo.badgeLabel}
-              </p>
-              <p className="mt-1 text-xs text-gray-600">
-                {targetInfo.description}
-              </p>
-            </div>
-          )}
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-700">Subdomain</p>
-            <div className="flex items-center gap-0">
-              <Input
-                value={subdomain}
-                onChange={(e) => setSubdomain(e.target.value)}
-                placeholder="my-board"
-                className="rounded-r-none text-sm z-[152]"
-                autoComplete="off"
-                disabled={updateMutation.isLoading}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    isDomainValid &&
-                    isTargetValid &&
-                    hasChanged
-                  ) {
-                    handleSave()
-                  }
-                }}
-              />
-              <span className="text-sm text-gray-500 bg-gray-50 border border-l-0 border-gray-200 rounded-r-md px-3 py-2 whitespace-nowrap">
-                {DOMAIN_SUFFIX}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-700">Points to</p>
-            <SearchableSelect
-              value={targetType}
-              onChange={(value) => setTargetType(value as "latest" | "release")}
-              options={[
-                { value: "latest", label: "Latest package release" },
-                { value: "release", label: "Specific package release" },
-              ]}
-            />
-          </div>
-
-          {targetType === "release" && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-700">
-                Target package release
-              </p>
-              <SearchableSelect
-                value={selectedReleaseId}
-                onChange={setSelectedReleaseId}
-                options={releaseOptions}
-              />
-            </div>
-          )}
-
-          {subdomain.trim() && normalizedSubdomain !== subdomain.trim() && (
-            <p className="text-xs text-gray-500">
-              Will be normalized to: {normalizedSubdomain}
-            </p>
-          )}
-          {newFqdn && domainChanged && (
-            <p className="text-xs text-gray-500">
-              New domain: <span className="font-medium">{newFqdn}</span>
-            </p>
-          )}
-          <div className="flex justify-end gap-2">
+    <div>
+      <Dialog open={showConfirmDelete} onOpenChange={setShowConfirmDelete}>
+        <DialogContent className="w-[90vw] sm:max-w-md p-6 rounded-2xl shadow-lg">
+          <DialogHeader>
+            <DialogTitle className="text-left">Confirm Deletion</DialogTitle>
+            <DialogDescription className="text-left">
+              Are you sure you want to delete{" "}
+              <span className="font-medium">{currentFqdn}</span>? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 mt-4">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onOpenChange(false)}
-              disabled={updateMutation.isLoading}
+              onClick={() => setShowConfirmDelete(false)}
+              disabled={deleteMutation.isLoading}
             >
               Cancel
             </Button>
             <Button
+              variant="destructive"
               size="sm"
-              onClick={handleSave}
-              disabled={
-                !isDomainValid ||
-                !isTargetValid ||
-                !hasChanged ||
-                updateMutation.isLoading
-              }
+              onClick={() => {
+                deleteMutation.mutate(
+                  { package_domain_id: packageDomainId },
+                  {
+                    onSuccess: () => {
+                      setShowConfirmDelete(false)
+                      onOpenChange(false)
+                    },
+                  },
+                )
+              }}
+              disabled={deleteMutation.isLoading}
             >
-              {updateMutation.isLoading && (
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              )}
-              Save
+              {deleteMutation.isLoading ? "Deleting..." : "Delete"}
             </Button>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={open && !showConfirmDelete} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[90vw] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Subdomain</DialogTitle>
+            <DialogDescription>
+              Change the subdomain and where this domain points. Only lowercase
+              letters, numbers, and hyphens are allowed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {targetInfo && (
+              <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
+                <p className="text-xs font-medium text-gray-700">
+                  {targetInfo.badgeLabel}
+                </p>
+                <p className="mt-1 text-xs text-gray-600">
+                  {targetInfo.description}
+                </p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">Subdomain</p>
+              <div className="flex items-center gap-0">
+                <Input
+                  value={subdomain}
+                  onChange={(e) => setSubdomain(e.target.value)}
+                  placeholder="my-board"
+                  className="rounded-r-none text-sm z-[152]"
+                  autoComplete="off"
+                  disabled={isMutating}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      isDomainValid &&
+                      isTargetValid &&
+                      hasChanged
+                    ) {
+                      handleSave()
+                    }
+                  }}
+                />
+                <span className="text-sm text-gray-500 bg-gray-50 border border-l-0 border-gray-200 rounded-r-md px-3 py-2 whitespace-nowrap">
+                  {DOMAIN_SUFFIX}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">Points to</p>
+              <SearchableSelect
+                value={targetType}
+                onChange={(value) =>
+                  setTargetType(value as "latest" | "release")
+                }
+                options={[
+                  { value: "latest", label: "Latest package release" },
+                  { value: "release", label: "Specific package release" },
+                ]}
+              />
+            </div>
+
+            {targetType === "release" && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-700">
+                  Target package release
+                </p>
+                <SearchableSelect
+                  value={selectedReleaseId}
+                  onChange={setSelectedReleaseId}
+                  options={releaseOptions}
+                />
+              </div>
+            )}
+
+            {subdomain.trim() && normalizedSubdomain !== subdomain.trim() && (
+              <p className="text-xs text-gray-500">
+                Will be normalized to: {normalizedSubdomain}
+              </p>
+            )}
+            {newFqdn && domainChanged && (
+              <p className="text-xs text-gray-500">
+                New domain: <span className="font-medium">{newFqdn}</span>
+              </p>
+            )}
+
+            <details
+              className="rounded-lg border border-red-200 dark:border-red-900/50"
+              onToggle={(e) =>
+                setDangerOpen((e.target as HTMLDetailsElement).open)
+              }
+            >
+              <summary className="select-none cursor-pointer px-4 py-3 font-medium text-sm text-red-600 dark:text-red-400 list-none flex justify-between items-center bg-red-50/50 dark:bg-red-950/20 rounded-lg">
+                Danger Zone
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${dangerOpen ? "rotate-180" : ""}`}
+                />
+              </summary>
+              <div className="p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium">Delete subdomain</p>
+                    <p className="text-xs text-muted-foreground">
+                      This action cannot be undone
+                    </p>
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowConfirmDelete(true)}
+                    disabled={isMutating}
+                    className="sm:w-auto w-full"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </details>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+                disabled={isMutating}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={
+                  !isDomainValid || !isTargetValid || !hasChanged || isMutating
+                }
+              >
+                {updateMutation.isLoading && (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                )}
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 
