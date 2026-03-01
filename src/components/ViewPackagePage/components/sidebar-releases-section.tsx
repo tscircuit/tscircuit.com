@@ -15,6 +15,7 @@ import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { useMemo } from "react"
+import { usePackageDomains } from "@/hooks/use-package-domains"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -32,6 +33,18 @@ export default function SidebarReleasesSection() {
     releaseFiles?.find((f) => f.file_path === "tscircuit.config.json")
       ?.package_file_id ?? null,
   )
+
+  const hasReleaseWebsiteUrl = Boolean(
+    packageRelease?.package_release_website_url,
+  )
+  const { data: domains = [] } = usePackageDomains(
+    hasReleaseWebsiteUrl ? null : { package_id: packageInfo?.package_id },
+  )
+  const previewUrl =
+    packageRelease?.package_release_website_url ||
+    (domains[0]?.fully_qualified_domain_name
+      ? `https://${domains[0].fully_qualified_domain_name}`
+      : "")
 
   const isKicadPcmEnabled = useMemo(() => {
     if (!configFile?.content_text) return false
@@ -92,9 +105,9 @@ export default function SidebarReleasesSection() {
             </Tooltip>
           </TooltipProvider>
         </div>
-        {packageRelease?.package_release_website_url && (
+        {previewUrl && (
           <a
-            href={packageRelease.package_release_website_url}
+            href={previewUrl}
             target="_blank"
             className="flex items-center gap-2 text-sm text-gray-500  cursor-pointer"
           >
@@ -102,10 +115,8 @@ export default function SidebarReleasesSection() {
             <span>Package Preview</span>
           </a>
         )}
-        {isKicadPcmEnabled && packageRelease?.package_release_website_url && (
-          <KicadPcmCommand
-            url={`${packageRelease.package_release_website_url}/pcm/repository.json`}
-          />
+        {isKicadPcmEnabled && previewUrl && (
+          <KicadPcmCommand url={`${previewUrl}/pcm/repository.json`} />
         )}
       </div>
     </div>
