@@ -2318,6 +2318,20 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     })
     return removed
   },
+  deletePackageDomain: (packageDomainId: string): boolean => {
+    let deleted = false
+    set((state) => {
+      const index = state.packageDomains.findIndex(
+        (pd) => pd.package_domain_id === packageDomainId,
+      )
+      if (index === -1) return state
+      const packageDomains = [...state.packageDomains]
+      packageDomains.splice(index, 1)
+      deleted = true
+      return { ...state, packageDomains }
+    })
+    return deleted
+  },
   updatePackageDomain: (
     packageDomainId: string,
     updates: Partial<Omit<PackageDomain, "package_domain_id" | "created_at">>,
