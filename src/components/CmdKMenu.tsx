@@ -75,8 +75,8 @@ const CmdKMenu = () => {
     () =>
       session?.token
         ? {
-          Authorization: `Bearer ${session.token}`,
-        }
+            Authorization: `Bearer ${session.token}`,
+          }
         : undefined,
     [session?.token],
   )
