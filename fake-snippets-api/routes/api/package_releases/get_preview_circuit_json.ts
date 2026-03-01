@@ -8,17 +8,64 @@ type TscircuitConfig = {
   mainEntrypoint?: string
 }
 
-type CircuitJsonResult = {
-  circuitJson: unknown[]
-  componentPath?: string
+const entrypointFileNames = [
+  "index.tsx",
+  "index.circuit.tsx",
+  "main.tsx",
+  "main.circuit.tsx",
+]
+
+const hasValidPreviewExtension = (filePath: string) =>
+  filePath.endsWith(".tsx") || filePath.endsWith(".circuit.json")
+
+const isBoardFile = (filePath: string) => filePath.endsWith(".board.tsx")
+
+const getInitialComponentPath = (filePaths: string[]) => {
+  const normalizedPaths = filePaths
+    .map((filePath) => normalizeProjectFilePath(filePath))
+    .filter(
+      (filePath) =>
+        hasValidPreviewExtension(filePath) &&
+        !filePath.startsWith("dist/") &&
+        !filePath.startsWith("node_modules/"),
+    )
+
+  const uniquePaths = [...new Set(normalizedPaths)]
+
+  const rootEntrypoint = entrypointFileNames.find((fileName) =>
+    uniquePaths.includes(fileName),
+  )
+  if (rootEntrypoint) return rootEntrypoint
+
+  const commonEntrypoint = ["lib", "src"]
+    .flatMap((dirName) =>
+      entrypointFileNames.map((fileName) => `${dirName}/${fileName}`),
+    )
+    .find((entrypointPath) => uniquePaths.includes(entrypointPath))
+  if (commonEntrypoint) return commonEntrypoint
+
+  const recursiveEntrypoint = uniquePaths
+    .filter((filePath) => {
+      const fileName = path.posix.basename(filePath)
+      const depth = filePath.split("/").length - 1
+      return entrypointFileNames.includes(fileName) && depth <= 3
+    })
+    .sort()[0]
+  if (recursiveEntrypoint) return recursiveEntrypoint
+
+  const boardFile = uniquePaths.filter(isBoardFile).sort()[0]
+  if (boardFile) return boardFile
+
+  return uniquePaths.sort()[0]
 }
 
-const parseCircuitJson = (contentText?: string | null) => {
+const parseCircuitJson = (contentText: string | null) => {
   if (!contentText) return null
   try {
     const parsed = JSON.parse(contentText)
-    return Array.isArray(parsed) ? parsed : null
+    return Array.isArray(parsed) ? parsed : []
   } catch (error) {
+    console.error("Error parsing circuit.json", { error })
     return null
   }
 }
@@ -27,10 +74,10 @@ export default withRouteSpec({
   methods: ["GET", "POST"],
   auth: "optional_session",
   commonParams: z.object({
-    package_release_id: z.string().uuid().optional(),
+    package_release_id: z.string().optional(),
     package_name_with_version: z.string().optional(),
     package_name: z.string().optional(),
-    package_id: z.string().uuid().optional(),
+    package_id: z.string().optional(),
     is_latest: z.boolean().optional().default(true),
   }),
   jsonResponse: z.object({
@@ -52,12 +99,10 @@ export default withRouteSpec({
   const findLatestPackageRelease = (targetPackageId: string) => {
     const packageReleases = ctx.db.packageReleases
       .filter((release) => release.package_id === targetPackageId)
-      .sort((a, b) => {
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
-      })
-
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
     return packageReleases[0]
   }
 
@@ -67,9 +112,9 @@ export default withRouteSpec({
   if (!foundRelease && package_name_with_version) {
     const [packageName, parsedVersion] = package_name_with_version.split("@")
     const pkg = ctx.db.packages.find((x) => x.name === packageName)
-    foundRelease = ctx.db.packageReleases.find((x) => {
-      return x.version === parsedVersion && x.package_id === pkg?.package_id
-    })
+    foundRelease = ctx.db.packageReleases.find(
+      (x) => x.version === parsedVersion && x.package_id === pkg?.package_id,
+    )
   }
 
   if (!foundRelease && package_name && is_latest) {
@@ -116,47 +161,88 @@ export default withRouteSpec({
   const previewComponentPath = tscircuitConfig?.previewComponentPath
   const mainEntrypoint = tscircuitConfig?.mainEntrypoint
 
-  const fetchCircuitJsonByComponentPath = (
-    componentPath: string,
-  ): CircuitJsonResult | null => {
+  const fetchCircuitJsonByComponentPath = (componentPath: string) => {
+    const isCircuitJsonPath = componentPath.endsWith("circuit.json")
     const extension = path.posix.extname(componentPath)
-    const componentName = path.posix.basename(componentPath, extension)
+    const pathWithoutExt = componentPath.slice(0, -extension.length)
     const circuitJsonPath = normalizeProjectFilePath(
-      `dist/${componentName}/circuit.json`,
+      isCircuitJsonPath
+        ? `dist/${componentPath}`
+        : `dist/${pathWithoutExt}/circuit.json`,
     )
     const circuitFile = getFileByNormalizedPath(circuitJsonPath)
-    const circuitJson = parseCircuitJson(circuitFile?.content_text)
+    const circuitJson = parseCircuitJson(circuitFile?.content_text ?? null)
     if (!circuitJson) return null
-    return { circuitJson, componentPath }
+    return { circuitJson }
   }
-
-  let circuitJsonResult: CircuitJsonResult | null = null
 
   if (previewComponentPath) {
-    circuitJsonResult = fetchCircuitJsonByComponentPath(previewComponentPath)
+    const previewCircuit = fetchCircuitJsonByComponentPath(previewComponentPath)
+    if (previewCircuit) {
+      return ctx.json({
+        preview_circuit_json_response: {
+          circuit_json: previewCircuit.circuitJson,
+          component_path: previewComponentPath,
+          circuit_json_found: true,
+        },
+      })
+    }
+
+    return ctx.json({
+      preview_circuit_json_response: {
+        circuit_json_found: false,
+      },
+    })
   }
 
-  if (!circuitJsonResult && mainEntrypoint) {
-    circuitJsonResult = fetchCircuitJsonByComponentPath(mainEntrypoint)
+  if (mainEntrypoint) {
+    const entrypointCircuit = fetchCircuitJsonByComponentPath(mainEntrypoint)
+    if (entrypointCircuit) {
+      return ctx.json({
+        preview_circuit_json_response: {
+          circuit_json: entrypointCircuit.circuitJson,
+          component_path: mainEntrypoint,
+          circuit_json_found: true,
+        },
+      })
+    }
   }
 
-  if (!circuitJsonResult) {
-    const fallbackPaths = ["dist/index/circuit.json", "dist/circuit.json"]
-    for (const fallbackPath of fallbackPaths) {
-      const circuitFile = getFileByNormalizedPath(fallbackPath)
-      const circuitJson = parseCircuitJson(circuitFile?.content_text)
-      if (circuitJson) {
-        circuitJsonResult = { circuitJson }
-        break
-      }
+  const packageFilePaths = packageFiles
+    .map((file) => file.file_path)
+    .filter((filePath): filePath is string => Boolean(filePath))
+
+  const initialComponentPath = getInitialComponentPath(packageFilePaths)
+  if (initialComponentPath) {
+    const initialCircuit = fetchCircuitJsonByComponentPath(initialComponentPath)
+    if (initialCircuit) {
+      return ctx.json({
+        preview_circuit_json_response: {
+          circuit_json: initialCircuit.circuitJson,
+          component_path: initialComponentPath,
+          circuit_json_found: true,
+        },
+      })
+    }
+  }
+
+  const fallbackCircuitPaths = ["dist/circuit.json", "dist/index/circuit.json"]
+  for (const fallbackPath of fallbackCircuitPaths) {
+    const circuitFile = getFileByNormalizedPath(fallbackPath)
+    const circuitJson = parseCircuitJson(circuitFile?.content_text ?? null)
+    if (circuitJson) {
+      return ctx.json({
+        preview_circuit_json_response: {
+          circuit_json: circuitJson,
+          circuit_json_found: true,
+        },
+      })
     }
   }
 
   return ctx.json({
     preview_circuit_json_response: {
-      circuit_json: circuitJsonResult?.circuitJson,
-      component_path: circuitJsonResult?.componentPath,
-      circuit_json_found: Boolean(circuitJsonResult?.circuitJson),
+      circuit_json_found: false,
     },
   })
 })
