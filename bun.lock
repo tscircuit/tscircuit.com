@@ -81,7 +81,7 @@
         "autoprefixer": "^10.4.20",
         "circuit-json-to-bom-csv": "^0.0.7",
         "circuit-json-to-gerber": "^0.0.47",
-        "circuit-json-to-gltf": "^0.0.14",
+        "circuit-json-to-gltf": "^0.0.73",
         "circuit-json-to-kicad": "^0.0.34",
         "circuit-json-to-lbrn": "^0.0.23",
         "circuit-json-to-pnp-csv": "^0.0.7",
@@ -1100,7 +1100,7 @@
 
     "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.47", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.2", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "*", "tscircuit": "*", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-ZZ5y44DnDKqJO9zi84bppVbMMPUSiwsjHJRQty6ySXpPgz2bnnsjEPeH7XQmU+2U80Yc5hIvjqub57GWQUvsYQ=="],
 
-    "circuit-json-to-gltf": ["circuit-json-to-gltf@0.0.14", "", { "peerDependencies": { "@resvg/resvg-js": "2", "@resvg/resvg-wasm": "2", "@tscircuit/circuit-json-util": "*", "circuit-json": "*", "circuit-to-svg": "*", "typescript": "^5" }, "optionalPeers": ["@resvg/resvg-wasm"] }, "sha512-z+O7vlCpe5zhmsbZXdvG73S0t4XDwXyvCe4q+imR7oMMCqMv4xhIqSyHdazYnHuHrA/taTTrGQwWrFtFr18dTA=="],
+    "circuit-json-to-gltf": ["circuit-json-to-gltf@0.0.73", "", { "dependencies": { "@jscad/modeling": "^2.12.6", "jscad-electronics": "^0.0.120", "jscad-to-gltf": "^0.0.5", "occt-import-js": "^0.0.23" }, "peerDependencies": { "@resvg/resvg-js": "2", "@resvg/resvg-wasm": "2", "@tscircuit/circuit-json-util": "*", "circuit-json": "*", "circuit-to-svg": "*", "typescript": "^5" }, "optionalPeers": ["@resvg/resvg-js", "@resvg/resvg-wasm"] }, "sha512-Vb/cEy+fsQhJKYO13kBmZo41+WyaEIsKclrgRzwXGwFDgZBS8/+27iJ5kOi7atvtghb0cyAHDpMafhFiQU2WwQ=="],
 
     "circuit-json-to-kicad": ["circuit-json-to-kicad@0.0.34", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-Wa+YJ0sYrhjHAxJ/gbacVaCtgDgzrPWcqf8GOnkZ41P8wc3plj5uRESmGeSxvgNrOCDuun0xwKWl0uM+kHSiyg=="],
 
@@ -1580,7 +1580,7 @@
 
     "js-yaml": ["js-yaml@4.1.0", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA=="],
 
-    "jscad-electronics": ["jscad-electronics@0.0.113", "", { "peerDependencies": { "@jscad/modeling": "^2.12.5", "@tscircuit/footprinter": "*", "circuit-json": "^0.0.232", "jscad-fiber": "^0.0.85", "react": "19.1.0", "react-dom": "19.1.0", "three": "^0.179.1" }, "optionalPeers": ["jscad-fiber"] }, "sha512-WxVgQR7DsE4L6dax1/+fQFgEuUTR+ysPMx+SUlmPxYIf1hXFSbloM0rcDuGf3T2He/UXr2GCbXylj/SqRXimSA=="],
+    "jscad-electronics": ["jscad-electronics@0.0.120", "", { "peerDependencies": { "@jscad/modeling": "^2.12.5", "@tscircuit/footprinter": "*", "circuit-json": "^0.0.232", "jscad-fiber": "^0.0.85", "react": "19.1.0", "react-dom": "19.1.0", "three": "^0.179.1" }, "optionalPeers": ["jscad-fiber"] }, "sha512-ZkS8Pv18wDBqt5PK3pXjo71g3yJt5rMr3K/kJhu4vmVGT4F+fJIB1YeH/PjF2+2pmmKlyPQMtGr3RCxpbTHzYw=="],
 
     "jscad-planner": ["jscad-planner@0.0.13", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-Lkx7PDT0s90o25dhENrvcYLlgKRvSmhyX7H7LMMq85Hl5ICzirU4MAPxeveKWLlKrdS+4krybVAuKsJ9uvUppg=="],
 
@@ -1831,6 +1831,8 @@
     "object-hash": ["object-hash@3.0.0", "", {}, "sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw=="],
 
     "oblivious-set": ["oblivious-set@1.0.0", "", {}, "sha512-z+pI07qxo4c2CulUHCDf9lcqDlMSo72N/4rLUpRXf6fu+q8vjt8y0xS+Tlf8NTJDdTXHbdeO1n3MlbctwEoXZw=="],
+
+    "occt-import-js": ["occt-import-js@0.0.23", "", {}, "sha512-RFfYQXYFX5C1mB1Aywm0ShcUKzXOr/VzTnlzhBSDJOR6YCAPt1HYCzeXWg1vwwjn/cUxwqRNhhtf1dlewoZYCQ=="],
 
     "on-exit-leak-free": ["on-exit-leak-free@2.1.2", "", {}, "sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA=="],
 
@@ -2488,7 +2490,7 @@
 
     "import-fresh/resolve-from": ["resolve-from@4.0.0", "", {}, "sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g=="],
 
-    "jscad-electronics/circuit-json": ["circuit-json@0.0.374", "", {}, "sha512-l3TbGx3qHRmtey24oCs/gyONi3+lrf23VQJQnHQXFCfz0J37LlM7ouNUO+3FEUeEGsxgnCCTmtPO9DrbVELYOw=="],
+    "jscad-electronics/circuit-json": ["circuit-json@0.0.387", "", {}, "sha512-HmeNHOz5RrYZfq8VkaKLm1IQBI6p+QC8TRZ09UIy2OA/ZEym7FXw/xtdGYosLwIlt0rZhlurAma8ePF3ilMj0Q=="],
 
     "lbrnts/fast-xml-parser": ["fast-xml-parser@5.3.2", "", { "dependencies": { "strnum": "^2.1.0" }, "bin": { "fxparser": "src/cli/cli.js" } }, "sha512-n8v8b6p4Z1sMgqRmqLJm3awW4NX7NkaKPfb3uJIBTSH7Pdvufi3PQ3/lJLQrvxcMYl7JI2jnDO90siPEpD8JBA=="],
 
@@ -2639,6 +2641,8 @@
     "@vercel/nft/glob/minimatch": ["minimatch@3.1.2", "", { "dependencies": { "brace-expansion": "^1.1.7" } }, "sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw=="],
 
     "ajv-formats/ajv/json-schema-traverse": ["json-schema-traverse@1.0.0", "", {}, "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug=="],
+
+    "circuit-json-to-step/circuit-json-to-gltf/jscad-electronics": ["jscad-electronics@0.0.113", "", { "peerDependencies": { "@jscad/modeling": "^2.12.5", "@tscircuit/footprinter": "*", "circuit-json": "^0.0.232", "jscad-fiber": "^0.0.85", "react": "19.1.0", "react-dom": "19.1.0", "three": "^0.179.1" }, "optionalPeers": ["jscad-fiber"] }, "sha512-WxVgQR7DsE4L6dax1/+fQFgEuUTR+ysPMx+SUlmPxYIf1hXFSbloM0rcDuGf3T2He/UXr2GCbXylj/SqRXimSA=="],
 
     "cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
@@ -2861,6 +2865,8 @@
     "@tscircuit/pcb-viewer/@vitejs/plugin-react/@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
     "@vercel/nft/glob/minimatch/brace-expansion": ["brace-expansion@1.1.12", "", { "dependencies": { "balanced-match": "^1.0.0", "concat-map": "0.0.1" } }, "sha512-9T9UjW3r0UW5c1Q7GTwllptXwhvYmEzFhzMfZ9H7FQWt+uZePjZPjBP/W1ZEyZ1twGWom5/56TF4lPcqjnDHcg=="],
+
+    "circuit-json-to-step/circuit-json-to-gltf/jscad-electronics/circuit-json": ["circuit-json@0.0.374", "", {}, "sha512-l3TbGx3qHRmtey24oCs/gyONi3+lrf23VQJQnHQXFCfz0J37LlM7ouNUO+3FEUeEGsxgnCCTmtPO9DrbVELYOw=="],
 
     "poppygl/readable-stream/string_decoder/safe-buffer": ["safe-buffer@5.2.1", "", {}, "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="],
 
