@@ -101,18 +101,18 @@ export default withRouteSpec({
         })
       }
     } else if (points_to === "package_release_with_tag") {
-      if (!package_release_id || !tag) {
+      if (!package_id || !tag) {
         return ctx.error(400, {
           error_code: "missing_params",
           message:
-            "package_release_id and tag are required when points_to is 'package_release_with_tag'",
+            "package_id and tag are required when points_to is 'package_release_with_tag'",
         })
       }
-      if (package_build_id || package_id) {
+      if (package_build_id || package_release_id) {
         return ctx.error(400, {
           error_code: "invalid_params",
           message:
-            "package_build_id and package_id must not be provided when points_to is 'package_release_with_tag'",
+            "package_build_id and package_release_id must not be provided when points_to is 'package_release_with_tag'",
         })
       }
     } else if (points_to === "package") {
