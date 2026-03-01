@@ -1,14 +1,4 @@
-import { useEffect, useRef } from "react"
-
-/**
- * Efficient hook for handling keyboard shortcuts
- *
- * Examples:
- * - useHotkeyCombo("cmd+b", () => toggleSidebar())
- * - useHotkeyCombo("ctrl+s", () => save())
- * - useHotkeyCombo("Escape", () => closeModal())
- * - useHotkey("Enter", () => submit(), { meta: true })
- */
+import { useEffect, useMemo, useRef } from "react"
 
 type HotkeyModifiers = {
   ctrl?: boolean
@@ -25,6 +15,30 @@ type HotkeyOptions = {
   target?: EventTarget | null
 }
 
+const MODIFIER_MAP: Record<string, keyof HotkeyModifiers> = {
+  ctrl: "ctrl",
+  cmd: "meta",
+  meta: "meta",
+  alt: "alt",
+  shift: "shift",
+}
+
+function parseCombo(combo: string): {
+  key: string
+  modifiers: HotkeyModifiers
+} {
+  const parts = combo.toLowerCase().split("+")
+  const key = parts[parts.length - 1].trim()
+  const modifiers: HotkeyModifiers = {}
+
+  for (let i = 0; i < parts.length - 1; i++) {
+    const mod = MODIFIER_MAP[parts[i].trim()]
+    if (mod) modifiers[mod] = true
+  }
+
+  return { key, modifiers }
+}
+
 export const useHotkey = (
   key: string,
   callback: HotkeyCallback,
@@ -32,6 +46,8 @@ export const useHotkey = (
   options: HotkeyOptions = {},
 ) => {
   const callbackRef = useRef(callback)
+  callbackRef.current = callback
+
   const {
     preventDefault = true,
     stopPropagation = false,
@@ -39,30 +55,19 @@ export const useHotkey = (
   } = options
 
   useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
-
-  useEffect(() => {
     if (!target) return
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      const keyMatches = event.key.toLowerCase() === key.toLowerCase()
+      if (event.key.toLowerCase() !== key.toLowerCase()) return
 
-      // Check that all required modifiers are pressed
-      const ctrlOk = modifiers.ctrl ? event.ctrlKey : true
-      const altOk = modifiers.alt ? event.altKey : true
-      const shiftOk = modifiers.shift ? event.shiftKey : true
-      const metaOk = modifiers.meta ? event.metaKey || event.ctrlKey : true
+      if (modifiers.ctrl && !event.ctrlKey) return
+      if (modifiers.alt && !event.altKey) return
+      if (modifiers.shift && !event.shiftKey) return
+      if (modifiers.meta && !event.metaKey && !event.ctrlKey) return
 
-      if (keyMatches && ctrlOk && altOk && shiftOk && metaOk) {
-        if (preventDefault) {
-          event.preventDefault()
-        }
-        if (stopPropagation) {
-          event.stopPropagation()
-        }
-        callbackRef.current(event)
-      }
+      if (preventDefault) event.preventDefault()
+      if (stopPropagation) event.stopPropagation()
+      callbackRef.current(event)
     }
 
     target.addEventListener("keydown", handleKeyDown as EventListener)
@@ -85,32 +90,6 @@ export const useHotkeyCombo = (
   callback: HotkeyCallback,
   options: HotkeyOptions = {},
 ) => {
-  const modifiers: HotkeyModifiers = {}
-  const parts = combo
-    .toLowerCase()
-    .split("+")
-    .map((part) => part.trim())
-
-  const keyPart = parts[parts.length - 1]
-  const modifierParts = parts.slice(0, -1)
-
-  modifierParts.forEach((part) => {
-    switch (part) {
-      case "ctrl":
-        modifiers.ctrl = true
-        break
-      case "cmd":
-      case "meta":
-        modifiers.meta = true
-        break
-      case "alt":
-        modifiers.alt = true
-        break
-      case "shift":
-        modifiers.shift = true
-        break
-    }
-  })
-
-  useHotkey(keyPart, callback, modifiers, options)
+  const { key, modifiers } = useMemo(() => parseCombo(combo), [combo])
+  useHotkey(key, callback, modifiers, options)
 }
