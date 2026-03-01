@@ -329,6 +329,12 @@ const CmdKMenu = () => {
     setOpen((prev) => !prev)
   })
 
+  useHotkeyCombo("cmd+e", () => {
+    if (!window.location.pathname.startsWith("/editor")) {
+      window.location.href = "/editor"
+    }
+  })
+
   useEffect(() => {
     setSelectedIndex(0)
   }, [allItems.length])
@@ -811,11 +817,19 @@ const CmdKMenu = () => {
                     <span className="hidden sm:inline">select</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
-                    ⌘K
-                  </kbd>
-                  <span className="hidden sm:inline">close</span>
+                <div className="flex items-center gap-1.5 sm:gap-3">
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
+                      ⌘E
+                    </kbd>
+                    <span className="hidden sm:inline">editor</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1 py-0.5 font-mono bg-white border border-gray-200 shadow-sm rounded text-[10px] sm:text-xs">
+                      ⌘K
+                    </kbd>
+                    <span className="hidden sm:inline">close</span>
+                  </div>
                 </div>
               </div>
             </div>
