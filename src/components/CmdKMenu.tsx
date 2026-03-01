@@ -6,6 +6,7 @@ import { fuzzyMatch } from "@/components/ViewPackagePage/utils/fuzz-search"
 import { useImportComponentDialog } from "@/components/dialogs/import-component-dialog"
 import { useJlcpcbComponentImport } from "@/hooks/use-jlcpcb-component-import"
 import { Command } from "cmdk"
+import { useLocation } from "wouter"
 import { Package, PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery } from "react-query"
@@ -57,6 +58,7 @@ interface ScoredOrg extends PublicOrgSchema {
 }
 
 const CmdKMenu = () => {
+  const [, navigate] = useLocation()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isCircuitJsonImportDialogOpen, setIsCircuitJsonImportDialogOpen] =
@@ -331,7 +333,7 @@ const CmdKMenu = () => {
 
   useHotkeyCombo("cmd+e", () => {
     if (!window.location.pathname.startsWith("/editor")) {
-      window.location.href = "/editor"
+      navigate("/editor")
     }
   })
 
