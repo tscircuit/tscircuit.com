@@ -12,8 +12,8 @@ export default () => (
       capacitance="1000pF"
       footprint="0402"
       name="C1"
+      connections={{ pin1: "R1.pin1" }}
     />
-    <trace from=".R1 > .pin1" to=".C1 > .pin1" />
   </board>
 )
 `.trim(),
