@@ -95,7 +95,7 @@ export function LandingPage() {
               </div>
 
               {/* Title & Subtitle */}
-              <h1 className="text-5xl md:text-7xl lg:text-[5rem] xl:text-[5.5rem] font-bold tracking-tighter leading-[0.95] text-black mb-8">
+              <h1 className="text-5xl md:text-7xl lg:text-[4.8rem] xl:text-[5rem] font-bold tracking-tighter leading-[0.95] text-black mb-8">
                 AI codes electronics with tscircuit
               </h1>
 
@@ -145,7 +145,7 @@ export function LandingPage() {
               </div>
 
               {/* Feature Micro-Badges */}
-              <div className="flex flex-wrap gap-x-8 gap-y-4 mt-12 text-xs font-mono tracking-tight text-gray-500">
+              <div className="flex flex-wrap gap-x-8 gap-y-4 mt-8 text-xs font-mono tracking-tight text-gray-500">
                 <div className="flex items-center gap-2">
                   <Zap className="h-3 w-3" /> LIGHTNING FAST
                 </div>
