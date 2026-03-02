@@ -79,9 +79,9 @@ export function LandingPage() {
         <link rel="preconnect" href="https://api.tscircuit.com" />
         <link rel="dns-prefetch" href="https://api.tscircuit.com" />
       </Helmet>
-      
+
       <Header2 />
-      
+
       <main className="flex-1 w-full max-w-[1400px] mx-auto border-x border-[#EAEAEA] bg-white relative">
         {/* HERO SECTION - MINIMAL IMPACTFUL GRID */}
         <section className="border-b border-[#EAEAEA]">
@@ -96,16 +96,20 @@ export function LandingPage() {
 
               {/* Title & Subtitle */}
               <h1 className="text-5xl md:text-7xl lg:text-[5rem] xl:text-[5.5rem] font-bold tracking-tighter leading-[0.95] text-black mb-8">
-                AI codes electronics.
+                AI codes electronics with tscircuit
               </h1>
-              
+
               <p className="max-w-[500px] text-lg md:text-xl text-gray-500 font-medium leading-snug mb-10">
-                Build electronics with code and AI tools. Render code into schematics, PCBs, 3D, fabrication files, and more.
+                Build electronics with code and AI tools. Render code into
+                schematics, PCBs, 3D, fabrication files, and more.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <a href="https://docs.tscircuit.com" className="w-full sm:w-auto">
+                <a
+                  href="https://docs.tscircuit.com"
+                  className="w-full sm:w-auto"
+                >
                   <Button
                     size="lg"
                     className="w-full sm:w-auto h-12 px-8 rounded-none bg-black text-white hover:bg-gray-900 text-sm font-semibold tracking-wide"
@@ -125,7 +129,7 @@ export function LandingPage() {
                     Open Online Example
                   </Button>
                 </Link>
-                
+
                 <a
                   href="https://github.com/tscircuit/tscircuit"
                   target="_blank"
@@ -170,24 +174,28 @@ export function LandingPage() {
         {/* HERO IDE SCREENSHOT - REFINED BORDER */}
         <div className="px-4 md:px-12 lg:px-20 py-16 lg:py-24 border-b border-[#EAEAEA] bg-white">
           <div className="max-w-[1200px] mx-auto">
-            <div className="p-2 md:p-3 bg-[#FAFAFA] border border-[#EAEAEA] rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-              <div className="w-full rounded border border-[#EAEAEA] bg-white overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#EAEAEA] bg-white">
+            <div className="p-2 md:p-3 bg-[#FAFAFA] border border-[#EAEAEA] rounded shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
+              <div className="w-full rounded border border-[#EAEAEA] bg-white overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-[#EAEAEA] bg-white z-10 relative">
                   <div className="flex space-x-2">
                     <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
                     <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
                     <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
                   </div>
-                  <div className="text-[10px] text-gray-400 font-mono uppercase tracking-wider">tscircuit — editor</div>
+                  <div className="text-[10px] text-gray-700 font-mono uppercase select-none tracking-wider">
+                    tscircuit — editor
+                  </div>
                   <div className="w-10"></div>
                 </div>
-                <OptimizedImage
-                  alt="TSCircuit Editor Preview"
-                  className="w-full h-auto object-cover object-top"
-                  src="/assets/editor_example_2.webp"
-                  height={720}
-                  width={1280}
-                />
+                <div className="relative w-full overflow-hidden flex-1 flex">
+                  <OptimizedImage
+                    alt="TSCircuit Editor Preview"
+                    className="w-[102%] max-w-[102%] -ml-[1%] h-auto object-cover object-top"
+                    src="/assets/editor_example_2.webp"
+                    height={720}
+                    width={1280}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -195,36 +203,55 @@ export function LandingPage() {
 
         {/* TRENDING PACKAGES */}
         <div className="border-b border-[#EAEAEA] py-12 px-4 md:px-12 lg:px-20 bg-[#FAFAFA]">
-            <div className="text-xs font-mono tracking-widest text-gray-400 uppercase mb-8">
-              Trending Packages
-            </div>
-            <TrendingPackagesCarousel />
+          <div className="text-xs font-mono tracking-widest text-gray-400 uppercase mb-8">
+            Trending Packages
+          </div>
+          <TrendingPackagesCarousel />
         </div>
 
         {/* FEATURES GRID */}
         <section className="border-b border-[#EAEAEA]" id="features">
+          <div className="px-4 md:px-12 lg:px-20 py-16 md:py-24 text-center border-b border-[#EAEAEA]">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6">
+              The Modern Toolkit for Electronic Design
+            </h2>
+            <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
+              Typescript and React equipped with expertly-designed web-first
+              electronics libraries
+            </p>
+          </div>
           <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#EAEAEA]">
             <div className="p-8 md:p-12">
               <Terminal className="h-5 w-5 mb-6 text-black" />
-              <h3 className="text-lg font-bold tracking-tight mb-3">Version Control</h3>
+              <h3 className="text-lg font-bold tracking-tight mb-3">
+                Version Control
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Collaborate on Github or wherever you keep source code. Utilize industry-standard continuous integration tooling.
+                Collaborate on Github or wherever you keep source code. Utilize
+                industry-standard continuous integration tooling.
               </p>
             </div>
-            
+
             <div className="p-8 md:p-12">
               <Cpu className="h-5 w-5 mb-6 text-black" />
-              <h3 className="text-lg font-bold tracking-tight mb-3">Robust Autorouting</h3>
+              <h3 className="text-lg font-bold tracking-tight mb-3">
+                Robust Autorouting
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Near-instant local and cloud autorouters to give you a functional circuit board fast. Route complex circuits in seconds.
+                Near-instant local and cloud autorouters to give you a
+                functional circuit board fast. Route complex circuits in
+                seconds.
               </p>
             </div>
-            
+
             <div className="p-8 md:p-12">
               <Maximize2 className="h-5 w-5 mb-6 text-black" />
-              <h3 className="text-lg font-bold tracking-tight mb-3">Export & Manufacture</h3>
+              <h3 className="text-lg font-bold tracking-tight mb-3">
+                Export & Manufacture
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Export to industry-standard formats like Gerber, SPICE netlists and more. Zero effort Bill of Materials.
+                Export to industry-standard formats like Gerber, SPICE netlists
+                and more. Zero effort Bill of Materials.
               </p>
             </div>
           </div>
@@ -232,17 +259,21 @@ export function LandingPage() {
 
         {/* DETAILED SECTIONS */}
         <section className="divide-y divide-[#EAEAEA]">
-          
           {/* AI Compatible */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">01 / Built for LLMs</div>
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+                01 / Built for LLMs
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 AI-compatible Electronics
               </h2>
-              <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+              <div className="space-y-4 text-sm text-gray-600 leading-tight lg:leading-relaxed">
                 <p>
-                  Teach agents tscircuit instantly with <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black">npx skills add tscircuit/skill</code>
+                  Teach agents tscircuit instantly with{" "}
+                  <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black">
+                    npx skills add tscircuit/skill
+                  </code>
                 </p>
                 <p>Bring your own agent (Claude Code, Codex, OpenCode).</p>
                 <p>Ask to initialize, change and review schematics and PCBs.</p>
@@ -275,14 +306,22 @@ export function LandingPage() {
               </div>
             </div>
             <div className="order-1 lg:order-2 p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">02 / Browser Native</div>
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+                02 / Browser Native
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 Share and display everywhere
               </h2>
               <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
-                <p>Connect your GitHub or push to tscircuit.com to create shareable URLs for your project.</p>
+                <p>
+                  Connect your GitHub or push to tscircuit.com to create
+                  shareable URLs for your project.
+                </p>
                 <p>Every component file has a dedicated interactive webpage.</p>
-                <p>React component library for displaying PCBs, Schematics, Assembly Diagrams, and more.</p>
+                <p>
+                  React component library for displaying PCBs, Schematics,
+                  Assembly Diagrams, and more.
+                </p>
               </div>
             </div>
           </div>
@@ -290,21 +329,25 @@ export function LandingPage() {
           {/* Analog Simulation */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">03 / Simulation</div>
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+                03 / Simulation
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 Analog Simulation
               </h2>
               <p className="text-sm text-gray-600 leading-relaxed mb-6">
-                Run analog simulations in your browser or on the command line via WebAssembly ngspice.
+                Run analog simulations in your browser or on the command line
+                via WebAssembly ngspice.
               </p>
-              
+
               <a
                 href="https://docs.tscircuit.com/category/spice-simulation"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-sm font-semibold text-black hover:text-gray-600 mb-8 w-fit border-b border-black pb-0.5"
+                className="inline-flex items-center text-sm font-semibold text-black hover:text-blue-600 hover:border-blue-600 transition-all mb-8 w-fit border-b border-black pb-0.5"
               >
-                Read the Analog Simulation Guide <ArrowRight className="w-3 h-3 ml-1.5" />
+                Read the Analog Simulation Guide{" "}
+                <ArrowRight className="w-3 h-3 ml-1.5" />
               </a>
 
               <div className="border border-[#EAEAEA] rounded bg-[#0d1117]">
@@ -335,6 +378,33 @@ export function LandingPage() {
             </div>
           </div>
 
+          {/* Extremely Fast Autorouting */}
+          <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center items-center text-center bg-white border-b border-[#EAEAEA]">
+            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              04 / Routing
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
+              Extremely Fast Autorouting
+            </h2>
+            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl leading-relaxed">
+              <p>
+                Autoroute circuit boards using{" "}
+                <a className="underline hover:text-black font-medium" href="#">
+                  freerouting
+                </a>{" "}
+                or{" "}
+                <a className="underline hover:text-black font-medium" href="#">
+                  tscircuit&apos;s fast autorouter
+                </a>
+                .
+              </p>
+              <p>
+                Autoroute as few as 1 layer with automatically placed jumpers.
+              </p>
+              <p>Route complex circuits in seconds.</p>
+            </div>
+          </div>
+
           {/* KiCad Support */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="order-2 lg:order-1 bg-[#FAFAFA] p-8 md:p-12 lg:p-20 flex items-center justify-center">
@@ -349,42 +419,86 @@ export function LandingPage() {
               </div>
             </div>
             <div className="order-1 lg:order-2 p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">04 / Interoperability</div>
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+                05 / Interoperability
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 First Class KiCad Support
               </h2>
               <div className="space-y-6 text-sm text-gray-600 leading-relaxed">
                 <div>
-                  <div className="font-semibold text-black mb-1">Export to KiCad</div>
-                  <p>Export to KiCad PCB and Schematic files. Just run <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black text-xs">tsci build --kicad-library</code></p>
+                  <div className="font-semibold text-black mb-1">
+                    Export to KiCad
+                  </div>
+                  <p>
+                    Export to KiCad PCB and Schematic files. Just run{" "}
+                    <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black text-xs">
+                      tsci build --kicad-library
+                    </code>
+                  </p>
                 </div>
                 <div>
-                  <div className="font-semibold text-black mb-1">Import KiCad files directly</div>
-                  <p><code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black text-xs">import RP2040 from "./RP2040.kicad_mod"</code></p>
+                  <div className="font-semibold text-black mb-1">
+                    Import KiCad files directly
+                  </div>
+                  <p>
+                    <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black text-xs">
+                      import RP2040 from "./RP2040.kicad_mod"
+                    </code>
+                  </p>
                 </div>
                 <div>
-                  <div className="font-semibold text-black mb-1">Automatic KiCad PCM Server</div>
-                  <p>Import your library anywhere. Enable KiCad PCM to have every tscircuit package automatically serve components and subcircuits as importable KiCad modules.</p>
+                  <div className="font-semibold text-black mb-1">
+                    Automatic KiCad PCM Server
+                  </div>
+                  <p>
+                    Import your library anywhere. Enable KiCad PCM to have every
+                    tscircuit package automatically serve components and
+                    subcircuits as importable KiCad modules.
+                  </p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Zero Effort Bill of Materials */}
+          <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center items-center text-center bg-white border-t border-[#EAEAEA]">
+            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              06 / Inventory
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
+              Zero Effort Bill of Materials and Inventory Checks
+            </h2>
+            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl leading-relaxed">
+              <p>Integrations with major component suppliers.</p>
+              <p>
+                Automatic passive component selection based on component
+                properties.
+              </p>
+              <p>
+                Supplier part numbers, pricing and inventory automatically
+                queried.
+              </p>
             </div>
           </div>
         </section>
 
         {/* ADDITIONAL SCHEMATIC */}
         <section className="border-t border-[#EAEAEA] bg-[#FAFAFA]">
-           <div className="p-8 md:p-16 flex flex-col items-center max-w-5xl mx-auto">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-8 text-center">Standard Output Formats</div>
-              <div className="w-full rounded border border-[#EAEAEA] overflow-hidden shadow-sm bg-white p-2">
-                <OptimizedImage
-                  alt="Example schematic generated by tscircuit"
-                  className="w-full h-auto object-cover rounded-sm"
-                  src="/assets/example_schematic.webp"
-                  height={310}
-                  width={800}
-                />
-              </div>
-           </div>
+          <div className="p-8 md:p-16 flex flex-col items-center max-w-5xl mx-auto">
+            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-8 text-center">
+              Standard Output Formats
+            </div>
+            <div className="w-full rounded border border-[#EAEAEA] overflow-hidden shadow-sm bg-white p-2">
+              <OptimizedImage
+                alt="Example schematic generated by tscircuit"
+                className="w-full h-auto object-cover rounded-sm"
+                src="/assets/example_schematic.webp"
+                height={310}
+                width={800}
+              />
+            </div>
+          </div>
         </section>
 
         <div className="border-t border-[#EAEAEA]">
@@ -392,12 +506,16 @@ export function LandingPage() {
         </div>
 
         {/* CTA SECTION */}
-        <section className="border-t border-[#EAEAEA] py-24 md:py-32 px-4 md:px-12 text-center bg-white" id="cta">
+        <section
+          className="border-t border-[#EAEAEA] py-12 md:py-32 px-4 md:px-12 text-center bg-white"
+          id="cta"
+        >
           <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-6">
             Ready to build electronics with code?
           </h2>
           <p className="text-gray-500 mb-10 max-w-xl mx-auto">
-            Join hundreds of engineers who are already using tscircuit to design complex electronics!
+            Join hundreds of engineers who are already using tscircuit to design
+            complex electronics!
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
@@ -413,7 +531,11 @@ export function LandingPage() {
             >
               Get Started
             </Button>
-            <a href="https://docs.tscircuit.com" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://docs.tscircuit.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button
                 size="lg"
                 variant="outline"
@@ -425,7 +547,7 @@ export function LandingPage() {
           </div>
         </section>
       </main>
-      
+
       <div className="border-t border-[#EAEAEA] bg-white">
         <Footer />
       </div>
