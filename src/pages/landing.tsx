@@ -87,9 +87,9 @@ export function LandingPage() {
         <section className="border-b border-[#EAEAEA]">
           <div className="grid lg:grid-cols-[1fr_0.9fr] divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             {/* LEFT TEXT COLUMN */}
-            <div className="pt-24 pb-20 md:pt-36 md:pb-28 px-4 md:px-12 lg:px-16 flex flex-col justify-center">
+            <div className="pt-24 pb-20 md:pb-28 px-4 md:px-12 lg:px-16 flex flex-col justify-center">
               {/* Badge */}
-              <div className="inline-flex w-fit items-center gap-2 px-3 py-1 mb-8 border border-[#EAEAEA] bg-[#FAFAFA] text-xs font-mono tracking-tight text-gray-600 rounded">
+              <div className="inline-flex w-fit items-center gap-2 px-3 py-1 mb-6 border border-[#EAEAEA] bg-[#FAFAFA] text-xs font-mono tracking-tight text-gray-600 rounded">
                 <span className="flex h-1.5 w-1.5 rounded-full bg-black"></span>
                 OPEN-SOURCE & MIT LICENSED
               </div>
@@ -139,7 +139,9 @@ export function LandingPage() {
                   <img
                     alt="GitHub stars"
                     src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                    className="h-7"
+                    className="h-5 w-auto"
+                    height={20}
+                    width={100}
                   />
                 </a>
               </div>
@@ -190,7 +192,7 @@ export function LandingPage() {
                 <div className="relative w-full overflow-hidden flex-1 flex">
                   <OptimizedImage
                     alt="TSCircuit Editor Preview"
-                    className="w-[102%] max-w-[102%] -ml-[1%] h-auto object-cover object-top"
+                    className="w-[100%] h-auto object-cover scale-[1.01] object-top"
                     src="/assets/editor_example_2.webp"
                     height={720}
                     width={1280}
@@ -272,7 +274,7 @@ export function LandingPage() {
                 <p>
                   Teach agents tscircuit instantly with{" "}
                   <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black">
-                    npx skills add tscircuit/skill
+                    bun x skills add tscircuit/skill
                   </code>
                 </p>
                 <p>Bring your own agent (Claude Code, Codex, OpenCode).</p>
@@ -328,7 +330,7 @@ export function LandingPage() {
 
           {/* Analog Simulation */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
-            <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center">
+            <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center min-w-0">
               <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
                 03 / Simulation
               </div>
@@ -350,15 +352,15 @@ export function LandingPage() {
                 <ArrowRight className="w-3 h-3 ml-1.5" />
               </a>
 
-              <div className="border border-[#EAEAEA] rounded bg-[#0d1117]">
+              <div className="border border-[#EAEAEA] rounded bg-[#0d1117] overflow-hidden no-scrollbar">
                 {analogSimulationHtml ? (
                   <div
-                    className="text-xs font-mono overflow-x-auto p-4 [&>pre]:!bg-transparent [&>pre]:m-0"
+                    className="text-[10px] sm:text-xs font-mono overflow-x-auto p-3 sm:p-4 [&>pre]:!bg-transparent [&>pre]:m-0 no-scrollbar"
                     dangerouslySetInnerHTML={{ __html: analogSimulationHtml }}
                   />
                 ) : (
                   <div className="overflow-x-auto">
-                    <pre className="p-4 text-xs font-mono text-gray-300">
+                    <pre className="p-3 sm:p-4 text-[10px] sm:text-xs font-mono text-gray-300">
                       <code>{analogSimulationCode}</code>
                     </pre>
                   </div>
@@ -386,7 +388,7 @@ export function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
               Extremely Fast Autorouting
             </h2>
-            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl leading-relaxed">
+            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl !leading-[1]">
               <p>
                 Autoroute circuit boards using{" "}
                 <a className="underline hover:text-black font-medium" href="#">
@@ -469,7 +471,7 @@ export function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
               Zero Effort Bill of Materials and Inventory Checks
             </h2>
-            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl leading-relaxed">
+            <div className="space-y-4 text-sm md:text-base text-gray-600 max-w-2xl !leading-[1]">
               <p>Integrations with major component suppliers.</p>
               <p>
                 Automatic passive component selection based on component
