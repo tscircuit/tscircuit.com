@@ -175,7 +175,8 @@ export const SingleBuildLogs = ({
                       </span>
                     </div>
                   )}
-                {packageBuild.user_code_job_completed_logs &&
+                {!userCodeJobInProgress &&
+                  packageBuild.user_code_job_completed_logs &&
                   packageBuild.user_code_job_completed_logs.length > 0 && (
                     <>
                       {packageBuild.user_code_job_completed_logs.map(
