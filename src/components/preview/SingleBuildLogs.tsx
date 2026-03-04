@@ -180,36 +180,34 @@ export const SingleBuildLogs = ({
                     </div>
                   )}
                 {shouldShowCompletedLogs && (
-                    <>
-                      {completedLogs.map((log: StreamedLogEntry, i: number) => {
-                          const timestampText = formatLogTimestamp(
-                            log.timestamp,
-                          )
+                  <>
+                    {completedLogs.map((log: StreamedLogEntry, i: number) => {
+                      const timestampText = formatLogTimestamp(log.timestamp)
 
-                          return (
-                            <div
-                              key={`build-log-${i}`}
-                              className="flex items-start gap-2"
-                            >
-                              {timestampText && (
-                                <span className="shrink-0 text-gray-400">
-                                  {timestampText}
-                                </span>
-                              )}
-                              <span
-                                className={`whitespace-pre-wrap break-words ${
-                                  isStderrLog(log)
-                                    ? "text-red-600"
-                                    : "text-gray-600"
-                                }`}
-                              >
-                                {log.msg || JSON.stringify(log)}
-                              </span>
-                            </div>
-                          )
-                        })}
-                    </>
-                  )}
+                      return (
+                        <div
+                          key={`build-log-${i}`}
+                          className="flex items-start gap-2"
+                        >
+                          {timestampText && (
+                            <span className="shrink-0 text-gray-400">
+                              {timestampText}
+                            </span>
+                          )}
+                          <span
+                            className={`whitespace-pre-wrap break-words ${
+                              isStderrLog(log)
+                                ? "text-red-600"
+                                : "text-gray-600"
+                            }`}
+                          >
+                            {log.msg || JSON.stringify(log)}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
                 {shouldShowStreamedLogs && (
                   <>
                     {usercodeStreamedLogs.map(
