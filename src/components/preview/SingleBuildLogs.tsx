@@ -81,6 +81,10 @@ export const SingleBuildLogs = ({
     packageBuild?.user_code_job_started_at,
     packageBuild?.user_code_job_completed_at,
   )
+  const completedLogs = packageBuild?.user_code_job_completed_logs ?? []
+  const shouldShowCompletedLogs = completedLogs.length > 0
+  const shouldShowStreamedLogs =
+    usercodeStreamedLogs.length > 0 && !shouldShowCompletedLogs
 
   if (isLoadingBuild) {
     return (
@@ -175,12 +179,9 @@ export const SingleBuildLogs = ({
                       </span>
                     </div>
                   )}
-                {!userCodeJobInProgress &&
-                  packageBuild.user_code_job_completed_logs &&
-                  packageBuild.user_code_job_completed_logs.length > 0 && (
+                {shouldShowCompletedLogs && (
                     <>
-                      {packageBuild.user_code_job_completed_logs.map(
-                        (log: StreamedLogEntry, i: number) => {
+                      {completedLogs.map((log: StreamedLogEntry, i: number) => {
                           const timestampText = formatLogTimestamp(
                             log.timestamp,
                           )
@@ -206,11 +207,10 @@ export const SingleBuildLogs = ({
                               </span>
                             </div>
                           )
-                        },
-                      )}
+                        })}
                     </>
                   )}
-                {usercodeStreamedLogs.length > 0 && (
+                {shouldShowStreamedLogs && (
                   <>
                     {usercodeStreamedLogs.map(
                       (log: StreamedLogEntry, i: number) => {
@@ -242,8 +242,8 @@ export const SingleBuildLogs = ({
                     <div ref={logsEndRef} />
                   </>
                 )}
-                {packageBuild.user_code_job_completed_logs?.length === 0 &&
-                  usercodeStreamedLogs.length === 0 &&
+                {!shouldShowCompletedLogs &&
+                  !shouldShowStreamedLogs &&
                   !packageBuild.user_code_job_error &&
                   !userCodeJobInProgress && (
                     <div className="text-gray-500">No logs available</div>
