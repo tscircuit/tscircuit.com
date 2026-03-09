@@ -23,6 +23,7 @@ import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
+import { ScrollRevealContainer } from "@/components/ScrollRevealContainer"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
 
@@ -83,124 +84,207 @@ export function LandingPage() {
       <Header2 />
 
       <main className="flex-1 w-full max-w-[1400px] mx-auto border-x border-[#EAEAEA] bg-white relative">
-        {/* HERO SECTION - MINIMAL IMPACTFUL GRID */}
-        <section className="border-b border-[#EAEAEA]">
-          <div className="grid lg:grid-cols-[1fr_0.9fr] divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
-            {/* LEFT TEXT COLUMN */}
-            <div className="pt-24 pb-20 md:pb-28 px-4 md:px-12 lg:px-16 flex flex-col justify-center">
-              {/* Badge */}
-              <div className="inline-flex w-fit items-center gap-2 px-3 py-1 mb-6 border border-[#EAEAEA] bg-[#FAFAFA] text-xs font-mono tracking-tight text-gray-600 rounded">
-                <span className="flex h-1.5 w-1.5 rounded-full bg-black"></span>
-                OPEN-SOURCE & MIT LICENSED
+        {/* HERO SECTION - REFINED IMPACTFUL */}
+        <section className="relative overflow-hidden border-b border-[#EAEAEA] bg-white">
+          {/* Subtle grid background to match technical/PCB theme */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.015] mix-blend-multiply pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+
+          <div className="container relative mx-auto max-w-7xl px-4 md:px-8 pt-16 pb-24 md:pb-32">
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-8 items-center">
+              {/* LEFT TEXT COLUMN */}
+              <div className="flex flex-col justify-center space-y-4 z-10">
+                {/* Badge */}
+                <div className="inline-flex elect-none w-fit items-center gap-2 px-3 py-1.5 border border-gray-200 bg-white shadow-sm text-xs font-semibold tracking-wide text-gray-800 rounded-full">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  OPEN-SOURCE & MIT LICENSED
+                </div>
+
+                {/* Title & Subtitle */}
+                <div className="space-y-6">
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
+                    AI codes electronics <br className="hidden md:block" />
+                    with tscircuit
+                  </h1>
+
+                  <p className="max-w-[540px] text-lg md:text-xl text-gray-600 leading-relaxed">
+                    Build electronics with code and AI tools. Render code into
+                    schematics, PCBs, 3D, and fabrication files instantly.
+                  </p>
+                </div>
+
+                {/* Objection Handling */}
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 md:p-6 w-fit shadow-sm">
+                  <ul className="flex flex-col gap-3.5 text-sm md:text-base text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                      <span>
+                        <strong className="text-gray-900 font-semibold">
+                          No proprietary lock-in:
+                        </strong>{" "}
+                        Export to KiCad & Gerber
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                      <span>
+                        <strong className="text-gray-900 font-semibold">
+                          Zero learning curve:
+                        </strong>{" "}
+                        Familiar React & TypeScript
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5 flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                      <span>
+                        <strong className="text-gray-900 font-semibold">
+                          Browser-native:
+                        </strong>{" "}
+                        Start coding without installations
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <a
+                    href="https://docs.tscircuit.com"
+                    className="w-full sm:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto h-12 px-8 rounded-none bg-black text-white hover:bg-gray-900 text-sm font-semibold tracking-wide"
+                    >
+                      Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </a>
+                  <Link
+                    href="/seveibar/led-water-accelerometer#3d"
+                    className="w-full sm:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="w-full sm:w-auto h-12 px-8 rounded-none border-[#EAEAEA] text-black hover:bg-[#FAFAFA] text-sm font-semibold tracking-wide"
+                    >
+                      Open Online Example
+                    </Button>
+                  </Link>
+
+                  <a
+                    href="https://github.com/tscircuit/tscircuit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 sm:mt-0 sm:ml-4 hover:opacity-80 transition-opacity"
+                  >
+                    <img
+                      alt="GitHub stars"
+                      src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+                      className="h-6 w-auto"
+                    />
+                  </a>
+                </div>
               </div>
 
-              {/* Title & Subtitle */}
-              <h1 className="text-5xl md:text-7xl lg:text-[4.8rem] xl:text-[5rem] font-bold tracking-tighter leading-[0.95] text-black mb-8">
-                AI codes electronics with tscircuit
-              </h1>
+              {/* RIGHT VIDEO COLUMN */}
+              <div className="relative w-full z-10 lg:pl-4 mt-8 lg:mt-0">
+                <div className="w-full aspect-video border border-[#EAEAEA] bg-black overflow-hidden relative group">
+                  {/* Subtle Top Bar to make it look like a window */}
+                  <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-black/60 to-transparent z-20 pointer-events-none"></div>
 
-              <p className="max-w-[500px] text-lg md:text-xl text-gray-500 font-medium leading-snug mb-10">
-                Build electronics with code and AI tools. Render code into
-                schematics, PCBs, 3D, fabrication files, and more.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <a
-                  href="https://docs.tscircuit.com"
-                  className="w-full sm:w-auto"
-                >
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto h-12 px-8 rounded-none bg-black text-white hover:bg-gray-900 text-sm font-semibold tracking-wide"
-                  >
-                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </a>
-                <Link
-                  href="/seveibar/led-water-accelerometer#3d"
-                  className="w-full sm:w-auto"
-                >
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto h-12 px-8 rounded-none border-[#EAEAEA] text-black hover:bg-[#FAFAFA] text-sm font-semibold tracking-wide"
-                  >
-                    Open Online Example
-                  </Button>
-                </Link>
-
-                <a
-                  href="https://github.com/tscircuit/tscircuit"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 sm:mt-0 sm:ml-4 hover:opacity-80 transition-opacity"
-                >
-                  <img
-                    alt="GitHub stars"
-                    src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                    className="h-5 w-auto"
-                    height={20}
-                    width={100}
+                  <iframe
+                    className="absolute inset-0 w-full h-full object-cover z-10"
+                    src="https://www.youtube-nocookie.com/embed/HAd5_ZJgg50?rel=0&disablekb=1&color=white"
+                    title="TSCircuit product demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
                   />
-                </a>
-              </div>
-
-              {/* Feature Micro-Badges */}
-              <div className="flex flex-wrap gap-x-8 gap-y-4 mt-8 text-xs font-mono tracking-tight text-gray-500">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-3 w-3" /> LIGHTNING FAST
                 </div>
-                <div className="flex items-center gap-2">
-                  <Cpu className="h-3 w-3" /> DESIGNED FOR AI
-                </div>
-              </div>
-            </div>
 
-            {/* RIGHT VIDEO COLUMN */}
-            <div className="bg-[#FAFAFA] p-4 md:p-8 lg:p-12 flex items-center justify-center">
-              <div className="w-full aspect-video rounded-xl border border-[#DEDEDE] shadow-[0_8px_30px_rgb(0,0,0,0.06)] bg-black overflow-hidden relative">
-                <iframe
-                  className="absolute inset-0 w-full h-full object-cover"
-                  src="https://www.youtube.com/embed/HAd5_ZJgg50"
-                  title="TSCircuit product demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
+                {/* Feature Micro-Badges pinned to video */}
+                <div className="absolute -bottom-6 right-4 sm:-right-4 lg:-right-8 flex flex-col gap-3 z-20 pointer-events-none">
+                  <div className="flex items-center gap-2 bg-white/90 backdrop-blur border border-gray-200 shadow-md rounded-full px-4 py-2 text-xs font-semibold tracking-wide text-gray-700">
+                    <Zap className="h-4 w-4 text-amber-500" /> LIGHTNING FAST
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/90 backdrop-blur border border-gray-200 shadow-md rounded-full px-4 py-2 text-xs font-semibold tracking-wide text-gray-700 w-fit ml-auto">
+                    <Cpu className="h-4 w-4 text-blue-500" /> DESIGNED FOR AI
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* HERO IDE SCREENSHOT - REFINED BORDER */}
-        <div className="px-4 md:px-12 lg:px-20 py-16 lg:py-24 border-b border-[#EAEAEA] bg-white">
-          <div className="max-w-[1200px] mx-auto">
-            <div className="p-2 md:p-3 bg-[#FAFAFA] border border-[#EAEAEA] rounded shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-              <div className="w-full rounded border border-[#EAEAEA] bg-white overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-[#EAEAEA] bg-white z-10 relative">
-                  <div className="flex space-x-2">
-                    <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
-                    <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
-                    <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
-                  </div>
-                  <div className="text-[10px] text-gray-700 font-mono uppercase select-none tracking-wider">
-                    tscircuit — editor
-                  </div>
-                  <div className="w-10"></div>
+        {/* HERO IDE SCREENSHOT */}
+        <div className="px-4 md:px-12 lg:px-20 py-16 border-b border-[#EAEAEA] bg-white overflow-hidden">
+          <ScrollRevealContainer className="max-w-[1200px] mx-auto">
+            <div className="w-full border border-[#EAEAEA] bg-white overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#EAEAEA] bg-white z-10 relative">
+                <div className="flex space-x-2">
+                  <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
+                  <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
+                  <div className="w-2.5 h-2.5 rounded-full border border-gray-200 bg-gray-100"></div>
                 </div>
-                <div className="relative w-full overflow-hidden flex-1 flex">
-                  <OptimizedImage
-                    alt="TSCircuit Editor Preview"
-                    className="w-[100%] h-auto object-cover scale-[1.01] object-top"
-                    src="/assets/editor_example_2.webp"
-                    height={720}
-                    width={1280}
-                  />
+                <div className="text-[10px] text-gray-700 font-mono uppercase select-none tracking-wider">
+                  tscircuit — editor
                 </div>
+                <div className="w-10"></div>
+              </div>
+              <div className="relative w-full overflow-hidden flex-1 flex">
+                <OptimizedImage
+                  alt="TSCircuit Editor Preview"
+                  className="w-[100%] h-auto object-cover scale-[1.01] object-top"
+                  src="/assets/editor_example_2.webp"
+                  height={720}
+                  width={1280}
+                />
               </div>
             </div>
-          </div>
+          </ScrollRevealContainer>
         </div>
 
         {/* TRENDING PACKAGES */}
@@ -223,7 +307,7 @@ export function LandingPage() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#EAEAEA]">
-            <div className="p-8 md:p-12">
+            <div className="p-8 md:p-12 hover:bg-[#FAFAFA] transition-colors duration-300 cursor-default">
               <Terminal className="h-5 w-5 mb-6 text-black" />
               <h3 className="text-lg font-bold tracking-tight mb-3">
                 Version Control
@@ -234,7 +318,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="p-8 md:p-12">
+            <div className="p-8 md:p-12 hover:bg-[#FAFAFA] transition-colors duration-300 cursor-default">
               <Cpu className="h-5 w-5 mb-6 text-black" />
               <h3 className="text-lg font-bold tracking-tight mb-3">
                 Robust Autorouting
@@ -246,7 +330,7 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="p-8 md:p-12">
+            <div className="p-8 md:p-12 hover:bg-[#FAFAFA] transition-colors duration-300 cursor-default">
               <Maximize2 className="h-5 w-5 mb-6 text-black" />
               <h3 className="text-lg font-bold tracking-tight mb-3">
                 Export & Manufacture
@@ -264,13 +348,13 @@ export function LandingPage() {
           {/* AI Compatible */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
                 01 / Built for LLMs
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 AI-compatible Electronics
               </h2>
-              <div className="space-y-4 text-sm text-gray-600 leading-tight lg:leading-relaxed">
+              <div className="space-y-4 text-sm text-gray-600 leading-4">
                 <p>
                   Teach agents tscircuit instantly with{" "}
                   <code className="font-mono bg-[#FAFAFA] border border-[#EAEAEA] px-1.5 py-0.5 rounded text-black">
@@ -282,10 +366,10 @@ export function LandingPage() {
               </div>
             </div>
             <div className="bg-[#FAFAFA] p-8 md:p-12 lg:p-20 flex items-center justify-center">
-              <div className="border border-[#EAEAEA] rounded w-full overflow-hidden bg-white shadow-sm p-1">
+              <div className="w-full overflow-hidden bg-white">
                 <OptimizedImage
                   alt="AI-compatible electronics placeholder"
-                  className="w-full h-auto object-cover grayscale opacity-90 rounded-sm"
+                  className="w-full h-auto object-cover opacity-90"
                   src="/assets/fallback-image.svg"
                   height={360}
                   width={540}
@@ -297,10 +381,10 @@ export function LandingPage() {
           {/* Browser Native */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="order-2 lg:order-1 bg-[#FAFAFA] p-8 md:p-12 lg:p-20 flex items-center justify-center">
-              <div className="border border-[#EAEAEA] rounded w-full overflow-hidden bg-white shadow-sm p-1">
+              <div className="w-full overflow-hidden bg-white">
                 <OptimizedImage
                   alt="Share and display in the browser placeholder"
-                  className="w-full h-auto object-cover grayscale opacity-90 rounded-sm"
+                  className="w-full h-auto object-cover opacity-90"
                   src="/assets/fallback-image.svg"
                   height={360}
                   width={540}
@@ -308,13 +392,13 @@ export function LandingPage() {
               </div>
             </div>
             <div className="order-1 lg:order-2 p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
                 02 / Browser Native
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 Share and display everywhere
               </h2>
-              <div className="space-y-4 text-sm text-gray-600 leading-relaxed">
+              <div className="space-y-4 text-sm text-gray-600 leading-4">
                 <p>
                   Connect your GitHub or push to tscircuit.com to create
                   shareable URLs for your project.
@@ -331,13 +415,13 @@ export function LandingPage() {
           {/* Analog Simulation */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center min-w-0">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
                 03 / Simulation
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
                 Analog Simulation
               </h2>
-              <p className="text-sm text-gray-600 leading-relaxed mb-6">
+              <p className="text-sm text-gray-600 leading-4 mb-6">
                 Run analog simulations in your browser or on the command line
                 via WebAssembly ngspice.
               </p>
@@ -352,7 +436,7 @@ export function LandingPage() {
                 <ArrowRight className="w-3 h-3 ml-1.5" />
               </a>
 
-              <div className="border border-[#EAEAEA] rounded bg-[#0d1117] overflow-hidden no-scrollbar">
+              <div className="rounded bg-[#0d1117] overflow-hidden no-scrollbar">
                 {analogSimulationHtml ? (
                   <div
                     className="text-[10px] sm:text-xs font-mono overflow-x-auto p-3 sm:p-4 [&>pre]:!bg-transparent [&>pre]:m-0 no-scrollbar"
@@ -368,10 +452,10 @@ export function LandingPage() {
               </div>
             </div>
             <div className="bg-[#FAFAFA] p-8 md:p-12 lg:p-20 flex items-center justify-center">
-              <div className="border border-[#EAEAEA] rounded w-full overflow-hidden bg-white shadow-sm p-1">
+              <div className="w-full overflow-hidden bg-white">
                 <OptimizedImage
                   alt="Analog simulation"
-                  className="w-full h-auto object-cover rounded-sm"
+                  className="w-full h-auto object-cover"
                   src={analogSimulationImg}
                   height={360}
                   width={540}
@@ -382,7 +466,7 @@ export function LandingPage() {
 
           {/* Extremely Fast Autorouting */}
           <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center items-center text-center bg-white border-b border-[#EAEAEA]">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
               04 / Routing
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
@@ -410,10 +494,10 @@ export function LandingPage() {
           {/* KiCad Support */}
           <div className="grid lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#EAEAEA]">
             <div className="order-2 lg:order-1 bg-[#FAFAFA] p-8 md:p-12 lg:p-20 flex items-center justify-center">
-              <div className="border border-[#EAEAEA] rounded w-full overflow-hidden bg-white shadow-sm p-1">
+              <div className="w-full overflow-hidden bg-white">
                 <OptimizedImage
                   alt="KiCad support via PCB Server"
-                  className="w-full h-auto object-cover rounded-sm"
+                  className="w-full h-auto object-cover"
                   src={importKicadLibraryImg}
                   height={360}
                   width={540}
@@ -421,7 +505,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="order-1 lg:order-2 p-8 md:p-12 lg:p-20 flex flex-col justify-center">
-              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+              <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
                 05 / Interoperability
               </div>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
@@ -465,7 +549,7 @@ export function LandingPage() {
 
           {/* Zero Effort Bill of Materials */}
           <div className="p-8 md:p-12 lg:p-20 flex flex-col justify-center items-center text-center bg-white border-t border-[#EAEAEA]">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4">
+            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 select-none">
               06 / Inventory
             </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
@@ -487,19 +571,18 @@ export function LandingPage() {
 
         {/* ADDITIONAL SCHEMATIC */}
         <section className="border-t border-[#EAEAEA] bg-[#FAFAFA]">
-          <div className="p-8 md:p-16 flex flex-col items-center max-w-5xl mx-auto">
-            <div className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-8 text-center">
-              Standard Output Formats
-            </div>
-            <div className="w-full rounded border border-[#EAEAEA] overflow-hidden shadow-sm bg-white p-2">
-              <OptimizedImage
-                alt="Example schematic generated by tscircuit"
-                className="w-full h-auto object-cover rounded-sm"
-                src="/assets/example_schematic.webp"
-                height={310}
-                width={800}
-              />
-            </div>
+          <div className="p-8 md:p-16 flex flex-col items-center max-w-5xl mx-auto overflow-hidden">
+            <ScrollRevealContainer className="w-full">
+              <div className="w-full overflow-hidden bg-white">
+                <OptimizedImage
+                  alt="Example schematic generated by tscircuit"
+                  className="w-full h-auto object-cover"
+                  src="/assets/example_schematic.webp"
+                  height={310}
+                  width={800}
+                />
+              </div>
+            </ScrollRevealContainer>
           </div>
         </section>
 
