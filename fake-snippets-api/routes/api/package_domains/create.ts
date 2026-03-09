@@ -94,7 +94,47 @@ export default withRouteSpec({
     }
   }
 
-  // Check FQDN uniqueness
+  let resolvedPackageId = package_id ?? null
+
+  if (!resolvedPackageId && package_release_id) {
+    const release = ctx.db.getPackageReleaseById(package_release_id)
+    resolvedPackageId = release?.package_id ?? null
+  }
+
+  if (!resolvedPackageId && package_build_id) {
+    const build = ctx.db.getPackageBuildById(package_build_id)
+    if (build) {
+      const release = ctx.db.getPackageReleaseById(build.package_release_id)
+      resolvedPackageId = release?.package_id ?? null
+    }
+  }
+
+  if (!resolvedPackageId) {
+    return ctx.error(400, {
+      error_code: "missing_package_reference",
+      message: "Unable to determine the package for permission check",
+    })
+  }
+
+  const pkg = ctx.db.packages.find((p) => p.package_id === resolvedPackageId)
+  if (pkg) {
+    const hasPermission =
+      pkg.creator_account_id === ctx.auth.account_id ||
+      ctx.db
+        .getState()
+        .orgAccounts.some(
+          (oa) =>
+            oa.account_id === ctx.auth.account_id &&
+            oa.org_id === pkg.owner_org_id,
+        )
+    if (!hasPermission) {
+      return ctx.error(403, {
+        error_code: "forbidden",
+        message: "You do not have permission to manage this package's domains",
+      })
+    }
+  }
+
   if (fully_qualified_domain_name) {
     const existing = ctx.db.getPackageDomainByFQDN(fully_qualified_domain_name)
     if (existing) {
