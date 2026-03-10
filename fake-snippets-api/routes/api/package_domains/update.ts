@@ -48,7 +48,45 @@ export default withRouteSpec({
     })
   }
 
-  // Check FQDN uniqueness if being updated
+  let resolvedPackageId = existingDomain.package_id ?? null
+
+  if (!resolvedPackageId && existingDomain.package_release_id) {
+    const release = ctx.db.getPackageReleaseById(
+      existingDomain.package_release_id,
+    )
+    resolvedPackageId = release?.package_id ?? null
+  }
+
+  if (!resolvedPackageId && existingDomain.package_build_id) {
+    const build = ctx.db.getPackageBuildById(existingDomain.package_build_id)
+    if (build) {
+      const release = ctx.db.getPackageReleaseById(build.package_release_id)
+      resolvedPackageId = release?.package_id ?? null
+    }
+  }
+
+  if (resolvedPackageId) {
+    const pkg = ctx.db.packages.find((p) => p.package_id === resolvedPackageId)
+    if (pkg) {
+      const hasPermission =
+        pkg.creator_account_id === ctx.auth.account_id ||
+        ctx.db
+          .getState()
+          .orgAccounts.some(
+            (oa) =>
+              oa.account_id === ctx.auth.account_id &&
+              oa.org_id === pkg.owner_org_id,
+          )
+      if (!hasPermission) {
+        return ctx.error(403, {
+          error_code: "forbidden",
+          message:
+            "You do not have permission to manage this package's domains",
+        })
+      }
+    }
+  }
+
   if (
     fully_qualified_domain_name !== undefined &&
     fully_qualified_domain_name !== null
