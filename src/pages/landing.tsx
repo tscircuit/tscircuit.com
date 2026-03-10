@@ -190,15 +190,15 @@ export function LandingPage() {
                 <div className="absolute bottom-6 right-6 flex items-center gap-3 z-20">
                   <Button
                     onClick={handleOrder}
-                    className="h-10 px-5 bg-white text-black hover:bg-gray-100 rounded shadow-xl flex items-center gap-2 font-bold transition-transform hover:scale-105"
-                  >
-                    <Play className="w-4 h-4" /> Run
-                  </Button>
-                  <Button
-                    onClick={handleOrder}
                     className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-xl flex items-center gap-2 opacity-0 group-hover/editor:opacity-100 transition-all duration-300"
                   >
                     <ExternalLink className="w-4 h-4" /> Open in Editor
+                  </Button>
+                  <Button
+                    onClick={handleOrder}
+                    className="h-10 px-5 bg-white text-black hover:bg-gray-100 rounded shadow-xl flex items-center gap-2 font-bold transition-transform hover:scale-105"
+                  >
+                    <Play className="w-4 h-4" /> Run
                   </Button>
                 </div>
               </div>
