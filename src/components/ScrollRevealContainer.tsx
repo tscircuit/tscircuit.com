@@ -23,7 +23,7 @@ export function ScrollRevealContainer({
       // Map the element's position relative to the viewport to a 0-1 progress value.
       // startPoint: when the element's top is near the bottom of the screen (0% progress)
       // endPoint: when the element's top reaches the upper middle of the screen (100% progress)
-      const startPoint = windowHeight * 0.96
+      const startPoint = windowHeight * 0.99
       const endPoint = windowHeight * 0.1
 
       let progress = (startPoint - rect.top) / (startPoint - endPoint)
