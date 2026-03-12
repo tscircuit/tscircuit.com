@@ -70,6 +70,7 @@ const ProfileRouter = lazyImport(() => import("@/components/ProfileRouter"))
 const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const LoginPage = lazyImport(() => import("@/pages/login"))
 const CliLoginPage = lazyImport(() => import("@/pages/cli-login"))
+const ReportBugPage = lazyImport(() => import("@/pages/report-bug"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
@@ -275,6 +276,7 @@ function App() {
             <Route path="/org-login" component={LoginPage} />
             <Route path="/dev-login" component={DevLoginPage} />
             <Route path="/cli-login" component={CliLoginPage} />
+            <Route path="/report-bug" component={ReportBugPage} />
 
             {/* Organization creation route */}
             <Route path="/orgs/new" component={CreateOrganizationPage} />
