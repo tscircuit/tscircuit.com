@@ -461,6 +461,7 @@ export const packageSchema = z.object({
     .default("files")
     .optional(),
   allow_pr_previews: z.boolean().default(false).optional(),
+  public_dist_enabled: z.boolean().default(false).optional(),
   is_starred: z.boolean().default(false).optional(),
   latest_pcb_preview_image_url: z.string().nullable().optional(),
   latest_sch_preview_image_url: z.string().nullable().optional(),

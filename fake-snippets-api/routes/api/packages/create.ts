@@ -125,6 +125,7 @@ export default withRouteSpec({
     is_unlisted: is_private === true ? true : (is_unlisted ?? false),
     ai_usage_instructions: "placeholder ai usage instructions",
     default_view: "files",
+    public_dist_enabled: false,
   })
 
   if (!newPackage) {
