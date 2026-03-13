@@ -395,6 +395,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       is_unlisted: false,
       latest_package_release_id: `package_release_${nextId}`,
       latest_package_release_fs_sha: null,
+      public_dist_enabled: false,
     }
 
     // Create package release

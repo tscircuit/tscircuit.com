@@ -28,6 +28,7 @@ export const publicMapPackage = (internalPackage: {
   latest_package_release_fs_sha: string | null
   github_repo_full_name?: string | null
   allow_pr_previews?: boolean
+  public_dist_enabled?: boolean
   latest_pcb_preview_image_url?: string | null
   latest_sch_preview_image_url?: string | null
   latest_cad_preview_image_url?: string | null
@@ -51,6 +52,7 @@ export const publicMapPackage = (internalPackage: {
         ? true
         : (internalPackage.is_unlisted ?? false),
     allow_pr_previews: Boolean(internalPackage.allow_pr_previews),
+    public_dist_enabled: Boolean(internalPackage.public_dist_enabled),
     latest_pcb_preview_image_url:
       internalPackage.latest_pcb_preview_image_url ?? null,
     latest_sch_preview_image_url:

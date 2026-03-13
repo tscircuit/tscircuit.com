@@ -215,3 +215,41 @@ test("update package without permission", async () => {
     )
   }
 })
+
+test("package has public_dist_enabled disabled by default", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/public-dist-default",
+    description: "Public dist default",
+  })
+
+  expect(packageResponse.status).toBe(200)
+  expect(packageResponse.data.package.public_dist_enabled).toBe(false)
+
+  const packageId = packageResponse.data.package.package_id
+  const createdPackage = db.packages.find((p) => p.package_id === packageId)
+  expect(createdPackage?.public_dist_enabled).toBe(false)
+})
+
+test("update package public_dist_enabled", async () => {
+  const { axios, db } = await getTestServer()
+
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/public-dist-update",
+    description: "Public dist update",
+  })
+  const packageId = packageResponse.data.package.package_id
+
+  const response = await axios.post("/api/packages/update", {
+    package_id: packageId,
+    public_dist_enabled: true,
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.ok).toBe(true)
+  expect(response.data.package.public_dist_enabled).toBe(true)
+
+  const updatedPackage = db.packages.find((p) => p.package_id === packageId)
+  expect(updatedPackage?.public_dist_enabled).toBe(true)
+})

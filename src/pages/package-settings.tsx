@@ -186,6 +186,7 @@ export default function PackageSettingsPage() {
     defaultView: "files",
     githubRepoFullName: null as string | null,
     allowPrPreviews: false,
+    publicDistEnabled: false,
   })
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -222,6 +223,7 @@ export default function PackageSettingsPage() {
       defaultView: packageInfo.default_view || "files",
       githubRepoFullName: packageInfo.github_repo_full_name || null,
       allowPrPreviews: packageInfo.allow_pr_previews ?? false,
+      publicDistEnabled: packageInfo.public_dist_enabled ?? false,
     }
   }, [packageInfo, packageRelease, currentLicense])
 
@@ -345,6 +347,8 @@ export default function PackageSettingsPage() {
         updatePayload.is_private = formData.visibility === "private"
       if (fieldName === "defaultView")
         updatePayload.default_view = formData.defaultView
+      if (fieldName === "publicDistEnabled")
+        updatePayload.public_dist_enabled = formData.publicDistEnabled
       if (fieldName === "github") {
         updatePayload.github_repo_full_name =
           formData.githubRepoFullName === "unlink//repo"
@@ -451,6 +455,9 @@ export default function PackageSettingsPage() {
   const hasGithubChanged =
     initialFormData &&
     formData.githubRepoFullName !== initialFormData.githubRepoFullName
+  const hasPublicDistEnabledChanged =
+    initialFormData &&
+    formData.publicDistEnabled !== initialFormData.publicDistEnabled
 
   return (
     <div className="min-h-screen bg-white">
@@ -723,6 +730,48 @@ export default function PackageSettingsPage() {
                   </Select>
                 </SettingCard>
 
+                <SettingCard
+                  title="Public Dist"
+                  description="Enable users to install this package without authorization"
+                  onSave={() => saveField("publicDistEnabled")}
+                  saveDisabled={
+                    !hasPublicDistEnabledChanged ||
+                    savingField === "publicDistEnabled"
+                  }
+                  footer={
+                    <Button
+                      size="sm"
+                      onClick={() => saveField("publicDistEnabled")}
+                      disabled={
+                        !hasPublicDistEnabledChanged ||
+                        savingField === "publicDistEnabled"
+                      }
+                    >
+                      {savingField === "publicDistEnabled" && (
+                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      )}
+                      Save
+                    </Button>
+                  }
+                >
+                  <Select
+                    value={formData.publicDistEnabled ? "enabled" : "disabled"}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        publicDistEnabled: value === "enabled",
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-48 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                      <SelectItem value="enabled">Enabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </SettingCard>
                 <SettingCard
                   title="Default View"
                   description="The default tab shown when someone visits your package page."
