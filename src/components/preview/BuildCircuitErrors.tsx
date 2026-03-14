@@ -245,14 +245,16 @@ function CircuitFileSection({
               {fileErrors.componentName}
             </span>
             {editorHref && (
-              <Link
+              <a
                 href={editorHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-gray-100 shrink-0 flex items-center justify-center"
                 title="Open in editor"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-gray-500 hover:text-gray-700" />
-              </Link>
+              </a>
             )}
           </div>
           {fileErrors.totalErrors > 0 ? (

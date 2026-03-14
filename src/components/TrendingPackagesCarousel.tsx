@@ -77,12 +77,9 @@ export const TrendingPackagesCarousel = () => {
   }
 
   return (
-    <div className="w-full bg-gray-50 py-8 min-h-[280px]">
+    <div className="w-full bg-gray-50">
       {filteredPackages?.length ? (
         <>
-          <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-semibold mb-6">Trending Packages</h2>
-          </div>
           <div className="flex gap-6 overflow-x-hidden relative">
             <div
               ref={scrollRef}
