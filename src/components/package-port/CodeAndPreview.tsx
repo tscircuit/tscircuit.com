@@ -200,7 +200,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       ) {
         return
       }
-
       ;(document.activeElement as HTMLElement | null)?.blur()
     }
 
