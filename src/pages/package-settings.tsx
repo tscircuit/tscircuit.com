@@ -404,7 +404,7 @@ export default function PackageSettingsPage() {
   if (!session)
     return (
       <Redirect
-        to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`}
+        to={`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`}
       />
     )
 
