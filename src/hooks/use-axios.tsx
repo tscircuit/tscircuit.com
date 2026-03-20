@@ -44,7 +44,8 @@ export const useAxios = () => {
           (t) => (
             <div
               onClick={() => {
-                const currentPath = window.location.pathname + window.location.search
+                const currentPath =
+                  window.location.pathname + window.location.search
                 setLocation(
                   `/login?redirect=${encodeURIComponent(currentPath || "/")}`,
                 )
