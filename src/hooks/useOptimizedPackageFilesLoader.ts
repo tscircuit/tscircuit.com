@@ -3,6 +3,7 @@ import { usePackageFiles } from "@/hooks/use-package-files"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useMemo, useState } from "react"
+import { isDownloadOnlyPackageFile } from "@/lib/is-download-only-package-file"
 import { useQueries, useQuery } from "react-query"
 import { useGlobalStore } from "./use-global-store"
 
@@ -86,7 +87,10 @@ export function useOptimizedPackageFilesLoader(
       let content: string
       let isBinary = false
       let fileDownloadUrl: string | undefined
-      if (packageFile?.is_text === false) {
+      const isDownloadOnlyFile = isDownloadOnlyPackageFile(
+        priorityFileData.file_path,
+      )
+      if (packageFile?.is_text === false || isDownloadOnlyFile) {
         const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${priorityFileData.package_file_id}`
         const binaryResponse = await fetch(downloadUrl, {
           headers: sessionToken
@@ -96,13 +100,20 @@ export function useOptimizedPackageFilesLoader(
             : {},
         })
         const blob = await binaryResponse.blob()
-        const text = await blob.text()
-        if (isTextContent(text)) {
-          content = text
-        } else {
+
+        if (isDownloadOnlyFile) {
           content = blobToBlobUrl(blob)
           isBinary = true
           fileDownloadUrl = downloadUrl
+        } else {
+          const text = await blob.text()
+          if (isTextContent(text)) {
+            content = text
+          } else {
+            content = blobToBlobUrl(blob)
+            isBinary = true
+            fileDownloadUrl = downloadUrl
+          }
         }
       } else {
         content = packageFile?.content_text ?? ""
@@ -143,7 +154,8 @@ export function useOptimizedPackageFilesLoader(
           let content: string
           let isBinary = false
           let fileDownloadUrl: string | undefined
-          if (packageFile?.is_text === false) {
+          const isDownloadOnlyFile = isDownloadOnlyPackageFile(file.file_path)
+          if (packageFile?.is_text === false || isDownloadOnlyFile) {
             const downloadUrl = `${apiBaseUrl}/package_files/download?package_file_id=${file.package_file_id}`
             const binaryResponse = await fetch(downloadUrl, {
               headers: sessionToken
@@ -153,13 +165,20 @@ export function useOptimizedPackageFilesLoader(
                 : {},
             })
             const blob = await binaryResponse.blob()
-            const text = await blob.text()
-            if (isTextContent(text)) {
-              content = text
-            } else {
+
+            if (isDownloadOnlyFile) {
               content = blobToBlobUrl(blob)
               isBinary = true
               fileDownloadUrl = downloadUrl
+            } else {
+              const text = await blob.text()
+              if (isTextContent(text)) {
+                content = text
+              } else {
+                content = blobToBlobUrl(blob)
+                isBinary = true
+                fileDownloadUrl = downloadUrl
+              }
             }
           } else {
             content = packageFile?.content_text ?? ""
