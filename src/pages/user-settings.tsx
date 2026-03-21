@@ -208,7 +208,11 @@ export default function UserSettingsPage() {
   }
 
   if (!session) {
-    return <Redirect to="/login" />
+    return (
+      <Redirect
+        to={`/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`}
+      />
+    )
   }
 
   const pageTitle = "User Settings - tscircuit"
