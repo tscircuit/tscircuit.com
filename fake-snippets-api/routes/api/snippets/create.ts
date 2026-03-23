@@ -159,6 +159,7 @@ export default withRouteSpec({
       dts,
       compiled_js,
       star_count: 0,
+      fork_count: 0,
       created_at: currentTime,
       updated_at: currentTime,
       snippet_type: snippet_type,

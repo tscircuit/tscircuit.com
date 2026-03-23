@@ -8,7 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Lock, Globe } from "lucide-react"
+import { Lock, Globe, Loader2, Check } from "lucide-react"
 import { GitFork, Star } from "lucide-react"
 // import { Package } from "lucide-react"
 
@@ -55,8 +55,11 @@ export default function PackageHeader({
     packageInfo?.name ?? null,
   )
 
-  const { mutateAsync: forkPackage, isLoading: isForkLoading } =
-    useForkPackageMutation()
+  const {
+    mutateAsync: forkPackage,
+    isLoading: isForkLoading,
+    isSuccess: isForkSuccess,
+  } = useForkPackageMutation()
 
   const handleStarClick = async () => {
     if (!packageInfo?.name || !isLoggedIn) return
@@ -203,8 +206,18 @@ export default function PackageHeader({
                             : ""
                         }
                       >
-                        <GitFork className="w-4 h-4 mr-2" />
-                        Fork
+                        {isForkSuccess ? (
+                          <Check className="w-4 h-4 mr-2" />
+                        ) : isForkLoading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <GitFork className="w-4 h-4 mr-2" />
+                        )}
+                        {isForkSuccess
+                          ? "Forked"
+                          : isForkLoading
+                            ? "Forking..."
+                            : "Fork"}
                       </Button>
                     </span>
                   </TooltipTrigger>
@@ -266,8 +279,18 @@ export default function PackageHeader({
                   !packageInfo?.package_id
                 }
               >
-                <GitFork className="w-4 h-4 mr-2" />
-                Fork
+                {isForkSuccess ? (
+                  <Check className="w-4 h-4 mr-2" />
+                ) : isForkLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <GitFork className="w-4 h-4 mr-2" />
+                )}
+                {isForkSuccess
+                  ? "Forked"
+                  : isForkLoading
+                    ? "Forking..."
+                    : "Fork"}
               </Button>
             )}
           </div>

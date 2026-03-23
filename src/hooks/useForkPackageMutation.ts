@@ -39,7 +39,18 @@ export const useForkPackageMutation = ({
       },
       onError: (error: any) => {
         console.error("Error forking package:", error)
-        const message = error?.data?.error?.message
+        const message = error?.data?.error?.message || error?.message
+        const errorCode =
+          error?.data?.error?.error_code || error?.data?.error_code
+
+        if (errorCode === "already_forked") {
+          toast({
+            title: "Already Forked",
+            description: message || "You have already forked this package.",
+            variant: "destructive",
+          })
+          return
+        }
         toast({
           title: "Error",
           description: message || "Failed to fork package. Please try again.",

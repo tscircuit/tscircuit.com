@@ -11,6 +11,7 @@ export const publicMapPackage = (internalPackage: {
   latest_license?: string | null
   latest_package_release_id?: string | null
   star_count?: number | null
+  fork_count?: number | null
   name: string
   website: string | null
   unscoped_name: string
@@ -42,6 +43,7 @@ export const publicMapPackage = (internalPackage: {
     license: internalPackage.latest_license ?? null,
     website: internalPackage.website ?? null,
     star_count: internalPackage.star_count ?? 0,
+    fork_count: internalPackage.fork_count ?? 0,
     created_at: internalPackage.created_at,
     updated_at: internalPackage.updated_at,
     github_repo_full_name: internalPackage.github_repo_full_name ?? null,

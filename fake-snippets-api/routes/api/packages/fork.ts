@@ -48,7 +48,14 @@ export default withRouteSpec({
     })
   }
 
-  if (sourcePackage.creator_account_id === ctx.auth.account_id) {
+  if (
+    sourcePackage.creator_account_id === ctx.auth.account_id ||
+    sourcePackage.owner_github_username?.toLowerCase() ===
+      ctx.auth.github_username.toLowerCase() ||
+    sourcePackage?.name
+      ?.toLowerCase()
+      .startsWith(`${ctx.auth.github_username.toLowerCase()}/`)
+  ) {
     return ctx.error(400, {
       error_code: "cannot_fork_own_package",
       message: "You cannot fork your own package",
@@ -56,15 +63,16 @@ export default withRouteSpec({
   }
 
   // Check if fork already exists (user already has a package with the same name)
-  const forkName = `${ctx.auth.github_username}/${sourcePackage.unscoped_name}`
+  const forkName =
+    `${ctx.auth.github_username}/${sourcePackage.unscoped_name}`.toLowerCase()
   const existingFork = ctx.db.packages.find(
-    (pkg) =>
-      pkg.creator_account_id === ctx.auth.account_id && pkg.name === forkName,
+    (pkg) => pkg.name.toLowerCase() === forkName,
   )
 
   if (existingFork) {
-    return ctx.json({
-      package: publicMapPackage(existingFork),
+    return ctx.error(400, {
+      error_code: "already_forked",
+      message: "You have already forked this package.",
     })
   }
 
@@ -94,6 +102,9 @@ export default withRouteSpec({
       message: "The source package release does not have any files to fork",
     })
   }
+
+  // Increment fork count on the source package
+  sourcePackage.fork_count = (sourcePackage.fork_count || 0) + 1
 
   // Create the forked package
   const forkedPackage = ctx.db.addPackage({
@@ -151,10 +162,11 @@ export default withRouteSpec({
 
   // Copy all files from the source package release to the forked package release
   for (const sourceFile of sourceFiles) {
+    const { package_file_id, package_release_id, created_at, ...rest } =
+      sourceFile
     ctx.db.addPackageFile({
+      ...rest,
       package_release_id: forkedPackageRelease.package_release_id,
-      file_path: sourceFile.file_path,
-      content_text: sourceFile.content_text,
       created_at: new Date().toISOString(),
     })
   }

@@ -257,7 +257,7 @@ const MobileSidebar = ({
           <GitFork className="h-4 w-4 mr-1 text-gray-500 dark:text-[#8b949e]" />
           <span className="mr-4">
             {packageInfo ? (
-              `${(packageInfo as any).fork_count ?? 0} forks`
+              `${packageInfo.fork_count ?? 0} forks`
             ) : (
               <Skeleton className="h-4 w-12 inline-block" />
             )}

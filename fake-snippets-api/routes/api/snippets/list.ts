@@ -92,6 +92,7 @@ export default withRouteSpec({
         updated_at: pkg.updated_at,
         starred_at: starTimestamp, // Add star timestamp
         star_count: ctx.db.getStarCount(pkg.package_id),
+        fork_count: pkg.fork_count || 0,
         is_starred: ctx.auth
           ? ctx.db.hasStarred(ctx.auth.account_id, pkg.package_id)
           : false,
@@ -132,6 +133,7 @@ export default withRouteSpec({
       updated_at: pkg.updated_at,
       starred_at: starTimestamp, // Add star timestamp
       star_count: ctx.db.getStarCount(pkg.package_id),
+      fork_count: pkg.fork_count || 0,
       is_starred: ctx.auth
         ? ctx.db.hasStarred(ctx.auth.account_id, pkg.package_id)
         : false,

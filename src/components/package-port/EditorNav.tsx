@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { GitFork, Loader2, Star } from "lucide-react"
+import { GitFork, Loader2, Star, Check } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -139,7 +139,11 @@ export default function EditorNav({
         : {},
   )
 
-  const { mutate: forkSnippet, isLoading: isForking } = useForkPackageMutation({
+  const {
+    mutate: forkSnippet,
+    isLoading: isForking,
+    isSuccess: isForkSuccess,
+  } = useForkPackageMutation({
     pkg: pkg!,
     currentCode: code,
     onSuccess: (forkedPackage) => {
@@ -395,8 +399,18 @@ export default function EditorNav({
                       </>
                     ) : (
                       <>
-                        <GitFork className="mr-1 h-3 w-3" />
-                        Fork
+                        {isForkSuccess ? (
+                          <Check className="mr-1 h-3 w-3" />
+                        ) : isForking ? (
+                          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                        ) : (
+                          <GitFork className="mr-1 h-3 w-3" />
+                        )}
+                        {isForkSuccess
+                          ? "Forked"
+                          : isForking
+                            ? "Forking..."
+                            : "Fork"}
                       </>
                     )}
                   </Button>

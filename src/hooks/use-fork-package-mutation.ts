@@ -49,11 +49,22 @@ export const useForkPackageMutation = ({
         onSuccess?.(result)
       },
       onError: (error: any) => {
-        const message = error?.data?.error?.message
-        if (error?.data?.error_code === "cannot_fork_own_package") {
+        const message = error?.data?.error?.message || error?.message
+        const errorCode =
+          error?.data?.error?.error_code || error?.data?.error_code
+
+        if (errorCode === "cannot_fork_own_package") {
           toast({
             title: "Cannot Fork Package",
             description: message || "You cannot fork your own package.",
+          })
+          return
+        }
+        if (errorCode === "already_forked") {
+          toast({
+            title: "Already Forked",
+            description: message || "You have already forked this package.",
+            variant: "destructive",
           })
           return
         }

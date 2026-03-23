@@ -379,6 +379,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       license: null,
       website: null,
       star_count: 0,
+      fork_count: 0,
       created_at: currentTime,
       updated_at: currentTime,
       github_repo_full_name: snippet.github_repo_full_name || null,
@@ -504,6 +505,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       dts: snippet.dts,
       compiled_js: snippet.compiled_js,
       star_count: 0,
+      fork_count: 0,
       created_at: currentTime,
       updated_at: currentTime,
       snippet_type: snippet.snippet_type,
@@ -567,6 +569,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           created_at: pkg.created_at,
           updated_at: pkg.updated_at,
           star_count: pkg.star_count || 0,
+          fork_count: pkg.fork_count || 0,
           is_starred: isStarred,
           version: pkg.latest_version || "0.0.1",
           circuit_json:
@@ -646,6 +649,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
           updated_at: pkg.updated_at,
           snippet_type: pkg.is_snippet ? "board" : "package",
           star_count: pkg.star_count,
+          fork_count: pkg.fork_count || 0,
         }
       })
       .filter((snippet) => snippet !== null)
@@ -715,6 +719,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       created_at: _package.created_at,
       updated_at: _package.updated_at,
       star_count: _package.star_count || 0,
+      fork_count: _package.fork_count || 0,
       is_starred: false,
       version: _package.latest_version || "0.0.1",
       circuit_json: packageFiles.find(
@@ -905,6 +910,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       created_at: updatedPackage.created_at,
       updated_at: updatedPackage.updated_at,
       star_count: updatedPackage.star_count || 0,
+      fork_count: updatedPackage.fork_count || 0,
       is_starred: false,
       version: updatedPackage.latest_version || "0.0.1",
       circuit_json: circuitFile
@@ -990,6 +996,7 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       created_at: _package.created_at,
       updated_at: _package.updated_at,
       star_count: _package.star_count || 0,
+      fork_count: _package.fork_count || 0,
       is_starred: isStarred,
       version: _package.latest_version || "0.0.1",
       circuit_json: packageFiles.find(

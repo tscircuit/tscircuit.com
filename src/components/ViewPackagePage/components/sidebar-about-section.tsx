@@ -237,7 +237,7 @@ export default function SidebarAboutSection({
         </div>
         <div className="flex items-center">
           <GitFork className="h-4 w-4 mr-2 text-gray-500 dark:text-[#8b949e]" />
-          <span>{(packageInfo as any)?.fork_count ?? "0"} forks</span>
+          <span>{packageInfo?.fork_count ?? "0"} forks</span>
         </div>
         {packageInfo?.github_repo_full_name ? (
           <div className="flex items-center justify-between">

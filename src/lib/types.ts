@@ -22,6 +22,7 @@ export interface PackageInfo {
   unscoped_name: string
   owner_github_username: string
   star_count: string
+  fork_count?: number
   description: string
   ai_description: string
   ai_usage_instructions: string
