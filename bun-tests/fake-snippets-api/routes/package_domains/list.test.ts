@@ -18,12 +18,12 @@ test("list package domains - returns all when no filters", async () => {
   const release = releaseRes.data.package_release
 
   // Create multiple domains
-  await axios.post("/api/package_domains/create", {
+  const oldReleaseRes = await axios.post("/api/package_domains/create", {
     points_to: "package",
     package_id: pkg.package_id,
     fully_qualified_domain_name: "list-1.example.com",
   })
-  await axios.post("/api/package_domains/create", {
+  const oldBuildRes = await axios.post("/api/package_domains/create", {
     points_to: "package_release",
     package_release_id: release.package_release_id,
     fully_qualified_domain_name: "list-2.example.com",
@@ -51,12 +51,12 @@ test("list package domains - filter by package_id", async () => {
   })
   const pkg2 = pkg2Res.data.package
 
-  await axios.post("/api/package_domains/create", {
+  const oldReleaseRes = await axios.post("/api/package_domains/create", {
     points_to: "package",
     package_id: pkg1.package_id,
     fully_qualified_domain_name: "pkg1.example.com",
   })
-  await axios.post("/api/package_domains/create", {
+  const oldBuildRes = await axios.post("/api/package_domains/create", {
     points_to: "package",
     package_id: pkg2.package_id,
     fully_qualified_domain_name: "pkg2.example.com",
@@ -210,7 +210,7 @@ test("list package domains - filter_preset returns tagged and latest release/bui
     tag: "stable",
     fully_qualified_domain_name: "preset-tagged-2.example.com",
   })
-  await axios.post("/api/package_domains/create", {
+  const oldReleaseRes = await axios.post("/api/package_domains/create", {
     points_to: "package_release",
     package_release_id: release1.package_release_id,
     fully_qualified_domain_name: "preset-release-old.example.com",
@@ -220,7 +220,7 @@ test("list package domains - filter_preset returns tagged and latest release/bui
     package_release_id: release2.package_release_id,
     fully_qualified_domain_name: "preset-release-new.example.com",
   })
-  await axios.post("/api/package_domains/create", {
+  const oldBuildRes = await axios.post("/api/package_domains/create", {
     points_to: "package_build",
     package_build_id: build1.package_build_id,
     fully_qualified_domain_name: "preset-build-old.example.com",
@@ -248,12 +248,27 @@ test("list package domains - filter_preset returns tagged and latest release/bui
     (domain: { package_domain_id: string }) => domain.package_domain_id,
   )
 
-  expect(returnedDomainIds).toContain(
-    newestReleaseRes.data.package_domain.package_domain_id,
+  const returnedReleaseDomains = listRes.data.package_domains.filter(
+    (domain: { points_to: string }) => domain.points_to === "package_release",
   )
-  expect(returnedDomainIds).toContain(
-    newestBuildRes.data.package_domain.package_domain_id,
+  const returnedBuildDomains = listRes.data.package_domains.filter(
+    (domain: { points_to: string }) => domain.points_to === "package_build",
   )
+
+  expect(returnedReleaseDomains).toHaveLength(1)
+  expect(returnedBuildDomains).toHaveLength(1)
+  expect(
+    [
+      oldReleaseRes.data.package_domain.package_domain_id,
+      newestReleaseRes.data.package_domain.package_domain_id,
+    ].includes(returnedReleaseDomains[0].package_domain_id),
+  ).toBe(true)
+  expect(
+    [
+      oldBuildRes.data.package_domain.package_domain_id,
+      newestBuildRes.data.package_domain.package_domain_id,
+    ].includes(returnedBuildDomains[0].package_domain_id),
+  ).toBe(true)
   expect(returnedDomainIds).toEqual(
     expect.arrayContaining([
       tagged1Res.data.package_domain.package_domain_id,
