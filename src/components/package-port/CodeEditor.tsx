@@ -803,7 +803,7 @@ export const CodeEditor = ({
     return <div className="font-mono whitespace-pre-wrap text-xs">{code}</div>
   }
   return (
-    <div className="flex h-[98vh] w-full overflow-hidden">
+    <div className="flex h-full w-full overflow-hidden">
       <FileSidebar
         files={Object.fromEntries(files.map((f) => [f.path, f.content]))}
         currentFile={currentFile}
