@@ -50,6 +50,23 @@ interface RepoPageContentProps {
   onVersionChange?: (version: string, releaseId: string) => void
 }
 
+const normalizeView = (view: string | null | undefined): string | null => {
+  if (!view) return null
+  const normalized = view.toLowerCase().trim()
+
+  if (normalized === "3d view" || normalized === "3-d" || normalized === "3_d")
+    return "3d"
+  if (normalized === "pcb view") return "pcb"
+  if (normalized === "schematic view") return "schematic"
+  if (normalized === "bill of materials") return "bom"
+
+  if (["files", "3d", "pcb", "schematic", "bom"].includes(normalized)) {
+    return normalized
+  }
+
+  return null
+}
+
 export default function RepoPageContent({
   packageFiles,
   arePackageFilesFetched = false,
@@ -112,7 +129,8 @@ export default function RepoPageContent({
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
     if (!packageInfo || !arePackageFilesFetched) return
-    const hash = window.location.hash.slice(1)
+    const hashView = normalizeView(window.location.hash.slice(1))
+    const defaultView = normalizeView(packageInfo?.default_view)
 
     const circuitDependentViews = new Set(["3d", "pcb", "schematic", "bom"])
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
@@ -122,17 +140,14 @@ export default function RepoPageContent({
 
     const availableViewSet = new Set(availableViews)
 
-    if (hash && availableViewSet.has(hash)) {
-      setActiveView(hash)
-    } else if (
-      packageInfo?.default_view &&
-      availableViewSet.has(packageInfo.default_view)
-    ) {
-      setActiveView(packageInfo.default_view)
-      window.location.hash = packageInfo.default_view
+    if (hashView && availableViewSet.has(hashView)) {
+      setActiveView(hashView)
+    } else if (defaultView && availableViewSet.has(defaultView)) {
+      setActiveView(defaultView)
+      window.location.hash = defaultView
     } else {
       setActiveView("files")
-      if (!hash || !availableViewSet.has(hash)) {
+      if (!hashView || !availableViewSet.has(hashView)) {
         window.location.hash = "files"
       }
     }
