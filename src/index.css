@@ -12,17 +12,36 @@
 .section-grid-pattern {
   background-color: #f5f7fa;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  position: relative;
+}
+
+.section-grid-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #f5f7fa 0%, transparent 25%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.section-grid-pattern > * {
+  position: relative;
+  z-index: 1;
 }
 
 .dark .section-grid-pattern {
   background-color: #0d1117;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.dark .section-grid-pattern::before {
+  background: linear-gradient(to bottom, #0d1117 0%, transparent 25%);
 }
 
 .section-dot-pattern {
