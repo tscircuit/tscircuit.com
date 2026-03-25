@@ -390,7 +390,7 @@ export function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
               <div className="space-y-4">
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
                   AI-compatible Electronics
@@ -410,7 +410,7 @@ export function LandingPage() {
               </div>
               <OptimizedImage
                 alt="AI-compatible electronics"
-                className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl object-cover object-center lg:justify-self-end"
+                className="mx-auto w-full max-w-4xl overflow-hidden rounded-xl object-cover object-center lg:justify-self-end"
                 src={exampleAiCodingImg}
                 height={405}
                 width={720}
