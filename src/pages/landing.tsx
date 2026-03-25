@@ -179,15 +179,7 @@ export function LandingPage() {
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-<<<<<<< HEAD
               <div className="space-y-4">
-=======
-              <div className="space-y-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Core Features
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   The Modern Toolkit for Electronic Design
                 </h2>
@@ -244,13 +236,6 @@ export function LandingPage() {
                 width={540}
               />
               <div className="space-y-4">
-<<<<<<< HEAD
-=======
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 1v4M6 7v4M1 6h4M7 6h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
-                  Sharing
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Share and display in the browser
                 </h2>
@@ -276,13 +261,6 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-4 min-w-0">
-<<<<<<< HEAD
-=======
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                  <Zap className="h-3 w-3" />
-                  Autorouting
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Extremely Fast Autorouting
                 </h2>
@@ -330,13 +308,6 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
-<<<<<<< HEAD
-=======
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
-                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 8c2-6 4 6 5 0s3-6 5 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/></svg>
-                  Simulation
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Analog Simulation
                 </h2>
@@ -377,21 +348,10 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-<<<<<<< HEAD
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
-=======
-        <section className="w-full py-12 md:py-20 lg:py-28 section-crosshatch-pattern">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-              <div className="space-y-4">
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
-                  <Layers className="h-3 w-3" />
-                  Interoperability
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   First Class KiCad Support
                 </h2>
@@ -433,13 +393,6 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
               <div className="space-y-4">
-<<<<<<< HEAD
-=======
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
-                  <Cpu className="h-3 w-3" />
-                  AI Integration
-                </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   AI-compatible Electronics
                 </h2>
@@ -466,19 +419,9 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-<<<<<<< HEAD
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="space-y-4">
-=======
-        <section className="w-full py-12 md:py-20 lg:py-28 section-grid-pattern">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
-                <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M1 4.5h10M4.5 4.5V11" stroke="currentColor" strokeWidth="1.5"/></svg>
-                Supply Chain
-              </span>
->>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
               <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                 Zero Effort Bill of Materials and Inventory Checks
               </h2>
