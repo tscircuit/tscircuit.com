@@ -8,6 +8,61 @@
   }
 }
 
+/* Section dividers - single border between every section */
+main > section + section {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark main > section + section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Section background patterns */
+.section-grid-pattern {
+  background-color: #f5f7fa;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.dark .section-grid-pattern {
+  background-color: #0d1117;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.section-dot-pattern {
+  background-color: #f8f9fb;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .section-dot-pattern {
+  background-color: #0d1117;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Feature list styling */
+.feature-list li {
+  position: relative;
+  padding-left: 24px;
+}
+
+.feature-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75em;
+  width: 8px;
+  height: 2px;
+  background: #3b82f6;
+  border-radius: 1px;
+}
+
 /* add the code bellow */
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */

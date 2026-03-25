@@ -173,16 +173,16 @@ export function LandingPage() {
         </section>
         {/* <TrendingPackagesCarousel /> */}
         <section
-          className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
+          className="w-full py-12 md:py-24 lg:py-32 section-grid-pattern"
           id="features"
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   The Modern Toolkit for Electronic Design
                 </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                <p className="max-w-[900px] text-muted-foreground md:text-lg leading-relaxed">
                   Typescript and React equipped with expertly-designed web-first
                   electronics libraries
                 </p>
@@ -224,21 +224,21 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
+        <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:items-center">
               <OptimizedImage
                 alt="Share and display in the browser placeholder"
-                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center shadow-xl ring-1 ring-black/5 dark:ring-white/10"
                 src={shareableLinkForCircuitImg}
                 height={360}
                 width={540}
               />
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Share and display in the browser
                 </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                   <li>
                     Connect your GitHub or push to tscircuit.com to create
                     shareable URLs for your project
@@ -260,10 +260,10 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-4 min-w-0">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Extremely Fast Autorouting
                 </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                   <li>
                     Autoroute circuit boards using{" "}
                     <a className="underline" href="#">
@@ -303,14 +303,14 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
+        <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Analog Simulation
                 </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                   <li>
                     Run analog simulations in your browser or on the command
                     line via WebAssembly ngspice
@@ -339,7 +339,7 @@ export function LandingPage() {
               </div>
               <OptimizedImage
                 alt="Analog simulation"
-                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center shadow-xl ring-1 ring-black/10 dark:ring-white/10"
                 src={analogSimulationImg}
                 height={360}
                 width={540}
@@ -347,14 +347,14 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   First Class KiCad Support
                 </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                   <li>
                     Export to KiCad PCB and Schematic files{" "}
                     <em>
@@ -388,14 +388,14 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
+        <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
               <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   AI-compatible Electronics
                 </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                   <li>
                     Teach agents tscircuit instantly with{" "}
                     <span className="font-semibold">
@@ -418,13 +418,13 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                 Zero Effort Bill of Materials and Inventory Checks
               </h2>
-              <ul className="space-y-3 text-muted-foreground md:text-lg">
+              <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
                 <li>Integrations with major component suppliers</li>
                 <li>
                   Automatic passive component selection based on component
@@ -461,11 +461,11 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center text-primary-foreground">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Ready to build electronics with code?
                 </h2>
-                <p className="max-w-[600px] text-primary-foreground/80 md:text-xl">
-                  Join hundreds of engineers who are already using tscircuit to
+                <p className="max-w-[600px] mx-auto text-primary-foreground/80 md:text-xl">
+                  Join thousands of engineers who are already using tscircuit to
                   design complex electronics!
                 </p>
               </div>
