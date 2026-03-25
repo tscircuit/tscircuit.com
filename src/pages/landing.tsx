@@ -82,84 +82,85 @@ export function LandingPage() {
       </Helmet>
       <Header2 />
       <main className="flex-1">
-        <section className="w-full py-8 md:py-12 lg:py-20 xl:py-36">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="container mx-auto max-w-7xl">
-              <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-                <div className="flex flex-col justify-center space-y-4">
-                  <div className="space-y-2">
-                    <Badge variant="secondary" className="w-fit">
-                      Open-Source, MIT Licensed
-                    </Badge>
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none">
-                      AI codes electronics with tscircuit
-                    </h1>
-                    <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      Build electronics with code and AI tools.
-                      <br />
-                      Render code into schematics, PCBs, 3D, fabrication files,
-                      and more.
-                    </p>
+        <section className="w-full py-12 md:py-16 lg:py-24 xl:py-36 section-grid-pattern">
+          <div className="container px-4 md:px-6 mx-auto max-w-7xl">
+            <div className="grid gap-8 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+              <div className="flex flex-col justify-center space-y-6">
+                <div className="space-y-4">
+                  <Badge variant="secondary" className="w-fit font-mono text-xs tracking-wide">
+                    Open-Source, MIT Licensed
+                  </Badge>
+                  <h1 className="text-4xl font-bold tracking-tight sm:text-5xl xl:text-6xl 2xl:text-7xl text-balance !leading-[1.1]">
+                    AI codes electronics with tscircuit
+                  </h1>
+                  <p className="max-w-[600px] text-muted-foreground md:text-lg leading-relaxed">
+                    Build electronics with code and AI tools. Render code into
+                    schematics, PCBs, 3D, fabrication files, and more.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 min-[500px]:flex-row min-[500px]:items-center">
+                  <a
+                    href="https://docs.tscircuit.com"
+                    className="w-[70vw] min-[500px]:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      aria-label="Get started with TSCircuit"
+                      className="w-full min-[500px]:w-auto"
+                    >
+                      Get Started
+                    </Button>
+                  </a>
+                  <Link
+                    href="/seveibar/led-water-accelerometer#3d"
+                    className="w-[70vw] min-[500px]:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      aria-label="Open online example of TSCircuit"
+                      className="w-full min-[500px]:w-auto"
+                    >
+                      Open Online Example
+                    </Button>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-6">
+                  <a
+                    href="https://github.com/tscircuit/tscircuit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-opacity hover:opacity-80"
+                  >
+                    <img
+                      alt="GitHub stars"
+                      src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+                    />
+                  </a>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-5 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>Lightning Fast Autorouting</span>
                   </div>
-                  <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
-                    <a
-                      href="https://docs.tscircuit.com"
-                      className="w-[70vw] min-[500px]:w-auto"
-                    >
-                      <Button
-                        size="lg"
-                        aria-label="Get started with TSCircuit"
-                        className="w-full min-[500px]:w-auto"
-                      >
-                        Get Started
-                      </Button>
-                    </a>
-                    <Link
-                      href="/seveibar/led-water-accelerometer#3d"
-                      className="w-[70vw] min-[500px]:w-auto"
-                    >
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        aria-label="Open online example of TSCircuit"
-                        className="w-full min-[500px]:w-auto"
-                      >
-                        Open Online Example
-                      </Button>
-                    </Link>
-                    <a
-                      href="https://github.com/tscircuit/tscircuit"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        alt="GitHub stars"
-                        src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                      />
-                    </a>
+                  <div className="flex items-center gap-1.5">
+                    <Cpu className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>Designed for AI</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 sm:flex items-center w-full text-sm">
-                    <div className="flex items-center space-x-1">
-                      <Zap className="h-4 w-4" />
-                      <span>Lightning Fast Autorouting</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Cpu className="h-4 w-4" />
-                      <span>Designed for AI</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Layers className="h-4 w-4" />
-                      <span>Export &amp; Manufacture</span>
-                    </div>
-                    <div className="flex items-center space-x-1 sm:hidden">
-                      <Code2 className="h-4 w-4" />
-                      <span>Open Web Standards</span>
-                    </div>
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>Export &amp; Manufacture</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:hidden">
+                    <Code2 className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>Open Web Standards</span>
                   </div>
                 </div>
-                <div className="w-full aspect-video relative">
+              </div>
+              <div className="w-full aspect-video relative mt-8 lg:mt-0">
+                <div className="absolute inset-0 rounded-xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10 overflow-hidden">
                   <iframe
-                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
+                    className="w-full h-full"
                     src="https://www.youtube.com/embed/HAd5_ZJgg50"
                     title="TSCircuit product demo"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -178,7 +179,15 @@ export function LandingPage() {
         >
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
+<<<<<<< HEAD
               <div className="space-y-4">
+=======
+              <div className="space-y-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Core Features
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   The Modern Toolkit for Electronic Design
                 </h2>
@@ -235,6 +244,13 @@ export function LandingPage() {
                 width={540}
               />
               <div className="space-y-4">
+<<<<<<< HEAD
+=======
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 1v4M6 7v4M1 6h4M7 6h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  Sharing
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Share and display in the browser
                 </h2>
@@ -260,6 +276,13 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-4 min-w-0">
+<<<<<<< HEAD
+=======
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  <Zap className="h-3 w-3" />
+                  Autorouting
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Extremely Fast Autorouting
                 </h2>
@@ -307,6 +330,13 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
+<<<<<<< HEAD
+=======
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 8c2-6 4 6 5 0s3-6 5 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/></svg>
+                  Simulation
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Analog Simulation
                 </h2>
@@ -347,10 +377,21 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+<<<<<<< HEAD
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
+=======
+        <section className="w-full py-12 md:py-20 lg:py-28 section-crosshatch-pattern">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <div className="space-y-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
+                  <Layers className="h-3 w-3" />
+                  Interoperability
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   First Class KiCad Support
                 </h2>
@@ -392,6 +433,13 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
               <div className="space-y-4">
+<<<<<<< HEAD
+=======
+                <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                  <Cpu className="h-3 w-3" />
+                  AI Integration
+                </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   AI-compatible Electronics
                 </h2>
@@ -418,9 +466,19 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+<<<<<<< HEAD
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="space-y-4">
+=======
+        <section className="w-full py-12 md:py-20 lg:py-28 section-grid-pattern">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="space-y-4">
+              <span className="inline-flex items-center gap-2 rounded-full border border-gray-300 dark:border-gray-600 bg-white/80 dark:bg-gray-900/80 px-3 py-1 text-xs font-mono uppercase tracking-widest text-gray-500 dark:text-gray-400 backdrop-blur-sm">
+                <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M1 4.5h10M4.5 4.5V11" stroke="currentColor" strokeWidth="1.5"/></svg>
+                Supply Chain
+              </span>
+>>>>>>> c028e57 (style: enhance landing page header styling and backgrounds)
               <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                 Zero Effort Bill of Materials and Inventory Checks
               </h2>
