@@ -8,6 +8,15 @@
   }
 }
 
+/* Section dividers - single border between every section */
+main > section + section {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark main > section + section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Section background patterns */
 .section-grid-pattern {
   background-color: #f5f7fa;
@@ -15,8 +24,6 @@
     linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
   background-size: 80px 80px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .dark .section-grid-pattern {
@@ -25,8 +32,6 @@
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 80px 80px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .section-dot-pattern {
