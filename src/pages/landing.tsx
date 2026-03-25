@@ -17,10 +17,11 @@ import { useSignIn } from "@/hooks/use-sign-in"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { navigate } from "wouter/use-browser-location"
 import { FAQ } from "@/components/FAQ"
-import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
+// import { TrendingPackagesCarousel } from "@/components/TrendingPackagesCarousel"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
+import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
@@ -169,7 +170,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <TrendingPackagesCarousel />
+        {/* <TrendingPackagesCarousel /> */}
         <section
           className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800"
           id="features"
@@ -224,36 +225,6 @@ export function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                  AI-compatible Electronics
-                </h2>
-                <ul className="space-y-3 text-muted-foreground md:text-lg">
-                  <li>
-                    Teach agents tscircuit instantly with{" "}
-                    <span className="font-semibold">
-                      npx skills add tscircuit/skill
-                    </span>
-                  </li>
-                  <li>Bring your own agent (Claude Code, Codex, OpenCode)</li>
-                  <li>
-                    Ask to initialize, change and review schematics and PCBs
-                  </li>
-                </ul>
-              </div>
-              <OptimizedImage
-                alt="AI-compatible electronics placeholder"
-                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/fallback-image.svg"
-                height={360}
-                width={540}
-              />
-            </div>
-          </div>
-        </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
-          <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <OptimizedImage
                 alt="Share and display in the browser placeholder"
@@ -271,17 +242,67 @@ export function LandingPage() {
                     Connect your GitHub or push to tscircuit.com to create
                     shareable URLs for your project
                   </li>
-                  <li>Every component file has a dedicated webpage</li>
                   <li>
-                    React component library for displaying PCBs, Schematics,
-                    Assembly Diagrams, Bill of Materials and More
+                    Every component, subcircuit and board has a dedicated
+                    webpage
+                  </li>
+                  <li>
+                    Easy-to-use React component libraries for displaying PCBs,
+                    Schematics, Assembly Diagrams on your own website
                   </li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+              <div className="space-y-4 min-w-0">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  Extremely Fast Autorouting
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Autoroute circuit boards using{" "}
+                    <a className="underline" href="#">
+                      freerouting
+                    </a>{" "}
+                    or{" "}
+                    <a
+                      className="underline"
+                      href="https://github.com/tscircuit/tscircuit-autorouter"
+                    >
+                      tscircuit&apos;s fast autorouter
+                    </a>
+                  </li>
+                  <li>
+                    Autoroute as few as 1 layer with automatically placed
+                    jumpers
+                  </li>
+                  <li>Route complex circuits in seconds</li>
+                </ul>
+              </div>
+              <div className="aspect-video overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+                <video
+                  className="h-full w-full object-cover"
+                  src={autoroutingExampleVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onEnded={(event) => {
+                    event.currentTarget.currentTime = 0
+                    event.currentTarget.play().catch(() => {})
+                  }}
+                  aria-label="Autorouting demonstration video"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
@@ -325,31 +346,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Extremely Fast Autorouting
-              </h2>
-              <ul className="space-y-3 text-muted-foreground md:text-lg">
-                <li>
-                  Autoroute circuit boards using{" "}
-                  <a className="underline" href="#">
-                    freerouting
-                  </a>{" "}
-                  or{" "}
-                  <a className="underline" href="#">
-                    tscircuit&apos;s fast autorouter
-                  </a>
-                </li>
-                <li>
-                  Autoroute as few as 1 layer with automatically placed jumpers
-                </li>
-                <li>Route complex circuits in seconds</li>
-              </ul>
-            </div>
-          </div>
-        </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -385,6 +381,36 @@ export function LandingPage() {
                 alt="KiCad support via PCB Server"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
                 src={importKicadLibraryImg}
+                height={360}
+                width={540}
+              />
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-12 md:py-20 lg:py-28">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  AI-compatible Electronics
+                </h2>
+                <ul className="space-y-3 text-muted-foreground md:text-lg">
+                  <li>
+                    Teach agents tscircuit instantly with{" "}
+                    <span className="font-semibold">
+                      npx skills add tscircuit/skill
+                    </span>
+                  </li>
+                  <li>Bring your own agent (Claude Code, Codex, OpenCode)</li>
+                  <li>
+                    Ask to initialize, change and review schematics and PCBs
+                  </li>
+                </ul>
+              </div>
+              <OptimizedImage
+                alt="AI-compatible electronics placeholder"
+                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
+                src="/assets/fallback-image.svg"
                 height={360}
                 width={540}
               />
