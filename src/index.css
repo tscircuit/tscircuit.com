@@ -37,23 +37,6 @@
   background-size: 20px 20px;
 }
 
-/* Section header accent line */
-.section-header-accent {
-  position: relative;
-  display: inline-block;
-}
-
-.section-header-accent::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 40px;
-  height: 2px;
-  border-radius: 1px;
-  background: #3b82f6;
-}
-
 /* Feature list styling */
 .feature-list li {
   position: relative;
@@ -64,7 +47,8 @@
   content: "";
   position: absolute;
   left: 0;
-  top: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 8px;
   height: 2px;
   background: #3b82f6;

@@ -179,7 +179,7 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-4">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   The Modern Toolkit for Electronic Design
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-lg leading-relaxed">
@@ -235,7 +235,7 @@ export function LandingPage() {
                 width={540}
               />
               <div className="space-y-4">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Share and display in the browser
                 </h2>
                 <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
@@ -260,7 +260,7 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-4 min-w-0">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Extremely Fast Autorouting
                 </h2>
                 <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
@@ -307,7 +307,7 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Analog Simulation
                 </h2>
                 <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
@@ -351,7 +351,7 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   First Class KiCad Support
                 </h2>
                 <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
@@ -392,7 +392,7 @@ export function LandingPage() {
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
               <div className="space-y-4">
-                <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   AI-compatible Electronics
                 </h2>
                 <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
@@ -421,7 +421,7 @@ export function LandingPage() {
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="space-y-4">
-              <h2 className="section-header-accent text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance pb-2">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                 Zero Effort Bill of Materials and Inventory Checks
               </h2>
               <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
