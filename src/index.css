@@ -10,47 +10,120 @@
 
 /* Section background patterns */
 .section-grid-pattern {
-  background-color: #f8f9fb;
+  background-color: #f5f7fa;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  position: relative;
+}
+
+.section-grid-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, #f5f7fa 100%);
+  pointer-events: none;
 }
 
 .dark .section-grid-pattern {
-  background-color: #111827;
+  background-color: #0d1117;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dark .section-grid-pattern::before {
+  background: radial-gradient(ellipse at center, transparent 40%, #0d1117 100%);
 }
 
 .section-dot-pattern {
-  background-color: #fafbfc;
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: #f8f9fb;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  position: relative;
+}
+
+.section-dot-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, #f8f9fb 100%);
+  pointer-events: none;
 }
 
 .dark .section-dot-pattern {
-  background-color: #0f1623;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: #0d1117;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .section-dot-pattern::before {
+  background: radial-gradient(ellipse at center, transparent 40%, #0d1117 100%);
 }
 
 .section-crosshatch-pattern {
-  background-color: #f6f8fa;
+  background-color: #f5f7fa;
   background-image:
-    linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.02) 75%),
-    linear-gradient(-45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.02) 75%);
-  background-size: 40px 40px;
+    linear-gradient(45deg, rgba(0, 0, 0, 0.035) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.035) 75%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.035) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.035) 75%);
+  background-size: 32px 32px;
+  position: relative;
+}
+
+.section-crosshatch-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, #f5f7fa 100%);
+  pointer-events: none;
 }
 
 .dark .section-crosshatch-pattern {
-  background-color: #111827;
+  background-color: #0d1117;
   background-image:
-    linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
-    linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%);
-  background-size: 40px 40px;
+    linear-gradient(45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.04) 75%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 32px 32px;
+}
+
+.dark .section-crosshatch-pattern::before {
+  background: radial-gradient(ellipse at center, transparent 40%, #0d1117 100%);
+}
+
+/* Section header accent line */
+.section-header-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.section-header-accent::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 48px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+}
+
+/* Feature list styling */
+.feature-list li {
+  position: relative;
+  padding-left: 24px;
+}
+
+.feature-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 8px;
+  height: 2px;
+  background: #10b981;
+  border-radius: 1px;
 }
 
 /* add the code bellow */
