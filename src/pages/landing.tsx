@@ -22,6 +22,7 @@ import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
+import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
@@ -225,7 +226,7 @@ export function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:items-center">
               <OptimizedImage
                 alt="Share and display in the browser placeholder"
                 className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
@@ -348,7 +349,7 @@ export function LandingPage() {
         </section>
         <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
                   First Class KiCad Support
@@ -408,11 +409,11 @@ export function LandingPage() {
                 </ul>
               </div>
               <OptimizedImage
-                alt="AI-compatible electronics placeholder"
-                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center"
-                src="/assets/fallback-image.svg"
-                height={360}
-                width={540}
+                alt="AI-compatible electronics"
+                className="mx-auto w-full max-w-3xl overflow-hidden rounded-xl object-cover object-center lg:justify-self-end"
+                src={exampleAiCodingImg}
+                height={405}
+                width={720}
               />
             </div>
           </div>
