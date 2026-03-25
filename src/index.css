@@ -15,21 +15,8 @@
     linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
   background-size: 80px 80px;
-  position: relative;
-}
-
-.section-grid-pattern::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, #f5f7fa 0%, transparent 25%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.section-grid-pattern > * {
-  position: relative;
-  z-index: 1;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .dark .section-grid-pattern {
@@ -38,10 +25,8 @@
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 80px 80px;
-}
-
-.dark .section-grid-pattern::before {
-  background: linear-gradient(to bottom, #0d1117 0%, transparent 25%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .section-dot-pattern {
