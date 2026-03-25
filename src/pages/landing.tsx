@@ -464,8 +464,8 @@ export function LandingPage() {
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Ready to build electronics with code?
                 </h2>
-                <p className="max-w-[600px] text-primary-foreground/80 md:text-xl">
-                  Join hundreds of engineers who are already using tscircuit to
+                <p className="max-w-[600px] mx-auto text-primary-foreground/80 md:text-xl">
+                  Join thousands of engineers who are already using tscircuit to
                   design complex electronics!
                 </p>
               </div>
