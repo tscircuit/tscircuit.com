@@ -47,8 +47,7 @@
   content: "";
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0.75em;
   width: 8px;
   height: 2px;
   background: #3b82f6;
