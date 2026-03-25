@@ -256,7 +256,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-4 min-w-0">
@@ -303,7 +303,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-20 lg:py-28">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
               <div className="space-y-4 min-w-0">
@@ -347,7 +347,7 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div className="space-y-4">
