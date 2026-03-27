@@ -74,6 +74,7 @@ export const CodeEditor = ({
   handleRenameFile,
   handleCreateFile,
   handleDeleteFile,
+  handleDeleteDirectory,
   pkg,
   isFullyLoaded = false,
   totalFilesCount = 0,
@@ -814,6 +815,7 @@ export const CodeEditor = ({
         handleCreateFile={handleCreateFile}
         handleRenameFile={handleRenameFile}
         handleDeleteFile={handleDeleteFile}
+        handleDeleteDirectory={handleDeleteDirectory}
         isCreatingFile={isCreatingFile}
         setIsCreatingFile={setIsCreatingFile}
         pkg={pkg}

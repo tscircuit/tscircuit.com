@@ -7,6 +7,8 @@ import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
 import type {
   ICreateFileProps,
   ICreateFileResult,
+  IDeleteDirectoryProps,
+  IDeleteDirectoryResult,
   IDeleteFileProps,
   IDeleteFileResult,
   IRenameFileProps,
@@ -23,6 +25,9 @@ interface FileSidebarProps {
   fileSidebarState: ReturnType<typeof useState<boolean>>
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  handleDeleteDirectory: (
+    props: IDeleteDirectoryProps,
+  ) => IDeleteDirectoryResult
   handleRenameFile: (props: IRenameFileProps) => IRenameFileResult
   isCreatingFile: boolean
   setIsCreatingFile: React.Dispatch<React.SetStateAction<boolean>>
@@ -39,6 +44,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   fileSidebarState,
   handleCreateFile,
   handleDeleteFile,
+  handleDeleteDirectory,
   handleRenameFile,
   isCreatingFile,
   setIsCreatingFile,
@@ -67,6 +73,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     renamingFile,
     handleRenameFile,
     handleDeleteFile,
+    handleDeleteDirectory,
     setRenamingFile,
     onFileSelect,
     onFolderSelect,
