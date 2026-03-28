@@ -3,6 +3,7 @@ import type { TreeDataItem } from "@/components/ui/tree-view"
 import type {
   IRenameFileProps,
   IDeleteFileProps,
+  IDeleteDirectoryProps,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { File, Folder, MoreVertical, Pencil, Trash2 } from "lucide-react"
@@ -25,6 +26,9 @@ interface TransformFilesToTreeDataProps {
   renamingFile: string | null
   handleRenameFile: (props: IRenameFileProps) => { fileRenamed: boolean }
   handleDeleteFile: (props: IDeleteFileProps) => { fileDeleted: boolean }
+  handleDeleteDirectory: (props: IDeleteDirectoryProps) => {
+    directoryDeleted: boolean
+  }
   setRenamingFile: (filename: string | null) => void
   onFileSelect: (filename: FileName) => void
   onFolderSelect: (folderPath: string) => void
@@ -41,6 +45,7 @@ export const transformFilesToTreeData = ({
   renamingFile,
   handleRenameFile,
   handleDeleteFile,
+  handleDeleteDirectory,
   setRenamingFile,
   onFileSelect,
   onFolderSelect,
@@ -162,17 +167,28 @@ export const transformFilesToTreeData = ({
                     )}
                     <DropdownMenuItem
                       onClick={() => {
-                        const { fileDeleted } = handleDeleteFile({
-                          filename: itemId,
-                          onError: (error) => {
-                            toast({
-                              title: `Error deleting file ${itemId}`,
-                              description: error.message,
-                            })
-                          },
-                        })
-                        if (fileDeleted) {
-                          setErrorMessage("")
+                        if (isLeafNode) {
+                          const { fileDeleted } = handleDeleteFile({
+                            filename: itemId,
+                            onError: (error) => {
+                              toast({
+                                title: `Error deleting file ${itemId}`,
+                                description: error.message,
+                              })
+                            },
+                          })
+                          if (fileDeleted) setErrorMessage("")
+                        } else {
+                          const { directoryDeleted } = handleDeleteDirectory({
+                            directoryPath: itemId,
+                            onError: (error) => {
+                              toast({
+                                title: `Error deleting directory ${itemId}`,
+                                description: error.message,
+                              })
+                            },
+                          })
+                          if (directoryDeleted) setErrorMessage("")
                         }
                         setOpenDropdownId(null)
                       }}

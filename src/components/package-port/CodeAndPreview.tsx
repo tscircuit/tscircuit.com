@@ -101,6 +101,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     createFile,
     mainComponentPath,
     deleteFile,
+    deleteDirectory,
     isFullyLoaded,
     onFileSelect,
     totalFilesCount,
@@ -239,6 +240,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             loadedFilesCount={loadedFilesCount}
             isFullyLoaded={isFullyLoaded}
             handleDeleteFile={deleteFile}
+            handleDeleteDirectory={deleteDirectory}
             handleRenameFile={renameFile}
             isPriorityFileFetched={
               !priorityFileFetched && Boolean(urlParams.package_id)

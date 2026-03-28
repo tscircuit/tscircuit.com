@@ -36,6 +36,15 @@ export interface IDeleteFileProps {
   onError: (error: Error) => void
 }
 
+export interface IDeleteDirectoryProps {
+  directoryPath: string
+  onError: (error: Error) => void
+}
+
+export interface IDeleteDirectoryResult {
+  directoryDeleted: boolean
+}
+
 export interface IRenameFileProps {
   oldFilename: string
   newFilename: string
@@ -403,18 +412,30 @@ export function useFileManagement({
     const fileExists = localFiles?.some((file) => file.path === filename)
     if (!fileExists) {
       onError(new Error("File does not exist"))
-      return {
-        fileDeleted: false,
-      }
+      return { fileDeleted: false }
     }
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
     onFileSelect(
       updatedFiles.filter((file) => !isHiddenFile(file.path))[0]?.path || "",
     )
-    return {
-      fileDeleted: true,
-    }
+    return { fileDeleted: true }
+  }
+
+  const deleteDirectory = ({
+    directoryPath,
+    onError,
+  }: IDeleteDirectoryProps): IDeleteDirectoryResult => {
+    const normalizedDir = directoryPath.replace(/\/+$/, "") + "/"
+    const updatedFiles = localFiles.filter(
+      (file) =>
+        file.path !== directoryPath && !file.path.startsWith(normalizedDir),
+    )
+    setLocalFiles(updatedFiles)
+    onFileSelect(
+      updatedFiles.filter((f) => !isHiddenFile(f.path))[0]?.path || "",
+    )
+    return { directoryDeleted: true }
   }
 
   const renameFile = ({
@@ -628,6 +649,7 @@ export function useFileManagement({
     createFile,
     priorityFileFetched,
     deleteFile,
+    deleteDirectory,
     renameFile,
     saveFiles,
     localFiles,

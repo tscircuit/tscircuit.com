@@ -9,6 +9,8 @@ import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import {
   ICreateFileProps,
   ICreateFileResult,
+  IDeleteDirectoryProps,
+  IDeleteDirectoryResult,
   IDeleteFileProps,
   IDeleteFileResult,
   IRenameFileProps,
@@ -74,6 +76,7 @@ export const CodeEditor = ({
   handleRenameFile,
   handleCreateFile,
   handleDeleteFile,
+  handleDeleteDirectory,
   pkg,
   isFullyLoaded = false,
   totalFilesCount = 0,
@@ -85,6 +88,9 @@ export const CodeEditor = ({
   isSaving?: boolean
   handleCreateFile: (props: ICreateFileProps) => ICreateFileResult
   handleDeleteFile: (props: IDeleteFileProps) => IDeleteFileResult
+  handleDeleteDirectory: (
+    props: IDeleteDirectoryProps,
+  ) => IDeleteDirectoryResult
   handleRenameFile: (props: IRenameFileProps) => IRenameFileResult
   pkg?: Package
   readOnly?: boolean
@@ -814,6 +820,7 @@ export const CodeEditor = ({
         handleCreateFile={handleCreateFile}
         handleRenameFile={handleRenameFile}
         handleDeleteFile={handleDeleteFile}
+        handleDeleteDirectory={handleDeleteDirectory}
         isCreatingFile={isCreatingFile}
         setIsCreatingFile={setIsCreatingFile}
         pkg={pkg}
