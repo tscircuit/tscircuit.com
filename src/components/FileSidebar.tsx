@@ -101,7 +101,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       return hasLeadingSlash ? `/${folderPath}` : folderPath
     }
 
-    return hasLeadingSlash ? "/" : "/" // Default to root slash if project is slashed
+    return hasLeadingSlash ? "/" : "" // Default to root slash if project is slashed
   }
 
   const constructFilePath = (fileName: string): string => {
