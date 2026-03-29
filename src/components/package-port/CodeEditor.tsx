@@ -78,6 +78,7 @@ export const CodeEditor = ({
   isFullyLoaded = false,
   totalFilesCount = 0,
   loadedFilesCount = 0,
+  preservedDirectories = new Set<string>(),
 }: {
   onCodeChange: (code: string, filename?: string) => void
   files: PackageFile[]
@@ -97,6 +98,7 @@ export const CodeEditor = ({
   isFullyLoaded?: boolean
   totalFilesCount?: number
   loadedFilesCount?: number
+  preservedDirectories: Set<string>
 }) => {
   const editorRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
@@ -821,6 +823,7 @@ export const CodeEditor = ({
         loadingProgress={
           totalFilesCount > 0 ? `${loadedFilesCount}/${totalFilesCount}` : null
         }
+        preservedDirectories={preservedDirectories}
       />
       <div className="flex flex-col flex-1 w-full min-w-0 h-full">
         {showImportAndFormatButtons && (

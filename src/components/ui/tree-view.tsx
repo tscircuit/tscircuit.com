@@ -146,6 +146,10 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
           onDrop={(e) => {
             handleDrop({ id: "", name: "parent_div" })
           }}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleSelectChange(undefined)
+          }}
         ></div>
       </div>
     )

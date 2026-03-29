@@ -112,6 +112,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     initialFiles,
     renameFile,
     packageFilesMeta,
+    preservedDirectories,
   } = useFileManagement({
     templateCode: templateFromUrl?.code,
     currentPackage: pkg,
@@ -258,6 +259,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               )
             }}
             pkgFilesLoaded={!isLoading}
+            preservedDirectories={preservedDirectories}
           />
         </div>
         <div

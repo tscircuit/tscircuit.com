@@ -17,6 +17,7 @@ import { findTargetFile } from "@/lib/utils/findTargetFile"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
 import { isComponentExported } from "@/lib/utils/isComponentExported"
+import { useDeleteFilesFromDirectory } from "./useDeleteFilesFromDirectory"
 
 export interface ICreateFileProps {
   newFileName: string
@@ -29,7 +30,7 @@ export interface ICreateFileResult {
 }
 
 export interface IDeleteFileResult {
-  fileDeleted: boolean
+  deleted: boolean
 }
 export interface IDeleteFileProps {
   filename: string
@@ -339,6 +340,16 @@ export function useFileManagement({
     }
   }
 
+  const {
+    deleteDirectory,
+    preservedDirectories,
+  } = useDeleteFilesFromDirectory({
+    localFiles,
+    setLocalFiles,
+    currentFile,
+    onFileSelect,
+  })
+
   const createFile = ({
     newFileName,
     onError,
@@ -400,21 +411,35 @@ export function useFileManagement({
     filename,
     onError,
   }: IDeleteFileProps): IDeleteFileResult => {
+    const dirPrefix = filename.endsWith("/") ? filename : filename + "/"
+    const isDirectory = localFiles?.some((file) =>
+      file.path.startsWith(dirPrefix),
+    )
+
+    if (isDirectory || preservedDirectories.has(filename)) {
+      const { deleted } = deleteDirectory({
+        directoryPath: filename,
+        onError,
+      })
+      return { deleted }
+    }
+
     const fileExists = localFiles?.some((file) => file.path === filename)
     if (!fileExists) {
       onError(new Error("File does not exist"))
-      return {
-        fileDeleted: false,
-      }
+      return { deleted: false }
     }
+
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
     setLocalFiles(updatedFiles)
-    onFileSelect(
-      updatedFiles.filter((file) => !isHiddenFile(file.path))[0]?.path || "",
-    )
-    return {
-      fileDeleted: true,
+
+    if (currentFile === filename) {
+      onFileSelect(
+        updatedFiles.filter((file) => !isHiddenFile(file.path))[0]?.path || "",
+      )
     }
+
+    return { deleted: true }
   }
 
   const renameFile = ({
@@ -644,5 +669,6 @@ export function useFileManagement({
     packageFilesMeta,
     totalFilesCount,
     loadedFilesCount,
+    preservedDirectories,
   }
 }

@@ -29,6 +29,7 @@ interface FileSidebarProps {
   pkg?: Package
   isLoadingFiles?: boolean
   loadingProgress?: string | null
+  preservedDirectories: Set<string>
 }
 
 const FileSidebar: React.FC<FileSidebarProps> = ({
@@ -45,6 +46,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   pkg,
   isLoadingFiles = true,
   loadingProgress = null,
+  preservedDirectories,
 }) => {
   const [sidebarOpen, setSidebarOpen] = fileSidebarState
   const [newFileName, setNewFileName] = useState("")
@@ -54,7 +56,10 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     string | null
   >(null)
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
-  const selectedItemId = useMemo(() => currentFile || "", [currentFile])
+  const selectedItemId = useMemo(() => {
+    if (selectedFolderForCreation) return selectedFolderForCreation
+    return currentFile || ""
+  }, [currentFile, selectedFolderForCreation])
   const canModifyFiles = Boolean(pkg) && !isLoadingFiles
 
   const onFolderSelect = (folderPath: string) => {
@@ -75,6 +80,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     setSelectedFolderForCreation,
     openDropdownId,
     setOpenDropdownId,
+    preservedDirectories,
   })
 
   const getCurrentFolderPath = (): string => {
@@ -95,15 +101,17 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       return hasLeadingSlash ? `/${folderPath}` : folderPath
     }
 
-    return hasLeadingSlash ? "/" : ""
+    return hasLeadingSlash ? "/" : "/" // Default to root slash if project is slashed
   }
 
   const constructFilePath = (fileName: string): string => {
-    const trimmedFileName = fileName.trim()
+    let trimmedFileName = fileName.trim()
 
     if (!trimmedFileName) {
       return ""
     }
+
+    trimmedFileName = trimmedFileName.replace(/\/+/g, "/")
 
     const currentFolder = getCurrentFolderPath()
 
@@ -112,13 +120,21 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
     }
 
     if (!currentFolder || currentFolder === "/") {
-      const result =
-        currentFolder === "/" ? `/${trimmedFileName}` : trimmedFileName
-      return result
+      return currentFolder === "/" ? `/${trimmedFileName}` : trimmedFileName
     }
 
-    const result = `${currentFolder}/${trimmedFileName}`
-    return result
+    const normFolder = currentFolder.replace(/^\/|\/$/g, "")
+    const normFileName = trimmedFileName.replace(/^\/|\/$/g, "")
+
+    if (
+      normFileName === normFolder ||
+      normFileName.startsWith(`${normFolder}/`)
+    ) {
+      const hasLeadingSlash = currentFolder.startsWith("/")
+      return hasLeadingSlash ? `/${normFileName}` : normFileName
+    }
+
+    return `${currentFolder}/${trimmedFileName}`
   }
   const handleCreateFileInline = () => {
     const finalFileName = constructFilePath(newFileName)
@@ -169,15 +185,32 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         !sidebarOpen ? "w-0 overflow-hidden" : "w-[14rem]",
         className,
       )}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setSelectedFolderForCreation("/")
+          onFileSelect("")
+        }
+      }}
     >
-      <div className="flex items-center justify-between px-2 py-2">
+      <div
+        className="flex items-center justify-between px-2 py-2"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setSelectedFolderForCreation("/")
+            onFileSelect("")
+          }
+        }}
+      >
         <button
-          onClick={toggleSidebar}
+          onClick={(e) => {
+            e.stopPropagation()
+            toggleSidebar()
+          }}
           className={`text-gray-400 scale-90 transition-opacity duration-200 ${!sidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}
         >
           <PanelRightOpen />
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           {isLoadingFiles && (
             <div className="flex items-center gap-1">
               <Loader2 className="w-3 h-3 animate-spin text-gray-400" />
@@ -196,7 +229,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         </div>
       </div>
       {isCreatingFile && (
-        <div className="p-2">
+        <div className="p-2" onClick={(e) => e.stopPropagation()}>
           <Input
             autoFocus
             value={newFileName}
@@ -251,12 +284,23 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           </div>
         </div>
       )}
-      <div className="flex-1 border-t h-full">
+      <div
+        className="flex-1 border-t h-full overflow-y-auto"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setSelectedFolderForCreation("/")
+            onFileSelect("")
+          }
+        }}
+      >
         <TreeView
           data={treeData}
           setSelectedItemId={(value) => {
             if (value && files[value]) {
               onFileSelect(value)
+            } else if (!value) {
+              onFileSelect("")
+              setSelectedFolderForCreation(null)
             }
           }}
           selectedItemId={selectedItemId}

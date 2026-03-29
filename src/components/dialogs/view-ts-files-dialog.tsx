@@ -14,8 +14,10 @@ import {
   Copy,
   Check,
   FileText,
-  Code2,
+  FileCode,
+  Braces,
   Menu,
+  Settings2,
 } from "lucide-react"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
@@ -120,13 +122,21 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
   }, [files, searchTerm])
 
   const getFileIcon = (filename: string) => {
+    if (filename === "package.json") {
+      return <Settings2 className="w-4 h-4 text-gray-500" />
+    }
     const ext = filename.split(".").pop()?.toLowerCase()
     switch (ext) {
       case "ts":
       case "tsx":
-        return <Code2 className="w-4 h-4 text-blue-500" />
+      case "js":
+      case "jsx":
+      case "css":
+        return <FileCode className="w-4 h-4 text-blue-500" />
       case "json":
-        return <FileText className="w-4 h-4 text-yellow-500" />
+        return <Braces className="w-4 h-4 text-yellow-500" />
+      case "md":
+        return <FileText className="w-4 h-4 text-gray-500" />
       default:
         return <File className="w-4 h-4 text-gray-500" />
     }
