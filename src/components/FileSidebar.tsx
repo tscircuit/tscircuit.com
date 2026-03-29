@@ -210,7 +210,10 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
         >
           <PanelRightOpen />
         </button>
-        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {isLoadingFiles && (
             <div className="flex items-center gap-1">
               <Loader2 className="w-3 h-3 animate-spin text-gray-400" />

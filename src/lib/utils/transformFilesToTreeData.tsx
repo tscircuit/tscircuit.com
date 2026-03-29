@@ -22,7 +22,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-DropdownMenuItem,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
@@ -276,13 +276,18 @@ export const transformFilesToTreeData = ({
                         })
                         if (deleted) {
                           setErrorMessage("")
-                          setSelectedFolderForCreation((prev: string | null) => {
-                            if (!prev) return null
-                            if (prev === itemId || prev.startsWith(itemId + "/")) {
-                              return null
-                            }
-                            return prev
-                          })
+                          setSelectedFolderForCreation(
+                            (prev: string | null) => {
+                              if (!prev) return null
+                              if (
+                                prev === itemId ||
+                                prev.startsWith(itemId + "/")
+                              ) {
+                                return null
+                              }
+                              return prev
+                            },
+                          )
                         }
                         setOpenDropdownId(null)
                       }}
@@ -298,10 +303,10 @@ export const transformFilesToTreeData = ({
           ) : undefined,
           onContextMenu: canModifyFiles
             ? (e: React.MouseEvent) => {
-              e.preventDefault()
-              e.stopPropagation()
-              setOpenDropdownId(itemId)
-            }
+                e.preventDefault()
+                e.stopPropagation()
+                setOpenDropdownId(itemId)
+              }
             : undefined,
         }
       }
@@ -327,17 +332,15 @@ export const transformFilesToTreeData = ({
         const relativePath = ancestorPath
           ? `${ancestorPath}/${segment}`
           : segment
-        const absolutePath = hasLeadingSlash
-          ? `/${relativePath}`
-          : relativePath
+        const absolutePath = hasLeadingSlash ? `/${relativePath}` : relativePath
 
         if (!currentNode[segment]) {
           currentNode[segment] = {
             id: absolutePath,
             name: segment,
             isRenaming: false,
-            onRename: () => { },
-            onCancelRename: () => { },
+            onRename: () => {},
+            onCancelRename: () => {},
             icon: FolderIcon,
             onClick: () => onFolderSelect(absolutePath),
             draggable: false,
@@ -346,10 +349,10 @@ export const transformFilesToTreeData = ({
             actions: createDirectoryActions(absolutePath),
             onContextMenu: canModifyFiles
               ? (e: React.MouseEvent) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setOpenDropdownId(absolutePath)
-              }
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setOpenDropdownId(absolutePath)
+                }
               : undefined,
           }
         }

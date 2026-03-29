@@ -340,15 +340,14 @@ export function useFileManagement({
     }
   }
 
-  const {
-    deleteDirectory,
-    preservedDirectories,
-  } = useDeleteFilesFromDirectory({
-    localFiles,
-    setLocalFiles,
-    currentFile,
-    onFileSelect,
-  })
+  const { deleteDirectory, preservedDirectories } = useDeleteFilesFromDirectory(
+    {
+      localFiles,
+      setLocalFiles,
+      currentFile,
+      onFileSelect,
+    },
+  )
 
   const createFile = ({
     newFileName,

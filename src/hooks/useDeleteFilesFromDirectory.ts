@@ -34,10 +34,9 @@ export function useDeleteFilesFromDirectory({
   currentFile: string | null
   onFileSelect: (path: string) => void
 }) {
-  const [preservedDirectories, setPreservedDirectories] = useState<
-    Set<string>
-  >(new Set())
-
+  const [preservedDirectories, setPreservedDirectories] = useState<Set<string>>(
+    new Set(),
+  )
 
   useEffect(() => {
     if (!localFiles) return
@@ -47,9 +46,7 @@ export function useDeleteFilesFromDirectory({
       let changed = false
       for (const dir of prev) {
         const prefix = dir.endsWith("/") ? dir : dir + "/"
-        const hasRealContent = localFiles.some((f) =>
-          f.path.startsWith(prefix),
-        )
+        const hasRealContent = localFiles.some((f) => f.path.startsWith(prefix))
         if (hasRealContent) {
           next.delete(dir)
           changed = true
@@ -66,9 +63,7 @@ export function useDeleteFilesFromDirectory({
     const dirPrefix = directoryPath.endsWith("/")
       ? directoryPath
       : directoryPath + "/"
-    const hasFiles = localFiles.some((file) =>
-      file.path.startsWith(dirPrefix),
-    )
+    const hasFiles = localFiles.some((file) => file.path.startsWith(dirPrefix))
 
     if (!hasFiles) {
       if (preservedDirectories.has(directoryPath)) {
