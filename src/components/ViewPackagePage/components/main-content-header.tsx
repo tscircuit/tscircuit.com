@@ -150,6 +150,7 @@ export default function MainContentHeader({
         </div>
         <div className="flex items-center gap-2">
           <DownloadButtonAndMenu
+            offerMultipleImageFormats
             unscopedName={packageInfo?.unscoped_name}
             desiredImageType={activeView}
             author={packageInfo?.owner_github_username ?? undefined}

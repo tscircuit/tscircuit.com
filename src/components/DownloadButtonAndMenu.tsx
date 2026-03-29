@@ -3,6 +3,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
@@ -26,6 +29,7 @@ import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { downloadStepFile } from "@/lib/download-fns/download-step"
+import { ImageIcon } from "lucide-react"
 
 interface DownloadButtonAndMenuProps {
   className?: string
@@ -60,6 +64,23 @@ export function DownloadButtonAndMenu({
     hasCircuitJson || (circuitJson && circuitJson.length),
   )
 
+  const formatBadge = (
+    label: string,
+    colorClassName:
+      | "bg-blue-500"
+      | "bg-green-500"
+      | "bg-purple-500"
+      | "bg-orange-500"
+      | "bg-emerald-500"
+      | "bg-teal-600",
+  ) => (
+    <span
+      className={`text-[0.6rem] ${colorClassName} opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1`}
+    >
+      {label}
+    </span>
+  )
+
   const getCircuitJson = async (): Promise<AnyCircuitElement[]> => {
     if (circuitJson && circuitJson.length) return circuitJson
     if (fetchedCircuitJson && fetchedCircuitJson.length)
@@ -84,6 +105,44 @@ export function DownloadButtonAndMenu({
     } finally {
       setIsFetchingCircuitJson(false)
     }
+  }
+
+  const downloadModel = async (format: "glb" | "gltf") => {
+    try {
+      const cj = await getCircuitJson()
+      await downloadGltfFromCircuitJson(cj, unscopedName || "circuit", {
+        format,
+        boardTextureResolution: 2048,
+      })
+    } catch (error: any) {
+      toast({
+        title:
+          format === "gltf"
+            ? "Error Downloading 3D Model (GLTF)"
+            : "Error Downloading 3D Model",
+        description: error.toString(),
+        variant: "destructive",
+      })
+    }
+  }
+
+  const downloadImage = async (format: ImageFormat) => {
+    await downloadPngImage({
+      circuitJson: await getCircuitJson(),
+      unscopedName,
+      author,
+      format,
+    })
+  }
+
+  const downloadDefaultImage = async () => {
+    const desiredImageFormat = ["pcb", "schematic", "assembly", "3d"].includes(
+      desiredImageType,
+    )
+      ? desiredImageType
+      : "pcb"
+
+    await downloadImage(desiredImageFormat as ImageFormat)
   }
 
   if (!canDownload) {
@@ -125,60 +184,134 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Circuit JSON</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              json
-            </span>
+            {formatBadge("json", "bg-blue-500")}
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onClick={async () => {
-              try {
-                const cj = await getCircuitJson()
-                await downloadGltfFromCircuitJson(
-                  cj,
-                  unscopedName || "circuit",
-                  { format: "glb", boardTextureResolution: 2048 },
-                )
-              } catch (error: any) {
-                toast({
-                  title: "Error Downloading 3D Model",
-                  description: error.toString(),
-                  variant: "destructive",
-                })
-              }
-            }}
-          >
-            <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow  mr-6">3D Model</span>
-            <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              glb
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onClick={async () => {
-              try {
-                const cj = await getCircuitJson()
-                await downloadGltfFromCircuitJson(
-                  cj,
-                  unscopedName || "circuit",
-                  { format: "gltf", boardTextureResolution: 2048 },
-                )
-              } catch (error: any) {
-                toast({
-                  title: "Error Downloading 3D Model (GLTF)",
-                  description: error.toString(),
-                  variant: "destructive",
-                })
-              }
-            }}
-          >
-            <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow  mr-6">3D Model</span>
-            <span className="text-[0.6rem] bg-green-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              gltf
-            </span>
-          </DropdownMenuItem>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="text-xs">
+              <ImageIcon className="mr-1 h-3 w-3" />
+              Images
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="min-w-[14rem]">
+              {!offerMultipleImageFormats && (
+                <DropdownMenuItem
+                  className="text-xs"
+                  onClick={downloadDefaultImage}
+                >
+                  <Download className="mr-1 h-3 w-3" />
+                  <span className="flex-grow mr-6">PNG</span>
+                  {formatBadge("png", "bg-teal-600")}
+                </DropdownMenuItem>
+              )}
+              {offerMultipleImageFormats && (
+                <>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => downloadImage("schematic")}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    <span className="flex-grow mr-6">Schematic PNG</span>
+                    {formatBadge("png", "bg-teal-600")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => downloadImage("pcb")}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    <span className="flex-grow mr-6">PCB PNG</span>
+                    {formatBadge("png", "bg-teal-600")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => downloadImage("assembly")}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    <span className="flex-grow mr-6">Assembly PNG</span>
+                    {formatBadge("png", "bg-teal-600")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => downloadImage("3d")}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    <span className="flex-grow mr-6">3D PNG</span>
+                    {formatBadge("png", "bg-teal-600")}
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  downloadSchematicSvg(cj, unscopedName || "circuit")
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Schematic SVG</span>
+                {formatBadge("svg", "bg-blue-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  downloadAssemblySvg(cj, unscopedName || "circuit")
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Assembly SVG</span>
+                {formatBadge("svg", "bg-blue-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  setFetchedCircuitJson(cj)
+                  openPcbDownloadDialog()
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">PCB SVG</span>
+                {formatBadge("svg", "bg-blue-500")}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="text-xs">
+              <CubeIcon className="mr-1 h-3 w-3" />
+              3D Models
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="min-w-[14rem]">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => downloadModel("glb")}
+              >
+                <CubeIcon className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">GLB</span>
+                {formatBadge("glb", "bg-green-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => downloadModel("gltf")}
+              >
+                <CubeIcon className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">GLTF</span>
+                {formatBadge("gltf", "bg-green-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  downloadStepFile(cj, unscopedName || "step_file")
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">STEP</span>
+                {formatBadge("STEP", "bg-emerald-500")}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
           <DropdownMenuItem
             className="text-xs"
             onClick={async () => {
@@ -199,86 +332,37 @@ export function DownloadButtonAndMenu({
           >
             <Hammer className="mr-1 h-3 w-3" />
             <span className="flex-grow  mr-6">Fabrication Files</span>
-            <span className="text-[0.6rem] bg-purple-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              gerber/pnp/bom/csv
-            </span>
+            {formatBadge("gerber/pnp/bom/csv", "bg-purple-500")}
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onClick={() => notImplemented("kicad footprint download")}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">KiCad Footprint</span>
-            <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              kicad_mod
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={async () => {
-              const cj = await getCircuitJson()
-              downloadKicadFiles(cj, unscopedName || "kicad_project")
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">KiCad Project</span>
-            <span className="text-[0.6rem] bg-orange-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              kicad_*.zip
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={async () => {
-              const cj = await getCircuitJson()
-              downloadStepFile(cj, unscopedName || "step_file")
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Step Format</span>
-            <span className="text-[0.6rem] bg-emerald-500 opacity-80 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              STEP
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={async () => {
-              const cj = await getCircuitJson()
-              downloadSchematicSvg(cj, unscopedName || "circuit")
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Schematic SVG</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              svg
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={async () => {
-              const cj = await getCircuitJson()
-              downloadAssemblySvg(cj, unscopedName || "circuit")
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Assembly SVG</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              svg
-            </span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-xs"
-            onSelect={async () => {
-              const cj = await getCircuitJson()
-              setFetchedCircuitJson(cj)
-              openPcbDownloadDialog()
-            }}
-          >
-            <Download className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">PCB SVG</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              svg
-            </span>
-          </DropdownMenuItem>
+
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="text-xs">
+              <Download className="mr-1 h-3 w-3" />
+              KiCad
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="min-w-[14rem]">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => notImplemented("kicad footprint download")}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Footprint</span>
+                {formatBadge("kicad_mod", "bg-orange-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  downloadKicadFiles(cj, unscopedName || "kicad_project")
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Project</span>
+                {formatBadge("kicad_*.zip", "bg-orange-500")}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+
           <DropdownMenuItem
             className="text-xs"
             onSelect={async () => {
@@ -288,9 +372,7 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Specctra DSN</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              dsn
-            </span>
+            {formatBadge("dsn", "bg-blue-500")}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
@@ -301,9 +383,7 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Readable Netlist</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              txt
-            </span>
+            {formatBadge("txt", "bg-blue-500")}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
@@ -314,9 +394,7 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">SPICE Netlist</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              spice
-            </span>
+            {formatBadge("spice", "bg-blue-500")}
           </DropdownMenuItem>
           <DropdownMenuItem
             className="text-xs"
@@ -327,111 +405,8 @@ export function DownloadButtonAndMenu({
           >
             <Download className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Simple Route JSON</span>
-            <span className="text-[0.6rem] opacity-80 bg-blue-500 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-              json
-            </span>
+            {formatBadge("json", "bg-blue-500")}
           </DropdownMenuItem>
-
-          {!offerMultipleImageFormats && (
-            <DropdownMenuItem
-              className="text-xs"
-              onClick={async () => {
-                const desiredImageFormat = [
-                  "pcb",
-                  "schematic",
-                  "assembly",
-                  "3d",
-                ].includes(desiredImageType)
-                  ? desiredImageType
-                  : "pcb"
-                const cj = await getCircuitJson()
-                downloadPngImage({
-                  circuitJson: cj,
-                  unscopedName,
-                  author,
-                  format: desiredImageFormat as ImageFormat,
-                })
-              }}
-            >
-              <Download className="mr-1 h-3 w-3" />
-              <span className="flex-grow mr-6">Image PNG</span>
-              <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                png
-              </span>
-            </DropdownMenuItem>
-          )}
-          {offerMultipleImageFormats && (
-            <>
-              <DropdownMenuItem
-                className="text-xs"
-                onClick={async () =>
-                  downloadPngImage({
-                    circuitJson: await getCircuitJson(),
-                    unscopedName,
-                    author,
-                    format: "schematic",
-                  })
-                }
-              >
-                <Download className="mr-1 h-3 w-3" />
-                <span className="flex-grow mr-6">Schematic PNG</span>
-                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                  png
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-xs"
-                onClick={async () =>
-                  downloadPngImage({
-                    circuitJson: await getCircuitJson(),
-                    unscopedName,
-                    author,
-                    format: "pcb",
-                  })
-                }
-              >
-                <Download className="mr-1 h-3 w-3" />
-                <span className="flex-grow mr-6">PCB PNG</span>
-                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                  png
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-xs"
-                onClick={async () =>
-                  downloadPngImage({
-                    circuitJson: await getCircuitJson(),
-                    unscopedName,
-                    author,
-                    format: "assembly",
-                  })
-                }
-              >
-                <Download className="mr-1 h-3 w-3" />
-                <span className="flex-grow mr-6">Assembly PNG</span>
-                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                  png
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-xs"
-                onClick={async () =>
-                  downloadPngImage({
-                    circuitJson: await getCircuitJson(),
-                    unscopedName,
-                    author,
-                    format: "3d",
-                  })
-                }
-              >
-                <Download className="mr-1 h-3 w-3" />
-                <span className="flex-grow mr-6">3D PNG</span>
-                <span className="text-[0.6rem] opacity-80 bg-teal-600 text-white font-mono rounded-md px-1 text-center py-0.5 mr-1">
-                  png
-                </span>
-              </DropdownMenuItem>
-            </>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
       <PcbDownloadDialog
