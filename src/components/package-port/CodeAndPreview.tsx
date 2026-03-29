@@ -188,13 +188,22 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   })
 
   const isMouseOverRunFrame = useRef(false)
+  const runFrameContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleKeyDown = () => {
-      if (isMouseOverRunFrame.current) {
-        ;(document.activeElement as HTMLElement)?.blur()
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isMouseOverRunFrame.current) return
+
+      const target = event.target
+      if (
+        target instanceof Node &&
+        runFrameContainerRef.current?.contains(target)
+      ) {
+        return
       }
+      ;(document.activeElement as HTMLElement | null)?.blur()
     }
+
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
@@ -270,6 +279,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               : "w-full md:w-1/2",
             !state.showPreview && "hidden",
           )}
+          ref={runFrameContainerRef}
           onMouseEnter={() => (isMouseOverRunFrame.current = true)}
           onMouseLeave={() => (isMouseOverRunFrame.current = false)}
         >
