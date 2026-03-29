@@ -20,7 +20,7 @@ export const SuspenseRunFrame = (
         </div>
       }
     >
-      <div className={`h-[98vh] ${props.className}`}>
+      <div className={`h-full ${props.className}`}>
         <RunFrame {...props} />
       </div>
     </Suspense>
