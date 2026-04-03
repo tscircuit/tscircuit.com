@@ -11,18 +11,6 @@ export interface IDeleteDirectoryResult {
   deleted: boolean
 }
 
-function getAncestorDirectories(dirPath: string): string[] {
-  const hasLeadingSlash = dirPath.startsWith("/")
-  const normalized = hasLeadingSlash ? dirPath.slice(1) : dirPath
-  const parts = normalized.split("/").filter(Boolean)
-  const ancestors: string[] = []
-  for (let i = 1; i < parts.length; i++) {
-    const ancestor = parts.slice(0, i).join("/")
-    ancestors.push(hasLeadingSlash ? `/${ancestor}` : ancestor)
-  }
-  return ancestors
-}
-
 export function useDeleteFilesFromDirectory({
   localFiles,
   setLocalFiles,
@@ -80,20 +68,7 @@ export function useDeleteFilesFromDirectory({
       (file) => !file.path.startsWith(dirPrefix),
     )
 
-    const ancestors = getAncestorDirectories(directoryPath)
-    const emptyAncestors = ancestors.filter((ancestor) => {
-      const prefix = ancestor.endsWith("/") ? ancestor : ancestor + "/"
-      return !updatedFiles.some((file) => file.path.startsWith(prefix))
-    })
-
-    if (emptyAncestors.length > 0) {
-      setPreservedDirectories((prev) => {
-        const next = new Set(prev)
-        emptyAncestors.forEach((a) => next.add(a))
-        next.delete(directoryPath)
-        return next
-      })
-    } else if (preservedDirectories.has(directoryPath)) {
+    if (preservedDirectories.has(directoryPath)) {
       setPreservedDirectories(
         (prev) => new Set([...prev].filter((d) => d !== directoryPath)),
       )
