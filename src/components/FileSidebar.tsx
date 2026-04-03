@@ -1,9 +1,5 @@
-import React, { useMemo, useState } from "react"
-import { cn } from "@/lib/utils"
-import { PanelRightOpen, Plus, Loader2 } from "lucide-react"
-import { TreeView } from "@/components/ui/tree-view"
 import { Input } from "@/components/ui/input"
-import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
+import { TreeView } from "@/components/ui/tree-view"
 import type {
   ICreateFileProps,
   ICreateFileResult,
@@ -12,7 +8,11 @@ import type {
   IRenameFileProps,
   IRenameFileResult,
 } from "@/hooks/useFileManagement"
+import { cn } from "@/lib/utils"
+import { transformFilesToTreeData } from "@/lib/utils/transformFilesToTreeData"
 import type { Package } from "fake-snippets-api/lib/db/schema"
+import { Loader2, PanelRightOpen, Plus } from "lucide-react"
+import React, { useMemo, useState } from "react"
 type FileName = string
 
 interface FileSidebarProps {
@@ -181,7 +181,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex-shrink-0 transition-all duration-300 border-r relative",
+        "file-sidebar flex-shrink-0 transition-all duration-300 border-r relative",
         !sidebarOpen ? "w-0 overflow-hidden" : "w-[14rem]",
         className,
       )}

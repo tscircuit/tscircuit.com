@@ -66,6 +66,19 @@ const getFileIcon = (fileName: string) => {
 const FolderIcon = (props: any) => (
   <Folder {...props} className={cn(props.className, "text-gray-600")} />
 )
+
+const getRenamedPath = (itemId: string, newName: string) => {
+  const pathParts = itemId.split("/").filter((part) => part !== "")
+
+  if (pathParts.length > 1) {
+    pathParts[pathParts.length - 1] = newName
+    const renamedPath = pathParts.join("/")
+    return itemId.startsWith("/") ? `/${renamedPath}` : renamedPath
+  }
+
+  return itemId.startsWith("/") ? `/${newName}` : newName
+}
+
 interface TransformFilesToTreeDataProps {
   files: Record<FileName, string>
   currentFile: FileName | null
@@ -103,6 +116,43 @@ export const transformFilesToTreeData = ({
 }: TransformFilesToTreeDataProps): TreeDataItem[] => {
   const { toast } = useToast()
 
+  const updateSelectionAfterRename = (
+    oldPath: string,
+    newPath: string,
+    isDirectory: boolean,
+  ) => {
+    setSelectedFolderForCreation((prev: string | null) => {
+      if (!prev) return prev
+      if (prev === oldPath) return newPath
+      if (isDirectory && prev.startsWith(`${oldPath}/`)) {
+        return `${newPath}/${prev.slice(oldPath.length + 1)}`
+      }
+      return prev
+    })
+  }
+
+  const handleRenameItem = (itemId: string, newName: string) => {
+    const newPath = getRenamedPath(itemId, newName)
+    const isDirectory = !Object.prototype.hasOwnProperty.call(files, itemId)
+
+    const { fileRenamed } = handleRenameFile({
+      oldFilename: itemId,
+      newFilename: newPath,
+      onError: (error) => {
+        toast({
+          title: `Error renaming ${itemId}`,
+          description: error.message,
+          variant: "destructive",
+        })
+      },
+    })
+
+    if (fileRenamed) {
+      updateSelectionAfterRename(itemId, newPath, isDirectory)
+      setRenamingFile(null)
+    }
+  }
+
   const createDirectoryActions = (itemId: string) =>
     canModifyFiles ? (
       <>
@@ -128,6 +178,16 @@ export const transformFilesToTreeData = ({
             }}
           >
             <DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => {
+                  setRenamingFile(itemId)
+                  setOpenDropdownId(null)
+                }}
+                className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
+              >
+                <Pencil className="mr-2 h-3 w-3" />
+                Rename
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   const { deleted } = handleDeleteFile({
@@ -191,31 +251,7 @@ export const transformFilesToTreeData = ({
           id: itemId,
           name: segment,
           isRenaming: renamingFile === itemId,
-          onRename: (newFilename: string) => {
-            const oldPath = itemId
-            const pathParts = oldPath.split("/").filter((part) => part !== "")
-            let newPath: string
-            if (pathParts.length > 1) {
-              pathParts[pathParts.length - 1] = newFilename
-              newPath = pathParts.join("/")
-            } else {
-              newPath = newFilename
-            }
-
-            const { fileRenamed } = handleRenameFile({
-              oldFilename: oldPath,
-              newFilename: newPath,
-              onError: (error) => {
-                toast({
-                  title: `Error renaming ${oldPath}`,
-                  description: error.message,
-                })
-              },
-            })
-            if (fileRenamed) {
-              setRenamingFile(null)
-            }
-          },
+          onRename: (newFilename: string) => handleRenameItem(itemId, newFilename),
           onCancelRename: () => setRenamingFile(null),
           icon: isLeafNode ? getFileIcon(segment) : FolderIcon,
           onClick: isLeafNode
@@ -251,18 +287,16 @@ export const transformFilesToTreeData = ({
                   }}
                 >
                   <DropdownMenuGroup>
-                    {isLeafNode && (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setRenamingFile(itemId)
-                          setOpenDropdownId(null)
-                        }}
-                        className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
-                      >
-                        <Pencil className="mr-2 h-3 w-3" />
-                        Rename
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setRenamingFile(itemId)
+                        setOpenDropdownId(null)
+                      }}
+                      className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
+                    >
+                      <Pencil className="mr-2 h-3 w-3" />
+                      Rename
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
                         const { deleted } = handleDeleteFile({
@@ -338,8 +372,9 @@ export const transformFilesToTreeData = ({
           currentNode[segment] = {
             id: absolutePath,
             name: segment,
-            isRenaming: false,
-            onRename: () => {},
+            isRenaming: renamingFile === absolutePath,
+            onRename: (newFilename: string) =>
+              handleRenameItem(absolutePath, newFilename),
             onCancelRename: () => {},
             icon: FolderIcon,
             onClick: () => onFolderSelect(absolutePath),

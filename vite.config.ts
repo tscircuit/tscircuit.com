@@ -1,14 +1,14 @@
 import "dotenv/config"
-import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
-import { defineConfig, Plugin, UserConfig } from "vite"
-import type { PluginOption } from "vite"
-import path, { extname } from "path"
 import { readFileSync } from "fs"
-import react from "@vitejs/plugin-react"
-import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
-import { getNodeHandler } from "winterspec/adapters/node"
-import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
+import path, { extname } from "path"
+import react from "@vitejs/plugin-react"
+import { Plugin, UserConfig, defineConfig } from "vite"
+import type { PluginOption } from "vite"
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
+import vercel from "vite-plugin-vercel"
+import { getNodeHandler } from "winterspec/adapters/node"
+import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -253,7 +253,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
   return {
     plugins,
     define: {
-      global: {},
+      global: "globalThis",
       "process.env": JSON.stringify({}),
     },
     optimizeDeps: {
@@ -293,6 +293,9 @@ export default defineConfig(async (): Promise<UserConfig> => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        crypto: "crypto-browserify",
+        stream: "stream-browserify",
+        util: "util",
       },
     },
     logLevel: "info",

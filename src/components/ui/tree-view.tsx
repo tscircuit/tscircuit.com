@@ -1,9 +1,9 @@
-import React from "react"
-import * as AccordionPrimitive from "@radix-ui/react-accordion"
-import { ChevronRight } from "lucide-react"
-import { cva } from "class-variance-authority"
-import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import * as AccordionPrimitive from "@radix-ui/react-accordion"
+import { cva } from "class-variance-authority"
+import { ChevronRight } from "lucide-react"
+import React from "react"
 
 const treeVariants = cva(
   "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 before:w-full before:opacity-0 before:bg-slate-100/70 before:h-[2rem] before:-z-10' dark:before:bg-slate-800/70",
@@ -322,7 +322,48 @@ const TreeNode = ({
             isOpen={value.includes(item.id)}
             default={defaultNodeIcon}
           />
-          <span className="text-sm truncate">{item.name}</span>
+          {item.isRenaming ? (
+            <Input
+              data-rename-input="true"
+              style={{
+                zIndex: 50,
+              }}
+              defaultValue={item.name as string}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  const value = e.currentTarget.value.trim()
+                  if (value && value !== item.name) {
+                    item.onRename?.(value)
+                  } else {
+                    item.onCancelRename?.()
+                  }
+                } else if (e.key === "Escape") {
+                  e.preventDefault()
+                  item.onCancelRename?.()
+                }
+              }}
+              spellCheck={false}
+              autoComplete="off"
+              onBlur={(e) => {
+                const value = e.currentTarget.value.trim()
+                if (value && value !== item.name) {
+                  item.onRename?.(value)
+                } else {
+                  item.onCancelRename?.()
+                }
+              }}
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+              className="h-6 px-2 py-0 text-sm flex-1 mr-8 bg-white border border-blue-500 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              onFocus={(e) => {
+                // For directories, select all text (no extension logic)
+                e.currentTarget.select()
+              }}
+            />
+          ) : (
+            <span className="text-sm truncate">{item.name}</span>
+          )}
           <div
             className="flex items-center"
             onClick={(e) => e.stopPropagation()}
@@ -436,6 +477,7 @@ const TreeLeaf = React.forwardRef<
         />
         {item.isRenaming ? (
           <Input
+            data-rename-input="true"
             style={{
               zIndex: 50,
             }}

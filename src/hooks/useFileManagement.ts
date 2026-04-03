@@ -340,14 +340,13 @@ export function useFileManagement({
     }
   }
 
-  const { deleteDirectory, preservedDirectories } = useDeleteFilesFromDirectory(
-    {
+  const { deleteDirectory, preservedDirectories, renamePreservedDirectories } =
+    useDeleteFilesFromDirectory({
       localFiles,
       setLocalFiles,
       currentFile,
       onFileSelect,
-    },
-  )
+    })
 
   const createFile = ({
     newFileName,
@@ -459,6 +458,57 @@ export function useFileManagement({
       onError(new Error("Invalid file name"))
       return {
         fileRenamed: false,
+      }
+    }
+
+    if (oldFilename === newFilename) {
+      return {
+        fileRenamed: true,
+      }
+    }
+
+    const oldDirPrefix = oldFilename.endsWith("/") ? oldFilename : `${oldFilename}/`
+    const newDirPrefix = newFilename.endsWith("/") ? newFilename : `${newFilename}/`
+    const isDirectory =
+      localFiles.some((file) => file.path.startsWith(oldDirPrefix)) ||
+      preservedDirectories.has(oldFilename)
+
+    if (isDirectory) {
+      const renamedDirectoryConflicts =
+        preservedDirectories.has(newFilename) ||
+        localFiles.some(
+          (file) =>
+            file.path === newFilename || file.path.startsWith(newDirPrefix),
+        )
+
+      if (renamedDirectoryConflicts) {
+        onError(new Error("A directory with this name already exists"))
+        return {
+          fileRenamed: false,
+        }
+      }
+
+      const updatedFiles = localFiles.map((file) => {
+        if (!file.path.startsWith(oldDirPrefix)) return file
+
+        return {
+          ...file,
+          path: `${newDirPrefix}${file.path.slice(oldDirPrefix.length)}`,
+        }
+      })
+
+      setLocalFiles(updatedFiles)
+      renamePreservedDirectories({
+        oldDirectoryPath: oldFilename,
+        newDirectoryPath: newFilename,
+      })
+
+      if (currentFile?.startsWith(oldDirPrefix)) {
+        setCurrentFile(`${newDirPrefix}${currentFile.slice(oldDirPrefix.length)}`)
+      }
+
+      return {
+        fileRenamed: true,
       }
     }
 

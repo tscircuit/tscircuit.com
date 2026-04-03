@@ -85,8 +85,46 @@ export function useDeleteFilesFromDirectory({
     return { deleted: true }
   }
 
+  const renamePreservedDirectories = ({
+    oldDirectoryPath,
+    newDirectoryPath,
+  }: {
+    oldDirectoryPath: string
+    newDirectoryPath: string
+  }) => {
+    const oldPrefix = oldDirectoryPath.endsWith("/")
+      ? oldDirectoryPath
+      : `${oldDirectoryPath}/`
+
+    setPreservedDirectories((prev) => {
+      if (prev.size === 0) return prev
+
+      let changed = false
+      const next = new Set<string>()
+
+      for (const dir of prev) {
+        if (dir === oldDirectoryPath) {
+          next.add(newDirectoryPath)
+          changed = true
+          continue
+        }
+
+        if (dir.startsWith(oldPrefix)) {
+          next.add(`${newDirectoryPath}/${dir.slice(oldPrefix.length)}`)
+          changed = true
+          continue
+        }
+
+        next.add(dir)
+      }
+
+      return changed ? next : prev
+    })
+  }
+
   return {
     deleteDirectory,
     preservedDirectories,
+    renamePreservedDirectories,
   }
 }
