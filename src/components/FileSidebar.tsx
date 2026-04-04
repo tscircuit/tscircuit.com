@@ -111,6 +111,10 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
       return trimmedFileName
     }
 
+    if (trimmedFileName.includes("/")) {
+      return trimmedFileName
+    }
+
     if (!currentFolder || currentFolder === "/") {
       const result =
         currentFolder === "/" ? `/${trimmedFileName}` : trimmedFileName
