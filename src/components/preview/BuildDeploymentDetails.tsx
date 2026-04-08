@@ -18,6 +18,7 @@ import { Link } from "wouter"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { getBuildStatus, StatusIcon } from "."
 import { getStepDuration } from "@/lib/utils/getStepDuration"
+import { usePackageDomains } from "@/hooks/use-package-domains"
 
 interface BuildDeploymentDetailsProps {
   pkg: Package
@@ -66,6 +67,38 @@ export function BuildDeploymentDetails({
     packageBuild?.user_code_job_started_at,
     packageBuild?.user_code_job_completed_at,
   )
+  const { data: domains = [] } = usePackageDomains({
+    package_id: pkg.package_id,
+  })
+  const websiteUrl = domains.find((domain) => {
+    if (!domain.fully_qualified_domain_name) return false
+    if (
+      domain.points_to === "package_build" &&
+      domain.package_build_id === packageBuild.package_build_id
+    ) {
+      return true
+    }
+    if (
+      domain.points_to === "package_release" &&
+      domain.package_release_id === packageRelease.package_release_id
+    ) {
+      return true
+    }
+    if (
+      domain.points_to === "package_release_with_tag" &&
+      domain.package_id === pkg.package_id &&
+      packageRelease.is_latest &&
+      domain.tag === "latest"
+    ) {
+      return true
+    }
+    return (
+      domain.points_to === "package" && domain.package_id === pkg.package_id
+    )
+  })?.fully_qualified_domain_name
+  const resolvedWebsiteUrl = websiteUrl
+    ? `https://${websiteUrl}`
+    : packageBuild.package_build_website_url
 
   const isLatestBuild =
     packageRelease.latest_package_build_id === packageBuild.package_build_id
@@ -123,13 +156,13 @@ export function BuildDeploymentDetails({
               </Tooltip>
             </TooltipProvider>
           )}
-          {packageBuild.package_build_website_url && (
+          {resolvedWebsiteUrl && (
             <Button
               variant="outline"
               size="sm"
               className="flex-shrink-0"
               onClick={() => {
-                window.open(packageBuild.package_build_website_url!, "_blank")
+                window.open(resolvedWebsiteUrl, "_blank")
               }}
             >
               <ExternalLink className="w-3 sm:w-4 h-3 sm:h-4 mr-2" />

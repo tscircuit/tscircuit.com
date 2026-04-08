@@ -63,7 +63,7 @@ export function ReleaseDeploymentDetails({
   )
   const buildStatus = getBuildStatus(latestBuild)
   const { data: domains = [] } = usePackageDomains({
-    package_release_id: packageRelease.package_release_id,
+    package_id: pkg.package_id,
   })
   const [editingDomain, setEditingDomain] =
     useState<PublicPackageDomain | null>(null)
@@ -72,10 +72,39 @@ export function ReleaseDeploymentDetails({
   const isBuildInProgress =
     buildStatus.status === "building" || isWaitingForBuild
 
-  const primaryWebsiteUrl =
-    domains.length > 0 && domains[0].fully_qualified_domain_name
-      ? `https://${domains[0].fully_qualified_domain_name}`
-      : packageRelease.package_release_website_url // fallback to the old website url
+  const relevantDomains = useMemo(
+    () =>
+      domains.filter((domain) => {
+        if (!domain.fully_qualified_domain_name) return false
+        if (
+          domain.points_to === "package_release" &&
+          domain.package_release_id === packageRelease.package_release_id
+        ) {
+          return true
+        }
+        if (
+          domain.points_to === "package_release_with_tag" &&
+          domain.package_id === pkg.package_id &&
+          packageRelease.is_latest &&
+          domain.tag === "latest"
+        ) {
+          return true
+        }
+        return (
+          domain.points_to === "package" && domain.package_id === pkg.package_id
+        )
+      }),
+    [
+      domains,
+      packageRelease.package_release_id,
+      packageRelease.is_latest,
+      pkg.package_id,
+    ],
+  )
+
+  const primaryWebsiteUrl = relevantDomains[0]?.fully_qualified_domain_name
+    ? `https://${relevantDomains[0].fully_qualified_domain_name}`
+    : packageRelease.package_release_website_url
 
   const [waitingSeconds, setWaitingSeconds] = useState(0)
 
@@ -349,9 +378,9 @@ export function ReleaseDeploymentDetails({
               <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 Domains
               </p>
-              {domains.length > 0 ? (
+              {relevantDomains.length > 0 ? (
                 <div className="flex flex-col gap-1">
-                  {domains.map((domain) => {
+                  {relevantDomains.map((domain) => {
                     const fqdn = domain.fully_qualified_domain_name
                     if (!fqdn) return null
                     return (
