@@ -402,9 +402,21 @@ export function useFileManagement({
   }: IDeleteFileProps): IDeleteFileResult => {
     const fileExists = localFiles?.some((file) => file.path === filename)
     if (!fileExists) {
-      onError(new Error("File does not exist"))
+      const updatedFiles = localFiles.filter(
+        (file) => !file.path.startsWith(`${filename}/`),
+      )
+      if (updatedFiles.length === localFiles.length) {
+        onError(new Error("File does not exist"))
+        return {
+          fileDeleted: false,
+        }
+      }
+      setLocalFiles(updatedFiles)
+      onFileSelect(
+        updatedFiles.filter((file) => !isHiddenFile(file.path))[0]?.path || "",
+      )
       return {
-        fileDeleted: false,
+        fileDeleted: true,
       }
     }
     const updatedFiles = localFiles.filter((file) => file.path !== filename)
