@@ -1,5 +1,4 @@
 import importer from "@tscircuit/internal-dynamic-import"
-import * as circuitJsonToGltf from "circuit-json-to-gltf"
 
 type CircuitJsonToGerberModule = typeof import("circuit-json-to-gerber")
 type CircuitJsonToGltfModule = typeof import("circuit-json-to-gltf")
@@ -8,6 +7,14 @@ type CircuitJsonToStepModule = typeof import("circuit-json-to-step")
 let gerberModulePromise: Promise<CircuitJsonToGerberModule> | null = null
 let gltfModulePromise: Promise<CircuitJsonToGltfModule> | null = null
 let stepModulePromise: Promise<CircuitJsonToStepModule> | null = null
+
+const ensureCircuitJsonToGltfLoaded =
+  async (): Promise<CircuitJsonToGltfModule> => {
+    gltfModulePromise ??= importer(
+      "circuit-json-to-gltf",
+    ) as Promise<CircuitJsonToGltfModule>
+    return gltfModulePromise
+  }
 
 export const loadCircuitJsonToGerber =
   async (): Promise<CircuitJsonToGerberModule> => {
@@ -19,17 +26,13 @@ export const loadCircuitJsonToGerber =
 
 export const loadCircuitJsonToGltf =
   async (): Promise<CircuitJsonToGltfModule> => {
-    gltfModulePromise ??= importer(
-      "circuit-json-to-gltf",
-    ) as Promise<CircuitJsonToGltfModule>
-    return gltfModulePromise
+    return ensureCircuitJsonToGltfLoaded()
   }
 
 export const loadCircuitJsonToStep =
   async (): Promise<CircuitJsonToStepModule> => {
-    globalThis.tscircuitDynamicModules ??= {}
-    globalThis.tscircuitDynamicModules["circuit-json-to-gltf"] =
-      circuitJsonToGltf
+    // circuit-json-to-step dynamically imports circuit-json-to-gltf at runtime.
+    await ensureCircuitJsonToGltfLoaded()
 
     stepModulePromise ??= importer(
       "circuit-json-to-step",
