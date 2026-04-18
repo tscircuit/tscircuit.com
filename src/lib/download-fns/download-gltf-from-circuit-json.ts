@@ -1,14 +1,17 @@
 import { CircuitJson } from "circuit-json"
 import { saveAs } from "file-saver"
-import {
-  convertCircuitJsonToGltf,
-  type ConversionOptions,
-} from "circuit-json-to-gltf"
+import { loadCircuitJsonToGltf } from "@/lib/utils/load-internal-dynamic-modules"
+
+type ConversionOptions = Parameters<
+  Awaited<ReturnType<typeof loadCircuitJsonToGltf>>["convertCircuitJsonToGltf"]
+>[1]
+
 export const downloadGltfFromCircuitJson = async (
   circuitJson: CircuitJson,
   fileName: string,
   options?: ConversionOptions,
 ) => {
+  const { convertCircuitJsonToGltf } = await loadCircuitJsonToGltf()
   const result = await convertCircuitJsonToGltf(circuitJson, options)
 
   let blob: Blob
