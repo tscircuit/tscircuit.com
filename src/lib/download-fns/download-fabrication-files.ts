@@ -183,34 +183,7 @@ import {
   convertBomRowsToCsv,
 } from "circuit-json-to-bom-csv"
 import { convertCircuitJsonToPickAndPlaceCsv } from "circuit-json-to-pnp-csv"
-
-type CircuitJsonToGerberModule = {
-  stringifyGerberCommandLayers: (layers: unknown) => Record<string, string>
-  convertSoupToGerberCommands: (
-    soup: AnyCircuitElement[],
-    options: { flip_y_axis: boolean },
-  ) => unknown
-  convertSoupToExcellonDrillCommands: (params: {
-    circuitJson: AnyCircuitElement[]
-    is_plated: boolean
-    flip_y_axis: boolean
-  }) => unknown
-  stringifyExcellonDrill: (drillCmds: unknown) => string
-}
-
-let gerberModulePromise: Promise<CircuitJsonToGerberModule> | null = null
-const circuitJsonToGerberUrl =
-  "https://cdn.jsdelivr.net/npm/circuit-json-to-gerber@latest/+esm"
-
-const loadCircuitJsonToGerber =
-  async (): Promise<CircuitJsonToGerberModule> => {
-    if (!gerberModulePromise) {
-      gerberModulePromise = import(
-        /* @vite-ignore */ circuitJsonToGerberUrl
-      ) as Promise<CircuitJsonToGerberModule>
-    }
-    return gerberModulePromise
-  }
+import { loadCircuitJsonToGerber } from "@/lib/utils/load-internal-dynamic-modules"
 
 export const downloadFabricationFiles = async ({
   circuitJson,
