@@ -16,8 +16,7 @@ export function NotFound({ heading = "Page not found" }: { heading?: string }) {
           {heading}
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
-          The page you're looking for doesn't exist or has been moved to another
-          address.
+          The page you're looking for doesn't exist or may be private.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <Link href="/">
