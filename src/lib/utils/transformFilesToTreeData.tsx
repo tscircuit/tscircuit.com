@@ -148,18 +148,16 @@ export const transformFilesToTreeData = ({
                   }}
                 >
                   <DropdownMenuGroup>
-                    {isLeafNode && (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setRenamingFile(itemId)
-                          setOpenDropdownId(null)
-                        }}
-                        className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
-                      >
-                        <Pencil className="mr-2 h-3 w-3" />
-                        Rename
-                      </DropdownMenuItem>
-                    )}
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setRenamingFile(itemId)
+                        setOpenDropdownId(null)
+                      }}
+                      className="flex items-center px-3 py-1 text-xs text-black hover:bg-gray-100 cursor-pointer"
+                    >
+                      <Pencil className="mr-2 h-3 w-3" />
+                      Rename
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => {
                         const { fileDeleted } = handleDeleteFile({
