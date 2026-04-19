@@ -148,6 +148,13 @@ export function LandingHeroCodePreview() {
     setPreviewError(null)
   }, [previewUrl])
 
+  const previewBackgroundClass =
+    previewView === "schematic"
+      ? "bg-[#F5F1ED]"
+      : previewView === "pcb"
+        ? "bg-black"
+        : "bg-slate-50 dark:bg-slate-950"
+
   return (
     <div className="space-y-4 lg:pl-4">
       <div className="overflow-hidden rounded-xl bg-slate-950 shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
@@ -163,7 +170,9 @@ export function LandingHeroCodePreview() {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-blue-100 bg-white shadow-[0_18px_50px_rgba(59,130,246,0.12)] dark:border-blue-500/20 dark:bg-slate-900">
-        <div className="relative aspect-[1.95/1] overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div
+          className={`relative aspect-[1.95/1] overflow-hidden ${previewBackgroundClass}`}
+        >
           <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 p-1 shadow-sm ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/85 dark:ring-slate-700">
             {previewViews.map((view) => (
               <button
