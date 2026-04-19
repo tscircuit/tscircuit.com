@@ -23,8 +23,6 @@ import { FAQ } from "@/components/FAQ"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
-import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
-import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
@@ -130,18 +128,6 @@ export function LandingPage() {
                 </div>
 
                 <div className="flex flex-col gap-3 min-[500px]:flex-row min-[500px]:items-center">
-                  <a
-                    href="https://docs.tscircuit.com"
-                    className="w-[70vw] min-[500px]:w-auto"
-                  >
-                    <Button
-                      size="lg"
-                      aria-label="Get started with TSCircuit"
-                      className="w-full min-[500px]:w-auto"
-                    >
-                      Get Started
-                    </Button>
-                  </a>
                   <Link
                     href="/seveibar/led-water-accelerometer#3d"
                     className="w-[70vw] min-[500px]:w-auto"
@@ -156,14 +142,16 @@ export function LandingPage() {
                     </Button>
                   </Link>
                   <a
-                    href="https://github.com/tscircuit/tscircuit"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="https://docs.tscircuit.com"
+                    className="w-[70vw] min-[500px]:w-auto"
                   >
-                    <img
-                      alt="GitHub stars"
-                      src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                    />
+                    <Button
+                      size="lg"
+                      aria-label="Get started with TSCircuit"
+                      className="w-full min-[500px]:w-auto"
+                    >
+                      Get Started
+                    </Button>
                   </a>
                 </div>
 

@@ -1,6 +1,8 @@
 import { OptimizedImage } from "@/components/OptimizedImage"
+import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
+import { useMemo } from "react"
 
 const sectionCards = [
   {
@@ -53,42 +55,65 @@ const sectionCards = [
   },
 ]
 
+const miniTsxPreviewCode = `import { RedLed } from "@tsci/seveibar.red-led"
+import { PushButton } from "@tsci/seveibar.push-button"
+import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
+
+export default () => {
+  return (
+    <board width="12mm" height="30mm" schAutoLayoutEnabled>
+      <SmdUsbC name="USBC" pcbY={-10} />
+      <RedLed name="LED" pcbY={12} />
+      <PushButton name="SW1" pcbY={0} />
+      <resistor name="R1" footprint="0603" resistance="1k" pcbY={7} />
+
+      {/* USBC Power Connections */}
+      <trace from="USBC.GND1" to="net.GND" />
+      <trace from="USBC.GND2" to="net.GND" />
+      <trace from="USBC.VBUS1" to="net.VBUS" />
+      <trace from="USBC.VBUS2" to="net.VBUS" />
+
+      <trace from="LED.neg" to="net.GND" />
+      <trace from=".R1 > .neg" to="LED.pos" />
+
+      <trace from="SW1.pin2" to="R1.pos" />
+      <trace from="SW1.pin3" to="net.VBUS" />
+    </board>
+  )
+}
+`
+
 function FeaturePreview({
   preview,
 }: { preview: (typeof sectionCards)[number]["preview"] }) {
+  const { highlighter } = useShikiHighlighter()
+  const highlightedMiniTsx = useMemo(() => {
+    if (!highlighter) return null
+    return highlighter.codeToHtml(miniTsxPreviewCode, {
+      lang: "tsx",
+      theme: "github-dark",
+    })
+  }, [highlighter])
+
   if (preview === "code") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-800 bg-[#171717] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div className="flex aspect-[16/10] flex-col overflow-hidden rounded-lg border border-slate-800 bg-[#171717] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
         <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
           <span>jsx circuit</span>
-          <span>mini.tsx</span>
+          <span>index.circuit.tsx</span>
         </div>
-        <pre className="overflow-x-auto px-3 py-3 text-[12px] leading-5 text-slate-200">
-          <code>
-            <span className="text-[#f97316]">export default</span>{" "}
-            <span className="text-[#cbd5e1]">() =&gt; (</span>
-            {"\n"}
-            <span className="text-[#cbd5e1]"> </span>
-            <span className="text-[#22c55e]">&lt;board&gt;</span>
-            {"\n"}
-            <span className="text-[#cbd5e1]"> </span>
-            <span className="text-[#60a5fa]">&lt;Resistor</span>{" "}
-            <span className="text-[#fca5a5]">name=</span>
-            <span className="text-[#fde68a]">"R1"</span>{" "}
-            <span className="text-[#60a5fa]">/&gt;</span>
-            {"\n"}
-            <span className="text-[#cbd5e1]"> </span>
-            <span className="text-[#60a5fa]">&lt;Led</span>{" "}
-            <span className="text-[#fca5a5]">name=</span>
-            <span className="text-[#fde68a]">"D1"</span>{" "}
-            <span className="text-[#60a5fa]">/&gt;</span>
-            {"\n"}
-            <span className="text-[#cbd5e1]"> </span>
-            <span className="text-[#22c55e]">&lt;/board&gt;</span>
-            {"\n"}
-            <span className="text-[#cbd5e1]">)</span>
-          </code>
-        </pre>
+        <div className="flex-1 overflow-auto px-3 py-3 text-[12px] leading-5 text-slate-200">
+          {highlightedMiniTsx ? (
+            <div
+              className="[&_.shiki]:!bg-transparent [&_.shiki]:m-0 [&_.shiki]:p-0 [&_.shiki]:text-[12px] [&_.shiki]:leading-5"
+              dangerouslySetInnerHTML={{ __html: highlightedMiniTsx }}
+            />
+          ) : (
+            <pre className="whitespace-pre">
+              <code>{miniTsxPreviewCode}</code>
+            </pre>
+          )}
+        </div>
       </div>
     )
   }
@@ -167,30 +192,18 @@ function FeaturePreview({
       <div className="border-b border-slate-200 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
         star history
       </div>
-      <div className="bg-white p-3 dark:bg-slate-950">
-        <a
-          href="https://www.star-history.com/?repos=tscircuit%2Ftscircuit&type=date&legend=top-left"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block"
-        >
-          <picture>
-            <source
-              media="(prefers-color-scheme: dark)"
-              srcSet="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&theme=dark&legend=top-left"
-            />
-            <source
-              media="(prefers-color-scheme: light)"
-              srcSet="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
-            />
-            <img
-              alt="Star History Chart"
-              className="h-auto w-full rounded-md"
-              src="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
-            />
-          </picture>
-        </a>
-      </div>
+      <a
+        href="https://www.star-history.com/?repos=tscircuit%2Ftscircuit&type=date&legend=top-left"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block"
+      >
+        <img
+          alt="Star History Chart"
+          className="aspect-[16/8.8] w-full object-cover"
+          src="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
+        />
+      </a>
     </div>
   )
 }
