@@ -190,58 +190,6 @@ export function LandingPage() {
         </section>
         <LandingTeamSwitchSection />
         {/* <TrendingPackagesCarousel /> */}
-        <section
-          className="w-full py-12 md:py-24 lg:py-32 section-grid-pattern"
-          id="features"
-        >
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
-                  The Modern Toolkit for Electronic Design
-                </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-lg leading-relaxed">
-                  Typescript and React equipped with expertly-designed web-first
-                  electronics libraries
-                </p>
-              </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3">
-              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
-                <CardContent className="p-6">
-                  <Lightning className="h-12 w-12 mb-4" />
-                  <h3 className="text-xl font-bold">Version Control</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Collaborate on Github or wherever you keep source code.
-                    Utilize industry-standard continuous integration tooling
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
-                <CardContent className="p-6">
-                  <Cpu className="h-12 w-12 mb-4" />
-                  <h3 className="text-xl font-bold">Robust Autorouting</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Near-instant local and cloud autorouters to give you a
-                    functional circuit board fast
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="hover:shadow-lg transition-shadow duration-200 h-full">
-                <CardContent className="p-6">
-                  <Maximize2 className="h-12 w-12 mb-4" />
-                  <h3 className="text-xl font-bold">
-                    Export &amp; Manufacture
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Export to industry-standard formats like Gerber, SPICE
-                    netlists and more
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
         <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:items-center">
