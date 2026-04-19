@@ -202,5 +202,8 @@
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1",
     "@tscircuit/internal-dynamic-import": "^0.0.3"
+  },
+  "dependencies": {
+    "motion": "^12.38.0"
   }
 }

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { ContainerTextFlip } from "@/components/ui/container-text-flip"
+import { LandingHeroCodePreview } from "@/components/LandingHeroCodePreview"
+import { LandingTeamSwitchSection } from "@/components/LandingTeamSwitchSection"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import {
   Code2,
@@ -26,6 +28,19 @@ import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
+
+const heroStats = [
+  { value: "2.1k", label: "Repo stars" },
+  { value: "289", label: "Public repos" },
+  { value: "209", label: "GH followers" },
+]
+
+const heroHeadlinePhrases = [
+  "AI-generated",
+  "code-first",
+  "agent-ready",
+  "open-source",
+]
 
 const analogSimulationCode = `export default () => (
     <board schMaxTraceDistance={10} routingDisabled>
@@ -65,6 +80,7 @@ export function LandingPage() {
       }),
     [highlighter],
   )
+
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>
@@ -82,95 +98,109 @@ export function LandingPage() {
       </Helmet>
       <Header2 />
       <main className="flex-1">
-        <section className="w-full py-8 md:py-12 lg:py-20 xl:py-36">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="container mx-auto max-w-7xl">
-              <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-                <div className="flex flex-col justify-center space-y-4">
-                  <div className="space-y-2">
-                    <Badge variant="secondary" className="w-fit">
-                      Open-Source, MIT Licensed
-                    </Badge>
-                    <h1 className="text-3xl font-bold tracking-tight sm:text-5xl xl:text-6xl/none">
-                      AI codes electronics with tscircuit
-                    </h1>
-                    <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                      Build electronics with code and AI tools.
-                      <br />
-                      Render code into schematics, PCBs, 3D, fabrication files,
-                      and more.
-                    </p>
+        <section className="relative w-full overflow-hidden bg-white py-10 md:py-14 lg:py-20 xl:py-24 dark:bg-slate-950">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.1),transparent_24%)]" />
+          <div className="container mx-auto max-w-7xl px-4 md:px-6">
+            <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:gap-14">
+              <div className="space-y-8">
+                <div className="space-y-5">
+                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400">
+                    <span className="rounded-md bg-blue-500 px-2 py-1 font-semibold tracking-normal text-white">
+                      tscircuit
+                    </span>
+                    <span>Open-source hardware design for code + AI</span>
                   </div>
-                  <div className="flex flex-col items-center gap-2 min-[500px]:flex-row">
-                    <a
-                      href="https://docs.tscircuit.com"
-                      className="w-[70vw] min-[500px]:w-auto"
-                    >
-                      <Button
-                        size="lg"
-                        aria-label="Get started with TSCircuit"
-                        className="w-full min-[500px]:w-auto"
-                      >
-                        Get Started
-                      </Button>
-                    </a>
-                    <Link
-                      href="/seveibar/led-water-accelerometer#3d"
-                      className="w-[70vw] min-[500px]:w-auto"
-                    >
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        aria-label="Open online example of TSCircuit"
-                        className="w-full min-[500px]:w-auto"
-                      >
-                        Open Online Example
-                      </Button>
-                    </Link>
-                    <a
-                      href="https://github.com/tscircuit/tscircuit"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <img
-                        alt="GitHub stars"
-                        src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
-                      />
-                    </a>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 sm:flex items-center w-full text-sm">
-                    <div className="flex items-center space-x-1">
-                      <Zap className="h-4 w-4" />
-                      <span>Lightning Fast Autorouting</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Cpu className="h-4 w-4" />
-                      <span>Designed for AI</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Layers className="h-4 w-4" />
-                      <span>Export &amp; Manufacture</span>
-                    </div>
-                    <div className="flex items-center space-x-1 sm:hidden">
-                      <Code2 className="h-4 w-4" />
-                      <span>Open Web Standards</span>
-                    </div>
-                  </div>
+                  <h1 className="max-w-4xl text-[clamp(2.9rem,7vw,5.4rem)] font-bold leading-[0.95] tracking-tight text-slate-900 dark:text-slate-50">
+                    The #1 framework for
+                    <br />
+                    <ContainerTextFlip
+                      words={heroHeadlinePhrases}
+                      interval={2400}
+                      animationDuration={520}
+                      className="rounded-lg bg-blue-50 px-3 py-1 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20"
+                      textClassName="font-bold"
+                    />{" "}
+                    electronics.
+                  </h1>
+                  <p className="max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300 md:text-[1.28rem]">
+                    Build electronics with TypeScript and AI tools. Render code
+                    into schematics, PCBs, 3D views, fabrication files, and
+                    shareable previews in the browser.
+                  </p>
                 </div>
-                <div className="w-full aspect-video relative">
-                  <iframe
-                    className="mx-auto overflow-hidden rounded-xl object-cover object-center absolute inset-0 w-full h-full mt-8 lg:mt-0"
-                    src="https://www.youtube.com/embed/HAd5_ZJgg50"
-                    title="TSCircuit product demo"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
+
+                <div className="flex flex-col gap-3 min-[500px]:flex-row min-[500px]:items-center">
+                  <a
+                    href="https://docs.tscircuit.com"
+                    className="w-[70vw] min-[500px]:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      aria-label="Get started with TSCircuit"
+                      className="w-full min-[500px]:w-auto"
+                    >
+                      Get Started
+                    </Button>
+                  </a>
+                  <Link
+                    href="/seveibar/led-water-accelerometer#3d"
+                    className="w-[70vw] min-[500px]:w-auto"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      aria-label="Open online example of TSCircuit"
+                      className="w-full min-[500px]:w-auto"
+                    >
+                      Open Online Example
+                    </Button>
+                  </Link>
+                  <a
+                    href="https://github.com/tscircuit/tscircuit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      alt="GitHub stars"
+                      src="https://img.shields.io/github/stars/tscircuit/tscircuit?style=social"
+                    />
+                  </a>
+                </div>
+
+                <div className="grid max-w-xl grid-cols-3 gap-6 border-t border-slate-300/70 pt-6 dark:border-slate-700/80">
+                  {heroStats.map((stat) => (
+                    <div key={stat.label}>
+                      <p className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                        {stat.value}
+                      </p>
+                      <p className="mt-1 text-sm uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                        {stat.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm sm:flex sm:flex-wrap sm:items-center">
+                  <div className="flex items-center space-x-1 text-slate-700 dark:text-slate-300">
+                    <Zap className="h-4 w-4 text-blue-500" />
+                    <span>Lightning Fast Autorouting</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-slate-700 dark:text-slate-300">
+                    <Cpu className="h-4 w-4 text-blue-500" />
+                    <span>Designed for AI</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-slate-700 dark:text-slate-300">
+                    <Layers className="h-4 w-4 text-blue-500" />
+                    <span>Export &amp; Manufacture</span>
+                  </div>
                 </div>
               </div>
+
+              <LandingHeroCodePreview />
             </div>
           </div>
         </section>
+        <LandingTeamSwitchSection />
         {/* <TrendingPackagesCarousel /> */}
         <section
           className="w-full py-12 md:py-24 lg:py-32 section-grid-pattern"
