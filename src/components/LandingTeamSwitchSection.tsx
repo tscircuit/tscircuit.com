@@ -167,41 +167,29 @@ function FeaturePreview({
       <div className="border-b border-slate-200 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
         star history
       </div>
-      <div className="aspect-[16/8.8] w-full bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-3">
-        <svg viewBox="0 0 320 180" className="h-full w-full">
-          <path d="M24 148 H298" stroke="#cbd5e1" strokeWidth="1" fill="none" />
-          <path d="M24 22 V148" stroke="#cbd5e1" strokeWidth="1" fill="none" />
-          <path
-            d="M24 142 C60 124, 92 132, 116 108 S162 96, 188 88 S230 78, 248 54 S278 44, 298 18"
-            stroke="#fb7185"
-            strokeWidth="3"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <circle cx="24" cy="142" r="3" fill="#fb7185" />
-          <circle cx="298" cy="18" r="3" fill="#fb7185" />
-          <text x="12" y="26" fontSize="9" fill="#94a3b8">
-            2k
-          </text>
-          <text x="12" y="88" fontSize="9" fill="#94a3b8">
-            1k
-          </text>
-          <text x="12" y="150" fontSize="9" fill="#94a3b8">
-            0
-          </text>
-          <text x="22" y="165" fontSize="9" fill="#94a3b8">
-            Jan
-          </text>
-          <text x="92" y="165" fontSize="9" fill="#94a3b8">
-            Apr
-          </text>
-          <text x="162" y="165" fontSize="9" fill="#94a3b8">
-            Jul
-          </text>
-          <text x="232" y="165" fontSize="9" fill="#94a3b8">
-            Oct
-          </text>
-        </svg>
+      <div className="bg-white p-3 dark:bg-slate-950">
+        <a
+          href="https://www.star-history.com/?repos=tscircuit%2Ftscircuit&type=date&legend=top-left"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
+          <picture>
+            <source
+              media="(prefers-color-scheme: dark)"
+              srcSet="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&theme=dark&legend=top-left"
+            />
+            <source
+              media="(prefers-color-scheme: light)"
+              srcSet="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
+            />
+            <img
+              alt="Star History Chart"
+              className="h-auto w-full rounded-md"
+              src="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
+            />
+          </picture>
+        </a>
       </div>
     </div>
   )
