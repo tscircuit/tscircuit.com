@@ -102,13 +102,16 @@ export function LandingPage() {
             <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:gap-14">
               <div className="space-y-8">
                 <div className="space-y-5">
-                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-slate-500 dark:text-slate-400">
-                    <span className="rounded-md bg-blue-500 px-2 py-1 font-semibold tracking-normal text-white">
-                      tscircuit
-                    </span>
-                    <span>Open-source hardware design for code + AI</span>
+                  <div
+                    className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
+                    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                  >
+                    The hardware framework for AI teams
                   </div>
-                  <h1 className="max-w-4xl text-[clamp(2.9rem,7vw,5.4rem)] font-bold leading-[0.95] tracking-tight text-slate-900 dark:text-slate-50">
+                  <h1
+                    className="max-w-4xl text-[clamp(3rem,6vw,58px)] font-semibold leading-[1.02] tracking-[-0.03em] text-slate-900 dark:text-slate-50"
+                    style={{ fontFamily: '"Geist", sans-serif' }}
+                  >
                     The #1 framework for
                     <br />
                     <ContainerTextFlip
@@ -116,18 +119,21 @@ export function LandingPage() {
                       interval={2400}
                       animationDuration={520}
                       className="rounded-lg bg-blue-50 px-3 py-1 text-blue-600 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20"
-                      textClassName="font-bold"
+                      textClassName="font-semibold"
                     />{" "}
                     electronics.
                   </h1>
-                  <p className="max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300 md:text-[1.28rem]">
+                  <p className="max-w-[520px] text-[17px] leading-[1.65] text-slate-600 dark:text-slate-300">
                     Build electronics with TypeScript and AI tools. Render code
                     into schematics, PCBs, 3D views, fabrication files, and
                     shareable previews in the browser.
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 min-[500px]:flex-row min-[500px]:items-center">
+                <div
+                  className="flex flex-col gap-3 min-[500px]:flex-row min-[500px]:items-center"
+                  style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                >
                   <Link
                     href="/seveibar/led-water-accelerometer#3d"
                     className="w-[70vw] min-[500px]:w-auto"
@@ -136,7 +142,7 @@ export function LandingPage() {
                       size="lg"
                       variant="outline"
                       aria-label="Open online example of TSCircuit"
-                      className="w-full min-[500px]:w-auto"
+                      className="w-full min-[500px]:w-auto text-[12px]"
                     >
                       Open Online Example
                     </Button>
@@ -148,20 +154,26 @@ export function LandingPage() {
                     <Button
                       size="lg"
                       aria-label="Get started with TSCircuit"
-                      className="w-full min-[500px]:w-auto"
+                      className="w-full min-[500px]:w-auto text-[12px]"
                     >
                       Get Started
                     </Button>
                   </a>
                 </div>
 
-                <div className="grid max-w-xl grid-cols-3 gap-6 border-t border-slate-300/70 pt-6 dark:border-slate-700/80">
+                <div
+                  className="grid max-w-xl grid-cols-3 gap-6 border-t border-slate-300/70 pt-8 dark:border-slate-700/80"
+                  style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                >
                   {heroStats.map((stat) => (
                     <div key={stat.label}>
-                      <p className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                      <p
+                        className="text-[18px] font-semibold tracking-[-0.03em] text-slate-900 dark:text-slate-50"
+                        style={{ fontFamily: '"Geist", sans-serif' }}
+                      >
                         {stat.value}
                       </p>
-                      <p className="mt-1 text-sm uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                         {stat.label}
                       </p>
                     </div>
