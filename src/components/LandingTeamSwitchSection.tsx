@@ -2,6 +2,7 @@ import { OptimizedImage } from "@/components/OptimizedImage"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
+import multipleFormatsImg from "@/assets/multiple_formats.png"
 import { useMemo } from "react"
 
 const sectionCards = [
@@ -162,7 +163,7 @@ function FeaturePreview({
         <OptimizedImage
           alt="Export formats interface"
           className="aspect-[16/8.8] w-full object-cover object-top"
-          src="/assets/editor_example_2.webp"
+          src={multipleFormatsImg}
           width={640}
           height={352}
         />
