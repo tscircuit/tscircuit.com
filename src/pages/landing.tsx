@@ -286,53 +286,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-20 lg:py-28">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-              <div className="space-y-4 min-w-0">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
-                  Extremely Fast Autorouting
-                </h2>
-                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
-                  <li>
-                    Autoroute circuit boards using{" "}
-                    <a className="underline" href="#">
-                      freerouting
-                    </a>{" "}
-                    or{" "}
-                    <a
-                      className="underline"
-                      href="https://github.com/tscircuit/tscircuit-autorouter"
-                    >
-                      tscircuit&apos;s fast autorouter
-                    </a>
-                  </li>
-                  <li>
-                    Autoroute as few as 1 layer with automatically placed
-                    jumpers
-                  </li>
-                  <li>Route complex circuits in seconds</li>
-                </ul>
-              </div>
-              <div className="aspect-video overflow-hidden rounded-xl bg-black shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
-                <video
-                  className="h-full w-full object-cover"
-                  src={autoroutingExampleVideo}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  onEnded={(event) => {
-                    event.currentTarget.currentTime = 0
-                    event.currentTarget.play().catch(() => {})
-                  }}
-                  aria-label="Autorouting demonstration video"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
         <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
           <div className="container px-4 md:px-6 mx-auto">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center overflow-hidden">
@@ -414,36 +367,6 @@ export function LandingPage() {
                 src={importKicadLibraryImg}
                 height={360}
                 width={540}
-              />
-            </div>
-          </div>
-        </section>
-        <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16 lg:items-center">
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
-                  AI-compatible Electronics
-                </h2>
-                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
-                  <li>
-                    Teach agents tscircuit instantly with{" "}
-                    <span className="font-semibold">
-                      npx skills add tscircuit/skill
-                    </span>
-                  </li>
-                  <li>Bring your own agent (Claude Code, Codex, OpenCode)</li>
-                  <li>
-                    Ask to initialize, change and review schematics and PCBs
-                  </li>
-                </ul>
-              </div>
-              <OptimizedImage
-                alt="AI-compatible electronics"
-                className="mx-auto w-full max-w-4xl overflow-hidden rounded-xl object-cover object-center lg:justify-self-end"
-                src={exampleAiCodingImg}
-                height={405}
-                width={720}
               />
             </div>
           </div>
