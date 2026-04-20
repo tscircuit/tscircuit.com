@@ -1,5 +1,4 @@
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { CircuitBoard } from "lucide-react"
 import { Link } from "wouter"
 
 export default function Footer() {
@@ -7,20 +6,31 @@ export default function Footer() {
   const isLoggedIn = Boolean(session)
 
   return (
-    <footer className="bg-white text-black py-12 border-t mt-8">
-      <div className="container mx-auto px-4">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CircuitBoard className="h-6 w-6" />
-            <span className="text-lg font-bold">tscircuit</span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            The New Foundation for Electronic Design
-          </p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm text-gray-600 mt-8">
+    <footer className="mt-8 border-t border-slate-200 bg-slate-50 py-10 text-slate-900">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
+        <div className="grid gap-10 lg:grid-cols-[1.5fr_repeat(4,minmax(0,1fr))] lg:gap-7">
           <div className="space-y-4">
-            <footer className="flex flex-col space-y-2">
+            <Link href="/" className="flex select-none items-center">
+              <span className="rounded-md bg-blue-500 px-2 py-1 text-sm font-semibold text-white sm:text-base">
+                tscircuit
+              </span>
+            </Link>
+            <p className="max-w-xs text-[13px] leading-6 text-slate-600">
+              The New Foundation for Electronic Design
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <h3
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Product
+            </h3>
+            <nav
+              className="flex flex-col gap-2 text-[11px] text-slate-600"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
               {[
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
@@ -37,24 +47,32 @@ export default function Footer() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="hover:underline w-fit"
+                    className="w-fit hover:text-slate-900 hover:underline"
                   >
                     {item.name}
                   </Link>
                 ))}
               <a
                 href="https://chat.tscircuit.com"
-                className="hover:underline w-fit"
+                className="w-fit hover:text-slate-900 hover:underline"
                 target="_blank"
               >
                 Create with AI
               </a>
-            </footer>
+            </nav>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold uppercase">Explore</h3>
-            <footer className="flex flex-col space-y-2">
+          <div className="space-y-3">
+            <h3
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Explore
+            </h3>
+            <nav
+              className="flex flex-col gap-2 text-[11px] text-slate-600"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
               <Link href="/latest" className="hover:underline w-fit">
                 Latest Packages
               </Link>
@@ -70,12 +88,20 @@ export default function Footer() {
               >
                 Docs
               </a>
-            </footer>
+            </nav>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold uppercase">Follow</h3>
-            <footer className="flex flex-col space-y-2">
+          <div className="space-y-3">
+            <h3
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Follow
+            </h3>
+            <nav
+              className="flex flex-col gap-2 text-[11px] text-slate-600"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
               <a
                 href="https://blog.tscircuit.com"
                 className="hover:underline w-fit"
@@ -106,12 +132,20 @@ export default function Footer() {
               >
                 YouTube
               </a>
-            </footer>
+            </nav>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold uppercase">Company</h3>
-            <nav className="flex flex-col space-y-2">
+          <div className="space-y-3">
+            <h3
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Company
+            </h3>
+            <nav
+              className="flex flex-col gap-2 text-[11px] text-slate-600"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
               <a
                 href="https://tscircuit.com/legal/terms-of-service"
                 className="hover:underline w-fit"
@@ -130,25 +164,30 @@ export default function Footer() {
               >
                 contact@tscircuit.com
               </a>
-              <div className="flex-grow" />
-              <div className="text-xs text-gray-500">
-                we are inspired by{" "}
-                <a href="https://val.town" className="underline">
-                  val.town
-                </a>
-                ,{" "}
-                <a href="https://codesandbox.io/" className="underline">
-                  codesandbox
-                </a>{" "}
-                and{" "}
-                <a href="https://v0.dev" className="underline">
-                  v0.dev
-                </a>
-              </div>
-              <div className="text-xs text-gray-500">
-                &copy; {new Date().getFullYear()} tscircuit Inc.
-              </div>
             </nav>
+          </div>
+        </div>
+
+        <div
+          className="mt-8 border-t border-slate-200 pt-6 text-[11px] text-slate-500"
+          style={{ fontFamily: '"JetBrains Mono", monospace' }}
+        >
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-xl">
+              we are inspired by{" "}
+              <a href="https://val.town" className="underline">
+                val.town
+              </a>
+              ,{" "}
+              <a href="https://codesandbox.io/" className="underline">
+                codesandbox
+              </a>{" "}
+              and{" "}
+              <a href="https://v0.dev" className="underline">
+                v0.dev
+              </a>
+            </div>
+            <div>&copy; {new Date().getFullYear()} tscircuit Inc.</div>
           </div>
         </div>
       </div>
