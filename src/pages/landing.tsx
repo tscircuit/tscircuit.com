@@ -142,7 +142,7 @@ export function LandingPage() {
                       size="lg"
                       variant="outline"
                       aria-label="Open online example of TSCircuit"
-                      className="w-full min-[500px]:w-auto text-[12px]"
+                      className="h-10 w-full rounded-md px-3.5 text-[12px] min-[500px]:w-auto"
                     >
                       Open Online Example
                     </Button>
@@ -154,7 +154,7 @@ export function LandingPage() {
                     <Button
                       size="lg"
                       aria-label="Get started with TSCircuit"
-                      className="w-full min-[500px]:w-auto text-[12px]"
+                      className="h-10 w-full rounded-md px-3.5 text-[12px] min-[500px]:w-auto"
                     >
                       Get Started
                     </Button>
@@ -217,21 +217,20 @@ export function LandingPage() {
                 </p>
                 <h2
                   id="playground-title"
-                  className="mt-6 max-w-[8ch] text-[clamp(2.8rem,5vw,4.35rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-slate-900 dark:text-slate-50"
-                  style={{ fontFamily: '"Geist", sans-serif' }}
+                  className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl"
                 >
                   Instant previews in the browser.
                 </h2>
-                <p className="mt-7 max-w-[28rem] text-[18px] leading-[1.55] text-slate-600 dark:text-slate-300">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 md:text-lg">
                   Every save re-renders the schematic, PCB, and 3D view, the
                   same loop you have with Next.js or Vite, but for hardware. No
                   IDE to install, no toolchain to babysit. 50+ reference boards
                   ready to fork.
                 </p>
-                <Link href="/seveibar/led-water-accelerometer#3d" className="mt-5 inline-flex">
+                <Link href="/seveibar/led-water-accelerometer#3d" className="mt-6 inline-flex">
                   <Button
                     size="lg"
-                    className="h-11 px-5 text-[12px] shadow-sm"
+                    className="h-10 rounded-md px-3.5 text-[12px] shadow-sm"
                     style={{ fontFamily: '"JetBrains Mono", monospace' }}
                   >
                     Open playground →
@@ -254,13 +253,13 @@ export function LandingPage() {
           <FAQ />
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
-          <div className="container px-4 md:px-6 mx-auto">
+          <div className="container mx-auto max-w-7xl px-4 md:px-6">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14">
               <div className="space-y-4 text-center text-primary-foreground lg:text-left">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
+                <h2 className="text-3xl font-bold tracking-tight md:text-4xl text-balance">
                   Ready to build electronics with code?
                 </h2>
-                <p className="max-w-[600px] text-primary-foreground/80 md:text-xl lg:mx-0">
+                <p className="max-w-2xl text-base leading-7 text-primary-foreground/80 md:text-lg lg:mx-0">
                   Join thousands of engineers who are already using tscircuit to
                   design complex electronics!
                 </p>
@@ -276,6 +275,7 @@ export function LandingPage() {
                     size="lg"
                     variant="secondary"
                     aria-label="Get started with TSCircuit now"
+                    className="h-10 rounded-md px-3.5 text-[12px]"
                   >
                     Get Started
                   </Button>

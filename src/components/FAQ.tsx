@@ -163,15 +163,15 @@ const QUESTIONS = [
 
 export const FAQ = () => (
   <section className="w-full py-12 md:py-20 lg:py-24" id="faq">
-    <div className="container px-4 md:px-6 mx-auto">
+    <div className="container mx-auto max-w-7xl px-4 md:px-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
         <div className="flex flex-col justify-between gap-8">
           <div className="space-y-4">
-            <h2 className="max-w-[12ch] text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-slate-900 md:text-5xl">
+            <h2 className="max-w-[12ch] text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
               Frequently Asked{" "}
               <span className="text-blue-600">Questions.</span>
             </h2>
-            <p className="max-w-xs text-sm leading-7 text-slate-600 md:text-base">
+            <p className="max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
               Have questions? We&apos;ve answered the most common ones below.
             </p>
           </div>

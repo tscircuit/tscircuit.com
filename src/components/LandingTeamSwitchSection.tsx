@@ -267,7 +267,7 @@ export function LandingTeamSwitchSection() {
   return (
     <section className="relative overflow-hidden border-y border-slate-200 bg-slate-50 py-12 dark:border-slate-800 dark:bg-slate-950/50 md:py-16 lg:py-20">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.06),transparent_20%)]" />
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="max-w-3xl">
           <p className="text-xs uppercase tracking-[0.28em] text-blue-600 dark:text-blue-400">
             Why teams switch
