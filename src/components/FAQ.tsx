@@ -162,7 +162,7 @@ const QUESTIONS = [
 ]
 
 export const FAQ = () => (
-  <section className="w-full py-14 md:py-20 lg:py-24" id="faq">
+  <section className="w-full bg-white py-14 dark:bg-slate-950 md:py-20 lg:py-24" id="faq">
     <div className="container mx-auto max-w-7xl px-4 md:px-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
         <div className="flex flex-col justify-between gap-8">
@@ -219,7 +219,7 @@ export const FAQ = () => (
                 <AccordionTrigger className="px-4 py-5 text-left text-[17px] font-medium leading-7 text-slate-900 hover:no-underline data-[state=open]:text-blue-600 md:px-5 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:rounded-full [&>svg]:border [&>svg]:border-slate-200 [&>svg]:bg-white [&>svg]:p-1.5 [&>svg]:text-slate-500 data-[state=open]:[&>svg]:border-blue-200 data-[state=open]:[&>svg]:bg-blue-50 data-[state=open]:[&>svg]:text-blue-600 dark:[&>svg]:border-slate-700 dark:[&>svg]:bg-slate-900">
                   {q.question}
                 </AccordionTrigger>
-                <AccordionContent className="bg-slate-50 px-4 pb-5 pt-0 text-[15px] leading-7 text-slate-600 md:px-5 dark:bg-slate-900/60 dark:text-slate-300 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 dark:[&_p]:text-slate-300 [&_strong]:text-slate-900 dark:[&_strong]:text-slate-50 [&_ul]:space-y-2 [&_li]:text-slate-600 dark:[&_li]:text-slate-300">
+                <AccordionContent className="px-4 pb-5 pt-0 text-[15px] leading-7 text-slate-600 md:px-5 dark:bg-slate-900/60 dark:text-slate-300 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 dark:[&_p]:text-slate-300 [&_strong]:text-slate-900 dark:[&_strong]:text-slate-50 [&_ul]:space-y-2 [&_li]:text-slate-600 dark:[&_li]:text-slate-300">
                   <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
                     {typeof q.answer === "string" ? <p>{q.answer}</p> : q.answer}
                   </div>

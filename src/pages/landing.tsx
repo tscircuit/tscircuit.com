@@ -21,6 +21,30 @@ const heroStats = [
   { value: "209", label: "GH followers" },
 ]
 
+const galleryBoards = [
+  {
+    owner: "tscircuit",
+    name: "motor-controller",
+    href: "https://tscircuit.com/tscircuit/motor-controller",
+    image:
+      "https://api.tscircuit.com/packages/images/tscircuit/motor-controller/3d.png?fs_sha=md5-c2c0398bd4e4ba65f1ac347ab98fe6c8",
+  },
+  {
+    owner: "seveibar",
+    name: "keyboard-default60",
+    href: "https://tscircuit.com/seveibar/keyboard-default60",
+    image:
+      "https://api.tscircuit.com/packages/images/seveibar/keyboard-default60/3d.png?fs_sha=md5-5d1ef3b6acd49f7490d1c071a09af9fe",
+  },
+  {
+    owner: "seveibar",
+    name: "led-water-accelerometer",
+    href: "https://tscircuit.com/seveibar/led-water-accelerometer",
+    image:
+      "https://api.tscircuit.com/packages/images/seveibar/led-water-accelerometer/3d.png?fs_sha=md5-8c17230bc054ae056c4280be4bb268bb",
+  },
+]
+
 const heroHeadlinePhrases = [
   "AI-generated",
   "code-first",
@@ -206,10 +230,67 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <div className="w-full border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50">
-          <FAQ />
-        </div>
-        <section className="w-full border-t border-slate-200 bg-white py-14 dark:border-slate-800 dark:bg-slate-950 md:py-20 lg:py-24" id="cta">
+        <section
+          className="w-full bg-slate-50 py-14 dark:bg-slate-950/50 md:py-20 lg:py-24"
+          aria-labelledby="gallery-title"
+        >
+          <div className="container mx-auto max-w-7xl px-4 md:px-6">
+            <div className="max-w-3xl">
+              <p
+                className="text-[11px] font-medium uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Shipped with tscircuit
+              </p>
+              <h2
+                id="gallery-title"
+                className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl"
+              >
+                Boards teams actually sent to fab.
+              </h2>
+            </div>
+
+            <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {galleryBoards.map((board) => (
+                <a
+                  key={board.href}
+                  href={board.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <div
+                    className="h-[240px] bg-cover bg-center bg-no-repeat transition-transform duration-300 group-hover:scale-[1.02] md:h-[260px]"
+                    style={{ backgroundImage: `url("${board.image}")` }}
+                  />
+                  <div className="border-t border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div
+                      className="text-[11px] uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400"
+                      style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                    >
+                      {board.owner}
+                    </div>
+                    <div className="mt-1 text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
+                      {board.name}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <a
+                href="https://tscircuit.com/trending"
+                className="inline-flex h-10 items-center rounded-md border border-slate-300 bg-white px-3.5 text-[12px] font-medium text-slate-900 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:hover:bg-slate-900"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
+                Browse gallery · 240 boards →
+              </a>
+            </div>
+          </div>
+        </section>
+        <FAQ />
+        <section className="w-full border-t border-slate-200 bg-slate-50 py-14 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24" id="cta">
           <div className="container mx-auto max-w-7xl px-4 md:px-6">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-center lg:gap-14">
               <div className="space-y-4 text-center lg:max-w-[32rem] lg:text-left">

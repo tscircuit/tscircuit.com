@@ -6,7 +6,7 @@ export default function Footer() {
   const isLoggedIn = Boolean(session)
 
   return (
-    <footer className="mt-8 border-t border-slate-200 bg-slate-50 py-10 text-slate-900">
+    <footer className=" border-t border-slate-200 py-10 text-slate-900">
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
         <div className="grid gap-10 lg:grid-cols-[1.5fr_repeat(4,minmax(0,1fr))] lg:gap-7">
           <div className="space-y-4">
