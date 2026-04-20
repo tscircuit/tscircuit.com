@@ -1,7 +1,10 @@
 import { OptimizedImage } from "@/components/OptimizedImage"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
+import bomImg from "@/assets/BOM.png"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
+import analogSimulationImg from "@/assets/analogsimulation.png"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
+import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import multipleFormatsImg from "@/assets/multiple_formats.png"
 import { useMemo } from "react"
 
@@ -53,6 +56,30 @@ const sectionCards = [
     description:
       "MIT licensed with a growing public package ecosystem. Fork the stack, contribute upstream, and own your workflow.",
     preview: "chart" as const,
+  },
+  {
+    step: "07",
+    label: "Simulation",
+    title: "Analog Simulation",
+    description:
+      "Run analog simulations in your browser or on the command line via WebAssembly ngspice.",
+    preview: "simulation" as const,
+  },
+  {
+    step: "08",
+    label: "KiCad",
+    title: "First Class KiCad Support",
+    description:
+      "Import your library anywhere. Enable KiCad PCM to have every tscircuit package automatically serve components and subcircuits as importable KiCad modules.",
+    preview: "kicad" as const,
+  },
+  {
+    step: "09",
+    label: "BOM",
+    title: "Automatic Part Selection",
+    description:
+      "Specify parts without part numbers. Bill of materials automatically generated based on realtime availability from supplier integrations.",
+    preview: "bom" as const,
   },
 ]
 
@@ -122,9 +149,6 @@ function FeaturePreview({
   if (preview === "autoroute") {
     return (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-black shadow-sm dark:border-slate-800">
-        <div className="border-b border-white/10 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-400">
-          autorouting demo
-        </div>
         <video
           className="aspect-[16/8.8] w-full object-cover"
           src={autoroutingExampleVideo}
@@ -140,9 +164,6 @@ function FeaturePreview({
   if (preview === "ai") {
     return (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm dark:border-slate-800">
-        <div className="border-b border-white/10 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-400">
-          ai coding workflow
-        </div>
         <OptimizedImage
           alt="AI coding workflow for hardware"
           className="aspect-[16/8.8] w-full object-cover object-center"
@@ -157,9 +178,6 @@ function FeaturePreview({
   if (preview === "export") {
     return (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <div className="border-b border-slate-200 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
-          export formats
-        </div>
         <OptimizedImage
           alt="Export formats interface"
           className="aspect-[16/8.8] w-full object-cover object-top"
@@ -174,9 +192,6 @@ function FeaturePreview({
   if (preview === "review") {
     return (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-[#21262d] shadow-sm dark:border-slate-800">
-        <div className="border-b border-white/10 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-400">
-          review screenshot
-        </div>
         <OptimizedImage
           alt="Visual review interface"
           className="aspect-[16/8.8] w-full object-cover object-top"
@@ -188,11 +203,50 @@ function FeaturePreview({
     )
   }
 
+  if (preview === "simulation") {
+    return (
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <OptimizedImage
+          alt="Analog simulation view in tscircuit"
+          className="aspect-[16/8.8] w-full object-cover object-center"
+          src={analogSimulationImg}
+          width={640}
+          height={352}
+        />
+      </div>
+    )
+  }
+
+  if (preview === "kicad") {
+    return (
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <OptimizedImage
+          alt="KiCad library import workflow in tscircuit"
+          className="aspect-[16/8.8] w-full object-cover object-center"
+          src={importKicadLibraryImg}
+          width={640}
+          height={352}
+        />
+      </div>
+    )
+  }
+
+  if (preview === "bom") {
+    return (
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <OptimizedImage
+          alt="Automatic part selection and bill of materials in tscircuit"
+          className="aspect-[16/8.8] w-full object-cover object-center"
+          src={bomImg}
+          width={640}
+          height={352}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
-      <div className="border-b border-slate-200 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
-        star history
-      </div>
       <a
         href="https://www.star-history.com/?repos=tscircuit%2Ftscircuit&type=date&legend=top-left"
         target="_blank"
