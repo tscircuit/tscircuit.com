@@ -252,44 +252,42 @@ export function LandingPage() {
         </section>
         <div className="w-full border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50">
           <FAQ />
-          <div className="container mx-auto px-4 pb-12 md:px-6 md:pb-20 lg:pb-24">
-            <OptimizedImage
-              alt="Product preview"
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center shadow-xl ring-1 ring-black/5 dark:ring-white/10"
-              src="/assets/example_schematic.webp"
-              height={310}
-              width={800}
-            />
-          </div>
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
           <div className="container px-4 md:px-6 mx-auto">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center text-primary-foreground">
-              <div className="space-y-2">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14">
+              <div className="space-y-4 text-center text-primary-foreground lg:text-left">
                 <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
                   Ready to build electronics with code?
                 </h2>
-                <p className="max-w-[600px] mx-auto text-primary-foreground/80 md:text-xl">
+                <p className="max-w-[600px] text-primary-foreground/80 md:text-xl lg:mx-0">
                   Join thousands of engineers who are already using tscircuit to
                   design complex electronics!
                 </p>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start">
+                  <Button
+                    onClick={() => {
+                      if (!isLoggedIn) {
+                        signIn()
+                      } else {
+                        navigate("/dashboard")
+                      }
+                    }}
+                    size="lg"
+                    variant="secondary"
+                    aria-label="Get started with TSCircuit now"
+                  >
+                    Get Started
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                <Button
-                  onClick={() => {
-                    if (!isLoggedIn) {
-                      signIn()
-                    } else {
-                      navigate("/dashboard")
-                    }
-                  }}
-                  size="lg"
-                  variant="secondary"
-                  aria-label="Get started with TSCircuit now"
-                >
-                  Get Started
-                </Button>
-              </div>
+              <OptimizedImage
+                alt="tscircuit schematic preview"
+                className="w-full overflow-hidden rounded-2xl object-cover object-center shadow-[0_28px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/20"
+                src="/assets/example_schematic.webp"
+                height={310}
+                width={800}
+              />
             </div>
           </div>
         </section>

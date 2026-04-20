@@ -4,6 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
+import { Mail } from "lucide-react"
 
 const QUESTIONS = [
   {
@@ -160,29 +162,59 @@ const QUESTIONS = [
 ]
 
 export const FAQ = () => (
-  <section className="w-full py-12 md:py-24 lg:py-32" id="faq">
+  <section className="w-full py-12 md:py-20 lg:py-24" id="faq">
     <div className="container px-4 md:px-6 mx-auto">
-      <div className="flex flex-col items-center justify-center space-y-4 text-center">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
-            Frequently Asked Questions
-          </h2>
-          <p className="max-w-[900px] text-muted-foreground md:text-xl">
-            Got questions? We've got answers.
-          </p>
+      <div className="grid gap-8 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
+        <div className="flex flex-col justify-between gap-8">
+          <div className="space-y-4">
+            <h2 className="max-w-[12ch] text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-slate-900 md:text-5xl">
+              Frequently Asked{" "}
+              <span className="text-blue-600">Questions.</span>
+            </h2>
+            <p className="max-w-xs text-sm leading-7 text-slate-600 md:text-base">
+              Have questions? We&apos;ve answered the most common ones below.
+            </p>
+          </div>
+
+          <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-slate-900">
+              Still have questions?
+            </h3>
+            <p className="mt-3 max-w-xs text-sm leading-7 text-slate-600">
+              Our support team is here to help before and after your purchase.
+            </p>
+            <a
+              href="mailto:hello@tscircuit.com"
+              className="mt-6 inline-flex"
+            >
+              <Button className="h-11 rounded-2xl px-5 text-sm font-medium shadow-sm">
+                <Mail className="mr-2 h-4 w-4" />
+                Contact Support
+              </Button>
+            </a>
+          </div>
         </div>
-      </div>
-      <div className="mx-auto max-w-3xl space-y-4 py-12">
-        <Accordion type="single" collapsible>
-          {QUESTIONS.map((q, i) => (
-            <AccordionItem key={i} value={`item-${i + 1}`}>
-              <AccordionTrigger className="text-left">
-                {q.question}
-              </AccordionTrigger>{" "}
-              <AccordionContent>{q.answer}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <Accordion type="single" collapsible defaultValue="item-1">
+            {QUESTIONS.map((q, i) => (
+              <AccordionItem
+                key={i}
+                value={`item-${i + 1}`}
+                className="border-b border-slate-200 last:border-b-0"
+              >
+                <AccordionTrigger className="px-4 py-5 text-left text-base font-medium text-slate-900 hover:no-underline data-[state=open]:text-blue-600 md:px-5 [&>svg]:h-7 [&>svg]:w-7 [&>svg]:rounded-full [&>svg]:border [&>svg]:border-slate-200 [&>svg]:bg-white [&>svg]:p-1.5 [&>svg]:text-slate-500 data-[state=open]:[&>svg]:border-blue-200 data-[state=open]:[&>svg]:bg-blue-50 data-[state=open]:[&>svg]:text-blue-600">
+                  {q.question}
+                </AccordionTrigger>
+                <AccordionContent className="bg-slate-50 px-4 pb-5 pt-0 text-sm leading-7 text-slate-600 md:px-5 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 [&_strong]:text-slate-900 [&_ul]:space-y-2 [&_li]:text-slate-600">
+                  <div className="border-t border-slate-200 pt-4">
+                    {typeof q.answer === "string" ? <p>{q.answer}</p> : q.answer}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </div>
     </div>
   </section>
