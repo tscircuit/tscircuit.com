@@ -162,7 +162,10 @@ const QUESTIONS = [
 ]
 
 export const FAQ = () => (
-  <section className="w-full bg-white py-14 dark:bg-slate-950 md:py-20 lg:py-24" id="faq">
+  <section
+    className="w-full bg-white py-14 dark:bg-slate-950 md:py-20 lg:py-24"
+    id="faq"
+  >
     <div className="container mx-auto max-w-7xl px-4 md:px-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
         <div className="flex flex-col justify-between gap-8">
@@ -174,8 +177,7 @@ export const FAQ = () => (
               FAQ
             </p>
             <h2 className="mt-3 max-w-[12ch] text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl">
-              Frequently Asked{" "}
-              <span className="text-blue-600">Questions.</span>
+              Frequently Asked <span className="text-blue-600">Questions.</span>
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 md:text-lg">
               Have questions? We&apos;ve answered the most common ones below.
@@ -221,7 +223,11 @@ export const FAQ = () => (
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-5 pt-0 text-[15px] leading-7 text-slate-600 md:px-5 dark:bg-slate-900/60 dark:text-slate-300 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 dark:[&_p]:text-slate-300 [&_strong]:text-slate-900 dark:[&_strong]:text-slate-50 [&_ul]:space-y-2 [&_li]:text-slate-600 dark:[&_li]:text-slate-300">
                   <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-                    {typeof q.answer === "string" ? <p>{q.answer}</p> : q.answer}
+                    {typeof q.answer === "string" ? (
+                      <p>{q.answer}</p>
+                    ) : (
+                      q.answer
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>

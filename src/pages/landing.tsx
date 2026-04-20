@@ -213,7 +213,10 @@ export function LandingPage() {
                   className="mt-6 inline-flex"
                   style={{ fontFamily: '"JetBrains Mono", monospace' }}
                 >
-                  <Button size="lg" className="h-10 rounded-md px-3.5 text-[12px]">
+                  <Button
+                    size="lg"
+                    className="h-10 rounded-md px-3.5 text-[12px]"
+                  >
                     Open playground →
                   </Button>
                 </Link>
@@ -290,7 +293,10 @@ export function LandingPage() {
           </div>
         </section>
         <FAQ />
-        <section className="w-full border-t border-slate-200 bg-slate-50 py-14 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24" id="cta">
+        <section
+          className="w-full border-t border-slate-200 bg-slate-50 py-14 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24"
+          id="cta"
+        >
           <div className="container mx-auto max-w-7xl px-4 md:px-6">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-center lg:gap-14">
               <div className="space-y-4 text-center lg:max-w-[32rem] lg:text-left">
