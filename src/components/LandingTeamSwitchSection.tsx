@@ -3,6 +3,7 @@ import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import bomImg from "@/assets/BOM.png"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import analogSimulationImg from "@/assets/analogsimulation.png"
+import review from "@/assets/review.png"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import multipleFormatsImg from "@/assets/multiple_formats.png"
@@ -194,8 +195,8 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-[#21262d] dark:border-slate-800">
         <OptimizedImage
           alt="Visual review interface"
-          className="h-[280px] w-full object-cover object-top"
-          src="/assets/editor_example_1_more_square.webp"
+          className="h-[280px] w-full object-cover object-center"
+          src={review}
           width={640}
           height={352}
         />
