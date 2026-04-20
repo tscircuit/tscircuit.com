@@ -23,7 +23,7 @@ import { FAQ } from "@/components/FAQ"
 import { Link } from "wouter"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import analogSimulationImg from "@/assets/analogsimulation.png"
-import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
+import playgroundScreenshotImg from "@/assets/playground screenshot.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
 
@@ -202,47 +202,54 @@ export function LandingPage() {
         </section>
         <LandingTeamSwitchSection />
         {/* <TrendingPackagesCarousel /> */}
-        <section className="w-full py-12 md:py-20 lg:py-28 section-dot-pattern">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-12 lg:items-center">
-              <OptimizedImage
-                alt="Share and display in the browser placeholder"
-                className="mx-auto w-full max-w-xl overflow-hidden rounded-xl object-cover object-center shadow-xl ring-1 ring-black/5 dark:ring-white/10"
-                src={shareableLinkForCircuitImg}
-                height={360}
-                width={540}
-              />
-              <div className="space-y-4">
-                <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl text-balance">
-                  Share and display in the browser
+        <section
+          className="relative w-full border-y border-slate-200 bg-slate-50 py-16 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24"
+          aria-labelledby="playground-title"
+        >
+          <div className="container mx-auto max-w-7xl px-4 md:px-6">
+            <div className="grid gap-10 lg:grid-cols-[minmax(320px,0.78fr)_minmax(0,1.22fr)] lg:items-center lg:gap-16">
+              <div className="max-w-[30rem]">
+                <p
+                  className="text-[11px] font-medium uppercase tracking-[0.34em] text-slate-500 dark:text-slate-400"
+                  style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                >
+                  Develop like it&apos;s a website
+                </p>
+                <h2
+                  id="playground-title"
+                  className="mt-6 max-w-[8ch] text-[clamp(2.8rem,5vw,4.35rem)] font-semibold leading-[0.95] tracking-[-0.05em] text-slate-900 dark:text-slate-50"
+                  style={{ fontFamily: '"Geist", sans-serif' }}
+                >
+                  Instant previews in the browser.
                 </h2>
-                <ul className="feature-list space-y-3 text-muted-foreground md:text-lg">
-                  <li>
-                    Connect your GitHub or push to tscircuit.com to create
-                    shareable URLs for your project
-                  </li>
-                  <li>
-                    Every component, subcircuit and board has a dedicated
-                    webpage
-                  </li>
-                  <li>
-                    Easy-to-use React component libraries for displaying PCBs,
-                    Schematics, Assembly Diagrams on your own website
-                  </li>
-                </ul>
+                <p className="mt-7 max-w-[28rem] text-[18px] leading-[1.55] text-slate-600 dark:text-slate-300">
+                  Every save re-renders the schematic, PCB, and 3D view, the
+                  same loop you have with Next.js or Vite, but for hardware. No
+                  IDE to install, no toolchain to babysit. 50+ reference boards
+                  ready to fork.
+                </p>
+                <Link href="/seveibar/led-water-accelerometer#3d" className="mt-5 inline-flex">
+                  <Button
+                    size="lg"
+                    className="h-11 px-5 text-[12px] shadow-sm"
+                    style={{ fontFamily: '"JetBrains Mono", monospace' }}
+                  >
+                    Open playground →
+                  </Button>
+                </Link>
+              </div>
+              <div className="justify-self-end overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800/80">
+                <OptimizedImage
+                  alt="tscircuit playground showing editor, 3D board viewer, and console"
+                  className="h-[220px] w-full max-w-[860px] object-cover object-center md:h-[280px] lg:h-[320px]"
+                  src={playgroundScreenshotImg}
+                  height={420}
+                  width={760}
+                />
               </div>
             </div>
           </div>
         </section>
-        <div className="md:mt-8">
-          <OptimizedImage
-            alt="Product preview"
-            className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src="/assets/editor_example_2.webp"
-            height={310}
-            width={800}
-          />
-        </div>
         <FAQ />
         <div className="md:mt-8">
           <OptimizedImage
