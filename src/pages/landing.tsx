@@ -320,9 +320,9 @@ export function LandingPage() {
                       }
                     }}
                     size="lg"
-                    variant="secondary"
+                    variant="default"
                     aria-label="Get started with TSCircuit now"
-                    className="h-10 rounded-md px-3.5 text-[12px]"
+                    className="h-10 rounded-md px-3.5 text-[12px] min-[400px]:w-auto"
                   >
                     Get Started
                   </Button>

@@ -180,7 +180,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Export formats interface"
-          className="h-[280px] w-full object-cover object-top"
+          className="h-[280px] w-full object-fill object-top"
           src={multipleFormatsImg}
           width={640}
           height={352}
@@ -288,7 +288,7 @@ export function LandingTeamSwitchSection() {
           {sectionCards.map((card) => (
             <article
               key={card.title}
-              className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-900/80 md:p-5"
+              className="flex min-h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-900/80 md:p-5"
             >
               <p
                 className="text-[10px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
@@ -305,7 +305,7 @@ export function LandingTeamSwitchSection() {
               <p className="mt-2 text-[13px] leading-[1.45] text-slate-600 dark:text-slate-300 sm:min-h-[3.8rem]">
                 {card.description}
               </p>
-              <div className="mt-4">
+              <div className="mt-auto pt-4">
                 <FeaturePreview preview={card.preview} />
               </div>
             </article>
