@@ -12,25 +12,32 @@ import {
   useState,
 } from "react"
 
-const defaultHeroCode = `export default () => (
-  <board width="16mm" height="12mm">
-    <resistor
-      name="R1"
-      resistance="1k"
-      footprint="0402"
-      schX={-3}
-      pcbX={-3}
-    />
-    <led
-      name="D1"
-      color="red"
-      footprint="0603"
-      schX={3}
-      pcbX={3}
-    />
-    <trace from=".R1 > .pin2" to=".D1 > .anode" />
-  </board>
-)`
+const defaultHeroCode = `import { RedLed } from "@tsci/seveibar.red-led"
+import { PushButton } from "@tsci/seveibar.push-button"
+import { SmdUsbC } from "@tsci/seveibar.smd-usb-c"
+
+export default () => {
+  return (
+    <board width="12mm" height="30mm" schAutoLayoutEnabled>
+      <SmdUsbC name="USBC" pcbY={-10} />
+      <RedLed name="LED" pcbY={12} />
+      <PushButton name="SW1" pcbY={0} />
+      <resistor name="R1" footprint="0603" resistance="1k" pcbY={7} />
+
+      {/* USBC Power Connections */}
+      <trace from="USBC.GND1" to="net.GND" />
+      <trace from="USBC.GND2" to="net.GND" />
+      <trace from="USBC.VBUS1" to="net.VBUS" />
+      <trace from="USBC.VBUS2" to="net.VBUS" />
+
+      <trace from="LED.neg" to="net.GND" />
+      <trace from=".R1 > .neg" to="LED.pos" />
+
+      <trace from="SW1.pin2" to="R1.pos" />
+      <trace from="SW1.pin3" to="net.VBUS" />
+    </board>
+  )
+}`
 
 const previewViews = [
   { id: "schematic", label: "Sch" },
@@ -156,8 +163,8 @@ export function LandingHeroCodePreview() {
         : "bg-slate-50 dark:bg-slate-950"
 
   return (
-    <div className="space-y-4 lg:pl-4">
-      <div className="overflow-hidden rounded-xl bg-slate-950 ring-1 ring-black/10 dark:ring-white/10">
+    <div className="w-full space-y-4 lg:pl-4">
+      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
         <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
@@ -166,14 +173,14 @@ export function LandingHeroCodePreview() {
           </div>
           <span>index.circuit.tsx</span>
         </div>
-        <div ref={editorRef} className="h-[292px]" />
+        <div ref={editorRef} className="h-[260px] md:h-[292px] xl:h-[312px]" />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-blue-100 bg-white dark:border-blue-500/20 dark:bg-slate-900">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <div
           className={`relative aspect-[1.95/1] overflow-hidden ${previewBackgroundClass}`}
         >
-          <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 p-1 ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/85 dark:ring-slate-700">
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 p-1 backdrop-blur dark:bg-slate-900/85">
             {previewViews.map((view) => (
               <button
                 key={view.id}

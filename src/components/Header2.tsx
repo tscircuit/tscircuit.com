@@ -58,7 +58,7 @@ export const Header2 = () => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-white md:bg-white/80 md:backdrop-blur supports-[backdrop-filter]:md:bg-white/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
+        <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-2 md:px-6">
           <Link href="/" className="flex select-none items-center">
             <span className="bg-blue-500 px-2 py-1 rounded-md text-white text-sm font-semibold sm:text-base">
               tscircuit
@@ -69,32 +69,32 @@ export const Header2 = () => {
           <nav className="hidden md:flex gap-6">
             {isLoggedIn && (
               <Link
-                className="text-sm font-medium hover:underline underline-offset-4"
+                className="text-[13px] font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                 href="/dashboard"
               >
                 Dashboard
               </Link>
             )}
             <Link
-              className="text-sm font-medium hover:underline underline-offset-4"
+              className="text-[13px] font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
               href="/quickstart"
             >
               Editor
             </Link>
             <a
-              className="text-sm font-medium hover:underline underline-offset-4"
+              className="text-[13px] font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
               href="https://docs.tscircuit.com"
             >
               Docs
             </a>
             <a
-              className="text-sm font-medium hover:underline underline-offset-4"
+              className="text-[13px] font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
               href="https://tscircuit.com/join"
             >
               Discord
             </a>
             <a
-              className="text-sm font-medium hover:underline underline-offset-4"
+              className="text-[13px] font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
               href="mailto:hello@tscircuit.com"
             >
               Contact
@@ -141,12 +141,12 @@ export const Header2 = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t bg-white ">
-            <div className="container mx-auto px-4 py-3">
+            <div className="container mx-auto max-w-7xl px-4 py-3 md:px-6">
               <nav className="mb-4">
                 <div className="flex flex-col items-center gap-1">
                   {isLoggedIn && (
                     <Link
-                      className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                      className="w-full py-2 text-center text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                       href="/dashboard"
                       onClick={() => setMobileMenuOpen(false)}
                     >
@@ -154,26 +154,26 @@ export const Header2 = () => {
                     </Link>
                   )}
                   <Link
-                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                    className="w-full py-2 text-center text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                     href="/quickstart"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Editor
                   </Link>
                   <a
-                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                    className="w-full py-2 text-center text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                     href="https://docs.tscircuit.com"
                   >
                     Docs
                   </a>
                   <a
-                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                    className="w-full py-2 text-center text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                     href="https://tscircuit.com/join"
                   >
                     Discord
                   </a>
                   <a
-                    className="text-sm font-medium hover:underline underline-offset-4 py-2 w-full text-center"
+                    className="w-full py-2 text-center text-sm font-medium text-slate-700 hover:text-slate-950 hover:underline underline-offset-4"
                     href="mailto:hello@tscircuit.com"
                   >
                     Contact

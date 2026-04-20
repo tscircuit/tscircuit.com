@@ -4,7 +4,43 @@
 
 @layer base {
   :root {
-    --radius: 0.5rem;
+    --radius: 0.625rem;
+    --container-max: 80rem;
+    --surface-page: #ffffff;
+    --surface-muted: #f8fafc;
+    --text-strong: #0f172a;
+    --text-muted: #475569;
+    --line-subtle: #e2e8f0;
+    --brand: #2563eb;
+    --brand-strong: #1d4ed8;
+  }
+
+  html {
+    background: var(--surface-page);
+    color: var(--text-strong);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    overflow-x: hidden;
+    background: var(--surface-page);
+    color: var(--text-strong);
+    font-family: "Geist", system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Geist", system-ui, sans-serif;
+  }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.14);
   }
 }
 
@@ -63,7 +99,6 @@ main > section + section {
   border-radius: 1px;
 }
 
-/* add the code bellow */
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -137,10 +172,6 @@ main > section + section {
 .markdown-content .prose {
   max-width: none !important;
   width: 100% !important;
-}
-
-body {
-  overflow-x: hidden;
 }
 
 /* Subtle scrollbar styling for html and body */

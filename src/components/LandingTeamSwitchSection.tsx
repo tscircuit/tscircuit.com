@@ -265,11 +265,14 @@ function FeaturePreview({
 
 export function LandingTeamSwitchSection() {
   return (
-    <section className="relative overflow-hidden border-y border-slate-200 bg-slate-50 py-12 dark:border-slate-800 dark:bg-slate-950/50 md:py-16 lg:py-20">
+    <section className="relative w-full overflow-hidden border-y border-slate-200 bg-slate-50 py-14 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.06),transparent_20%)]" />
       <div className="container mx-auto max-w-7xl px-4 md:px-6">
-        <div className="max-w-3xl">
-          <p className="text-xs uppercase tracking-[0.28em] text-blue-600 dark:text-blue-400">
+        <div className="max-w-3xl min-w-0">
+          <p
+            className="text-[11px] font-medium uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400"
+            style={{ fontFamily: '"JetBrains Mono", monospace' }}
+          >
             Why teams switch
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl">
@@ -281,25 +284,31 @@ export function LandingTeamSwitchSection() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {sectionCards.map((card) => (
-            <div
+            <article
               key={card.title}
-              className="rounded-xl border border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-900/80"
+              className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-900/80 md:p-5"
             >
-              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+              <p
+                className="text-[10px] uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
+                style={{ fontFamily: '"JetBrains Mono", monospace' }}
+              >
                 {card.step} · {card.label}
               </p>
-              <h3 className="mt-3 text-[1.65rem] font-semibold leading-tight text-slate-900 dark:text-slate-50">
+              <h3
+                className="mt-2 text-[18px] font-semibold leading-[1.2] text-slate-900 dark:text-slate-50 sm:max-w-[18ch]"
+                style={{ fontFamily: '"Geist", system-ui, sans-serif' }}
+              >
                 {card.title}
               </h3>
-              <p className="mt-2 min-h-[4.5rem] text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p className="mt-2 text-[13px] leading-[1.45] text-slate-600 dark:text-slate-300 sm:min-h-[3.8rem]">
                 {card.description}
               </p>
               <div className="mt-4">
                 <FeaturePreview preview={card.preview} />
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

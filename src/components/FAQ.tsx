@@ -162,32 +162,45 @@ const QUESTIONS = [
 ]
 
 export const FAQ = () => (
-  <section className="w-full py-12 md:py-20 lg:py-24" id="faq">
+  <section className="w-full py-14 md:py-20 lg:py-24" id="faq">
     <div className="container mx-auto max-w-7xl px-4 md:px-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(260px,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
         <div className="flex flex-col justify-between gap-8">
           <div className="space-y-4">
-            <h2 className="max-w-[12ch] text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <p
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              FAQ
+            </p>
+            <h2 className="mt-3 max-w-[12ch] text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl">
               Frequently Asked{" "}
               <span className="text-blue-600">Questions.</span>
             </h2>
-            <p className="max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
+            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 dark:text-slate-300 md:text-lg">
               Have questions? We&apos;ve answered the most common ones below.
             </p>
           </div>
 
-          <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6">
-            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-slate-900">
+          <div className="max-w-sm rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900/80 md:p-7">
+            <p
+              className="text-[11px] font-medium uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
+            >
+              Support
+            </p>
+            <h3 className="mt-3 text-[24px] font-semibold tracking-tight text-slate-900 dark:text-slate-50">
               Still have questions?
             </h3>
-            <p className="mt-3 max-w-xs text-sm leading-7 text-slate-600">
+            <p className="mt-3 max-w-xs text-[15px] leading-7 text-slate-600 dark:text-slate-300">
               Our support team is here to help before and after your purchase.
             </p>
             <a
               href="mailto:hello@tscircuit.com"
               className="mt-6 inline-flex"
+              style={{ fontFamily: '"JetBrains Mono", monospace' }}
             >
-              <Button className="h-11 rounded-2xl px-5 text-sm font-medium">
+              <Button className="h-10 rounded-md px-3.5 text-[12px]">
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Support
               </Button>
@@ -195,7 +208,7 @@ export const FAQ = () => (
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/80">
           <Accordion type="single" collapsible defaultValue="item-1">
             {QUESTIONS.map((q, i) => (
               <AccordionItem
@@ -203,11 +216,11 @@ export const FAQ = () => (
                 value={`item-${i + 1}`}
                 className="border-b border-slate-200 last:border-b-0"
               >
-                <AccordionTrigger className="px-4 py-5 text-left text-base font-medium text-slate-900 hover:no-underline data-[state=open]:text-blue-600 md:px-5 [&>svg]:h-7 [&>svg]:w-7 [&>svg]:rounded-full [&>svg]:border [&>svg]:border-slate-200 [&>svg]:bg-white [&>svg]:p-1.5 [&>svg]:text-slate-500 data-[state=open]:[&>svg]:border-blue-200 data-[state=open]:[&>svg]:bg-blue-50 data-[state=open]:[&>svg]:text-blue-600">
+                <AccordionTrigger className="px-4 py-5 text-left text-[17px] font-medium leading-7 text-slate-900 hover:no-underline data-[state=open]:text-blue-600 md:px-5 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:rounded-full [&>svg]:border [&>svg]:border-slate-200 [&>svg]:bg-white [&>svg]:p-1.5 [&>svg]:text-slate-500 data-[state=open]:[&>svg]:border-blue-200 data-[state=open]:[&>svg]:bg-blue-50 data-[state=open]:[&>svg]:text-blue-600 dark:[&>svg]:border-slate-700 dark:[&>svg]:bg-slate-900">
                   {q.question}
                 </AccordionTrigger>
-                <AccordionContent className="bg-slate-50 px-4 pb-5 pt-0 text-sm leading-7 text-slate-600 md:px-5 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 [&_strong]:text-slate-900 [&_ul]:space-y-2 [&_li]:text-slate-600">
-                  <div className="border-t border-slate-200 pt-4">
+                <AccordionContent className="bg-slate-50 px-4 pb-5 pt-0 text-[15px] leading-7 text-slate-600 md:px-5 dark:bg-slate-900/60 dark:text-slate-300 [&_a]:!text-blue-600 [&_a:hover]:!text-blue-700 [&_code]:rounded [&_code]:bg-slate-200 [&_code]:px-1 [&_p]:text-slate-600 dark:[&_p]:text-slate-300 [&_strong]:text-slate-900 dark:[&_strong]:text-slate-50 [&_ul]:space-y-2 [&_li]:text-slate-600 dark:[&_li]:text-slate-300">
+                  <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
                     {typeof q.answer === "string" ? <p>{q.answer}</p> : q.answer}
                   </div>
                 </AccordionContent>
