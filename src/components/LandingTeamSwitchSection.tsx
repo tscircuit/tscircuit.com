@@ -125,7 +125,7 @@ function FeaturePreview({
 
   if (preview === "code") {
     return (
-      <div className="flex aspect-[16/10] flex-col overflow-hidden rounded-lg border border-slate-800 bg-[#171717]">
+      <div className="flex h-[280px] flex-col overflow-hidden rounded-lg border border-slate-800 bg-[#171717]">
         <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
           <span>jsx circuit</span>
           <span>index.circuit.tsx</span>
@@ -150,7 +150,7 @@ function FeaturePreview({
     return (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-black dark:border-slate-800">
         <video
-          className="aspect-[16/8.8] w-full object-cover"
+          className="h-[280px] w-full object-cover"
           src={autoroutingExampleVideo}
           autoPlay
           muted
@@ -166,7 +166,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-950 dark:border-slate-800">
         <OptimizedImage
           alt="AI coding workflow for hardware"
-          className="aspect-[16/8.8] w-full object-cover object-center"
+          className="h-[280px] w-full object-cover object-center"
           src={exampleAiCodingImg}
           width={640}
           height={352}
@@ -180,7 +180,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Export formats interface"
-          className="aspect-[16/8.8] w-full object-cover object-top"
+          className="h-[280px] w-full object-cover object-top"
           src={multipleFormatsImg}
           width={640}
           height={352}
@@ -194,7 +194,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-[#21262d] dark:border-slate-800">
         <OptimizedImage
           alt="Visual review interface"
-          className="aspect-[16/8.8] w-full object-cover object-top"
+          className="h-[280px] w-full object-cover object-top"
           src="/assets/editor_example_1_more_square.webp"
           width={640}
           height={352}
@@ -208,7 +208,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Analog simulation view in tscircuit"
-          className="aspect-[16/8.8] w-full object-cover object-center"
+          className="h-[280px] w-full object-fill object-center"
           src={analogSimulationImg}
           width={640}
           height={352}
@@ -222,7 +222,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="KiCad library import workflow in tscircuit"
-          className="aspect-[16/8.8] w-full object-cover object-center"
+          className="h-[280px] w-full object-cover object-center"
           src={importKicadLibraryImg}
           width={640}
           height={352}
@@ -236,7 +236,7 @@ function FeaturePreview({
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Automatic part selection and bill of materials in tscircuit"
-          className="aspect-[16/8.8] w-full object-cover object-center"
+          className="h-[280px] w-full object-center"
           src={bomImg}
           width={640}
           height={352}
@@ -255,7 +255,7 @@ function FeaturePreview({
       >
         <img
           alt="Star History Chart"
-          className="aspect-[16/8.8] w-full object-cover"
+          className="h-[280px] w-full object-fill"
           src="https://api.star-history.com/chart?repos=tscircuit/tscircuit&type=date&legend=top-left"
         />
       </a>
