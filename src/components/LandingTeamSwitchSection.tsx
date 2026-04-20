@@ -125,7 +125,7 @@ function FeaturePreview({
 
   if (preview === "code") {
     return (
-      <div className="flex aspect-[16/10] flex-col overflow-hidden rounded-lg border border-slate-800 bg-[#171717] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+      <div className="flex aspect-[16/10] flex-col overflow-hidden rounded-lg border border-slate-800 bg-[#171717]">
         <div className="flex items-center justify-between border-b border-slate-800 px-3 py-2 text-[10px] uppercase tracking-[0.16em] text-slate-500">
           <span>jsx circuit</span>
           <span>index.circuit.tsx</span>
@@ -148,7 +148,7 @@ function FeaturePreview({
 
   if (preview === "autoroute") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-black shadow-sm dark:border-slate-800">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-black dark:border-slate-800">
         <video
           className="aspect-[16/8.8] w-full object-cover"
           src={autoroutingExampleVideo}
@@ -163,7 +163,7 @@ function FeaturePreview({
 
   if (preview === "ai") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm dark:border-slate-800">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-950 dark:border-slate-800">
         <OptimizedImage
           alt="AI coding workflow for hardware"
           className="aspect-[16/8.8] w-full object-cover object-center"
@@ -177,7 +177,7 @@ function FeaturePreview({
 
   if (preview === "export") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Export formats interface"
           className="aspect-[16/8.8] w-full object-cover object-top"
@@ -191,7 +191,7 @@ function FeaturePreview({
 
   if (preview === "review") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-[#21262d] shadow-sm dark:border-slate-800">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-[#21262d] dark:border-slate-800">
         <OptimizedImage
           alt="Visual review interface"
           className="aspect-[16/8.8] w-full object-cover object-top"
@@ -205,7 +205,7 @@ function FeaturePreview({
 
   if (preview === "simulation") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Analog simulation view in tscircuit"
           className="aspect-[16/8.8] w-full object-cover object-center"
@@ -219,7 +219,7 @@ function FeaturePreview({
 
   if (preview === "kicad") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="KiCad library import workflow in tscircuit"
           className="aspect-[16/8.8] w-full object-cover object-center"
@@ -233,7 +233,7 @@ function FeaturePreview({
 
   if (preview === "bom") {
     return (
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
         <OptimizedImage
           alt="Automatic part selection and bill of materials in tscircuit"
           className="aspect-[16/8.8] w-full object-cover object-center"
@@ -246,7 +246,7 @@ function FeaturePreview({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
       <a
         href="https://www.star-history.com/?repos=tscircuit%2Ftscircuit&type=date&legend=top-left"
         target="_blank"
@@ -285,7 +285,7 @@ export function LandingTeamSwitchSection() {
           {sectionCards.map((card) => (
             <div
               key={card.title}
-              className="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_14px_30px_rgba(15,23,42,0.05)] transition-colors dark:border-slate-800 dark:bg-slate-900/80"
+              className="rounded-xl border border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-900/80"
             >
               <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                 {card.step} · {card.label}

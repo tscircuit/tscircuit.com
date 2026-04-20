@@ -230,14 +230,14 @@ export function LandingPage() {
                 <Link href="/seveibar/led-water-accelerometer#3d" className="mt-6 inline-flex">
                   <Button
                     size="lg"
-                    className="h-10 rounded-md px-3.5 text-[12px] shadow-sm"
+                    className="h-10 rounded-md px-3.5 text-[12px]"
                     style={{ fontFamily: '"JetBrains Mono", monospace' }}
                   >
                     Open playground →
                   </Button>
                 </Link>
               </div>
-              <div className="justify-self-end overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.14)] ring-1 ring-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800/80">
+              <div className="justify-self-end overflow-hidden rounded-2xl border border-slate-200 bg-white ring-1 ring-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:ring-slate-800/80">
                 <OptimizedImage
                   alt="tscircuit playground showing editor, 3D board viewer, and console"
                   className="h-[220px] w-full max-w-[860px] object-cover object-center md:h-[280px] lg:h-[320px]"
@@ -283,7 +283,7 @@ export function LandingPage() {
               </div>
               <OptimizedImage
                 alt="tscircuit schematic preview"
-                className="w-full overflow-hidden rounded-2xl object-cover object-center shadow-[0_28px_70px_rgba(0,0,0,0.28)] ring-1 ring-white/20"
+                className="w-full overflow-hidden rounded-2xl object-cover object-center"
                 src="/assets/example_schematic.webp"
                 height={310}
                 width={800}

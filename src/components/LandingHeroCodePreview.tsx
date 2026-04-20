@@ -157,7 +157,7 @@ export function LandingHeroCodePreview() {
 
   return (
     <div className="space-y-4 lg:pl-4">
-      <div className="overflow-hidden rounded-xl bg-slate-950 shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
+      <div className="overflow-hidden rounded-xl bg-slate-950 ring-1 ring-black/10 dark:ring-white/10">
         <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-slate-700" />
@@ -169,11 +169,11 @@ export function LandingHeroCodePreview() {
         <div ref={editorRef} className="h-[292px]" />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-blue-100 bg-white shadow-[0_18px_50px_rgba(59,130,246,0.12)] dark:border-blue-500/20 dark:bg-slate-900">
+      <div className="overflow-hidden rounded-xl border border-blue-100 bg-white dark:border-blue-500/20 dark:bg-slate-900">
         <div
           className={`relative aspect-[1.95/1] overflow-hidden ${previewBackgroundClass}`}
         >
-          <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 p-1 shadow-sm ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/85 dark:ring-slate-700">
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 p-1 ring-1 ring-slate-200 backdrop-blur dark:bg-slate-900/85 dark:ring-slate-700">
             {previewViews.map((view) => (
               <button
                 key={view.id}

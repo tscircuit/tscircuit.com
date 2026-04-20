@@ -176,7 +176,7 @@ export const FAQ = () => (
             </p>
           </div>
 
-          <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+          <div className="max-w-sm rounded-2xl border border-slate-200 bg-white p-6">
             <h3 className="text-2xl font-semibold tracking-[-0.03em] text-slate-900">
               Still have questions?
             </h3>
@@ -187,7 +187,7 @@ export const FAQ = () => (
               href="mailto:hello@tscircuit.com"
               className="mt-6 inline-flex"
             >
-              <Button className="h-11 rounded-2xl px-5 text-sm font-medium shadow-sm">
+              <Button className="h-11 rounded-2xl px-5 text-sm font-medium">
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Support
               </Button>
