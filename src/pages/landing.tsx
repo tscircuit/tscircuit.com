@@ -203,7 +203,7 @@ export function LandingPage() {
         <LandingTeamSwitchSection />
         {/* <TrendingPackagesCarousel /> */}
         <section
-          className="relative w-full border-y border-slate-200 bg-slate-50 py-16 dark:border-slate-800 dark:bg-slate-950/50 md:py-20 lg:py-24"
+          className="relative w-full border-y border-slate-200 bg-white py-16 dark:border-slate-800 dark:bg-slate-950 md:py-20 lg:py-24"
           aria-labelledby="playground-title"
         >
           <div className="container mx-auto max-w-7xl px-4 md:px-6">
@@ -250,15 +250,17 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-        <FAQ />
-        <div className="md:mt-8">
-          <OptimizedImage
-            alt="Product preview"
-            className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center"
-            src="/assets/example_schematic.webp"
-            height={310}
-            width={800}
-          />
+        <div className="w-full border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50">
+          <FAQ />
+          <div className="container mx-auto px-4 pb-12 md:px-6 md:pb-20 lg:pb-24">
+            <OptimizedImage
+              alt="Product preview"
+              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center shadow-xl ring-1 ring-black/5 dark:ring-white/10"
+              src="/assets/example_schematic.webp"
+              height={310}
+              width={800}
+            />
+          </div>
         </div>
         <section className="w-full py-12 md:py-24 lg:py-32 bg-primary" id="cta">
           <div className="container px-4 md:px-6 mx-auto">
