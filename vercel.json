@@ -22,6 +22,14 @@
   ],
   "rewrites": [
     {
+      "source": "/assets/:path*",
+      "destination": "https://tscircuit-com-landing.vercel.app/assets/:path*"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "https://tscircuit-com-landing.vercel.app/favicon.ico"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/generated-index"
     }
