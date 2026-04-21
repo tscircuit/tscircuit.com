@@ -13,7 +13,15 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "https://tscircuit-com-landing.vercel.app"
+      "destination": "https://tscircuit-com-landing.vercel.app/"
+    },
+    {
+      "source": "/assets/:path*",
+      "destination": "https://tscircuit-com-landing.vercel.app/assets/:path*"
+    },
+    {
+      "source": "/favicon.ico",
+      "destination": "https://tscircuit-com-landing.vercel.app/favicon.ico"
     },
     {
       "source": "/(.*)",
