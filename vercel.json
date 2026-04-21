@@ -10,11 +10,17 @@
       ]
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "https://tscircuit-com-landing.vercel.app/"
+      "src": "^/$",
+      "dest": "https://tscircuit-com-landing.vercel.app/index.html"
     },
+    {
+      "src": "^/index\\.html$",
+      "dest": "https://tscircuit-com-landing.vercel.app/index.html"
+    }
+  ],
+  "rewrites": [
     {
       "source": "/assets/:path*",
       "destination": "https://tscircuit-com-landing.vercel.app/assets/:path*"
