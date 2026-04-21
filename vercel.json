@@ -22,10 +22,6 @@
     {
       "source": "/favicon.ico",
       "destination": "https://tscircuit-com-landing.vercel.app/favicon.ico"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/api/generated-index"
     }
   ],
   "redirects": [
