@@ -44,9 +44,6 @@ export default function SidebarAboutSection({
   const { packageRelease } = useCurrentPackageRelease({
     include_ai_review: true,
   })
-  const { data: domains = [] } = usePackageDomains(
-    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
-  )
   const [, navigate] = useLocation()
 
   const { organization } = useOrganization(
@@ -134,11 +131,7 @@ export default function SidebarAboutSection({
     }
   }
 
-  const websiteUrl =
-    packageInfo?.website ||
-    (domains[0]?.fully_qualified_domain_name
-      ? `https://${domains[0].fully_qualified_domain_name}`
-      : "")
+  const websiteUrl = packageRelease?.package_release_website_url
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
