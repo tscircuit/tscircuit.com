@@ -28,7 +28,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useGetOrgMember } from "@/hooks/use-get-org-member"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import { useAllPackageLinkedDomains } from "@/hooks/use-package-domains"
 import { Link, useLocation } from "wouter"
 
 interface SidebarAboutSectionProps {
@@ -44,8 +44,8 @@ export default function SidebarAboutSection({
   const { packageRelease } = useCurrentPackageRelease({
     include_ai_review: true,
   })
-  const { data: domains = [] } = usePackageDomains(
-    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
+  const { data: domains = [] } = useAllPackageLinkedDomains(
+    packageInfo?.package_id ?? null,
   )
   const [, navigate] = useLocation()
 
@@ -135,10 +135,11 @@ export default function SidebarAboutSection({
   }
 
   const websiteUrl =
-    packageInfo?.website ||
     (domains[0]?.fully_qualified_domain_name
       ? `https://${domains[0].fully_qualified_domain_name}`
-      : "")
+      : packageRelease?.package_release_website_url ||
+        packageInfo?.website ||
+        "")
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

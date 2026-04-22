@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { useUsercodeApiStatus } from "@/hooks/use-usercode-api-status"
 import { usePackageFileByRelease } from "@/hooks/use-package-files"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import { useAllPackageLinkedDomains } from "@/hooks/use-package-domains"
 import {
   Globe,
   GitBranch,
@@ -62,9 +62,7 @@ export function ReleaseDeploymentDetails({
     (c) => c.service === "usercode_api",
   )
   const buildStatus = getBuildStatus(latestBuild)
-  const { data: domains = [] } = usePackageDomains({
-    package_release_id: packageRelease.package_release_id,
-  })
+  const { data: domains = [] } = useAllPackageLinkedDomains(pkg.package_id)
   const [editingDomain, setEditingDomain] =
     useState<PublicPackageDomain | null>(null)
   const isWaitingForBuild =
@@ -73,9 +71,10 @@ export function ReleaseDeploymentDetails({
     buildStatus.status === "building" || isWaitingForBuild
 
   const primaryWebsiteUrl =
-    domains.length > 0 && domains[0].fully_qualified_domain_name
+    packageRelease.package_release_website_url ||
+    (domains.length > 0 && domains[0].fully_qualified_domain_name
       ? `https://${domains[0].fully_qualified_domain_name}`
-      : packageRelease.package_release_website_url // fallback to the old website url
+      : null)
 
   const [waitingSeconds, setWaitingSeconds] = useState(0)
 

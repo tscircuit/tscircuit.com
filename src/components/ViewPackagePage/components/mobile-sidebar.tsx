@@ -14,12 +14,13 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import PreviewImageSquares from "./preview-image-squares"
 import { useOrganization } from "@/hooks/use-organization"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useGetOrgMember } from "@/hooks/use-get-org-member"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import { useAllPackageLinkedDomains } from "@/hooks/use-package-domains"
 import {
   Tooltip,
   TooltipContent,
@@ -38,6 +39,7 @@ const MobileSidebar = ({
   onViewChange,
 }: MobileSidebarProps) => {
   const { packageInfo } = useCurrentPackageInfo()
+  const { packageRelease } = useCurrentPackageRelease()
   const [, navigate] = useLocation()
 
   const topics = useMemo(
@@ -102,14 +104,15 @@ const MobileSidebar = ({
     }
   }, [packageInfo?.package_id, axios, toast])
 
-  const { data: domains = [] } = usePackageDomains(
-    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
+  const { data: domains = [] } = useAllPackageLinkedDomains(
+    packageInfo?.package_id ?? null,
   )
   const websiteUrl =
-    packageInfo?.website ||
     (domains[0]?.fully_qualified_domain_name
       ? `https://${domains[0].fully_qualified_domain_name}`
-      : "")
+      : packageRelease?.package_release_website_url ||
+        packageInfo?.website ||
+        "")
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

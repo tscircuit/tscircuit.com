@@ -15,7 +15,7 @@ import { Link } from "wouter"
 import { usePackageBuild } from "@/hooks/use-package-builds"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { useMemo } from "react"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import { useAllPackageLinkedDomains } from "@/hooks/use-package-domains"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
@@ -37,8 +37,8 @@ export default function SidebarReleasesSection() {
   const hasReleaseWebsiteUrl = Boolean(
     packageRelease?.package_release_website_url,
   )
-  const { data: domains = [] } = usePackageDomains(
-    hasReleaseWebsiteUrl ? null : { package_id: packageInfo?.package_id },
+  const { data: domains = [] } = useAllPackageLinkedDomains(
+    hasReleaseWebsiteUrl ? null : (packageInfo?.package_id ?? null),
   )
   const previewUrl =
     packageRelease?.package_release_website_url ||
