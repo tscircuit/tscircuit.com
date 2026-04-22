@@ -451,14 +451,22 @@ export function useFileManagement({
     }
 
     const oldFileExists = localFiles?.some((file) => file.path === oldFilename)
-    if (!oldFileExists) {
+    const isDirectory = !oldFileExists
+
+    if (
+      isDirectory &&
+      !localFiles?.some((file) => file.path.startsWith(`${oldFilename}/`))
+    ) {
       onError(new Error("File does not exist"))
       return {
         fileRenamed: false,
       }
     }
 
-    const newFileExists = localFiles?.some((file) => file.path === newFilename)
+    const newFileExists = localFiles?.some(
+      (file) =>
+        file.path === newFilename || file.path.startsWith(`${newFilename}/`),
+    )
     if (newFileExists) {
       onError(new Error("A file with this name already exists"))
       return {
@@ -467,15 +475,24 @@ export function useFileManagement({
     }
 
     const updatedFiles = localFiles.map((file) => {
-      if (file.path === oldFilename) {
+      if (!isDirectory && file.path === oldFilename) {
         return { ...file, path: newFilename }
+      }
+      if (isDirectory && file.path.startsWith(`${oldFilename}/`)) {
+        return {
+          ...file,
+          path: file.path.replace(`${oldFilename}/`, `${newFilename}/`),
+        }
       }
       return file
     })
 
     setLocalFiles(updatedFiles)
-    if (currentFile === oldFilename) {
+    if (!isDirectory && currentFile === oldFilename) {
       setCurrentFile(newFilename)
+    }
+    if (isDirectory && currentFile?.startsWith(`${oldFilename}/`)) {
+      setCurrentFile(currentFile.replace(`${oldFilename}/`, `${newFilename}/`))
     }
 
     return {

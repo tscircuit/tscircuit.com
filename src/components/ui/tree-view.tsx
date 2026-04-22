@@ -318,7 +318,52 @@ const TreeNode = ({
             isOpen={value.includes(item.id)}
             default={defaultNodeIcon}
           />
-          <span className="text-sm truncate">{item.name}</span>
+          {item.isRenaming ? (
+            <Input
+              style={{
+                zIndex: 50,
+              }}
+              defaultValue={item.name as string}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault()
+                  const value = e.currentTarget.value.trim()
+                  if (value && value !== item.name) {
+                    item.onRename?.(value)
+                  } else {
+                    item.onCancelRename?.()
+                  }
+                } else if (e.key === "Escape") {
+                  e.preventDefault()
+                  item.onCancelRename?.()
+                }
+              }}
+              spellCheck={false}
+              autoComplete="off"
+              onBlur={(e) => {
+                const value = e.currentTarget.value.trim()
+                if (value && value !== item.name) {
+                  item.onRename?.(value)
+                } else {
+                  item.onCancelRename?.()
+                }
+              }}
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+              className="h-6 px-2 py-0 text-sm flex-1 mr-8 bg-white border border-blue-500 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              onFocus={(e) => {
+                e.currentTarget.select()
+                // Select filename without extension
+                const filename = e.currentTarget.value
+                const lastDotIndex = filename.lastIndexOf(".")
+                if (lastDotIndex > 0) {
+                  e.currentTarget.setSelectionRange(0, lastDotIndex)
+                }
+              }}
+            />
+          ) : (
+            <span className="text-sm truncate">{item.name}</span>
+          )}
           <div
             className="flex items-center"
             onClick={(e) => e.stopPropagation()}
