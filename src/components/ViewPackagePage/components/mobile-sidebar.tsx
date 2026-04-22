@@ -107,12 +107,9 @@ const MobileSidebar = ({
   const { data: domains = [] } = useAllPackageLinkedDomains(
     packageInfo?.package_id ?? null,
   )
-  const websiteUrl =
-    (domains[0]?.fully_qualified_domain_name
-      ? `https://${domains[0].fully_qualified_domain_name}`
-      : packageRelease?.package_release_website_url ||
-        packageInfo?.website ||
-        "")
+  const websiteUrl = domains[0]?.fully_qualified_domain_name
+    ? `https://${domains[0].fully_qualified_domain_name}`
+    : packageRelease?.package_release_website_url || packageInfo?.website || ""
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
