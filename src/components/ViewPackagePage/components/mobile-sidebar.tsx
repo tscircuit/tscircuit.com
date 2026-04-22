@@ -19,7 +19,6 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
 import { useGetOrgMember } from "@/hooks/use-get-org-member"
-import { usePackageDomains } from "@/hooks/use-package-domains"
 import {
   Tooltip,
   TooltipContent,
@@ -27,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Link, useLocation } from "wouter"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -39,6 +39,7 @@ const MobileSidebar = ({
 }: MobileSidebarProps) => {
   const { packageInfo } = useCurrentPackageInfo()
   const [, navigate] = useLocation()
+  const { packageRelease } = useCurrentPackageRelease()
 
   const topics = useMemo(
     () => (packageInfo?.is_package ? ["Package"] : ["Board"]),
@@ -102,14 +103,7 @@ const MobileSidebar = ({
     }
   }, [packageInfo?.package_id, axios, toast])
 
-  const { data: domains = [] } = usePackageDomains(
-    packageInfo?.website ? null : { package_id: packageInfo?.package_id },
-  )
-  const websiteUrl =
-    packageInfo?.website ||
-    (domains[0]?.fully_qualified_domain_name
-      ? `https://${domains[0].fully_qualified_domain_name}`
-      : "")
+  const websiteUrl = packageRelease?.package_release_website_url
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
