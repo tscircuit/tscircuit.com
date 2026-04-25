@@ -10,7 +10,13 @@ const LoginContent = () => {
   // const { handleLogout: handleSignOut, isSigningOut } = useLogout()
 
   if (session) {
-    return <Redirect to={`/settings`} />
+    const searchParams = new URLSearchParams(window.location.search)
+    const redirectParam = searchParams.get("redirect")
+    const safeRedirect =
+      redirectParam && redirectParam.startsWith("/")
+        ? redirectParam
+        : "/settings"
+    return <Redirect to={safeRedirect} />
     // return (
     //   <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-white to-gray-50">
     //     <div className="w-full max-w-2xl">
