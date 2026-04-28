@@ -159,7 +159,7 @@ export const HeaderLogin = () => {
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link
-              href="https://tcircuit.com/"
+              href="https://tscircuit.com/"
               className="cursor-pointer"
               onClick={(e) => {
                 e.preventDefault()

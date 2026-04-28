@@ -76,7 +76,7 @@ export default function Header() {
     <header className="px-4 py-3">
       <div className="flex items-center">
         <Link
-          href="https://tcircuit.com/"
+          href="https://tscircuit.com/"
           className="text-lg font-semibold whitespace-nowrap select-none"
         >
           <span className="bg-blue-500 px-2 py-1 rounded-md text-white">

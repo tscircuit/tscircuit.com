@@ -60,7 +60,7 @@ export const Header2 = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-white md:bg-white/80 md:backdrop-blur supports-[backdrop-filter]:md:bg-white/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-2 md:px-6">
           <Link
-            href="https://tcircuit.com/"
+            href="https://tscircuit.com/"
             className="flex select-none items-center"
           >
             <span className="bg-blue-500 px-2 py-1 rounded-md text-white text-sm font-semibold sm:text-base">
