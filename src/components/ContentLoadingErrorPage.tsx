@@ -40,7 +40,7 @@ export const ContentLoadingErrorPage = ({
           )}
         </div>
         <div className="space-y-3">
-          <Link href="/">
+          <Link href="https://tcircuit.com/">
             <button className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors duration-200">
               Return Home
             </button>
