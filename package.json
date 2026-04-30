@@ -86,6 +86,7 @@
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
     "@tscircuit/eval": "^0.0.803",
+    "@tscircuit/internal-dynamic-import": "^0.0.5",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "1.11.368",
@@ -113,7 +114,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "circuit-json-to-bom-csv": "^0.0.7",
-    "circuit-json-to-gerber": "^0.0.50",
+    "circuit-json-to-gerber": "^0.0.51",
     "circuit-json-to-gltf": "^0.0.91",
     "circuit-json-to-kicad": "^0.0.124",
     "circuit-json-to-lbrn": "^0.0.23",
@@ -200,7 +201,6 @@
     "wouter": "^3.3.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
-    "zustand-hoist": "^2.0.1",
-    "@tscircuit/internal-dynamic-import": "^0.0.4"
+    "zustand-hoist": "^2.0.1"
   }
 }
