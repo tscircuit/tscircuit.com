@@ -304,6 +304,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             projectUrl={projectUrl}
             easyEdaProxyConfig={{
               proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+              headers: sessionToken
+                ? { Authorization: `Bearer ${sessionToken}` }
+                : undefined,
             }}
           />
         </div>
