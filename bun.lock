@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "@tscircuit/fake-snippets",
@@ -53,7 +52,7 @@
         "@tscircuit/assembly-viewer": "^0.0.5",
         "@tscircuit/create-snippet-url": "^0.0.8",
         "@tscircuit/eval": "^0.0.803",
-        "@tscircuit/internal-dynamic-import": "^0.0.3",
+        "@tscircuit/internal-dynamic-import": "^0.0.4",
         "@tscircuit/layout": "^0.0.29",
         "@tscircuit/mm": "^0.0.8",
         "@tscircuit/pcb-viewer": "1.11.368",
@@ -81,7 +80,7 @@
         "@vitejs/plugin-react": "^4.3.1",
         "autoprefixer": "^10.4.20",
         "circuit-json-to-bom-csv": "^0.0.7",
-        "circuit-json-to-gerber": "^0.0.49",
+        "circuit-json-to-gerber": "^0.0.50",
         "circuit-json-to-gltf": "^0.0.91",
         "circuit-json-to-kicad": "^0.0.124",
         "circuit-json-to-lbrn": "^0.0.23",
@@ -847,7 +846,7 @@
 
     "@tscircuit/infgrid-ijump-astar": ["@tscircuit/infgrid-ijump-astar@0.0.35", "", {}, "sha512-PZx3GyD7mDNEhLJn8+7n8NjrieOvrX03g7Gx1cvwXv9mmgSC4M+yTA0WC4DgOvcRdTnarf0R8xvwtDeJ4tMK9Q=="],
 
-    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.3", "", {}, "sha512-i2MehdVivoHItTgO01yXSx8kIvQ/UWTMZ7nffZYwLVZ4wr7fsiqEcvEC2HGWCT1pCh2tlwyT2LIJ54SKh2A7PA=="],
+    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.4", "", {}, "sha512-5ZeqUcmbgt204ybxz9AYM1M2UCje4c94uARZQlsNdaYAMA2aiqilt+WffhIh1vjWwQFYDeivLX65CM8GaQmksg=="],
 
     "@tscircuit/layout": ["@tscircuit/layout@0.0.29", "", { "dependencies": { "@tscircuit/soup-util": "*", "transformation-matrix": "^2.16.1", "zod": "*" }, "peerDependencies": { "@tscircuit/manual-edit-events": "*", "@tscircuit/schematic-autolayout": "*", "circuit-json": "*" } }, "sha512-3V1SikE147UT/ag8/BRX5oBjYc6H0ZdV+7Et+ljp8fMyQy2P9EMbNKjS0yaXI1SSNgxfnEmDWqImw1JB0oWeXg=="],
 
@@ -1161,7 +1160,7 @@
 
     "circuit-json-to-connectivity-map": ["circuit-json-to-connectivity-map@0.0.23", "", { "dependencies": { "@tscircuit/math-utils": "^0.0.9" }, "peerDependencies": { "typescript": "^5.9.3" } }, "sha512-DSOiXaXOTvjU+7et8ITXb2LjgKto6cQzLv3hReYdXuUNtLw2GVnpOly1G83VcIBcSQ4hRVHI4VMKRyZB3XVzdg=="],
 
-    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.49", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.25", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "*", "tscircuit": "*", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-+IMXSj5YdwsFx8Xk8JYuDl+Zf3y/Ig8O7uBkw2/bUMGO6rMpJseSObs7YUEwArF+JG0e+Viroa1a8EyIlzVExQ=="],
+    "circuit-json-to-gerber": ["circuit-json-to-gerber@0.0.50", "", { "dependencies": { "@tscircuit/alphabet": "^0.0.25", "fast-json-stable-stringify": "^2.1.0", "transformation-matrix": "^3.0.0" }, "peerDependencies": { "circuit-json": "*", "tscircuit": "*", "typescript": "^5.0.0" }, "bin": { "circuit-to-gerber": "dist/cli.js" } }, "sha512-bYmdj8B0wIdoYk9GYDbkJppxFYyxTTgSGeAjw3tJ5Gm65bdwUxMYSMPjwbOIuRgKxrwMXtThQNyWm2AL3nYhNQ=="],
 
     "circuit-json-to-gltf": ["circuit-json-to-gltf@0.0.91", "", { "dependencies": { "@jscad/modeling": "^2.12.6", "earcut": "^3.0.2", "jscad-electronics": "^0.0.120", "jscad-to-gltf": "^0.0.5", "occt-import-js": "^0.0.23" }, "peerDependencies": { "@resvg/resvg-js": "2", "@resvg/resvg-wasm": "2", "@tscircuit/circuit-json-util": "*", "circuit-json": "*", "circuit-to-svg": "*", "typescript": "^5" }, "optionalPeers": ["@resvg/resvg-js", "@resvg/resvg-wasm"] }, "sha512-7QzJ0WF88WmVMgWtt+2ogfvFCDEr4EKWRMy/oMgCVnsr3vI6wkfQjqE8RwgFRtitZzMh9msfM8Vvcu2lZ2I/rA=="],
 
@@ -1543,7 +1542,7 @@
 
     "he": ["he@1.2.0", "", { "bin": { "he": "bin/he" } }, "sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw=="],
 
-    "high-density-repair02": ["high-density-repair02@github:tscircuit/high-density-repair02#5509821", {}, "tscircuit-high-density-repair02-5509821", "sha512-eZijJpjCTiPeG4qFBiUSu0J1UbuECKycF0snJBywK+0+avjI191Hmyks7NAmn9FS9V8OBWzANWER3VrwlhuHCQ=="],
+    "high-density-repair02": ["high-density-repair02@github:tscircuit/high-density-repair02#5509821", {}, "tscircuit-high-density-repair02-5509821"],
 
     "html-url-attributes": ["html-url-attributes@3.0.1", "", {}, "sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ=="],
 
