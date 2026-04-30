@@ -303,7 +303,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             fsMap={fsMap}
             projectUrl={projectUrl}
             easyEdaProxyConfig={{
-              proxyEndpointUrl:`${apiBaseUrl}/proxy`
+              proxyEndpointUrl: `${apiBaseUrl}/proxy`,
             }}
           />
         </div>
