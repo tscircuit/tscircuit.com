@@ -17,6 +17,7 @@ import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 
 interface Props {
   pkg?: Package
@@ -42,6 +43,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
     () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
@@ -300,6 +302,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             }}
             fsMap={fsMap}
             projectUrl={projectUrl}
+            easyEdaProxyConfig={{
+              proxyEndpointUrl:`${apiBaseUrl}/proxy`
+            }}
           />
         </div>
       </div>
