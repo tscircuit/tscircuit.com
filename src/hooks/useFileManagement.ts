@@ -316,8 +316,10 @@ export function useFileManagement({
   ])
 
   const isFullyLoaded = useMemo(() => {
-    return !isLoadingPackageFilesWithContent && !isLoadingPackageFiles
-  }, [isLoadingPackageFilesWithContent, isLoadingPackageFiles])
+    // Consider the editor interactive once metadata and the priority file are ready.
+    // Remaining files continue streaming in the background.
+    return !isLoadingPackageFiles && isPriorityFileFetched
+  }, [isLoadingPackageFiles, isPriorityFileFetched])
 
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
