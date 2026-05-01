@@ -97,7 +97,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             <img
               src={previewImageUrl}
               alt={`${pkg.unscoped_name} ${availableImages.includes(pkg.default_view || "") ? pkg.default_view : "3D"} view`}
-              className={`object-cover h-full w-full ${imageTransform}`}
+              className={`object-contain h-full w-full ${imageTransform}`}
               onError={(e) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling?.classList.remove("hidden")

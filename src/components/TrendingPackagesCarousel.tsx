@@ -24,7 +24,7 @@ const CarouselItem = ({
               src={previewImageUrl}
               alt="PCB preview"
               draggable={false}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.currentTarget.style.display = "none"
                 e.currentTarget.nextElementSibling?.classList.remove("hidden")

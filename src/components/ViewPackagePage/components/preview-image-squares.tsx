@@ -37,7 +37,7 @@ export default function PreviewImageSquares({
             {view.imageUrl && (
               <img
                 src={view.imageUrl}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-contain rounded-lg"
                 onLoad={view.onLoad}
                 onError={view.onError}
               />
@@ -59,7 +59,7 @@ export default function PreviewImageSquares({
           {view.imageUrl && (
             <img
               src={view.imageUrl}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-contain rounded-lg"
               onLoad={view.onLoad}
               onError={view.onError}
             />
