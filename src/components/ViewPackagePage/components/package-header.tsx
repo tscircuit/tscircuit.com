@@ -84,7 +84,7 @@ export default function PackageHeader({
     <header className="bg-white border-b border-gray-200 py-4">
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between flex-wrap gap-y-2">
-          <div className="flex items-center min-w-0 flex-wrap">
+          <div className="flex items-center min-w-0 flex-1 flex-wrap">
             {packageName ? (
               <>
                 <h1 className="text-lg md:text-xl font-bold mr-2 break-words">
@@ -135,7 +135,7 @@ export default function PackageHeader({
             )}
           </div>
 
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
             {/*
             <Button
               variant="outline"
