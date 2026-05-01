@@ -124,7 +124,7 @@ function SettingCard({
 
 export default function PackageSettingsPage() {
   const { author, packageName } = useParams()
-  const [, navigate] = useLocation()
+  const [location, navigate] = useLocation()
   const { toast } = useToast()
   const axios = useAxios()
   const qc = useQueryClient()
@@ -401,7 +401,10 @@ export default function PackageSettingsPage() {
 
   if (isLoadingPackage) return <FullPageLoader />
   if (packageError || !packageInfo) return <NotFoundPage />
-  if (!session) return <Redirect to="/login" />
+  if (!session)
+    return (
+      <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} />
+    )
 
   const pageTitle = `${author}/${packageName} Settings - tscircuit`
   const packageSlug = `${author}/${packageName}`
