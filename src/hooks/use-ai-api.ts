@@ -4,7 +4,9 @@ import { useGlobalStore } from "./use-global-store"
 
 export const useAiApi = ({
   streaming = false,
-}: { streaming?: boolean } = {}) => {
+}: {
+  streaming?: boolean
+} = {}) => {
   const sessionToken = useGlobalStore((state) => state.session?.token)
   const anthropic = useMemo(() => {
     if (import.meta.env.VITE_USE_DIRECT_AI_REQUESTS === "true") {

@@ -9,7 +9,10 @@ import { CircuitBoard } from "lucide-react"
 const CarouselItem = ({
   pkg,
   onImageError,
-}: { pkg: Package; onImageError: () => void }) => {
+}: {
+  pkg: Package
+  onImageError: () => void
+}) => {
   const previewImageUrl = pkg.latest_cad_preview_image_url
 
   return (

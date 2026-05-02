@@ -25,7 +25,9 @@ import { useAxios } from "@/hooks/use-axios"
 
 export const OrganizationProfilePageContent = ({
   org,
-}: { org: PublicOrgSchema }) => {
+}: {
+  org: PublicOrgSchema
+}) => {
   const session = useGlobalStore((s) => s.session)
   const axios = useAxios()
 

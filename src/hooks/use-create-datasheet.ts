@@ -4,7 +4,9 @@ import type { Datasheet } from "fake-snippets-api/lib/db/schema"
 
 export const useCreateDatasheet = ({
   onSuccess,
-}: { onSuccess?: (datasheet: Datasheet) => void } = {}) => {
+}: {
+  onSuccess?: (datasheet: Datasheet) => void
+} = {}) => {
   const axios = useAxios()
   const queryClient = useQueryClient()
 

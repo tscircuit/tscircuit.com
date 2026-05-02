@@ -44,7 +44,10 @@ export const useAxios = () => {
           setSession(null)
         }
         // Use current window location at time of error, not captured location
-        const currentPath = window.location.pathname + window.location.search + window.location.hash
+        const currentPath =
+          window.location.pathname +
+          window.location.search +
+          window.location.hash
         toastLibrary.custom(
           (t) => (
             <div

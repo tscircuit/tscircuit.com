@@ -5,7 +5,10 @@ import type { Member } from "fake-snippets-api/lib/db/schema"
 export const useListOrgMembers = ({
   orgId,
   orgName,
-}: { orgId?: string; orgName?: string }) => {
+}: {
+  orgId?: string
+  orgName?: string
+}) => {
   const axios = useAxios()
   return useQuery<Member[], Error & { status: number }>(
     ["orgs", "members", orgId || orgName],

@@ -4,7 +4,9 @@ import { useToast } from "./use-toast"
 
 export const useDeletePackage = ({
   onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+}: {
+  onSuccess?: () => void
+} = {}) => {
   const axios = useAxios()
   const { toast } = useToast()
   const queryClient = useQueryClient()

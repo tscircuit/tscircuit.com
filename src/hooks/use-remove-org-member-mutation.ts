@@ -4,7 +4,9 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 
 export const useRemoveOrgMemberMutation = ({
   onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+}: {
+  onSuccess?: () => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const queryClient = useQueryClient()

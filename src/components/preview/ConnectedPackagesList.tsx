@@ -199,7 +199,9 @@ export const ConnectedPackageCard = ({
 
 export const ConnectedPackagesList = ({
   packages,
-}: { packages: Package[] }) => {
+}: {
+  packages: Package[]
+}) => {
   if (packages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-black">

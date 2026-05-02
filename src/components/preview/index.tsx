@@ -71,7 +71,10 @@ export const getBuildStatus = (
 export const StatusIcon = ({
   status,
   size = 4,
-}: { status: Status; size?: number }) => {
+}: {
+  status: Status
+  size?: number
+}) => {
   const sizeClasses: Record<number, string> = {
     3: "w-3 h-3",
     4: "w-4 h-4",

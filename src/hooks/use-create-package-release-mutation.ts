@@ -4,7 +4,9 @@ import { useAxios } from "./use-axios"
 
 export const useCreatePackageReleaseMutation = ({
   onSuccess,
-}: { onSuccess?: (packageRelease: PackageRelease) => void } = {}) => {
+}: {
+  onSuccess?: (packageRelease: PackageRelease) => void
+} = {}) => {
   const axios = useAxios()
 
   return useMutation(

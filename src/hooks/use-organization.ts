@@ -6,7 +6,11 @@ export const useOrganization = ({
   orgId,
   orgTscircuitHandle,
   github_handle,
-}: { orgId?: string; orgTscircuitHandle?: string; github_handle?: string }) => {
+}: {
+  orgId?: string
+  orgTscircuitHandle?: string
+  github_handle?: string
+}) => {
   const axios = useAxios()
 
   const orgQuery = useQuery<PublicOrgSchema, Error & { status: number }>(

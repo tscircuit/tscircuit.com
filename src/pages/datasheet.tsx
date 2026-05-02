@@ -12,7 +12,10 @@ import { Loader2, AlertCircle, FileText } from "lucide-react"
 const SectionCard = ({
   title,
   children,
-}: { title: string; children: React.ReactNode }) => (
+}: {
+  title: string
+  children: React.ReactNode
+}) => (
   <Card className="mb-6">
     <CardHeader className="pb-2">
       <CardTitle className="text-xl font-semibold">{title}</CardTitle>

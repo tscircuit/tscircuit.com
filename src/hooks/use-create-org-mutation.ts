@@ -5,7 +5,9 @@ import type { PublicOrgSchema } from "fake-snippets-api/lib/db/schema"
 
 export const useCreateOrgMutation = ({
   onSuccess,
-}: { onSuccess?: (org: PublicOrgSchema) => void } = {}) => {
+}: {
+  onSuccess?: (org: PublicOrgSchema) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
 
