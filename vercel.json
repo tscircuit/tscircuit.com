@@ -57,7 +57,7 @@
     },
     {
       "source": "/playground",
-      "destination": "https://tscircuit.com/editor?template=blank-circuit-board",
+      "destination": "/editor?template=blank-circuit-board",
       "permanent": false
     }
   ]
