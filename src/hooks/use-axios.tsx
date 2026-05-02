@@ -43,12 +43,14 @@ export const useAxios = () => {
         if (isSessionInvalid) {
           setSession(null)
         }
+        // Use current window location at time of error, not captured location
+        const currentPath = window.location.pathname + window.location.search + window.location.hash
         toastLibrary.custom(
           (t) => (
             <div
               onClick={() =>
                 setLocation(
-                  `/login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
+                  `/login?redirect=${encodeURIComponent(currentPath)}`,
                 )
               }
               className="cursor-pointer"
