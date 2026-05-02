@@ -1,19 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space"
   },
   "files": {
-    "includes": [
-      "**",
-      "!**/cosmos-export",
-      "!**/dist",
-      "!**/package.json",
-      "!**/.vercel",
-      "!**/src/index.css",
-      "!**/renovate.json"
+    "ignore": [
+      "cosmos-export",
+      "dist",
+      ".vercel",
+      "src/index.css",
+      "renovate.json"
     ]
   },
   "javascript": {
