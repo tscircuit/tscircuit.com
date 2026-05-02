@@ -6,9 +6,7 @@
     "type": "git",
     "url": "https://github.com/tscircuit/tscircuit.com"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
@@ -42,7 +40,7 @@
     "@babel/preset-react": "^7.25.9",
     "@babel/preset-typescript": "^7.26.0",
     "@babel/standalone": "^7.26.2",
-    "@biomejs/biome": "^1.9.2",
+    "@biomejs/biome": "1.9.2",
     "@codemirror/autocomplete": "^6.18.1",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/lang-json": "^6.0.1",
@@ -86,6 +84,7 @@
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.8",
     "@tscircuit/eval": "^0.0.794",
+    "@tscircuit/internal-dynamic-import": "^0.0.3",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/pcb-viewer": "1.11.367",
@@ -200,7 +199,6 @@
     "wouter": "^3.3.5",
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
-    "zustand-hoist": "^2.0.1",
-    "@tscircuit/internal-dynamic-import": "^0.0.3"
+    "zustand-hoist": "^2.0.1"
   }
 }
