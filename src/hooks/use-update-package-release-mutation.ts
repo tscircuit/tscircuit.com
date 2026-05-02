@@ -3,7 +3,9 @@ import { useAxios } from "./use-axios"
 
 export const useUpdatePackageReleaseMutation = ({
   onSuccess,
-}: { onSuccess?: () => void } = {}) => {
+}: {
+  onSuccess?: () => void
+} = {}) => {
   const axios = useAxios()
   const queryClient = useQueryClient()
 

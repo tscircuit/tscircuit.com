@@ -7,7 +7,9 @@ import { useUrlParams } from "./use-url-params"
 
 export const useCreateSnippetMutation = ({
   onSuccess,
-}: { onSuccess?: (snippet: Snippet) => void } = {}) => {
+}: {
+  onSuccess?: (snippet: Snippet) => void
+} = {}) => {
   const urlParams = useUrlParams()
   const templateName = urlParams.template
   const axios = useAxios()

@@ -3,7 +3,11 @@ import { AlertCircle } from "lucide-react"
 export function ErrorOutline({
   error,
   description,
-}: { error?: Error; description?: string; children?: React.ReactNode }) {
+}: {
+  error?: Error
+  description?: string
+  children?: React.ReactNode
+}) {
   return (
     <div className="flex items-center justify-center p-4">
       <div className="max-w-lg w-full mx-auto p-6 sm:p-8 bg-red-100/80 rounded-xl shadow-lg border border-red-500">

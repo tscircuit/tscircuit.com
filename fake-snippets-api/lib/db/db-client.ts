@@ -1232,7 +1232,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   getSessions: ({
     account_id,
     is_cli_session,
-  }: { account_id: string; is_cli_session?: boolean }): Session[] => {
+  }: {
+    account_id: string
+    is_cli_session?: boolean
+  }): Session[] => {
     const state = get()
     return state.sessions.filter(
       (session) =>
@@ -1635,7 +1638,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   listDatasheets: ({
     chip_name,
     is_popular,
-  }: { chip_name?: string; is_popular?: boolean } = {}): Datasheet[] => {
+  }: {
+    chip_name?: string
+    is_popular?: boolean
+  } = {}): Datasheet[] => {
     const state = get()
     if (is_popular) {
       return state.datasheets

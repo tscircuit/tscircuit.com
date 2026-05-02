@@ -5,7 +5,9 @@ import { useToast } from "./use-toast"
 
 export const useRebuildPackageReleaseMutation = ({
   onSuccess,
-}: { onSuccess?: (packageRelease: PackageRelease) => void } = {}) => {
+}: {
+  onSuccess?: (packageRelease: PackageRelease) => void
+} = {}) => {
   const axios = useAxios()
   const { toast } = useToast()
   const queryClient = useQueryClient()

@@ -5,7 +5,10 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 export const useRevokeOrgInvitationMutation = ({
   onSuccess,
   onError,
-}: { onSuccess?: () => void; onError?: (error: any) => void } = {}) => {
+}: {
+  onSuccess?: () => void
+  onError?: (error: any) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const queryClient = useQueryClient()

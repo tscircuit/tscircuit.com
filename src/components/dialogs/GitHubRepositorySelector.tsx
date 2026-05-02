@@ -29,9 +29,7 @@ interface GitHubRepositorySelectorProps {
   setSelectedRepository?: (value: string | null) => void
   disabled?: boolean
   open?: boolean
-  addFormContent?: (props: {
-    allowPrPreviews?: boolean
-  }) => void
+  addFormContent?: (props: { allowPrPreviews?: boolean }) => void
   formData?: any
   orgId?: string
 }

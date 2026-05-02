@@ -6,7 +6,10 @@ import { UserPermissions } from "fake-snippets-api/lib/db/schema"
 export const useUpdateOrgMemberMutation = ({
   onSuccess,
   onError,
-}: { onSuccess?: () => void; onError?: (error: any) => void } = {}) => {
+}: {
+  onSuccess?: () => void
+  onError?: (error: any) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
   const queryClient = useQueryClient()

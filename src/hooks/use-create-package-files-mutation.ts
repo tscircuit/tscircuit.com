@@ -4,7 +4,9 @@ import { useAxios } from "./use-axios"
 
 export const useCreatePackageFilesMutation = ({
   onSuccess,
-}: { onSuccess?: (packageFile: PackageFile) => void } = {}) => {
+}: {
+  onSuccess?: (packageFile: PackageFile) => void
+} = {}) => {
   const axios = useAxios()
 
   return useMutation(

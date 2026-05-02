@@ -6,7 +6,10 @@ import { NotFound } from "@/components/NotFound"
 export function NotFoundPage({
   heading = "Page Not Found",
   subtitle = "The page you're looking for doesn't exist.",
-}: { heading?: string; subtitle?: string }) {
+}: {
+  heading?: string
+  subtitle?: string
+}) {
   return (
     <div className="flex min-h-screen flex-col">
       <Helmet>

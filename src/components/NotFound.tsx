@@ -19,7 +19,7 @@ export function NotFound({ heading = "Page not found" }: { heading?: string }) {
           The page you're looking for doesn't exist or may be private.
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/">
+          <Link href="https://tscircuit.com/">
             <Button size="lg" className="bg-blue-500 hover:bg-blue-600 w-full">
               Return Home
             </Button>

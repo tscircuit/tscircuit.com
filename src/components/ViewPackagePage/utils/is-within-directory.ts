@@ -7,7 +7,10 @@
 export function isWithinDirectory({
   dir,
   path,
-}: { dir: string; path: string }): boolean {
+}: {
+  dir: string
+  path: string
+}): boolean {
   if (path.startsWith("/")) {
     path = path.substring(1)
   }

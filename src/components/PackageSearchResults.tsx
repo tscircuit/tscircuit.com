@@ -14,7 +14,10 @@ interface PackageSearchResultsProps {
 
 const PackageGrid = ({
   packages,
-}: { packages: Package[]; baseUrl: string }) => (
+}: {
+  packages: Package[]
+  baseUrl: string
+}) => (
   <div className="space-y-4">
     {packages.map((pkg) => (
       <PackageCard key={pkg.package_id} pkg={pkg} showOwner={true} />
@@ -46,11 +49,7 @@ const ErrorState = () => (
   </div>
 )
 
-const EmptyState = ({
-  message,
-}: {
-  message?: string
-}) => (
+const EmptyState = ({ message }: { message?: string }) => (
   <div className="text-center py-12 px-4">
     <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
       <Search className="w-8 h-8 text-slate-400" />

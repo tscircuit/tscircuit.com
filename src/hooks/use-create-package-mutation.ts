@@ -5,7 +5,9 @@ import { useGlobalStore } from "./use-global-store"
 
 export const useCreatePackageMutation = ({
   onSuccess,
-}: { onSuccess?: (pkg: Package) => void } = {}) => {
+}: {
+  onSuccess?: (pkg: Package) => void
+} = {}) => {
   const axios = useAxios()
   const session = useGlobalStore((s) => s.session)
 
