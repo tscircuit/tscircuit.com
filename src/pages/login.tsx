@@ -1,16 +1,19 @@
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Link, Redirect } from "wouter"
+import { Link, Redirect, useSearch } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 import { useLogout } from "@/hooks/use-logout"
 
 const LoginContent = () => {
   const session = useGlobalStore((s) => s.session)
+  const search = useSearch()
+  const redirectTo =
+    new URLSearchParams(search).get("redirect") || "/dashboard"
   // const { handleLogout: handleSignOut, isSigningOut } = useLogout()
 
   if (session) {
-    return <Redirect to={`/dashboard`} />
+    return <Redirect to={redirectTo} />
     // return (
     //   <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-white to-gray-50">
     //     <div className="w-full max-w-2xl">

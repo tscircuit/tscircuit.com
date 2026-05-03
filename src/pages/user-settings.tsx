@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Redirect } from "wouter"
+import { Redirect, useLocation } from "wouter"
 import { Helmet } from "react-helmet-async"
 import {
   Form,
@@ -106,6 +106,7 @@ function SettingCard({
 export default function UserSettingsPage() {
   const session = useGlobalStore((s) => s.session)
   const hasHydrated = useHydration()
+  const [location] = useLocation()
   const axios = useAxios()
   const { toast } = useToast()
   const apiBaseUrl = useApiBaseUrl()
@@ -208,7 +209,9 @@ export default function UserSettingsPage() {
   }
 
   if (!session) {
-    return <Redirect to="/login" />
+    return (
+      <Redirect to={`/login?redirect=${encodeURIComponent(location)}`} />
+    )
   }
 
   const pageTitle = "User Settings - tscircuit"
