@@ -41,6 +41,7 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
+  const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
@@ -133,15 +134,17 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            {/* <Button
-              variant="outline"
-              size="sm"
-              onClick={handleOrderClick}
-              disabled={!packageInfo?.name}
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Order
-            </Button> */}
+            {isTscircuitStaff && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOrderClick}
+                disabled={!packageInfo?.name}
+              >
+                <Package className="w-4 h-4 mr-2" />
+                Order
+              </Button>
+            )}
 
             <TooltipProvider>
               <Tooltip>
@@ -215,15 +218,17 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
-            {/* <Button
-              variant="outline"
-              size="sm"
-              onClick={handleOrderClick}
-              disabled={!packageInfo?.name}
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Order
-            </Button> */}
+            {isTscircuitStaff && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOrderClick}
+                disabled={!packageInfo?.name}
+              >
+                <Package className="w-4 h-4 mr-2" />
+                Order
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
