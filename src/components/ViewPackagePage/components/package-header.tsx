@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -9,15 +9,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Lock, Globe } from "lucide-react"
-import { GitFork, Star } from "lucide-react"
-// import { Package } from "lucide-react"
+import { GitFork, Package, Star } from "lucide-react"
+import { OrderDialog } from "@tscircuit/order-dialog"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
-// import { useOrderDialog } from "@tscircuit/runframe"
-// import { useSignIn } from "@/hooks/use-sign-in"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType
@@ -43,13 +41,7 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  // const signIn = useSignIn()
-  // const { OrderDialog, isOpen, open, close, stage, setStage } =
-  //   useOrderDialog({
-  //     onSignIn: signIn,
-  //     isLoggedIn,
-  //     packageReleaseId: packageInfo?.latest_package_release_id ?? "",
-  //   })
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
     packageInfo?.name ?? null,
@@ -69,6 +61,11 @@ export default function PackageHeader({
       packageId: packageInfo.package_id,
       isPrivate,
     })
+  }
+
+  const handleOrderClick = () => {
+    if (!packageInfo?.name) return
+    setIsOrderDialogOpen(true)
   }
 
   useEffect(() => {
@@ -136,17 +133,15 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            {/*
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
-              onClick={open}
-              disabled={!packageInfo?.latest_package_release_id}
+              onClick={handleOrderClick}
+              disabled={!packageInfo?.name}
             >
               <Package className="w-4 h-4 mr-2" />
               Order
-            </Button>
-            */}
+            </Button> */}
 
             <TooltipProvider>
               <Tooltip>
@@ -220,12 +215,15 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
-            {/*
-            <Button variant="outline" size="sm" onClick={open}>
+            {/* <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOrderClick}
+              disabled={!packageInfo?.name}
+            >
               <Package className="w-4 h-4 mr-2" />
               Order
-            </Button>
-            */}
+            </Button> */}
             <Button
               variant="outline"
               size="sm"
@@ -273,14 +271,18 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
-      {/*
-      <OrderDialog
-        isOpen={isOpen}
-        onClose={close}
-        stage={stage}
-        setStage={setStage}
-      />
-      */}
+      {isOrderDialogOpen && (
+        <OrderDialog
+          project={{
+            name: packageInfo?.name ?? packageName ?? "Package",
+            version: packageInfo?.latest_version
+              ? `v${packageInfo.latest_version}`
+              : "latest",
+          }}
+          onClose={() => setIsOrderDialogOpen(false)}
+          onSubmit={() => setIsOrderDialogOpen(false)}
+        />
+      )}
     </header>
   )
 }

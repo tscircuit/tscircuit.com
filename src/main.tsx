@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client"
 import App from "./App.tsx"
 import "./lib/sentry"
 import "./index.css"
+import "@tscircuit/order-dialog/styles.css"
 
 if (typeof window !== "undefined" && !window.__APP_LOADED_AT) {
   window.__APP_LOADED_AT = Date.now()
