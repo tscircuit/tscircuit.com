@@ -88,6 +88,8 @@ test("POST /api/orgs/create - should reject invalid org names", async () => {
       throw new Error(`Expected request to fail for name: ${name}`)
     } catch (error: any) {
       expect(error.status).toBe(400)
+      expect(error.data.error.error_code).toBe("invalid_org_handle")
+      expect(error.data.error.message).toContain("Organization handle")
     }
   }
 }, 10000)

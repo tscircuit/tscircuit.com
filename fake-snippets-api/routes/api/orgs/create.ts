@@ -11,8 +11,8 @@ export default withRouteSpec({
   commonParams: z
     .object({
       display_name: z.string().min(3).max(40).optional(),
-      tscircuit_handle: tscircuitHandleStrictSchema.optional(),
-      name: tscircuitHandleStrictSchema.optional(),
+      tscircuit_handle: z.string().optional(),
+      name: z.string().optional(),
     })
     .refine((data) => data.tscircuit_handle || data.name, {
       message: "Either tscircuit_handle or name is required",
@@ -24,6 +24,15 @@ export default withRouteSpec({
 })(async (req, ctx) => {
   const { display_name, tscircuit_handle, name } = req.commonParams
   const handle = tscircuit_handle || name
+
+  const handleParseResult = tscircuitHandleStrictSchema.safeParse(handle)
+  if (!handleParseResult.success) {
+    return ctx.error(400, {
+      error_code: "invalid_org_handle",
+      message:
+        "Organization handle must be lowercase and may contain only letters, numbers, underscores, and hyphens. It must start and end with a letter or number.",
+    })
+  }
 
   const existing = ctx.db.getOrg({ tscircuit_handle: handle })
 

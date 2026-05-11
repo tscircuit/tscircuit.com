@@ -85,23 +85,11 @@ export const CreateOrganizationPage = () => {
       {
         onError: (error: any) => {
           console.error("Failed to create organization:", error)
-          const errorMessage =
+          toast.error(
             error?.data?.error?.message ||
-            error?.data?.message ||
-            error?.message
-
-          if (errorMessage?.includes("tscircuit_handle")) {
-            setErrors((prev) => ({
-              ...prev,
-              handle:
-                "Organization handle must be lowercase, start and end with a letter or number, and can only contain letters, numbers, underscores, and hyphens.",
-            }))
-          } else {
-            toast.error(
-              errorMessage ||
-                "Failed to create organization. Please try again.",
-            )
-          }
+              error?.message ||
+              "Failed to create organization. Please try again.",
+          )
           setIsLoading(false)
         },
       },
