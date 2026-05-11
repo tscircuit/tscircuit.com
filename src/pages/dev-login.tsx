@@ -1,4 +1,5 @@
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { getSessionFromJwt } from "@/lib/auth/session"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useState } from "react"
 import { useLocation } from "wouter"
@@ -32,14 +33,18 @@ export const DevLoginPage = () => {
         throw new Error("No token received from server")
       }
 
-      // Set session in global store
-      setSession({
-        token,
+      const session = getSessionFromJwt(token, {
         account_id: data.session.account_id,
         session_id: data.session.session_id,
         github_username: username,
         tscircuit_handle: username,
       })
+
+      if (!session) {
+        throw new Error("Invalid token received from server")
+      }
+
+      setSession(session)
 
       // Redirect to home page
       setLocation("/")
