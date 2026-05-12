@@ -49,6 +49,8 @@ export default withRouteSpec({
     account_id: account.account_id,
     session_id: new_session.session_id,
     github_username: account.github_username,
+    tscircuit_handle: account.tscircuit_handle,
+    is_tscircuit_staff: account.is_tscircuit_staff,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime(new Date(Date.now() + ms("60 day")).toISOString())
