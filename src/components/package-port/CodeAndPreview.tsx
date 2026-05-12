@@ -192,6 +192,15 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const runFrameContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const isTextEntryElement = (element: Element | null) => {
+      if (!(element instanceof HTMLElement)) return false
+      if (element.isContentEditable) return true
+      const tagName = element.tagName.toLowerCase()
+      return (
+        tagName === "input" || tagName === "textarea" || tagName === "select"
+      )
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isMouseOverRunFrame.current) return
 
@@ -199,6 +208,13 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       if (
         target instanceof Node &&
         runFrameContainerRef.current?.contains(target)
+      ) {
+        return
+      }
+
+      if (
+        isTextEntryElement(target instanceof Element ? target : null) ||
+        isTextEntryElement(document.activeElement)
       ) {
         return
       }
