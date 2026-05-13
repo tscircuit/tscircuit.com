@@ -353,7 +353,7 @@ export function DownloadButtonAndMenu({
                 className="text-xs"
                 onSelect={async () => {
                   const cj = await getCircuitJson()
-                  downloadKicadFiles(cj, unscopedName || "kicad_project")
+                  await downloadKicadFiles(cj, unscopedName || "kicad_project")
                 }}
               >
                 <Download className="mr-1 h-3 w-3" />
