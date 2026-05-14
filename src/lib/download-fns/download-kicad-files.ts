@@ -48,6 +48,7 @@ export const downloadKicadFiles = async (
     },
   })
 
-  const content = await zip.generateAsync({ type: "blob" })
-  saveAs(content, `${fileName}_kicad.zip`)
+  zip.generateAsync({ type: "blob" }).then((content) => {
+    saveAs(content, `${fileName}_kicad.zip`)
+  })
 }
