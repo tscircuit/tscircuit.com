@@ -3,13 +3,10 @@ import {
   CircuitJsonToKicadPcbConverter,
   CircuitJsonToKicadSchConverter,
   CircuitJsonToKicadProConverter,
+  resolveAndLoadKicad3dModelFiles,
 } from "circuit-json-to-kicad"
 import { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
-
-const isBuiltinModelPath = (modelPath: string) =>
-  modelPath.startsWith("http://modelcdn.tscircuit.com") ||
-  modelPath.startsWith("https://modelcdn.tscircuit.com")
 
 export const downloadKicadFiles = async (
   circuitJson: AnyCircuitElement[],
@@ -18,7 +15,7 @@ export const downloadKicadFiles = async (
   const pcbConverter = new CircuitJsonToKicadPcbConverter(circuitJson, {
     includeBuiltin3dModels: true,
     projectName: fileName,
-  } as any)
+  })
   pcbConverter.runUntilFinished()
   const kicadPcbContent = pcbConverter.getOutputString()
 
@@ -39,24 +36,17 @@ export const downloadKicadFiles = async (
   zip.file(`${fileName}.kicad_sch`, kicadSchContent)
   zip.file(`${fileName}.kicad_pro`, kicadProContent)
 
-  for (const modelPath of (pcbConverter as any).getModel3dSourcePaths()) {
-    const response = await fetch(modelPath)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch 3D model from ${modelPath}`)
-    }
-
-    let shapesDir = `${fileName}.3dshapes`
-    if (isBuiltinModelPath(modelPath)) {
-      shapesDir = "tscircuit_builtin.3dshapes"
-    }
-
-    const modelFileName = modelPath.split("/").pop() || modelPath
-
-    zip.file(
-      `3dmodels/${shapesDir}/${modelFileName}`,
-      await response.arrayBuffer(),
-    )
-  }
+  await resolveAndLoadKicad3dModelFiles({
+    projectName: fileName,
+    model3dSourcePaths: pcbConverter.getModel3dSourcePaths(),
+    fetch,
+    onModelFile: ({ outputPath, content }) => {
+      zip.file(outputPath, content)
+    },
+    onError: ({ sourcePath }) => {
+      console.warn(`Failed to load 3D model from ${sourcePath}`)
+    },
+  })
 
   const content = await zip.generateAsync({ type: "blob" })
   saveAs(content, `${fileName}_kicad.zip`)
