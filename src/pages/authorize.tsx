@@ -1,7 +1,6 @@
 import Header from "@/components/Header"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useEffect, useState } from "react"
-import * as jose from "jose"
 import Footer from "@/components/Footer"
 import { useLocation } from "wouter"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
@@ -10,6 +9,7 @@ import {
   getSafeRedirectTarget,
   handleRedirect,
 } from "@/lib/utils/handle-redirect"
+import { getSessionFromJwt } from "@/lib/auth/session"
 
 const AuthenticatePageInnerContent = () => {
   const [location, setLocation] = useLocation()
@@ -55,17 +55,15 @@ const AuthenticatePageInnerContent = () => {
         return
       }
       if (session_token) {
-        const decodedToken = jose.decodeJwt(session_token)
-        setSession({
-          ...(decodedToken as any),
-          token: session_token,
-          github_username:
-            decodedToken.github_username ?? decodedToken.tscircuit_handle,
-          tscircuit_handle: decodedToken.tscircuit_handle,
-        })
+        const session = getSessionFromJwt(session_token)
+        if (!session) {
+          setMessage("couldn't log in - invalid token provided")
+          return
+        }
+        setSession(session)
         setMessage("success! redirecting you now...")
         setTimeout(() => {
-          if (!decodedToken.tscircuit_handle) {
+          if (!session.tscircuit_handle) {
             const safeRedirect = getSafeRedirectTarget(redirect) ?? "/"
             setLocation(
               `/settings?handleRequired=1&redirect=${encodeURIComponent(safeRedirect)}`,

@@ -316,10 +316,20 @@ export function useFileManagement({
   ])
 
   const isFullyLoaded = useMemo(() => {
+    // For new boards (no package), we already have local files, so treat as loaded.
+    if (!urlParams.package_id) {
+      return localFiles.length > 0
+    }
+
     // Consider the editor interactive once metadata and the priority file are ready.
     // Remaining files continue streaming in the background.
     return !isLoadingPackageFiles && isPriorityFileFetched
-  }, [isLoadingPackageFiles, isPriorityFileFetched])
+  }, [
+    isLoadingPackageFiles,
+    isPriorityFileFetched,
+    localFiles.length,
+    urlParams.package_id,
+  ])
 
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
