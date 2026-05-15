@@ -92,7 +92,7 @@
     "@tscircuit/pcb-viewer": "1.11.370",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/props": "^0.0.499",
-    "@tscircuit/runframe": "^0.0.1970",
+    "@tscircuit/runframe": "^0.0.1971",
     "@tscircuit/schematic-viewer": "^2.0.61",
     "@tscircuit/simple-3d-svg": "^0.0.41",
     "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#c1a55b7",
