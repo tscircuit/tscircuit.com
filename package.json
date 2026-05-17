@@ -9,6 +9,9 @@
   "files": [
     "dist"
   ],
+  "trustedDependencies": [
+    "@tscircuit/fake-stripe"
+  ],
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",

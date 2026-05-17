@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Lock, Globe } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
-import { OrderDialog } from "@tscircuit/order-dialog"
+import { OrderDialog, type OrderDialogCheckout } from "@tscircuit/order-dialog"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
@@ -21,6 +21,28 @@ interface PackageHeaderProps {
   packageInfo?: PackageType
   isPrivate?: boolean
   isCurrentUserAuthor?: boolean
+}
+
+function getOrderDialogCheckout(): OrderDialogCheckout | undefined {
+  if (typeof window === "undefined") return undefined
+
+  const appOrigin = window.location.origin
+
+  if (import.meta.env.DEV) {
+    return {
+      endpoint: `${appOrigin}/v1/checkout/sessions`,
+      successUrl: `${appOrigin}/`,
+      cancelUrl: `${appOrigin}/orders/cancel`,
+    }
+  }
+
+  return {
+    endpoint:
+      import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_ENDPOINT ??
+      `${appOrigin}/api/checkout/sessions`,
+    successUrl: `${appOrigin}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancelUrl: `${appOrigin}/orders/cancel`,
+  }
 }
 
 export default function PackageHeader({
@@ -43,6 +65,7 @@ export default function PackageHeader({
   const isLoggedIn = useGlobalStore((s) => s.session != null)
   const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+  const orderDialogCheckout = getOrderDialogCheckout()
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
     packageInfo?.name ?? null,
@@ -278,6 +301,7 @@ export default function PackageHeader({
       </div>
       {isOrderDialogOpen && (
         <OrderDialog
+          checkout={orderDialogCheckout}
           project={{
             name: packageInfo?.name ?? packageName ?? "Package",
             version: packageInfo?.latest_version

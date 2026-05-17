@@ -6,6 +6,7 @@ import path, { extname } from "path"
 import { readFileSync } from "fs"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
+import fakeStripeBundle from "@tscircuit/fake-stripe/dist/bundle.js"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
@@ -40,6 +41,37 @@ function apiFakePlugin(): Plugin {
       })
     },
   }
+}
+
+function fakeStripePlugin(): Plugin {
+  return {
+    name: "fake-stripe",
+    configureServer(server) {
+      const fakeStripeHandler = getNodeHandler(fakeStripeBundle, {
+        port: server.config.server.port,
+      })
+
+      server.middlewares.use(async (req, res, next) => {
+        if (!isFakeStripeRoute(req.url)) {
+          next()
+          return
+        }
+
+        fakeStripeHandler(req, res)
+      })
+    },
+  }
+}
+
+function isFakeStripeRoute(url: string | undefined) {
+  if (url == null) return false
+
+  const pathname = new URL(url, "http://localhost").pathname
+  return (
+    pathname === "/health" ||
+    pathname.startsWith("/checkout/") ||
+    pathname.startsWith("/v1/checkout/")
+  )
 }
 
 function vercelSsrDevPlugin(): Plugin {
@@ -175,6 +207,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
 
   const plugins: PluginOption[] = [
     react(),
+    fakeStripePlugin(),
     {
       name: "process-polyfill",
       transformIndexHtml() {
