@@ -50,33 +50,46 @@ const getOrderSpecifications = (
   circuitJson: AnyCircuitElement[] | null,
 ): BoardSpecification[] => {
   const board = getPcbBoard(circuitJson)
+  const specifications: BoardSpecification[] = []
 
-  return [
-    { label: "Layers", value: board?.num_layers ?? "2" },
-    {
+  if (board?.num_layers != null) {
+    specifications.push({ label: "Layers", value: board.num_layers })
+  }
+
+  if (board?.thickness != null) {
+    specifications.push({
       label: "Thickness",
-      value: board?.thickness ? `${board.thickness} mm` : "1.6 mm",
-    },
-    {
+      value: `${board.thickness} mm`,
+    })
+  }
+
+  if (board?.material != null) {
+    specifications.push({
       label: "Material",
       value:
-        board?.material === "fr4"
+        board.material === "fr4"
           ? "FR-4"
-          : board?.material === "fr1"
+          : board.material === "fr1"
             ? "FR-1"
-            : "FR-4",
-    },
-    {
+            : board.material,
+    })
+  }
+
+  if (board?.min_trace_width != null) {
+    specifications.push({
       label: "Min trace thickness",
-      value: board?.min_trace_width ? `${board.min_trace_width} mm` : "6 mil",
-    },
-    {
+      value: `${board.min_trace_width} mm`,
+    })
+  }
+
+  if (board?.min_via_hole_diameter != null) {
+    specifications.push({
       label: "Min via hole",
-      value: board?.min_via_hole_diameter
-        ? `${board.min_via_hole_diameter} mm`
-        : "0.3 mm",
-    },
-  ]
+      value: `${board.min_via_hole_diameter} mm`,
+    })
+  }
+
+  return specifications
 }
 
 function getOrderDialogCheckout(): OrderDialogCheckout | undefined {
