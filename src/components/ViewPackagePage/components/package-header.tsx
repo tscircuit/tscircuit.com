@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -10,17 +10,86 @@ import {
 } from "@/components/ui/tooltip"
 import { Lock, Globe } from "lucide-react"
 import { GitFork, Package, Star } from "lucide-react"
-import { OrderDialog, type OrderDialogCheckout } from "@tscircuit/order-dialog"
+import {
+  OrderDialog,
+  type BoardSpecification,
+  type OrderDialogCheckout,
+} from "@tscircuit/order-dialog"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Package as PackageType } from "fake-snippets-api/lib/db/schema"
+import type {
+  Package as PackageType,
+  PublicPackageRelease,
+} from "fake-snippets-api/lib/db/schema"
+import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
+import type { AnyCircuitElement, PcbBoard } from "circuit-json"
 
 interface PackageHeaderProps {
   packageInfo?: PackageType
+  packageRelease?: PublicPackageRelease
   isPrivate?: boolean
   isCurrentUserAuthor?: boolean
+}
+
+const getPcbBoard = (circuitJson: AnyCircuitElement[] | null) =>
+  circuitJson?.find((element) => element.type === "pcb_board") as
+    | PcbBoard
+    | undefined
+
+const getBoardDimensions = (board: PcbBoard | undefined) => {
+  if (typeof board?.width !== "number" || typeof board.height !== "number") {
+    return undefined
+  }
+
+  return `${board.width} x ${board.height} mm`
+}
+
+const getOrderSpecifications = (
+  circuitJson: AnyCircuitElement[] | null,
+): BoardSpecification[] => {
+  const board = getPcbBoard(circuitJson)
+  const specifications: BoardSpecification[] = []
+
+  if (board?.num_layers != null) {
+    specifications.push({ label: "Layers", value: board.num_layers })
+  }
+
+  if (board?.thickness != null) {
+    specifications.push({
+      label: "Thickness",
+      value: `${board.thickness} mm`,
+    })
+  }
+
+  if (board?.material != null) {
+    specifications.push({
+      label: "Material",
+      value:
+        board.material === "fr4"
+          ? "FR-4"
+          : board.material === "fr1"
+            ? "FR-1"
+            : board.material,
+    })
+  }
+
+  if (board?.min_trace_width != null) {
+    specifications.push({
+      label: "Min trace thickness",
+      value: `${board.min_trace_width} mm`,
+    })
+  }
+
+  if (board?.min_via_hole_diameter != null) {
+    specifications.push({
+      label: "Min via hole",
+      value: `${board.min_via_hole_diameter} mm`,
+    })
+  }
+
+  return specifications
 }
 
 function getOrderDialogCheckout(): OrderDialogCheckout | undefined {
@@ -47,6 +116,7 @@ function getOrderDialogCheckout(): OrderDialogCheckout | undefined {
 
 export default function PackageHeader({
   packageInfo,
+  packageRelease,
   isPrivate = false,
   isCurrentUserAuthor = false,
 }: PackageHeaderProps) {
@@ -66,6 +136,19 @@ export default function PackageHeader({
   const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
   const orderDialogCheckout = getOrderDialogCheckout()
+  const { circuitJson } = useCurrentPackageCircuitJson()
+  const orderSpecifications = useMemo(
+    () => getOrderSpecifications(circuitJson),
+    [circuitJson],
+  )
+  const boardDimensions = useMemo(
+    () => getBoardDimensions(getPcbBoard(circuitJson)),
+    [circuitJson],
+  )
+  const cadPreviewImageUrl =
+    packageRelease?.cad_preview_image_url ??
+    packageInfo?.latest_cad_preview_image_url ??
+    undefined
 
   const { isStarred, starCount, toggleStar } = usePackageStarringByName(
     packageInfo?.name ?? null,
@@ -302,12 +385,21 @@ export default function PackageHeader({
       {isOrderDialogOpen && (
         <OrderDialog
           checkout={orderDialogCheckout}
+          boardImage={
+            cadPreviewImageUrl
+              ? { src: cadPreviewImageUrl, alt: "3D PCB preview" }
+              : undefined
+          }
           project={{
             name: packageInfo?.name ?? packageName ?? "Package",
-            version: packageInfo?.latest_version
-              ? `v${packageInfo.latest_version}`
-              : "latest",
+            version: packageRelease?.version
+              ? `v${packageRelease.version}`
+              : packageInfo?.latest_version
+                ? `v${packageInfo.latest_version}`
+                : "latest",
+            dimensions: boardDimensions,
           }}
+          specifications={orderSpecifications}
           onClose={() => setIsOrderDialogOpen(false)}
           onSubmit={() => setIsOrderDialogOpen(false)}
         />
