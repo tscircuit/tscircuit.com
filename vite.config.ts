@@ -6,7 +6,6 @@ import path, { extname } from "path"
 import { readFileSync } from "fs"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
-import fakeStripeBundle from "@tscircuit/fake-stripe/dist/bundle.js"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
@@ -46,7 +45,11 @@ function apiFakePlugin(): Plugin {
 function fakeStripePlugin(): Plugin {
   return {
     name: "fake-stripe",
-    configureServer(server) {
+    apply: "serve",
+    async configureServer(server) {
+      const { default: fakeStripeBundle } = await import(
+        "@tscircuit/fake-stripe/dist/bundle.js"
+      )
       const fakeStripeHandler = getNodeHandler(fakeStripeBundle, {
         port: server.config.server.port,
       })
