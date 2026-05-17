@@ -42,6 +42,41 @@ function apiFakePlugin(): Plugin {
   }
 }
 
+function fakeStripePlugin(): Plugin {
+  return {
+    name: "fake-stripe",
+    apply: "serve",
+    async configureServer(server) {
+      const { default: fakeStripeBundle } = await import(
+        "@tscircuit/fake-stripe/dist/bundle.js"
+      )
+      const fakeStripeHandler = getNodeHandler(fakeStripeBundle, {
+        port: server.config.server.port,
+      })
+
+      server.middlewares.use(async (req, res, next) => {
+        if (!isFakeStripeRoute(req.url)) {
+          next()
+          return
+        }
+
+        fakeStripeHandler(req, res)
+      })
+    },
+  }
+}
+
+function isFakeStripeRoute(url: string | undefined) {
+  if (url == null) return false
+
+  const pathname = new URL(url, "http://localhost").pathname
+  return (
+    pathname === "/health" ||
+    pathname.startsWith("/checkout/") ||
+    pathname.startsWith("/v1/checkout/")
+  )
+}
+
 function vercelSsrDevPlugin(): Plugin {
   return {
     name: "vercel-ssr-dev",
@@ -175,6 +210,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
 
   const plugins: PluginOption[] = [
     react(),
+    fakeStripePlugin(),
     {
       name: "process-polyfill",
       transformIndexHtml() {
