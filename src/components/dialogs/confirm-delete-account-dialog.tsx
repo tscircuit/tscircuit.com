@@ -10,7 +10,6 @@ import { Input } from "../ui/input"
 import { createUseDialog } from "./create-use-dialog"
 import { useDeleteAccountMutation } from "@/hooks/use-delete-account-mutation"
 import { useState, useEffect } from "react"
-import { useLocation } from "wouter"
 import { useToast } from "@/hooks/use-toast"
 
 interface ConfirmDeleteAccountDialogProps {
@@ -27,12 +26,11 @@ export const ConfirmDeleteAccountDialog = ({
   accountId = "",
 }: ConfirmDeleteAccountDialogProps) => {
   const [confirmText, setConfirmText] = useState("")
-  const [, setLocation] = useLocation()
   const { toast } = useToast()
   const { mutate: deleteAccount, isLoading } = useDeleteAccountMutation({
     onSuccess: () => {
       onOpenChange(false)
-      setLocation("/")
+      window.location.assign("/")
     },
     onError: (error) => {
       toast({

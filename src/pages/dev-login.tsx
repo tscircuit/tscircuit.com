@@ -46,8 +46,7 @@ export const DevLoginPage = () => {
 
       setSession(session)
 
-      // Redirect to home page
-      setLocation("/")
+      setLocation("/dashboard")
     } catch (error) {
       console.error("Dev login failed:", error)
     }

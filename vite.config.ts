@@ -13,6 +13,8 @@ import type { IncomingMessage, ServerResponse } from "http"
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
 
+const LANDING_PACKAGE_ORIGIN = "https://tscircuit-com-landing.vercel.app"
+
 // Create database instance with seed data for development
 const db = createDatabase({ seed: true })
 
@@ -96,7 +98,43 @@ function vercelSsrDevPlugin(): Plugin {
         const accept = req.headers.accept || ""
 
         if (url === "/" || url === "/landing.html") {
-          return next()
+          try {
+            const landingResponse = await fetch(`${LANDING_PACKAGE_ORIGIN}/`)
+            const landingHtml = await landingResponse.text()
+
+            res.statusCode = landingResponse.status
+            res.setHeader("Content-Type", "text/html; charset=utf-8")
+            res.end(landingHtml)
+          } catch (err) {
+            next(err)
+          }
+          return
+        }
+
+        if (url.startsWith("/assets/")) {
+          try {
+            const assetResponse = await fetch(
+              `${LANDING_PACKAGE_ORIGIN}${req.url}`,
+            )
+
+            res.statusCode = assetResponse.status
+            assetResponse.headers.forEach((value, key) => {
+              const lowerKey = key.toLowerCase()
+              if (
+                lowerKey !== "content-encoding" &&
+                lowerKey !== "content-length" &&
+                lowerKey !== "transfer-encoding"
+              ) {
+                res.setHeader(key, value)
+              }
+            })
+
+            const buffer = Buffer.from(await assetResponse.arrayBuffer())
+            res.end(buffer)
+          } catch (err) {
+            next(err)
+          }
+          return
         }
 
         if (url.startsWith("/api/")) {

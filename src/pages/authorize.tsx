@@ -47,7 +47,7 @@ const AuthenticatePageInnerContent = () => {
           })
         }
 
-        handleRedirect(redirect, () => setLocation("/"))
+        handleRedirect(redirect, () => setLocation("/dashboard"))
         return
       }
       if (!session_token) {
@@ -70,7 +70,7 @@ const AuthenticatePageInnerContent = () => {
             )
             return
           }
-          handleRedirect(redirect, () => setLocation("/"))
+          handleRedirect(redirect, () => setLocation("/dashboard"))
         }, 1000)
         return
       }

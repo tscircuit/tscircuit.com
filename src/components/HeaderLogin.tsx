@@ -47,7 +47,7 @@ export const HeaderLogin = () => {
     } finally {
       setSession(null)
       setIsOpen(false)
-      setLocation("/")
+      window.location.assign("/")
     }
   }
 
@@ -158,16 +158,15 @@ export const HeaderLogin = () => {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link
-              href="/"
+            <button
+              type="button"
               className="cursor-pointer"
-              onClick={(e) => {
-                e.preventDefault()
+              onClick={() => {
                 handleSignOut()
               }}
             >
               Sign Out
-            </Link>
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
