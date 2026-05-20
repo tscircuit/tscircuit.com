@@ -401,7 +401,17 @@ export default function PackageSettingsPage() {
 
   if (isLoadingPackage) return <FullPageLoader />
   if (packageError || !packageInfo) return <NotFoundPage />
-  if (!session) return <Redirect to="/login" />
+  if (!session) {
+    const redirectUrl =
+      typeof window !== "undefined"
+        ? window.location.pathname +
+          window.location.search +
+          window.location.hash
+        : `/package/${author}/${packageName}/settings`
+    return (
+      <Redirect to={`/login?redirect=${encodeURIComponent(redirectUrl)}`} />
+    )
+  }
 
   const pageTitle = `${author}/${packageName} Settings - tscircuit`
   const packageSlug = `${author}/${packageName}`

@@ -14,9 +14,6 @@ export const useAxios = () => {
   )
   const { toastLibrary } = useToast()
   const [location, setLocation] = useLocation()
-  const orgLoginRedirect = location?.startsWith("/")
-    ? location
-    : `/${location ?? ""}`
   return useMemo(() => {
     const instance = axios.create({
       baseURL: snippetsBaseApiUrl,
@@ -46,11 +43,15 @@ export const useAxios = () => {
         toastLibrary.custom(
           (t) => (
             <div
-              onClick={() =>
+              onClick={() => {
+                const currentPath =
+                  window.location.pathname +
+                  window.location.search +
+                  window.location.hash
                 setLocation(
-                  `/login?redirect=${encodeURIComponent(orgLoginRedirect || "/")}`,
+                  `/login?redirect=${encodeURIComponent(currentPath || "/")}`,
                 )
-              }
+              }}
               className="cursor-pointer"
             >
               <ToastContent

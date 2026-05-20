@@ -28,9 +28,12 @@ export const HeaderLogin = () => {
     (s) => s.openTscircuitHandleRequiredDialog,
   )
 
-  const orgLoginRedirect = location?.startsWith("/")
-    ? location
-    : `/${location ?? ""}`
+  const orgLoginRedirect =
+    typeof window !== "undefined"
+      ? window.location.pathname + window.location.search + window.location.hash
+      : location?.startsWith("/")
+        ? location
+        : `/${location ?? ""}`
 
   const goToOrgLogin = () => {
     const redirect = orgLoginRedirect || "/"

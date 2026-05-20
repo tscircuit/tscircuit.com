@@ -10,7 +10,15 @@ const LoginContent = () => {
   // const { handleLogout: handleSignOut, isSigningOut } = useLogout()
 
   if (session) {
-    return <Redirect to={`/dashboard`} />
+    let redirectTo = "/dashboard"
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search)
+      const redirectParam = searchParams.get("redirect")
+      if (redirectParam && redirectParam.startsWith("/")) {
+        redirectTo = redirectParam
+      }
+    }
+    return <Redirect to={redirectTo} />
     // return (
     //   <main className="flex-1 flex items-center justify-center px-4 py-12 bg-gradient-to-b from-white to-gray-50">
     //     <div className="w-full max-w-2xl">
