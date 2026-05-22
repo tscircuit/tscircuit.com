@@ -7,7 +7,7 @@ import { join } from "node:path"
 import os from "node:os"
 import type { Middleware } from "winterspec"
 import { createDatabase } from "fake-snippets-api/lib/db/db-client"
-import { StripeServer } from "@tscircuit/fake-stripe"
+import fakeStripeBundle from "@tscircuit/fake-stripe/dist/bundle.js"
 
 export const startServer = async ({
   port,
@@ -18,7 +18,6 @@ export const startServer = async ({
   )
 
   const db = createDatabase()
-  const fakeStripe = new StripeServer()
 
   const middleware: Middleware[] = [
     async (req: any, ctx: any, next: any) => {
@@ -37,7 +36,7 @@ export const startServer = async ({
       })
 
       if (isFakeStripeRoute(bunReq.url)) {
-        return fakeStripe.handleRequest(req as any)
+        return fakeStripeBundle.makeRequest(req as any)
       }
 
       return winterspecBundle.makeRequest(req as any, {
@@ -50,13 +49,9 @@ export const startServer = async ({
   return {
     server: {
       ...server,
-      stop: async () => {
-        server.stop()
-        await fakeStripe.stop()
-      },
+      stop: () => server.stop(),
     },
     db,
-    fakeStripe,
     port: server.port,
   }
 }

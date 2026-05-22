@@ -10,7 +10,6 @@ interface TestFixture {
   jane_axios: typeof defaultAxios
   unauthenticatedAxios: typeof defaultAxios
   db: DbClient
-  fakeStripe: Awaited<ReturnType<typeof startServer>>["fakeStripe"]
   seed: ReturnType<typeof seedDatabase>
 }
 
@@ -18,7 +17,7 @@ export const getTestServer = async (): Promise<TestFixture> => {
   const testInstanceId = Math.random().toString(36).substring(2, 15)
   const testDbName = `testdb${testInstanceId}`
 
-  const { server, db, fakeStripe, port } = await startServer({
+  const { server, db, port } = await startServer({
     testDbName,
   })
 
@@ -53,7 +52,6 @@ export const getTestServer = async (): Promise<TestFixture> => {
     jane_axios,
     unauthenticatedAxios,
     db,
-    fakeStripe,
     seed,
   }
 }

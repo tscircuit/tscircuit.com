@@ -52,36 +52,23 @@ test("GET /api/orders/get - returns an order by order_id", async () => {
 })
 
 test("GET /api/orders/get - refreshes Stripe checkout state when looking up by session_id", async () => {
-  const { axios, db, fakeStripe, seed } = await getTestServer()
+  const { axios, db, seed } = await getTestServer()
   const createResponse = await axios.post("/api/orders/create", {
     package_release_id: seed.packageRelease.package_release_id,
   })
   const sessionId = createResponse.data.stripe_checkout_session_id
   const orderId = createResponse.data.order.order_id
 
-  fakeStripe.completeCheckoutSession(sessionId, {
-    customer_details: {
-      email: "customer@example.com",
-      name: "Test Customer",
-      address: {
-        line1: "123 Board St",
-        city: "San Francisco",
-        state: "CA",
-        postal_code: "94107",
-        country: "US",
-      },
-    },
-    shipping_details: {
-      name: "Test Customer",
-      address: {
-        line1: "123 Board St",
-        city: "San Francisco",
-        state: "CA",
-        postal_code: "94107",
-        country: "US",
-      },
-    },
+  const completeResponse = await axios.post(`/checkout/${sessionId}/complete`, {
+    email: "customer@example.com",
+    name: "Test Customer",
+    line1: "123 Board St",
+    city: "San Francisco",
+    state: "CA",
+    postal_code: "94107",
+    country: "US",
   })
+  expect(completeResponse.status).toBe(200)
 
   const response = await axios.get("/api/orders/get", {
     params: { session_id: sessionId },
