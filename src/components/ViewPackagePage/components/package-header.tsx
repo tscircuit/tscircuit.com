@@ -15,10 +15,12 @@ import {
   type BoardSpecification,
   type OrderDialogCheckout,
 } from "@tscircuit/order-dialog"
+import type { CheckoutSession } from "@tscircuit/fake-stripe/types"
 
 import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useGlobalStore } from "@/hooks/use-global-store"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import type {
   Package as PackageType,
   PublicPackageRelease,
@@ -92,25 +94,42 @@ const getOrderSpecifications = (
   return specifications
 }
 
-function getOrderDialogCheckout(): OrderDialogCheckout | undefined {
+function getOrderDialogCheckout({
+  apiBaseUrl,
+  packageReleaseId,
+}: {
+  apiBaseUrl: string
+  packageReleaseId?: string
+}): OrderDialogCheckout | undefined {
   if (typeof window === "undefined") return undefined
+  if (!packageReleaseId) return undefined
 
   const appOrigin = window.location.origin
 
-  if (import.meta.env.DEV) {
-    return {
-      endpoint: `${appOrigin}/v1/checkout/sessions`,
-      successUrl: `${appOrigin}/`,
-      cancelUrl: `${appOrigin}/orders/cancel`,
-    }
-  }
-
   return {
-    endpoint:
-      import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_ENDPOINT ??
-      `${appOrigin}/api/checkout/sessions`,
     successUrl: `${appOrigin}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
     cancelUrl: `${appOrigin}/orders/cancel`,
+    createSession: async (_request, context): Promise<CheckoutSession> => {
+      const response = await fetch(`${apiBaseUrl}/orders/create`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          package_release_id: packageReleaseId,
+          quantity: context.quantity,
+          fabricator_id: context.fabricator.id,
+          fabricator_name: context.fabricator.name,
+          success_url: `${appOrigin}/orders/success`,
+          cancel_url: `${appOrigin}/orders/cancel`,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Unable to create order (${response.status})`)
+      }
+
+      const data = await response.json()
+      return data.checkout_session
+    },
   }
 }
 
@@ -135,7 +154,15 @@ export default function PackageHeader({
   const isLoggedIn = useGlobalStore((s) => s.session != null)
   const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
-  const orderDialogCheckout = getOrderDialogCheckout()
+  const apiBaseUrl = useApiBaseUrl()
+  const orderDialogCheckout = useMemo(
+    () =>
+      getOrderDialogCheckout({
+        apiBaseUrl,
+        packageReleaseId: packageRelease?.package_release_id,
+      }),
+    [apiBaseUrl, packageRelease?.package_release_id],
+  )
   const { circuitJson } = useCurrentPackageCircuitJson()
   const orderSpecifications = useMemo(
     () => getOrderSpecifications(circuitJson),
@@ -171,7 +198,7 @@ export default function PackageHeader({
   }
 
   const handleOrderClick = () => {
-    if (!packageInfo?.name) return
+    if (!packageInfo?.name || !packageRelease?.package_release_id) return
     setIsOrderDialogOpen(true)
   }
 
@@ -245,7 +272,9 @@ export default function PackageHeader({
                 variant="outline"
                 size="sm"
                 onClick={handleOrderClick}
-                disabled={!packageInfo?.name}
+                disabled={
+                  !packageInfo?.name || !packageRelease?.package_release_id
+                }
               >
                 <Package className="w-4 h-4 mr-2" />
                 Order
@@ -329,7 +358,9 @@ export default function PackageHeader({
                 variant="outline"
                 size="sm"
                 onClick={handleOrderClick}
-                disabled={!packageInfo?.name}
+                disabled={
+                  !packageInfo?.name || !packageRelease?.package_release_id
+                }
               >
                 <Package className="w-4 h-4 mr-2" />
                 Order
