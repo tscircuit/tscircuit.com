@@ -7,6 +7,7 @@ import { join } from "node:path"
 import os from "node:os"
 import type { Middleware } from "winterspec"
 import { createDatabase } from "fake-snippets-api/lib/db/db-client"
+import fakeStripeBundle from "@tscircuit/fake-stripe/dist/bundle.js"
 
 export const startServer = async ({
   port,
@@ -33,6 +34,11 @@ export const startServer = async ({
         method: bunReq.method,
         body: bunReq.body,
       })
+
+      if (isFakeStripeRoute(bunReq.url)) {
+        return fakeStripeBundle.makeRequest(req as any)
+      }
+
       return winterspecBundle.makeRequest(req as any, {
         middleware,
       })
@@ -41,8 +47,20 @@ export const startServer = async ({
   })
 
   return {
-    server: { ...server, stop: () => server.stop() },
+    server: {
+      ...server,
+      stop: () => server.stop(),
+    },
     db,
     port: server.port,
   }
+}
+
+function isFakeStripeRoute(url: string | undefined) {
+  if (url == null) return false
+
+  const pathname = new URL(url, "http://localhost").pathname
+  return (
+    pathname.startsWith("/checkout/") || pathname.startsWith("/v1/checkout/")
+  )
 }
