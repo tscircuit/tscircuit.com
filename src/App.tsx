@@ -60,6 +60,7 @@ const EditorPage = lazyImport(async () => {
 })
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
+const OrderSuccessPage = lazyImport(() => import("@/pages/order-success"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
@@ -271,6 +272,7 @@ function App() {
             <Route path="/datasheets/:chipName" component={DatasheetPage} />
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
+            <Route path="/orders/success" component={OrderSuccessPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/org-login" component={LoginPage} />
             <Route path="/dev-login" component={DevLoginPage} />
