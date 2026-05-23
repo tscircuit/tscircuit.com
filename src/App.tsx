@@ -1,10 +1,10 @@
 import { ComponentType, Suspense, lazy } from "react"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
-import { ContextProviders } from "./ContextProviders"
-import React from "react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { Loader2 } from "lucide-react"
+import React from "react"
+import { ContextProviders } from "./ContextProviders"
 
 export const FullPageLoader = () => (
   <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -61,6 +61,7 @@ const EditorPage = lazyImport(async () => {
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const OrderSuccessPage = lazyImport(() => import("@/pages/order-success"))
+const ViewOrderPage = lazyImport(() => import("@/pages/view-order"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
 const SearchPage = lazyImport(() => import("@/pages/search"))
@@ -273,6 +274,7 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/orders/success" component={OrderSuccessPage} />
+            <Route path="/orders/:orderId" component={ViewOrderPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/org-login" component={LoginPage} />
             <Route path="/dev-login" component={DevLoginPage} />

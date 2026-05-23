@@ -2963,4 +2963,41 @@ export default () => (
     has_transpiled: true,
     transpilation_error: null,
   })
+
+  const boardReleaseFiles = db.packageFiles.filter(
+    (f) => f.package_release_id === packageReleaseId1,
+  )
+  const boardCircuitJsonFile = boardReleaseFiles.find(
+    (f) => f.file_path === "/dist/circuit.json",
+  )
+  const orderCircuitJson = boardCircuitJsonFile
+    ? JSON.parse(boardCircuitJsonFile.content_text || "[]")
+    : []
+
+  // Add some test orders for the user
+  db.addOrder({
+    account_id: "account-1234",
+    is_running: true,
+    is_started: true,
+    is_finished: false,
+    error: null,
+    has_error: false,
+    created_at: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+    started_at: new Date(Date.now() - 3500000).toISOString(),
+    completed_at: null,
+    circuit_json: orderCircuitJson,
+  })
+
+  db.addOrder({
+    account_id: "account-1234",
+    is_running: false,
+    is_started: true,
+    is_finished: true,
+    error: null,
+    has_error: false,
+    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    started_at: new Date(Date.now() - 86300000).toISOString(),
+    completed_at: new Date(Date.now() - 86200000).toISOString(),
+    circuit_json: orderCircuitJson,
+  })
 }
