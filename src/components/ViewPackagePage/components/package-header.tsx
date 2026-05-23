@@ -35,6 +35,13 @@ interface PackageHeaderProps {
   isCurrentUserAuthor?: boolean
 }
 
+interface CreateOrderResponse {
+  checkout_session?: CheckoutSession
+  stripe_checkout_session_id?: string
+  stripe_checkout_session_url?: string
+  url?: string
+}
+
 const getPcbBoard = (circuitJson: AnyCircuitElement[] | null) =>
   circuitJson?.find((element) => element.type === "pcb_board") as
     | PcbBoard
@@ -94,6 +101,24 @@ const getOrderSpecifications = (
   return specifications
 }
 
+const getCheckoutSessionFromCreateOrderResponse = (
+  data: CreateOrderResponse,
+): CheckoutSession => {
+  if (data.checkout_session) return data.checkout_session
+
+  const url = data.url ?? data.stripe_checkout_session_url
+  if (!url) {
+    throw new Error("Order response did not include a checkout URL")
+  }
+
+  return {
+    id: data.stripe_checkout_session_id ?? "",
+    url,
+    status: "open",
+    payment_status: "unpaid",
+  } as CheckoutSession
+}
+
 function getOrderDialogCheckout({
   apiBaseUrl,
   packageReleaseId,
@@ -127,8 +152,8 @@ function getOrderDialogCheckout({
         throw new Error(`Unable to create order (${response.status})`)
       }
 
-      const data = await response.json()
-      return data.checkout_session
+      const data = (await response.json()) as CreateOrderResponse
+      return getCheckoutSessionFromCreateOrderResponse(data)
     },
   }
 }
