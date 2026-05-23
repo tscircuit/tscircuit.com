@@ -7,8 +7,6 @@ import { combine } from "zustand/middleware"
 import {
   type Account,
   type AccountPackage,
-  type JlcpcbOrderState,
-  type JlcpcbOrderStepRun,
   type LoginPage,
   type Order,
   type OrderFile,
@@ -116,60 +114,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (quote) => quote.order_quote_id === orderQuoteId,
     )
   },
-  getJlcpcbOrderStatesByOrderId: (
-    orderId: string,
-  ): JlcpcbOrderState | undefined => {
-    const state = get()
-    return state.jlcpcbOrderState.find((state) => state.order_id === orderId)
-  },
-  getJlcpcbOrderStepRunsByJlcpcbOrderStateId: (
-    jlcpcbOrderStateId: string,
-  ): JlcpcbOrderStepRun[] => {
-    const state = get()
-    return state.jlcpcbOrderStepRuns
-      .filter((stepRun) => {
-        const orderState = state.jlcpcbOrderState.find(
-          (state) =>
-            state.jlcpcb_order_state_id === stepRun.jlcpcb_order_state_id,
-        )
-        return orderState?.order_id === jlcpcbOrderStateId
-      })
-      .sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      )
-  },
   updateOrder: (orderId: string, updates: Partial<Order>) => {
     set((state) => ({
       orders: state.orders.map((order) =>
         order.order_id === orderId ? { ...order, ...updates } : order,
-      ),
-    }))
-  },
-  addJlcpcbOrderState: (
-    orderState: Omit<JlcpcbOrderState, "jlcpcb_order_state_id">,
-  ): JlcpcbOrderState => {
-    const newOrderState = {
-      jlcpcb_order_state_id: `order_state_${get().idCounter + 1}`,
-      ...orderState,
-    }
-    set((state) => {
-      return {
-        jlcpcbOrderState: [...state.jlcpcbOrderState, newOrderState],
-        idCounter: state.idCounter + 1,
-      }
-    })
-    return newOrderState
-  },
-  updateJlcpcbOrderState: (
-    orderId: string,
-    updates: Partial<JlcpcbOrderState>,
-  ) => {
-    set((state) => ({
-      jlcpcbOrderState: state.jlcpcbOrderState.map((orderState) =>
-        orderState.order_id === orderId
-          ? { ...orderState, ...updates }
-          : orderState,
       ),
     }))
   },
