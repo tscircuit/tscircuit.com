@@ -253,8 +253,12 @@ export const SearchPage = () => {
                   </div>
                 ) : orgSearchResults.length > 0 ? (
                   <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-                    {orgSearchResults.map((org, i) => (
-                      <OrgCard key={i} org={org} className="w-full" />
+                    {orgSearchResults.map((org) => (
+                      <OrgCard
+                        key={org.org_id || org.tscircuit_handle}
+                        org={org}
+                        className="w-full"
+                      />
                     ))}
                   </div>
                 ) : (
