@@ -230,7 +230,7 @@ const CmdKMenu = () => {
       }
     },
     {
-      enabled: !!currentUserAccountId && !searchQuery,
+      enabled: open && !!currentUserAccountId && !searchQuery,
       retry: false,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
