@@ -78,12 +78,14 @@ test("GET /api/orders/get - refreshes Stripe checkout state when looking up by s
   expect(response.data.order.order_id).toBe(orderId)
   expect(response.data.order.is_stripe_checkout_session_complete).toBe(true)
   expect(response.data.order.is_stripe_payment_paid).toBe(true)
-  expect(response.data.order.is_finished).toBe(true)
-  expect(response.data.order.completed_at).not.toBeNull()
+  expect(response.data.order.is_finished).toBe(false)
+  expect(response.data.order.completed_at).toBeNull()
 
   const updatedOrder = db.getOrderById(orderId)
-  expect(updatedOrder?.is_finished).toBe(true)
-  expect(updatedOrder?.completed_at).not.toBeNull()
+  expect(updatedOrder?.is_stripe_checkout_session_complete).toBe(true)
+  expect(updatedOrder?.is_stripe_payment_paid).toBe(true)
+  expect(updatedOrder?.is_finished).toBe(false)
+  expect(updatedOrder?.completed_at).toBeNull()
 })
 
 test("GET /api/orders/list - returns orders sorted by newest first", async () => {

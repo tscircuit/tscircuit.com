@@ -85,10 +85,10 @@ export const OrderSuccessPage = () => {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Link href="/my-orders">
+                  <Link href={`/orders/${data.order_id}`}>
                     <Button>
                       <PackageCheck className="mr-2 h-4 w-4" />
-                      View orders
+                      View order
                     </Button>
                   </Link>
                   <Link href="/">
