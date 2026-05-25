@@ -6,6 +6,7 @@ import Footer from "@/components/Footer"
 import { Order } from "fake-snippets-api/lib/db/schema"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
+import { PackageSearch } from "lucide-react"
 
 export const MyOrdersPage = () => {
   const axios = useAxios()
@@ -25,6 +26,10 @@ export const MyOrdersPage = () => {
         <h1 className="text-3xl font-bold mb-6">My Orders</h1>
         {isLoading ? (
           <div>Loading orders...</div>
+        ) : orders?.length === 0 ? (
+          <div className="border border-gray-200 rounded-md p-6 text-gray-600">
+            You do not have any orders yet.
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {orders?.map((order) => (
@@ -40,7 +45,8 @@ export const MyOrdersPage = () => {
                 </p>
                 <Link href={`/orders/${order.order_id}`}>
                   <Button className="mt-2" variant="outline">
-                    View Details
+                    <PackageSearch className="mr-2 h-4 w-4" />
+                    View order
                   </Button>
                 </Link>
               </div>
