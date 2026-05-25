@@ -137,6 +137,31 @@ test("create package release - package not found", async () => {
   }
 })
 
+test("create package release using scoped package_name_with_version (e.g. @testuser/pkg@1.0.0)", async () => {
+  const { axios } = await getTestServer()
+
+  // Create a package under testuser namespace
+  const packageResponse = await axios.post("/api/packages/create", {
+    name: "testuser/scoped-pkg",
+    description: "Scoped Package Test",
+  })
+  expect(packageResponse.status).toBe(200)
+  const createdPackage = packageResponse.data.package
+
+  // Try to create a release using a scoped name with a leading '@'
+  // Bug: split("@") on "@testuser/scoped-pkg@1.0.0" produces ["", "testuser/scoped-pkg", "1.0.0"]
+  // so packageName = "" and the DB lookup fails with "Package not found: "
+  const releaseResponse = await axios.post("/api/package_releases/create", {
+    package_name_with_version: `@${createdPackage.name}@1.0.0`,
+  })
+  expect(releaseResponse.status).toBe(200)
+  expect(releaseResponse.data.ok).toBe(true)
+  expect(releaseResponse.data.package_release.package_id).toBe(
+    createdPackage.package_id,
+  )
+  expect(releaseResponse.data.package_release.version).toBe("1.0.0")
+})
+
 test("create package release under org", async () => {
   const { axios } = await getTestServer()
 
