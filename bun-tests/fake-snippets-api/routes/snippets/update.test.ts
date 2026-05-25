@@ -28,7 +28,9 @@ test("update snippet updates the correct files and does not corrupt the db", asy
     code: "console.log('updated second snippet')",
   })
   expect(updateRes.status).toBe(200)
-  expect(updateRes.data.snippet.code).toBe("console.log('updated second snippet')")
+  expect(updateRes.data.snippet.code).toBe(
+    "console.log('updated second snippet')",
+  )
 
   // 4. Retrieve both snippets and verify correctness
   const getRes1 = await axios.get("/api/snippets/get", {
@@ -41,5 +43,7 @@ test("update snippet updates the correct files and does not corrupt the db", asy
     params: { snippet_id: snippet2.snippet_id },
   })
   expect(getRes2.status).toBe(200)
-  expect(getRes2.data.snippet.code).toBe("console.log('updated second snippet')")
+  expect(getRes2.data.snippet.code).toBe(
+    "console.log('updated second snippet')",
+  )
 })
