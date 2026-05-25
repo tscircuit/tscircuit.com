@@ -55,11 +55,6 @@ export default withRouteSpec({
       const updates = getStripeCheckoutFlags(checkoutSession)
       ctx.db.updateOrder(order.order_id, {
         ...updates,
-        is_finished: updates.is_stripe_payment_paid || order.is_finished,
-        completed_at:
-          updates.is_stripe_payment_paid && !order.completed_at
-            ? new Date().toISOString()
-            : order.completed_at,
       })
       latestOrder = ctx.db.getOrderById(order.order_id) ?? order
     } catch (error) {
