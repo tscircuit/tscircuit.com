@@ -3,19 +3,30 @@ import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Order } from "fake-snippets-api/lib/db/schema"
+import type { PublicOrder } from "fake-snippets-api/lib/public-mapping/public-map-order"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
-import { PackageSearch } from "lucide-react"
+import { KeyRound, PackageSearch } from "lucide-react"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useSignIn } from "@/hooks/use-sign-in"
 
 export const MyOrdersPage = () => {
   const axios = useAxios()
+  const session = useGlobalStore((s) => s.session)
+  const signIn = useSignIn()
 
-  const { data: orders, isLoading } = useQuery<Order[]>(
-    "userOrders",
+  const { data: orders, isLoading } = useQuery<PublicOrder[]>(
+    ["userOrders", session?.account_id],
     async () => {
-      const response = await axios.get("/orders/list")
+      const response = await axios.get("/orders/list", {
+        params: {
+          account_id: session!.account_id,
+        },
+      })
       return response.data.orders
+    },
+    {
+      enabled: Boolean(session?.account_id),
     },
   )
 
@@ -24,7 +35,22 @@ export const MyOrdersPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">My Orders</h1>
-        {isLoading ? (
+        {!session ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="p-4 mb-4 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
+              <KeyRound className="text-blue-500" size={32} />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+              You're not logged in
+            </h2>
+            <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
+              Log in to view your orders.
+            </p>
+            <Button onClick={() => signIn()} variant="default">
+              Log In
+            </Button>
+          </div>
+        ) : isLoading ? (
           <div>Loading orders...</div>
         ) : orders?.length === 0 ? (
           <div className="border border-gray-200 rounded-md p-6 text-gray-600">
