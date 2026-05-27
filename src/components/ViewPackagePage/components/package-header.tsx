@@ -25,6 +25,7 @@ import type {
   Package as PackageType,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
+import type { PublicOrder } from "fake-snippets-api/lib/public-mapping/public-map-order"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import type { AnyCircuitElement, PcbBoard } from "circuit-json"
 
@@ -36,10 +37,11 @@ interface PackageHeaderProps {
 }
 
 interface CreateOrderResponse {
-  checkout_session?: CheckoutSession
-  stripe_checkout_session_id?: string
-  stripe_checkout_session_url?: string
-  url?: string
+  ok: boolean
+  order: PublicOrder
+  stripe_checkout_session_id: string
+  stripe_checkout_session_url: string
+  url: string
 }
 
 const getPcbBoard = (circuitJson: AnyCircuitElement[] | null) =>
@@ -104,8 +106,6 @@ const getOrderSpecifications = (
 const getCheckoutSessionFromCreateOrderResponse = (
   data: CreateOrderResponse,
 ): CheckoutSession => {
-  if (data.checkout_session) return data.checkout_session
-
   const url = data.url ?? data.stripe_checkout_session_url
   if (!url) {
     throw new Error("Order response did not include a checkout URL")
@@ -122,9 +122,11 @@ const getCheckoutSessionFromCreateOrderResponse = (
 function getOrderDialogCheckout({
   apiBaseUrl,
   packageReleaseId,
+  sessionToken,
 }: {
   apiBaseUrl: string
   packageReleaseId?: string
+  sessionToken?: string
 }): OrderDialogCheckout | undefined {
   if (typeof window === "undefined") return undefined
   if (!packageReleaseId) return undefined
@@ -132,14 +134,17 @@ function getOrderDialogCheckout({
   const appOrigin = window.location.origin
 
   return {
-    successUrl: `${appOrigin}/orders/success?session_id={CHECKOUT_SESSION_ID}`,
+    successUrl: `${appOrigin}/orders/success`,
     cancelUrl: `${appOrigin}/orders/cancel`,
     createSession: async (_request, context): Promise<CheckoutSession> => {
       const response = await fetch(`${apiBaseUrl}/orders/create`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+        },
         body: JSON.stringify({
-          package_release_id: packageReleaseId,
+          submitted_package_release_id: packageReleaseId,
           quantity: context.quantity,
           fabricator_id: context.fabricator.id,
           fabricator_name: context.fabricator.name,
@@ -185,8 +190,9 @@ export default function PackageHeader({
       getOrderDialogCheckout({
         apiBaseUrl,
         packageReleaseId: packageRelease?.package_release_id,
+        sessionToken,
       }),
-    [apiBaseUrl, packageRelease?.package_release_id],
+    [apiBaseUrl, packageRelease?.package_release_id, sessionToken],
   )
   const { circuitJson } = useCurrentPackageCircuitJson()
   const orderSpecifications = useMemo(
@@ -438,7 +444,7 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
-      {isOrderDialogOpen && (
+      {true && (
         <OrderDialog
           checkout={orderDialogCheckout}
           boardImage={
