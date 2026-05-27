@@ -20,8 +20,7 @@ test("POST /api/orders/create - creates an order with a fake Stripe checkout ses
     `/checkout/${response.data.stripe_checkout_session_id}`,
   )
   expect(response.data.url).toBe(response.data.stripe_checkout_session_url)
-  expect(response.data.checkout_session.line_items[0].quantity).toBe(2)
-  expect(response.data.checkout_session.metadata.fabricator_id).toBe("jlcpcb")
+  expect(response.data.checkout_session).toBeUndefined()
   expect(response.data.order.submitted_package_release_id).toBe(
     seed.packageRelease.package_release_id,
   )
@@ -36,6 +35,23 @@ test("POST /api/orders/create - creates an order with a fake Stripe checkout ses
   expect(order?.stripe_checkout_session_id).toBe(
     response.data.stripe_checkout_session_id,
   )
+})
+
+test("POST /api/orders/create - associates an optional session account", async () => {
+  const { axios, seed } = await getTestServer()
+
+  const response = await axios.post(
+    "/api/orders/create",
+    {
+      submitted_package_release_id: seed.packageRelease.package_release_id,
+    },
+    {
+      headers: { Authorization: `Bearer ${seed.account.account_id}` },
+    },
+  )
+
+  expect(response.status).toBe(200)
+  expect(response.data.order.account_id).toBe(seed.account.account_id)
 })
 
 test("GET /api/orders/get - returns an order by order_id", async () => {

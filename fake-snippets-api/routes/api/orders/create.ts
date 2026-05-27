@@ -15,7 +15,7 @@ const DEFAULT_UNIT_AMOUNT_USD_CENTS = 500
 
 export default withRouteSpec({
   methods: ["POST"],
-  auth: "none",
+  auth: "optional_session",
   jsonBody: z.object({
     package_release_id: z.string().optional(),
     submitted_package_release_id: z.string().optional(),
@@ -33,7 +33,6 @@ export default withRouteSpec({
   jsonResponse: z.object({
     ok: z.boolean(),
     order: publicOrderSchema,
-    checkout_session: z.any(),
     stripe_checkout_session_id: z.string(),
     stripe_checkout_session_url: z.string(),
     url: z.string(),
@@ -74,33 +73,50 @@ export default withRouteSpec({
   }
 
   const orderId = randomUUID()
-  const origin = new URL(req.url).origin
+  const registryUiUrl = "https://tscircuit.com"
   const successUrl = appendOrderReturnParams({
-    url: req.jsonBody.success_url ?? `${origin}/orders/success`,
+    url: req.jsonBody.success_url ?? `${registryUiUrl}/orders/success`,
     orderId,
     includeCheckoutSession: true,
   })
   const cancelUrl = appendOrderReturnParams({
-    url: req.jsonBody.cancel_url ?? `${origin}/orders/cancel`,
+    url: req.jsonBody.cancel_url ?? `${registryUiUrl}/orders/cancel`,
     orderId,
     includeCheckoutSession: false,
   })
 
-  const checkoutSession = await createFakeStripeCheckoutSession({
-    requestUrl: req.url,
-    orderId,
-    packageName,
-    packageVersion: packageRelease.version,
-    quantity: req.jsonBody.quantity,
-    unitAmountUsdCents: DEFAULT_UNIT_AMOUNT_USD_CENTS,
-    fabricatorId: req.jsonBody.fabricator_id,
-    fabricatorName: req.jsonBody.fabricator_name,
-    successUrl,
-    cancelUrl,
-  })
+  let checkoutSession: Awaited<
+    ReturnType<typeof createFakeStripeCheckoutSession>
+  >
+  try {
+    checkoutSession = await createFakeStripeCheckoutSession({
+      requestUrl: req.url,
+      orderId,
+      packageName,
+      packageVersion: packageRelease.version,
+      quantity: req.jsonBody.quantity,
+      unitAmountUsdCents: DEFAULT_UNIT_AMOUNT_USD_CENTS,
+      fabricatorId: req.jsonBody.fabricator_id,
+      fabricatorName: req.jsonBody.fabricator_name,
+      successUrl,
+      cancelUrl,
+    })
+  } catch (error) {
+    return ctx.error(502, {
+      error_code: "stripe_checkout_session_creation_failed",
+      message: error instanceof Error ? error.message : String(error),
+    })
+  }
+
+  if (!checkoutSession.url) {
+    return ctx.error(502, {
+      error_code: "stripe_checkout_session_missing_url",
+      message: "Stripe checkout session did not include a redirect URL",
+    })
+  }
 
   const createdOrder = ctx.db.addOrder({
-    account_id: null,
+    account_id: ctx.auth?.account_id ?? null,
     submitted_package_release_id: submittedPackageReleaseId,
     adapted_package_release_id: adaptedPackageReleaseId ?? null,
     stripe_checkout_session_id: checkoutSession.id,
@@ -122,7 +138,6 @@ export default withRouteSpec({
   return ctx.json({
     ok: true,
     order: publicMapOrder(order),
-    checkout_session: checkoutSession,
     stripe_checkout_session_id: checkoutSession.id,
     stripe_checkout_session_url: checkoutSession.url,
     url: checkoutSession.url,
