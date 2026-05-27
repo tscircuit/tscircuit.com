@@ -16,6 +16,9 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { useAxios } from "@/hooks/use-axios"
+import { usePackageById } from "@/hooks/use-package-by-package-id"
+import { usePackageReleaseById } from "@/hooks/use-package-release"
+import { isUuid } from "@/lib/utils/isUuid"
 
 type TrackingStep = {
   title: string
@@ -82,9 +85,18 @@ const getCurrentStepIndex = (order: Order) => {
   return 0
 }
 
+const getOrderStatus = (order: Order) => {
+  if (order.has_error) return "Needs attention"
+  if (getOrderComplete(order)) return "Completed"
+  if (order.is_running) return "In progress"
+  if (getPaymentComplete(order)) return "Payment confirmed"
+  return "Awaiting payment"
+}
+
 export const OrderDetailPage = () => {
   const { orderId } = useParams<{ orderId: string }>()
   const axios = useAxios()
+  const hasValidOrderId = Boolean(orderId && isUuid(orderId))
 
   const {
     data: order,
@@ -99,7 +111,7 @@ export const OrderDetailPage = () => {
       return response.data.order
     },
     {
-      enabled: Boolean(orderId),
+      enabled: hasValidOrderId,
       refetchInterval: (order) =>
         order && !order.is_finished && !order.has_error ? 3000 : false,
     },
@@ -109,6 +121,15 @@ export const OrderDetailPage = () => {
     () => (order ? getTrackingSteps(order) : []),
     [order],
   )
+  const submittedReleaseQuery = usePackageReleaseById(
+    order?.submitted_package_release_id,
+  )
+  const submittedPackageQuery = usePackageById(
+    submittedReleaseQuery.data?.package_id ?? null,
+  )
+  const submittedRelease = submittedReleaseQuery.data
+  const submittedPackage = submittedPackageQuery.data
+  const orderTitle = submittedPackage?.name ?? "PCB order"
   const currentStepIndex = order ? getCurrentStepIndex(order) : 0
   const completedStepCount = trackingSteps.filter(
     (step) => step.timestamp,
@@ -155,32 +176,39 @@ export const OrderDetailPage = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Order tracking
-                  </p>
-                  <h1 className="mt-1 text-3xl font-semibold text-gray-950">
-                    Order #{order.order_id}
-                  </h1>
-                  <p className="mt-2 text-gray-600">
-                    Follow the manufacturing progress from checkout through
-                    completion.
-                  </p>
-                </div>
-                <div className="rounded-md border border-gray-200 px-4 py-3 text-sm">
-                  <div className="text-gray-500">Current status</div>
-                  <div className="mt-1 font-semibold text-gray-950">
-                    {order.has_error
-                      ? "Needs attention"
-                      : getOrderComplete(order)
-                        ? "Completed"
-                        : order.is_running
-                          ? "In progress"
-                          : getPaymentComplete(order)
-                            ? "Payment confirmed"
-                            : "Awaiting payment"}
+            <div className="space-y-5">
+              <div className="rounded-lg border border-gray-200 bg-gray-50/70 p-5 sm:p-6">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-gray-500">
+                        Order tracking
+                      </p>
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200">
+                        {getOrderStatus(order)}
+                      </span>
+                    </div>
+                    <h1 className="mt-2 text-3xl font-semibold text-gray-950">
+                      {orderTitle}
+                    </h1>
+                    <p className="mt-2 max-w-2xl text-gray-600">
+                      Follow checkout, fabrication, and completion status for
+                      this board order.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-gray-200 pt-4 text-sm sm:min-w-72 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                    <div>
+                      <div className="text-gray-500">Created</div>
+                      <div className="mt-1 font-medium text-gray-950">
+                        {formatDate(order.created_at)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">Milestones</div>
+                      <div className="mt-1 font-medium text-gray-950">
+                        {completedStepCount}/{trackingSteps.length}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -197,6 +225,66 @@ export const OrderDetailPage = () => {
                   </p>
                 </div>
               ) : null}
+
+              <div className="rounded-lg border border-gray-200 p-5 sm:p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-950">
+                      Board
+                    </h2>
+                    {submittedPackageQuery.isLoading ||
+                    submittedReleaseQuery.isLoading ? (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading board details...
+                      </div>
+                    ) : submittedPackage ? (
+                      <div className="mt-3">
+                        <div className="text-xl font-semibold text-gray-950">
+                          {submittedPackage.name}
+                        </div>
+                        {submittedPackage.description ? (
+                          <p className="mt-2 max-w-2xl text-sm text-gray-600">
+                            {submittedPackage.description}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-gray-600">
+                        Board details are not available for this order.
+                      </p>
+                    )}
+                  </div>
+                  <div className="border-t border-gray-100 pt-4 text-sm sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                    <div className="text-gray-500">Version</div>
+                    <div className="mt-1 font-mono font-semibold text-gray-950">
+                      {submittedRelease?.version ?? "Unknown"}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-5 border-t border-gray-100 pt-4">
+                  <div className="text-xs font-medium uppercase text-gray-500">
+                    Order ID
+                  </div>
+                  <div className="mt-1 break-all font-mono text-xs text-gray-500">
+                    {order.order_id}
+                  </div>
+                </div>
+                {submittedPackage ? (
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Link href={`/${submittedPackage.name}`}>
+                      <Button variant="outline">View board</Button>
+                    </Link>
+                    {submittedRelease ? (
+                      <Link
+                        href={`/${submittedPackage.name}/releases/${submittedRelease.package_release_id}`}
+                      >
+                        <Button variant="outline">View release</Button>
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
 
               <div className="rounded-lg border border-gray-200 p-5 sm:p-6">
                 <div className="mb-6 flex items-center justify-between gap-4">
