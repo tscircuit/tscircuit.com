@@ -61,6 +61,7 @@ const EditorPage = lazyImport(async () => {
 const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const OrderSuccessPage = lazyImport(() => import("@/pages/order-success"))
+const OrderCancelPage = lazyImport(() => import("@/pages/order-cancel"))
 const OrderDetailPage = lazyImport(() => import("@/pages/order-detail"))
 const LatestPage = lazyImport(() => import("@/pages/latest"))
 const QuickstartPage = lazyImport(() => import("@/pages/quickstart"))
@@ -274,6 +275,7 @@ function App() {
             <Route path="/authorize" component={AuthenticatePage} />
             <Route path="/my-orders" component={MyOrdersPage} />
             <Route path="/orders/success" component={OrderSuccessPage} />
+            <Route path="/orders/cancel" component={OrderCancelPage} />
             <Route path="/orders/:orderId" component={OrderDetailPage} />
             <Route path="/login" component={LoginPage} />
             <Route path="/org-login" component={LoginPage} />
