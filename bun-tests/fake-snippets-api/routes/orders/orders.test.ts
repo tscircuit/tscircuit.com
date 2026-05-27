@@ -88,11 +88,44 @@ test("GET /api/orders/get - refreshes Stripe checkout state when looking up by s
   expect(updatedOrder?.completed_at).toBeNull()
 })
 
-test("GET /api/orders/list - returns orders sorted by newest first", async () => {
+test("GET /api/orders/list - returns orders for an account sorted by newest first", async () => {
   const { axios, db, seed } = await getTestServer()
-  const olderOrder = seed.order
+  const accountId = "account-1234"
+  const otherAccountId = "account-5678"
+  const olderOrder = db.addOrder({
+    account_id: accountId,
+    submitted_package_release_id: seed.packageRelease.package_release_id,
+    adapted_package_release_id: null,
+    stripe_checkout_session_id: null,
+    stripe_checkout_session_url: null,
+    is_running: false,
+    is_started: false,
+    is_finished: false,
+    error: null,
+    has_error: false,
+    circuit_json: null,
+    created_at: new Date(Date.now() - 1000).toISOString(),
+    started_at: null,
+    completed_at: null,
+  })
+  db.addOrder({
+    account_id: otherAccountId,
+    submitted_package_release_id: seed.packageRelease.package_release_id,
+    adapted_package_release_id: null,
+    stripe_checkout_session_id: null,
+    stripe_checkout_session_url: null,
+    is_running: false,
+    is_started: false,
+    is_finished: false,
+    error: null,
+    has_error: false,
+    circuit_json: null,
+    created_at: new Date(Date.now() + 2000).toISOString(),
+    started_at: null,
+    completed_at: null,
+  })
   const newerOrder = db.addOrder({
-    account_id: seed.account.account_id,
+    account_id: accountId,
     submitted_package_release_id: seed.packageRelease.package_release_id,
     adapted_package_release_id: null,
     stripe_checkout_session_id: null,
@@ -108,12 +141,65 @@ test("GET /api/orders/list - returns orders sorted by newest first", async () =>
     completed_at: null,
   })
 
-  const response = await axios.get("/api/orders/list")
+  const response = await axios.get("/api/orders/list", {
+    params: { account_id: accountId },
+  })
 
   expect(response.status).toBe(200)
   expect(response.data.ok).toBe(true)
   expect(response.data.orders[0].order_id).toBe(newerOrder.order_id)
-  expect(response.data.orders.map((order: any) => order.order_id)).toContain(
+  expect(response.data.orders.map((order: any) => order.order_id)).toEqual([
+    newerOrder.order_id,
     olderOrder.order_id,
-  )
+  ])
+})
+
+test("GET /api/orders/list - respects limit", async () => {
+  const { axios, db, seed } = await getTestServer()
+  const accountId = "account-1234"
+  const olderOrder = db.addOrder({
+    account_id: accountId,
+    submitted_package_release_id: seed.packageRelease.package_release_id,
+    adapted_package_release_id: null,
+    stripe_checkout_session_id: null,
+    stripe_checkout_session_url: null,
+    is_running: false,
+    is_started: false,
+    is_finished: false,
+    error: null,
+    has_error: false,
+    circuit_json: null,
+    created_at: new Date(Date.now() - 1000).toISOString(),
+    started_at: null,
+    completed_at: null,
+  })
+  const newerOrder = db.addOrder({
+    account_id: accountId,
+    submitted_package_release_id: seed.packageRelease.package_release_id,
+    adapted_package_release_id: null,
+    stripe_checkout_session_id: null,
+    stripe_checkout_session_url: null,
+    is_running: false,
+    is_started: false,
+    is_finished: false,
+    error: null,
+    has_error: false,
+    circuit_json: null,
+    created_at: new Date().toISOString(),
+    started_at: null,
+    completed_at: null,
+  })
+
+  const response = await axios.get("/api/orders/list", {
+    params: { account_id: accountId, limit: 1 },
+  })
+
+  expect(response.status).toBe(200)
+  expect(response.data.ok).toBe(true)
+  expect(response.data.orders.map((order: any) => order.order_id)).toEqual([
+    newerOrder.order_id,
+  ])
+  expect(
+    response.data.orders.map((order: any) => order.order_id),
+  ).not.toContain(olderOrder.order_id)
 })
