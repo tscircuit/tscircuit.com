@@ -1,21 +1,29 @@
 import React from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
+import { useGlobalStore } from "@/hooks/use-global-store"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Order } from "fake-snippets-api/lib/db/schema"
+import { PublicOrder } from "fake-snippets-api/lib/public-mapping/public-map-order"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { PackageSearch } from "lucide-react"
 
 export const MyOrdersPage = () => {
   const axios = useAxios()
+  const session = useGlobalStore((s) => s.session)
 
-  const { data: orders, isLoading } = useQuery<Order[]>(
-    "userOrders",
+  const { data: orders, isLoading } = useQuery<PublicOrder[]>(
+    ["userOrders", session?.account_id],
     async () => {
-      const response = await axios.get("/orders/list")
+      if (!session?.account_id) return []
+      const response = await axios.get("/orders/list", {
+        params: { account_id: session.account_id },
+      })
       return response.data.orders
+    },
+    {
+      enabled: Boolean(session?.account_id),
     },
   )
 
@@ -24,7 +32,11 @@ export const MyOrdersPage = () => {
       <Header />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">My Orders</h1>
-        {isLoading ? (
+        {!session ? (
+          <div className="border border-gray-200 rounded-md p-6 text-gray-600">
+            Sign in to view your orders.
+          </div>
+        ) : isLoading ? (
           <div>Loading orders...</div>
         ) : orders?.length === 0 ? (
           <div className="border border-gray-200 rounded-md p-6 text-gray-600">
