@@ -135,7 +135,9 @@ export const OrderDetailPage = () => {
     error || !hasValidOrderId
       ? "Order not found - tscircuit"
       : order
-        ? `${orderTitle} order - tscircuit`
+        ? submittedPackage
+          ? `${submittedPackage.name} order - tscircuit`
+          : "PCB order - tscircuit"
         : "Order tracking - tscircuit"
   const currentStepIndex = order ? getCurrentStepIndex(order) : 0
   const completedStepCount = trackingSteps.filter(
