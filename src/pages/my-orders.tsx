@@ -1,4 +1,5 @@
 import { useQuery } from "react-query"
+import { Helmet } from "react-helmet-async"
 import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import Header from "@/components/Header"
@@ -104,6 +105,9 @@ export const MyOrdersPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      <Helmet>
+        <title>My orders - tscircuit</title>
+      </Helmet>
       <Header />
       <main className="flex-1">
         <section className="container mx-auto px-4 py-8 sm:py-12">

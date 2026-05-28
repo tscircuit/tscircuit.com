@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { Helmet } from "react-helmet-async"
 import { useQuery } from "react-query"
 import { Link, useParams } from "wouter"
 import {
@@ -130,6 +131,12 @@ export const OrderDetailPage = () => {
   const submittedRelease = submittedReleaseQuery.data
   const submittedPackage = submittedPackageQuery.data
   const orderTitle = submittedPackage?.name ?? "PCB order"
+  const pageTitle =
+    error || !hasValidOrderId
+      ? "Order not found - tscircuit"
+      : order
+        ? `${orderTitle} order - tscircuit`
+        : "Order tracking - tscircuit"
   const currentStepIndex = order ? getCurrentStepIndex(order) : 0
   const completedStepCount = trackingSteps.filter(
     (step) => step.timestamp,
@@ -148,6 +155,9 @@ export const OrderDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      <Helmet>
+        <title>{pageTitle}</title>
+      </Helmet>
       <Header />
       <main className="flex-1">
         <section className="max-w-5xl mx-auto px-4 py-8 sm:py-12">

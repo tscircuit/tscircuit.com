@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { Helmet } from "react-helmet-async"
 import { useQuery } from "react-query"
 import { Link } from "wouter"
 import {
@@ -42,6 +43,9 @@ export const OrderSuccessPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      <Helmet>
+        <title>Order success - tscircuit</title>
+      </Helmet>
       <Header />
       <main className="flex-1">
         <section className="max-w-3xl mx-auto px-4 py-16">
