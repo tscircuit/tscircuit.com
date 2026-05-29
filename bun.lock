@@ -57,7 +57,7 @@
         "@tscircuit/internal-dynamic-import": "^0.0.5",
         "@tscircuit/layout": "^0.0.29",
         "@tscircuit/mm": "^0.0.8",
-        "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#c1a55b7",
+        "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#2f73501",
         "@tscircuit/pcb-viewer": "1.11.370",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/props": "^0.0.536",
@@ -872,7 +872,7 @@
 
     "@tscircuit/ngspice-spice-engine": ["@tscircuit/ngspice-spice-engine@0.0.8", "", { "dependencies": { "eecircuit-engine": "^1.5.6" }, "peerDependencies": { "@tscircuit/props": "*", "circuit-json": "*", "typescript": "^5" } }, "sha512-jubJ8Kgpm9FPRdHBiRBYkf5+B37bqkjDRKpCXOMqS08UZnbS+iCv2k4ACMW+s1zbK0Xa5v+9yjuoHlfKFW1v/Q=="],
 
-    "@tscircuit/order-dialog": ["@tscircuit/order-dialog@github:tscircuit/order-dialog#c1a55b7", { "peerDependencies": { "react": "^18.3.0 || ^19.0.0", "react-dom": "^18.3.0 || ^19.0.0" } }, "tscircuit-order-dialog-c1a55b7", "sha512-kGd7uSkAjvejEZXrnWsI775TcQ2S4daGpcpEr83JCjBtD8NJrrsqLv+rZkloJOOehLkffpLmenrlggpU9ueTBA=="],
+    "@tscircuit/order-dialog": ["@tscircuit/order-dialog@github:tscircuit/order-dialog#2f73501", { "peerDependencies": { "react": "^18.3.0 || ^19.0.0", "react-dom": "^18.3.0 || ^19.0.0" } }, "tscircuit-order-dialog-2f73501", "sha512-gwoTjGkgloeuOFOHezXWh4hWlHmOolQll42qqI5qGAgd0grxM9s6Wt2tZCxlkpqMQ+Q8AcgWgeqO5uhcuppIYQ=="],
 
     "@tscircuit/pcb-viewer": ["@tscircuit/pcb-viewer@1.11.370", "", { "dependencies": { "@emotion/css": "^11.11.2", "@tscircuit/alphabet": "^0.0.23", "@tscircuit/math-utils": "^0.0.29", "@vitejs/plugin-react": "^5.0.2", "circuit-json": "^0.0.421", "circuit-to-canvas": "^0.0.98", "circuit-to-svg": "^0.0.337", "color": "^4.2.3", "react-supergrid": "^1.0.10", "react-toastify": "^10.0.5", "transformation-matrix": "^2.13.0", "zustand": "^4.5.2" }, "peerDependencies": { "react": "*", "tscircuit": "*" } }, "sha512-zP39hvPMLSscISRqLM3cM3n4Kr8hBLYOHloJVbrMa+vtDSkF14tmThNxBXYO8d5f7uCxITZnaYTIGGVhIEawbw=="],
 
