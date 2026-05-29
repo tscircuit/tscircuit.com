@@ -46,7 +46,10 @@ export default withRouteSpec({
 
   let latestOrder = order
 
-  if (order.stripe_checkout_session_id) {
+  if (
+    order.stripe_checkout_session_id &&
+    !order.is_stripe_checkout_session_expired
+  ) {
     try {
       const checkoutSession = await retrieveFakeStripeCheckoutSession({
         requestUrl: req.url,
@@ -55,6 +58,9 @@ export default withRouteSpec({
       const updates = getStripeCheckoutFlags(checkoutSession)
       ctx.db.updateOrder(order.order_id, {
         ...updates,
+        stripe_checkout_session_url: updates.is_stripe_checkout_session_expired
+          ? null
+          : order.stripe_checkout_session_url,
       })
       latestOrder = ctx.db.getOrderById(order.order_id) ?? order
     } catch (error) {

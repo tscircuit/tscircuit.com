@@ -23,13 +23,18 @@ export const publicOrderSchema = z.object({
 
 export type PublicOrder = z.infer<typeof publicOrderSchema>
 
+const getPublicStripeCheckoutSessionUrl = (order: Order) => {
+  if (order.is_stripe_checkout_session_expired) return null
+  return order.stripe_checkout_session_url ?? null
+}
+
 export const publicMapOrder = (order: Order): PublicOrder => ({
   order_id: order.order_id,
   account_id: order.account_id,
   submitted_package_release_id: order.submitted_package_release_id ?? null,
   adapted_package_release_id: order.adapted_package_release_id ?? null,
   stripe_checkout_session_id: order.stripe_checkout_session_id ?? null,
-  stripe_checkout_session_url: order.stripe_checkout_session_url ?? null,
+  stripe_checkout_session_url: getPublicStripeCheckoutSessionUrl(order),
   is_stripe_checkout_session_complete:
     order.is_stripe_checkout_session_complete ?? false,
   is_stripe_checkout_session_expired:
