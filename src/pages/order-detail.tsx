@@ -91,8 +91,8 @@ const getOrderStatus = (order: Order) => {
   if (order.has_error) return "Needs attention"
   if (getOrderComplete(order)) return "Completed"
   if (order.is_running) return "In progress"
-  if (order.is_stripe_checkout_session_expired) return "Checkout expired"
   if (getPaymentComplete(order)) return "Payment confirmed"
+  if (order.is_stripe_checkout_session_expired) return "Checkout expired"
   return "Awaiting payment"
 }
 
