@@ -14,6 +14,11 @@ import {
   Wrench,
 } from "lucide-react"
 import type { Order } from "fake-snippets-api/lib/db/schema"
+import {
+  getOrderCanResumeCheckout,
+  getOrderCheckoutSessionExpired,
+  getOrderPaymentComplete,
+} from "../../lib/orders/order-payment-state"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
@@ -34,15 +39,6 @@ const formatDate = (value: string | null | undefined) => {
   return new Date(value).toLocaleString()
 }
 
-const getPaymentComplete = (order: Order) =>
-  Boolean(
-    order.is_stripe_payment_paid ||
-      order.is_started ||
-      order.is_running ||
-      order.is_finished ||
-      !order.stripe_checkout_session_id,
-  )
-
 const getTrackingSteps = (order: Order): TrackingStep[] => [
   {
     title: "Order placed",
@@ -53,7 +49,7 @@ const getTrackingSteps = (order: Order): TrackingStep[] => [
   {
     title: "Payment confirmed",
     description: "Checkout is complete and the order can move into production.",
-    timestamp: getPaymentComplete(order) ? order.created_at : null,
+    timestamp: getOrderPaymentComplete(order) ? order.created_at : null,
     icon: CreditCard,
   },
   {
@@ -83,7 +79,7 @@ const getCurrentStepIndex = (order: Order) => {
   if (getOrderComplete(order)) return 4
   if (order.is_running) return 3
   if (order.is_started) return 2
-  if (getPaymentComplete(order)) return 1
+  if (getOrderPaymentComplete(order)) return 1
   return 0
 }
 
@@ -91,18 +87,10 @@ const getOrderStatus = (order: Order) => {
   if (order.has_error) return "Needs attention"
   if (getOrderComplete(order)) return "Completed"
   if (order.is_running) return "In progress"
-  if (getPaymentComplete(order)) return "Payment confirmed"
-  if (order.is_stripe_checkout_session_expired) return "Checkout expired"
+  if (getOrderPaymentComplete(order)) return "Payment confirmed"
+  if (getOrderCheckoutSessionExpired(order)) return "Checkout expired"
   return "Awaiting payment"
 }
-
-const getCanResumeCheckout = (order: Order) =>
-  Boolean(
-    order.stripe_checkout_session_url &&
-      order.is_stripe_checkout_session_open &&
-      !order.is_stripe_checkout_session_expired &&
-      !getPaymentComplete(order),
-  )
 
 export const OrderDetailPage = () => {
   const { orderId } = useParams<{ orderId: string }>()
@@ -248,7 +236,7 @@ export const OrderDetailPage = () => {
                 </div>
               ) : null}
 
-              {!order.has_error && getCanResumeCheckout(order) ? (
+              {!order.has_error && getOrderCanResumeCheckout(order) ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -270,7 +258,7 @@ export const OrderDetailPage = () => {
                 </div>
               ) : null}
 
-              {!order.has_error && order.is_stripe_checkout_session_expired ? (
+              {!order.has_error && getOrderCheckoutSessionExpired(order) ? (
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-800">
                   <div className="font-medium">Checkout session expired</div>
                   <p className="mt-1 text-sm text-gray-600">

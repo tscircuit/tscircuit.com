@@ -1,5 +1,6 @@
 import { z } from "zod"
 import type { Order } from "fake-snippets-api/lib/db/schema"
+import { getOrderCheckoutSessionExpired } from "../../../lib/orders/order-payment-state"
 
 export const publicOrderSchema = z.object({
   order_id: z.string(),
@@ -24,7 +25,7 @@ export const publicOrderSchema = z.object({
 export type PublicOrder = z.infer<typeof publicOrderSchema>
 
 const getPublicStripeCheckoutSessionUrl = (order: Order) => {
-  if (order.is_stripe_checkout_session_expired) return null
+  if (getOrderCheckoutSessionExpired(order)) return null
   return order.stripe_checkout_session_url ?? null
 }
 
@@ -37,8 +38,7 @@ export const publicMapOrder = (order: Order): PublicOrder => ({
   stripe_checkout_session_url: getPublicStripeCheckoutSessionUrl(order),
   is_stripe_checkout_session_complete:
     order.is_stripe_checkout_session_complete ?? false,
-  is_stripe_checkout_session_expired:
-    order.is_stripe_checkout_session_expired ?? false,
+  is_stripe_checkout_session_expired: getOrderCheckoutSessionExpired(order),
   is_stripe_checkout_session_open:
     order.is_stripe_checkout_session_open ?? false,
   is_stripe_payment_paid: order.is_stripe_payment_paid ?? false,
