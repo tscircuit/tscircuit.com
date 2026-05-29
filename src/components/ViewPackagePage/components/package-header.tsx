@@ -444,7 +444,7 @@ export default function PackageHeader({
           </div>
         </div>
       </div>
-      {isOrderDialogOpen && (
+      {true && (
         <OrderDialog
           checkout={orderDialogCheckout}
           boardImage={

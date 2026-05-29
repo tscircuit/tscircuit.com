@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Check,
   CreditCard,
+  ExternalLink,
   Loader2,
   PackageCheck,
   RadioTower,
@@ -90,9 +91,18 @@ const getOrderStatus = (order: Order) => {
   if (order.has_error) return "Needs attention"
   if (getOrderComplete(order)) return "Completed"
   if (order.is_running) return "In progress"
+  if (order.is_stripe_checkout_session_expired) return "Checkout expired"
   if (getPaymentComplete(order)) return "Payment confirmed"
   return "Awaiting payment"
 }
+
+const getCanResumeCheckout = (order: Order) =>
+  Boolean(
+    order.stripe_checkout_session_url &&
+      order.is_stripe_checkout_session_open &&
+      !order.is_stripe_checkout_session_expired &&
+      !getPaymentComplete(order),
+  )
 
 export const OrderDetailPage = () => {
   const { orderId } = useParams<{ orderId: string }>()
@@ -234,6 +244,38 @@ export const OrderDetailPage = () => {
                   <p className="mt-2 text-sm">
                     {order.error?.message ??
                       "The order hit an error while being processed."}
+                  </p>
+                </div>
+              ) : null}
+
+              {!order.has_error && getCanResumeCheckout(order) ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="font-medium">
+                        Payment is still pending
+                      </div>
+                      <p className="mt-1 text-sm text-amber-800">
+                        This checkout session is still active. Continue to
+                        Stripe to complete payment for this order.
+                      </p>
+                    </div>
+                    <Button asChild className="shrink-0">
+                      <a href={order.stripe_checkout_session_url ?? undefined}>
+                        Continue checkout
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
+              {!order.has_error && order.is_stripe_checkout_session_expired ? (
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-800">
+                  <div className="font-medium">Checkout session expired</div>
+                  <p className="mt-1 text-sm text-gray-600">
+                    The previous Stripe checkout link is no longer active, so it
+                    cannot be used to complete payment.
                   </p>
                 </div>
               ) : null}
