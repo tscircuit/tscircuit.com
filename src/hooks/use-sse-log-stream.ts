@@ -10,7 +10,7 @@ export type StreamedLogEntry = {
  * Custom hook to manage Server-Sent Events (SSE) log streaming
  *
  * This hook connects to an SSE endpoint and streams log messages in real-time.
- * It handles connection lifecycle, deduplication, and cleanup automatically.
+ * It handles connection lifecycle and cleanup automatically.
  *
  * @param streamUrl - The URL of the SSE endpoint to connect to
  * @param isActive - Whether the stream should be active (typically when job is in progress)
@@ -25,7 +25,6 @@ export function useSSELogStream(
 ) {
   const [streamedLogs, setStreamedLogs] = useState<StreamedLogEntry[]>([])
   const eventSourceRef = useRef<EventSource | null>(null)
-  const seenLogIds = useRef<Set<string>>(new Set())
   const hasReceivedDataRef = useRef(false)
   const isClosedRef = useRef(false)
 
@@ -47,7 +46,6 @@ export function useSSELogStream(
     }
 
     setStreamedLogs([])
-    seenLogIds.current.clear()
 
     try {
       // EventSource is a browser API for handling SSE connections
@@ -62,13 +60,6 @@ export function useSSELogStream(
         if (isClosedRef.current) return
 
         hasReceivedDataRef.current = true
-        const logId = `${eventType}:${eventData}`
-        if (seenLogIds.current.has(logId)) {
-          return // Silently skip duplicates
-        }
-
-        // Mark this log as seen
-        seenLogIds.current.add(logId)
 
         try {
           // Try to parse as JSON first
