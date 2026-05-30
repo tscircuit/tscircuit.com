@@ -1,22 +1,17 @@
-import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
-import { useLocation } from "wouter"
-import { useGlobalStore } from "@/hooks/use-global-store"
+import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
 import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
-import { useCreatePackageMutation } from "@/hooks/use-create-package-mutation"
-import { useCreatePackageReleaseMutation } from "@/hooks/use-create-package-release-mutation"
-import { useCreatePackageFilesMutation } from "@/hooks/use-create-package-files-mutation"
+import React, { useState } from "react"
 
 interface CircuitJsonImportDialogProps {
   open: boolean
@@ -40,29 +35,8 @@ export function CircuitJsonImportDialog({
   const [file, setFile] = useState<File | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const loggedInUser = useGlobalStore((s) => s.session)
   const { toast } = useToast()
-  const axios = useAxios()
-  const [, navigate] = useLocation()
-  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const createPackageMutation = useCreatePackageMutation()
-  const { mutate: createRelease } = useCreatePackageReleaseMutation({
-    onSuccess: () => {
-      toast({
-        title: "Package released",
-        description: "Your package has been released successfully.",
-      })
-    },
-  })
-
-  const createPackageFilesMutation = useCreatePackageFilesMutation({
-    onSuccess: () => {
-      toast({
-        title: "Package files created",
-        description: "Your package files have been created successfully.",
-      })
-    },
-  })
+  const canImport = Boolean(circuitJson.trim() || file)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -72,10 +46,12 @@ export function CircuitJsonImportDialog({
         JSON.parse(fileText)
         setFile(selectedFile)
         setError(null)
-      } catch (e) {
+      } catch {
+        setFile(null)
         setError("Please select a valid JSON file that can be parsed.")
       }
     } else {
+      setFile(null)
       setError("Please select a file.")
     }
   }
@@ -108,12 +84,13 @@ export function CircuitJsonImportDialog({
     }
 
     try {
+      setIsLoading(true)
+      setError(null)
+
       if (file) {
         const fileText = await file.text()
         importedCircuitJson = await parseJson(fileText)
       } else if (isValidJSON(circuitJson)) {
-        setIsLoading(true)
-        setError(null)
         importedCircuitJson = await parseJson(circuitJson)
       } else {
         handleError("Please provide a valid JSON content or file.")
@@ -126,48 +103,17 @@ export function CircuitJsonImportDialog({
           componentName: "Component",
         },
       )
-      console.info(tscircuitComponentContent)
 
-      await createPackageMutation.mutateAsync(
+      const editorUrl = encodeFsMapToUrlHash(
         {
-          description: "Imported from Circuit JSON",
+          "index.tsx": tscircuitComponentContent,
         },
-        {
-          onSuccess: (newPackage) => {
-            handleSuccess("Package has been created successfully.")
-            createRelease(
-              {
-                package_name_with_version: `${newPackage.name}@latest`,
-              },
-              {
-                onSuccess: (release) => {
-                  createPackageFilesMutation
-                    .mutateAsync({
-                      file_path: "index.tsx",
-                      content_text: tscircuitComponentContent,
-                      package_release_id: release.package_release_id,
-                    })
-                    .then(() => {
-                      navigate(`/editor?package_id=${newPackage.package_id}`)
-                    })
-                },
-                onError: (error) => {
-                  setError(error)
-                  handleError("Failed to create package release.")
-                },
-              },
-            )
-          },
-          onError: (error) => {
-            setError(error)
-            handleError("Failed to create package.")
-          },
-          onSettled: () => {
-            setIsLoading(false)
-            onOpenChange(false)
-          },
-        },
+        "package",
       )
+
+      handleSuccess("Circuit JSON imported into the editor.")
+      onOpenChange(false)
+      window.location.assign(editorUrl)
     } catch (error) {
       console.error("Error importing Circuit Json:", error)
       handleError(
@@ -181,7 +127,7 @@ export function CircuitJsonImportDialog({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault()
-      if (!isLoading && isLoggedIn && (circuitJson.trim() || file)) {
+      if (!isLoading && canImport) {
         handleImport()
       }
     }
@@ -195,7 +141,7 @@ export function CircuitJsonImportDialog({
       event.target !== document.querySelector("textarea")
     ) {
       event.preventDefault()
-      if (!isLoading && isLoggedIn && (circuitJson.trim() || file)) {
+      if (!isLoading && canImport) {
         handleImport()
       }
     }
@@ -255,12 +201,8 @@ export function CircuitJsonImportDialog({
           {error && <p className="bg-red-100 p-2 mt-2 pre-wrap">{error}</p>}
         </div>
         <DialogFooter>
-          <Button onClick={handleImport} disabled={isLoading || !isLoggedIn}>
-            {!isLoggedIn
-              ? "Must be logged in for JSON import"
-              : isLoading
-                ? "Importing..."
-                : "Import"}
+          <Button onClick={handleImport} disabled={isLoading || !canImport}>
+            {isLoading ? "Importing..." : "Import"}
           </Button>
         </DialogFooter>
       </DialogContent>
