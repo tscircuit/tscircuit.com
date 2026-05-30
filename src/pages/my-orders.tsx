@@ -4,7 +4,8 @@ import { useAxios } from "@/hooks/use-axios"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { PublicOrder } from "fake-snippets-api/lib/public-mapping/public-map-order"
+import type { PublicOrder } from "fake-snippets-api/lib/public-mapping/public-map-order"
+import { getOrderPaymentComplete } from "../../lib/orders/order-payment-state"
 import type {
   Package,
   PublicPackageRelease,
@@ -26,20 +27,11 @@ type OrderCardData = {
   packageRelease?: PublicPackageRelease
 }
 
-const getPaymentComplete = (order: PublicOrder) =>
-  Boolean(
-    order.is_stripe_payment_paid ||
-      order.is_started ||
-      order.is_running ||
-      order.is_finished ||
-      !order.stripe_checkout_session_id,
-  )
-
 const getOrderStatus = (order: PublicOrder) => {
   if (order.has_error) return "Needs attention"
   if (order.is_finished) return "Completed"
   if (order.is_running) return "In progress"
-  if (getPaymentComplete(order)) return "Payment confirmed"
+  if (getOrderPaymentComplete(order)) return "Payment confirmed"
   return "Awaiting payment"
 }
 
@@ -47,14 +39,14 @@ const getStatusStyle = (order: PublicOrder) => {
   if (order.has_error) return "bg-red-50 text-red-700 ring-red-200"
   if (order.is_finished) return "bg-green-50 text-green-700 ring-green-200"
   if (order.is_running) return "bg-blue-50 text-blue-700 ring-blue-200"
-  if (getPaymentComplete(order))
+  if (getOrderPaymentComplete(order))
     return "bg-emerald-50 text-emerald-700 ring-emerald-200"
   return "bg-amber-50 text-amber-700 ring-amber-200"
 }
 
 const getStatusIcon = (order: PublicOrder) => {
   if (order.has_error) return AlertTriangle
-  if (order.is_finished || getPaymentComplete(order)) return CheckCircle2
+  if (order.is_finished || getOrderPaymentComplete(order)) return CheckCircle2
   if (order.is_running) return PackageCheck
   return Clock
 }
