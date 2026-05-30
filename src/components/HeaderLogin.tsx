@@ -24,6 +24,7 @@ export const HeaderLogin = () => {
   const { data: organizations } = useListUserOrgs()
   const personalOrg = organizations?.find((org) => org.is_personal_org)
   const nonPersonalOrgs = organizations?.filter((org) => !org.is_personal_org)
+  const isTscircuitStaff = session?.is_tscircuit_staff
   const tscircuitHandleRequiredDialog = useGlobalStore(
     (s) => s.openTscircuitHandleRequiredDialog,
   )
@@ -115,6 +116,17 @@ export const HeaderLogin = () => {
               </span>
             )}
           </DropdownMenuItem>
+          {isTscircuitStaff && (
+            <DropdownMenuItem asChild>
+              <Link
+                href="/my-orders"
+                className="cursor-pointer"
+                onClick={() => setIsOpen(false)}
+              >
+                My Orders
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Link
               href="/dashboard"
