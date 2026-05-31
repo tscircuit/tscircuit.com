@@ -128,7 +128,7 @@
     "circuit-json-to-simple-3d": "^0.0.7",
     "circuit-json-to-spice": "^0.0.6",
     "circuit-json-to-step": "^0.0.20",
-    "circuit-json-to-tscircuit": "^0.0.11",
+    "circuit-json-to-tscircuit": "^0.0.21",
     "circuit-to-svg": "^0.0.319",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
