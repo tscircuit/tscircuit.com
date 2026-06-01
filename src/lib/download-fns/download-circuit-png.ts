@@ -1,13 +1,14 @@
-import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
 import { AnyCircuitElement } from "circuit-json"
+import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
+  convertCircuitJsonToPinoutSvg,
   convertCircuitJsonToSchematicSvg,
 } from "circuit-to-svg"
 import { saveAs } from "file-saver"
 
-export type ImageFormat = "schematic" | "pcb" | "assembly" | "3d"
+export type ImageFormat = "schematic" | "pcb" | "assembly" | "pinout" | "3d"
 
 interface DownloadCircuitPngOptions {
   format: ImageFormat
@@ -75,6 +76,9 @@ export const downloadCircuitPng = async (
         break
       case "assembly":
         svg = convertCircuitJsonToAssemblySvg(circuitJson, svgOptions)
+        break
+      case "pinout":
+        svg = convertCircuitJsonToPinoutSvg(circuitJson, svgOptions)
         break
       default:
         svg = await convertCircuitJsonToSimple3dSvg(circuitJson, {

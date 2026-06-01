@@ -1,3 +1,4 @@
+import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -8,28 +9,26 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { toast, useNotImplementedToast } from "@/hooks/use-toast"
-import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
-import { downloadSimpleRouteJson } from "@/lib/download-fns/download-simple-route-json"
-import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
-import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
-import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
-import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
-import { downloadSpiceFile } from "@/lib/download-fns/download-spice-file"
-import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
-import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
-import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
-import { AnyCircuitElement } from "circuit-json"
-import { ChevronDown, Download, Hammer } from "lucide-react"
-import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
-import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
-import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
-import { CubeIcon } from "@radix-ui/react-icons"
-import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { toast, useNotImplementedToast } from "@/hooks/use-toast"
+import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
+import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
+import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
+import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
+import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
+import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
+import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
+import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
+import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
+import { downloadSimpleRouteJson } from "@/lib/download-fns/download-simple-route-json"
+import { downloadSpiceFile } from "@/lib/download-fns/download-spice-file"
 import { downloadStepFile } from "@/lib/download-fns/download-step"
-import { ImageIcon } from "lucide-react"
+import { CubeIcon } from "@radix-ui/react-icons"
+import { AnyCircuitElement } from "circuit-json"
+import { ChevronDown, Download, Hammer, ImageIcon } from "lucide-react"
+import { useState } from "react"
 
 interface DownloadButtonAndMenuProps {
   className?: string
@@ -136,9 +135,13 @@ export function DownloadButtonAndMenu({
   }
 
   const downloadDefaultImage = async () => {
-    const desiredImageFormat = ["pcb", "schematic", "assembly", "3d"].includes(
-      desiredImageType,
-    )
+    const desiredImageFormat = [
+      "pcb",
+      "schematic",
+      "assembly",
+      "pinout",
+      "3d",
+    ].includes(desiredImageType)
       ? desiredImageType
       : "pcb"
 
@@ -227,6 +230,14 @@ export function DownloadButtonAndMenu({
                   >
                     <Download className="mr-1 h-3 w-3" />
                     <span className="flex-grow mr-6">Assembly PNG</span>
+                    {formatBadge("png", "bg-teal-600")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-xs"
+                    onClick={() => downloadImage("pinout")}
+                  >
+                    <Download className="mr-1 h-3 w-3" />
+                    <span className="flex-grow mr-6">Pinout PNG</span>
                     {formatBadge("png", "bg-teal-600")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
