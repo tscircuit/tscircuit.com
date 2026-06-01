@@ -145,13 +145,25 @@ export default function RepoPageContent({
     } else if (defaultView && availableViewSet.has(defaultView)) {
       setActiveView(defaultView)
       window.location.hash = defaultView
+    } else if (
+      !hashView &&
+      defaultView &&
+      circuitDependentViews.has(defaultView) &&
+      isCircuitJsonLoading
+    ) {
+      return
     } else {
       setActiveView("files")
       if (!hashView || !availableViewSet.has(hashView)) {
         window.location.hash = "files"
       }
     }
-  }, [packageInfo?.default_view, arePackageFilesFetched, circuitJsonExists])
+  }, [
+    packageInfo?.default_view,
+    arePackageFilesFetched,
+    circuitJsonExists,
+    isCircuitJsonLoading,
+  ])
 
   const importantFilePaths = packageFiles
     ?.filter((pf) => isPackageFileImportant(pf.file_path))
