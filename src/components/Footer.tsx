@@ -42,13 +42,6 @@ export default function Footer() {
                     {item.name}
                   </Link>
                 ))}
-              <a
-                href="https://chat.tscircuit.com"
-                className="hover:underline w-fit"
-                target="_blank"
-              >
-                Create with AI
-              </a>
             </footer>
           </div>
 
