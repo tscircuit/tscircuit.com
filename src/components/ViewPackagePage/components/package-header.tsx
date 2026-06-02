@@ -182,7 +182,6 @@ export default function PackageHeader({
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
-  const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
   const apiBaseUrl = useApiBaseUrl()
   const orderDialogCheckout = useMemo(
@@ -298,19 +297,17 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            {isTscircuitStaff && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOrderClick}
-                disabled={
-                  !packageInfo?.name || !packageRelease?.package_release_id
-                }
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Order
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOrderClick}
+              disabled={
+                !packageInfo?.name || !packageRelease?.package_release_id
+              }
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Order
+            </Button>
 
             <TooltipProvider>
               <Tooltip>
@@ -384,19 +381,17 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
-            {isTscircuitStaff && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleOrderClick}
-                disabled={
-                  !packageInfo?.name || !packageRelease?.package_release_id
-                }
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Order
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleOrderClick}
+              disabled={
+                !packageInfo?.name || !packageRelease?.package_release_id
+              }
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Order
+            </Button>
             <Button
               variant="outline"
               size="sm"
