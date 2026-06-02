@@ -142,6 +142,15 @@ export default function RepoPageContent({
 
     if (hashView && availableViewSet.has(hashView)) {
       setActiveView(hashView)
+    } else if (
+      hashView &&
+      circuitDependentViews.has(hashView) &&
+      isCircuitJsonLoading
+    ) {
+      // Preserve explicit circuit-dependent links like #schematic until the
+      // preview circuit JSON query finishes and we can verify availability.
+      setActiveView(hashView)
+      return
     } else if (defaultView && availableViewSet.has(defaultView)) {
       setActiveView(defaultView)
       window.location.hash = defaultView
