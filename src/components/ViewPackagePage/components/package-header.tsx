@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "wouter"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -21,6 +21,7 @@ import { useForkPackageMutation } from "@/hooks/use-fork-package-mutation"
 import { usePackageStarringByName } from "@/hooks/use-package-stars"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { posthog } from "@/lib/posthog"
 import type {
   Package as PackageType,
   PublicPackageRelease,
@@ -123,10 +124,18 @@ function getOrderDialogCheckout({
   apiBaseUrl,
   packageReleaseId,
   sessionToken,
+  trackPlaceOrderClick,
 }: {
   apiBaseUrl: string
   packageReleaseId?: string
   sessionToken?: string
+  trackPlaceOrderClick?: (context: {
+    quantity: number
+    fabricatorId: string
+    fabricatorName: string
+    total: number
+    autofixRequired: boolean
+  }) => void
 }): OrderDialogCheckout | undefined {
   if (typeof window === "undefined") return undefined
   if (!packageReleaseId) return undefined
@@ -137,6 +146,14 @@ function getOrderDialogCheckout({
     successUrl: `${appOrigin}/orders/success`,
     cancelUrl: `${appOrigin}/orders/cancel`,
     createSession: async (_request, context): Promise<CheckoutSession> => {
+      trackPlaceOrderClick?.({
+        quantity: context.quantity,
+        fabricatorId: context.fabricator.id,
+        fabricatorName: context.fabricator.name,
+        total: context.total,
+        autofixRequired: context.autofixRequired,
+      })
+
       const response = await fetch(`${apiBaseUrl}/orders/create`, {
         method: "POST",
         headers: {
@@ -178,21 +195,75 @@ export default function PackageHeader({
     ? packageNameWithOwner?.split("/")[1]
     : packageInfo?.unscoped_name
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const accountId = useGlobalStore((s) => s.session?.account_id)
   const isOwner =
     packageInfo?.owner_github_username ===
     useGlobalStore((s) => s.session?.github_username)
   const isLoggedIn = useGlobalStore((s) => s.session != null)
   const isTscircuitStaff = useGlobalStore((s) => s.session?.is_tscircuit_staff)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+  const orderDialogOpenedAtRef = useRef<number | null>(null)
   const apiBaseUrl = useApiBaseUrl()
+  const orderTrackingProperties = useMemo(
+    () => ({
+      accountId,
+      packageId: packageInfo?.package_id,
+      packageName: packageInfo?.name,
+      packageReleaseId: packageRelease?.package_release_id,
+      packageReleaseVersion: packageRelease?.version,
+    }),
+    [
+      accountId,
+      packageInfo?.package_id,
+      packageInfo?.name,
+      packageRelease?.package_release_id,
+      packageRelease?.version,
+    ],
+  )
+  const orderTrackingPropertiesRef = useRef(orderTrackingProperties)
+  useEffect(() => {
+    orderTrackingPropertiesRef.current = orderTrackingProperties
+  }, [orderTrackingProperties])
+  const captureOrderEvent = useCallback(
+    (eventName: string, properties: Record<string, unknown> = {}) => {
+      posthog.capture(eventName, {
+        ...orderTrackingPropertiesRef.current,
+        ...properties,
+      })
+    },
+    [],
+  )
+  const trackOrderDialogClosed = useCallback(
+    (reason: "close" | "submit" | "unmount") => {
+      const openedAt = orderDialogOpenedAtRef.current
+      if (openedAt == null) return
+
+      const durationMs = Math.round(performance.now() - openedAt)
+      orderDialogOpenedAtRef.current = null
+      captureOrderEvent("order_dialog_closed", {
+        reason,
+        durationMs,
+        durationSeconds: durationMs / 1000,
+      })
+    },
+    [captureOrderEvent],
+  )
   const orderDialogCheckout = useMemo(
     () =>
       getOrderDialogCheckout({
         apiBaseUrl,
         packageReleaseId: packageRelease?.package_release_id,
         sessionToken,
+        trackPlaceOrderClick: (context) => {
+          captureOrderEvent("order_dialog_place_order_clicked", context)
+        },
       }),
-    [apiBaseUrl, packageRelease?.package_release_id, sessionToken],
+    [
+      apiBaseUrl,
+      captureOrderEvent,
+      packageRelease?.package_release_id,
+      sessionToken,
+    ],
   )
   const { circuitJson } = useCurrentPackageCircuitJson()
   const orderSpecifications = useMemo(
@@ -230,7 +301,19 @@ export default function PackageHeader({
 
   const handleOrderClick = () => {
     if (!packageInfo?.name || !packageRelease?.package_release_id) return
+    orderDialogOpenedAtRef.current = performance.now()
+    captureOrderEvent("order_dialog_clicked")
     setIsOrderDialogOpen(true)
+  }
+
+  const handleOrderDialogClose = () => {
+    trackOrderDialogClosed("close")
+    setIsOrderDialogOpen(false)
+  }
+
+  const handleOrderDialogSubmit = () => {
+    trackOrderDialogClosed("submit")
+    setIsOrderDialogOpen(false)
   }
 
   useEffect(() => {
@@ -241,6 +324,12 @@ export default function PackageHeader({
     window.TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL =
       import.meta.env.VITE_TSCIRCUIT_STRIPE_CHECKOUT_BASE_URL
   }, [sessionToken])
+
+  useEffect(() => {
+    return () => {
+      trackOrderDialogClosed("unmount")
+    }
+  }, [trackOrderDialogClosed])
 
   return (
     <header className="bg-white border-b border-gray-200 py-4">
@@ -462,8 +551,8 @@ export default function PackageHeader({
             dimensions: boardDimensions,
           }}
           specifications={orderSpecifications}
-          onClose={() => setIsOrderDialogOpen(false)}
-          onSubmit={() => setIsOrderDialogOpen(false)}
+          onClose={handleOrderDialogClose}
+          onSubmit={handleOrderDialogSubmit}
         />
       )}
     </header>
