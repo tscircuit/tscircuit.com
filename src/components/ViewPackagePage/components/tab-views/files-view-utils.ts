@@ -75,7 +75,9 @@ export const buildFilesViewEntries = ({
       const currentTimestamp = directoryTimestamps.get(currentPath)
       const nextTimestamp = file.created_at
       const currentValue =
-        currentTimestamp === undefined ? null : getTimestampValue(currentTimestamp)
+        currentTimestamp === undefined
+          ? null
+          : getTimestampValue(currentTimestamp)
       const nextValue = getTimestampValue(nextTimestamp)
 
       if (
@@ -108,7 +110,9 @@ export const buildFilesViewEntries = ({
         created_at,
       }
     })
-    .filter((directory): directory is FilesViewDirectoryItem => directory !== null)
+    .filter(
+      (directory): directory is FilesViewDirectoryItem => directory !== null,
+    )
 
   return { directories, files }
 }

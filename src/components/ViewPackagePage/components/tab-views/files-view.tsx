@@ -3,10 +3,7 @@ import { useMemo, useState } from "react"
 import { isWithinDirectory } from "../../utils/is-within-directory"
 import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 import type { PackageFile as ApiPackageFile } from "fake-snippets-api/lib/db/schema"
-import {
-  buildFilesViewEntries,
-  formatFilesViewDate,
-} from "./files-view-utils"
+import { buildFilesViewEntries, formatFilesViewDate } from "./files-view-utils"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
