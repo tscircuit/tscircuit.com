@@ -19,6 +19,7 @@ import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
+import { downloadPinoutSvg } from "@/lib/download-fns/download-pinout-svg"
 import { downloadPngImage } from "@/lib/download-fns/download-png-utils"
 import { downloadReadableNetlist } from "@/lib/download-fns/download-readable-netlist"
 import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
@@ -270,6 +271,17 @@ export function DownloadButtonAndMenu({
               >
                 <Download className="mr-1 h-3 w-3" />
                 <span className="flex-grow mr-6">Assembly SVG</span>
+                {formatBadge("svg", "bg-blue-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onSelect={async () => {
+                  const cj = await getCircuitJson()
+                  downloadPinoutSvg(cj, unscopedName || "circuit")
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Pinout SVG</span>
                 {formatBadge("svg", "bg-blue-500")}
               </DropdownMenuItem>
               <DropdownMenuItem
