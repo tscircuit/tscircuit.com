@@ -1,23 +1,12 @@
 import { FileText, Folder, Loader2, AlertTriangle } from "lucide-react"
 import { useMemo, useState } from "react"
-import { isHiddenFile } from "../../utils/is-hidden-file"
 import { isWithinDirectory } from "../../utils/is-within-directory"
 import HiddenFilesDropdown from "@/components/HiddenFilesDropdown"
 import type { PackageFile as ApiPackageFile } from "fake-snippets-api/lib/db/schema"
-
-interface Directory {
-  type: "directory"
-  path: string
-  name: string
-}
-
-interface File {
-  type: "file"
-  path: string
-  name: string
-  content: string
-  created_at: string
-}
+import {
+  buildFilesViewEntries,
+  formatFilesViewDate,
+} from "./files-view-utils"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
@@ -40,99 +29,21 @@ export default function FilesView({
   const [activeDir, setActiveDir] = useState("")
   const [showHiddenFiles, setShowHiddenFiles] = useState(false)
 
-  // Parse package files to determine directories and files structure
   const { directories, files } = useMemo(() => {
-    if (!packageFiles.length) {
-      return { directories: [], files: [] }
-    }
-
-    const dirs = new Set<string>()
-    const filesList: File[] = []
-
-    packageFiles
-      .filter((file) => showHiddenFiles || !isHiddenFile(file.file_path))
-      .forEach((file) => {
-        // Extract directory path
-        const pathParts = file.file_path.split("/")
-        const fileName = pathParts.pop() || ""
-
-        // Add all parent directories
-        let currentPath = ""
-        pathParts.forEach((part) => {
-          currentPath += (currentPath ? "/" : "") + part
-          // Only add directory if it contains visible files
-          if (
-            showHiddenFiles ||
-            packageFiles.some(
-              (f) =>
-                f.file_path.startsWith(currentPath + "/") &&
-                !isHiddenFile(f.file_path),
-            )
-          ) {
-            dirs.add(currentPath)
-          }
-        })
-
-        filesList.push({
-          type: "file",
-          path: file.file_path,
-          name: fileName,
-          content: file.file_content || file.content_text || "",
-          created_at: file.created_at,
-        })
-      })
-
-    // Convert directories set to array of directory objects
-    const dirsList = Array.from(dirs)
-      .map((path) => {
-        const pathParts = path.split("/")
-        if (!path) return null
-        return {
-          type: "directory",
-          path,
-          name: pathParts[pathParts.length - 1],
-        }
-      })
-      .filter((dir): dir is Directory => dir !== null)
-
-    return {
-      directories: dirsList,
-      files: filesList,
-    }
+    return buildFilesViewEntries({ packageFiles, showHiddenFiles })
   }, [packageFiles, showHiddenFiles])
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const parsedDate = new Date(dateString)
-    if (Number.isNaN(parsedDate.getTime())) return ""
-
-    const now = new Date()
-    const diffMs = now.getTime() - parsedDate.getTime()
-    const oneDayMs = 1000 * 60 * 60 * 24
-
-    // Treat future dates as today
-    if (diffMs <= 0) return "today"
-
-    if (diffMs < oneDayMs) return "today"
-
-    const diffDays = Math.floor(diffMs / oneDayMs)
-    if (diffDays === 1) return "yesterday"
-    if (diffDays < 7) return `${diffDays} days ago`
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
-    return `${Math.floor(diffDays / 365)} years ago`
-  }
 
   // Combine directories and files for display
   const items = [
     ...directories.map((dir) => ({
       ...dir,
       message: "", // TODO insert ai description of directory here!
-      time: "",
+      time: formatFilesViewDate(dir.created_at),
     })),
     ...files.map((file) => ({
       ...file,
       message: "", // TODO insert ai description of file here!
-      time: formatDate(file.created_at),
+      time: formatFilesViewDate(file.created_at),
     })),
   ].sort((a, b) => {
     // Sort directories first, then files
