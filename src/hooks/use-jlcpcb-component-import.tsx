@@ -20,7 +20,7 @@ export const useJlcpcbComponentImport = () => {
   const runImport = useCallback(
     async ({ result, tsx }: JlcpcbComponentTsxLoadedPayload) => {
       if (!session) {
-        throw new Error("You must be logged in to import from JLCPCB")
+        throw new Error("You must be signed in to import from JLCPCB")
       }
 
       const partNumber = result.component.partNumber || "component"

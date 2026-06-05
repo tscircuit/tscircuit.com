@@ -32,7 +32,7 @@ export const ImportComponentDialog = ({
 
   useEffect(() => {
     if (open && !prevOpenRef.current && !session) {
-      toastLibrary.error("Please sign in to import components")
+      toastLibrary.error("You must be signed in to import from JLCPCB")
       onOpenChange(false)
     }
     prevOpenRef.current = open
