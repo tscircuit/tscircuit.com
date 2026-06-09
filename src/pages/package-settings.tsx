@@ -217,7 +217,9 @@ export default function PackageSettingsPage() {
       unscopedPackageName: packageInfo.unscoped_name || "",
       description: packageInfo.description || packageInfo.ai_description || "",
       website:
-        packageRelease.package_release_website_url || packageInfo.website || "",
+        packageInfo.website ||
+        packageRelease?.package_release_website_url ||
+        "",
       license: currentLicense || null,
       visibility: packageInfo.is_private ? "private" : "public",
       defaultView: packageInfo.default_view || "files",
