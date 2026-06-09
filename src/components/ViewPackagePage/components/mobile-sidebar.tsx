@@ -103,7 +103,8 @@ const MobileSidebar = ({
     }
   }, [packageInfo?.package_id, axios, toast])
 
-  const websiteUrl = packageRelease?.package_release_website_url
+  const websiteUrl =
+    packageInfo?.website || packageRelease?.package_release_website_url
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
