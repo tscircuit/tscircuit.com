@@ -1,5 +1,5 @@
 import { AnyCircuitElement } from "circuit-json"
-import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
+import { renderCircuitJsonTo3dPng } from "circuit-json-to-3d-png"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
@@ -14,6 +14,18 @@ interface DownloadCircuitPngOptions {
   format: ImageFormat
   width?: number
   height?: number
+}
+
+// SVG-based formats are rendered to an SVG string and then rasterized to PNG.
+// Anything not listed here (i.e. "3d") is rendered directly to PNG bytes.
+const SVG_RENDERERS: Record<
+  string,
+  (circuitJson: AnyCircuitElement[], options: any) => string
+> = {
+  schematic: convertCircuitJsonToSchematicSvg,
+  pcb: convertCircuitJsonToPcbSvg,
+  assembly: convertCircuitJsonToAssemblySvg,
+  pinout: convertCircuitJsonToPinoutSvg,
 }
 
 const convertSvgToPng = async (svgString: string): Promise<Blob> => {
@@ -54,45 +66,36 @@ const convertSvgToPng = async (svgString: string): Promise<Blob> => {
   })
 }
 
+const renderCircuitToPng = async (
+  circuitJson: AnyCircuitElement[],
+  options: DownloadCircuitPngOptions,
+): Promise<Blob> => {
+  const renderSvg = SVG_RENDERERS[options.format.toLowerCase()]
+  if (renderSvg) {
+    const svgOptions: { width?: number; height?: number } = {}
+    if (options.width) svgOptions.width = options.width
+    if (options.height) svgOptions.height = options.height
+    return convertSvgToPng(renderSvg(circuitJson, svgOptions))
+  }
+
+  const pngBytes = await renderCircuitJsonTo3dPng(circuitJson, {
+    cameraPreset: "top-left-corner",
+    boardTextureResolution: 2048,
+  })
+  // Copy into a fresh ArrayBuffer: a Uint8Array view isn't assignable to BlobPart.
+  const pngBuffer = new ArrayBuffer(pngBytes.byteLength)
+  new Uint8Array(pngBuffer).set(pngBytes)
+  return new Blob([pngBuffer], { type: "image/png" })
+}
+
 export const downloadCircuitPng = async (
   circuitJson: AnyCircuitElement[],
   fileName: string,
   options: DownloadCircuitPngOptions = { format: "pcb" },
 ) => {
   try {
-    let blob: Blob
-    let svg: string
-
-    const svgOptions: any = {}
-    if (options.width) svgOptions.width = options.width
-    if (options.height) svgOptions.height = options.height
-
-    switch (options.format.toLowerCase()) {
-      case "schematic":
-        svg = convertCircuitJsonToSchematicSvg(circuitJson, svgOptions)
-        break
-      case "pcb":
-        svg = convertCircuitJsonToPcbSvg(circuitJson, svgOptions)
-        break
-      case "assembly":
-        svg = convertCircuitJsonToAssemblySvg(circuitJson, svgOptions)
-        break
-      case "pinout":
-        svg = convertCircuitJsonToPinoutSvg(circuitJson, svgOptions)
-        break
-      default:
-        svg = await convertCircuitJsonToSimple3dSvg(circuitJson, {
-          background: {
-            color: "#fff",
-            opacity: 0.0,
-          },
-          defaultZoomMultiplier: 1.1,
-        })
-    }
-
-    blob = await convertSvgToPng(svg)
-    const downloadFileName = `${fileName}_${options.format}.png`
-    saveAs(blob, downloadFileName)
+    const blob = await renderCircuitToPng(circuitJson, options)
+    saveAs(blob, `${fileName}_${options.format}.png`)
   } catch (error) {
     console.error(error)
     throw new Error(`Failed to download ${options.format} PNG: ${error}`)
