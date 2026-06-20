@@ -121,7 +121,7 @@
     "autoprefixer": "^10.4.20",
     "circuit-json-to-bom-csv": "^0.0.9",
     "circuit-json-to-gerber": "^0.0.51",
-    "circuit-json-to-gltf": "^0.0.91",
+    "circuit-json-to-gltf": "^0.0.105",
     "circuit-json-to-kicad": "^0.0.153",
     "circuit-json-to-lbrn": "^0.0.23",
     "circuit-json-to-pnp-csv": "^0.0.7",
