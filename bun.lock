@@ -49,7 +49,7 @@
         "@resvg/resvg-wasm": "^2.6.2",
         "@sentry/react": "^10.10.0",
         "@tailwindcss/typography": "^0.5.16",
-        "@tscircuit/3d-viewer": "^0.0.568",
+        "@tscircuit/3d-viewer": "^0.0.569",
         "@tscircuit/assembly-viewer": "^0.0.5",
         "@tscircuit/create-snippet-url": "^0.0.14",
         "@tscircuit/eval": "^0.0.948",
@@ -62,7 +62,7 @@
         "@tscircuit/pcb-viewer": "1.11.374",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/props": "^0.0.543",
-        "@tscircuit/runframe": "^0.0.2112",
+        "@tscircuit/runframe": "^0.0.2113",
         "@tscircuit/schematic-viewer": "^2.0.64",
         "@tscircuit/simple-3d-svg": "^0.0.41",
         "@types/babel__standalone": "^7.1.7",
@@ -801,7 +801,7 @@
 
     "@ts-morph/common": ["@ts-morph/common@0.22.0", "", { "dependencies": { "fast-glob": "^3.3.2", "minimatch": "^9.0.3", "mkdirp": "^3.0.1", "path-browserify": "^1.0.1" } }, "sha512-HqNBuV/oIlMKdkLshXd1zKBqNQCsuPEsgQOkfFQ/eUKjRlwndXW1AjN9LVkBEIukm00gGXSRmfkl0Wv5VXLnlw=="],
 
-    "@tscircuit/3d-viewer": ["@tscircuit/3d-viewer@0.0.568", "", { "dependencies": { "@jscad/regl-renderer": "^2.6.12", "@jscad/stl-serializer": "^2.1.20", "circuit-json": "^0.0.421", "circuit-to-canvas": "^0.0.110", "react-hot-toast": "^2.6.0", "three": "^0.165.0", "three-stdlib": "^2.36.0", "troika-three-text": "^0.52.4" }, "peerDependencies": { "@tscircuit/circuit-json-util": "*", "@tscircuit/core": "*", "react": "19.1.0", "react-dom": "19.1.0", "zod": "3" } }, "sha512-i98qzOR53bMvTx6ZjVfozVliSeIMkAdp5W1jXWV51nxiZaySJMMofC7S0AzeMN0+4KheuHbGGFOLlgV8ZW5yEQ=="],
+    "@tscircuit/3d-viewer": ["@tscircuit/3d-viewer@0.0.569", "", { "dependencies": { "@jscad/regl-renderer": "^2.6.12", "@jscad/stl-serializer": "^2.1.20", "circuit-json": "^0.0.421", "circuit-to-canvas": "^0.0.110", "react-hot-toast": "^2.6.0", "three": "^0.165.0", "three-stdlib": "^2.36.0", "troika-three-text": "^0.52.4" }, "peerDependencies": { "@tscircuit/circuit-json-util": "*", "@tscircuit/core": "*", "react": "19.1.0", "react-dom": "19.1.0", "zod": "3" } }, "sha512-w15p4bm2Iykuz43inCbrbNjjtyjuAAbaoAOvu4KCbY0iegdrQUt+9Vld3y2UHLJFULx9sbnL2Lwqu5ZXB/EzSA=="],
 
     "@tscircuit/alphabet": ["@tscircuit/alphabet@0.0.23", "", { "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-7ue0Wp1/kptJ11mNRT/tttSeL6K3qFUVlIIu8SQaEVnf3mlnqZV83jBdteGHQNRwLLSjgG24sZEvCVhZBIrW1Q=="],
 
@@ -861,7 +861,7 @@
 
     "@tscircuit/props": ["@tscircuit/props@0.0.543", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-eYFDCYbdU2s04RDFCcSDQzerY05xknBhmtTjgfTCNWHMTZ0Z8ZX/EG7xpG1+kmu57YM2nGU/t2iEnzFhusWxYA=="],
 
-    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.2112", "", { "dependencies": { "@tscircuit/eval": "^0.0.948", "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-IPpBbJwHa1Mbrn/NTQ7UNaIgIMrSoH2B7xF7zmYeLolQHL8vAm9Vue59KvWXM89XQ4k33k/NMRUVBIc4bdbS0g=="],
+    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.2113", "", { "dependencies": { "@tscircuit/eval": "^0.0.948", "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-t9tRmX8SHb/HPMq5/7zsKQWNpf/GkBebuFabcb4xil8EdWLiRQEMeylm68yX1ANb8NCGYNruJUwLF//6x0o7iQ=="],
 
     "@tscircuit/schematic-autolayout": ["@tscircuit/schematic-autolayout@0.0.6", "", { "dependencies": { "@tscircuit/soup-util": "^0.0.38", "transformation-matrix": "^2.16.1" } }, "sha512-34cQxtlSylBKyHkzaMBCynaWJgN9c/mWm7cz63StTYIafKmfFs383K8Xoc4QX8HXCvVrHYl1aK15onZua9MxeA=="],
 
