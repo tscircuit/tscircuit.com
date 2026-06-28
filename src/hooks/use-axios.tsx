@@ -4,6 +4,7 @@ import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
 import { ToastContent, useToast } from "./use-toast"
 import { useLocation } from "wouter"
+import { getLoginPath } from "@/lib/utils/handle-redirect"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
@@ -44,13 +45,7 @@ export const useAxios = () => {
           (t) => (
             <div
               onClick={() => {
-                const currentPath =
-                  window.location.pathname +
-                  window.location.search +
-                  window.location.hash
-                setLocation(
-                  `/login?redirect=${encodeURIComponent(currentPath || "/")}`,
-                )
+                setLocation(getLoginPath(location))
               }}
               className="cursor-pointer"
             >

@@ -23,6 +23,25 @@ export const getSafeRedirectTarget = (
   return null
 }
 
+const normalizeAppLocation = (location?: string) => {
+  if (!location) return "/"
+  return location.startsWith("/") ? location : `/${location}`
+}
+
+export const getCurrentAppPath = (location?: string) => {
+  const fallbackLocation = normalizeAppLocation(location)
+
+  if (typeof window === "undefined") return fallbackLocation
+
+  return (
+    `${window.location.pathname}${window.location.search}${window.location.hash}` ||
+    fallbackLocation
+  )
+}
+
+export const getLoginPath = (location?: string) =>
+  `/login?redirect=${encodeURIComponent(getCurrentAppPath(location))}`
+
 export const handleRedirect = (
   redirect: string | null,
   fallback: () => void,

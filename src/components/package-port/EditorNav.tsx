@@ -47,6 +47,7 @@ import { useUpdatePackageDescriptionDialog } from "../dialogs/update-package-des
 import { useCreateReleaseDialog } from "@/hooks/use-create-release-dialog"
 import { Tag } from "lucide-react"
 import { CreateReleaseDialog } from "../CreateReleaseDialog"
+import { getLoginPath } from "@/lib/utils/handle-redirect"
 import {
   Tooltip,
   TooltipContent,
@@ -96,7 +97,7 @@ export default function EditorNav({
   viewingVersion?: string
   latestVersion?: string | null
 }) {
-  const [, navigate] = useLocation()
+  const [location, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const session = useGlobalStore((s) => s.session)
   const { Dialog: RenameDialog, openDialog: openRenameDialog } =
@@ -130,7 +131,6 @@ export default function EditorNav({
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
-
   const { organization } = useOrganization(
     pkg?.owner_org_id
       ? { orgId: String(pkg.owner_org_id) }
@@ -226,6 +226,10 @@ export default function EditorNav({
       })
       throw new Error("Failed to update package visibility")
     }
+  }
+
+  const goToLogin = () => {
+    navigate(getLoginPath(location))
   }
 
   const canManagePackage = useMemo(() => {
@@ -363,9 +367,13 @@ export default function EditorNav({
         </div>
         <div className="flex items-center space-x-1">
           {!isLoggedIn && (
-            <div className="bg-orange-100 text-orange-700 py-1 px-2 text-xs opacity-70">
+            <button
+              type="button"
+              className="bg-orange-100 text-orange-700 py-1 px-2 text-xs opacity-70 rounded-sm transition-opacity hover:opacity-100"
+              onClick={goToLogin}
+            >
               Not logged in, can't save
-            </div>
+            </button>
           )}
           {isViewingOlderVersion && (
             <div className="bg-amber-100 text-amber-700 py-1 px-2 text-xs">
