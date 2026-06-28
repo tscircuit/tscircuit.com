@@ -14,6 +14,7 @@ import { useState } from "react"
 import { useAxios } from "@/hooks/use-axios"
 import { GithubAvatarWithFallback } from "@/components/GithubAvatarWithFallback"
 import { useListUserOrgs } from "@/hooks/use-list-user-orgs"
+import { getLoginPath } from "@/lib/utils/handle-redirect"
 
 export const HeaderLogin = () => {
   const session = useGlobalStore((s) => s.session)
@@ -28,16 +29,8 @@ export const HeaderLogin = () => {
     (s) => s.openTscircuitHandleRequiredDialog,
   )
 
-  const orgLoginRedirect =
-    typeof window !== "undefined"
-      ? window.location.pathname + window.location.search + window.location.hash
-      : location?.startsWith("/")
-        ? location
-        : `/${location ?? ""}`
-
   const goToOrgLogin = () => {
-    const redirect = orgLoginRedirect || "/"
-    setLocation(`/login?redirect=${encodeURIComponent(redirect)}`)
+    setLocation(getLoginPath(location))
   }
 
   const isLoggedIn = Boolean(session)
