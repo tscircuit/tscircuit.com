@@ -89,7 +89,7 @@
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.14",
     "@tscircuit/eval": "^0.0.955",
-    "@tscircuit/internal-dynamic-import": "^0.0.5",
+    "@tscircuit/internal-dynamic-import": "^0.0.8",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.36",
     "@tscircuit/mm": "^0.0.8",
