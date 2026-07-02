@@ -124,10 +124,11 @@ export default function EditorNav({
   })
 
   const [isChangingType, setIsChangingType] = useState(false)
+  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false)
   const [currentType, setCurrentType] = useState(
     packageType ?? pkg?.snippet_type,
   )
-  const [isPrivate, setIsPrivate] = useState(pkg?.is_private ?? false)
+  const isPrivate = pkg?.is_private ?? false
   const axios = useAxios()
   const { toast } = useToast()
   const qc = useQueryClient()
@@ -201,30 +202,41 @@ export default function EditorNav({
     }
   }
 
-  const updatePackageVisibilityToPrivate = async (isPrivate: boolean) => {
+  const savePackageVisibility = async (visibility: "public" | "private") => {
     if (!pkg) return
 
-    const response = await axios.post("/packages/update", {
-      package_id: pkg.package_id,
-      is_private: isPrivate,
-    })
+    try {
+      setIsUpdatingVisibility(true)
+      const response = await axios.post("/packages/update", {
+        package_id: pkg.package_id,
+        is_private: visibility === "private",
+      })
 
-    if (response.status === 200) {
-      setIsPrivate(isPrivate)
+      if (response.status !== 200) {
+        throw new Error("Failed to update package visibility")
+      }
+
+      await Promise.all([
+        qc.invalidateQueries(["package", pkg.name]),
+        qc.invalidateQueries(["package", pkg.package_id]),
+        qc.invalidateQueries(["packages"]),
+      ])
+
       toast({
         title: "Package visibility changed",
-        description: `Successfully changed visibility to ${
-          isPrivate ? "private" : "public"
-        }`,
+        description: `Successfully changed visibility to ${visibility}`,
       })
-    } else {
-      setIsPrivate(pkg.is_private ?? false)
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to update package visibility",
+        description:
+          error?.data?.error?.message ||
+          error?.message ||
+          "Failed to update package visibility",
         variant: "destructive",
       })
-      throw new Error("Failed to update package visibility")
+    } finally {
+      setIsUpdatingVisibility(false)
     }
   }
 
@@ -246,6 +258,16 @@ export default function EditorNav({
     session?.account_id,
     pkg?.creator_account_id,
   ])
+
+  const getMobileVisibilityMenuLabel = () => {
+    if (isUpdatingVisibility) return "Changing..."
+    if (!canManagePackage) {
+      if (isPrivate) return "Private Package"
+      return "Public Package"
+    }
+    if (isPrivate) return "Make Public"
+    return "Make Private"
+  }
 
   useHotkeyCombo(
     "cmd+s",
@@ -536,22 +558,26 @@ export default function EditorNav({
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
                   <DropdownMenuSub>
-                    <DropdownMenuSubTrigger className="text-xs">
+                    <DropdownMenuSubTrigger
+                      className="text-xs"
+                      disabled={isUpdatingVisibility}
+                    >
                       <Edit2 className="mr-2 h-3 w-3" />
-                      Change Package Visibility
+                      {isUpdatingVisibility && "Changing..."}
+                      {!isUpdatingVisibility && "Change Package Visibility"}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                       <DropdownMenuItem
                         className="text-xs"
-                        disabled={isPrivate}
-                        onClick={() => updatePackageVisibilityToPrivate(true)}
+                        disabled={isPrivate || isUpdatingVisibility}
+                        onClick={() => savePackageVisibility("private")}
                       >
                         Private {isPrivate && "✓"}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-xs"
-                        disabled={!isPrivate}
-                        onClick={() => updatePackageVisibilityToPrivate(false)}
+                        disabled={!isPrivate || isUpdatingVisibility}
+                        onClick={() => savePackageVisibility("public")}
                       >
                         Public {!isPrivate && "✓"}
                       </DropdownMenuItem>
@@ -635,20 +661,18 @@ export default function EditorNav({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-xs"
+                disabled={!canManagePackage || isUpdatingVisibility}
                 onClick={() => {
-                  if (pkg && canManagePackage) {
-                    updatePackageVisibilityToPrivate(!isPrivate)
+                  if (!pkg || !canManagePackage) return
+                  if (isPrivate) {
+                    savePackageVisibility("public")
+                    return
                   }
+                  savePackageVisibility("private")
                 }}
               >
                 <Eye className="mr-1 h-3 w-3" />
-                {canManagePackage
-                  ? isPrivate
-                    ? "Make Public"
-                    : "Make Private"
-                  : isPrivate
-                    ? "Private Package"
-                    : "Public Package"}
+                {getMobileVisibilityMenuLabel()}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
