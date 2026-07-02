@@ -130,7 +130,7 @@
     "circuit-json-to-spice": "^0.0.6",
     "circuit-json-to-step": "^0.0.20",
     "circuit-json-to-tscircuit": "^0.0.35",
-    "circuit-to-svg": "^0.0.350",
+    "circuit-to-svg": "^0.0.370",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
