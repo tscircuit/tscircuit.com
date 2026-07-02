@@ -259,6 +259,16 @@ export default function EditorNav({
     pkg?.creator_account_id,
   ])
 
+  const getMobileVisibilityMenuLabel = () => {
+    if (isUpdatingVisibility) return "Changing..."
+    if (!canManagePackage) {
+      if (isPrivate) return "Private Package"
+      return "Public Package"
+    }
+    if (isPrivate) return "Make Public"
+    return "Make Private"
+  }
+
   useHotkeyCombo(
     "cmd+s",
     () => {
@@ -553,9 +563,8 @@ export default function EditorNav({
                       disabled={isUpdatingVisibility}
                     >
                       <Edit2 className="mr-2 h-3 w-3" />
-                      {isUpdatingVisibility
-                        ? "Changing..."
-                        : "Change Package Visibility"}
+                      {isUpdatingVisibility && "Changing..."}
+                      {!isUpdatingVisibility && "Change Package Visibility"}
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                       <DropdownMenuItem
@@ -654,21 +663,16 @@ export default function EditorNav({
                 className="text-xs"
                 disabled={!canManagePackage || isUpdatingVisibility}
                 onClick={() => {
-                  if (pkg && canManagePackage) {
-                    savePackageVisibility(isPrivate ? "public" : "private")
+                  if (!pkg || !canManagePackage) return
+                  if (isPrivate) {
+                    savePackageVisibility("public")
+                    return
                   }
+                  savePackageVisibility("private")
                 }}
               >
                 <Eye className="mr-1 h-3 w-3" />
-                {isUpdatingVisibility
-                  ? "Changing..."
-                  : canManagePackage
-                    ? isPrivate
-                      ? "Make Public"
-                      : "Make Private"
-                    : isPrivate
-                      ? "Private Package"
-                      : "Public Package"}
+                {getMobileVisibilityMenuLabel()}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
