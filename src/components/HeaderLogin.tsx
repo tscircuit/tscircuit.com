@@ -75,7 +75,7 @@ export const HeaderLogin = () => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="ml-1 mr-1 md:ml-0 md:mr-1"
+          className="ml-1 mr-1 md:ml-0 md:mr-1 !z-[1000]"
           side="bottom"
           align="end"
           sideOffset={4}
