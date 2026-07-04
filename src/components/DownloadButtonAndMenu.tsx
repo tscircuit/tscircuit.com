@@ -401,7 +401,7 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onClick={async () => {
               const cj = await getCircuitJson()
-              downloadReadableNetlist(cj, unscopedName || "circuit")
+              await downloadReadableNetlist(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />
@@ -412,7 +412,7 @@ export function DownloadButtonAndMenu({
             className="text-xs"
             onSelect={async () => {
               const cj = await getCircuitJson()
-              downloadSpiceFile(cj, unscopedName || "circuit")
+              await downloadSpiceFile(cj, unscopedName || "circuit")
             }}
           >
             <Download className="mr-1 h-3 w-3" />

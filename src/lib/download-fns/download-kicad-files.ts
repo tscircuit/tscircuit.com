@@ -1,17 +1,19 @@
-import { saveAs } from "file-saver"
-import {
-  CircuitJsonToKicadPcbConverter,
-  CircuitJsonToKicadSchConverter,
-  CircuitJsonToKicadProConverter,
-  resolveAndLoadKicad3dModelFiles,
-} from "circuit-json-to-kicad"
+import { loadCircuitJsonToKicad } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
+import { saveAs } from "file-saver"
 import JSZip from "jszip"
 
 export const downloadKicadFiles = async (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {
+  const {
+    CircuitJsonToKicadPcbConverter,
+    CircuitJsonToKicadSchConverter,
+    CircuitJsonToKicadProConverter,
+    resolveAndLoadKicad3dModelFiles,
+  } = await loadCircuitJsonToKicad()
+
   const pcbConverter = new CircuitJsonToKicadPcbConverter(circuitJson, {
     includeBuiltin3dModels: true,
     projectName: fileName,
@@ -36,17 +38,19 @@ export const downloadKicadFiles = async (
   zip.file(`${fileName}.kicad_sch`, kicadSchContent)
   zip.file(`${fileName}.kicad_pro`, kicadProContent)
 
-  await resolveAndLoadKicad3dModelFiles({
-    projectName: fileName,
-    model3dSourcePaths: pcbConverter.getModel3dSourcePaths(),
-    fetch,
-    onModelFile: ({ outputPath, content }) => {
-      zip.file(outputPath, content)
-    },
-    onError: ({ sourcePath }) => {
-      console.warn(`Failed to load 3D model from ${sourcePath}`)
-    },
-  })
+  if (resolveAndLoadKicad3dModelFiles && pcbConverter.getModel3dSourcePaths) {
+    await resolveAndLoadKicad3dModelFiles({
+      projectName: fileName,
+      model3dSourcePaths: pcbConverter.getModel3dSourcePaths(),
+      fetch,
+      onModelFile: ({ outputPath, content }) => {
+        zip.file(outputPath, content)
+      },
+      onError: ({ sourcePath }) => {
+        console.warn(`Failed to load 3D model from ${sourcePath}`)
+      },
+    })
+  }
 
   zip.generateAsync({ type: "blob" }).then((content) => {
     saveAs(content, `${fileName}_kicad.zip`)

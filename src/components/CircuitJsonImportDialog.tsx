@@ -10,7 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { encodeFsMapToUrlHash } from "@/lib/encodeFsMapToUrlHash"
-import { convertCircuitJsonToTscircuit } from "circuit-json-to-tscircuit"
+import { loadCircuitJsonToTscircuit } from "@/lib/utils/load-internal-dynamic-modules"
 import React, { useState } from "react"
 
 interface CircuitJsonImportDialogProps {
@@ -97,6 +97,8 @@ export function CircuitJsonImportDialog({
         return
       }
 
+      const { convertCircuitJsonToTscircuit } =
+        await loadCircuitJsonToTscircuit()
       const tscircuitComponentContent = convertCircuitJsonToTscircuit(
         importedCircuitJson as any,
         {
