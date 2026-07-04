@@ -325,7 +325,7 @@ export function DownloadButtonAndMenu({
                 className="text-xs"
                 onSelect={async () => {
                   const cj = await getCircuitJson()
-                  downloadStepFile(cj, unscopedName || "step_file")
+                  await downloadStepFile(cj, unscopedName || "step_file")
                 }}
               >
                 <Download className="mr-1 h-3 w-3" />
