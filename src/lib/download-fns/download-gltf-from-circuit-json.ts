@@ -1,6 +1,7 @@
+import { loadCircuitJsonToGltf } from "@/lib/utils/load-internal-dynamic-modules"
 import { CircuitJson } from "circuit-json"
 import { saveAs } from "file-saver"
-import { loadCircuitJsonToGltf } from "@/lib/utils/load-internal-dynamic-modules"
+import { withDownloadToast } from "./download-toast"
 
 type ConversionOptions = Parameters<
   Awaited<ReturnType<typeof loadCircuitJsonToGltf>>["convertCircuitJsonToGltf"]
@@ -11,8 +12,13 @@ export const downloadGltfFromCircuitJson = async (
   fileName: string,
   options?: ConversionOptions,
 ) => {
-  const { convertCircuitJsonToGltf } = await loadCircuitJsonToGltf()
-  const result = await convertCircuitJsonToGltf(circuitJson, options)
+  const result = await withDownloadToast(
+    `Preparing ${(options?.format ?? "gltf").toUpperCase()} download...`,
+    async () => {
+      const { convertCircuitJsonToGltf } = await loadCircuitJsonToGltf()
+      return convertCircuitJsonToGltf(circuitJson, options)
+    },
+  )
 
   let blob: Blob
   let extension = options?.format === "glb" ? ".glb" : ".gltf"

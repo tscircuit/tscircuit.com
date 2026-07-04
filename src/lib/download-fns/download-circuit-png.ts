@@ -1,5 +1,5 @@
+import { loadCircuitJsonTo3dPng } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
-import { renderCircuitJsonTo3dPng } from "circuit-json-to-3d-png"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
@@ -7,6 +7,7 @@ import {
   convertCircuitJsonToSchematicSvg,
 } from "circuit-to-svg"
 import { saveAs } from "file-saver"
+import { withDownloadToast } from "./download-toast"
 
 export type ImageFormat = "schematic" | "pcb" | "assembly" | "pinout" | "3d"
 
@@ -78,6 +79,7 @@ const renderCircuitToPng = async (
     return convertSvgToPng(renderSvg(circuitJson, svgOptions))
   }
 
+  const { renderCircuitJsonTo3dPng } = await loadCircuitJsonTo3dPng()
   const pngBytes = await renderCircuitJsonTo3dPng(circuitJson, {
     cameraPreset: "top-left-corner",
     boardTextureResolution: 2048,
@@ -94,7 +96,10 @@ export const downloadCircuitPng = async (
   options: DownloadCircuitPngOptions = { format: "pcb" },
 ) => {
   try {
-    const blob = await renderCircuitToPng(circuitJson, options)
+    const blob = await withDownloadToast(
+      `Preparing ${options.format} PNG download...`,
+      () => renderCircuitToPng(circuitJson, options),
+    )
     saveAs(blob, `${fileName}_${options.format}.png`)
   } catch (error) {
     console.error(error)

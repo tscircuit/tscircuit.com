@@ -1,13 +1,20 @@
+import { loadCircuitJsonToSpice } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
-import { circuitJsonToSpice } from "circuit-json-to-spice"
+import { withDownloadToast } from "./download-toast"
 
-export const downloadSpiceFile = (
+export const downloadSpiceFile = async (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {
-  const spiceNetlist = circuitJsonToSpice(circuitJson)
-  const spiceString = spiceNetlist.toSpiceString()
+  const spiceString = await withDownloadToast(
+    "Preparing SPICE netlist download...",
+    async () => {
+      const { circuitJsonToSpice } = await loadCircuitJsonToSpice()
+      const spiceNetlist = circuitJsonToSpice(circuitJson)
+      return spiceNetlist.toSpiceString()
+    },
+  )
   const blob = new Blob([spiceString], { type: "text/plain" })
   saveAs(blob, fileName + ".cir")
 }

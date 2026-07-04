@@ -1,13 +1,13 @@
+import { loadCircuitJsonToSimple3d } from "@/lib/utils/load-internal-dynamic-modules"
+import { renderAsync } from "@resvg/resvg-js"
 import { AnyCircuitElement } from "circuit-json"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToSchematicSvg,
 } from "circuit-to-svg"
-import { convertCircuitJsonToSimple3dSvg } from "circuit-json-to-simple-3d"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
-import { renderAsync } from "@resvg/resvg-js"
 
 // Define the view types and extensions
 const VIEW_TYPES = ["schematic", "pcb", "assembly", "3d"] as const
@@ -95,6 +95,8 @@ export default withRouteSpec({
   } else if (outputType === "assembly") {
     svg = convertCircuitJsonToAssemblySvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "3d") {
+    const { convertCircuitJsonToSimple3dSvg } =
+      await loadCircuitJsonToSimple3d()
     svg = await convertCircuitJsonToSimple3dSvg(circuit_json, {
       background: {
         color: "#fff",
