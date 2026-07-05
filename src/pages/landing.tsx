@@ -253,6 +253,51 @@ const galleryBoards = [
     stats: ["Sensor", "BOM", "Review"],
     href: "/seveibar/led-water-accelerometer",
   },
+  {
+    owner: "tscircuit",
+    name: "usb-c-sparkfun-qwiic",
+    description:
+      "Connector-heavy reference board with source-controlled outputs.",
+    stats: ["USB-C", "Source", "Fab"],
+    href: "/tscircuit/usb-c-sparkfun-qwiic",
+  },
+  {
+    owner: "seveibar",
+    name: "RP2040-dev-board",
+    description: "Microcontroller layout with reusable packages and previews.",
+    stats: ["MCU", "KiCad", "BOM"],
+    href: "/seveibar/RP2040-dev-board",
+  },
+  {
+    owner: "tscircuit",
+    name: "analog-sim-demo",
+    description:
+      "Simulation-first circuit with plotted behavior and review context.",
+    stats: ["SPICE", "Plots", "Review"],
+    href: "/tscircuit/analog-sim-demo",
+  },
+  {
+    owner: "seveibar",
+    name: "power-monitor",
+    description:
+      "Power measurement board with inspectable nets and BOM output.",
+    stats: ["Power", "BOM", "PCB"],
+    href: "/seveibar/power-monitor",
+  },
+  {
+    owner: "tscircuit",
+    name: "sensor-breakout",
+    description: "Small breakout package with browser previews and Gerbers.",
+    stats: ["Sensor", "3D", "Gerbers"],
+    href: "/tscircuit/sensor-breakout",
+  },
+  {
+    owner: "seveibar",
+    name: "motor-driver-mini",
+    description: "Compact driver layout with reviewable routing changes.",
+    stats: ["Motor", "Routes", "Fab"],
+    href: "/seveibar/motor-driver-mini",
+  },
 ] as const
 
 const OriginalFeatureVisual = ({
@@ -943,43 +988,35 @@ export function LandingPage() {
           aria-labelledby="careers-title"
         >
           <div className="landing-original-careers-row">
-            <div>
-              <div className="landing-original-eyebrow">Careers</div>
-              <h2 id="careers-title">
-                We&apos;re hiring EEs, compiler nerds, and autorouting wizards.
-              </h2>
-              <p className="landing-original-sub">
-                Remote-friendly. Work on the stuff you wish existed when you
-                were at your last hardware job.
-              </p>
-              <div className="landing-careers-roles">
-                {[
-                  "Electrical engineering",
-                  "Compiler/runtime",
-                  "Autorouting",
-                  "Developer tools",
-                ].map((role) => (
-                  <span key={role}>{role}</span>
-                ))}
+            <div className="landing-careers-letter-page">
+              <div className="landing-original-eyebrow">A note from us</div>
+              <h2 id="careers-title">Come build the future of electronics.</h2>
+              <div className="landing-careers-letter">
+                <div className="landing-careers-letter-body">
+                  <p>Hi,</p>
+                  <p>
+                    We&apos;re building tscircuit because hardware should move
+                    at the speed of software. Boards should be inspectable,
+                    programmable, reviewable, and easy for both humans and
+                    agents to improve.
+                  </p>
+                  <p>
+                    If you care about electronics, compilers, CAD, autorouting,
+                    developer tools, or making fabrication feel less opaque,
+                    we&apos;d like to hear from you.
+                  </p>
+                  <p>
+                    This section is intentionally a draft letter for now.
+                    We&apos;ll replace it later with the final note.
+                  </p>
+                  <div className="landing-careers-signature">
+                    <span>- the tscircuit team</span>
+                    <a href="mailto:careers@tscircuit.com">
+                      careers@tscircuit.com
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="landing-careers-panel">
-              <div className="landing-careers-terminal">
-                <span>hiring.pipeline.tsx</span>
-                <strong>4 open tracks</strong>
-              </div>
-              <div className="landing-careers-circuit">
-                {["EE", "CAD", "AI", "FAB"].map((node) => (
-                  <span key={node}>{node}</span>
-                ))}
-              </div>
-              <a
-                className="landing-original-button"
-                href="mailto:careers@tscircuit.com"
-              >
-                Get In Touch
-                <ArrowRight className="h-4 w-4" />
-              </a>
             </div>
           </div>
         </section>

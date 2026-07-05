@@ -1180,152 +1180,137 @@ body {
   margin-top: 28px;
 }
 
-.tscircuit-landing .landing-original-careers-row {
+ .tscircuit-landing .landing-original-careers-row {
   position: relative;
-  display: grid;
   max-width: 1840px;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.68fr);
-  gap: 48px;
-  align-items: center;
   overflow: hidden;
   border: 1px solid #93c5fd;
   border-radius: 32px;
   background:
-    linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px),
-    linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+    linear-gradient(rgba(37, 99, 235, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.09) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(239, 246, 255, 0.72) 100%);
   background-size: 42px 42px, 42px 42px, auto;
-  padding: 54px;
+  padding: 72px 78px;
   margin: 0 auto;
   box-shadow: 0 28px 90px rgba(37, 99, 235, 0.13);
+}
+
+.tscircuit-landing .landing-original-careers-row::before,
+.tscircuit-landing .landing-original-careers-row::after {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+  border-color: rgba(37, 99, 235, 0.34);
+}
+
+.tscircuit-landing .landing-original-careers-row::before {
+  top: 28px;
+  left: 28px;
+  width: 130px;
+  height: 130px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.tscircuit-landing .landing-original-careers-row::after {
+  right: 28px;
+  bottom: 28px;
+  width: 190px;
+  height: 190px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  background: linear-gradient(
+    135deg,
+    transparent 0 48%,
+    rgba(37, 99, 235, 0.13) 48% 52%,
+    transparent 52%
+  );
 }
 
 .tscircuit-landing .landing-original-careers {
   background: #eff6ff;
 }
 
-.tscircuit-landing .landing-careers-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
+.tscircuit-landing .landing-careers-letter-page {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin-left: clamp(0px, 4vw, 80px);
 }
 
-.tscircuit-landing .landing-careers-roles span {
+.tscircuit-landing .landing-careers-letter {
+  max-width: 980px;
+  margin-top: 28px;
+  background: rgba(255, 255, 255, 0.58);
+  padding: 28px 34px;
+}
+
+.tscircuit-landing .landing-careers-letter-body {
+  position: relative;
+  max-width: 860px;
+  padding: 22px 28px;
+}
+
+.tscircuit-landing .landing-careers-letter-body::before,
+.tscircuit-landing .landing-careers-letter-body::after {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+  content: "";
+  border-color: rgba(37, 99, 235, 0.45);
+}
+
+.tscircuit-landing .landing-careers-letter-body::before {
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.tscircuit-landing .landing-careers-letter-body::after {
+  right: 0;
+  bottom: 0;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.tscircuit-landing .landing-careers-letter p {
+  margin: 0;
+  color: #334155;
+  font-size: 20px;
+  line-height: 1.58;
+}
+
+.tscircuit-landing .landing-careers-letter p + p {
+  margin-top: 16px;
+}
+
+.tscircuit-landing .landing-careers-signature {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin-top: 24px;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tscircuit-landing .landing-careers-signature span {
+  color: #0f172a;
+}
+
+.tscircuit-landing .landing-careers-signature a {
   border: 1px solid #93c5fd;
   border-radius: 8px;
   background: #ffffff;
   color: #2563eb;
-  font-family: "Space Mono", monospace;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 10px 12px;
+  padding: 8px 10px;
+  text-decoration: none;
   text-transform: uppercase;
-}
-
-.tscircuit-landing .landing-careers-panel {
-  display: grid;
-  gap: 16px;
-  border: 1px solid #bfdbfe;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.86);
-  padding: 18px;
-  box-shadow: 0 20px 70px rgba(37, 99, 235, 0.16);
-}
-
-.tscircuit-landing .landing-careers-terminal {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid #bfdbfe;
-  border-radius: 14px;
-  background: #0f172a;
-  color: #dbeafe;
-  font-family: "Space Mono", monospace;
-  font-size: 12px;
-  padding: 14px 16px;
-}
-
-.tscircuit-landing .landing-careers-terminal strong {
-  color: #38bdf8;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.tscircuit-landing .landing-careers-circuit {
-  position: relative;
-  min-height: 260px;
-  overflow: hidden;
-  border: 1px solid #bfdbfe;
-  border-radius: 18px;
-  background:
-    linear-gradient(rgba(37, 99, 235, 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.14) 1px, transparent 1px),
-    #ffffff;
-  background-size: 36px 36px;
-}
-
-.tscircuit-landing .landing-careers-circuit::before,
-.tscircuit-landing .landing-careers-circuit::after {
-  position: absolute;
-  content: "";
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #2563eb, #0ea5e9);
-  transform-origin: left center;
-}
-
-.tscircuit-landing .landing-careers-circuit::before {
-  top: 44%;
-  left: 12%;
-  width: 76%;
-  transform: rotate(12deg);
-}
-
-.tscircuit-landing .landing-careers-circuit::after {
-  top: 64%;
-  left: 18%;
-  width: 64%;
-  transform: rotate(-16deg);
-}
-
-.tscircuit-landing .landing-careers-circuit span {
-  position: absolute;
-  z-index: 1;
-  display: grid;
-  width: 74px;
-  height: 58px;
-  place-items: center;
-  border: 1px solid #2563eb;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #1d4ed8;
-  font-family: "Space Mono", monospace;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.tscircuit-landing .landing-careers-circuit span:nth-child(1) {
-  top: 18%;
-  left: 13%;
-}
-
-.tscircuit-landing .landing-careers-circuit span:nth-child(2) {
-  top: 22%;
-  right: 18%;
-}
-
-.tscircuit-landing .landing-careers-circuit span:nth-child(3) {
-  bottom: 18%;
-  left: 26%;
-}
-
-.tscircuit-landing .landing-careers-circuit span:nth-child(4) {
-  right: 14%;
-  bottom: 16%;
 }
 
 @media (max-width: 1100px) {
@@ -1363,6 +1348,15 @@ body {
 
   .tscircuit-landing .landing-original-careers-row {
     padding: 24px;
+  }
+
+  .tscircuit-landing .landing-careers-letter {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .tscircuit-landing .landing-careers-letter-body {
+    padding: 18px;
   }
 }
 
