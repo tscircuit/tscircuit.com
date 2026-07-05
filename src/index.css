@@ -445,6 +445,588 @@ body {
   }
 }
 
+.tscircuit-landing .landing-original-section {
+  position: relative;
+  overflow: hidden;
+  padding: 82px 48px;
+  background:
+    linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.09) 1px, transparent 1px),
+    #ffffff;
+  background-size: 48px 48px;
+  color: #0f172a;
+}
+
+.tscircuit-landing .landing-original-shell {
+  position: relative;
+  max-width: 1840px;
+  margin: 0 auto;
+}
+
+.tscircuit-landing .landing-original-eyebrow,
+.tscircuit-landing .landing-original-meta {
+  color: #2563eb;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-original-section h2 {
+  max-width: 980px;
+  margin: 12px 0 0;
+  font-family: "Anybody", sans-serif;
+  font-size: 72px;
+  font-weight: 850;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.tscircuit-landing .landing-original-sub {
+  max-width: 820px;
+  margin: 18px 0 0;
+  color: #334155;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.tscircuit-landing .landing-original-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 42px;
+}
+
+.tscircuit-landing .landing-original-card {
+  position: relative;
+  display: grid;
+  min-height: 540px;
+  grid-template-rows: auto 1fr;
+  gap: 24px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 28px;
+  background: #dbeafe;
+  padding: 34px;
+  box-shadow: 0 18px 70px rgba(37, 99, 235, 0.13);
+}
+
+.tscircuit-landing .landing-original-card:nth-child(3n + 2) {
+  background: #eff6ff;
+}
+
+.tscircuit-landing .landing-original-card:nth-child(3n) {
+  background: #ffffff;
+}
+
+.tscircuit-landing .landing-original-card::before {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 86px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  pointer-events: none;
+  content: "";
+  aspect-ratio: 1;
+  background:
+    linear-gradient(#bfdbfe, #bfdbfe) 0 0 / 24px 24px no-repeat,
+    linear-gradient(#eff6ff, #eff6ff) 31px 0 / 24px 24px no-repeat,
+    linear-gradient(#dbeafe, #dbeafe) 62px 0 / 24px 24px no-repeat,
+    linear-gradient(#ffffff, #ffffff) 0 31px / 24px 24px no-repeat,
+    linear-gradient(#dbeafe, #dbeafe) 31px 31px / 24px 24px no-repeat;
+  border-radius: 8px;
+  opacity: 0.7;
+}
+
+.tscircuit-landing .landing-original-card::after {
+  position: absolute;
+  right: -28px;
+  bottom: -28px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+  content: "";
+  border-top: 1px solid rgba(37, 99, 235, 0.35);
+  border-left: 1px solid rgba(37, 99, 235, 0.35);
+  border-radius: 28px 0 0 0;
+  background:
+    radial-gradient(circle at 28px 28px, rgba(14, 165, 233, 0.35) 0 4px, transparent 5px),
+    linear-gradient(135deg, transparent 0 48%, rgba(37, 99, 235, 0.18) 48% 52%, transparent 52%);
+}
+
+.tscircuit-landing .landing-original-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.tscircuit-landing .landing-original-card h3 {
+  margin: 14px 0 0;
+  font-family: "Anybody", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.tscircuit-landing .landing-original-card p {
+  margin: 12px 0 0;
+  color: #334155;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.tscircuit-landing .landing-original-code,
+.tscircuit-landing .landing-original-autoroute,
+.tscircuit-landing .landing-original-media,
+.tscircuit-landing .landing-original-review,
+.tscircuit-landing .landing-original-chart,
+.tscircuit-landing .landing-original-bom {
+  min-height: 330px;
+  overflow: hidden;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.tscircuit-landing .landing-original-code {
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #0f172a;
+  padding: 20px;
+}
+
+.tscircuit-landing .landing-original-autoroute {
+  position: relative;
+  background:
+    linear-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.12) 1px, transparent 1px),
+    #ffffff;
+  background-size: 44px 44px;
+}
+
+.tscircuit-landing .landing-original-autoroute span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #93c5fd;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.tscircuit-landing .landing-original-autoroute i {
+  position: absolute;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0ea5e9);
+  transform-origin: left center;
+}
+
+.tscircuit-landing .landing-original-trace-a {
+  top: 35%;
+  left: 14%;
+  width: 54%;
+  transform: rotate(14deg);
+}
+
+.tscircuit-landing .landing-original-trace-b {
+  top: 58%;
+  left: 25%;
+  width: 62%;
+  transform: rotate(-18deg);
+}
+
+.tscircuit-landing .landing-original-trace-c {
+  top: 76%;
+  left: 10%;
+  width: 42%;
+  transform: rotate(6deg);
+}
+
+.tscircuit-landing .landing-original-code pre {
+  margin: 0;
+  color: #dbeafe;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.tscircuit-landing .landing-original-media {
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+}
+
+.tscircuit-landing .landing-original-media-white {
+  background: #ffffff;
+}
+
+.tscircuit-landing .landing-original-media-contain {
+  padding: 12px;
+}
+
+.tscircuit-landing .landing-original-media-dark {
+  background: #1e293b;
+}
+
+.tscircuit-landing .landing-original-review {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: #0f172a;
+  padding: 10px;
+}
+
+.tscircuit-landing .landing-original-review-board {
+  position: relative;
+  min-height: 198px;
+  overflow: hidden;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.36) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.26) 1px, transparent 1px),
+    #111827;
+  background-size: 34px 34px;
+}
+
+.tscircuit-landing .landing-original-review-board span {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  color: #60a5fa;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-original-chip {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  width: 52px;
+  height: 58px;
+  border: 1px solid #f97316;
+  background: #1f2937;
+  transform: translateX(-50%);
+}
+
+.tscircuit-landing .landing-original-review-board i {
+  position: absolute;
+  bottom: 34px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ec4899;
+}
+
+.tscircuit-landing .landing-original-chart {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.tscircuit-landing .landing-original-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tscircuit-landing .landing-original-chart path {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 4;
+}
+
+.tscircuit-landing .landing-original-chart line {
+  stroke: #94a3b8;
+  stroke-width: 2;
+}
+
+.tscircuit-landing .landing-original-bom {
+  padding: 16px;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+}
+
+.tscircuit-landing .landing-original-bom-toolbar,
+.tscircuit-landing .landing-original-bom-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid #dbeafe;
+  padding: 10px 0;
+}
+
+.tscircuit-landing .landing-original-bom-toolbar {
+  grid-template-columns: 0.8fr 1fr 1.5fr 1fr;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.tscircuit-landing .landing-original-playground {
+  background: #eff6ff;
+}
+
+.tscircuit-landing .landing-original-playground-grid {
+  display: grid;
+  max-width: 1840px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 44px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.tscircuit-landing .landing-original-button,
+.tscircuit-landing .landing-original-button-secondary {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 8px;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-original-button {
+  margin-top: 28px;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 0 24px;
+}
+
+.tscircuit-landing .landing-original-button-secondary {
+  border: 1px solid #93c5fd;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0 24px;
+}
+
+.tscircuit-landing .landing-original-button:hover,
+.tscircuit-landing .landing-original-button:focus-visible {
+  background: #1d4ed8;
+}
+
+.tscircuit-landing .landing-original-button-secondary:hover,
+.tscircuit-landing .landing-original-button-secondary:focus-visible {
+  border-color: #2563eb;
+  background: #dbeafe;
+}
+
+.tscircuit-landing .landing-original-button:focus-visible,
+.tscircuit-landing .landing-original-button-secondary:focus-visible,
+.tscircuit-landing .landing-original-gallery-board:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+.tscircuit-landing .landing-original-browser {
+  overflow: hidden;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 28px 80px rgba(37, 99, 235, 0.16);
+}
+
+.tscircuit-landing .landing-original-browser-top {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #dbeafe;
+  padding: 0 16px;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.tscircuit-landing .landing-original-browser-top span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #93c5fd;
+}
+
+.tscircuit-landing .landing-original-browser-body {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  min-height: 360px;
+}
+
+.tscircuit-landing .landing-original-browser-code {
+  overflow: hidden;
+  background: #0f172a;
+  padding: 24px;
+  color: #dbeafe;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.tscircuit-landing .landing-original-browser-board {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.12) 1px, transparent 1px),
+    #f8fafc;
+  background-size: 32px 32px;
+}
+
+.tscircuit-landing .landing-original-board-shape {
+  position: relative;
+  width: 72%;
+  aspect-ratio: 1.35;
+  border: 3px solid #0ea5e9;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #dbeafe, #ffffff);
+}
+
+.tscircuit-landing .landing-original-board-shape::before,
+.tscircuit-landing .landing-original-board-shape::after {
+  position: absolute;
+  content: "";
+  border: 1px solid #60a5fa;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.tscircuit-landing .landing-original-board-shape::before {
+  top: 22%;
+  left: 14%;
+  width: 30%;
+  height: 32%;
+}
+
+.tscircuit-landing .landing-original-board-shape::after {
+  right: 13%;
+  bottom: 18%;
+  width: 26%;
+  height: 28%;
+}
+
+.tscircuit-landing .landing-original-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 36px;
+}
+
+.tscircuit-landing .landing-original-gallery-board {
+  display: grid;
+  gap: 18px;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+.tscircuit-landing .landing-original-pcb {
+  min-height: 220px;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 20%, #ec4899 0 11px, transparent 12px),
+    radial-gradient(circle at 82% 76%, #ec4899 0 11px, transparent 12px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.5) 1px, transparent 1px),
+    linear-gradient(rgba(37, 99, 235, 0.5) 1px, transparent 1px),
+    #111827;
+  background-size: auto, auto, 36px 36px, 36px 36px, auto;
+}
+
+.tscircuit-landing .landing-original-pcb-2 {
+  background-color: #1e293b;
+}
+
+.tscircuit-landing .landing-original-pcb-3 {
+  background-color: #0f172a;
+}
+
+.tscircuit-landing .landing-original-board-owner {
+  color: #2563eb;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-original-board-name {
+  margin-top: 4px;
+  font-family: "Anybody", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.tscircuit-landing .landing-original-gallery-more {
+  margin-top: 28px;
+}
+
+.tscircuit-landing .landing-original-careers-row {
+  display: grid;
+  max-width: 1840px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 36px;
+  align-items: center;
+  border: 1px solid #93c5fd;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 36px;
+  margin: 0 auto;
+}
+
+.tscircuit-landing .landing-original-careers {
+  background: #f8fafc;
+}
+
+@media (max-width: 1100px) {
+  .tscircuit-landing .landing-original-feature-grid,
+  .tscircuit-landing .landing-original-gallery,
+  .tscircuit-landing .landing-original-playground-grid,
+  .tscircuit-landing .landing-original-careers-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1180px) {
+  .tscircuit-landing .landing-original-section h2 {
+    font-size: 56px;
+  }
+}
+
+@media (max-width: 767px) {
+  .tscircuit-landing .landing-original-section {
+    padding: 64px 16px;
+  }
+
+  .tscircuit-landing .landing-original-section h2 {
+    font-size: 42px;
+  }
+
+  .tscircuit-landing .landing-original-card {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .tscircuit-landing .landing-original-browser-body {
+    grid-template-columns: 1fr;
+  }
+
+  .tscircuit-landing .landing-original-careers-row {
+    padding: 24px;
+  }
+}
+
 .tscircuit-landing .landing-faq section {
   background: #f8fafc;
   color: #0f172a;

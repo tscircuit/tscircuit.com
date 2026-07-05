@@ -1,26 +1,18 @@
 import analogSimulationImg from "@/assets/analogsimulation.png"
-import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { FAQ } from "@/components/FAQ"
 import { OptimizedImage } from "@/components/OptimizedImage"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { useSignIn } from "@/hooks/use-sign-in"
 import {
   ArrowRight,
   BookOpen,
-  Bot,
-  Boxes,
-  Braces,
   Building2,
   ChevronDown,
   CircuitBoard,
-  Code2,
   Copy,
   DollarSign,
   FileText,
-  GitBranch,
   Library,
   Menu,
   Search,
@@ -30,72 +22,12 @@ import {
 import { useEffect, useState } from "react"
 import { Helmet } from "react-helmet"
 import { Link } from "wouter"
-import { navigate } from "wouter/use-browser-location"
 
-const featureCards = [
-  {
-    label: "SCHEMATIC",
-    title: "React components become real circuits.",
-    body: "Write boards, subcircuits, footprints, traces, probes, and exports in TypeScript instead of dragging opaque files around.",
-    icon: CircuitBoard,
-    accent: "text-[#2563EB]",
-  },
-  {
-    label: "AI-READY",
-    title: "Agents can edit electronics like code.",
-    body: "tscircuit projects are inspectable source, so Codex, Claude Code, and other agents can initialize, modify, review, and repair designs.",
-    icon: Bot,
-    accent: "text-[#0284C7]",
-  },
-  {
-    label: "FAB OUTPUT",
-    title: "Render once, ship many formats.",
-    body: "Generate schematics, PCBs, 3D previews, Gerbers, KiCad assets, SPICE netlists, BOMs, and assembly context from the same source.",
-    icon: Boxes,
-    accent: "text-[#0EA5E9]",
-  },
-]
-
-const processSteps = [
-  {
-    step: "STEP 01",
-    title: "Describe the board",
-    body: "Start from TSX, an AI prompt, or a reusable package. Component intent stays readable in source control.",
-  },
-  {
-    step: "STEP 02",
-    title: "Render every view",
-    body: "The same circuit becomes browser schematics, PCB layouts, 3D previews, simulations, and reviewable artifacts.",
-  },
-  {
-    step: "STEP 03",
-    title: "Route, test, export",
-    body: "Run autorouting, ngspice simulation, KiCad interop, and manufacturing exports without leaving the code workflow.",
-  },
-]
-
-const bugCards = [
-  {
-    tag: "AUTOROUTE",
-    path: "boards/led-water-accelerometer.tsx",
-    title: "Near-instant board iteration",
-    body: "Jumpers, layers, and route passes can be expressed as configuration rather than manual board surgery.",
-    color: "border-[#2563EB]/60",
-  },
-  {
-    tag: "SIMULATION",
-    path: "examples/full-wave-rectifier.tsx",
-    title: "SPICE where the source lives",
-    body: "Voltage probes and ngspice settings are part of the circuit definition, so review includes behavior.",
-    color: "border-[#3B82F6]/70",
-  },
-  {
-    tag: "KICAD",
-    path: "packages/RP2040.kicad_mod",
-    title: "Existing libraries still matter",
-    body: "Import footprints and export KiCad files when collaboration or manufacturing needs traditional formats.",
-    color: "border-[#1D4ED8]/70",
-  },
+const surfaceTiles = [
+  "bg-[#F8FAFC]",
+  "bg-[#EFF6FF]",
+  "bg-[#DBEAFE]",
+  "bg-[#FFFFFF]",
 ]
 
 const integrations = [
@@ -106,15 +38,6 @@ const integrations = [
   "BOM checks",
   "AI code agents",
 ]
-
-const surfaceTiles = [
-  "bg-[#F8FAFC]",
-  "bg-[#EFF6FF]",
-  "bg-[#DBEAFE]",
-  "bg-[#FFFFFF]",
-]
-
-const pipelineNodes = ["TSX", "SVG", "PCB", "BOM", "3D", "GTR"]
 
 const heroViews = [
   {
@@ -173,6 +96,241 @@ const landingNavItems = [
     hasMenu: true,
   },
 ]
+
+const originalCodeSample = `export default () => (
+  <board width="18mm" height="12mm">
+    <resistor
+      name="R1"
+      resistance="1k"
+      footprint="0402"
+      pcbX={-4}
+    />
+    <led
+      name="D1"
+      color="red"
+      footprint="0603"
+      pcbX={4}
+    />
+    <trace from=".R1 > .pin2" to=".D1 > .anode" />
+    <trace from=".D1 > .cathode" to=".R1 > .pin1" />
+  </board>
+)`
+
+const originalFeatureCards = [
+  {
+    meta: "01 · REACT",
+    title: "JSX components for circuits",
+    body: "Compose boards the way you compose UI. Props, children, hooks - but for resistors.",
+    visual: "code",
+  },
+  {
+    meta: "02 · AUTOROUTE",
+    title: "Real-time autorouting",
+    body: "Sub-second routing on 4-layer boards. Runs locally with LLM-compatible tweaking.",
+    visual: "autoroute",
+  },
+  {
+    meta: "03 · AI",
+    title: "AI coding skills for hardware",
+    body: "Give Claude Code, Codex, or custom agents the tscircuit skill with the CLI, syntax, workflow, and pre-fab context they need to make useful changes.",
+    visual: "ai",
+  },
+  {
+    meta: "04 · FAB",
+    title: "Export every format you need",
+    body: "Download PCB, schematic, and assembly images plus fabrication files, KiCad, DSN, JSON, and netlists from the same board source.",
+    visual: "formats",
+  },
+  {
+    meta: "05 · REVIEW",
+    title: "Visual Diffs Inside GitHub",
+    body: "All the capabilities of version control tool works natively with tscircuit. Approvals, comments, rollback.",
+    visual: "review",
+  },
+  {
+    meta: "06 · OSS",
+    title: "Open & forkable",
+    body: "Open source under MIT. Explore the tscircuit GitHub org, fork what you need, and build on top of it.",
+    visual: "oss",
+  },
+  {
+    meta: "07 · SIMULATION",
+    title: "Analog Simulation",
+    body: "Run analog simulations with tsci simulate on the command line or in the browser, backed by WebAssembly ngspice.",
+    visual: "simulation",
+  },
+  {
+    meta: "08 · KICAD",
+    title: "First Class KiCad Support",
+    body: "Import and export your library anywhere. Import KiCad files natively. Import your tscircuit packages directly into KiCad with native KiCad PCM support.",
+    visual: "kicad",
+  },
+  {
+    meta: "09 · BOM",
+    title: "Automatic Part Selection",
+    body: "Specify parts without part numbers. Bill of materials automatically generated based on realtime availability from supplier integrations.",
+    visual: "bom",
+  },
+] as const
+
+const galleryBoards = [
+  {
+    owner: "tscircuit",
+    name: "motor-controller",
+    href: "/tscircuit/motor-controller",
+  },
+  {
+    owner: "seveibar",
+    name: "keyboard-default60",
+    href: "/seveibar/keyboard-default60",
+  },
+  {
+    owner: "seveibar",
+    name: "led-water-accelerometer",
+    href: "/seveibar/led-water-accelerometer",
+  },
+] as const
+
+const OriginalFeatureVisual = ({
+  visual,
+}: {
+  visual: (typeof originalFeatureCards)[number]["visual"]
+}) => {
+  if (visual === "code") {
+    return (
+      <div className="landing-original-code">
+        <pre>{originalCodeSample}</pre>
+      </div>
+    )
+  }
+
+  if (visual === "autoroute") {
+    return (
+      <div className="landing-original-autoroute" aria-label="Autorouting demo">
+        {Array.from({ length: 34 }).map((_, index) => (
+          <span
+            key={`route-dot-${index}`}
+            style={{
+              left: `${8 + ((index * 13) % 84)}%`,
+              top: `${14 + ((index * 17) % 72)}%`,
+            }}
+          />
+        ))}
+        <i className="landing-original-trace-a" />
+        <i className="landing-original-trace-b" />
+        <i className="landing-original-trace-c" />
+      </div>
+    )
+  }
+
+  if (visual === "ai") {
+    return (
+      <div className="landing-original-media">
+        <OptimizedImage
+          alt="AI coding example for tscircuit"
+          className="h-full w-full object-cover"
+          src={exampleAiCodingImg}
+          height={220}
+          width={420}
+          priority
+        />
+      </div>
+    )
+  }
+
+  if (visual === "formats") {
+    return (
+      <div className="landing-original-media landing-original-media-contain">
+        <OptimizedImage
+          alt="Multiple export formats available in tscircuit"
+          className="h-full w-full object-contain"
+          src={shareableLinkForCircuitImg}
+          height={220}
+          width={420}
+          priority
+        />
+      </div>
+    )
+  }
+
+  if (visual === "review") {
+    return (
+      <div className="landing-original-review" aria-label="Visual diff preview">
+        {["Deleted", "Added"].map((label) => (
+          <div key={label} className="landing-original-review-board">
+            <span>{label}</span>
+            <div className="landing-original-chip" />
+            {[12, 28, 44, 65, 82].map((left) => (
+              <i key={left} style={{ left: `${left}%` }} />
+            ))}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (visual === "oss") {
+    return (
+      <div className="landing-original-chart" aria-label="Star history chart">
+        <svg viewBox="0 0 360 150" role="img" aria-hidden="true">
+          <path d="M22 130 C72 108 90 86 132 88 C190 92 212 70 248 56 C286 42 294 24 330 18" />
+          <g>
+            <line x1="24" y1="22" x2="24" y2="132" />
+            <line x1="24" y1="132" x2="336" y2="132" />
+          </g>
+        </svg>
+      </div>
+    )
+  }
+
+  if (visual === "simulation") {
+    return (
+      <div className="landing-original-media landing-original-media-contain">
+        <OptimizedImage
+          alt="Analog simulation view in tscircuit"
+          className="h-full w-full object-contain"
+          src={analogSimulationImg}
+          height={220}
+          width={420}
+          priority
+        />
+      </div>
+    )
+  }
+
+  if (visual === "kicad") {
+    return (
+      <div className="landing-original-media landing-original-media-contain landing-original-media-dark">
+        <OptimizedImage
+          alt="KiCad library import workflow in tscircuit"
+          className="h-full w-full object-contain"
+          src={importKicadLibraryImg}
+          height={220}
+          width={420}
+          priority
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="landing-original-bom" aria-label="Bill of materials table">
+      <div className="landing-original-bom-toolbar">
+        <span>Run</span>
+        <span>PCB</span>
+        <span>Schematic</span>
+        <span>BOM</span>
+      </div>
+      {["USBC", "LED", "SW1", "R1"].map((part, index) => (
+        <div key={part} className="landing-original-bom-row">
+          <span>{part}</span>
+          <span>{index === 3 ? "1k" : "-"}</span>
+          <span>C{index + 165748}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const LandingTopBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -324,8 +482,6 @@ const LandingFooter = () => (
 )
 
 export function LandingPage() {
-  const signIn = useSignIn()
-  const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
   const [activeHeroViewIndex, setActiveHeroViewIndex] = useState(0)
   const activeHeroView = heroViews[activeHeroViewIndex]
 
@@ -600,338 +756,108 @@ export function LandingPage() {
 
         <section
           id="features"
-          className="landing-tile-field relative bg-[#FFFFFF] px-4 py-16 md:px-6 md:py-24"
+          className="landing-original-section landing-tile-field"
+          aria-labelledby="features-title"
         >
-          <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(37,99,235,.10)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.10)_1px,transparent_1px)] [background-size:48px_48px]" />
-          <div className="relative mx-auto max-w-7xl">
-            <div className="grid gap-6 lg:grid-cols-3">
-              {featureCards.map((feature, index) => {
-                const Icon = feature.icon
-                return (
-                  <article
-                    key={feature.title}
-                    className={`relative overflow-hidden rounded-3xl border border-[#CBD5E1] ${
-                      index === 1 ? "bg-[#EFF6FF]" : "bg-[#DBEAFE]"
-                    } p-6 shadow-[0_12px_40px_rgba(37,99,235,.12)]`}
-                  >
-                    <div className="absolute right-0 top-0 grid w-28 grid-cols-3 gap-1 p-3 opacity-45">
-                      {surfaceTiles.map((tile, tileIndex) => (
-                        <span
-                          key={`${feature.label}-tile-${tileIndex}`}
-                          className={`aspect-square rounded-md border border-[#93C5FD] ${tile}`}
-                        />
-                      ))}
-                    </div>
-                    <div
-                      className={`mb-8 inline-grid h-12 w-12 place-items-center rounded-xl bg-[#F8FAFC] ${feature.accent}`}
-                    >
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    <div className="font-['Space_Mono',monospace] text-[11px] font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                      {feature.label}
-                    </div>
-                    <h2 className="mt-3 font-['Anybody',sans-serif] text-3xl font-extrabold leading-[1.02] tracking-normal">
-                      {feature.title}
-                    </h2>
-                    <p className="mt-4 leading-7 text-[#334155]">
-                      {feature.body}
-                    </p>
-                  </article>
-                )
-              })}
-            </div>
-          </div>
-        </section>
+          <div className="landing-original-shell">
+            <div className="landing-original-eyebrow">Why teams switch</div>
+            <h2 id="features-title">Everything your EE team needs, as code.</h2>
+            <p className="landing-original-sub">
+              Built for hardware startups who move at software speed. Every
+              feature composable, inspectable, diffable in a PR.
+            </p>
 
-        <section className="relative border-y border-[#CBD5E1] bg-[#EFF6FF] px-4 py-16 md:px-6 md:py-24">
-          <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(135deg,rgba(37,99,235,.14)_0_1px,transparent_1px_30px)]" />
-          <div className="relative mx-auto max-w-7xl">
-            <div className="mb-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
-              <div className="max-w-3xl">
-                <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                  [ CODE TO CIRCUIT PIPELINE ]
-                </div>
-                <h2 className="mt-4 font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-                  A developer workflow for physical boards.
-                </h2>
-              </div>
-              <div className="grid grid-cols-6 gap-2 rounded-2xl border border-[#CBD5E1] bg-[#FFFFFF] p-3">
-                {pipelineNodes.map((label, index) => (
-                  <div
-                    key={`rail-${label}`}
-                    className={`grid aspect-square place-items-center rounded-lg border font-['Space_Mono',monospace] text-[10px] font-bold ${
-                      index % 3 === 0
-                        ? "border-[#2563EB]/70 bg-[#2563EB]/10 text-[#2563EB]"
-                        : "border-[#CBD5E1] bg-[#F8FAFC] text-[#64748B]"
-                    }`}
-                  >
-                    {label}
+            <div className="landing-original-feature-grid">
+              {originalFeatureCards.map((feature) => (
+                <article key={feature.title} className="landing-original-card">
+                  <div>
+                    <div className="landing-original-meta">{feature.meta}</div>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.body}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div className="grid gap-5 lg:grid-cols-3">
-              {processSteps.map((step, index) => (
-                <article
-                  key={step.step}
-                  className={`relative overflow-hidden rounded-[28px] border border-[#CBD5E1] ${
-                    index === 0
-                      ? "bg-[#F8FAFC]"
-                      : index === 1
-                        ? "bg-[#FFFFFF]"
-                        : "bg-[#DBEAFE]"
-                  } p-7`}
-                >
-                  <div className="absolute bottom-0 right-0 h-24 w-24 border-l border-t border-[#CBD5E1] bg-[linear-gradient(135deg,transparent_0_48%,rgba(37,99,235,.14)_48%_52%,transparent_52%)]" />
-                  <div className="mb-8 flex items-center justify-between">
-                    <span className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#0EA5E9]">
-                      {step.step}
-                    </span>
-                    <GitBranch className="h-5 w-5 text-[#2563EB]" />
-                  </div>
-                  <h3 className="font-['Anybody',sans-serif] text-3xl font-bold leading-tight tracking-normal">
-                    {step.title}
-                  </h3>
-                  <p className="mt-4 leading-7 text-[#64748B]">{step.body}</p>
+                  <OriginalFeatureVisual visual={feature.visual} />
                 </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="relative bg-[#F8FAFC] px-4 py-16 md:px-6 md:py-24">
-          <div className="absolute inset-x-0 top-0 h-px bg-[#CBD5E1]" />
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.85fr_1.15fr] lg:items-center">
-            <div className="rounded-[28px] border border-[#CBD5E1] bg-[#DBEAFE] p-7">
-              <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                [ SHAREABLE PROOF ]
-              </div>
-              <h2 className="mt-4 font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-                Every circuit becomes a browser artifact.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-[#334155]">
-                Push a package and get durable URLs for boards, subcircuits,
-                schematics, PCB views, assembly diagrams, and 3D previews.
-              </p>
-              <div className="mt-6 grid grid-cols-3 gap-2">
-                {["pkg", "pcb", "3d", "bom", "spice", "fab"].map(
-                  (item, index) => (
-                    <span
-                      key={item}
-                      className={`rounded-lg border border-[#CBD5E1] px-3 py-2 font-['Space_Mono',monospace] text-[11px] font-bold uppercase ${
-                        index % 2 === 0
-                          ? "bg-[#FFFFFF] text-[#2563EB]"
-                          : "bg-[#EFF6FF] text-[#64748B]"
-                      }`}
-                    >
-                      {item}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-            <div className="relative">
-              <div className="absolute -right-3 -top-3 h-full w-full rounded-3xl border border-[#2563EB]/40" />
-              <OptimizedImage
-                alt="Share and display tscircuit projects in the browser"
-                className="relative w-full rounded-3xl border border-[#CBD5E1] bg-[#FFFFFF] object-cover shadow-[0_24px_80px_rgba(37,99,235,.18)]"
-                src={shareableLinkForCircuitImg}
-                height={360}
-                width={540}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#F8FAFC] px-4 pb-16 md:px-6 md:pb-24">
-          <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-3">
-            {bugCards.map((card, index) => (
-              <article
-                key={card.title}
-                className={`relative overflow-hidden rounded-2xl border ${
-                  index === 1 ? "bg-[#EFF6FF]" : "bg-[#FFFFFF]"
-                } p-5 ${card.color}`}
-              >
-                <div className="absolute right-0 top-0 h-20 w-20 border-b border-l border-[#CBD5E1] bg-[#DBEAFE]/70" />
-                <div className="mb-4 flex items-center justify-between gap-4 font-['Space_Mono',monospace] text-[11px] font-bold uppercase tracking-[0.1em]">
-                  <span className="rounded bg-[#DBEAFE] px-2 py-1 text-[#2563EB]">
-                    {card.tag}
-                  </span>
-                  <Search className="h-4 w-4 text-[#64748B]" />
-                </div>
-                <div className="overflow-hidden text-ellipsis whitespace-nowrap border-y border-[#CBD5E1] py-3 font-['Space_Mono',monospace] text-xs text-[#0284C7]">
-                  {card.path}
-                </div>
-                <h3 className="mt-5 font-['Anybody',sans-serif] text-2xl font-bold leading-tight tracking-normal">
-                  {card.title}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-[#64748B]">
-                  {card.body}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="relative border-y border-[#CBD5E1] bg-[#DBEAFE] px-4 py-16 md:px-6 md:py-24">
-          <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(37,99,235,.10)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.10)_1px,transparent_1px)] [background-size:64px_64px]" />
-          <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
-            <div className="space-y-6">
-              <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                [ ROUTE · TEST · EXECUTE ]
-              </div>
-              <h2 className="font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-                Autoroute and simulate without leaving source control.
-              </h2>
-              <p className="text-lg leading-8 text-[#334155]">
-                Fast routing and analog simulation turn circuit code into a
-                feedback loop. Review behavior and layout before committing to
-                fabrication.
-              </p>
-              <div className="flex flex-wrap gap-3 font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.08em]">
-                <span className="rounded-md bg-[#2563EB] px-3 py-2 text-[#F8FAFC]">
-                  Cloud autorouter
-                </span>
-                <span className="rounded-md border border-[#93C5FD] px-3 py-2 text-[#0F172A]">
-                  WebAssembly ngspice
-                </span>
-              </div>
-            </div>
-            <div className="grid gap-5">
-              <div className="aspect-video overflow-hidden rounded-3xl border border-[#CBD5E1] bg-[#FFFFFF] p-2 shadow-[0_24px_80px_rgba(37,99,235,.18)]">
-                <video
-                  className="h-full w-full rounded-2xl object-cover"
-                  src={autoroutingExampleVideo}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  aria-label="Autorouting demonstration video"
-                />
-              </div>
-              <OptimizedImage
-                alt="Analog simulation output"
-                className="w-full rounded-3xl border border-[#CBD5E1] bg-[#FFFFFF] object-cover"
-                src={analogSimulationImg}
-                height={360}
-                width={540}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#FFFFFF] px-4 py-16 md:px-6 md:py-24">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center">
-            <div className="relative">
-              <div className="absolute -left-3 -top-3 h-full w-full rounded-3xl border border-[#3B82F6]/50 bg-[#EFF6FF]" />
-              <OptimizedImage
-                alt="AI-compatible electronics workflow"
-                className="relative w-full rounded-3xl border border-[#CBD5E1] bg-[#FFFFFF] object-cover shadow-[0_24px_80px_rgba(37,99,235,.18)]"
-                src={exampleAiCodingImg}
-                height={405}
-                width={720}
-              />
-            </div>
-            <div className="rounded-[28px] border border-[#CBD5E1] bg-[#F8FAFC] p-7">
-              <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                [ AI COMPATIBLE ELECTRONICS ]
-              </div>
-              <h2 className="mt-4 font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-                Teach agents to change schematics and PCBs.
-              </h2>
-              <div className="mt-6 space-y-3 text-[#334155]">
-                {[
-                  "Install the tscircuit skill for agent-native circuit edits.",
-                  "Ask for schematic changes, package reuse, layout passes, and review.",
-                  "Keep every electrical decision visible as source code.",
-                ].map((item) => (
-                  <p key={item} className="flex gap-3 leading-7">
-                    <Braces className="mt-1 h-5 w-5 shrink-0 text-[#2563EB]" />
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative border-y border-[#CBD5E1] bg-[#EFF6FF] px-4 py-16 md:px-6 md:py-24">
-          <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(135deg,rgba(14,165,233,.16)_0_1px,transparent_1px_26px)]" />
-          <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+        <section
+          className="landing-original-section landing-original-playground"
+          aria-labelledby="playground-title"
+        >
+          <div className="landing-original-playground-grid">
             <div>
-              <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-                [ KICAD BRIDGE ]
+              <div className="landing-original-eyebrow">
+                Develop like it&apos;s a website
               </div>
-              <h2 className="mt-4 font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-                Code-first does not mean format-isolated.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-[#334155]">
-                Import KiCad footprints directly, export KiCad PCB and schematic
-                files, and keep traditional EDA collaboration paths open.
+              <h2 id="playground-title">Instant previews in the browser.</h2>
+              <p className="landing-original-sub">
+                Every save re-renders the schematic, PCB, and 3D view - the same
+                loop you have with Next.js or Vite, but for hardware. No IDE to
+                install, no toolchain to babysit. 50+ reference boards ready to
+                fork.
               </p>
+              <a className="landing-original-button" href="/playground">
+                Open playground
+                <ArrowRight className="h-4 w-4" />
+              </a>
             </div>
-            <div className="grid gap-3 rounded-[28px] border border-[#CBD5E1] bg-[#FFFFFF] p-3">
-              <div className="grid grid-cols-4 gap-2">
-                {["fp", "lib", "sch", "pcb"].map((item, index) => (
-                  <span
-                    key={item}
-                    className={`rounded-lg px-3 py-2 text-center font-['Space_Mono',monospace] text-[11px] font-bold uppercase ${
-                      index === 0
-                        ? "bg-[#2563EB] text-[#F8FAFC]"
-                        : "bg-[#DBEAFE] text-[#64748B]"
-                    }`}
-                  >
-                    {item}
-                  </span>
-                ))}
+            <div className="landing-original-browser">
+              <div className="landing-original-browser-top">
+                <span />
+                <span />
+                <span />
+                <strong>index.circuit.tsx</strong>
               </div>
-              <OptimizedImage
-                alt="KiCad support via tscircuit packages"
-                className="w-full rounded-2xl border border-[#CBD5E1] bg-[#FFFFFF] object-cover"
-                src={importKicadLibraryImg}
-                height={360}
-                width={540}
-              />
+              <div className="landing-original-browser-body">
+                <div className="landing-original-browser-code">
+                  <pre>{codeLines.join("\n")}</pre>
+                </div>
+                <div className="landing-original-browser-board">
+                  <div className="landing-original-board-shape" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="relative bg-[#F8FAFC] px-4 py-16 text-center md:px-6 md:py-24">
-          <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(37,99,235,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.14)_1px,transparent_1px)] [background-size:56px_56px]" />
-          <div className="relative mx-auto max-w-4xl rounded-[28px] border border-[#CBD5E1] bg-[#FFFFFF] p-8 md:p-12">
-            <div className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-              [ START BUILDING ]
+        <section
+          className="landing-original-section"
+          aria-labelledby="gallery-title"
+        >
+          <div className="landing-original-shell">
+            <div className="landing-original-eyebrow">
+              Shipped with tscircuit
             </div>
-            <h2 className="mt-4 font-['Anybody',sans-serif] text-4xl font-extrabold leading-none tracking-normal md:text-6xl">
-              Ready to build electronics with code?
-            </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[#334155]">
-              Open an example, start from the docs, or jump into your dashboard
-              and build a circuit that can be reviewed like software.
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isLoggedIn) {
-                    signIn()
-                  } else {
-                    navigate("/dashboard")
-                  }
-                }}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#2563EB] px-6 font-['Space_Mono',monospace] text-[13px] font-bold uppercase tracking-[0.08em] text-[#F8FAFC]"
-                aria-label="Get started with TSCircuit now"
-              >
-                Start now
+            <h2 id="gallery-title">Boards teams actually sent to fab.</h2>
+            <div className="landing-original-gallery">
+              {galleryBoards.map((board, index) => (
+                <a
+                  key={board.name}
+                  className="landing-original-gallery-board"
+                  href={board.href}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div
+                    className={`landing-original-pcb landing-original-pcb-${index + 1}`}
+                  />
+                  <div>
+                    <div className="landing-original-board-owner">
+                      {board.owner}
+                    </div>
+                    <div className="landing-original-board-name">
+                      {board.name}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div className="landing-original-gallery-more">
+              <a className="landing-original-button-secondary" href="/trending">
+                Browse gallery · 240 boards
                 <ArrowRight className="h-4 w-4" />
-              </button>
-              <a
-                href="https://docs.tscircuit.com"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-[#93C5FD] bg-[#DBEAFE] px-6 font-['Space_Mono',monospace] text-[13px] font-bold uppercase tracking-[0.08em] text-[#0F172A]"
-              >
-                Read docs
-                <Code2 className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -940,6 +866,30 @@ export function LandingPage() {
         <div className="landing-faq bg-[#F8FAFC]">
           <FAQ />
         </div>
+
+        <section
+          className="landing-original-section landing-original-careers"
+          aria-labelledby="careers-title"
+        >
+          <div className="landing-original-careers-row">
+            <div>
+              <div className="landing-original-eyebrow">Careers</div>
+              <h2 id="careers-title">
+                We&apos;re hiring EEs, compiler nerds, and autorouting wizards.
+              </h2>
+              <p className="landing-original-sub">
+                Remote-friendly. Work on the stuff you wish existed when you
+                were at your last hardware job.
+              </p>
+            </div>
+            <a
+              className="landing-original-button"
+              href="mailto:careers@tscircuit.com"
+            >
+              Get In Touch
+            </a>
+          </div>
+        </section>
       </main>
       <LandingFooter />
     </div>
