@@ -592,19 +592,69 @@ body {
 }
 
 .tscircuit-landing .landing-original-code {
-  overflow-x: auto;
-  overflow-y: hidden;
+  display: flex;
+  min-height: 330px;
+  align-items: center;
+  overflow: auto;
   background: #0f172a;
-  padding: 20px;
+  padding: 24px;
+}
+
+.tscircuit-landing .landing-hero-code-panel {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  overflow: auto;
+  border-radius: 12px;
+  background: #0f172a;
+  padding: 28px;
+}
+
+.tscircuit-landing .landing-code-snippet {
+  margin: 0;
+  color: #dbeafe;
+  font-family: "Space Mono", monospace;
+  font-size: 14px;
+  line-height: 1.72;
+  min-width: max-content;
+  white-space: pre;
+}
+
+.tscircuit-landing .syntax-keyword {
+  color: #93c5fd;
+}
+
+.tscircuit-landing .syntax-tag {
+  color: #38bdf8;
+}
+
+.tscircuit-landing .syntax-attr {
+  color: #bfdbfe;
+}
+
+.tscircuit-landing .syntax-string {
+  color: #86efac;
+}
+
+.tscircuit-landing .syntax-punctuation {
+  color: #e2e8f0;
 }
 
 .tscircuit-landing .landing-original-autoroute {
   position: relative;
+  display: block;
   background:
     linear-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 1px),
     linear-gradient(90deg, rgba(37, 99, 235, 0.12) 1px, transparent 1px),
     #ffffff;
   background-size: 44px 44px;
+}
+
+.tscircuit-landing .landing-original-autoroute video {
+  display: block;
+  height: 100%;
+  min-height: 330px;
+  width: 100%;
 }
 
 .tscircuit-landing .landing-original-autoroute span {
@@ -645,13 +695,18 @@ body {
   transform: rotate(6deg);
 }
 
-.tscircuit-landing .landing-original-code pre {
-  margin: 0;
-  color: #dbeafe;
-  font-family: "Space Mono", monospace;
-  font-size: 13px;
-  line-height: 1.55;
-  white-space: pre;
+@media (max-width: 767px) {
+  .tscircuit-landing .landing-code-snippet {
+    font-size: 12px;
+    line-height: 1.62;
+  }
+
+  .tscircuit-landing .landing-hero-code-panel,
+  .tscircuit-landing .landing-original-code,
+  .tscircuit-landing .landing-original-browser-code {
+    align-items: flex-start;
+    padding: 18px;
+  }
 }
 
 .tscircuit-landing .landing-original-media {
@@ -858,18 +913,16 @@ body {
 
 .tscircuit-landing .landing-original-browser-body {
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1.18fr 0.82fr;
   min-height: 360px;
 }
 
 .tscircuit-landing .landing-original-browser-code {
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  overflow: auto;
   background: #0f172a;
   padding: 24px;
-  color: #dbeafe;
-  font-family: "Space Mono", monospace;
-  font-size: 13px;
-  line-height: 1.65;
 }
 
 .tscircuit-landing .landing-original-browser-board {

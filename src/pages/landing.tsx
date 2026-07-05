@@ -1,4 +1,5 @@
 import analogSimulationImg from "@/assets/analogsimulation.png"
+import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
@@ -74,15 +75,6 @@ const heroViews = [
   },
 ] as const
 
-const codeLines = [
-  '<board width="36mm" height="28mm">',
-  '  <chip name="U1" footprint="soic8" />',
-  '  <resistor name="R1" resistance="10k" />',
-  '  <trace from="U1.pin1" to="R1.pin1" />',
-  '  <autorouting strategy="cloud" />',
-  "</board>",
-]
-
 const landingNavItems = [
   { label: "Examples", href: "/search", icon: FileText },
   { label: "Pricing", href: "/my-orders", icon: DollarSign },
@@ -96,25 +88,6 @@ const landingNavItems = [
     hasMenu: true,
   },
 ]
-
-const originalCodeSample = `export default () => (
-  <board width="18mm" height="12mm">
-    <resistor
-      name="R1"
-      resistance="1k"
-      footprint="0402"
-      pcbX={-4}
-    />
-    <led
-      name="D1"
-      color="red"
-      footprint="0603"
-      pcbX={4}
-    />
-    <trace from=".R1 > .pin2" to=".D1 > .anode" />
-    <trace from=".D1 > .cathode" to=".R1 > .pin1" />
-  </board>
-)`
 
 const originalFeatureCards = [
   {
@@ -173,6 +146,91 @@ const originalFeatureCards = [
   },
 ] as const
 
+const CircuitCodeSnippet = () => (
+  <pre className="landing-code-snippet">
+    <code>
+      <span className="syntax-keyword">export default</span>{" "}
+      <span className="syntax-punctuation">() =&gt; (</span>
+      {"\n  "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">board</span>{" "}
+      <span className="syntax-attr">width</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;36mm&quot;</span>{" "}
+      <span className="syntax-attr">height</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;28mm&quot;</span>
+      <span className="syntax-punctuation">&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">chip</span>{" "}
+      <span className="syntax-attr">name</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;U1&quot;</span>{" "}
+      <span className="syntax-attr">footprint</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;soic8&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">resistor</span>{" "}
+      <span className="syntax-attr">name</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;R1&quot;</span>{" "}
+      <span className="syntax-attr">resistance</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;10k&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">capacitor</span>{" "}
+      <span className="syntax-attr">name</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;C1&quot;</span>{" "}
+      <span className="syntax-attr">capacitance</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;100nF&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">trace</span>{" "}
+      <span className="syntax-attr">from</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;U1.pin1&quot;</span>{" "}
+      <span className="syntax-attr">to</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;R1.pin1&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">trace</span>{" "}
+      <span className="syntax-attr">from</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;U1.pin4&quot;</span>{" "}
+      <span className="syntax-attr">to</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;C1.pin1&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n    "}
+      <span className="syntax-punctuation">&lt;</span>
+      <span className="syntax-tag">autorouting</span>{" "}
+      <span className="syntax-attr">strategy</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;cloud&quot;</span>{" "}
+      <span className="syntax-attr">layers</span>
+      <span className="syntax-punctuation">=</span>
+      <span className="syntax-string">&quot;4&quot;</span>{" "}
+      <span className="syntax-punctuation">/&gt;</span>
+      {"\n  "}
+      <span className="syntax-punctuation">&lt;/</span>
+      <span className="syntax-tag">board</span>
+      <span className="syntax-punctuation">&gt;</span>
+      {"\n"}
+      <span className="syntax-punctuation">)</span>
+    </code>
+  </pre>
+)
+
 const galleryBoards = [
   {
     owner: "tscircuit",
@@ -205,7 +263,7 @@ const OriginalFeatureVisual = ({
   if (visual === "code") {
     return (
       <div className="landing-original-code">
-        <pre>{originalCodeSample}</pre>
+        <CircuitCodeSnippet />
       </div>
     )
   }
@@ -213,18 +271,15 @@ const OriginalFeatureVisual = ({
   if (visual === "autoroute") {
     return (
       <div className="landing-original-autoroute" aria-label="Autorouting demo">
-        {Array.from({ length: 34 }).map((_, index) => (
-          <span
-            key={`route-dot-${index}`}
-            style={{
-              left: `${8 + ((index * 13) % 84)}%`,
-              top: `${14 + ((index * 17) % 72)}%`,
-            }}
-          />
-        ))}
-        <i className="landing-original-trace-a" />
-        <i className="landing-original-trace-b" />
-        <i className="landing-original-trace-c" />
+        <video
+          className="h-full w-full object-cover"
+          src={autoroutingExampleVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
       </div>
     )
   }
@@ -659,18 +714,8 @@ export function LandingPage() {
                         className="landing-demo-panel landing-scanlines relative h-[340px] overflow-hidden rounded-xl border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:h-[380px] lg:h-[380px]"
                       >
                         {activeHeroView.id === "code" && (
-                          <div className="flex h-full flex-col justify-between font-['Space_Mono',monospace] text-xs leading-6 text-[#334155]">
-                            <div className="space-y-3">
-                              {codeLines.map((line) => (
-                                <div key={line} className="flex min-w-0 gap-3">
-                                  <span className="text-[#2563EB]">+</span>
-                                  <span className="truncate">{line}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="rounded-lg border border-[#2563EB]/50 bg-[#2563EB]/10 p-3 text-[#1D4ED8]">
-                              parse source → graph nets → validate outputs
-                            </div>
+                          <div className="landing-hero-code-panel">
+                            <CircuitCodeSnippet />
                           </div>
                         )}
 
@@ -818,7 +863,7 @@ export function LandingPage() {
               </div>
               <div className="landing-original-browser-body">
                 <div className="landing-original-browser-code">
-                  <pre>{codeLines.join("\n")}</pre>
+                  <CircuitCodeSnippet />
                 </div>
                 <div className="landing-original-browser-board">
                   <div className="landing-original-board-shape" />
