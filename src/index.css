@@ -143,6 +143,323 @@ body {
   overflow-x: hidden;
 }
 
+.tscircuit-landing .landing-announcement-strip {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-top: 3px solid #1e3a8a;
+  background: #2563eb;
+  color: #ffffff;
+  font-family: "Space Mono", monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .tscircuit-landing .landing-announcement-strip {
+    min-height: 44px;
+    gap: 6px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+}
+
+.tscircuit-landing .landing-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid #bfdbfe;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent 18%, transparent 82%, rgba(37, 99, 235, 0.1)),
+    rgba(248, 250, 252, 0.96);
+  box-shadow: 0 18px 36px rgba(37, 99, 235, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.tscircuit-landing .landing-topbar-inner {
+  display: grid;
+  min-height: 86px;
+  width: 100%;
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(28px, 3.4vw, 72px);
+  padding: 0 clamp(24px, 3vw, 56px);
+}
+
+.tscircuit-landing .landing-topbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(18px, 2.5vw, 56px);
+}
+
+.tscircuit-landing .landing-topbar-nav a {
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+  font-family: "Space Mono", monospace;
+  font-size: clamp(15px, 1.08vw, 21px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tscircuit-landing .landing-topbar-icon,
+.tscircuit-landing .landing-topbar-chev {
+  width: 1em;
+  height: 1em;
+  color: #2563eb;
+  stroke-width: 1.85;
+}
+
+.tscircuit-landing .landing-topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(18px, 2vw, 34px);
+}
+
+.tscircuit-landing .landing-topbar-search,
+.tscircuit-landing .landing-topbar-menu {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #0f172a;
+}
+
+.tscircuit-landing .landing-topbar-menu {
+  display: none;
+}
+
+.tscircuit-landing .landing-topbar-cta {
+  display: inline-flex;
+  min-width: 166px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 34px 0 30px;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 14px 50%);
+  background: #2563eb;
+  color: #ffffff;
+  font-family: "Space Mono", monospace;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+}
+
+.tscircuit-landing .landing-topbar-cta:hover {
+  background: #1d4ed8;
+}
+
+.tscircuit-landing .landing-topbar-mobile-nav {
+  display: none;
+}
+
+.tscircuit-landing .landing-hero-section {
+  min-height: calc(100svh - 134px);
+}
+
+@media (min-width: 1024px) {
+  .tscircuit-landing .landing-hero-section {
+    height: calc(100svh - 134px - 92px);
+    min-height: 720px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .tscircuit-landing .landing-topbar-inner {
+    display: flex;
+    min-height: 66px;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0 18px;
+  }
+
+  .tscircuit-landing .landing-topbar-nav {
+    display: none;
+  }
+
+  .tscircuit-landing .landing-topbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .tscircuit-landing .landing-topbar-menu {
+    display: inline-grid;
+  }
+
+  .tscircuit-landing .landing-topbar-cta {
+    min-width: 136px;
+    height: 46px;
+    padding: 0 26px 0 22px;
+    font-size: 14px;
+  }
+
+  .tscircuit-landing .landing-topbar-mobile-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    border-top: 1px solid #bfdbfe;
+    background: rgba(248, 250, 252, 0.98);
+    padding: 10px 14px 14px;
+  }
+
+  .tscircuit-landing .landing-topbar-mobile-nav a {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-family: "Space Mono", monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0 10px;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 767px) {
+  .tscircuit-landing .landing-hero-section {
+    height: auto;
+    min-height: auto;
+  }
+}
+
+.tscircuit-landing .landing-grid-field {
+  background-image:
+    linear-gradient(rgba(37, 99, 235, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(14, 165, 233, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.09) 1px, transparent 1px);
+  background-position:
+    -1px -1px,
+    -1px -1px,
+    -1px -1px,
+    -1px -1px;
+  background-size:
+    40px 40px,
+    40px 40px,
+    160px 160px,
+    160px 160px;
+}
+
+.tscircuit-landing .landing-tile-field {
+  background-image:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.16) 0 1px, transparent 1px 34px),
+    linear-gradient(45deg, rgba(14, 165, 233, 0.12) 0 1px, transparent 1px 34px),
+    radial-gradient(circle at 20px 20px, rgba(59, 130, 246, 0.18) 0 2px, transparent 2px);
+  background-size:
+    68px 68px,
+    68px 68px,
+    68px 68px;
+}
+
+.tscircuit-landing .landing-scanlines {
+  position: relative;
+}
+
+.tscircuit-landing .landing-scanlines::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(37, 99, 235, 0.055) 0,
+    rgba(37, 99, 235, 0.055) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+}
+
+.tscircuit-landing .landing-corner-grid {
+  position: relative;
+}
+
+.tscircuit-landing .landing-corner-grid::before,
+.tscircuit-landing .landing-corner-grid::after {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  pointer-events: none;
+  content: "";
+  border-color: rgba(37, 99, 235, 0.65);
+}
+
+.tscircuit-landing .landing-corner-grid::before {
+  top: 18px;
+  left: 18px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.tscircuit-landing .landing-corner-grid::after {
+  right: 18px;
+  bottom: 18px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.tscircuit-landing .landing-demo-panel {
+  animation: landing-demo-slide 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes landing-demo-slide {
+  from {
+    opacity: 0;
+    transform: translateX(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tscircuit-landing .landing-demo-panel {
+    animation: none;
+  }
+}
+
+.tscircuit-landing .landing-faq section {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.tscircuit-landing .landing-faq h2,
+.tscircuit-landing .landing-faq h3 {
+  color: #0f172a;
+}
+
+.tscircuit-landing .landing-faq p,
+.tscircuit-landing .landing-faq button {
+  color: #334155;
+}
+
 /* Subtle scrollbar styling for html and body */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
