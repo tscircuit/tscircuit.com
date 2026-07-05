@@ -917,27 +917,52 @@ body {
 .tscircuit-landing .landing-original-gallery {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: 32px;
   margin-top: 36px;
 }
 
 .tscircuit-landing .landing-original-gallery-board {
+  position: relative;
   display: grid;
-  gap: 18px;
-  border: 1px solid #94a3b8;
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 18px;
+  gap: 20px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #ffffff, #eff6ff);
+  padding: 22px;
   color: #0f172a;
+  box-shadow: 0 18px 70px rgba(37, 99, 235, 0.12);
   text-decoration: none;
 }
 
+.tscircuit-landing .landing-original-gallery-board::after {
+  position: absolute;
+  right: -18px;
+  bottom: -18px;
+  width: 130px;
+  height: 130px;
+  pointer-events: none;
+  content: "";
+  border-top: 1px solid rgba(37, 99, 235, 0.35);
+  border-left: 1px solid rgba(37, 99, 235, 0.35);
+  border-radius: 28px 0 0 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0 48%,
+    rgba(37, 99, 235, 0.18) 48% 52%,
+    transparent 52%
+  );
+}
+
 .tscircuit-landing .landing-original-pcb {
-  min-height: 220px;
-  border-radius: 8px;
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  border: 1px solid #2563eb;
+  border-radius: 18px;
   background:
-    radial-gradient(circle at 18% 20%, #ec4899 0 11px, transparent 12px),
-    radial-gradient(circle at 82% 76%, #ec4899 0 11px, transparent 12px),
+    radial-gradient(circle at 18% 20%, #ec4899 0 10px, transparent 11px),
+    radial-gradient(circle at 82% 76%, #ec4899 0 10px, transparent 11px),
     linear-gradient(90deg, rgba(37, 99, 235, 0.5) 1px, transparent 1px),
     linear-gradient(rgba(37, 99, 235, 0.5) 1px, transparent 1px),
     #111827;
@@ -950,6 +975,108 @@ body {
 
 .tscircuit-landing .landing-original-pcb-3 {
   background-color: #0f172a;
+}
+
+.tscircuit-landing .landing-pcb-toolbar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  font-family: "Space Mono", monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-pcb-toolbar span {
+  border: 1px solid rgba(147, 197, 253, 0.55);
+  border-radius: 5px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #dbeafe;
+  padding: 5px 7px;
+}
+
+.tscircuit-landing .landing-pcb-chip,
+.tscircuit-landing .landing-pcb-pad,
+.tscircuit-landing .landing-pcb-trace {
+  position: absolute;
+}
+
+.tscircuit-landing .landing-pcb-chip {
+  border: 1px solid #f59e0b;
+  background: #1f2937;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
+}
+
+.tscircuit-landing .landing-pcb-chip-main {
+  top: 40%;
+  left: 44%;
+  width: 82px;
+  height: 58px;
+}
+
+.tscircuit-landing .landing-pcb-chip-sub {
+  right: 14%;
+  bottom: 18%;
+  width: 52px;
+  height: 72px;
+}
+
+.tscircuit-landing .landing-pcb-trace {
+  height: 2px;
+  border-radius: 999px;
+  background: #22c55e;
+  transform-origin: left center;
+}
+
+.tscircuit-landing .landing-pcb-trace-a {
+  top: 34%;
+  left: 14%;
+  width: 56%;
+  transform: rotate(13deg);
+}
+
+.tscircuit-landing .landing-pcb-trace-b {
+  top: 62%;
+  left: 20%;
+  width: 52%;
+  transform: rotate(-18deg);
+}
+
+.tscircuit-landing .landing-pcb-trace-c {
+  top: 78%;
+  left: 10%;
+  width: 68%;
+  background: #60a5fa;
+  transform: rotate(2deg);
+}
+
+.tscircuit-landing .landing-pcb-pad {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ec4899;
+  box-shadow:
+    22px 0 #ec4899,
+    44px 0 #ec4899,
+    66px 0 #ec4899;
+}
+
+.tscircuit-landing .landing-pcb-pad-a {
+  top: 62%;
+  left: 12%;
+}
+
+.tscircuit-landing .landing-pcb-pad-b {
+  right: 12%;
+  top: 28%;
+}
+
+.tscircuit-landing .landing-pcb-pad-c {
+  right: 18%;
+  bottom: 18%;
 }
 
 .tscircuit-landing .landing-original-board-owner {
@@ -968,25 +1095,184 @@ body {
   line-height: 1.05;
 }
 
+.tscircuit-landing .landing-original-gallery-board p {
+  max-width: 460px;
+  margin: 10px 0 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.tscircuit-landing .landing-original-board-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.tscircuit-landing .landing-original-board-stats span {
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2563eb;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 7px 9px;
+  text-transform: uppercase;
+}
+
 .tscircuit-landing .landing-original-gallery-more {
   margin-top: 28px;
 }
 
 .tscircuit-landing .landing-original-careers-row {
+  position: relative;
   display: grid;
   max-width: 1840px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 36px;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.68fr);
+  gap: 48px;
   align-items: center;
+  overflow: hidden;
   border: 1px solid #93c5fd;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 36px;
+  border-radius: 32px;
+  background:
+    linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+  background-size: 42px 42px, 42px 42px, auto;
+  padding: 54px;
   margin: 0 auto;
+  box-shadow: 0 28px 90px rgba(37, 99, 235, 0.13);
 }
 
 .tscircuit-landing .landing-original-careers {
-  background: #f8fafc;
+  background: #eff6ff;
+}
+
+.tscircuit-landing .landing-careers-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.tscircuit-landing .landing-careers-roles span {
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2563eb;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 10px 12px;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-careers-panel {
+  display: grid;
+  gap: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  padding: 18px;
+  box-shadow: 0 20px 70px rgba(37, 99, 235, 0.16);
+}
+
+.tscircuit-landing .landing-careers-terminal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #dbeafe;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  padding: 14px 16px;
+}
+
+.tscircuit-landing .landing-careers-terminal strong {
+  color: #38bdf8;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tscircuit-landing .landing-careers-circuit {
+  position: relative;
+  min-height: 260px;
+  overflow: hidden;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(37, 99, 235, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.14) 1px, transparent 1px),
+    #ffffff;
+  background-size: 36px 36px;
+}
+
+.tscircuit-landing .landing-careers-circuit::before,
+.tscircuit-landing .landing-careers-circuit::after {
+  position: absolute;
+  content: "";
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0ea5e9);
+  transform-origin: left center;
+}
+
+.tscircuit-landing .landing-careers-circuit::before {
+  top: 44%;
+  left: 12%;
+  width: 76%;
+  transform: rotate(12deg);
+}
+
+.tscircuit-landing .landing-careers-circuit::after {
+  top: 64%;
+  left: 18%;
+  width: 64%;
+  transform: rotate(-16deg);
+}
+
+.tscircuit-landing .landing-careers-circuit span {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  width: 74px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid #2563eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1d4ed8;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tscircuit-landing .landing-careers-circuit span:nth-child(1) {
+  top: 18%;
+  left: 13%;
+}
+
+.tscircuit-landing .landing-careers-circuit span:nth-child(2) {
+  top: 22%;
+  right: 18%;
+}
+
+.tscircuit-landing .landing-careers-circuit span:nth-child(3) {
+  bottom: 18%;
+  left: 26%;
+}
+
+.tscircuit-landing .landing-careers-circuit span:nth-child(4) {
+  right: 14%;
+  bottom: 16%;
 }
 
 @media (max-width: 1100px) {

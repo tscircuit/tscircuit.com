@@ -177,16 +177,22 @@ const galleryBoards = [
   {
     owner: "tscircuit",
     name: "motor-controller",
+    description: "4-layer drive board with inspectable routing artifacts.",
+    stats: ["PCB", "3D", "Gerbers"],
     href: "/tscircuit/motor-controller",
   },
   {
     owner: "seveibar",
     name: "keyboard-default60",
+    description: "Matrix layout, packages, and browser previews in source.",
+    stats: ["60%", "Matrix", "Fab"],
     href: "/seveibar/keyboard-default60",
   },
   {
     owner: "seveibar",
     name: "led-water-accelerometer",
+    description: "Sensor package with reviewable nets and fabrication output.",
+    stats: ["Sensor", "BOM", "Review"],
     href: "/seveibar/led-water-accelerometer",
   },
 ] as const
@@ -842,13 +848,33 @@ export function LandingPage() {
                 >
                   <div
                     className={`landing-original-pcb landing-original-pcb-${index + 1}`}
-                  />
+                  >
+                    <span className="landing-pcb-chip landing-pcb-chip-main" />
+                    <span className="landing-pcb-chip landing-pcb-chip-sub" />
+                    <span className="landing-pcb-trace landing-pcb-trace-a" />
+                    <span className="landing-pcb-trace landing-pcb-trace-b" />
+                    <span className="landing-pcb-trace landing-pcb-trace-c" />
+                    <span className="landing-pcb-pad landing-pcb-pad-a" />
+                    <span className="landing-pcb-pad landing-pcb-pad-b" />
+                    <span className="landing-pcb-pad landing-pcb-pad-c" />
+                    <div className="landing-pcb-toolbar">
+                      <span>Source</span>
+                      <span>PCB</span>
+                      <span>Fab</span>
+                    </div>
+                  </div>
                   <div>
                     <div className="landing-original-board-owner">
                       {board.owner}
                     </div>
                     <div className="landing-original-board-name">
                       {board.name}
+                    </div>
+                    <p>{board.description}</p>
+                    <div className="landing-original-board-stats">
+                      {board.stats.map((stat) => (
+                        <span key={`${board.name}-${stat}`}>{stat}</span>
+                      ))}
                     </div>
                   </div>
                 </a>
@@ -881,13 +907,35 @@ export function LandingPage() {
                 Remote-friendly. Work on the stuff you wish existed when you
                 were at your last hardware job.
               </p>
+              <div className="landing-careers-roles">
+                {[
+                  "Electrical engineering",
+                  "Compiler/runtime",
+                  "Autorouting",
+                  "Developer tools",
+                ].map((role) => (
+                  <span key={role}>{role}</span>
+                ))}
+              </div>
             </div>
-            <a
-              className="landing-original-button"
-              href="mailto:careers@tscircuit.com"
-            >
-              Get In Touch
-            </a>
+            <div className="landing-careers-panel">
+              <div className="landing-careers-terminal">
+                <span>hiring.pipeline.tsx</span>
+                <strong>4 open tracks</strong>
+              </div>
+              <div className="landing-careers-circuit">
+                {["EE", "CAD", "AI", "FAB"].map((node) => (
+                  <span key={node}>{node}</span>
+                ))}
+              </div>
+              <a
+                className="landing-original-button"
+                href="mailto:careers@tscircuit.com"
+              >
+                Get In Touch
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </section>
       </main>
