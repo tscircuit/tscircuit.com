@@ -1180,7 +1180,7 @@ body {
   margin-top: 28px;
 }
 
- .tscircuit-landing .landing-original-careers-row {
+.tscircuit-landing .landing-original-careers-row {
   position: relative;
   max-width: 1840px;
   overflow: hidden;
@@ -1236,12 +1236,14 @@ body {
   position: relative;
   z-index: 1;
   max-width: 1120px;
-  margin-left: clamp(0px, 4vw, 80px);
+  margin: 0 auto;
 }
 
 .tscircuit-landing .landing-careers-letter {
   max-width: 980px;
   margin-top: 28px;
+  margin-right: auto;
+  margin-left: auto;
   background: rgba(255, 255, 255, 0.58);
   padding: 28px 34px;
 }
