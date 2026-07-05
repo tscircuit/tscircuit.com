@@ -1377,6 +1377,59 @@ body {
   color: #334155;
 }
 
+.tscircuit-landing .landing-footer {
+  background:
+    linear-gradient(rgba(248, 250, 252, 0.82), rgba(239, 246, 255, 0.92)),
+    linear-gradient(#dbeafe 1px, transparent 1px),
+    linear-gradient(90deg, #dbeafe 1px, transparent 1px);
+  background-size:
+    auto,
+    24px 24px,
+    24px 24px;
+}
+
+.tscircuit-landing .landing-footer-terminal {
+  width: 100vw;
+  min-height: 74vh;
+  margin: 24px calc(50% - 50vw) -48px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.tscircuit-landing .landing-footer-terminal-output {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  width: 112vw;
+  min-width: 112vw;
+  height: 74vh;
+  min-height: 74vh;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font-family: "Space Mono", monospace;
+  font-size: clamp(10px, 1vw, 22px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  opacity: 0.66;
+  padding: 0 0 24px;
+  text-align: center;
+  transform: translateX(-6vw);
+  white-space: pre;
+}
+
+@media (max-width: 767px) {
+  .tscircuit-landing .landing-footer-terminal-output {
+    width: 180vw;
+    min-width: 180vw;
+    font-size: clamp(6px, 1.5vw, 10px);
+    transform: translateX(-40vw);
+  }
+}
+
 /* Subtle scrollbar styling for html and body */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {

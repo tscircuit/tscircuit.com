@@ -20,7 +20,7 @@ import {
   Sparkles,
   Terminal,
 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Helmet } from "react-helmet"
 import { Link } from "wouter"
 
@@ -74,6 +74,128 @@ const heroViews = [
     accent: "#1D4ED8",
   },
 ] as const
+
+const donutCharacters = ".,-~:;=!*#$@" as const
+
+const renderDonutFrame = (rotationA: number, rotationB: number) => {
+  const width = 42
+  const height = 20
+  const output = Array.from({ length: width * height }, () => " ")
+  const zBuffer = Array.from({ length: width * height }, () => 0)
+  const cosA = Math.cos(rotationA)
+  const sinA = Math.sin(rotationA)
+  const cosB = Math.cos(rotationB)
+  const sinB = Math.sin(rotationB)
+
+  for (let theta = 0; theta < Math.PI * 2; theta += 0.28) {
+    const cosTheta = Math.cos(theta)
+    const sinTheta = Math.sin(theta)
+
+    for (let phi = 0; phi < Math.PI * 2; phi += 0.12) {
+      const cosPhi = Math.cos(phi)
+      const sinPhi = Math.sin(phi)
+      const circleX = cosTheta + 2
+      const depth = 1 / (sinPhi * circleX * sinA + sinTheta * cosA + 5)
+      const t = sinPhi * circleX * cosA - sinTheta * sinA
+      const x = Math.floor(
+        width / 2 + 24 * depth * (cosPhi * circleX * cosB - t * sinB),
+      )
+      const y = Math.floor(
+        height / 2 + 12 * depth * (cosPhi * circleX * sinB + t * cosB),
+      )
+      const luminance = Math.floor(
+        8 *
+          ((sinTheta * sinA - sinPhi * cosTheta * cosA) * cosB -
+            sinPhi * cosTheta * sinA -
+            sinTheta * cosA -
+            cosPhi * cosTheta * sinB),
+      )
+      const outputIndex = x + width * y
+
+      if (
+        y >= 0 &&
+        y < height &&
+        x >= 0 &&
+        x < width &&
+        depth > zBuffer[outputIndex]
+      ) {
+        zBuffer[outputIndex] = depth
+        output[outputIndex] =
+          donutCharacters[Math.max(0, Math.min(luminance, 11))]
+      }
+    }
+  }
+
+  return Array.from({ length: height }, (_, rowIndex) =>
+    output.slice(rowIndex * width, (rowIndex + 1) * width).join(""),
+  ).join("\n")
+}
+
+const renderDoubleDonutFrame = (frameIndex: number) => {
+  const leftDonut = renderDonutFrame(
+    frameIndex * 0.11,
+    frameIndex * 0.07,
+  ).split("\n")
+  const rightDonut = renderDonutFrame(
+    frameIndex * 0.11 + Math.PI,
+    frameIndex * 0.07 + Math.PI / 2,
+  ).split("\n")
+
+  return leftDonut
+    .map((line, index) => `${line}        ${rightDonut[index] ?? ""}`)
+    .join("\n")
+}
+
+const FooterDonutTerminal = () => {
+  const terminalRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const [frameIndex, setFrameIndex] = useState(0)
+
+  useEffect(() => {
+    const terminal = terminalRef.current
+    if (!terminal) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(Boolean(entry?.isIntersecting))
+      },
+      { rootMargin: "120px" },
+    )
+
+    observer.observe(terminal)
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (
+      !isVisible ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return
+    }
+
+    const intervalId = window.setInterval(() => {
+      setFrameIndex((current) => current + 1)
+    }, 140)
+
+    return () => window.clearInterval(intervalId)
+  }, [isVisible])
+
+  const donutFrame = isVisible ? renderDoubleDonutFrame(frameIndex) : ""
+
+  return (
+    <div
+      ref={terminalRef}
+      className="landing-footer-terminal"
+      aria-label="Terminal field showing spinning 3D ASCII donuts"
+    >
+      <pre className="landing-footer-terminal-output" aria-hidden="true">
+        {donutFrame}
+      </pre>
+    </div>
+  )
+}
 
 const landingNavItems = [
   { label: "Examples", href: "/search", icon: FileText },
@@ -512,77 +634,80 @@ const LandingTopBar = () => {
 }
 
 const LandingFooter = () => (
-  <footer className="border-t border-[#CBD5E1] bg-[#F8FAFC] px-4 py-12 text-[#0F172A] md:px-6">
-    <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-[1.2fr_2fr]">
-      <div>
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#2563EB] text-[#F8FAFC]">
-            <CircuitBoard className="h-5 w-5" />
-          </div>
-          <span className="font-['Anybody',sans-serif] text-2xl font-extrabold">
-            tscircuit
-          </span>
-        </div>
-        <p className="mt-4 max-w-sm text-sm leading-6 text-[#64748B]">
-          Code-first electronics for browser previews, AI edits, source control,
-          and manufacturing output.
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
-        {[
-          {
-            title: "Product",
-            links: [
-              ["Editor", "/quickstart"],
-              ["Latest", "/latest"],
-              ["Trending", "/trending"],
-            ],
-          },
-          {
-            title: "Resources",
-            links: [
-              ["Docs", "https://docs.tscircuit.com"],
-              ["Search", "/search"],
-              ["GitHub", "https://github.com/tscircuit/tscircuit"],
-            ],
-          },
-          {
-            title: "Community",
-            links: [
-              ["Discord", "https://tscircuit.com/join"],
-              ["Blog", "https://blog.tscircuit.com"],
-              ["YouTube", "https://youtube.com/@seveibar"],
-            ],
-          },
-          {
-            title: "Company",
-            links: [
-              ["Contact", "mailto:hello@tscircuit.com"],
-              ["Terms", "https://tscircuit.com/legal/terms-of-service"],
-              ["Privacy", "https://tscircuit.com/legal/privacy-policy"],
-            ],
-          },
-        ].map((group) => (
-          <nav key={group.title} className="space-y-3">
-            <h3 className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
-              {group.title}
-            </h3>
-            <div className="flex flex-col gap-2">
-              {group.links.map(([name, href]) =>
-                href.startsWith("http") || href.startsWith("mailto:") ? (
-                  <a key={name} href={href} className="text-[#64748B]">
-                    {name}
-                  </a>
-                ) : (
-                  <Link key={name} href={href} className="text-[#64748B]">
-                    {name}
-                  </Link>
-                ),
-              )}
+  <footer className="landing-footer border-t border-[#CBD5E1] bg-[#F8FAFC] px-4 py-12 text-[#0F172A] md:px-6">
+    <div className="mx-auto max-w-7xl">
+      <div className="grid gap-8 md:grid-cols-[1.2fr_2fr]">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#2563EB] text-[#F8FAFC]">
+              <CircuitBoard className="h-5 w-5" />
             </div>
-          </nav>
-        ))}
+            <span className="font-['Anybody',sans-serif] text-2xl font-extrabold">
+              tscircuit
+            </span>
+          </div>
+          <p className="mt-4 max-w-sm text-sm leading-6 text-[#64748B]">
+            Code-first electronics for browser previews, AI edits, source
+            control, and manufacturing output.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
+          {[
+            {
+              title: "Product",
+              links: [
+                ["Editor", "/quickstart"],
+                ["Latest", "/latest"],
+                ["Trending", "/trending"],
+              ],
+            },
+            {
+              title: "Resources",
+              links: [
+                ["Docs", "https://docs.tscircuit.com"],
+                ["Search", "/search"],
+                ["GitHub", "https://github.com/tscircuit/tscircuit"],
+              ],
+            },
+            {
+              title: "Community",
+              links: [
+                ["Discord", "https://tscircuit.com/join"],
+                ["Blog", "https://blog.tscircuit.com"],
+                ["YouTube", "https://youtube.com/@seveibar"],
+              ],
+            },
+            {
+              title: "Company",
+              links: [
+                ["Contact", "mailto:hello@tscircuit.com"],
+                ["Terms", "https://tscircuit.com/legal/terms-of-service"],
+                ["Privacy", "https://tscircuit.com/legal/privacy-policy"],
+              ],
+            },
+          ].map((group) => (
+            <nav key={group.title} className="space-y-3">
+              <h3 className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
+                {group.title}
+              </h3>
+              <div className="flex flex-col gap-2">
+                {group.links.map(([name, href]) =>
+                  href.startsWith("http") || href.startsWith("mailto:") ? (
+                    <a key={name} href={href} className="text-[#64748B]">
+                      {name}
+                    </a>
+                  ) : (
+                    <Link key={name} href={href} className="text-[#64748B]">
+                      {name}
+                    </Link>
+                  ),
+                )}
+              </div>
+            </nav>
+          ))}
+        </div>
       </div>
+      <FooterDonutTerminal />
     </div>
   </footer>
 )
