@@ -1,6 +1,9 @@
 import analogSimulationImg from "@/assets/analogsimulation.png"
 import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
+import heroPcbAbsePicoImg from "@/assets/hero-pcb-abse-pico.png"
+import heroPcbGameboyImg from "@/assets/hero-pcb-gameboy.png"
+import heroPcbKeypadImg from "@/assets/hero-pcb-keypad.png"
 import importKicadLibraryImg from "@/assets/import-kicad-library.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { FAQ } from "@/components/FAQ"
@@ -22,6 +25,27 @@ import { Helmet } from "react-helmet"
 import { Link } from "wouter"
 
 const donutCharacters = ".,-~:;=!*#$@" as const
+
+const heroPcbRenders = [
+  { src: heroPcbGameboyImg, label: "gameboy" },
+  { src: heroPcbAbsePicoImg, label: "abse-pico" },
+  { src: heroPcbKeypadImg, label: "keypad" },
+] as const
+
+const HeroPcbRenderStrip = () => (
+  <div className="landing-hero-pcb-strip" aria-hidden="true">
+    {heroPcbRenders.map((pcb, index) => (
+      <img
+        key={pcb.label}
+        src={pcb.src}
+        alt=""
+        width={800}
+        height={600}
+        className={`landing-hero-pcb-render landing-hero-pcb-render-${index + 1}`}
+      />
+    ))}
+  </div>
+)
 
 const renderDonutFrame = (rotationA: number, rotationB: number) => {
   const width = 42
@@ -657,8 +681,21 @@ export function LandingPage() {
       <main className="overflow-hidden">
         <section className="landing-grid-field landing-hero-section landing-hero-minimal relative px-6 pb-20 pt-16 md:px-8 lg:pb-24 lg:pt-20">
           <div className="landing-hero-minimal-grid" aria-hidden="true" />
-          <div className="landing-page-rails" aria-hidden="true" />
-          <div className="relative mx-auto flex min-h-[56svh] max-w-3xl flex-col items-center justify-center text-center">
+          <HeroPcbRenderStrip />
+          <div className="landing-page-rails" aria-hidden="true">
+            {Array.from({ length: 2 }, (_, index) => (
+              <span
+                key={`rail-asteroid-${index}`}
+                style={
+                  {
+                    "--rock-edge": index % 2 === 0 ? "0%" : "100%",
+                    "--rock-delay": `${index * 8.5}s`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+          <div className="relative z-10 mx-auto flex min-h-[56svh] max-w-3xl flex-col items-center justify-center text-center">
             <div className="mb-9 font-['Space_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.34em] text-[#64748B] sm:text-[11px]">
               The hardware framework for AI teams
             </div>
