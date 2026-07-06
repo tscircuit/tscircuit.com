@@ -1746,7 +1746,7 @@ body {
 }
 
 .tscircuit-landing .landing-foundation-section {
-  padding-top: 96px;
+  padding-top: 112px;
 }
 
 .tscircuit-landing .landing-foundation-shell {
@@ -1758,64 +1758,7 @@ body {
 }
 
 .tscircuit-landing .landing-foundation-heading {
-  max-width: 1120px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.tscircuit-landing .landing-foundation-network {
-  position: relative;
-  display: grid;
-  min-height: 220px;
-  place-items: center;
-  margin: 22px auto -8px;
-}
-
-.tscircuit-landing .landing-foundation-chip {
-  position: relative;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  background: linear-gradient(180deg, #202020, #111);
-  box-shadow: 0 14px 54px rgba(0, 0, 0, 0.65);
-  color: #f8fafc;
-  font-family: "Anybody", sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  padding: 20px 28px;
-}
-
-.tscircuit-landing .landing-foundation-chip svg {
-  display: none;
-}
-
-.tscircuit-landing .landing-foundation-trace {
-  position: absolute;
-  height: 1px;
-  width: min(34vw, 520px);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-  transform-origin: center;
-}
-
-.tscircuit-landing .landing-foundation-trace-a {
-  left: 10%;
-  top: 62%;
-  transform: rotate(-8deg);
-}
-
-.tscircuit-landing .landing-foundation-trace-b {
-  left: 50%;
-  top: 62%;
-  transform: translateX(-50%) rotate(90deg);
-}
-
-.tscircuit-landing .landing-foundation-trace-c {
-  right: 10%;
-  top: 62%;
-  transform: rotate(8deg);
+  max-width: 760px;
 }
 
 .tscircuit-landing .landing-foundation-cards {
@@ -1823,37 +1766,41 @@ body {
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
+  gap: clamp(42px, 5vw, 76px);
+  margin-top: 92px;
 }
 
 .tscircuit-landing .landing-foundation-card {
   position: relative;
   display: grid;
-  min-height: 300px;
-  align-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 16px;
-  background: linear-gradient(180deg, #1c1c1c, #090909);
-  padding: 32px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-.tscircuit-landing .landing-foundation-card > svg {
-  display: none;
+  min-height: 190px;
+  align-content: start;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  padding-top: 24px;
 }
 
 .tscircuit-landing .landing-foundation-card h3 {
   margin: 0;
   font-family: "Anybody", sans-serif;
-  font-size: 28px;
-  font-weight: 850;
+  font-size: 24px;
+  font-weight: 800;
   letter-spacing: 0;
 }
 
 .tscircuit-landing .landing-foundation-card p {
-  margin: 12px 0 0;
-  font-size: 17px;
-  line-height: 1.5;
+  margin: 18px 0 0;
+  font-size: 15px;
+  line-height: 1.62;
+}
+
+.tscircuit-landing .landing-foundation-index {
+  margin-bottom: 40px;
+  color: #71717a;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
 }
 
 .tscircuit-landing .landing-foundation-arrow {
@@ -1908,12 +1855,42 @@ body {
 
 .tscircuit-landing .landing-original-careers-row,
 .tscircuit-landing .landing-careers-letter {
+  border-color: rgba(255, 255, 255, 0.13);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.018);
+  box-shadow: none;
+}
+
+.tscircuit-landing .landing-original-careers-row::before,
+.tscircuit-landing .landing-original-careers-row::after,
+.tscircuit-landing .landing-careers-letter-body::before,
+.tscircuit-landing .landing-careers-letter-body::after {
   border-color: rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.025);
+}
+
+.tscircuit-landing .landing-original-careers-row::after {
+  background: linear-gradient(
+    135deg,
+    transparent 0 48%,
+    rgba(255, 255, 255, 0.08) 48% 52%,
+    transparent 52%
+  );
 }
 
 .tscircuit-landing .landing-careers-letter p {
   color: #d1d5db;
+}
+
+.tscircuit-landing .landing-careers-signature span {
+  color: #d4d4d8;
+}
+
+.tscircuit-landing .landing-careers-signature a {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: #f4f4f5;
+  color: #050505;
 }
 
 .tscircuit-landing .landing-footer {
@@ -1933,14 +1910,6 @@ body {
 @media (max-width: 1023px) {
   .tscircuit-landing .landing-foundation-cards {
     grid-template-columns: 1fr;
-  }
-
-  .tscircuit-landing .landing-foundation-network {
-    min-height: 140px;
-  }
-
-  .tscircuit-landing .landing-foundation-trace {
-    display: none;
   }
 }
 

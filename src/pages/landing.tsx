@@ -734,17 +734,12 @@ export function LandingPage() {
                 Built on a foundation of code-first electronics tooling.
               </h2>
             </div>
-            <div className="landing-foundation-network" aria-hidden="true">
-              <div className="landing-foundation-chip">
-                <span>tscircuit</span>
-              </div>
-              <span className="landing-foundation-trace landing-foundation-trace-a" />
-              <span className="landing-foundation-trace landing-foundation-trace-b" />
-              <span className="landing-foundation-trace landing-foundation-trace-c" />
-            </div>
             <div className="landing-foundation-cards">
-              {toolingCards.map((tool) => (
+              {toolingCards.map((tool, index) => (
                 <article key={tool.title} className="landing-foundation-card">
+                  <div className="landing-foundation-index">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
                   <div>
                     <h3>{tool.title}</h3>
                     <p>{tool.body}</p>
@@ -765,7 +760,7 @@ export function LandingPage() {
             </div>
             <h2 id="gallery-title">Boards teams actually sent to fab.</h2>
             <div className="landing-original-gallery">
-              {galleryBoards.map((board, index) => (
+              {galleryBoards.slice(0, 3).map((board, index) => (
                 <a
                   key={board.name}
                   className="landing-original-gallery-board"
