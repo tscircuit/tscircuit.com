@@ -1573,7 +1573,7 @@ body {
 
 .tscircuit-landing .landing-hero-pcb-strip {
   position: absolute;
-  bottom: 4%;
+  bottom: 8%;
   left: 50%;
   z-index: 0;
   display: flex;
@@ -1583,7 +1583,9 @@ body {
   gap: 0;
   overflow: visible;
   pointer-events: none;
-  transform: translate(-50%, 18%);
+  transform: translate(-50%, 10%);
+  mask-image: linear-gradient(180deg, #000 0 54%, rgba(0, 0, 0, 0.54) 68%, transparent 86%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 54%, rgba(0, 0, 0, 0.54) 68%, transparent 86%);
 }
 
 .tscircuit-landing .landing-hero-pcb-render {
@@ -1630,7 +1632,8 @@ body {
   .tscircuit-landing .landing-hero-pcb-strip {
     width: 190vw;
     gap: 0;
-    transform: translate(-50%, 16%);
+    bottom: 8%;
+    transform: translate(-50%, 8%);
   }
 
   .tscircuit-landing .landing-hero-pcb-render {
