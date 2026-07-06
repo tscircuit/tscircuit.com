@@ -1573,17 +1573,17 @@ body {
 
 .tscircuit-landing .landing-hero-pcb-strip {
   position: absolute;
-  bottom: 3%;
+  bottom: 4%;
   left: 50%;
   z-index: 0;
   display: flex;
-  width: min(calc(100% - (var(--landing-page-gutter) * 2)), 2200px);
+  width: min(calc(100% - (var(--landing-page-gutter) * 2)), 1980px);
   align-items: flex-end;
   justify-content: center;
-  gap: clamp(12px, 1.5vw, 28px);
+  gap: 0;
   overflow: visible;
   pointer-events: none;
-  transform: translate(-50%, 20%);
+  transform: translate(-50%, 18%);
 }
 
 .tscircuit-landing .landing-hero-pcb-render {
@@ -1591,8 +1591,10 @@ body {
   flex: 0 0 auto;
   width: clamp(520px, 41vw, 800px);
   height: auto;
-  opacity: 0.26;
-  filter: grayscale(1) saturate(0) contrast(1.08) brightness(0.72);
+  margin-inline: clamp(-96px, -5vw, -48px);
+  opacity: 0.3;
+  filter: grayscale(1) saturate(0) contrast(1.22) brightness(0.76);
+  mix-blend-mode: screen;
   transform: translateZ(0);
   animation: landing-hero-pcb-render-glow 15s ease-in-out infinite;
 }
@@ -1609,30 +1611,31 @@ body {
   0%,
   30%,
   100% {
-    opacity: 0.18;
-    filter: grayscale(1) saturate(0) contrast(1.04) brightness(0.58);
+    opacity: 0.22;
+    filter: grayscale(1) saturate(0) contrast(1.14) brightness(0.62);
   }
 
   48% {
-    opacity: 0.4;
-    filter: grayscale(1) saturate(0) contrast(1.12) brightness(0.86) drop-shadow(0 0 28px rgba(255, 255, 255, 0.16));
+    opacity: 0.42;
+    filter: grayscale(1) saturate(0) contrast(1.28) brightness(0.86);
   }
 
   62% {
-    opacity: 0.28;
-    filter: grayscale(1) saturate(0) contrast(1.08) brightness(0.74) drop-shadow(0 0 14px rgba(255, 255, 255, 0.09));
+    opacity: 0.32;
+    filter: grayscale(1) saturate(0) contrast(1.2) brightness(0.74);
   }
 }
 
 @media (max-width: 760px) {
   .tscircuit-landing .landing-hero-pcb-strip {
     width: 190vw;
-    gap: 18px;
+    gap: 0;
     transform: translate(-50%, 16%);
   }
 
   .tscircuit-landing .landing-hero-pcb-render {
     width: 78vw;
+    margin-inline: -10vw;
   }
 }
 
