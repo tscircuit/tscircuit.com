@@ -204,18 +204,24 @@ body {
   display: inline-flex;
   min-height: 58px;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #334155;
-  font-family: "Space Mono", monospace;
-  font-size: clamp(15px, 1.08vw, 21px);
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(14px, 0.98vw, 17px);
+  font-weight: 600;
+  letter-spacing: 0;
   text-decoration: none;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.tscircuit-landing .landing-topbar-icon,
+.tscircuit-landing .landing-topbar-icon {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  color: currentColor;
+  stroke-width: 1.65;
+}
+
 .tscircuit-landing .landing-topbar-chev {
   width: 1em;
   height: 1em;
@@ -247,24 +253,26 @@ body {
 
 .tscircuit-landing .landing-topbar-cta {
   display: inline-flex;
-  min-width: 166px;
-  height: 56px;
+  min-width: 132px;
+  height: 42px;
   align-items: center;
   justify-content: center;
-  padding: 0 34px 0 30px;
-  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 14px 50%);
-  background: #2563eb;
-  color: #ffffff;
-  font-family: "Space Mono", monospace;
-  font-size: 19px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 0 18px;
+  clip-path: none;
+  background: #f4f4f5;
+  color: #050505;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
   text-decoration: none;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+  box-shadow: none;
 }
 
 .tscircuit-landing .landing-topbar-cta:hover {
-  background: #1d4ed8;
+  background: #e4e4e7;
 }
 
 .tscircuit-landing .landing-topbar-mobile-nav {
@@ -448,7 +456,7 @@ body {
 .tscircuit-landing .landing-original-section {
   position: relative;
   overflow: hidden;
-  padding: 82px 48px;
+  padding: 132px var(--landing-page-gutter);
   background:
     linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(37, 99, 235, 0.09) 1px, transparent 1px),
@@ -459,8 +467,11 @@ body {
 
 .tscircuit-landing .landing-original-shell {
   position: relative;
-  max-width: 1840px;
+  max-width: var(--landing-page-max);
   margin: 0 auto;
+  border-right: 1px solid var(--landing-rail-color);
+  border-left: 1px solid var(--landing-rail-color);
+  padding-inline: 48px;
 }
 
 .tscircuit-landing .landing-original-eyebrow,
@@ -474,21 +485,21 @@ body {
 }
 
 .tscircuit-landing .landing-original-section h2 {
-  max-width: 980px;
+  max-width: 720px;
   margin: 12px 0 0;
   font-family: "Anybody", sans-serif;
-  font-size: 72px;
+  font-size: 48px;
   font-weight: 850;
-  line-height: 0.96;
+  line-height: 1.04;
   letter-spacing: 0;
 }
 
 .tscircuit-landing .landing-original-sub {
-  max-width: 820px;
+  max-width: 620px;
   margin: 18px 0 0;
   color: #334155;
-  font-size: 20px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 .tscircuit-landing .landing-original-feature-grid {
@@ -1326,17 +1337,21 @@ body {
 
 @media (max-width: 1180px) {
   .tscircuit-landing .landing-original-section h2 {
-    font-size: 56px;
+    font-size: 40px;
   }
 }
 
 @media (max-width: 767px) {
   .tscircuit-landing .landing-original-section {
-    padding: 64px 16px;
+    padding: 96px 20px;
+  }
+
+  .tscircuit-landing .landing-original-shell {
+    padding-inline: 20px;
   }
 
   .tscircuit-landing .landing-original-section h2 {
-    font-size: 42px;
+    font-size: 32px;
   }
 
   .tscircuit-landing .landing-original-card {
@@ -1427,6 +1442,505 @@ body {
     min-width: 180vw;
     font-size: clamp(6px, 1.5vw, 10px);
     transform: translateX(-40vw);
+  }
+}
+
+.tscircuit-landing {
+  --landing-page-max: 1120px;
+  --landing-page-gutter: clamp(24px, 5vw, 72px);
+  --landing-rail-color: rgba(255, 255, 255, 0.11);
+  background: #000;
+  color: #f8fafc;
+  color-scheme: dark;
+}
+
+.tscircuit-landing .landing-announcement-strip,
+.tscircuit-landing .landing-topbar,
+.tscircuit-landing .landing-hero-section,
+.tscircuit-landing .landing-original-section,
+.tscircuit-landing .landing-faq,
+.tscircuit-landing .landing-footer {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 34%),
+    linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+    #000;
+  background-size:
+    auto,
+    34px 34px,
+    34px 34px,
+    auto;
+  color: #f8fafc;
+}
+
+.tscircuit-landing .landing-announcement-strip {
+  border-top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: #050505;
+  color: #d4d4d8;
+}
+
+.tscircuit-landing .landing-topbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.tscircuit-landing .landing-topbar-nav a {
+  color: #f4f4f5;
+}
+
+.tscircuit-landing .landing-topbar-icon,
+.tscircuit-landing .landing-topbar-chev {
+  color: #8a8f98;
+}
+
+.tscircuit-landing .landing-topbar-search,
+.tscircuit-landing .landing-topbar-menu {
+  width: auto;
+  min-width: 0;
+  padding: 0 14px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fafc;
+}
+
+.tscircuit-landing .landing-topbar-mobile-nav {
+  border-top-color: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.96);
+}
+
+.tscircuit-landing .landing-topbar-mobile-nav a {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f4f4f5;
+}
+
+.tscircuit-landing .landing-topbar-cta {
+  background: #f4f4f5;
+  color: #050505;
+}
+
+.tscircuit-landing .landing-topbar-cta:hover {
+  background: #e4e4e7;
+  color: #050505;
+}
+
+.tscircuit-landing .landing-topbar-cta::after {
+  display: none;
+}
+
+.tscircuit-landing .landing-hero-section h1,
+.tscircuit-landing .landing-original-section h2,
+.tscircuit-landing .landing-foundation-heading h2 {
+  color: #ffffff;
+}
+
+.tscircuit-landing .landing-hero-section p,
+.tscircuit-landing .landing-original-sub {
+  color: #a3aab8;
+}
+
+.tscircuit-landing .landing-hero-minimal {
+  min-height: calc(88svh - 134px);
+}
+
+.tscircuit-landing .landing-hero-minimal-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.42;
+  background:
+    radial-gradient(circle at 24% 20%, transparent 0 34px, rgba(255, 255, 255, 0.1) 35px 36px, transparent 37px),
+    radial-gradient(circle at 68% 72%, transparent 0 42px, rgba(255, 255, 255, 0.08) 43px 44px, transparent 45px),
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-position:
+    0 0,
+    0 0,
+    center,
+    center;
+  background-size:
+    auto,
+    auto,
+    420px 180px,
+    420px 180px;
+  mask-image: radial-gradient(ellipse at center, #000 0 42%, transparent 75%);
+}
+
+.tscircuit-landing .landing-page-rails {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: min(calc(100% - (var(--landing-page-gutter) * 2)), var(--landing-page-max));
+  pointer-events: none;
+  border-right: 1px solid var(--landing-rail-color);
+  border-left: 1px solid var(--landing-rail-color);
+  transform: translateX(-50%);
+}
+
+.tscircuit-landing .landing-page-rails::before,
+.tscircuit-landing .landing-page-rails::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.11), transparent);
+}
+
+.tscircuit-landing .landing-page-rails::before {
+  top: 120px;
+}
+
+.tscircuit-landing .landing-page-rails::after {
+  bottom: 96px;
+}
+
+.tscircuit-landing .landing-grid-field,
+.tscircuit-landing .landing-tile-field {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.07), transparent 34%),
+    linear-gradient(rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+    #000;
+  background-size:
+    auto,
+    34px 34px,
+    34px 34px,
+    auto;
+}
+
+.tscircuit-landing .landing-corner-grid,
+.tscircuit-landing .landing-demo-panel {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(12, 12, 14, 0.88);
+  box-shadow: 0 24px 90px rgba(37, 99, 235, 0.16);
+}
+
+.tscircuit-landing .landing-corner-grid > div {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #050505;
+}
+
+.tscircuit-landing .landing-corner-grid .grid.grid-cols-4 {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.tscircuit-landing .landing-corner-grid button:not([aria-pressed="true"]) {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+}
+
+.tscircuit-landing .landing-corner-grid .flex.items-center.justify-between {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+.tscircuit-landing .landing-original-eyebrow,
+.tscircuit-landing .landing-original-meta,
+.tscircuit-landing .landing-original-board-owner {
+  color: #a1a1aa;
+}
+
+.tscircuit-landing .landing-original-feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(34px, 4vw, 64px);
+  margin-top: 56px;
+}
+
+.tscircuit-landing .landing-original-card {
+  min-height: 340px;
+  grid-template-rows: auto auto;
+  gap: 22px;
+  border-color: rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014)),
+    #030303;
+  padding: 28px;
+  box-shadow: none;
+}
+
+.tscircuit-landing .landing-original-card:nth-child(3n + 2),
+.tscircuit-landing .landing-original-card:nth-child(3n) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+    #050505;
+}
+
+.tscircuit-landing .landing-original-card::before,
+.tscircuit-landing .landing-original-card::after {
+  display: none;
+}
+
+.tscircuit-landing .landing-original-card h3,
+.tscircuit-landing .landing-original-board-name,
+.tscircuit-landing .landing-foundation-card h3 {
+  color: #ffffff;
+}
+
+.tscircuit-landing .landing-original-card h3 {
+  font-size: 25px;
+}
+
+.tscircuit-landing .landing-original-card p,
+.tscircuit-landing .landing-original-gallery-board p,
+.tscircuit-landing .landing-foundation-card p {
+  color: #a3aab8;
+}
+
+.tscircuit-landing .landing-original-card p {
+  font-size: 15px;
+  line-height: 1.48;
+}
+
+.tscircuit-landing .landing-original-code,
+.tscircuit-landing .landing-original-autoroute,
+.tscircuit-landing .landing-original-media,
+.tscircuit-landing .landing-original-review,
+.tscircuit-landing .landing-original-chart,
+.tscircuit-landing .landing-original-bom {
+  min-height: 0;
+  height: 132px;
+  border-radius: 8px;
+  border-color: rgba(255, 255, 255, 0.13);
+  background-color: #050505;
+}
+
+.tscircuit-landing .landing-original-code {
+  align-items: center;
+  padding: 18px;
+}
+
+.tscircuit-landing .landing-original-code .landing-code-snippet {
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.tscircuit-landing .landing-code-snippet {
+  color: #d4d4d8;
+}
+
+.tscircuit-landing .syntax-keyword,
+.tscircuit-landing .syntax-tag,
+.tscircuit-landing .syntax-attr,
+.tscircuit-landing .syntax-string,
+.tscircuit-landing .syntax-punctuation {
+  color: currentColor;
+}
+
+.tscircuit-landing .landing-original-autoroute video {
+  min-height: 0;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(0.96) brightness(0.72);
+}
+
+.tscircuit-landing .landing-original-media img,
+.tscircuit-landing .landing-original-media picture {
+  filter: grayscale(1) contrast(0.94) brightness(0.72);
+}
+
+.tscircuit-landing .landing-foundation-section {
+  padding-top: 96px;
+}
+
+.tscircuit-landing .landing-foundation-shell {
+  max-width: var(--landing-page-max);
+  margin: 0 auto;
+  border-right: 1px solid var(--landing-rail-color);
+  border-left: 1px solid var(--landing-rail-color);
+  padding-inline: 48px;
+}
+
+.tscircuit-landing .landing-foundation-heading {
+  max-width: 1120px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tscircuit-landing .landing-foundation-network {
+  position: relative;
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  margin: 22px auto -8px;
+}
+
+.tscircuit-landing .landing-foundation-chip {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #202020, #111);
+  box-shadow: 0 14px 54px rgba(0, 0, 0, 0.65);
+  color: #f8fafc;
+  font-family: "Anybody", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  padding: 20px 28px;
+}
+
+.tscircuit-landing .landing-foundation-chip svg {
+  display: none;
+}
+
+.tscircuit-landing .landing-foundation-trace {
+  position: absolute;
+  height: 1px;
+  width: min(34vw, 520px);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform-origin: center;
+}
+
+.tscircuit-landing .landing-foundation-trace-a {
+  left: 10%;
+  top: 62%;
+  transform: rotate(-8deg);
+}
+
+.tscircuit-landing .landing-foundation-trace-b {
+  left: 50%;
+  top: 62%;
+  transform: translateX(-50%) rotate(90deg);
+}
+
+.tscircuit-landing .landing-foundation-trace-c {
+  right: 10%;
+  top: 62%;
+  transform: rotate(8deg);
+}
+
+.tscircuit-landing .landing-foundation-cards {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.tscircuit-landing .landing-foundation-card {
+  position: relative;
+  display: grid;
+  min-height: 300px;
+  align-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1c1c1c, #090909);
+  padding: 32px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.tscircuit-landing .landing-foundation-card > svg {
+  display: none;
+}
+
+.tscircuit-landing .landing-foundation-card h3 {
+  margin: 0;
+  font-family: "Anybody", sans-serif;
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.tscircuit-landing .landing-foundation-card p {
+  margin: 12px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.tscircuit-landing .landing-foundation-arrow {
+  display: none;
+}
+
+.tscircuit-landing .landing-original-gallery-board {
+  border-color: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #0f0f10, #050505);
+  box-shadow: none;
+  color: #f8fafc;
+}
+
+.tscircuit-landing .landing-original-pcb {
+  border-color: rgba(255, 255, 255, 0.24);
+  background:
+    radial-gradient(circle at 18% 20%, #d4d4d8 0 8px, transparent 9px),
+    radial-gradient(circle at 82% 76%, #d4d4d8 0 8px, transparent 9px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    #050816;
+  background-size: auto, auto, 36px 36px, 36px 36px, auto;
+}
+
+.tscircuit-landing .landing-original-board-stats span {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d4d4d8;
+}
+
+.tscircuit-landing .landing-original-button-secondary {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: #050505;
+  color: #ffffff;
+}
+
+.tscircuit-landing .landing-faq section {
+  background: #000;
+  color: #f8fafc;
+}
+
+.tscircuit-landing .landing-faq h2,
+.tscircuit-landing .landing-faq h3 {
+  color: #f8fafc;
+}
+
+.tscircuit-landing .landing-faq p,
+.tscircuit-landing .landing-faq button {
+  color: #a3aab8;
+}
+
+.tscircuit-landing .landing-original-careers-row,
+.tscircuit-landing .landing-careers-letter {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.tscircuit-landing .landing-careers-letter p {
+  color: #d1d5db;
+}
+
+.tscircuit-landing .landing-footer {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.tscircuit-landing .landing-footer p,
+.tscircuit-landing .landing-footer a {
+  color: #a3aab8;
+}
+
+.tscircuit-landing .landing-footer-terminal-output {
+  color: #71717a;
+  opacity: 0.18;
+}
+
+@media (max-width: 1023px) {
+  .tscircuit-landing .landing-foundation-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .tscircuit-landing .landing-foundation-network {
+    min-height: 140px;
+  }
+
+  .tscircuit-landing .landing-foundation-trace {
+    display: none;
   }
 }
 

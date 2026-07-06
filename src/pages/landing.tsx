@@ -6,74 +6,19 @@ import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { FAQ } from "@/components/FAQ"
 import { OptimizedImage } from "@/components/OptimizedImage"
 import {
-  ArrowRight,
   BookOpen,
   Building2,
-  ChevronDown,
   CircuitBoard,
-  Copy,
   DollarSign,
   FileText,
   Library,
   Menu,
   Search,
   Sparkles,
-  Terminal,
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { Helmet } from "react-helmet"
 import { Link } from "wouter"
-
-const surfaceTiles = [
-  "bg-[#F8FAFC]",
-  "bg-[#EFF6FF]",
-  "bg-[#DBEAFE]",
-  "bg-[#FFFFFF]",
-]
-
-const integrations = [
-  "GitHub packages",
-  "Browser previews",
-  "KiCad import/export",
-  "Gerber builds",
-  "BOM checks",
-  "AI code agents",
-]
-
-const heroViews = [
-  {
-    id: "code",
-    label: "Code",
-    shortLabel: "Code",
-    title: "circuit.review.tsx",
-    status: "source locked",
-    accent: "#2563EB",
-  },
-  {
-    id: "schematic",
-    label: "Schematic",
-    shortLabel: "Sch",
-    title: "schematic.svg",
-    status: "nets traced",
-    accent: "#0284C7",
-  },
-  {
-    id: "3d",
-    label: "3D",
-    shortLabel: "3D",
-    title: "board.preview.glb",
-    status: "parts placed",
-    accent: "#0EA5E9",
-  },
-  {
-    id: "gerber",
-    label: "Gerber",
-    shortLabel: "Gbr",
-    title: "fabrication.zip",
-    status: "export ready",
-    accent: "#1D4ED8",
-  },
-] as const
 
 const donutCharacters = ".,-~:;=!*#$@" as const
 
@@ -200,71 +145,49 @@ const FooterDonutTerminal = () => {
 const landingNavItems = [
   { label: "Examples", href: "/search", icon: FileText },
   { label: "Pricing", href: "/my-orders", icon: DollarSign },
-  { label: "Features", href: "#features", icon: Sparkles, hasMenu: true },
+  { label: "Features", href: "#features", icon: Sparkles },
   { label: "Enterprise", href: "mailto:hello@tscircuit.com", icon: Building2 },
   { label: "Blog", href: "https://blog.tscircuit.com", icon: BookOpen },
   {
     label: "Resources",
     href: "https://docs.tscircuit.com",
     icon: Library,
-    hasMenu: true,
   },
 ]
 
 const originalFeatureCards = [
   {
-    meta: "01 · REACT",
-    title: "JSX components for circuits",
-    body: "Compose boards the way you compose UI. Props, children, hooks - but for resistors.",
+    meta: "01 · SOURCE",
+    title: "Circuit source agents can edit",
+    body: "React components describe parts, nets, traces, constraints, and output targets in one inspectable source tree.",
     visual: "code",
   },
   {
     meta: "02 · AUTOROUTE",
-    title: "Real-time autorouting",
-    body: "Sub-second routing on 4-layer boards. Runs locally with LLM-compatible tweaking.",
+    title: "Routing that stays reviewable",
+    body: "Generate routed boards without losing the context humans and code agents need to inspect, diff, and repair.",
     visual: "autoroute",
   },
   {
     meta: "03 · AI",
-    title: "AI coding skills for hardware",
-    body: "Give Claude Code, Codex, or custom agents the tscircuit skill with the CLI, syntax, workflow, and pre-fab context they need to make useful changes.",
+    title: "Hardware context for AI teams",
+    body: "Give Codex, Claude Code, and custom agents enough pre-fab context to make useful changes before boards go out.",
     visual: "ai",
   },
+] as const
+
+const toolingCards = [
   {
-    meta: "04 · FAB",
-    title: "Export every format you need",
-    body: "Download PCB, schematic, and assembly images plus fabrication files, KiCad, DSN, JSON, and netlists from the same board source.",
-    visual: "formats",
+    title: "React",
+    body: "Compose boards, subcircuits, footprints, and reusable packages with the UI model engineers already understand.",
   },
   {
-    meta: "05 · REVIEW",
-    title: "Visual Diffs Inside GitHub",
-    body: "All the capabilities of version control tool works natively with tscircuit. Approvals, comments, rollback.",
-    visual: "review",
+    title: "TypeScript",
+    body: "Typed props, package boundaries, editor tooling, and git diffs keep hardware changes explicit.",
   },
   {
-    meta: "06 · OSS",
-    title: "Open & forkable",
-    body: "Open source under MIT. Explore the tscircuit GitHub org, fork what you need, and build on top of it.",
-    visual: "oss",
-  },
-  {
-    meta: "07 · SIMULATION",
-    title: "Analog Simulation",
-    body: "Run analog simulations with tsci simulate on the command line or in the browser, backed by WebAssembly ngspice.",
-    visual: "simulation",
-  },
-  {
-    meta: "08 · KICAD",
-    title: "First Class KiCad Support",
-    body: "Import and export your library anywhere. Import KiCad files natively. Import your tscircuit packages directly into KiCad with native KiCad PCM support.",
-    visual: "kicad",
-  },
-  {
-    meta: "09 · BOM",
-    title: "Automatic Part Selection",
-    body: "Specify parts without part numbers. Bill of materials automatically generated based on realtime availability from supplier integrations.",
-    visual: "bom",
+    title: "Circuit JSON",
+    body: "Compile source into a portable electronics graph for viewers, agents, fabrication output, and review tools.",
   },
 ] as const
 
@@ -569,9 +492,6 @@ const LandingTopBar = () => {
       <>
         <Icon className="landing-topbar-icon" aria-hidden="true" />
         <span>{item.label}</span>
-        {item.hasMenu && (
-          <ChevronDown className="landing-topbar-chev" aria-hidden="true" />
-        )}
       </>
     )
 
@@ -617,7 +537,7 @@ const LandingTopBar = () => {
             aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
           >
-            <Menu className="h-6 w-6" />
+            <Menu className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -639,9 +559,6 @@ const LandingFooter = () => (
       <div className="grid gap-8 md:grid-cols-[1.2fr_2fr]">
         <div>
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-[#2563EB] text-[#F8FAFC]">
-              <CircuitBoard className="h-5 w-5" />
-            </div>
             <span className="font-['Anybody',sans-serif] text-2xl font-extrabold">
               tscircuit
             </span>
@@ -687,7 +604,7 @@ const LandingFooter = () => (
             },
           ].map((group) => (
             <nav key={group.title} className="space-y-3">
-              <h3 className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#2563EB]">
+              <h3 className="font-['Space_Mono',monospace] text-xs font-bold uppercase tracking-[0.12em] text-[#A1A1AA]">
                 {group.title}
               </h3>
               <div className="flex flex-col gap-2">
@@ -713,21 +630,6 @@ const LandingFooter = () => (
 )
 
 export function LandingPage() {
-  const [activeHeroViewIndex, setActiveHeroViewIndex] = useState(0)
-  const activeHeroView = heroViews[activeHeroViewIndex]
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      return
-    }
-
-    const intervalId = window.setInterval(() => {
-      setActiveHeroViewIndex((current) => (current + 1) % heroViews.length)
-    }, 3200)
-
-    return () => window.clearInterval(intervalId)
-  }, [])
-
   return (
     <div className="tscircuit-landing min-h-screen bg-[#F8FAFC] font-['DM_Sans',sans-serif] text-[#0F172A]">
       <Helmet>
@@ -748,230 +650,46 @@ export function LandingPage() {
         href="https://docs.tscircuit.com"
         className="landing-announcement-strip"
       >
-        <Sparkles className="h-4 w-4" />
         <span>Get started with our new tutorial series</span>
-        <ArrowRight className="h-4 w-4" />
       </a>
       <LandingTopBar />
       <main className="overflow-hidden">
-        <section className="landing-grid-field landing-hero-section relative bg-[#F8FAFC] px-4 pb-16 pt-8 md:px-6 md:pb-24 lg:pt-10">
-          <div className="absolute inset-0 opacity-55 [background-image:linear-gradient(rgba(37,99,235,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,.12)_1px,transparent_1px)] [background-size:72px_72px]" />
-          <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(135deg,rgba(37,99,235,.18)_0_1px,transparent_1px_34px),linear-gradient(45deg,rgba(14,165,233,.14)_0_1px,transparent_1px_28px)]" />
-          <div className="absolute right-0 top-20 hidden w-[42vw] grid-cols-5 gap-2 opacity-75 lg:grid">
-            {surfaceTiles
-              .concat(surfaceTiles, surfaceTiles)
-              .map((tile, index) => (
-                <div
-                  key={`hero-tile-${index}`}
-                  className={`h-16 rounded-[18px] border border-[#CBD5E1] ${tile} ${
-                    index % 4 === 0 ? "border-[#2563EB]/60" : ""
-                  } ${index % 5 === 2 ? "translate-y-8" : ""}`}
-                />
-              ))}
-          </div>
-          <div className="relative mx-auto flex h-full max-w-[1680px] flex-col">
-            <div className="mb-6 grid gap-3 border-y border-[#CBD5E1] bg-[#DBEAFE]/80 px-4 py-3 font-['Space_Mono',monospace] text-[11px] font-bold uppercase tracking-[0.12em] text-[#2563EB] md:grid-cols-[auto_1fr_auto] md:items-center">
-              <Sparkles className="h-4 w-4" />
-              <span>AI electronics workbench</span>
-              <span className="text-[#64748B] md:text-right">
-                TSX · Schematics · PCB · 3D · Gerbers
-              </span>
+        <section className="landing-grid-field landing-hero-section landing-hero-minimal relative px-6 pb-20 pt-16 md:px-8 lg:pb-24 lg:pt-20">
+          <div className="landing-hero-minimal-grid" aria-hidden="true" />
+          <div className="landing-page-rails" aria-hidden="true" />
+          <div className="relative mx-auto flex min-h-[56svh] max-w-3xl flex-col items-center justify-center text-center">
+            <div className="mb-9 font-['Space_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.34em] text-[#64748B] sm:text-[11px]">
+              The hardware framework for AI teams
             </div>
-            <div className="grid flex-1 gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(560px,720px)] lg:items-center">
-              <div>
-                <div className="mb-5 font-['Space_Mono',monospace] text-sm font-bold uppercase tracking-[0.32em] text-[#64748B]">
-                  The hardware framework for AI teams
-                </div>
-                <h1 className="max-w-[980px] font-['Anybody',sans-serif] text-[50px] font-extrabold leading-[.9] tracking-normal text-[#0F172A] sm:text-[72px] lg:text-[98px] xl:text-[108px]">
-                  The #1 framework for{" "}
-                  <span className="bg-[#DBEAFE] px-2 text-[#0F172A]">
-                    AI-generated
-                  </span>{" "}
-                  electronics.
-                </h1>
-                <p className="mt-7 max-w-[860px] text-xl leading-9 text-[#334155] md:text-2xl">
-                  Design production PCBs in TypeScript. Version them in git. Let
-                  agents iterate on them.
-                </p>
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <button
-                    type="button"
-                    className="inline-flex h-12 items-center justify-center gap-3 rounded-md bg-[#2563EB] px-6 font-['Space_Mono',monospace] text-[14px] font-bold text-white"
-                  >
-                    npm install -g tscircuit
-                    <Copy className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <a
-                    href="https://docs.tscircuit.com"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#0F172A] bg-white px-6 font-['Space_Mono',monospace] text-[14px] font-bold text-[#0F172A]"
-                  >
-                    Read the docs
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
-                <div className="mt-9 grid max-w-xl grid-cols-3 gap-6">
-                  {[
-                    ["2.3k", "Repo stars"],
-                    ["304", "Public repos"],
-                    ["397", "Contributors"],
-                  ].map(([value, label]) => (
-                    <div key={label}>
-                      <div className="font-['Anybody',sans-serif] text-3xl font-extrabold leading-none text-[#0F172A]">
-                        {value}
-                      </div>
-                      <div className="mt-1 font-['Space_Mono',monospace] text-xs text-[#64748B]">
-                        {label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="relative min-w-0">
-                <div className="absolute -right-4 -top-5 hidden h-28 w-28 rounded-[28px] border border-[#2563EB]/60 bg-[#2563EB]/10 lg:block" />
-                <div className="absolute -bottom-6 -left-6 hidden h-32 w-32 grid-cols-3 gap-2 lg:grid">
-                  {surfaceTiles.slice(0, 9).map((tile, index) => (
-                    <span
-                      key={`panel-tile-${index}`}
-                      className={`rounded-lg border border-[#CBD5E1] ${tile}`}
-                    />
-                  ))}
-                </div>
-                <div className="landing-corner-grid relative min-w-0 overflow-hidden rounded-3xl border border-[#CBD5E1] bg-[#EFF6FF] p-3 shadow-[0_24px_80px_rgba(37,99,235,.18)] sm:p-4">
-                  <div className="rounded-2xl border border-[#CBD5E1] bg-[#FFFFFF]">
-                    <div className="flex items-center justify-between gap-3 border-b border-[#CBD5E1] px-4 py-3">
-                      <div className="min-w-0 flex items-center gap-2 font-['Space_Mono',monospace] text-xs text-[#64748B]">
-                        <Terminal
-                          className="h-4 w-4 shrink-0"
-                          style={{ color: activeHeroView.accent }}
-                        />
-                        <span className="truncate">{activeHeroView.title}</span>
-                      </div>
-                      <div
-                        className="shrink-0 rounded px-2 py-1 font-['Space_Mono',monospace] text-[10px] font-bold uppercase text-[#F8FAFC]"
-                        style={{ backgroundColor: activeHeroView.accent }}
-                      >
-                        {activeHeroView.status}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-2 border-b border-[#CBD5E1] bg-[#F8FAFC] p-2">
-                      {heroViews.map((view, index) => {
-                        const isActive = activeHeroView.id === view.id
-                        return (
-                          <button
-                            type="button"
-                            key={view.id}
-                            onClick={() => setActiveHeroViewIndex(index)}
-                            className={`h-10 min-w-0 rounded-md border px-1 font-['Space_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563EB] sm:px-2 sm:text-[10px] ${
-                              isActive
-                                ? "border-[#2563EB] bg-[#2563EB] text-[#F8FAFC]"
-                                : "border-[#CBD5E1] bg-[#FFFFFF] text-[#64748B]"
-                            }`}
-                            aria-pressed={isActive}
-                          >
-                            <span className="sm:hidden">{view.shortLabel}</span>
-                            <span className="hidden sm:inline">
-                              {view.label}
-                            </span>
-                          </button>
-                        )
-                      })}
-                    </div>
-
-                    <div className="p-3 sm:p-4">
-                      <div
-                        key={activeHeroView.id}
-                        className="landing-demo-panel landing-scanlines relative h-[340px] overflow-hidden rounded-xl border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:h-[380px] lg:h-[380px]"
-                      >
-                        {activeHeroView.id === "code" && (
-                          <div className="landing-hero-code-panel">
-                            <CircuitCodeSnippet />
-                          </div>
-                        )}
-
-                        {activeHeroView.id === "schematic" && (
-                          <div className="absolute inset-4 grid grid-cols-6 grid-rows-5">
-                            <div className="col-span-6 row-start-3 h-px bg-[#0284C7]/70" />
-                            <div className="col-start-2 row-span-5 row-start-1 w-px bg-[#0284C7]/50" />
-                            <div className="col-start-5 row-span-5 row-start-1 w-px bg-[#0284C7]/50" />
-                            {["VCC", "U1", "R1", "C1", "GND", "OUT"].map(
-                              (node, index) => (
-                                <div
-                                  key={node}
-                                  className="z-10 grid h-14 w-16 place-items-center rounded-lg border border-[#0284C7] bg-[#FFFFFF] font-['Space_Mono',monospace] text-[11px] font-bold text-[#1E3A8A]"
-                                  style={{
-                                    gridColumn: `${(index % 3) * 2 + 1} / span 1`,
-                                    gridRow: `${Math.floor(index / 3) * 3 + 1} / span 1`,
-                                  }}
-                                >
-                                  {node}
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        )}
-
-                        {activeHeroView.id === "3d" && (
-                          <div className="flex h-full items-center justify-center [perspective:900px]">
-                            <div className="relative h-36 w-[82%] max-w-72 rotate-x-[58deg] rotate-z-[-18deg] rounded-2xl border-2 border-[#0EA5E9] bg-[#DBEAFE] shadow-[0_28px_70px_rgba(14,165,233,.20)] sm:h-44">
-                              <div className="absolute left-[12%] top-[18%] h-[32%] w-[34%] rounded-md border border-[#DBEAFE] bg-[#F8FAFC]" />
-                              <div className="absolute bottom-[18%] right-[12%] h-[28%] w-[28%] rounded-md border border-[#0284C7] bg-[#EFF6FF]" />
-                              {[8, 22, 36, 68, 84].map((left) => (
-                                <span
-                                  key={left}
-                                  className="absolute top-4 h-3 w-3 rounded-full bg-[#0EA5E9]"
-                                  style={{ left: `${left}%` }}
-                                />
-                              ))}
-                              {[12, 30, 48, 66, 82].map((left) => (
-                                <span
-                                  key={left}
-                                  className="absolute bottom-5 h-2 w-[14%] rounded-full bg-[#2563EB]/80"
-                                  style={{ left: `${left}%` }}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activeHeroView.id === "gerber" && (
-                          <div className="relative h-full">
-                            {[
-                              "border-[#2563EB] translate-x-0 translate-y-0",
-                              "border-[#1D4ED8] translate-x-5 translate-y-5",
-                              "border-[#0284C7] translate-x-10 translate-y-10",
-                              "border-[#0EA5E9] translate-x-14 translate-y-14",
-                            ].map((layer, index) => (
-                              <div
-                                key={layer}
-                                className={`absolute inset-8 rounded-2xl border-2 ${layer} bg-[#FFFFFF]/35`}
-                              >
-                                <div className="absolute left-8 top-8 h-12 w-20 rounded border border-current" />
-                                <div className="absolute bottom-8 right-8 h-16 w-24 rounded-full border border-current" />
-                                <div className="absolute left-10 right-10 top-1/2 h-px bg-current" />
-                                <span className="absolute right-4 top-3 font-['Space_Mono',monospace] text-[10px] font-bold text-current">
-                                  L{index + 1}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <h1 className="max-w-3xl font-['Anybody',sans-serif] text-[34px] font-extrabold leading-[1.04] tracking-normal text-white sm:text-[44px] lg:text-[56px]">
+              The #1 framework for AI-generated electronics.
+            </h1>
+            <p className="mt-9 max-w-2xl text-sm leading-7 text-[#A3AAB8] md:text-base">
+              Design production PCBs in TypeScript. Version them in git. Let
+              agents iterate on them.
+            </p>
+            <div className="mt-11 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <button
+                type="button"
+                className="inline-flex h-10 items-center justify-center gap-3 rounded-md bg-white px-4 font-['Space_Mono',monospace] text-[12px] font-bold text-[#050505]"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(
+                    "npm install -g tscircuit",
+                  )
+                }}
+              >
+                npm install -g tscircuit
+              </button>
+              <a
+                href="https://docs.tscircuit.com"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-white/15 bg-white/[0.04] px-4 font-['Space_Mono',monospace] text-[12px] font-bold text-white"
+              >
+                Read the docs
+              </a>
             </div>
-          </div>
-        </section>
-
-        <section className="bg-[#2563EB] py-4 text-[#F8FAFC]">
-          <div className="mx-auto flex max-w-7xl gap-8 overflow-hidden px-4 font-['Space_Mono',monospace] text-sm font-bold uppercase tracking-[0.12em] md:px-6">
-            {[...integrations, ...integrations].map((item, index) => (
-              <span key={`${item}-${index}`} className="shrink-0">
-                {item}
-              </span>
-            ))}
+            <div className="mt-11 font-['Space_Mono',monospace] text-[10px] uppercase tracking-[0.22em] text-[#64748B]">
+              TSX / Schematics / PCB / 3D / Gerbers
+            </div>
           </div>
         </section>
 
@@ -1004,41 +722,35 @@ export function LandingPage() {
         </section>
 
         <section
-          className="landing-original-section landing-original-playground"
-          aria-labelledby="playground-title"
+          className="landing-original-section landing-foundation-section"
+          aria-labelledby="foundation-title"
         >
-          <div className="landing-original-playground-grid">
-            <div>
+          <div className="landing-foundation-shell">
+            <div className="landing-foundation-heading">
               <div className="landing-original-eyebrow">
-                Develop like it&apos;s a website
+                Powered by tscircuit
               </div>
-              <h2 id="playground-title">Instant previews in the browser.</h2>
-              <p className="landing-original-sub">
-                Every save re-renders the schematic, PCB, and 3D view - the same
-                loop you have with Next.js or Vite, but for hardware. No IDE to
-                install, no toolchain to babysit. 50+ reference boards ready to
-                fork.
-              </p>
-              <a className="landing-original-button" href="/playground">
-                Open playground
-                <ArrowRight className="h-4 w-4" />
-              </a>
+              <h2 id="foundation-title">
+                Built on a foundation of code-first electronics tooling.
+              </h2>
             </div>
-            <div className="landing-original-browser">
-              <div className="landing-original-browser-top">
-                <span />
-                <span />
-                <span />
-                <strong>index.circuit.tsx</strong>
+            <div className="landing-foundation-network" aria-hidden="true">
+              <div className="landing-foundation-chip">
+                <span>tscircuit</span>
               </div>
-              <div className="landing-original-browser-body">
-                <div className="landing-original-browser-code">
-                  <CircuitCodeSnippet />
-                </div>
-                <div className="landing-original-browser-board">
-                  <div className="landing-original-board-shape" />
-                </div>
-              </div>
+              <span className="landing-foundation-trace landing-foundation-trace-a" />
+              <span className="landing-foundation-trace landing-foundation-trace-b" />
+              <span className="landing-foundation-trace landing-foundation-trace-c" />
+            </div>
+            <div className="landing-foundation-cards">
+              {toolingCards.map((tool) => (
+                <article key={tool.title} className="landing-foundation-card">
+                  <div>
+                    <h3>{tool.title}</h3>
+                    <p>{tool.body}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -1098,7 +810,6 @@ export function LandingPage() {
             <div className="landing-original-gallery-more">
               <a className="landing-original-button-secondary" href="/trending">
                 Browse gallery · 240 boards
-                <ArrowRight className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -1131,8 +842,8 @@ export function LandingPage() {
                     we&apos;d like to hear from you.
                   </p>
                   <p>
-                    This section is intentionally a draft letter for now.
-                    We&apos;ll replace it later with the final note.
+                    We&apos;re hiring across electrical engineering, compilers,
+                    autorouting, developer tools, and applied AI for hardware.
                   </p>
                   <div className="landing-careers-signature">
                     <span>- the tscircuit team</span>
