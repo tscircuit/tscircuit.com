@@ -1601,44 +1601,18 @@ body {
   transform: translateZ(0);
   transition:
     opacity 220ms ease,
-    filter 220ms ease,
-    transform 220ms ease;
-  animation: landing-hero-pcb-render-glow 15s ease-in-out infinite;
+    filter 220ms ease;
+}
+
+.tscircuit-landing .landing-hero-pcb-render-ambient {
+  opacity: 0.42;
+  filter: grayscale(1) saturate(0) contrast(1.28) brightness(0.9);
 }
 
 .tscircuit-landing .landing-hero-pcb-render:hover,
 .tscircuit-landing .landing-hero-pcb-render-highlighted {
-  opacity: 0.58;
-  filter: grayscale(1) saturate(0) contrast(1.35) brightness(1.08);
-  transform: translate3d(0, -8px, 0) scale(1.012);
-  animation-play-state: paused;
-}
-
-.tscircuit-landing .landing-hero-pcb-render-2 {
-  animation-delay: -5s;
-}
-
-.tscircuit-landing .landing-hero-pcb-render-3 {
-  animation-delay: -10s;
-}
-
-@keyframes landing-hero-pcb-render-glow {
-  0%,
-  30%,
-  100% {
-    opacity: 0.22;
-    filter: grayscale(1) saturate(0) contrast(1.14) brightness(0.62);
-  }
-
-  48% {
-    opacity: 0.42;
-    filter: grayscale(1) saturate(0) contrast(1.28) brightness(0.86);
-  }
-
-  62% {
-    opacity: 0.32;
-    filter: grayscale(1) saturate(0) contrast(1.2) brightness(0.74);
-  }
+  opacity: 0.88;
+  filter: grayscale(1) saturate(0) contrast(1.65) brightness(1.55) drop-shadow(0 0 34px rgba(255, 255, 255, 0.28));
 }
 
 @media (max-width: 760px) {

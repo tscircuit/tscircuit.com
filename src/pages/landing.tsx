@@ -33,8 +33,10 @@ const heroPcbRenders = [
 ] as const
 
 const HeroPcbRenderStrip = ({
+  ambientIndex,
   highlightedIndex,
 }: {
+  ambientIndex: number
   highlightedIndex: number | null
 }) => (
   <div className="landing-hero-pcb-strip" aria-hidden="true">
@@ -48,6 +50,8 @@ const HeroPcbRenderStrip = ({
         className={`landing-hero-pcb-render landing-hero-pcb-render-${index + 1}${
           highlightedIndex === index
             ? " landing-hero-pcb-render-highlighted"
+            : highlightedIndex === null && ambientIndex === index
+              ? " landing-hero-pcb-render-ambient"
             : ""
         }`}
       />
@@ -666,6 +670,17 @@ export function LandingPage() {
   const [highlightedHeroPcbIndex, setHighlightedHeroPcbIndex] = useState<
     number | null
   >(null)
+  const [ambientHeroPcbIndex, setAmbientHeroPcbIndex] = useState(0)
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setAmbientHeroPcbIndex(
+        (currentIndex) => (currentIndex + 1) % heroPcbRenders.length,
+      )
+    }, 4600)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
 
   const handleHeroPointerMove = (event: PointerEvent<HTMLElement>) => {
     const boards = Array.from(
@@ -716,7 +731,10 @@ export function LandingPage() {
           onPointerLeave={() => setHighlightedHeroPcbIndex(null)}
         >
           <div className="landing-hero-minimal-grid" aria-hidden="true" />
-          <HeroPcbRenderStrip highlightedIndex={highlightedHeroPcbIndex} />
+          <HeroPcbRenderStrip
+            ambientIndex={ambientHeroPcbIndex}
+            highlightedIndex={highlightedHeroPcbIndex}
+          />
           <div className="landing-page-rails" aria-hidden="true" />
           <div className="relative z-10 mx-auto flex min-h-[56svh] max-w-3xl flex-col items-center justify-center text-center">
             <div className="mb-9 font-['Space_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.34em] text-[#64748B] sm:text-[11px]">
