@@ -16,6 +16,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react"
+import type { CSSProperties } from "react"
 import { useEffect, useRef, useState } from "react"
 import { Helmet } from "react-helmet"
 import { Link } from "wouter"
@@ -692,6 +693,25 @@ export function LandingPage() {
             </div>
           </div>
         </section>
+
+        <div className="landing-pixel-sand-transition" aria-hidden="true">
+          <div className="landing-pixel-sand-rail">
+            {Array.from({ length: 96 }, (_, index) => (
+              <span
+                key={`pixel-sand-${index}`}
+                style={
+                  {
+                    "--pixel-x": `${(index * 37) % 100}%`,
+                    "--pixel-y": `${12 + ((index * 53) % 76)}%`,
+                    "--pixel-size": `${2 + ((index * 7) % 4)}px`,
+                    "--pixel-alpha": `${0.16 + ((index * 11) % 42) / 100}`,
+                    "--pixel-delay": `${(index % 17) * -0.18}s`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </div>
+        </div>
 
         <section
           id="features"

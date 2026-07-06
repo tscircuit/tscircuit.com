@@ -1599,6 +1599,83 @@ body {
   bottom: 96px;
 }
 
+.tscircuit-landing .landing-pixel-sand-transition {
+  position: relative;
+  height: 150px;
+  margin-top: -76px;
+  margin-bottom: -42px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tscircuit-landing .landing-pixel-sand-transition::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72) 42%, transparent),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+}
+
+.tscircuit-landing .landing-pixel-sand-rail {
+  position: relative;
+  width: min(calc(100% - (var(--landing-page-gutter) * 2)), var(--landing-page-max));
+  height: 100%;
+  margin: 0 auto;
+  border-right: 1px solid var(--landing-rail-color);
+  border-left: 1px solid var(--landing-rail-color);
+}
+
+.tscircuit-landing .landing-pixel-sand-rail::before,
+.tscircuit-landing .landing-pixel-sand-rail::after {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.tscircuit-landing .landing-pixel-sand-rail::before {
+  top: 38px;
+}
+
+.tscircuit-landing .landing-pixel-sand-rail::after {
+  bottom: 34px;
+}
+
+.tscircuit-landing .landing-pixel-sand-rail span {
+  position: absolute;
+  left: var(--pixel-x);
+  top: var(--pixel-y);
+  width: var(--pixel-size);
+  height: var(--pixel-size);
+  background: rgba(244, 244, 245, var(--pixel-alpha));
+  box-shadow:
+    9px 12px 0 rgba(161, 161, 170, 0.12),
+    -13px 18px 0 rgba(244, 244, 245, 0.08);
+  animation: landing-pixel-sand-drift 4.8s steps(5, end) infinite;
+  animation-delay: var(--pixel-delay);
+}
+
+@keyframes landing-pixel-sand-drift {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: translate3d(0, -2px, 0);
+  }
+
+  45% {
+    opacity: 0.86;
+    transform: translate3d(6px, 6px, 0);
+  }
+
+  70% {
+    opacity: 0.5;
+    transform: translate3d(-4px, 12px, 0);
+  }
+}
+
 .tscircuit-landing .landing-grid-field,
 .tscircuit-landing .landing-tile-field {
   background:
