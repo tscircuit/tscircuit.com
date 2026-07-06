@@ -1604,11 +1604,6 @@ body {
     filter 220ms ease;
 }
 
-.tscircuit-landing .landing-hero-pcb-render-ambient {
-  opacity: 0.42;
-  filter: grayscale(1) saturate(0) contrast(1.28) brightness(0.9);
-}
-
 .tscircuit-landing .landing-hero-pcb-render:hover,
 .tscircuit-landing .landing-hero-pcb-render-highlighted {
   opacity: 0.88;
