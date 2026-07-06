@@ -1597,8 +1597,21 @@ body {
   opacity: 0.3;
   filter: grayscale(1) saturate(0) contrast(1.22) brightness(0.76);
   mix-blend-mode: screen;
+  pointer-events: auto;
   transform: translateZ(0);
+  transition:
+    opacity 220ms ease,
+    filter 220ms ease,
+    transform 220ms ease;
   animation: landing-hero-pcb-render-glow 15s ease-in-out infinite;
+}
+
+.tscircuit-landing .landing-hero-pcb-render:hover,
+.tscircuit-landing .landing-hero-pcb-render-highlighted {
+  opacity: 0.58;
+  filter: grayscale(1) saturate(0) contrast(1.35) brightness(1.08);
+  transform: translate3d(0, -8px, 0) scale(1.012);
+  animation-play-state: paused;
 }
 
 .tscircuit-landing .landing-hero-pcb-render-2 {
@@ -1670,75 +1683,6 @@ body {
 
 .tscircuit-landing .landing-page-rails::after {
   bottom: 96px;
-}
-
-.tscircuit-landing .landing-page-rails span {
-  position: absolute;
-  left: var(--rock-edge);
-  top: 0;
-  width: 5px;
-  height: 14px;
-  border-radius: 1px 3px 2px 1px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(161, 161, 170, 0.58));
-  box-shadow:
-    0 0 10px rgba(255, 255, 255, 0.7),
-    0 0 30px rgba(255, 255, 255, 0.2);
-  clip-path: polygon(48% 0, 100% 22%, 72% 100%, 18% 84%, 0 28%);
-  opacity: 0;
-  transform: translate3d(-50%, -18svh, 0) scale(0.74);
-  animation: landing-rail-bullet 17s linear infinite;
-  animation-delay: var(--rock-delay);
-}
-
-.tscircuit-landing .landing-page-rails span::before {
-  position: absolute;
-  left: 50%;
-  top: -164px;
-  width: 3px;
-  height: 174px;
-  content: "";
-  background:
-    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 38%, rgba(255, 255, 255, 0.46) 100%),
-    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  clip-path: polygon(42% 0, 60% 0, 100% 100%, 0 100%);
-  transform: translateX(-50%);
-}
-
-.tscircuit-landing .landing-page-rails span::after {
-  position: absolute;
-  inset: -4px -5px;
-  content: "";
-  border-radius: 40% 60% 48% 52%;
-  background: rgba(255, 255, 255, 0.08);
-  filter: blur(2px);
-}
-
-@keyframes landing-rail-bullet {
-  0%,
-  46%,
-  100% {
-    opacity: 0;
-    transform: translate3d(-50%, -18svh, 0) scale(0.62);
-  }
-
-  6% {
-    opacity: 0;
-    transform: translate3d(-50%, -18svh, 0) scale(0.62);
-  }
-
-  10% {
-    opacity: 0.95;
-  }
-
-  31% {
-    opacity: 1;
-    transform: translate3d(-50%, 92svh, 0) scale(1);
-  }
-
-  38% {
-    opacity: 0;
-    transform: translate3d(-50%, 112svh, 0) scale(0.68);
-  }
 }
 
 .tscircuit-landing .landing-pixel-sand-transition {

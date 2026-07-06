@@ -19,7 +19,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react"
-import type { CSSProperties } from "react"
+import type { CSSProperties, PointerEvent } from "react"
 import { useEffect, useRef, useState } from "react"
 import { Helmet } from "react-helmet"
 import { Link } from "wouter"
@@ -32,7 +32,11 @@ const heroPcbRenders = [
   { src: heroPcbKeypadImg, label: "keypad" },
 ] as const
 
-const HeroPcbRenderStrip = () => (
+const HeroPcbRenderStrip = ({
+  highlightedIndex,
+}: {
+  highlightedIndex: number | null
+}) => (
   <div className="landing-hero-pcb-strip" aria-hidden="true">
     {heroPcbRenders.map((pcb, index) => (
       <img
@@ -41,7 +45,11 @@ const HeroPcbRenderStrip = () => (
         alt=""
         width={800}
         height={600}
-        className={`landing-hero-pcb-render landing-hero-pcb-render-${index + 1}`}
+        className={`landing-hero-pcb-render landing-hero-pcb-render-${index + 1}${
+          highlightedIndex === index
+            ? " landing-hero-pcb-render-highlighted"
+            : ""
+        }`}
       />
     ))}
   </div>
@@ -655,6 +663,29 @@ const LandingFooter = () => (
 )
 
 export function LandingPage() {
+  const [highlightedHeroPcbIndex, setHighlightedHeroPcbIndex] = useState<
+    number | null
+  >(null)
+
+  const handleHeroPointerMove = (event: PointerEvent<HTMLElement>) => {
+    const boards = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>(
+        ".landing-hero-pcb-render",
+      ),
+    )
+    const nextIndex = boards.findIndex((board) => {
+      const rect = board.getBoundingClientRect()
+      return (
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+      )
+    })
+
+    setHighlightedHeroPcbIndex(nextIndex === -1 ? null : nextIndex)
+  }
+
   return (
     <div className="tscircuit-landing min-h-screen bg-[#F8FAFC] font-['DM_Sans',sans-serif] text-[#0F172A]">
       <Helmet>
@@ -679,22 +710,14 @@ export function LandingPage() {
       </a>
       <LandingTopBar />
       <main className="overflow-hidden">
-        <section className="landing-grid-field landing-hero-section landing-hero-minimal relative px-6 pb-20 pt-16 md:px-8 lg:pb-24 lg:pt-20">
+        <section
+          className="landing-grid-field landing-hero-section landing-hero-minimal relative px-6 pb-20 pt-16 md:px-8 lg:pb-24 lg:pt-20"
+          onPointerMove={handleHeroPointerMove}
+          onPointerLeave={() => setHighlightedHeroPcbIndex(null)}
+        >
           <div className="landing-hero-minimal-grid" aria-hidden="true" />
-          <HeroPcbRenderStrip />
-          <div className="landing-page-rails" aria-hidden="true">
-            {Array.from({ length: 2 }, (_, index) => (
-              <span
-                key={`rail-asteroid-${index}`}
-                style={
-                  {
-                    "--rock-edge": index % 2 === 0 ? "0%" : "100%",
-                    "--rock-delay": `${index * 8.5}s`,
-                  } as CSSProperties
-                }
-              />
-            ))}
-          </div>
+          <HeroPcbRenderStrip highlightedIndex={highlightedHeroPcbIndex} />
+          <div className="landing-page-rails" aria-hidden="true" />
           <div className="relative z-10 mx-auto flex min-h-[56svh] max-w-3xl flex-col items-center justify-center text-center">
             <div className="mb-9 font-['Space_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.34em] text-[#64748B] sm:text-[11px]">
               The hardware framework for AI teams
