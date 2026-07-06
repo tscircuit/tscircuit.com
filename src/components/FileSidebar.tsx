@@ -169,7 +169,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
   return (
     <div
       className={cn(
-        "flex-shrink-0 transition-all duration-300 border-r relative",
+        "flex h-full min-h-0 flex-col flex-shrink-0 transition-all duration-300 border-r relative",
         !sidebarOpen ? "w-0 overflow-hidden" : "w-[14rem]",
         className,
       )}
@@ -255,7 +255,7 @@ const FileSidebar: React.FC<FileSidebarProps> = ({
           </div>
         </div>
       )}
-      <div className="flex-1 border-t h-full">
+      <div className="min-h-0 flex-1 overflow-y-auto border-t">
         <TreeView
           data={treeData}
           setSelectedItemId={(value) => {

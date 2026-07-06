@@ -289,7 +289,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         </div>
         <div
           className={cn(
-            "flex p-0 flex-col overflow-y-hidden",
+            "flex min-h-0 p-0 flex-col overflow-y-hidden",
             state.fullScreen
               ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
               : "w-full md:w-1/2",

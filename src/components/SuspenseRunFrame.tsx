@@ -20,7 +20,9 @@ export const SuspenseRunFrame = (
         </div>
       }
     >
-      <div className={`h-full ${props.className}`}>
+      <div
+        className={`tscircuit-runframe h-full min-h-0 overflow-hidden ${props.className ?? ""}`}
+      >
         <RunFrame {...props} />
       </div>
     </Suspense>
