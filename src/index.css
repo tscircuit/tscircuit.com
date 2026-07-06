@@ -143,6 +143,22 @@ body {
   overflow-x: hidden;
 }
 
+.tscircuit-runframe [role="tabpanel"][data-state="active"],
+.tscircuit-runframe [role="tabpanel"][data-state="active"] > div {
+  min-height: 0 !important;
+}
+
+.tscircuit-runframe
+  [role="tabpanel"][data-state="active"]
+  > div
+  > .rf-flex.rf-h-full.rf-overflow-hidden
+  > .rf-flex-1.rf-overflow-hidden
+  > .rf-p-4 {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 /* Subtle scrollbar styling for html and body */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar {
