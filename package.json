@@ -194,7 +194,7 @@
     "terser": "^5.27.0",
     "three": "0.165.0",
     "three-stdlib": "^2.36.0",
-    "tscircuit": "^0.0.1819",
+    "tscircuit": "^0.0.2008",
     "tsup": "^8.5.0",
     "typescript": "^5.6.3",
     "use-async-memo": "^1.2.5",
