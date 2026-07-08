@@ -20,6 +20,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useOrganization } from "@/hooks/use-organization"
 import { Package } from "fake-snippets-api/lib/db/schema"
+import { getFileIcon } from "@/lib/utils/getFileIcon"
 
 interface PackageFile {
   package_file_id: string
@@ -116,28 +117,6 @@ export default function ImportantFilesView({
     return parts[parts.length - 1]
   }, [])
 
-  const getFileIcon = useCallback(
-    (path: string) => {
-      const ext = path.split(".").pop()?.toLowerCase()
-      switch (ext) {
-        case "ts":
-        case "tsx":
-          return <Code className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
-        case "json":
-          return <Braces className="h-3.5 w-3.5 mr-1.5 text-yellow-500" />
-        case "md":
-          return <BookOpen className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
-        default:
-          return isCodeFile(path) ? (
-            <Code className="h-3.5 w-3.5 mr-1.5" />
-          ) : (
-            <FileText className="h-3.5 w-3.5 mr-1.5" />
-          )
-      }
-    },
-    [isCodeFile],
-  )
-
   // Available tabs computation
   const availableTabs = useMemo((): TabInfo[] => {
     const tabs: TabInfo[] = []
@@ -184,12 +163,12 @@ export default function ImportantFilesView({
         type: "file",
         filePath: file.file_path,
         label: getFileName(file.file_path),
-        icon: getFileIcon(file.file_path),
+        icon: getFileIcon(file.file_path, "h-3.5 w-3.5 mr-1.5"),
       })
     })
 
     return tabs
-  }, [hasAiContent, hasAiReview, importantFiles, getFileName, getFileIcon])
+  }, [hasAiContent, hasAiReview, importantFiles, getFileName])
 
   // Find default tab with fallback logic
   const getDefaultTab = useCallback((): TabInfo | null => {
