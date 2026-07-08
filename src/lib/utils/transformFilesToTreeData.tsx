@@ -5,7 +5,17 @@ import type {
   IDeleteFileProps,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
-import { File, Folder, MoreVertical, Pencil, Trash2, Code2, FileText, BookOpen, Braces } from "lucide-react"
+import {
+  File,
+  Folder,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Code2,
+  FileText,
+  BookOpen,
+  Braces,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
@@ -41,13 +51,21 @@ const getFileIconComponent = (filename: string) => {
   switch (ext) {
     case "ts":
     case "tsx":
-      return (props: any) => <Code2 {...props} className={cn("text-blue-500", props.className)} />
+      return (props: any) => (
+        <Code2 {...props} className={cn("text-blue-500", props.className)} />
+      )
     case "json":
-      return (props: any) => <Braces {...props} className={cn("text-yellow-500", props.className)} />
+      return (props: any) => (
+        <Braces {...props} className={cn("text-yellow-500", props.className)} />
+      )
     case "md":
-      return (props: any) => <BookOpen {...props} className={cn("text-gray-500", props.className)} />
+      return (props: any) => (
+        <BookOpen {...props} className={cn("text-gray-500", props.className)} />
+      )
     default:
-      return (props: any) => <File {...props} className={cn("text-gray-500", props.className)} />
+      return (props: any) => (
+        <File {...props} className={cn("text-gray-500", props.className)} />
+      )
   }
 }
 

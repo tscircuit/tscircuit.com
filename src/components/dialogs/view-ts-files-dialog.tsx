@@ -186,7 +186,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     const extensions = [
       basicSetup,
-      isJson ? json() : (isMd ? [] : javascript({ typescript: true, jsx: true })),
+      isJson ? json() : isMd ? [] : javascript({ typescript: true, jsx: true }),
       EditorState.readOnly.of(true),
       EditorView.theme({
         "&": {
