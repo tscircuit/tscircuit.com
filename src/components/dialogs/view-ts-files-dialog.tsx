@@ -16,6 +16,8 @@ import {
   FileText,
   Code2,
   Menu,
+  BookOpen,
+  Braces,
 } from "lucide-react"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
@@ -32,6 +34,7 @@ import {
 } from "@typescript/vfs"
 import { loadDefaultLibMap } from "@/lib/ts-lib-cache"
 import tsModule from "typescript"
+import { getFileIcon } from "@/lib/utils/getFileIcon"
 
 interface ViewTsFilesDialogProps {
   open: boolean
@@ -119,25 +122,13 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
     )
   }, [files, searchTerm])
 
-  const getFileIcon = (filename: string) => {
-    const ext = filename.split(".").pop()?.toLowerCase()
-    switch (ext) {
-      case "ts":
-      case "tsx":
-        return <Code2 className="w-4 h-4 text-blue-500" />
-      case "json":
-        return <FileText className="w-4 h-4 text-yellow-500" />
-      default:
-        return <File className="w-4 h-4 text-gray-500" />
-    }
-  }
-
   const fileStats = useMemo(() => {
     const stats = {
       total: files.size,
       ts: 0,
       tsx: 0,
       json: 0,
+      md: 0,
       other: 0,
       totalSize: 0,
     }
@@ -156,6 +147,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
         case "json":
           stats.json++
           break
+        case "md":
+          stats.md++
+          break
         default:
           stats.other++
           break
@@ -170,6 +164,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     const content = files.get(selectedFile) || ""
     const isJson = selectedFile.endsWith(".json")
+    const isMd = selectedFile.endsWith(".md")
 
     if (viewRef.current) {
       viewRef.current.destroy()
@@ -177,7 +172,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     const extensions = [
       basicSetup,
-      isJson ? json() : javascript({ typescript: true, jsx: true }),
+      isJson ? json() : isMd ? [] : javascript({ typescript: true, jsx: true }),
       EditorState.readOnly.of(true),
       EditorView.theme({
         "&": {
@@ -204,6 +199,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
     if (
       tsEnv &&
       !isJson &&
+      !isMd &&
       (selectedFile.endsWith(".ts") || selectedFile.endsWith(".tsx"))
     ) {
       extensions.push(
@@ -471,7 +467,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
             </>
           ) : (
             <>
-              {getFileIcon(node.name)}
+              {getFileIcon(node.name, "w-4 h-4")}
               <span className="text-sm text-gray-800 flex-1 truncate">
                 {node.name}
               </span>
@@ -559,6 +555,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
                 {fileStats.json > 0 && (
                   <Badge variant="secondary">{fileStats.json} .json</Badge>
                 )}
+                {fileStats.md > 0 && (
+                  <Badge variant="secondary">{fileStats.md} .md</Badge>
+                )}
                 {fileStats.other > 0 && (
                   <Badge variant="secondary">{fileStats.other} other</Badge>
                 )}
@@ -579,7 +578,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
                         )}
                         onClick={() => selectFile(filePath)}
                       >
-                        {getFileIcon(filePath)}
+                        {getFileIcon(filePath, "w-4 h-4")}
                         <span className="text-sm text-gray-800 flex-1 truncate">
                           {filePath}
                         </span>
@@ -598,7 +597,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
               <>
                 <div className="flex items-center justify-between p-3 border-b bg-white">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {getFileIcon(selectedFile)}
+                    {getFileIcon(selectedFile, "w-4 h-4")}
                     <span className="font-medium text-gray-900 truncate">
                       {selectedFile}
                     </span>

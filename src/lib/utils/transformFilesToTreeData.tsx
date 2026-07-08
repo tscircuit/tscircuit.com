@@ -5,7 +5,18 @@ import type {
   IDeleteFileProps,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
-import { File, Folder, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import {
+  File,
+  Folder,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Code2,
+  FileText,
+  BookOpen,
+  Braces,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +45,8 @@ interface TransformFilesToTreeDataProps {
   openDropdownId: string | null
   setOpenDropdownId: (id: string | null) => void
 }
+
+import { getFileIconComponent } from "./getFileIcon"
 
 export const transformFilesToTreeData = ({
   files,
@@ -114,7 +127,7 @@ export const transformFilesToTreeData = ({
           onCancelRename: () => {
             setRenamingFile(null)
           },
-          icon: isLeafNode ? File : Folder,
+          icon: isLeafNode ? getFileIconComponent(segment) : Folder,
           onClick: isLeafNode
             ? () => {
                 onFileSelect(absolutePath)
