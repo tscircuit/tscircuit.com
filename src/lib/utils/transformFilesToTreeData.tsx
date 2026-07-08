@@ -5,7 +5,8 @@ import type {
   IDeleteFileProps,
 } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "@/components/ViewPackagePage/utils/is-hidden-file"
-import { File, Folder, MoreVertical, Pencil, Trash2 } from "lucide-react"
+import { File, Folder, MoreVertical, Pencil, Trash2, Code2, FileText, BookOpen, Braces } from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,21 @@ interface TransformFilesToTreeDataProps {
   setSelectedFolderForCreation: (folder: string | null) => void
   openDropdownId: string | null
   setOpenDropdownId: (id: string | null) => void
+}
+
+const getFileIconComponent = (filename: string) => {
+  const ext = filename.split(".").pop()?.toLowerCase()
+  switch (ext) {
+    case "ts":
+    case "tsx":
+      return (props: any) => <Code2 {...props} className={cn("text-blue-500", props.className)} />
+    case "json":
+      return (props: any) => <Braces {...props} className={cn("text-yellow-500", props.className)} />
+    case "md":
+      return (props: any) => <BookOpen {...props} className={cn("text-gray-500", props.className)} />
+    default:
+      return (props: any) => <File {...props} className={cn("text-gray-500", props.className)} />
+  }
 }
 
 export const transformFilesToTreeData = ({
@@ -114,7 +130,7 @@ export const transformFilesToTreeData = ({
           onCancelRename: () => {
             setRenamingFile(null)
           },
-          icon: isLeafNode ? File : Folder,
+          icon: isLeafNode ? getFileIconComponent(segment) : Folder,
           onClick: isLeafNode
             ? () => {
                 onFileSelect(absolutePath)

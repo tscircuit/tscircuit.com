@@ -16,6 +16,8 @@ import {
   FileText,
   Code2,
   Menu,
+  BookOpen,
+  Braces,
 } from "lucide-react"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
@@ -126,7 +128,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       case "tsx":
         return <Code2 className="w-4 h-4 text-blue-500" />
       case "json":
-        return <FileText className="w-4 h-4 text-yellow-500" />
+        return <Braces className="w-4 h-4 text-yellow-500" />
+      case "md":
+        return <BookOpen className="w-4 h-4 text-gray-500" />
       default:
         return <File className="w-4 h-4 text-gray-500" />
     }
@@ -138,6 +142,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
       ts: 0,
       tsx: 0,
       json: 0,
+      md: 0,
       other: 0,
       totalSize: 0,
     }
@@ -156,6 +161,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
         case "json":
           stats.json++
           break
+        case "md":
+          stats.md++
+          break
         default:
           stats.other++
           break
@@ -170,6 +178,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     const content = files.get(selectedFile) || ""
     const isJson = selectedFile.endsWith(".json")
+    const isMd = selectedFile.endsWith(".md")
 
     if (viewRef.current) {
       viewRef.current.destroy()
@@ -177,7 +186,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
 
     const extensions = [
       basicSetup,
-      isJson ? json() : javascript({ typescript: true, jsx: true }),
+      isJson ? json() : (isMd ? [] : javascript({ typescript: true, jsx: true })),
       EditorState.readOnly.of(true),
       EditorView.theme({
         "&": {
@@ -204,6 +213,7 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
     if (
       tsEnv &&
       !isJson &&
+      !isMd &&
       (selectedFile.endsWith(".ts") || selectedFile.endsWith(".tsx"))
     ) {
       extensions.push(
@@ -558,6 +568,9 @@ export const ViewTsFilesDialog: React.FC<ViewTsFilesDialogProps> = ({
                 )}
                 {fileStats.json > 0 && (
                   <Badge variant="secondary">{fileStats.json} .json</Badge>
+                )}
+                {fileStats.md > 0 && (
+                  <Badge variant="secondary">{fileStats.md} .md</Badge>
                 )}
                 {fileStats.other > 0 && (
                   <Badge variant="secondary">{fileStats.other} other</Badge>

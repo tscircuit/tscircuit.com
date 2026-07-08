@@ -8,6 +8,8 @@ import {
   Loader2,
   RefreshCcwIcon,
   SparklesIcon,
+  BookOpen,
+  Braces,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
@@ -116,11 +118,22 @@ export default function ImportantFilesView({
 
   const getFileIcon = useCallback(
     (path: string) => {
-      return isCodeFile(path) ? (
-        <Code className="h-3.5 w-3.5 mr-1.5" />
-      ) : (
-        <FileText className="h-3.5 w-3.5 mr-1.5" />
-      )
+      const ext = path.split(".").pop()?.toLowerCase()
+      switch (ext) {
+        case "ts":
+        case "tsx":
+          return <Code className="h-3.5 w-3.5 mr-1.5 text-blue-500" />
+        case "json":
+          return <Braces className="h-3.5 w-3.5 mr-1.5 text-yellow-500" />
+        case "md":
+          return <BookOpen className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+        default:
+          return isCodeFile(path) ? (
+            <Code className="h-3.5 w-3.5 mr-1.5" />
+          ) : (
+            <FileText className="h-3.5 w-3.5 mr-1.5" />
+          )
+      }
     },
     [isCodeFile],
   )
