@@ -91,7 +91,9 @@ export default withRouteSpec({
   if (outputType === "3d") {
     const { renderCircuitJsonTo3dPng } = await loadCircuitJsonTo3dPng()
     const png = await renderCircuitJsonTo3dPng(circuit_json, {
-      ...(requestedWidth ? { width: requestedWidth, height: requestedWidth } : {}),
+      ...(requestedWidth
+        ? { width: requestedWidth, height: requestedWidth }
+        : {}),
       backgroundColor: "#ffffff",
     })
     const pngBuffer = new ArrayBuffer(png.byteLength)
