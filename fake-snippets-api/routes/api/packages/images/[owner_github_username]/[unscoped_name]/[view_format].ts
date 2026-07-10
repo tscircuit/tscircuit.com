@@ -1,5 +1,4 @@
 import { Buffer } from "node:buffer"
-import * as vectorizerMod from "@neplex/vectorizer"
 import { renderAsync } from "@resvg/resvg-js"
 import { AnyCircuitElement } from "circuit-json"
 import { renderCircuitJsonTo3dPng } from "circuit-json-to-3d-png"
@@ -40,6 +39,13 @@ export default withRouteSpec({
 
   // Parse the view format
   const [outputType, format] = view_format.split(".")
+
+  if (outputType === "3d" && format === "svg") {
+    return ctx.error(400, {
+      error_code: "unsupported_format",
+      message: "3D images are only available in PNG format",
+    })
+  }
 
   // Get the package by owner handle and unscoped name
   const ownerOrg = ctx.db.organizations.find(
@@ -88,6 +94,22 @@ export default withRouteSpec({
 
   const circuit_json = JSON.parse(circuit_json_file.content_text)
 
+  if (outputType === "3d") {
+    const pngBytes = await renderCircuitJsonTo3dPng(circuit_json, {
+      width: 1024,
+      height: 1024,
+      backgroundColor: null,
+      supersampling: 2,
+    })
+
+    return new Response(Buffer.from(pngBytes), {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400",
+      },
+    })
+  }
+
   // Convert circuit json to svg
   let svg = ""
   if (outputType === "schematic") {
@@ -96,31 +118,6 @@ export default withRouteSpec({
     svg = convertCircuitJsonToPcbSvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "assembly") {
     svg = convertCircuitJsonToAssemblySvg(circuit_json as AnyCircuitElement[])
-  } else if (outputType === "3d") {
-    const pngBytes = await renderCircuitJsonTo3dPng(circuit_json, {
-      width: 1024,
-      height: 1024,
-      backgroundColor: null,
-      supersampling: 2,
-    })
-
-    try {
-      svg = await vectorizerMod.vectorize(Buffer.from(pngBytes), {
-        mode: 1,
-        colorMode: 0,
-        hierarchical: 0,
-        filterSpeckle: 8,
-        colorPrecision: 8,
-        layerDifference: 8,
-        maxIterations: 100,
-        cornerThreshold: 60,
-        lengthThreshold: 4,
-        spliceThreshold: 30,
-      })
-    } catch {
-      const base64 = Buffer.from(pngBytes).toString("base64")
-      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><image href="data:image/png;base64,${base64}" width="1024" height="1024"/></svg>`
-    }
   }
   if (format === "svg") {
     return new Response(svg, {
