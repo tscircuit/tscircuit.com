@@ -1,4 +1,4 @@
-import { loadCircuitJsonToSimple3d } from "@/lib/utils/load-internal-dynamic-modules"
+import { loadCircuitJsonTo3dPng } from "@/lib/utils/load-internal-dynamic-modules"
 import { renderAsync } from "@resvg/resvg-js"
 import { AnyCircuitElement } from "circuit-json"
 import {
@@ -11,11 +11,10 @@ import { z } from "zod"
 
 // Define the view types and extensions
 const VIEW_TYPES = ["schematic", "pcb", "assembly", "3d"] as const
-const EXTENSIONS = ["svg", "png"] as const
 
-// Create a regex pattern for the view format that includes optional width suffix
+// 3D renders are only available as PNG; the other views support SVG and PNG.
 const viewFormatPattern = new RegExp(
-  `^(${VIEW_TYPES.join("|")})-?(\\d+w)?\\.(${EXTENSIONS.join("|")})$`,
+  "^(?:(schematic|pcb|assembly)-?(\\d+w)?\\.(svg|png)|3d-?(\\d+w)?\\.png)$",
 )
 
 export default withRouteSpec({
@@ -25,7 +24,7 @@ export default withRouteSpec({
     owner_github_username: z.string(),
     unscoped_name: z.string(),
     view_format: z.string().regex(viewFormatPattern, {
-      message: `Invalid view format. Must be one of: ${VIEW_TYPES.join(", ")} with optional width suffix (e.g. -800w).${EXTENSIONS.join(" or ")}`,
+      message: `Invalid view format. ${VIEW_TYPES.slice(0, -1).join(", ")} support SVG or PNG; 3d supports PNG only. All views accept an optional width suffix (e.g. -800w).`,
     }),
   }),
   queryParams: z.object({
@@ -37,7 +36,10 @@ export default withRouteSpec({
   const { fs_sha } = req.query
 
   // Parse the view format
-  const [outputType, format] = view_format.split(".")
+  const [, outputType, width, format] = view_format.match(
+    /^(.+?)(?:-(\d+)w)?\.(.+)$/,
+  )!
+  const requestedWidth = Number(width)
 
   // Get the package by owner handle and unscoped name
   const ownerOrg = ctx.db.organizations.find(
@@ -86,7 +88,24 @@ export default withRouteSpec({
 
   const circuit_json = JSON.parse(circuit_json_file.content_text)
 
-  // Convert circuit json to svg
+  if (outputType === "3d") {
+    const { renderCircuitJsonTo3dPng } = await loadCircuitJsonTo3dPng()
+    const png = await renderCircuitJsonTo3dPng(circuit_json, {
+      ...(requestedWidth ? { width: requestedWidth, height: requestedWidth } : {}),
+      backgroundColor: "#ffffff",
+    })
+    const pngBuffer = new ArrayBuffer(png.byteLength)
+    new Uint8Array(pngBuffer).set(png)
+
+    return new Response(pngBuffer, {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400",
+      },
+    })
+  }
+
+  // Non-3D views are rendered to SVG, then optionally rasterized to PNG.
   let svg = ""
   if (outputType === "schematic") {
     svg = convertCircuitJsonToSchematicSvg(circuit_json as AnyCircuitElement[])
@@ -94,16 +113,6 @@ export default withRouteSpec({
     svg = convertCircuitJsonToPcbSvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "assembly") {
     svg = convertCircuitJsonToAssemblySvg(circuit_json as AnyCircuitElement[])
-  } else if (outputType === "3d") {
-    const { convertCircuitJsonToSimple3dSvg } =
-      await loadCircuitJsonToSimple3d()
-    svg = await convertCircuitJsonToSimple3dSvg(circuit_json, {
-      background: {
-        color: "#fff",
-        opacity: 0.0,
-      },
-      defaultZoomMultiplier: 1.1,
-    })
   }
   if (format === "svg") {
     return new Response(svg, {
