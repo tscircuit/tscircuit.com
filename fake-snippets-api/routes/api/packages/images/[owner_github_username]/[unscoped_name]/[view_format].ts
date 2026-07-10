@@ -85,7 +85,8 @@ export default withRouteSpec({
   const circuit_json = JSON.parse(circuit_json_file.content_text)
 
   const requestCircuitImage = async (type: string, outputFormat: string) => {
-    const svgServerUrl = process.env.SVG_SERVER_URL || "https://svg.tscircuit.com"
+    const svgServerUrl =
+      process.env.SVG_SERVER_URL || "https://svg.tscircuit.com"
     const imageResponse = await fetch(
       `${svgServerUrl}?svg_type=${type}&format=${outputFormat}`,
       {
