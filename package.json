@@ -99,7 +99,7 @@
     "@tscircuit/pcb-viewer": "1.11.374",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/props": "^0.0.567",
-    "@tscircuit/runframe": "^0.0.2185",
+    "@tscircuit/runframe": "^0.0.2188",
     "@tscircuit/schematic-viewer": "^2.0.69",
     "@tscircuit/simple-3d-svg": "^0.0.41",
     "@types/babel__standalone": "^7.1.7",
