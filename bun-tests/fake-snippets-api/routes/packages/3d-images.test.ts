@@ -2,7 +2,7 @@ import { expect, test } from "bun:test"
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import md5 from "md5"
 
-test("get 3d svg of a package", async () => {
+test("get 3d png of a package", async () => {
   const { axios } = await getTestServer()
 
   const pkg = await axios.post("/api/packages/create", {
@@ -47,10 +47,16 @@ test("get 3d svg of a package", async () => {
   })
 
   const response = await axios.get(
-    `/api/packages/images/testuser/${pkg.data.package.unscoped_name}/3d.svg`,
+    `/api/packages/images/testuser/${pkg.data.package.unscoped_name}/3d.png`,
     { params: { fs_sha: fsSha } },
   )
 
   expect(response.status).toBe(200)
-  expect(response.data).toContain("<svg")
+  expect(response.headers.get("content-type")).toContain("image/png")
+
+  const svgResponse = await axios.get(
+    `/api/packages/images/testuser/${pkg.data.package.unscoped_name}/3d.svg`,
+    { params: { fs_sha: fsSha }, validateStatus: () => true },
+  )
+  expect(svgResponse.status).toBe(400)
 })
