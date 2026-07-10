@@ -18,6 +18,8 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useResizable } from "@/hooks/use-resizable"
+import { ResizeDivider } from "@/components/ui/ResizeDivider"
 
 interface Props {
   pkg?: Package
@@ -41,6 +43,19 @@ export interface CodeAndPreviewState {
 
 export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
+
+  // Horizontal split: editor (left) vs runframe (right)
+  const {
+    sizePct: editorPct,
+    containerRef: splitContainerRef,
+    dragHandleProps: editorRunframeDividerProps,
+  } = useResizable({
+    initialSizePct: 50,
+    minSizePct: 15,
+    maxSizePct: 85,
+    direction: "horizontal",
+    storageKey: "editor-runframe-split",
+  })
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
   const apiBaseUrl = useApiBaseUrl()
@@ -249,15 +264,22 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         latestVersion={latestVersion}
       />
       <div
+        ref={splitContainerRef as React.RefObject<HTMLDivElement>}
         className={`flex flex-1 min-h-0 ${
           state.showPreview ? "flex-col md:flex-row" : ""
         }`}
       >
+        {/* ── Code Editor panel ── */}
         <div
           className={cn(
-            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            state.showPreview ? "w-full md:w-1/2" : "w-full flex",
+            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50 min-w-0",
+            !state.showPreview && "w-full flex",
           )}
+          style={
+            state.showPreview
+              ? { width: `${editorPct}%`, flexShrink: 0, flexGrow: 0 }
+              : undefined
+          }
         >
           <CodeEditor
             isSaving={isSaving}
@@ -287,12 +309,22 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             pkgFilesLoaded={!isLoading}
           />
         </div>
+
+        {/* ── Drag divider: editor | runframe ── */}
+        {state.showPreview && !state.fullScreen && (
+          <ResizeDivider
+            direction="horizontal"
+            {...editorRunframeDividerProps}
+          />
+        )}
+
+        {/* ── Run Frame panel ── */}
         <div
           className={cn(
-            "flex min-h-0 p-0 flex-col overflow-y-hidden",
+            "flex min-h-0 p-0 flex-col overflow-y-hidden min-w-0",
             state.fullScreen
               ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-              : "w-full md:w-1/2",
+              : "flex-1",
             !state.showPreview && "hidden",
           )}
           ref={runFrameContainerRef}
