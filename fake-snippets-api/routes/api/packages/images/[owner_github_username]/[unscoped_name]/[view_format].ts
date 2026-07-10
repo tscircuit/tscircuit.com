@@ -1,6 +1,8 @@
-import { loadCircuitJsonToSimple3d } from "@/lib/utils/load-internal-dynamic-modules"
+import { Buffer } from "node:buffer"
+import * as vectorizerMod from "@neplex/vectorizer"
 import { renderAsync } from "@resvg/resvg-js"
 import { AnyCircuitElement } from "circuit-json"
+import { renderCircuitJsonTo3dPng } from "circuit-json-to-3d-png"
 import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
@@ -95,15 +97,30 @@ export default withRouteSpec({
   } else if (outputType === "assembly") {
     svg = convertCircuitJsonToAssemblySvg(circuit_json as AnyCircuitElement[])
   } else if (outputType === "3d") {
-    const { convertCircuitJsonToSimple3dSvg } =
-      await loadCircuitJsonToSimple3d()
-    svg = await convertCircuitJsonToSimple3dSvg(circuit_json, {
-      background: {
-        color: "#fff",
-        opacity: 0.0,
-      },
-      defaultZoomMultiplier: 1.1,
+    const pngBytes = await renderCircuitJsonTo3dPng(circuit_json, {
+      width: 1024,
+      height: 1024,
+      backgroundColor: null,
+      supersampling: 2,
     })
+
+    try {
+      svg = await vectorizerMod.vectorize(Buffer.from(pngBytes), {
+        mode: 1,
+        colorMode: 0,
+        hierarchical: 0,
+        filterSpeckle: 8,
+        colorPrecision: 8,
+        layerDifference: 8,
+        maxIterations: 100,
+        cornerThreshold: 60,
+        lengthThreshold: 4,
+        spliceThreshold: 30,
+      })
+    } catch {
+      const base64 = Buffer.from(pngBytes).toString("base64")
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><image href="data:image/png;base64,${base64}" width="1024" height="1024"/></svg>`
+    }
   }
   if (format === "svg") {
     return new Response(svg, {

@@ -72,13 +72,6 @@ type CircuitJsonToReadableNetlistModule = {
   ) => string
 }
 
-type CircuitJsonToSimple3dModule = {
-  convertCircuitJsonToSimple3dSvg: (
-    circuitJson: AnyCircuitElement[],
-    options?: any,
-  ) => Promise<string> | string
-}
-
 type CircuitJsonToSpiceModule = {
   circuitJsonToSpice: (circuitJson: AnyCircuitElement[]) => {
     toSpiceString: () => string
@@ -168,13 +161,6 @@ export const loadCircuitJsonToReadableNetlist =
   async (): Promise<CircuitJsonToReadableNetlistModule> => {
     return loadCircuitJsonConverter<CircuitJsonToReadableNetlistModule>(
       "circuit-json-to-readable-netlist",
-    )
-  }
-
-export const loadCircuitJsonToSimple3d =
-  async (): Promise<CircuitJsonToSimple3dModule> => {
-    return loadCircuitJsonConverter<CircuitJsonToSimple3dModule>(
-      "circuit-json-to-simple-3d",
     )
   }
 
