@@ -240,6 +240,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
+  const editorPanelStyle = state.showPreview
+    ? { width: `${editorPct}%`, flexShrink: 0, flexGrow: 0 }
+    : undefined
+
   return (
     <div className="flex flex-col h-full">
       <EditorNav
@@ -265,9 +269,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       />
       <div
         ref={splitContainerRef as React.RefObject<HTMLDivElement>}
-        className={`flex flex-1 min-h-0 ${
-          state.showPreview ? "flex-col md:flex-row" : ""
-        }`}
+        className={cn(
+          "flex flex-1 min-h-0",
+          state.showPreview && "flex-col md:flex-row",
+        )}
       >
         {/* ── Code Editor panel ── */}
         <div
@@ -275,11 +280,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             "hidden flex-col md:flex border-r border-gray-200 bg-gray-50 min-w-0",
             !state.showPreview && "w-full flex",
           )}
-          style={
-            state.showPreview
-              ? { width: `${editorPct}%`, flexShrink: 0, flexGrow: 0 }
-              : undefined
-          }
+          style={editorPanelStyle}
         >
           <CodeEditor
             isSaving={isSaving}
@@ -322,9 +323,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         <div
           className={cn(
             "flex min-h-0 p-0 flex-col overflow-y-hidden min-w-0",
-            state.fullScreen
-              ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-              : "flex-1",
+            state.fullScreen &&
+              "fixed inset-0 z-50 bg-white p-4 overflow-hidden",
+            !state.fullScreen && "flex-1",
             !state.showPreview && "hidden",
           )}
           ref={runFrameContainerRef}

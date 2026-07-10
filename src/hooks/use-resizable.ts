@@ -31,7 +31,8 @@ export function useResizable({
       const stored = localStorage.getItem(storageKey)
       if (stored !== null) {
         const v = Number(stored)
-        if (!Number.isNaN(v)) return Math.min(maxSizePct, Math.max(minSizePct, v))
+        if (!Number.isNaN(v))
+          return Math.min(maxSizePct, Math.max(minSizePct, v))
       }
     }
     return initialSizePct
@@ -69,8 +70,7 @@ export function useResizable({
           direction === "horizontal"
             ? clientPos - rect.left
             : clientPos - rect.top
-        const total =
-          direction === "horizontal" ? rect.width : rect.height
+        const total = direction === "horizontal" ? rect.width : rect.height
         const pct = clamp((offset / total) * 100)
         setSizePct(pct)
         if (storageKey) localStorage.setItem(storageKey, String(pct))
@@ -92,5 +92,9 @@ export function useResizable({
     [clamp, direction, storageKey],
   )
 
-  return { sizePct, containerRef, dragHandleProps: { onMouseDown: onDragStart, onTouchStart: onDragStart } }
+  return {
+    sizePct,
+    containerRef,
+    dragHandleProps: { onMouseDown: onDragStart, onTouchStart: onDragStart },
+  }
 }
