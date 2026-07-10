@@ -57,21 +57,33 @@ export function useResizable({
         const container = containerRef.current
         if (!container) return
         const rect = container.getBoundingClientRect()
-        const clientPos =
-          "touches" in ev
-            ? direction === "horizontal"
-              ? ev.touches[0].clientX
-              : ev.touches[0].clientY
-            : direction === "horizontal"
-              ? (ev as MouseEvent).clientX
-              : (ev as MouseEvent).clientY
+        const isHorizontal = direction === "horizontal"
 
-        const offset =
-          direction === "horizontal"
-            ? clientPos - rect.left
-            : clientPos - rect.top
-        const total = direction === "horizontal" ? rect.width : rect.height
-        const pct = clamp((offset / total) * 100)
+        let clientPos: number
+        if ("touches" in ev) {
+          if (isHorizontal) {
+            clientPos = ev.touches[0].clientX
+          } else {
+            clientPos = ev.touches[0].clientY
+          }
+        } else {
+          if (isHorizontal) {
+            clientPos = (ev as MouseEvent).clientX
+          } else {
+            clientPos = (ev as MouseEvent).clientY
+          }
+        }
+
+        let origin: number
+        let total: number
+        if (isHorizontal) {
+          origin = rect.left
+          total = rect.width
+        } else {
+          origin = rect.top
+          total = rect.height
+        }
+        const pct = clamp(((clientPos - origin) / total) * 100)
         setSizePct(pct)
         if (storageKey) localStorage.setItem(storageKey, String(pct))
       }

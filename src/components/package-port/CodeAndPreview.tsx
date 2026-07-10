@@ -60,10 +60,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const sessionToken = useGlobalStore((s) => s.session?.token)
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
-  const templateFromUrl = useMemo(
-    () => (urlParams.template ? getSnippetTemplate(urlParams.template) : null),
-    [urlParams.template],
-  )
+  const templateFromUrl = useMemo(() => {
+    if (urlParams.template) return getSnippetTemplate(urlParams.template)
+    return null
+  }, [urlParams.template])
 
   const { data: allReleases } = usePackageReleasesByPackageId(
     pkg?.package_id ?? null,
@@ -227,8 +227,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         return
       }
 
+      let targetElement: Element | null = null
+      if (target instanceof Element) targetElement = target
       if (
-        isTextEntryElement(target instanceof Element ? target : null) ||
+        isTextEntryElement(targetElement) ||
         isTextEntryElement(document.activeElement)
       ) {
         return
@@ -240,9 +242,15 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
-  const editorPanelStyle = state.showPreview
-    ? { width: `${editorPct}%`, flexShrink: 0, flexGrow: 0 }
-    : undefined
+  let editorPanelStyle: React.CSSProperties | undefined
+  if (state.showPreview) {
+    editorPanelStyle = { width: `${editorPct}%`, flexShrink: 0, flexGrow: 0 }
+  }
+
+  let easyEdaHeaders: Record<string, string> | undefined
+  if (sessionToken) {
+    easyEdaHeaders = { Authorization: `Bearer ${sessionToken}` }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -300,11 +308,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             onCodeChange={(newCode, filename) => {
               const targetFilename = filename ?? currentFile
               setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
-                ),
+                prev.map((file) => {
+                  if (file.path !== targetFilename) return file
+                  return { ...file, content: newCode }
+                }),
               )
             }}
             pkgFilesLoaded={!isLoading}
@@ -353,9 +360,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             projectUrl={projectUrl}
             easyEdaProxyConfig={{
               proxyEndpointUrl: `${apiBaseUrl}/proxy`,
-              headers: sessionToken
-                ? { Authorization: `Bearer ${sessionToken}` }
-                : undefined,
+              headers: easyEdaHeaders,
             }}
           />
         </div>
