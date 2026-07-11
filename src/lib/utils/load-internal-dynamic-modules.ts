@@ -112,6 +112,7 @@ const ensureCircuitJsonToGltfLoaded =
 
 export const loadCircuitJsonTo3dPng =
   async (): Promise<CircuitJsonTo3dPngModule> => {
+    await ensureCircuitJsonToGltfLoaded()
     return loadCircuitJsonConverter<CircuitJsonTo3dPngModule>(
       "circuit-json-to-3d-png",
     )
