@@ -38,6 +38,11 @@ const getCandidateDirectories = (selectedFilePath) => {
   const candidates = [selectedDirectory]
 
   if (!isArtifact(selectedFilePath) && !selectedFilePath.startsWith("dist/")) {
+    if (selectedFilePath.toLowerCase().endsWith(".circuit.tsx")) {
+      candidates.push(
+        `dist/${selectedFilePath.slice(0, -".circuit.tsx".length)}`,
+      )
+    }
     candidates.push(`dist/${withoutExtension(selectedFilePath)}`)
 
     if (!selectedDirectory) {

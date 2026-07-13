@@ -34,6 +34,23 @@ describe("getPackageFileArtifactPaths", () => {
     })
   })
 
+  test("maps a .circuit.tsx entrypoint to its suffix-free dist directory", () => {
+    expect(
+      getPackageFileArtifactPaths(
+        "index.circuit.tsx",
+        files(
+          "dist/index/pcb.svg",
+          "dist/index/schematic.svg",
+          "dist/index/circuit.json",
+        ),
+      ),
+    ).toEqual({
+      pcbSvgPath: "dist/index/pcb.svg",
+      schematicSvgPath: "dist/index/schematic.svg",
+      circuitJsonPath: "dist/index/circuit.json",
+    })
+  })
+
   test("supports named PCB and abbreviated schematic SVG artifacts", () => {
     expect(
       getPackageFileArtifactPaths(
