@@ -1,5 +1,14 @@
-import { AlertTriangle, FileText, Loader2, Pencil } from "lucide-react"
+import {
+  AlertTriangle,
+  Download,
+  FileText,
+  Loader2,
+  Pencil,
+} from "lucide-react"
+import { useState } from "react"
+import { saveAs } from "file-saver"
 import { usePackageFile } from "@/hooks/use-package-files"
+import { useAxios } from "@/hooks/use-axios"
 import { Button } from "@/components/ui/button"
 import { ShikiCodeViewer } from "../ShikiCodeViewer"
 import MarkdownViewer from "../markdown-viewer"
@@ -22,6 +31,8 @@ export default function PackageFileView({
   onDirectoryClicked,
   onOpenInEditor,
 }: PackageFileViewProps) {
+  const axios = useAxios()
+  const [isDownloading, setIsDownloading] = useState(false)
   const {
     data: file,
     error,
@@ -40,6 +51,23 @@ export default function PackageFileView({
   )
   const pathParts = filePath.split("/").filter(Boolean)
   const fileName = pathParts.at(-1) || filePath
+
+  const handleDownload = async () => {
+    if (!file?.package_file_id || isDownloading) return
+
+    setIsDownloading(true)
+    try {
+      const response = await axios.get("/package_files/download", {
+        params: { package_file_id: file.package_file_id },
+        responseType: "blob",
+      })
+      saveAs(response.data, fileName)
+    } catch (error) {
+      console.error(`Failed to download ${fileName}:`, error)
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   const renderBreadcrumbs = () => (
     <div className="flex min-w-0 items-center text-xs text-gray-500 dark:text-[#8b949e]">
@@ -81,16 +109,30 @@ export default function PackageFileView({
       <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-100 px-3 py-2 sm:px-4 md:py-3 dark:border-[#30363d] dark:bg-[#161b22]">
         <FileText className="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
         {renderBreadcrumbs()}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="ml-auto h-8 flex-shrink-0"
-          onClick={onOpenInEditor}
-        >
-          <Pencil className="mr-1.5 h-3.5 w-3.5" />
-          Open in Editor
-        </Button>
+        <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={`Download ${fileName}`}
+            title="Download file"
+            disabled={!file || isDownloading}
+            onClick={handleDownload}
+          >
+            <Download className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 flex-shrink-0"
+            onClick={onOpenInEditor}
+          >
+            <Pencil className="mr-1.5 h-3.5 w-3.5" />
+            Open in Editor
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-[#0d1117]">
