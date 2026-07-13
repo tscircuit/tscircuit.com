@@ -10,7 +10,7 @@ import {
   renderPackagePageContent,
   serializeForInlineScript,
 } from "../server/package-page-ssr.js"
-import { getPackageFileArtifactPaths } from "../src/lib/package-file-artifacts.ts"
+import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
