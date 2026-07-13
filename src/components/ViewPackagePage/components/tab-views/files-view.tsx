@@ -27,6 +27,8 @@ interface PackageFile extends ApiPackageFile {
 interface FilesViewProps {
   packageFiles?: PackageFile[]
   onFileClicked?: (file: PackageFile) => void
+  activeDirectory?: string
+  onDirectoryClicked?: (directoryPath: string) => void
   arePackageFilesFetched?: boolean
   packageFilesError?: Error | null
 }
@@ -36,9 +38,13 @@ export default function FilesView({
   arePackageFilesFetched = false,
   packageFilesError = null,
   onFileClicked,
+  activeDirectory = "",
+  onDirectoryClicked,
 }: FilesViewProps) {
-  const [activeDir, setActiveDir] = useState("")
   const [showHiddenFiles, setShowHiddenFiles] = useState(false)
+  const activeDir = activeDirectory.replace(/^\/+|\/+$/g, "")
+  const includeHiddenFiles =
+    showHiddenFiles || (activeDir ? isHiddenFile(`${activeDir}/`) : false)
 
   // Parse package files to determine directories and files structure
   const { directories, files } = useMemo(() => {
@@ -50,7 +56,7 @@ export default function FilesView({
     const filesList: File[] = []
 
     packageFiles
-      .filter((file) => showHiddenFiles || !isHiddenFile(file.file_path))
+      .filter((file) => includeHiddenFiles || !isHiddenFile(file.file_path))
       .forEach((file) => {
         // Extract directory path
         const pathParts = file.file_path.split("/")
@@ -62,7 +68,7 @@ export default function FilesView({
           currentPath += (currentPath ? "/" : "") + part
           // Only add directory if it contains visible files
           if (
-            showHiddenFiles ||
+            includeHiddenFiles ||
             packageFiles.some(
               (f) =>
                 f.file_path.startsWith(currentPath + "/") &&
@@ -99,7 +105,7 @@ export default function FilesView({
       directories: dirsList,
       files: filesList,
     }
-  }, [packageFiles, showHiddenFiles])
+  }, [packageFiles, includeHiddenFiles])
   // Format date for display
   const formatDate = (dateString: string) => {
     const parsedDate = new Date(dateString)
@@ -144,8 +150,7 @@ export default function FilesView({
 
   const handleItemClick = (item: any) => {
     if (item.type === "directory") {
-      // When directory is clicked, navigate into it by setting it as the active directory
-      setActiveDir(item.path)
+      onDirectoryClicked?.(item.path)
     } else if (item.type === "file" && onFileClicked) {
       const file = packageFiles.find((f) => f.file_path === item.path)
       if (file) {
@@ -158,7 +163,7 @@ export default function FilesView({
   const handleParentDirectoryClick = () => {
     // Get the parent directory by removing the last part of the path
     const parentDir = activeDir.substring(0, activeDir.lastIndexOf("/"))
-    setActiveDir(parentDir)
+    onDirectoryClicked?.(parentDir)
   }
 
   const toggleHiddenFiles = () => setShowHiddenFiles((prev) => !prev)
@@ -172,7 +177,7 @@ export default function FilesView({
         Files in{" "}
         <span
           className="hover:underline cursor-pointer"
-          onClick={() => setActiveDir("")}
+          onClick={() => onDirectoryClicked?.("")}
         >
           .
         </span>
@@ -183,7 +188,7 @@ export default function FilesView({
               /
               <span
                 className="hover:underline cursor-pointer"
-                onClick={() => setActiveDir(path)}
+                onClick={() => onDirectoryClicked?.(path)}
               >
                 {part}
               </span>
@@ -249,7 +254,7 @@ export default function FilesView({
             {files.length} files, {directories.length} directories
           </span>
           <HiddenFilesDropdown
-            showHiddenFiles={showHiddenFiles}
+            showHiddenFiles={includeHiddenFiles}
             onToggleHiddenFiles={toggleHiddenFiles}
           />
         </div>
@@ -263,7 +268,7 @@ export default function FilesView({
           <div className="flex flex-shrink-0 items-center gap-2 text-xs text-gray-500 dark:text-[#8b949e]">
             <span>{files.length + directories.length} items</span>
             <HiddenFilesDropdown
-              showHiddenFiles={showHiddenFiles}
+              showHiddenFiles={includeHiddenFiles}
               onToggleHiddenFiles={toggleHiddenFiles}
             />
           </div>

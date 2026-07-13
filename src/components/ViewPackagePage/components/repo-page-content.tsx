@@ -11,6 +11,7 @@ import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
+import PackageFileView from "./tab-views/package-file-view"
 import {
   isPackageFileImportant,
   scorePackageFileImportance,
@@ -48,6 +49,10 @@ interface RepoPageContentProps {
   currentVersion?: string | null
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
+  fileBrowserMode?: "directory" | "file"
+  fileBrowserPath?: string
+  onDirectoryClicked?: (directoryPath: string) => void
+  onFileBrowserViewChange?: (view: string) => void
 }
 
 const normalizeView = (view: string | null | undefined): string | null => {
@@ -78,6 +83,10 @@ export default function RepoPageContent({
   currentVersion,
   latestVersion,
   onVersionChange,
+  fileBrowserMode,
+  fileBrowserPath = "",
+  onDirectoryClicked,
+  onFileBrowserViewChange,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
   const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
@@ -129,6 +138,12 @@ export default function RepoPageContent({
   // Handle initial view selection and hash-based view changes
   useEffect(() => {
     if (!packageInfo || !arePackageFilesFetched) return
+
+    if (fileBrowserMode) {
+      setActiveView("files")
+      return
+    }
+
     const hashView = normalizeView(window.location.hash.slice(1))
     const defaultView = normalizeView(packageInfo?.default_view)
 
@@ -172,6 +187,7 @@ export default function RepoPageContent({
     arePackageFilesFetched,
     circuitJsonExists,
     isCircuitJsonLoading,
+    fileBrowserMode,
   ])
 
   const importantFilePaths = packageFiles
@@ -196,18 +212,34 @@ export default function RepoPageContent({
       .reverse()
   }, [packageFiles, importantFilePaths])
 
+  const renderFilesContent = () => {
+    if (fileBrowserMode === "file") {
+      return (
+        <PackageFileView
+          packageReleaseId={packageRelease?.package_release_id}
+          filePath={fileBrowserPath}
+          onDirectoryClicked={onDirectoryClicked}
+        />
+      )
+    }
+
+    return (
+      <FilesView
+        packageFiles={packageFiles}
+        arePackageFilesFetched={arePackageFilesFetched}
+        packageFilesError={packageFilesError}
+        onFileClicked={onFileClicked}
+        activeDirectory={fileBrowserMode === "directory" ? fileBrowserPath : ""}
+        onDirectoryClicked={onDirectoryClicked}
+      />
+    )
+  }
+
   // Render the appropriate content based on the active view
   const renderContent = () => {
     switch (activeView) {
       case "files":
-        return (
-          <FilesView
-            packageFiles={packageFiles}
-            arePackageFilesFetched={arePackageFilesFetched}
-            packageFilesError={packageFilesError}
-            onFileClicked={onFileClicked}
-          />
-        )
+        return renderFilesContent()
       case "3d":
         return <ThreeDView />
       case "pcb":
@@ -217,15 +249,17 @@ export default function RepoPageContent({
       case "bom":
         return <BOMView />
       default:
-        return (
-          <FilesView
-            packageFiles={packageFiles}
-            arePackageFilesFetched={arePackageFilesFetched}
-            packageFilesError={packageFilesError}
-            onFileClicked={onFileClicked}
-          />
-        )
+        return renderFilesContent()
     }
+  }
+
+  const handleViewChange = (view: string) => {
+    setActiveView(view)
+    if (fileBrowserMode) {
+      if (view !== "files") onFileBrowserViewChange?.(view)
+      return
+    }
+    window.location.hash = view
   }
 
   return (
@@ -243,11 +277,7 @@ export default function RepoPageContent({
       {/* Mobile Sidebar */}
       <div className="max-w-[1200px] mx-auto">
         <MobileSidebar
-          onViewChange={(view) => {
-            setActiveView(view)
-            // Update URL hash when view changes
-            window.location.hash = view
-          }}
+          onViewChange={handleViewChange}
           isLoading={!packageInfo}
         />
       </div>
@@ -260,11 +290,7 @@ export default function RepoPageContent({
             <MainContentHeader
               activeView={activeView}
               packageFiles={packageFiles ?? []}
-              onViewChange={(view) => {
-                setActiveView(view)
-                // Update URL hash when view changes
-                window.location.hash = view
-              }}
+              onViewChange={handleViewChange}
               packageInfo={packageInfo}
               currentVersion={currentVersion}
               latestVersion={latestVersion}
@@ -274,41 +300,38 @@ export default function RepoPageContent({
 
             {/* Dynamic Content based on active view */}
             {renderContent()}
-            {/* Important Files View - Always shown */}
-            <ImportantFilesView
-              importantFiles={importantFiles}
-              isFetched={arePackageFilesFetched}
-              pkg={packageInfo}
-              onEditClicked={onEditClicked}
-              aiReviewText={packageRelease?.ai_review_text ?? null}
-              aiReviewRequested={aiReviewRequested}
-              onRequestAiReview={() => {
-                if (packageRelease) {
-                  requestAiReview({
-                    package_release_id: packageRelease.package_release_id,
-                  })
-                }
-              }}
-              onRequestAiDescriptionUpdate={() => {
-                if (packageInfo) {
-                  updateAiDescription({
-                    package_id: packageInfo.package_id,
-                  })
-                }
-              }}
-              onLicenseFileRequested={licenseFileRequested}
-            />
+            {fileBrowserMode !== "file" && (
+              <ImportantFilesView
+                importantFiles={importantFiles}
+                isFetched={arePackageFilesFetched}
+                pkg={packageInfo}
+                onEditClicked={onEditClicked}
+                aiReviewText={packageRelease?.ai_review_text ?? null}
+                aiReviewRequested={aiReviewRequested}
+                onRequestAiReview={() => {
+                  if (packageRelease) {
+                    requestAiReview({
+                      package_release_id: packageRelease.package_release_id,
+                    })
+                  }
+                }}
+                onRequestAiDescriptionUpdate={() => {
+                  if (packageInfo) {
+                    updateAiDescription({
+                      package_id: packageInfo.package_id,
+                    })
+                  }
+                }}
+                onLicenseFileRequested={licenseFileRequested}
+              />
+            )}
           </div>
 
           <div className="hidden md:block md:w-[296px] flex-shrink-0">
             <Sidebar
               packageInfo={packageInfo}
               isLoading={!packageInfo}
-              onViewChange={(view) => {
-                setActiveView(view)
-                // Update URL hash when view changes
-                window.location.hash = view
-              }}
+              onViewChange={handleViewChange}
               onLicenseClick={handleLicenseFileRequest}
             />
           </div>
