@@ -142,7 +142,6 @@ describe("renderPackagePageContent", () => {
     const svg = '<svg><script>alert("nope")</script></svg>'
     const html = renderPackagePageContent({
       ...baseData,
-      registryUrl: "https://registry.example.com",
       route: {
         ...baseData.route,
         kind: "file",
@@ -160,9 +159,7 @@ describe("renderPackagePageContent", () => {
     })
 
     expect(html).toContain("PCB preview for src/index.tsx")
-    expect(html).toContain(
-      'src="https://registry.example.com/package_files/download?package_file_id=pcb-file-1"',
-    )
+    expect(html).toContain('src="/package-file-images/pcb-file-1.svg"')
     expect(html).toContain('loading="lazy"')
     expect(html).toContain('decoding="async"')
     expect(html).not.toContain(Buffer.from(svg).toString("base64"))

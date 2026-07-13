@@ -427,8 +427,40 @@ async function fetchPackagePageData(route, packageInfo) {
     packageReleases,
     packageBuilds,
     packageBuild,
-    registryUrl: REGISTRY_URL,
   }
+}
+
+export async function handlePackageFileImage(req, res, packageFileId) {
+  const upstream = await fetch(
+    `${REGISTRY_URL}/package_files/download?package_file_id=${encodeURIComponent(
+      packageFileId,
+    )}`,
+  )
+
+  if (!upstream.ok) {
+    res.status(upstream.status).send("Package file image not found")
+    return
+  }
+
+  const svg = await upstream.text()
+  const normalizedSvg = svg.replace(/^\uFEFF/, "").trimStart()
+  const hasSvgRoot =
+    /^(?:<\?xml[^>]*>\s*)?(?:<!DOCTYPE[^>]*>\s*)?<svg(?:\s|>)/i.test(
+      normalizedSvg,
+    )
+  if (!hasSvgRoot) {
+    res.status(415).send("Package file is not an SVG image")
+    return
+  }
+
+  res.setHeader("Content-Type", "image/svg+xml; charset=utf-8")
+  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400")
+  res.setHeader(
+    "Content-Security-Policy",
+    "sandbox; default-src 'none'; style-src 'unsafe-inline'",
+  )
+  res.setHeader("X-Content-Type-Options", "nosniff")
+  res.status(200).send(svg)
 }
 
 const getPackagePageTitle = (route, packageInfo, packageRelease) => {
@@ -994,6 +1026,14 @@ export async function handleAvatarRedirect(req, res) {
 
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
+  const packageFileImageMatch = urlPath.match(
+    /^\/package-file-images\/([0-9a-f-]+)\.svg$/i,
+  )
+  if (packageFileImageMatch) {
+    await handlePackageFileImage(req, res, packageFileImageMatch[1])
+    return
+  }
+
   if (urlPath === "/api/generated-index") {
     res.setHeader("Content-Type", "text/html; charset=utf-8")
     res.setHeader("Cache-Control", cacheControlHeader)

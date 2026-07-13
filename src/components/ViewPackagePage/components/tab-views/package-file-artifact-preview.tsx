@@ -58,6 +58,11 @@ export default function PackageFileArtifactPreview({
       (file) => file.file_path.replace(/^\/+/, "") === filePath,
     )
     if (!packageFile?.package_file_id) return null
+    if (import.meta.env.PROD) {
+      return `/package-file-images/${encodeURIComponent(
+        packageFile.package_file_id,
+      )}.svg`
+    }
     return `${apiBaseUrl}/package_files/download?package_file_id=${encodeURIComponent(
       packageFile.package_file_id,
     )}`

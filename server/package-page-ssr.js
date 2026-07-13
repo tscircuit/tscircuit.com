@@ -288,18 +288,14 @@ const convertCircuitJsonForPreview = (contentText, converter) => {
 const svgDataUrl = (svg) =>
   `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`
 
-const getPackageFileDownloadUrl = (registryUrl, packageFile) => {
+const getPackageFileImageUrl = (packageFile) => {
   if (!packageFile?.package_file_id) return null
-  const baseUrl = String(registryUrl || "https://api.tscircuit.com").replace(
-    /\/$/,
-    "",
-  )
-  return `${baseUrl}/package_files/download?package_file_id=${encodeURIComponent(
+  return `/package-file-images/${encodeURIComponent(
     packageFile.package_file_id,
-  )}`
+  )}.svg`
 }
 
-const renderFileArtifactPreview = (route, fileArtifacts, registryUrl) => {
+const renderFileArtifactPreview = (route, fileArtifacts) => {
   if (!fileArtifacts) return ""
 
   const circuitJsonContent = fileArtifacts.circuitJson?.content_text
@@ -308,7 +304,7 @@ const renderFileArtifactPreview = (route, fileArtifacts, registryUrl) => {
       kind: "pcb",
       label: "PCB",
       src:
-        getPackageFileDownloadUrl(registryUrl, fileArtifacts.pcbSvg) ||
+        getPackageFileImageUrl(fileArtifacts.pcbSvg) ||
         (fileArtifacts.pcbSvg?.content_text
           ? svgDataUrl(fileArtifacts.pcbSvg.content_text)
           : null) ||
@@ -324,7 +320,7 @@ const renderFileArtifactPreview = (route, fileArtifacts, registryUrl) => {
       kind: "schematic",
       label: "Schematic",
       src:
-        getPackageFileDownloadUrl(registryUrl, fileArtifacts.schematicSvg) ||
+        getPackageFileImageUrl(fileArtifacts.schematicSvg) ||
         (fileArtifacts.schematicSvg?.content_text
           ? svgDataUrl(fileArtifacts.schematicSvg.content_text)
           : null) ||
@@ -370,7 +366,6 @@ const renderRouteContent = ({
   packageFiles,
   primaryFile,
   fileArtifacts,
-  registryUrl,
   packageReleases,
   packageBuilds,
   packageBuild,
@@ -379,7 +374,6 @@ const renderRouteContent = ({
     return `<section><h2>${escapeHtml(route.filePath)}</h2>${renderFileArtifactPreview(
       route,
       fileArtifacts,
-      registryUrl,
     )}${
       primaryFile?.content_text == null
         ? "<p>A text preview is not available for this file.</p>"
