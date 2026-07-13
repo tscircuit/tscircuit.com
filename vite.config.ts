@@ -9,6 +9,7 @@ import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
 import vercel from "vite-plugin-vercel"
 import type { IncomingMessage, ServerResponse } from "http"
+import { parsePackagePageRoute } from "./server/package-page-ssr.js"
 
 // @ts-ignore
 import winterspecBundle from "./dist/bundle.js"
@@ -107,7 +108,9 @@ function vercelSsrDevPlugin(): Plugin {
           return next()
         }
 
-        if (extname(url)) {
+        const isPackagePage = Boolean(parsePackagePageRoute(url))
+
+        if (extname(url) && !isPackagePage) {
           return next()
         }
 
