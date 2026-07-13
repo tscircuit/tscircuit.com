@@ -74,6 +74,12 @@ const DevLoginPage = lazyImport(() => import("@/pages/dev-login"))
 const LoginPage = lazyImport(() => import("@/pages/login"))
 const CliLoginPage = lazyImport(() => import("@/pages/cli-login"))
 const ViewPackagePage = lazyImport(() => import("@/pages/view-package"))
+const ViewPackageDirectoryPage = lazyImport(
+  () => import("@/pages/view-package-directory"),
+)
+const ViewPackageFilePage = lazyImport(
+  () => import("@/pages/view-package-file"),
+)
 const TrendingPage = lazyImport(() => import("@/pages/trending"))
 const DatasheetPage = lazyImport(() => import("@/pages/datasheet"))
 const DatasheetsPage = lazyImport(() => import("@/pages/datasheets"))
@@ -301,6 +307,14 @@ function App() {
             <Route path="/:username" component={ProfileRouter} />
 
             {/* Package-related routes - must come after profile fallback */}
+            <Route
+              path="/:author/:packageName/tree/*"
+              component={ViewPackageDirectoryPage}
+            />
+            <Route
+              path="/:author/:packageName/blob/*"
+              component={ViewPackageFilePage}
+            />
             <Route
               path="/:author/:packageName/releases/:releaseId/builds"
               component={ReleaseBuildsPage}

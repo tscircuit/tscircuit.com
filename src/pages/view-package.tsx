@@ -10,13 +10,32 @@ import { ContentLoadingErrorPage } from "@/components/ContentLoadingErrorPage"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useEffect, useMemo, useCallback } from "react"
 import { useUrlParams } from "@/hooks/use-url-params"
+import {
+  decodePackageFilePath,
+  getPackageDirectoryUrl,
+  getPackageFileUrl,
+  getPackageRootUrl,
+} from "@/lib/package-file-routes"
 
-export const ViewPackagePage = () => {
-  const { author, packageName } = useParams()
+export const ViewPackagePage = ({
+  fileBrowserMode,
+}: {
+  fileBrowserMode?: "directory" | "file"
+}) => {
+  const {
+    author = "",
+    packageName = "",
+    "*": routePath,
+  } = useParams<{
+    author: string
+    packageName: string
+    "*"?: string
+  }>()
   const packageNameFull = `${author}/${packageName}`
   const [, setLocation] = useLocation()
   const urlParams = useUrlParams()
   const versionFromUrl = urlParams.version
+  const fileBrowserPath = decodePackageFilePath(routePath)
 
   const {
     data: packageInfo,
@@ -100,6 +119,10 @@ export const ViewPackagePage = () => {
     [latestVersion],
   )
   const currentVersion = versionFromUrl || latestVersion || null
+  const versionSearch =
+    versionFromUrl && versionFromUrl !== latestVersion
+      ? `?${new URLSearchParams({ version: versionFromUrl }).toString()}`
+      : ""
   if (!isLoadingPackage && packageError) {
     const status = (packageError as any)?.status
     if (status === 403) {
@@ -172,7 +195,11 @@ export const ViewPackagePage = () => {
   return (
     <>
       <Helmet>
-        <title>{`${author}/${packageName} - tscircuit`}</title>
+        <title>
+          {fileBrowserMode === "file" && fileBrowserPath
+            ? `${fileBrowserPath} - ${author}/${packageName} - tscircuit`
+            : `${author}/${packageName} - tscircuit`}
+        </title>
       </Helmet>
       <RepoPageContent
         packageFiles={packageFiles ?? []}
@@ -184,27 +211,42 @@ export const ViewPackagePage = () => {
         currentVersion={currentVersion}
         latestVersion={latestVersion}
         onVersionChange={handleVersionChange}
-        onFileClicked={(file) => {
-          if (!packageInfo?.package_id) return
-          const versionParam =
-            versionFromUrl && versionFromUrl !== latestVersion
-              ? `&version=${versionFromUrl}`
-              : ""
+        fileBrowserMode={fileBrowserMode}
+        fileBrowserPath={fileBrowserPath}
+        onDirectoryClicked={(directoryPath) => {
+          const directoryUrl = getPackageDirectoryUrl({
+            author,
+            packageName,
+            directoryPath,
+          })
           setLocation(
-            `/editor?package_id=${packageInfo?.package_id}&file_path=${file.file_path}${versionParam}`,
+            `${directoryUrl}${versionSearch}${directoryPath ? "" : "#files"}`,
           )
         }}
-        onEditClicked={(file_path?: string) => {
-          if (!packageInfo?.package_id) return
-          const versionParam =
-            versionFromUrl && versionFromUrl !== latestVersion
-              ? `&version=${versionFromUrl}`
-              : ""
+        onFileBrowserViewChange={(view) => {
           setLocation(
-            `/editor?package_id=${packageInfo?.package_id}${
-              file_path ? `&file_path=${file_path}` : ""
-            }${versionParam}`,
+            `${getPackageRootUrl(author, packageName)}${versionSearch}#${view}`,
           )
+        }}
+        onFileClicked={(file) => {
+          setLocation(
+            `${getPackageFileUrl({
+              author,
+              packageName,
+              filePath: file.file_path,
+            })}${versionSearch}`,
+          )
+        }}
+        onEditClicked={(file_path?: string | null) => {
+          if (!packageInfo?.package_id) return
+          const params = new URLSearchParams({
+            package_id: packageInfo.package_id,
+          })
+          if (file_path) params.set("file_path", file_path)
+          if (versionFromUrl && versionFromUrl !== latestVersion) {
+            params.set("version", versionFromUrl)
+          }
+          setLocation(`/editor?${params.toString()}`)
         }}
       />
     </>
