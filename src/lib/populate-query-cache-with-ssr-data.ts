@@ -12,6 +12,7 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
   const ssrPackageRelease = windowAny.SSR_PACKAGE_RELEASE
   const ssrPackageFiles = windowAny.SSR_PACKAGE_FILES
   const ssrPackageFile = windowAny.SSR_PACKAGE_FILE
+  const ssrPackageFileArtifacts = windowAny.SSR_PACKAGE_FILE_ARTIFACTS
   const ssrPackageReleases = windowAny.SSR_PACKAGE_RELEASES
   const ssrPackageBuilds = windowAny.SSR_PACKAGE_BUILDS
   const ssrPackageBuild = windowAny.SSR_PACKAGE_BUILD
@@ -129,6 +130,22 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
       ],
       ssrPackageFile,
     )
+  }
+
+  if (ssrPackageFileArtifacts && ssrPackageRelease?.package_release_id) {
+    for (const artifact of ssrPackageFileArtifacts) {
+      if (!artifact?.file_path) continue
+      queryClient.setQueryData(
+        [
+          "packageFile",
+          {
+            package_release_id: ssrPackageRelease.package_release_id,
+            file_path: String(artifact.file_path).replace(/^\/+/, ""),
+          },
+        ],
+        artifact,
+      )
+    }
   }
 
   if (ssrPackageBuilds && ssrPackageRoute?.releaseId) {

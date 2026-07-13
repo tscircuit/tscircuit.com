@@ -10,6 +10,7 @@ import {
   renderPackagePageContent,
   serializeForInlineScript,
 } from "../server/package-page-ssr.js"
+import { getPackageFileArtifactPaths } from "../src/lib/package-file-artifacts.ts"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -110,6 +111,7 @@ function getHtmlWithModifiedSeoTags({
       packageRelease,
       packageFiles,
       packageFile,
+      packageFileArtifacts,
       packageReleases,
       packageBuilds,
       packageBuild,
@@ -135,6 +137,11 @@ function getHtmlWithModifiedSeoTags({
     if (packageFile) {
       assignments.push(
         `window.SSR_PACKAGE_FILE = ${serializeForInlineScript(packageFile)};`,
+      )
+    }
+    if (packageFileArtifacts?.length) {
+      assignments.push(
+        `window.SSR_PACKAGE_FILE_ARTIFACTS = ${serializeForInlineScript(packageFileArtifacts)};`,
       )
     }
     if (packageReleases) {
@@ -330,6 +337,47 @@ async function fetchPackagePageData(route, packageInfo) {
     }
   }
 
+  let fileArtifacts = null
+  if (route.kind === "file" && packageRelease?.package_release_id) {
+    const artifactPaths = getPackageFileArtifactPaths(
+      route.filePath,
+      packageFiles,
+    )
+    const fetchArtifact = async (filePath) => {
+      if (!filePath) return null
+      if (
+        primaryFile &&
+        String(primaryFile.file_path || "").replace(/^\/+/, "") === filePath
+      ) {
+        return primaryFile
+      }
+
+      const metadata = packageFiles.find(
+        (file) => String(file.file_path || "").replace(/^\/+/, "") === filePath,
+      )
+      const searchParams = metadata?.package_file_id
+        ? { package_file_id: metadata.package_file_id }
+        : {
+            package_release_id: packageRelease.package_release_id,
+            file_path: filePath,
+          }
+      const response = await requestJsonOrNull(
+        ky.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
+      ).catch((error) => {
+        console.warn(`Failed to fetch ${filePath} for SSR:`, error)
+        return null
+      })
+      return response?.package_file ?? null
+    }
+
+    const [pcbSvg, schematicSvg, circuitJson] = await Promise.all([
+      fetchArtifact(artifactPaths.pcbSvgPath),
+      fetchArtifact(artifactPaths.schematicSvgPath),
+      fetchArtifact(artifactPaths.circuitJsonPath),
+    ])
+    fileArtifacts = { pcbSvg, schematicSvg, circuitJson }
+  }
+
   let packageBuilds = []
   if (route.kind === "builds" && packageRelease?.package_release_id) {
     const buildsResponse = await requestJsonOrNull(
@@ -373,6 +421,7 @@ async function fetchPackagePageData(route, packageInfo) {
     packageRelease,
     packageFiles,
     primaryFile,
+    fileArtifacts,
     packageReleases,
     packageBuilds,
     packageBuild,
@@ -455,6 +504,9 @@ async function handlePackagePage(req, res, route) {
       packageRelease: data.packageRelease,
       packageFiles: data.packageFiles,
       packageFile: route.kind === "file" ? data.primaryFile : null,
+      packageFileArtifacts: data.fileArtifacts
+        ? Object.values(data.fileArtifacts).filter(Boolean)
+        : null,
       packageReleases: data.packageReleases,
       packageBuilds: data.packageBuilds,
       packageBuild: data.packageBuild,

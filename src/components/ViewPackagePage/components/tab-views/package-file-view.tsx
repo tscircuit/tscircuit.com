@@ -12,10 +12,13 @@ import { useAxios } from "@/hooks/use-axios"
 import { Button } from "@/components/ui/button"
 import { ShikiCodeViewer } from "../ShikiCodeViewer"
 import MarkdownViewer from "../markdown-viewer"
+import PackageFileArtifactPreview from "./package-file-artifact-preview"
+import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 
 interface PackageFileViewProps {
   packageReleaseId?: string
   filePath: string
+  packageFiles?: Pick<PackageFile, "file_path">[]
   onDirectoryClicked?: (directoryPath: string) => void
   onOpenInEditor?: () => void
 }
@@ -28,6 +31,7 @@ const isMarkdownFile = (filePath: string) =>
 export default function PackageFileView({
   packageReleaseId,
   filePath,
+  packageFiles,
   onDirectoryClicked,
   onOpenInEditor,
 }: PackageFileViewProps) {
@@ -136,6 +140,11 @@ export default function PackageFileView({
       </div>
 
       <div className="bg-white dark:bg-[#0d1117]">
+        <PackageFileArtifactPreview
+          packageReleaseId={packageReleaseId}
+          selectedFilePath={filePath}
+          packageFiles={packageFiles}
+        />
         {isLoading || !packageReleaseId ? (
           <div className="flex items-center justify-center px-4 py-12">
             <Loader2 className="h-6 w-6 animate-spin text-gray-500 dark:text-[#8b949e]" />

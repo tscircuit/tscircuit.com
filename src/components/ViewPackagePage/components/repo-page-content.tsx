@@ -218,6 +218,7 @@ export default function RepoPageContent({
         <PackageFileView
           packageReleaseId={packageRelease?.package_release_id}
           filePath={fileBrowserPath}
+          packageFiles={packageFiles}
           onDirectoryClicked={onDirectoryClicked}
           onOpenInEditor={() => onEditClicked?.(fileBrowserPath)}
         />
