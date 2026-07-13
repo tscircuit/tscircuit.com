@@ -175,12 +175,13 @@ export default function FilesView({
     return (
       <>
         Files in{" "}
-        <span
-          className="hover:underline cursor-pointer"
+        <button
+          type="button"
+          className="hover:underline"
           onClick={() => onDirectoryClicked?.("")}
         >
-          .
-        </span>
+          (root)
+        </button>
         {parts.map((part, index) => {
           const path = parts.slice(0, index + 1).join("/")
           return (
