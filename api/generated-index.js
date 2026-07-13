@@ -4,6 +4,12 @@ import { readFileSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 import he from "he"
+import {
+  injectPackagePageContent,
+  parsePackagePageRoute,
+  renderPackagePageContent,
+  serializeForInlineScript,
+} from "../server/package-page-ssr.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -64,6 +70,7 @@ function getHtmlWithModifiedSeoTags({
   canonicalUrl,
   imageUrl,
   ssrPackageData,
+  ssrContent,
 }) {
   const seoStartTag = "<!-- SEO_START -->"
   const seoEndTag = "<!-- SEO_END -->"
@@ -102,20 +109,52 @@ function getHtmlWithModifiedSeoTags({
       package: packageData,
       packageRelease,
       packageFiles,
+      packageFile,
+      packageReleases,
+      packageBuilds,
+      packageBuild,
+      route,
     } = ssrPackageData
 
     const assignments = []
     if (packageData) {
-      assignments.push(`window.SSR_PACKAGE = ${JSON.stringify(packageData)};`)
+      assignments.push(
+        `window.SSR_PACKAGE = ${serializeForInlineScript(packageData)};`,
+      )
     }
     if (packageRelease) {
       assignments.push(
-        `window.SSR_PACKAGE_RELEASE = ${JSON.stringify(packageRelease)};`,
+        `window.SSR_PACKAGE_RELEASE = ${serializeForInlineScript(packageRelease)};`,
       )
     }
     if (packageFiles) {
       assignments.push(
-        `window.SSR_PACKAGE_FILES = ${JSON.stringify(packageFiles)};`,
+        `window.SSR_PACKAGE_FILES = ${serializeForInlineScript(packageFiles)};`,
+      )
+    }
+    if (packageFile) {
+      assignments.push(
+        `window.SSR_PACKAGE_FILE = ${serializeForInlineScript(packageFile)};`,
+      )
+    }
+    if (packageReleases) {
+      assignments.push(
+        `window.SSR_PACKAGE_RELEASES = ${serializeForInlineScript(packageReleases)};`,
+      )
+    }
+    if (packageBuilds) {
+      assignments.push(
+        `window.SSR_PACKAGE_BUILDS = ${serializeForInlineScript(packageBuilds)};`,
+      )
+    }
+    if (packageBuild) {
+      assignments.push(
+        `window.SSR_PACKAGE_BUILD = ${serializeForInlineScript(packageBuild)};`,
+      )
+    }
+    if (route) {
+      assignments.push(
+        `window.SSR_PACKAGE_ROUTE = ${serializeForInlineScript(route)};`,
       )
     }
 
@@ -131,7 +170,7 @@ function getHtmlWithModifiedSeoTags({
     }
   }
 
-  return modifiedHtml
+  return injectPackagePageContent(modifiedHtml, ssrContent)
 }
 
 export async function handleUserProfile(req, res) {
@@ -169,6 +208,258 @@ async function handleDatasheetPage(req, res) {
     title: `${chipName} Datasheet - tscircuit`,
     description: `View the ${chipName} datasheet on tscircuit.`,
     canonicalUrl: `${BASE_URL}/datasheets/${he.encode(chipName)}`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
+async function requestJsonOrNull(request) {
+  try {
+    return await request.json()
+  } catch (error) {
+    if (error?.response?.status === 404 || String(error).includes("404")) {
+      return null
+    }
+    throw error
+  }
+}
+
+async function fetchPackageRelease(route) {
+  const getRelease = async (query) => {
+    const response = await requestJsonOrNull(
+      ky.post(`${REGISTRY_URL}/package_releases/get`, {
+        searchParams: {
+          include_logs: true,
+          include_ai_review: true,
+        },
+        json: query,
+      }),
+    )
+    return response?.package_release ?? null
+  }
+
+  if (route.releaseId) {
+    const releaseById = await getRelease({
+      package_release_id: route.releaseId,
+    })
+    if (releaseById) return releaseById
+
+    return getRelease({
+      package_name_with_version: `${route.packageNameWithScope}@${route.releaseId}`,
+    })
+  }
+
+  if (route.version) {
+    return getRelease({
+      package_name_with_version: `${route.packageNameWithScope}@${route.version}`,
+    })
+  }
+
+  return getRelease({
+    package_name: route.packageNameWithScope,
+    is_latest: true,
+  })
+}
+
+async function fetchPackagePageData(route, packageInfo) {
+  const packageRelease = await fetchPackageRelease(route).catch((error) => {
+    console.warn("Failed to fetch package release for SSR:", error)
+    return null
+  })
+
+  const releasesResponse = await requestJsonOrNull(
+    ky.post(`${REGISTRY_URL}/package_releases/list`, {
+      json: { package_id: packageInfo.package_id },
+    }),
+  ).catch((error) => {
+    console.warn("Failed to fetch package releases for SSR:", error)
+    return null
+  })
+  const packageReleases = releasesResponse?.package_releases ?? []
+
+  let packageFiles = []
+  if (packageRelease?.package_release_id) {
+    const filesResponse = await requestJsonOrNull(
+      ky.get(`${REGISTRY_URL}/package_files/list`, {
+        searchParams: {
+          package_release_id: packageRelease.package_release_id,
+        },
+      }),
+    ).catch((error) => {
+      console.warn("Failed to fetch package files for SSR:", error)
+      return null
+    })
+    packageFiles = filesResponse?.package_files ?? []
+  }
+
+  let primaryFile = null
+  if (packageRelease?.package_release_id) {
+    let primaryFileMetadata = null
+    if (route.kind === "file") {
+      primaryFileMetadata = packageFiles.find(
+        (file) =>
+          String(file.file_path || "").replace(/^\/+/, "") === route.filePath,
+      )
+    } else if (route.kind === "package") {
+      primaryFileMetadata = packageFiles.find((file) =>
+        ["readme.md", "readme"].includes(
+          String(file.file_path || "")
+            .replace(/^\/+/, "")
+            .toLowerCase(),
+        ),
+      )
+    }
+
+    if (primaryFileMetadata || route.kind === "file") {
+      const searchParams = primaryFileMetadata?.package_file_id
+        ? { package_file_id: primaryFileMetadata.package_file_id }
+        : {
+            package_release_id: packageRelease.package_release_id,
+            file_path: route.filePath,
+          }
+      const fileResponse = await requestJsonOrNull(
+        ky.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
+      ).catch((error) => {
+        console.warn("Failed to fetch primary package file for SSR:", error)
+        return null
+      })
+      primaryFile = fileResponse?.package_file ?? null
+    }
+  }
+
+  let packageBuilds = []
+  if (route.kind === "builds" && packageRelease?.package_release_id) {
+    const buildsResponse = await requestJsonOrNull(
+      ky.get(`${REGISTRY_URL}/package_builds/list`, {
+        searchParams: {
+          package_release_id: packageRelease.package_release_id,
+        },
+      }),
+    ).catch((error) => {
+      console.warn("Failed to fetch package builds for SSR:", error)
+      return null
+    })
+    packageBuilds = buildsResponse?.package_builds ?? []
+  }
+
+  let packageBuild = null
+  const buildId =
+    route.kind === "build"
+      ? route.buildId
+      : route.kind === "release"
+        ? packageRelease?.latest_package_build_id
+        : null
+  if (buildId) {
+    const buildResponse = await requestJsonOrNull(
+      ky.get(`${REGISTRY_URL}/package_builds/get`, {
+        searchParams: {
+          package_build_id: buildId,
+          include_logs: true,
+        },
+      }),
+    ).catch((error) => {
+      console.warn("Failed to fetch package build for SSR:", error)
+      return null
+    })
+    packageBuild = buildResponse?.package_build ?? null
+  }
+
+  return {
+    route,
+    packageInfo,
+    packageRelease,
+    packageFiles,
+    primaryFile,
+    packageReleases,
+    packageBuilds,
+    packageBuild,
+  }
+}
+
+const getPackagePageTitle = (route, packageInfo, packageRelease) => {
+  const packageTitle = packageInfo.name
+  if (route.kind === "file")
+    return `${route.filePath} - ${packageTitle} - tscircuit`
+  if (route.kind === "directory") {
+    return `${route.filePath || "Files"} - ${packageTitle} - tscircuit`
+  }
+  if (route.kind === "releases") return `${packageTitle} Releases - tscircuit`
+  if (route.kind === "release" || route.kind === "preview") {
+    return `${packageTitle} Release ${packageRelease?.version || route.releaseId} - tscircuit`
+  }
+  if (route.kind === "builds") return `${packageTitle} Builds - tscircuit`
+  if (route.kind === "build")
+    return `${packageTitle} Build ${route.buildId} - tscircuit`
+  if (route.kind === "settings") return `${packageTitle} Settings - tscircuit`
+  return `${packageTitle} - tscircuit`
+}
+
+async function handlePackagePage(req, res, route) {
+  const packageDetails = await requestJsonOrNull(
+    ky.get(`${REGISTRY_URL}/packages/get`, {
+      searchParams: { name: route.packageNameWithScope },
+    }),
+  )
+
+  const canonicalPath = req.url.split("?")[0]
+  if (!packageDetails?.package) {
+    const html = getHtmlWithModifiedSeoTags({
+      title: "Package Not Found - tscircuit",
+      description: he.encode(
+        `The package ${route.packageNameWithScope} could not be found.`,
+      ),
+      canonicalUrl: `${BASE_URL}${canonicalPath}`,
+      ssrContent: `<style>#loader{display:none}</style><main data-ssr-package-page="not-found"><h1>Package Not Found</h1><p>The package ${he.encode(
+        route.packageNameWithScope,
+      )} could not be found.</p></main>`,
+    })
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(404).send(html)
+    return
+  }
+
+  const packageInfo = packageDetails.package
+  const data = await fetchPackagePageData(route, packageInfo)
+  const description = he.encode(
+    `${
+      packageInfo.description ||
+      packageInfo.ai_description ||
+      `A tscircuit package created by ${route.author}`
+    } ${packageInfo.ai_usage_instructions ?? ""}`.trim(),
+  )
+  const title = he.encode(
+    getPackagePageTitle(route, packageInfo, data.packageRelease),
+  )
+  const allowedViews = ["schematic", "pcb", "assembly", "3d"]
+  const defaultView = packageInfo.default_view || "3d"
+  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "3d"
+  const imageUrl = `${REGISTRY_URL}/packages/images/${encodeURIComponent(
+    route.author,
+  )}/${encodeURIComponent(route.packageName)}/${thumbnailView}.png?fs_sha=${encodeURIComponent(
+    packageInfo.latest_package_release_fs_sha || "",
+  )}`
+  const ssrContent = renderPackagePageContent(data)
+  const html = getHtmlWithModifiedSeoTags({
+    title,
+    description,
+    canonicalUrl: `${BASE_URL}${canonicalPath}`,
+    imageUrl,
+    ssrContent,
+    ssrPackageData: {
+      package: packageInfo,
+      packageRelease: data.packageRelease,
+      packageFiles: data.packageFiles,
+      packageFile: route.kind === "file" ? data.primaryFile : null,
+      packageReleases: data.packageReleases,
+      packageBuilds: data.packageBuilds,
+      packageBuild: data.packageBuild,
+      route,
+    },
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")
@@ -656,6 +947,12 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", cacheControlHeader)
     res.setHeader("Vary", "Accept-Encoding")
     res.status(200).send(htmlContent)
+    return
+  }
+
+  const packageRoute = parsePackagePageRoute(req.url)
+  if (packageRoute) {
+    await handlePackagePage(req, res, packageRoute)
     return
   }
 
