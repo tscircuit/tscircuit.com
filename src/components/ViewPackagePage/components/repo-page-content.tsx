@@ -43,7 +43,7 @@ interface RepoPageContentProps {
   packageInfo?: Package
   packageRelease?: PublicPackageRelease
   onFileClicked?: (file: PackageFile) => void
-  onEditClicked?: () => void
+  onEditClicked?: (filePath?: string | null) => void
   arePackageFilesFetched?: boolean
   packageFilesError?: Error | null
   currentVersion?: string | null
@@ -219,6 +219,7 @@ export default function RepoPageContent({
           packageReleaseId={packageRelease?.package_release_id}
           filePath={fileBrowserPath}
           onDirectoryClicked={onDirectoryClicked}
+          onOpenInEditor={() => onEditClicked?.(fileBrowserPath)}
         />
       )
     }

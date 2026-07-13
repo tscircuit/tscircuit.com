@@ -237,17 +237,16 @@ export const ViewPackagePage = ({
             })}${versionSearch}`,
           )
         }}
-        onEditClicked={(file_path?: string) => {
+        onEditClicked={(file_path?: string | null) => {
           if (!packageInfo?.package_id) return
-          const versionParam =
-            versionFromUrl && versionFromUrl !== latestVersion
-              ? `&version=${versionFromUrl}`
-              : ""
-          setLocation(
-            `/editor?package_id=${packageInfo?.package_id}${
-              file_path ? `&file_path=${file_path}` : ""
-            }${versionParam}`,
-          )
+          const params = new URLSearchParams({
+            package_id: packageInfo.package_id,
+          })
+          if (file_path) params.set("file_path", file_path)
+          if (versionFromUrl && versionFromUrl !== latestVersion) {
+            params.set("version", versionFromUrl)
+          }
+          setLocation(`/editor?${params.toString()}`)
         }}
       />
     </>

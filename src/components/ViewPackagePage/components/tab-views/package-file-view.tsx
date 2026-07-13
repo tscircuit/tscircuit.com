@@ -1,5 +1,6 @@
-import { AlertTriangle, FileText, Loader2 } from "lucide-react"
+import { AlertTriangle, FileText, Loader2, Pencil } from "lucide-react"
 import { usePackageFile } from "@/hooks/use-package-files"
+import { Button } from "@/components/ui/button"
 import { ShikiCodeViewer } from "../ShikiCodeViewer"
 import MarkdownViewer from "../markdown-viewer"
 
@@ -7,6 +8,7 @@ interface PackageFileViewProps {
   packageReleaseId?: string
   filePath: string
   onDirectoryClicked?: (directoryPath: string) => void
+  onOpenInEditor?: () => void
 }
 
 const isMarkdownFile = (filePath: string) =>
@@ -18,6 +20,7 @@ export default function PackageFileView({
   packageReleaseId,
   filePath,
   onDirectoryClicked,
+  onOpenInEditor,
 }: PackageFileViewProps) {
   const {
     data: file,
@@ -78,6 +81,16 @@ export default function PackageFileView({
       <div className="flex items-center gap-2 border-b border-gray-200 bg-gray-100 px-3 py-2 sm:px-4 md:py-3 dark:border-[#30363d] dark:bg-[#161b22]">
         <FileText className="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
         {renderBreadcrumbs()}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="ml-auto h-8 flex-shrink-0"
+          onClick={onOpenInEditor}
+        >
+          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+          Open in Editor
+        </Button>
       </div>
 
       <div className="bg-white dark:bg-[#0d1117]">
