@@ -107,6 +107,65 @@ describe("renderPackagePageContent", () => {
     expect(html).not.toContain('<script>alert("nope")</script>')
   })
 
+  test("renders PCB and schematic previews above selected file content", () => {
+    const html = renderPackagePageContent({
+      ...baseData,
+      route: {
+        ...baseData.route,
+        kind: "file",
+        filePath: "src/index.tsx",
+      },
+      primaryFile: {
+        file_path: "src/index.tsx",
+        content_text: "export const Board = () => <board />",
+      },
+      fileArtifacts: {
+        pcbSvg: null,
+        schematicSvg: null,
+        circuitJson: {
+          file_path: "dist/src/index/circuit.json",
+          content_text: "[]",
+        },
+      },
+    })
+
+    expect(html).toContain('aria-label="Circuit preview type"')
+    expect(html).toContain('href="#ssr-pcb-preview">PCB</a>')
+    expect(html).toContain('href="#ssr-schematic-preview">Schematic</a>')
+    expect(html).toContain('src="data:image/svg+xml;base64,')
+    expect(html.indexOf("ssr-file-preview")).toBeLessThan(
+      html.indexOf("export const Board"),
+    )
+  })
+
+  test("loads an explicit SVG artifact from an external image source", () => {
+    const svg = '<svg><script>alert("nope")</script></svg>'
+    const html = renderPackagePageContent({
+      ...baseData,
+      route: {
+        ...baseData.route,
+        kind: "file",
+        filePath: "src/index.tsx",
+      },
+      fileArtifacts: {
+        pcbSvg: {
+          package_file_id: "pcb-file-1",
+          file_path: "src/pcb.svg",
+          content_text: svg,
+        },
+        schematicSvg: null,
+        circuitJson: null,
+      },
+    })
+
+    expect(html).toContain("PCB preview for src/index.tsx")
+    expect(html).toContain('src="/package-file-images/pcb-file-1.svg"')
+    expect(html).toContain('loading="lazy"')
+    expect(html).toContain('decoding="async"')
+    expect(html).not.toContain(Buffer.from(svg).toString("base64"))
+    expect(html).not.toContain('<script>alert("nope")</script>')
+  })
+
   test("renders release and build lists", () => {
     const releasesHtml = renderPackagePageContent({
       ...baseData,

@@ -10,6 +10,7 @@ import {
   renderPackagePageContent,
   serializeForInlineScript,
 } from "../server/package-page-ssr.js"
+import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -330,6 +331,55 @@ async function fetchPackagePageData(route, packageInfo) {
     }
   }
 
+  let fileArtifacts = null
+  if (route.kind === "file" && packageRelease?.package_release_id) {
+    const artifactPaths = getPackageFileArtifactPaths(
+      route.filePath,
+      packageFiles,
+    )
+    const findArtifactMetadata = (filePath) => {
+      if (!filePath) return null
+      return (
+        packageFiles.find(
+          (file) =>
+            String(file.file_path || "").replace(/^\/+/, "") === filePath,
+        ) ?? null
+      )
+    }
+    const fetchArtifact = async (filePath) => {
+      if (!filePath) return null
+      if (
+        primaryFile &&
+        String(primaryFile.file_path || "").replace(/^\/+/, "") === filePath
+      ) {
+        return primaryFile
+      }
+
+      const metadata = findArtifactMetadata(filePath)
+      const searchParams = metadata?.package_file_id
+        ? { package_file_id: metadata.package_file_id }
+        : {
+            package_release_id: packageRelease.package_release_id,
+            file_path: filePath,
+          }
+      const response = await requestJsonOrNull(
+        ky.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
+      ).catch((error) => {
+        console.warn(`Failed to fetch ${filePath} for SSR:`, error)
+        return null
+      })
+      return response?.package_file ?? null
+    }
+
+    const pcbSvg = findArtifactMetadata(artifactPaths.pcbSvgPath)
+    const schematicSvg = findArtifactMetadata(artifactPaths.schematicSvgPath)
+    const circuitJson =
+      (!pcbSvg || !schematicSvg) && artifactPaths.circuitJsonPath
+        ? await fetchArtifact(artifactPaths.circuitJsonPath)
+        : null
+    fileArtifacts = { pcbSvg, schematicSvg, circuitJson }
+  }
+
   let packageBuilds = []
   if (route.kind === "builds" && packageRelease?.package_release_id) {
     const buildsResponse = await requestJsonOrNull(
@@ -373,10 +423,44 @@ async function fetchPackagePageData(route, packageInfo) {
     packageRelease,
     packageFiles,
     primaryFile,
+    fileArtifacts,
     packageReleases,
     packageBuilds,
     packageBuild,
   }
+}
+
+export async function handlePackageFileImage(req, res, packageFileId) {
+  const upstream = await fetch(
+    `${REGISTRY_URL}/package_files/download?package_file_id=${encodeURIComponent(
+      packageFileId,
+    )}`,
+  )
+
+  if (!upstream.ok) {
+    res.status(upstream.status).send("Package file image not found")
+    return
+  }
+
+  const svg = await upstream.text()
+  const normalizedSvg = svg.replace(/^\uFEFF/, "").trimStart()
+  const hasSvgRoot =
+    /^(?:<\?xml[^>]*>\s*)?(?:<!DOCTYPE[^>]*>\s*)?<svg(?:\s|>)/i.test(
+      normalizedSvg,
+    )
+  if (!hasSvgRoot) {
+    res.status(415).send("Package file is not an SVG image")
+    return
+  }
+
+  res.setHeader("Content-Type", "image/svg+xml; charset=utf-8")
+  res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=86400")
+  res.setHeader(
+    "Content-Security-Policy",
+    "sandbox; default-src 'none'; style-src 'unsafe-inline'",
+  )
+  res.setHeader("X-Content-Type-Options", "nosniff")
+  res.status(200).send(svg)
 }
 
 const getPackagePageTitle = (route, packageInfo, packageRelease) => {
@@ -942,6 +1026,14 @@ export async function handleAvatarRedirect(req, res) {
 
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
+  const packageFileImageMatch = urlPath.match(
+    /^\/package-file-images\/([0-9a-f-]+)\.svg$/i,
+  )
+  if (packageFileImageMatch) {
+    await handlePackageFileImage(req, res, packageFileImageMatch[1])
+    return
+  }
+
   if (urlPath === "/api/generated-index") {
     res.setHeader("Content-Type", "text/html; charset=utf-8")
     res.setHeader("Cache-Control", cacheControlHeader)

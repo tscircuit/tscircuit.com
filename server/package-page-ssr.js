@@ -1,4 +1,9 @@
 // Shared by the production request handler and the local Vite SSR middleware.
+import {
+  convertCircuitJsonToPcbSvg,
+  convertCircuitJsonToSchematicSvg,
+} from "circuit-to-svg"
+
 const RESERVED_TOP_LEVEL_ROUTES = new Set([
   "api",
   "authorize",
@@ -269,17 +274,107 @@ const renderBuild = (packageBuild) =>
     ["Completed", formatDate(packageBuild?.completed_at)],
   ])
 
+const convertCircuitJsonForPreview = (contentText, converter) => {
+  if (!contentText) return null
+  try {
+    const circuitJson = JSON.parse(contentText)
+    if (!Array.isArray(circuitJson)) return null
+    return converter(circuitJson)
+  } catch {
+    return null
+  }
+}
+
+const svgDataUrl = (svg) =>
+  `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`
+
+const getPackageFileImageUrl = (packageFile) => {
+  if (!packageFile?.package_file_id) return null
+  return `/package-file-images/${encodeURIComponent(
+    packageFile.package_file_id,
+  )}.svg`
+}
+
+const renderFileArtifactPreview = (route, fileArtifacts) => {
+  if (!fileArtifacts) return ""
+
+  const circuitJsonContent = fileArtifacts.circuitJson?.content_text
+  const previews = [
+    {
+      kind: "pcb",
+      label: "PCB",
+      src:
+        getPackageFileImageUrl(fileArtifacts.pcbSvg) ||
+        (fileArtifacts.pcbSvg?.content_text
+          ? svgDataUrl(fileArtifacts.pcbSvg.content_text)
+          : null) ||
+        (() => {
+          const svg = convertCircuitJsonForPreview(
+            circuitJsonContent,
+            convertCircuitJsonToPcbSvg,
+          )
+          return svg ? svgDataUrl(svg) : null
+        })(),
+    },
+    {
+      kind: "schematic",
+      label: "Schematic",
+      src:
+        getPackageFileImageUrl(fileArtifacts.schematicSvg) ||
+        (fileArtifacts.schematicSvg?.content_text
+          ? svgDataUrl(fileArtifacts.schematicSvg.content_text)
+          : null) ||
+        (() => {
+          const svg = convertCircuitJsonForPreview(
+            circuitJsonContent,
+            convertCircuitJsonToSchematicSvg,
+          )
+          return svg ? svgDataUrl(svg) : null
+        })(),
+    },
+  ].filter((preview) => preview.src)
+
+  if (previews.length === 0) return ""
+
+  const selector =
+    previews.length > 1
+      ? `<nav class="ssr-preview-selector" aria-label="Circuit preview type">${previews
+          .map(
+            (preview) =>
+              `<a href="#ssr-${preview.kind}-preview">${preview.label}</a>`,
+          )
+          .join("")}</nav>`
+      : ""
+
+  return `<section class="ssr-file-preview" aria-label="Circuit preview">${selector}${previews
+    .map(
+      (preview, index) =>
+        `<details id="ssr-${preview.kind}-preview" name="ssr-circuit-preview"${
+          index === 0 ? " open" : ""
+        }><summary>${preview.label}</summary><img src="${escapeHtml(
+          preview.src,
+        )}" loading="lazy" decoding="async" alt="${escapeHtml(
+          preview.label,
+        )} preview for ${escapeHtml(route.filePath)}"></details>`,
+    )
+    .join("")}</section>`
+}
+
 const renderRouteContent = ({
   route,
   packageRelease,
   packageFiles,
   primaryFile,
+  fileArtifacts,
   packageReleases,
   packageBuilds,
   packageBuild,
 }) => {
   if (route.kind === "file") {
-    return `<section><h2>${escapeHtml(route.filePath)}</h2>${
+    return `<section><h2>${escapeHtml(route.filePath)}</h2>${renderFileArtifactPreview(
+      route,
+      fileArtifacts,
+    )}${
       primaryFile?.content_text == null
         ? "<p>A text preview is not available for this file.</p>"
         : `<pre><code>${escapeHtml(primaryFile.content_text)}</code></pre>`
@@ -350,7 +445,7 @@ export function renderPackagePageContent(data) {
     route.packageName,
   )}`
 
-  return `<style>#loader{display:none}.ssr-package-page{max-width:75rem;margin:0 auto;padding:2rem 1rem;font-family:ui-sans-serif,system-ui,sans-serif;color:#111827}.ssr-package-page nav{font-size:.875rem;margin-bottom:1rem}.ssr-package-page header{border-bottom:1px solid #e5e7eb;padding-bottom:1.5rem;margin-bottom:1.5rem}.ssr-package-page h1{font-size:2rem;margin:.25rem 0}.ssr-package-page h2{font-size:1.25rem;margin:1.5rem 0 .75rem}.ssr-package-page p{line-height:1.6}.ssr-package-page ul,.ssr-package-page ol{padding-left:1.5rem}.ssr-package-page li{margin:.5rem 0}.ssr-package-page a{color:#2563eb;text-decoration:none}.ssr-package-page a:hover{text-decoration:underline}.ssr-package-page pre{overflow:auto;padding:1rem;border:1px solid #e5e7eb;border-radius:.375rem;background:#f9fafb;white-space:pre-wrap}.ssr-package-page dl>div{display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;padding:.5rem 0;border-bottom:1px solid #e5e7eb}.ssr-package-page dt{font-weight:600}.ssr-release-list time{display:block;color:#6b7280;font-size:.875rem}</style><main class="ssr-package-page" data-ssr-package-page="${escapeHtml(
+  return `<style>#loader{display:none}.ssr-package-page{max-width:75rem;margin:0 auto;padding:2rem 1rem;font-family:ui-sans-serif,system-ui,sans-serif;color:#111827}.ssr-package-page nav{font-size:.875rem;margin-bottom:1rem}.ssr-package-page header{border-bottom:1px solid #e5e7eb;padding-bottom:1.5rem;margin-bottom:1.5rem}.ssr-package-page h1{font-size:2rem;margin:.25rem 0}.ssr-package-page h2{font-size:1.25rem;margin:1.5rem 0 .75rem}.ssr-package-page p{line-height:1.6}.ssr-package-page ul,.ssr-package-page ol{padding-left:1.5rem}.ssr-package-page li{margin:.5rem 0}.ssr-package-page a{color:#2563eb;text-decoration:none}.ssr-package-page a:hover{text-decoration:underline}.ssr-package-page pre{overflow:auto;padding:1rem;border:1px solid #e5e7eb;border-radius:.375rem;background:#f9fafb;white-space:pre-wrap}.ssr-package-page dl>div{display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;padding:.5rem 0;border-bottom:1px solid #e5e7eb}.ssr-package-page dt{font-weight:600}.ssr-release-list time{display:block;color:#6b7280;font-size:.875rem}.ssr-file-preview{margin:1rem 0;padding:1rem;border:1px solid #e5e7eb;border-radius:.5rem;background:#f9fafb}.ssr-package-page .ssr-preview-selector{display:flex;gap:.5rem;margin-bottom:.75rem}.ssr-preview-selector a{padding:.375rem .75rem;border:1px solid #d1d5db;border-radius:.375rem;background:#fff}.ssr-file-preview details+details{margin-top:.75rem}.ssr-file-preview summary{cursor:pointer;font-weight:600}.ssr-file-preview img{display:block;width:100%;max-height:36rem;margin-top:.75rem;object-fit:contain;background:#fff;border:1px solid #e5e7eb;border-radius:.375rem}</style><main class="ssr-package-page" data-ssr-package-page="${escapeHtml(
     route.kind,
   )}"><nav><a href="/">tscircuit</a> / <a href="/${encodeURIComponent(
     route.author,
