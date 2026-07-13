@@ -138,24 +138,34 @@ describe("renderPackagePageContent", () => {
     )
   })
 
-  test("uses an explicit SVG artifact without injecting its markup", () => {
+  test("loads an explicit SVG artifact from an external image source", () => {
     const svg = '<svg><script>alert("nope")</script></svg>'
     const html = renderPackagePageContent({
       ...baseData,
+      registryUrl: "https://registry.example.com",
       route: {
         ...baseData.route,
         kind: "file",
         filePath: "src/index.tsx",
       },
       fileArtifacts: {
-        pcbSvg: { file_path: "src/pcb.svg", content_text: svg },
+        pcbSvg: {
+          package_file_id: "pcb-file-1",
+          file_path: "src/pcb.svg",
+          content_text: svg,
+        },
         schematicSvg: null,
         circuitJson: null,
       },
     })
 
     expect(html).toContain("PCB preview for src/index.tsx")
-    expect(html).toContain(Buffer.from(svg).toString("base64"))
+    expect(html).toContain(
+      'src="https://registry.example.com/package_files/download?package_file_id=pcb-file-1"',
+    )
+    expect(html).toContain('loading="lazy"')
+    expect(html).toContain('decoding="async"')
+    expect(html).not.toContain(Buffer.from(svg).toString("base64"))
     expect(html).not.toContain('<script>alert("nope")</script>')
   })
 

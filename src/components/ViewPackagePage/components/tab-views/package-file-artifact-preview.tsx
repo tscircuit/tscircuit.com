@@ -5,6 +5,7 @@ import {
 } from "circuit-to-svg"
 import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 import { usePackageFile } from "@/hooks/use-package-files"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getPackageFileArtifactPaths } from "@/lib/package-file-artifacts"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -13,7 +14,7 @@ type PreviewKind = "pcb" | "schematic"
 interface PackageFileArtifactPreviewProps {
   packageReleaseId?: string
   selectedFilePath: string
-  packageFiles?: Pick<PackageFile, "file_path">[]
+  packageFiles?: Pick<PackageFile, "file_path" | "package_file_id">[]
 }
 
 const svgToDataUrl = (svg: string) =>
@@ -46,34 +47,31 @@ export default function PackageFileArtifactPreview({
   selectedFilePath,
   packageFiles,
 }: PackageFileArtifactPreviewProps) {
+  const apiBaseUrl = useApiBaseUrl().replace(/\/$/, "")
   const artifactPaths = useMemo(
     () => getPackageFileArtifactPaths(selectedFilePath, packageFiles),
     [packageFiles, selectedFilePath],
   )
+  const getArtifactDownloadUrl = (filePath?: string) => {
+    if (!filePath) return null
+    const packageFile = packageFiles?.find(
+      (file) => file.file_path.replace(/^\/+/, "") === filePath,
+    )
+    if (!packageFile?.package_file_id) return null
+    return `${apiBaseUrl}/package_files/download?package_file_id=${encodeURIComponent(
+      packageFile.package_file_id,
+    )}`
+  }
+  const pcbSvgUrl = getArtifactDownloadUrl(artifactPaths.pcbSvgPath)
+  const schematicSvgUrl = getArtifactDownloadUrl(artifactPaths.schematicSvgPath)
   const queryOptions = {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   }
-  const pcbSvgFile = usePackageFile(
-    packageReleaseId && artifactPaths.pcbSvgPath
-      ? {
-          package_release_id: packageReleaseId,
-          file_path: artifactPaths.pcbSvgPath,
-        }
-      : null,
-    queryOptions,
-  )
-  const schematicSvgFile = usePackageFile(
-    packageReleaseId && artifactPaths.schematicSvgPath
-      ? {
-          package_release_id: packageReleaseId,
-          file_path: artifactPaths.schematicSvgPath,
-        }
-      : null,
-    queryOptions,
-  )
   const circuitJsonFile = usePackageFile(
-    packageReleaseId && artifactPaths.circuitJsonPath
+    packageReleaseId &&
+      artifactPaths.circuitJsonPath &&
+      (!pcbSvgUrl || !schematicSvgUrl)
       ? {
           package_release_id: packageReleaseId,
           file_path: artifactPaths.circuitJsonPath,
@@ -86,24 +84,26 @@ export default function PackageFileArtifactPreview({
     () => parseCircuitJson(circuitJsonFile.data?.content_text),
     [circuitJsonFile.data?.content_text],
   )
-  const pcbSvg = useMemo(
-    () =>
-      pcbSvgFile.data?.content_text ||
-      convertCircuitJson(circuitJson, convertCircuitJsonToPcbSvg),
-    [circuitJson, pcbSvgFile.data?.content_text],
+  const generatedPcbSvg = useMemo(
+    () => convertCircuitJson(circuitJson, convertCircuitJsonToPcbSvg),
+    [circuitJson],
   )
-  const schematicSvg = useMemo(
-    () =>
-      schematicSvgFile.data?.content_text ||
-      convertCircuitJson(circuitJson, convertCircuitJsonToSchematicSvg),
-    [circuitJson, schematicSvgFile.data?.content_text],
+  const generatedSchematicSvg = useMemo(
+    () => convertCircuitJson(circuitJson, convertCircuitJsonToSchematicSvg),
+    [circuitJson],
   )
+  const pcbPreviewSrc =
+    pcbSvgUrl || (generatedPcbSvg ? svgToDataUrl(generatedPcbSvg) : null)
+  const schematicPreviewSrc =
+    schematicSvgUrl ||
+    (generatedSchematicSvg ? svgToDataUrl(generatedSchematicSvg) : null)
   const availableKinds = useMemo(
     () =>
-      [pcbSvg ? "pcb" : null, schematicSvg ? "schematic" : null].filter(
-        (kind): kind is PreviewKind => Boolean(kind),
-      ),
-    [pcbSvg, schematicSvg],
+      [
+        pcbPreviewSrc ? "pcb" : null,
+        schematicPreviewSrc ? "schematic" : null,
+      ].filter((kind): kind is PreviewKind => Boolean(kind)),
+    [pcbPreviewSrc, schematicPreviewSrc],
   )
   const [selectedKind, setSelectedKind] = useState<PreviewKind>("pcb")
 
@@ -118,10 +118,7 @@ export default function PackageFileArtifactPreview({
       artifactPaths.schematicSvgPath ||
       artifactPaths.circuitJsonPath,
   )
-  const isLoading =
-    pcbSvgFile.isLoading ||
-    schematicSvgFile.isLoading ||
-    circuitJsonFile.isLoading
+  const isLoading = circuitJsonFile.isLoading
 
   if (!packageReleaseId || !hasArtifactPath) return null
 
@@ -135,7 +132,8 @@ export default function PackageFileArtifactPreview({
 
   if (availableKinds.length === 0) return null
 
-  const selectedSvg = selectedKind === "pcb" ? pcbSvg : schematicSvg
+  const selectedPreviewSrc =
+    selectedKind === "pcb" ? pcbPreviewSrc : schematicPreviewSrc
 
   return (
     <section
@@ -158,10 +156,12 @@ export default function PackageFileArtifactPreview({
           </TabsList>
         </Tabs>
       )}
-      {selectedSvg && (
+      {selectedPreviewSrc && (
         <img
           key={selectedKind}
-          src={svgToDataUrl(selectedSvg)}
+          src={selectedPreviewSrc}
+          loading="lazy"
+          decoding="async"
           alt={`${selectedKind === "pcb" ? "PCB" : "Schematic"} preview for ${selectedFilePath}`}
           className="max-h-[36rem] min-h-64 w-full rounded-md border border-gray-200 bg-white object-contain dark:border-[#30363d]"
         />

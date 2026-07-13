@@ -111,7 +111,6 @@ function getHtmlWithModifiedSeoTags({
       packageRelease,
       packageFiles,
       packageFile,
-      packageFileArtifacts,
       packageReleases,
       packageBuilds,
       packageBuild,
@@ -137,11 +136,6 @@ function getHtmlWithModifiedSeoTags({
     if (packageFile) {
       assignments.push(
         `window.SSR_PACKAGE_FILE = ${serializeForInlineScript(packageFile)};`,
-      )
-    }
-    if (packageFileArtifacts?.length) {
-      assignments.push(
-        `window.SSR_PACKAGE_FILE_ARTIFACTS = ${serializeForInlineScript(packageFileArtifacts)};`,
       )
     }
     if (packageReleases) {
@@ -343,6 +337,15 @@ async function fetchPackagePageData(route, packageInfo) {
       route.filePath,
       packageFiles,
     )
+    const findArtifactMetadata = (filePath) => {
+      if (!filePath) return null
+      return (
+        packageFiles.find(
+          (file) =>
+            String(file.file_path || "").replace(/^\/+/, "") === filePath,
+        ) ?? null
+      )
+    }
     const fetchArtifact = async (filePath) => {
       if (!filePath) return null
       if (
@@ -352,9 +355,7 @@ async function fetchPackagePageData(route, packageInfo) {
         return primaryFile
       }
 
-      const metadata = packageFiles.find(
-        (file) => String(file.file_path || "").replace(/^\/+/, "") === filePath,
-      )
+      const metadata = findArtifactMetadata(filePath)
       const searchParams = metadata?.package_file_id
         ? { package_file_id: metadata.package_file_id }
         : {
@@ -370,11 +371,12 @@ async function fetchPackagePageData(route, packageInfo) {
       return response?.package_file ?? null
     }
 
-    const [pcbSvg, schematicSvg, circuitJson] = await Promise.all([
-      fetchArtifact(artifactPaths.pcbSvgPath),
-      fetchArtifact(artifactPaths.schematicSvgPath),
-      fetchArtifact(artifactPaths.circuitJsonPath),
-    ])
+    const pcbSvg = findArtifactMetadata(artifactPaths.pcbSvgPath)
+    const schematicSvg = findArtifactMetadata(artifactPaths.schematicSvgPath)
+    const circuitJson =
+      (!pcbSvg || !schematicSvg) && artifactPaths.circuitJsonPath
+        ? await fetchArtifact(artifactPaths.circuitJsonPath)
+        : null
     fileArtifacts = { pcbSvg, schematicSvg, circuitJson }
   }
 
@@ -425,6 +427,7 @@ async function fetchPackagePageData(route, packageInfo) {
     packageReleases,
     packageBuilds,
     packageBuild,
+    registryUrl: REGISTRY_URL,
   }
 }
 
@@ -504,9 +507,6 @@ async function handlePackagePage(req, res, route) {
       packageRelease: data.packageRelease,
       packageFiles: data.packageFiles,
       packageFile: route.kind === "file" ? data.primaryFile : null,
-      packageFileArtifacts: data.fileArtifacts
-        ? Object.values(data.fileArtifacts).filter(Boolean)
-        : null,
       packageReleases: data.packageReleases,
       packageBuilds: data.packageBuilds,
       packageBuild: data.packageBuild,

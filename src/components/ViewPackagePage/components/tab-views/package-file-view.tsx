@@ -18,7 +18,7 @@ import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 interface PackageFileViewProps {
   packageReleaseId?: string
   filePath: string
-  packageFiles?: Pick<PackageFile, "file_path">[]
+  packageFiles?: Pick<PackageFile, "file_path" | "package_file_id">[]
   onDirectoryClicked?: (directoryPath: string) => void
   onOpenInEditor?: () => void
 }

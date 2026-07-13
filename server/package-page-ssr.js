@@ -288,7 +288,18 @@ const convertCircuitJsonForPreview = (contentText, converter) => {
 const svgDataUrl = (svg) =>
   `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`
 
-const renderFileArtifactPreview = (route, fileArtifacts) => {
+const getPackageFileDownloadUrl = (registryUrl, packageFile) => {
+  if (!packageFile?.package_file_id) return null
+  const baseUrl = String(registryUrl || "https://api.tscircuit.com").replace(
+    /\/$/,
+    "",
+  )
+  return `${baseUrl}/package_files/download?package_file_id=${encodeURIComponent(
+    packageFile.package_file_id,
+  )}`
+}
+
+const renderFileArtifactPreview = (route, fileArtifacts, registryUrl) => {
   if (!fileArtifacts) return ""
 
   const circuitJsonContent = fileArtifacts.circuitJson?.content_text
@@ -296,24 +307,36 @@ const renderFileArtifactPreview = (route, fileArtifacts) => {
     {
       kind: "pcb",
       label: "PCB",
-      svg:
-        fileArtifacts.pcbSvg?.content_text ||
-        convertCircuitJsonForPreview(
-          circuitJsonContent,
-          convertCircuitJsonToPcbSvg,
-        ),
+      src:
+        getPackageFileDownloadUrl(registryUrl, fileArtifacts.pcbSvg) ||
+        (fileArtifacts.pcbSvg?.content_text
+          ? svgDataUrl(fileArtifacts.pcbSvg.content_text)
+          : null) ||
+        (() => {
+          const svg = convertCircuitJsonForPreview(
+            circuitJsonContent,
+            convertCircuitJsonToPcbSvg,
+          )
+          return svg ? svgDataUrl(svg) : null
+        })(),
     },
     {
       kind: "schematic",
       label: "Schematic",
-      svg:
-        fileArtifacts.schematicSvg?.content_text ||
-        convertCircuitJsonForPreview(
-          circuitJsonContent,
-          convertCircuitJsonToSchematicSvg,
-        ),
+      src:
+        getPackageFileDownloadUrl(registryUrl, fileArtifacts.schematicSvg) ||
+        (fileArtifacts.schematicSvg?.content_text
+          ? svgDataUrl(fileArtifacts.schematicSvg.content_text)
+          : null) ||
+        (() => {
+          const svg = convertCircuitJsonForPreview(
+            circuitJsonContent,
+            convertCircuitJsonToSchematicSvg,
+          )
+          return svg ? svgDataUrl(svg) : null
+        })(),
     },
-  ].filter((preview) => preview.svg)
+  ].filter((preview) => preview.src)
 
   if (previews.length === 0) return ""
 
@@ -332,11 +355,11 @@ const renderFileArtifactPreview = (route, fileArtifacts) => {
       (preview, index) =>
         `<details id="ssr-${preview.kind}-preview" name="ssr-circuit-preview"${
           index === 0 ? " open" : ""
-        }><summary>${preview.label}</summary><img src="${svgDataUrl(
-          preview.svg,
-        )}" alt="${escapeHtml(preview.label)} preview for ${escapeHtml(
-          route.filePath,
-        )}"></details>`,
+        }><summary>${preview.label}</summary><img src="${escapeHtml(
+          preview.src,
+        )}" loading="lazy" decoding="async" alt="${escapeHtml(
+          preview.label,
+        )} preview for ${escapeHtml(route.filePath)}"></details>`,
     )
     .join("")}</section>`
 }
@@ -347,6 +370,7 @@ const renderRouteContent = ({
   packageFiles,
   primaryFile,
   fileArtifacts,
+  registryUrl,
   packageReleases,
   packageBuilds,
   packageBuild,
@@ -355,6 +379,7 @@ const renderRouteContent = ({
     return `<section><h2>${escapeHtml(route.filePath)}</h2>${renderFileArtifactPreview(
       route,
       fileArtifacts,
+      registryUrl,
     )}${
       primaryFile?.content_text == null
         ? "<p>A text preview is not available for this file.</p>"
