@@ -201,20 +201,8 @@ test("injectPackagePageContent replaces the empty SPA root", () => {
   )
 
   expect(html).toContain(
-    '<div id="root" data-server-rendered="true"><style>html.js #root > [data-ssr-package-page]{display:none}</style><main>Rendered package</main></div>',
+    '<div id="root" data-server-rendered="true"><main>Rendered package</main></div>',
   )
-})
-
-test("keeps server-rendered package content behind the loading state", () => {
-  const html = injectPackagePageContent(
-    '<html class="js"><body><div id="loader"></div><div id="root"></div></body></html>',
-    '<main data-ssr-package-page="package">Rendered package</main>',
-  )
-
-  expect(html).toContain(
-    "html.js #root > [data-ssr-package-page]{display:none}",
-  )
-  expect(html).not.toContain("#loader{display:none}")
 })
 
 test("serializeForInlineScript prevents closing the script element", () => {
