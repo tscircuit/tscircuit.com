@@ -7,6 +7,7 @@ import { Alert } from "./ui/alert"
 import { Link } from "wouter"
 import { CircuitBoard } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { zIndexMap } from "@/lib/utils/zIndexMap"
 
 interface SearchComponentProps {
   onResultsFetched?: (results: any[]) => void
@@ -185,7 +186,10 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         role="searchbox"
       />
       {isLoading && (
-        <div className="absolute top-full w-lg left-0 right-0 mt-1 bg-white shadow-lg rounded-lg border w-80 grid place-items-center py-4 z-50 p-3">
+        <div
+          style={{ zIndex: zIndexMap.searchDropdown }}
+          className="absolute top-full w-lg left-0 right-0 mt-1 bg-white shadow-lg rounded-lg border w-80 grid place-items-center py-4 p-3"
+        >
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             <span className="text-gray-600 text-sm">Searching...</span>
@@ -196,7 +200,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
       {showResults && searchResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full md:left-0 right-0 no-scrollbar mt-2 bg-white shadow-lg rounded-md z-50 w-80 max-h-screen overflow-y-auto overflow-x-visible"
+          style={{ zIndex: zIndexMap.searchDropdown }}
+          className="absolute top-full md:left-0 right-0 no-scrollbar mt-2 bg-white shadow-lg rounded-md w-80 max-h-screen overflow-y-auto overflow-x-visible"
         >
           {searchResults.length > 0 ? (
             <ul className="divide-y divide-gray-200 no-scrollbar">
