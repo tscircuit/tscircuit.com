@@ -496,7 +496,7 @@ async function handlePackagePage(req, res, route) {
         `The package ${route.packageNameWithScope} could not be found.`,
       ),
       canonicalUrl: `${BASE_URL}${canonicalPath}`,
-      ssrContent: `<style>#loader{display:none}</style><main data-ssr-package-page="not-found"><h1>Package Not Found</h1><p>The package ${he.encode(
+      ssrContent: `<main data-ssr-package-page="not-found"><h1>Package Not Found</h1><p>The package ${he.encode(
         route.packageNameWithScope,
       )} could not be found.</p></main>`,
     })
