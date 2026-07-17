@@ -1,11 +1,13 @@
 import {
   AlertTriangle,
+  Check,
+  Copy,
   Download,
   FileText,
   Loader2,
   Pencil,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { saveAs } from "file-saver"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { useAxios } from "@/hooks/use-axios"
@@ -37,6 +39,8 @@ export default function PackageFileView({
 }: PackageFileViewProps) {
   const axios = useAxios()
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
+  const copyResetTimeoutRef = useRef<number | null>(null)
   const {
     data: file,
     error,
@@ -55,6 +59,36 @@ export default function PackageFileView({
   )
   const pathParts = filePath.split("/").filter(Boolean)
   const fileName = pathParts.at(-1) || filePath
+
+  useEffect(() => {
+    setIsCopied(false)
+
+    return () => {
+      if (copyResetTimeoutRef.current !== null) {
+        window.clearTimeout(copyResetTimeoutRef.current)
+        copyResetTimeoutRef.current = null
+      }
+    }
+  }, [filePath])
+
+  const handleCopy = async () => {
+    if (file?.content_text == null) return
+
+    try {
+      await navigator.clipboard.writeText(file.content_text)
+      setIsCopied(true)
+
+      if (copyResetTimeoutRef.current !== null) {
+        window.clearTimeout(copyResetTimeoutRef.current)
+      }
+      copyResetTimeoutRef.current = window.setTimeout(() => {
+        setIsCopied(false)
+        copyResetTimeoutRef.current = null
+      }, 2000)
+    } catch (error) {
+      console.error(`Failed to copy ${fileName}:`, error)
+    }
+  }
 
   const handleDownload = async () => {
     if (!file?.package_file_id || isDownloading) return
@@ -114,6 +148,22 @@ export default function PackageFileView({
         <FileText className="h-4 w-4 flex-shrink-0 text-gray-500 dark:text-[#8b949e]" />
         {renderBreadcrumbs()}
         <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            aria-label={isCopied ? `${fileName} copied` : `Copy ${fileName}`}
+            title={isCopied ? "Copied!" : "Copy file contents"}
+            disabled={file?.content_text == null}
+            onClick={handleCopy}
+          >
+            {isCopied ? (
+              <Check className="h-3.5 w-3.5 text-green-600" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+          </Button>
           <Button
             type="button"
             variant="outline"
