@@ -30,6 +30,7 @@ import {
   Sidebar,
   Trash2,
   Undo2,
+  PackagePlus,
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { useQueryClient } from "react-query"
@@ -73,6 +74,7 @@ export default function EditorNav({
   isViewingOlderVersion,
   viewingVersion,
   latestVersion,
+  onImportComponent,
 }: {
   pkg?: Package | null
   isPackageFetched?: boolean
@@ -96,6 +98,7 @@ export default function EditorNav({
   isViewingOlderVersion?: boolean
   viewingVersion?: string
   latestVersion?: string | null
+  onImportComponent: () => void
 }) {
   const [location, navigate] = useLocation()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
@@ -476,6 +479,16 @@ export default function EditorNav({
             <Sparkles className="mr-1 h-3 w-3" />
             Edit with AI
           </Button> */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 text-xs"
+            disabled={isViewingOlderVersion}
+            onClick={onImportComponent}
+          >
+            <PackagePlus className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">Import</span>
+          </Button>
           <DownloadButtonAndMenu
             offerMultipleImageFormats
             unscopedName={pkg?.unscoped_name}

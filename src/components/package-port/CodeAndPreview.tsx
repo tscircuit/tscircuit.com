@@ -6,7 +6,7 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
@@ -18,6 +18,7 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
 
 interface Props {
   pkg?: Package
@@ -122,6 +123,28 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
     releaseId: releaseIdForVersion,
+  })
+
+  const filesByPath = useMemo(
+    () =>
+      Object.fromEntries(localFiles.map((file) => [file.path, file.content])),
+    [localFiles],
+  )
+  const handleFileContentChange = useCallback(
+    (path: string, content: string) => {
+      setLocalFiles((previousFiles) =>
+        previousFiles.map((file) =>
+          file.path === path ? { ...file, content } : file,
+        ),
+      )
+    },
+    [setLocalFiles],
+  )
+  const { importComponentDialog, openImportDialog } = useEditorComponentImport({
+    currentFile,
+    files: filesByPath,
+    updateFileContent: handleFileContentChange,
+    createFile,
   })
 
   const hasUnsavedChanges = useMemo(
@@ -254,6 +277,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isViewingOlderVersion={isViewingOlderVersion}
         viewingVersion={versionFromUrl}
         latestVersion={latestVersion}
+        onImportComponent={openImportDialog}
       />
       <div
         className={`flex flex-1 min-h-0 ${
@@ -270,13 +294,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             files={localFiles}
             currentFile={currentFile}
             onFileSelect={onFileSelect}
-            onFileContentChange={(path, content) => {
-              setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === path ? { ...file, content } : file,
-                ),
-              )
-            }}
+            onFileContentChange={handleFileContentChange}
             onCreateFile={(path, content) =>
               createFile({
                 newFileName: path,
@@ -344,6 +362,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
+      {importComponentDialog}
     </div>
   )
 }
