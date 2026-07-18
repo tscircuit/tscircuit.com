@@ -480,9 +480,10 @@ export default function EditorNav({
             Edit with AI
           </Button> */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="px-2 text-xs"
+            aria-label="Import"
             disabled={isViewingOlderVersion}
             onClick={onImportComponent}
           >
