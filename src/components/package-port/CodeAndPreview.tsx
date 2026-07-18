@@ -1,4 +1,4 @@
-import { CodeEditor } from "@/components/package-port/CodeEditor"
+import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -98,7 +98,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     isSaving,
     currentFile,
     fsMap,
-    priorityFileFetched,
     isLoading,
     createFile,
     mainComponentPath,
@@ -172,6 +171,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         return updatedFiles
       })(),
     )
+  }
+
+  const handleFileOperationError = (error: Error) => {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    })
   }
 
   const handleDiscardChanges = () => {
@@ -259,32 +266,40 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             state.showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
-          <CodeEditor
-            isSaving={isSaving}
-            handleCreateFile={createFile}
-            totalFilesCount={totalFilesCount}
-            loadedFilesCount={loadedFilesCount}
-            isFullyLoaded={isFullyLoaded}
-            handleDeleteFile={deleteFile}
-            handleRenameFile={renameFile}
-            isPriorityFileFetched={
-              !priorityFileFetched && Boolean(urlParams.package_id)
-            }
-            pkg={pkg}
+          <WorkspaceCodeEditor
+            files={localFiles}
             currentFile={currentFile}
             onFileSelect={onFileSelect}
-            files={localFiles}
-            onCodeChange={(newCode, filename) => {
-              const targetFilename = filename ?? currentFile
+            onFileContentChange={(path, content) => {
               setLocalFiles((prev) =>
                 prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
+                  file.path === path ? { ...file, content } : file,
                 ),
               )
             }}
-            pkgFilesLoaded={!isLoading}
+            onCreateFile={(path, content) =>
+              createFile({
+                newFileName: path,
+                content,
+                onError: handleFileOperationError,
+              })
+            }
+            onDeleteFile={(path) =>
+              deleteFile({ filename: path, onError: handleFileOperationError })
+            }
+            onRenameFile={(oldPath, newPath) =>
+              renameFile({
+                oldFilename: oldPath,
+                newFilename: newPath,
+                onError: handleFileOperationError,
+              })
+            }
+            isLoadingFiles={isLoading || !isFullyLoaded}
+            loadingProgress={
+              totalFilesCount > 0 && loadedFilesCount < totalFilesCount
+                ? `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                : null
+            }
           />
         </div>
         <div
