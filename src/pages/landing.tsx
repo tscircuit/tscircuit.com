@@ -25,7 +25,7 @@ import autoroutingExampleVideo from "@/assets/autorouting_example.mp4"
 import exampleAiCodingImg from "@/assets/example_ai_coding.png"
 import shareableLinkForCircuitImg from "@/assets/shareable-link-for-circuit.png"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 
 const analogSimulationCode = `export default () => (
     <board schMaxTraceDistance={10} routingDisabled>
@@ -56,6 +56,10 @@ const analogSimulationCode = `export default () => (
 export function LandingPage() {
   const signIn = useSignIn()
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
+
+  useEffect(() => {
+    window.location.href = "/"
+  }, [])
   const { highlighter } = useShikiHighlighter()
   const analogSimulationHtml = useMemo(
     () =>
