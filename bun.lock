@@ -54,7 +54,7 @@
         "@tscircuit/create-snippet-url": "^0.0.14",
         "@tscircuit/eval": "^0.0.1024",
         "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
-        "@tscircuit/internal-dynamic-import": "^0.0.10",
+        "@tscircuit/internal-dynamic-import": "^0.0.13",
         "@tscircuit/layout": "^0.0.29",
         "@tscircuit/math-utils": "^0.0.36",
         "@tscircuit/mm": "^0.0.8",
@@ -800,7 +800,7 @@
 
     "@tscircuit/infgrid-ijump-astar": ["@tscircuit/infgrid-ijump-astar@0.0.35", "", {}, "sha512-PZx3GyD7mDNEhLJn8+7n8NjrieOvrX03g7Gx1cvwXv9mmgSC4M+yTA0WC4DgOvcRdTnarf0R8xvwtDeJ4tMK9Q=="],
 
-    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.10", "", {}, "sha512-GsnHJ2dySAQz2BjW4kA8BsF/M8wVOItQ0Kvm/6ABe1XfaKL/OzPH4m6SBm07bx+hhhp5qRXPbJWNEP150clmvw=="],
+    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.13", "", {}, "sha512-ji4NIF22ehRjR7G2Kv42epv/Uj2mjcYmpMi+L7Rlf2u8h2IaALjnh6vaL+Wy++a+TkDd/Wlo0/W4cpmG0XPmEQ=="],
 
     "@tscircuit/krt-wasm": ["@tscircuit/krt-wasm@0.1.6", "", { "peerDependencies": { "tscircuit": "*" } }, "sha512-XRj8SIgWro1t56TieLhkOtRVsptq3cwzBtdbDEkRB2YiyX4V/r0zneii+c5I8F3D8rJUz4+GswGpPeO4eV8x8w=="],
 
@@ -2583,6 +2583,8 @@
     "tscircuit/@tscircuit/eval": ["@tscircuit/eval@0.0.1016", "", { "peerDependencies": { "@tscircuit/core": "*", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-HzpCqOkkLolEg0eGDBIgIPB0zO2lTYIv6dtQd+ecqWCZ2GWH44ntrEhvLiWWpd0BTqrxFeRYP+l6Rik/9Gbn0A=="],
 
     "tscircuit/@tscircuit/footprinter": ["@tscircuit/footprinter@0.0.371", "", { "dependencies": { "@tscircuit/mm": "^0.0.8", "zod": "^3.23.8" }, "peerDependencies": { "circuit-json": "*" } }, "sha512-noJYnhwF0vx1AcNl8X+Iy0LYWPQ37S6rGAipa7k8yux8VLcrYPtwYQ/lD+E1zZkg+NAtqbkoGELyzLdSqwsANA=="],
+
+    "tscircuit/@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.10", "", {}, "sha512-GsnHJ2dySAQz2BjW4kA8BsF/M8wVOItQ0Kvm/6ABe1XfaKL/OzPH4m6SBm07bx+hhhp5qRXPbJWNEP150clmvw=="],
 
     "tscircuit/@tscircuit/props": ["@tscircuit/props@0.0.578", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-kWSqkYVIm+M3ptJS/EZIK0Aa7TAlswm1R30E2oryjhyJVOVhMXz1J5nxgc03wpdfHaenq2kCaxXUuz7RSJwW1w=="],
 
