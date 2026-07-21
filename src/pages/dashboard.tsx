@@ -10,7 +10,6 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { Link } from "wouter"
 import { PackagesList } from "@/components/PackagesList"
 import { Helmet } from "react-helmet-async"
-import { useSignIn } from "@/hooks/use-sign-in"
 import { useConfirmDeletePackageDialog } from "@/components/dialogs/confirm-delete-package-dialog"
 import { PackageCardSkeleton } from "@/components/PackageCardSkeleton"
 import { PackageCard } from "@/components/PackageCard"
@@ -23,8 +22,6 @@ export const DashboardPage = () => {
 
   const currentUser = useGlobalStore((s) => s.session)
   const isLoggedIn = Boolean(currentUser)
-  const signIn = useSignIn()
-
   const [showAllTrending, setShowAllTrending] = useState(false)
   const [showAllLatest, setShowAllLatest] = useState(false)
   const [packageToDelete, setPackageToDelete] = useState<Package | null>(null)
@@ -114,9 +111,9 @@ export const DashboardPage = () => {
                 <p className="text-gray-600 mb-6 text-center max-w-md text-sm sm:text-base">
                   Log in to access your dashboard and manage your packages.
                 </p>
-                <Button onClick={() => signIn()} variant="default">
-                  Log In
-                </Button>
+                <Link href="/login">
+                  <Button variant="default">Log In</Button>
+                </Link>
               </div>
             ) : (
               <>
