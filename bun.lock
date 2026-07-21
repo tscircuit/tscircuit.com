@@ -62,7 +62,7 @@
         "@tscircuit/pcb-viewer": "1.11.374",
         "@tscircuit/prompt-benchmarks": "^0.0.28",
         "@tscircuit/props": "^0.0.567",
-        "@tscircuit/runframe": "^0.0.2234",
+        "@tscircuit/runframe": "^0.0.2235",
         "@tscircuit/schematic-viewer": "^2.0.74",
         "@types/babel__standalone": "^7.1.7",
         "@types/bun": "^1.1.10",
@@ -828,7 +828,7 @@
 
     "@tscircuit/props": ["@tscircuit/props@0.0.567", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-hLv68p3Q9val+amaYY2DDvkeLQ+ukvYF63ZrieIAIRI73NFLC77oUsj1MWA46dC/0JeeU4qpdc7jHKF9XdV9qw=="],
 
-    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.2234", "", { "dependencies": { "@tscircuit/eval": "^0.0.1026", "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-Fr8oqIpI4Y/Pr8EB+ohThIXQCx2e9ew+KEYzr61xs7QkPkjJLJeqxKdg/OuoPm4KJ/odmhUjTXUeAtaLY9+fuQ=="],
+    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.2235", "", { "dependencies": { "@tscircuit/eval": "^0.0.1026", "@tscircuit/solver-utils": "^0.0.7" } }, "sha512-63yDqhxPfNwky1scu8j1pMexwX6R4DVWNXVQr95ELcT7X2qWzxGpMUmIiKC+QEgEUdJoXB39lbO6fkx3urx5mQ=="],
 
     "@tscircuit/schematic-autolayout": ["@tscircuit/schematic-autolayout@0.0.6", "", { "dependencies": { "@tscircuit/soup-util": "^0.0.38", "transformation-matrix": "^2.16.1" } }, "sha512-34cQxtlSylBKyHkzaMBCynaWJgN9c/mWm7cz63StTYIafKmfFs383K8Xoc4QX8HXCvVrHYl1aK15onZua9MxeA=="],
 
