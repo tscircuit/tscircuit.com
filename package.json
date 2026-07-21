@@ -41,6 +41,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "format-si-unit": "^0.0.7",
     "@anthropic-ai/sdk": "^0.27.3",
     "@babel/preset-react": "^7.25.9",
     "@babel/preset-typescript": "^7.26.0",
@@ -97,7 +98,7 @@
     "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#55a2839",
     "@tscircuit/pcb-viewer": "1.11.374",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
-    "@tscircuit/props": "^0.0.567",
+    "@tscircuit/props": "^0.0.585",
     "@tscircuit/runframe": "^0.0.2237",
     "@tscircuit/schematic-viewer": "^2.0.74",
     "@types/babel__standalone": "^7.1.7",
@@ -195,5 +196,11 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
+  },
+  "overrides": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "@tscircuit/alphabet": "^0.0.25",
+    "@tscircuit/props": "^0.0.585"
   }
 }
