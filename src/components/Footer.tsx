@@ -25,7 +25,7 @@ export default function Footer() {
                 { name: "Home", href: "/" },
                 { name: "Dashboard", href: "/dashboard" },
                 { name: "Editor", href: "/editor" },
-                { name: "Sign In", href: "/login" },
+                { name: "Sign In", href: "/login", hidden: isLoggedIn },
                 {
                   name: "My Profile",
                   href: `/${session?.tscircuit_handle}`,
