@@ -88,11 +88,7 @@ export const ViewPackagePage = ({
     packageRelease,
     error: packageReleaseError,
     isLoading: isLoadingPackageRelease,
-  } = useCurrentPackageRelease({
-    include_ai_review: true,
-    refetchInterval: (data) =>
-      data?.ai_review_requested && !data.ai_review_text ? 2000 : false,
-  })
+  } = useCurrentPackageRelease()
 
   const {
     data: packageFiles,

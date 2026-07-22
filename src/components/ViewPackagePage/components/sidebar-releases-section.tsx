@@ -19,9 +19,7 @@ import { usePackageDomains } from "@/hooks/use-package-domains"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
-  const { packageRelease } = useCurrentPackageRelease({
-    include_ai_review: true,
-  })
+  const { packageRelease } = useCurrentPackageRelease()
   const { data: latestBuild } = usePackageBuild(
     packageRelease?.latest_package_build_id ?? null,
   )
