@@ -41,9 +41,7 @@ export default function SidebarAboutSection({
   onLicenseClick,
 }: SidebarAboutSectionProps = {}) {
   const { packageInfo } = useCurrentPackageInfo()
-  const { packageRelease } = useCurrentPackageRelease({
-    include_ai_review: true,
-  })
+  const { packageRelease } = useCurrentPackageRelease()
   const [, navigate] = useLocation()
 
   const { organization } = useOrganization(
