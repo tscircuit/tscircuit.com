@@ -255,21 +255,6 @@ export const SingleBuildLogs = ({
                   (packageBuild.user_code_job_log_stream_url &&
                     !userCodeJobInProgress)) && (
                   <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-gray-200">
-                    {logsForDownload.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          downloadBuildLogs(
-                            logsForDownload,
-                            packageBuild.package_build_id,
-                          )
-                        }
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
-                      >
-                        Download logs
-                        <Download className="w-3 h-3" />
-                      </button>
-                    )}
                     {packageBuild.user_code_job_log_stream_url &&
                       !userCodeJobInProgress && (
                         <a
@@ -282,6 +267,21 @@ export const SingleBuildLogs = ({
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
+                    {logsForDownload.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadBuildLogs(
+                            logsForDownload,
+                            packageBuild.package_build_id,
+                          )
+                        }
+                        className="ml-auto inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
+                      >
+                        Download logs
+                        <Download className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
