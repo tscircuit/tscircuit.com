@@ -153,9 +153,10 @@ export function DownloadButtonAndMenu({
     return (
       <div className={className}>
         <Button
+          variant="outline"
           disabled
           size="sm"
-          className="shadow-none bg-muted text-muted-foreground border border-input cursor-not-allowed"
+          className="bg-muted text-muted-foreground cursor-not-allowed"
         >
           <Download className="h-4 w-4 mr-2" />
           Download
@@ -169,10 +170,7 @@ export function DownloadButtonAndMenu({
     <div className={className}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            size="sm"
-            className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
-          >
+          <Button variant="outline" size="sm" className="px-1 pl-2 select-none">
             <Download className="w-4 h-4 mr-2" />
             Download
             <ChevronDown className="w-4 h-4 ml-1" />

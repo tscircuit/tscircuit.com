@@ -1,4 +1,4 @@
-import { CodeEditor } from "@/components/package-port/CodeEditor"
+import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -6,7 +6,7 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
@@ -18,6 +18,7 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
 
 interface Props {
   pkg?: Package
@@ -98,7 +99,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     isSaving,
     currentFile,
     fsMap,
-    priorityFileFetched,
     isLoading,
     createFile,
     mainComponentPath,
@@ -123,6 +123,28 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
     releaseId: releaseIdForVersion,
+  })
+
+  const filesByPath = useMemo(
+    () =>
+      Object.fromEntries(localFiles.map((file) => [file.path, file.content])),
+    [localFiles],
+  )
+  const handleFileContentChange = useCallback(
+    (path: string, content: string) => {
+      setLocalFiles((previousFiles) =>
+        previousFiles.map((file) =>
+          file.path === path ? { ...file, content } : file,
+        ),
+      )
+    },
+    [setLocalFiles],
+  )
+  const { importComponentDialog, openImportDialog } = useEditorComponentImport({
+    currentFile,
+    files: filesByPath,
+    updateFileContent: handleFileContentChange,
+    createFile,
   })
 
   const hasUnsavedChanges = useMemo(
@@ -172,6 +194,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         return updatedFiles
       })(),
     )
+  }
+
+  const handleFileOperationError = (error: Error) => {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
+    })
   }
 
   const handleDiscardChanges = () => {
@@ -247,6 +277,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isViewingOlderVersion={isViewingOlderVersion}
         viewingVersion={versionFromUrl}
         latestVersion={latestVersion}
+        onImportComponent={openImportDialog}
       />
       <div
         className={`flex flex-1 min-h-0 ${
@@ -259,32 +290,34 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             state.showPreview ? "w-full md:w-1/2" : "w-full flex",
           )}
         >
-          <CodeEditor
-            isSaving={isSaving}
-            handleCreateFile={createFile}
-            totalFilesCount={totalFilesCount}
-            loadedFilesCount={loadedFilesCount}
-            isFullyLoaded={isFullyLoaded}
-            handleDeleteFile={deleteFile}
-            handleRenameFile={renameFile}
-            isPriorityFileFetched={
-              !priorityFileFetched && Boolean(urlParams.package_id)
-            }
-            pkg={pkg}
+          <WorkspaceCodeEditor
+            files={localFiles}
             currentFile={currentFile}
             onFileSelect={onFileSelect}
-            files={localFiles}
-            onCodeChange={(newCode, filename) => {
-              const targetFilename = filename ?? currentFile
-              setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
-                ),
-              )
-            }}
-            pkgFilesLoaded={!isLoading}
+            onFileContentChange={handleFileContentChange}
+            onCreateFile={(path, content) =>
+              createFile({
+                newFileName: path,
+                content,
+                onError: handleFileOperationError,
+              })
+            }
+            onDeleteFile={(path) =>
+              deleteFile({ filename: path, onError: handleFileOperationError })
+            }
+            onRenameFile={(oldPath, newPath) =>
+              renameFile({
+                oldFilename: oldPath,
+                newFilename: newPath,
+                onError: handleFileOperationError,
+              })
+            }
+            isLoadingFiles={isLoading || !isFullyLoaded}
+            loadingProgress={
+              totalFilesCount > 0 && loadedFilesCount < totalFilesCount
+                ? `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                : null
+            }
           />
         </div>
         <div
@@ -329,6 +362,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
+      {importComponentDialog}
     </div>
   )
 }
