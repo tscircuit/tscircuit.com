@@ -88,7 +88,7 @@
     "@tscircuit/3d-viewer": "^0.0.577",
     "@tscircuit/assembly-viewer": "^0.0.5",
     "@tscircuit/create-snippet-url": "^0.0.14",
-    "@tscircuit/eval": "^0.0.1045",
+    "@tscircuit/eval": "^0.0.1046",
     "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
     "@tscircuit/internal-dynamic-import": "^0.0.13",
     "@tscircuit/layout": "^0.0.29",
