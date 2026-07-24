@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -33,15 +33,22 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useLogout } from "@/hooks/use-logout"
 import { useConfirmDeleteAccountDialog } from "@/components/dialogs/confirm-delete-account-dialog"
 import { cn } from "@/lib/utils"
+import { normalizeName } from "@/lib/utils/normalizeName"
+
+const normalizeTscircuitHandle = (handle: string) =>
+  normalizeName(handle).toLowerCase()
 
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
     .string()
     .min(1, "Handle is required")
-    .max(40, "Handle must be 40 characters or less")
-    .regex(
-      /^[0-9A-Za-z_-]+$/,
-      "Handle may only contain letters, numbers, underscores, and hyphens",
+    .refine(
+      (handle) => normalizeTscircuitHandle(handle).length > 0,
+      "Handle is required",
+    )
+    .refine(
+      (handle) => normalizeTscircuitHandle(handle).length <= 40,
+      "Handle must be 40 characters or less after normalization",
     ),
 })
 
@@ -135,6 +142,11 @@ export default function UserSettingsPage() {
     },
   )
   const account = accountResponse?.account
+  const handleValue = form.watch("tscircuit_handle")
+  const normalizedHandle = useMemo(() => {
+    if (!handleValue.trim()) return ""
+    return normalizeTscircuitHandle(handleValue)
+  }, [handleValue])
 
   const { organization: personalOrg, refetch: refetchPersonalOrg } =
     useOrganization({
@@ -277,7 +289,7 @@ export default function UserSettingsPage() {
 
   const onSubmit = (data: AccountSettingsFormData) => {
     updateAccountMutation.mutate({
-      tscircuit_handle: data.tscircuit_handle,
+      tscircuit_handle: normalizeTscircuitHandle(data.tscircuit_handle),
     })
   }
 
@@ -393,7 +405,8 @@ export default function UserSettingsPage() {
                         onClick={form.handleSubmit(onSubmit)}
                         disabled={
                           updateAccountMutation.isLoading ||
-                          !form.formState.isDirty
+                          !form.formState.isDirty ||
+                          !normalizedHandle
                         }
                       >
                         {updateAccountMutation.isLoading && (
@@ -427,6 +440,13 @@ export default function UserSettingsPage() {
                             />
                           </FormControl>
                           <FormMessage className="mt-2" />
+                          {field.value.trim() &&
+                            normalizedHandle !== field.value.trim() &&
+                            normalizedHandle && (
+                              <p className="text-xs text-gray-500 mt-2">
+                                Will be normalized to: {normalizedHandle}
+                              </p>
+                            )}
                           {!account?.tscircuit_handle && (
                             <p className="text-xs text-blue-600 mt-1.5">
                               A handle is required to use your account.
