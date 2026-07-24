@@ -8,16 +8,12 @@ import {
   Loader2,
   RefreshCcwIcon,
   SparklesIcon,
-  BookOpen,
-  Braces,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { ShikiCodeViewer, SKELETON_WIDTHS } from "./ShikiCodeViewer"
 import MarkdownViewer from "./markdown-viewer"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
 import { useOrganization } from "@/hooks/use-organization"
 import { Package } from "fake-snippets-api/lib/db/schema"
 import { getFileIcon } from "@/lib/utils/getFileIcon"
@@ -34,15 +30,12 @@ interface ImportantFilesViewProps {
   importantFiles?: PackageFile[]
   isFetched?: boolean
   onEditClicked?: (file_path?: string | null) => void
-  aiReviewText?: string | null
-  aiReviewRequested?: boolean
-  onRequestAiReview?: () => void
   onRequestAiDescriptionUpdate?: () => void
   onLicenseFileRequested?: boolean
   pkg?: Package
 }
 
-type TabType = "ai" | "ai-review" | "file"
+type TabType = "ai" | "file"
 
 interface TabInfo {
   type: TabType
@@ -53,9 +46,6 @@ interface TabInfo {
 
 export default function ImportantFilesView({
   importantFiles = [],
-  aiReviewText,
-  aiReviewRequested,
-  onRequestAiReview,
   onRequestAiDescriptionUpdate,
   isFetched = false,
   onEditClicked,
@@ -77,7 +67,6 @@ export default function ImportantFilesView({
   const hasAiContent = Boolean(
     pkg?.ai_description || pkg?.ai_usage_instructions,
   )
-  const hasAiReview = Boolean(aiReviewText)
   const isOwner = user?.github_username === pkg?.owner_github_username
   const canManagePackage =
     isOwner || Boolean(organization?.user_permissions?.can_manage_org)
@@ -135,16 +124,6 @@ export default function ImportantFilesView({
       })
     }
 
-    // Only show AI review tab if there's actual AI review content
-    if (hasAiReview || canManagePackage) {
-      tabs.push({
-        type: "ai-review",
-        filePath: null,
-        label: "AI Review",
-        icon: <SparklesIcon className="h-3.5 w-3.5 mr-1.5" />,
-      })
-    }
-
     const filteredFiles = importantFiles.filter((file) => {
       const lowerPath = file.file_path.toLowerCase()
       const isSubdirReadme =
@@ -168,7 +147,7 @@ export default function ImportantFilesView({
     })
 
     return tabs
-  }, [hasAiContent, hasAiReview, importantFiles, getFileName])
+  }, [hasAiContent, importantFiles, getFileName])
 
   // Find default tab with fallback logic
   const getDefaultTab = useCallback((): TabInfo | null => {
@@ -185,13 +164,7 @@ export default function ImportantFilesView({
     const aiTab = availableTabs.find((tab) => tab.type === "ai" && hasAiContent)
     if (aiTab) return aiTab
 
-    // Priority 3: AI review
-    const aiReviewTab = availableTabs.find(
-      (tab) => tab.type === "ai-review" && hasAiReview,
-    )
-    if (aiReviewTab) return aiReviewTab
-
-    // Priority 4: First file
+    // Priority 3: First file
     const firstFileTab = availableTabs.find((tab) => tab.type === "file")
     if (firstFileTab) return firstFileTab
 
@@ -264,8 +237,6 @@ export default function ImportantFilesView({
     }
   }, [activeTab, importantFiles, getDefaultTab])
 
-  const { circuitJson } = useCurrentPackageCircuitJson()
-
   // Get active file content
   const partialActiveFile = useMemo(() => {
     if (activeTab?.type !== "file" || !activeTab.filePath) return null
@@ -294,9 +265,7 @@ export default function ImportantFilesView({
   const handleCopy = useCallback(() => {
     let textToCopy = ""
 
-    if (activeTab?.type === "ai-review" && aiReviewText) {
-      textToCopy = aiReviewText
-    } else if (
+    if (
       activeTab?.type === "ai" &&
       (pkg?.ai_description || pkg?.ai_usage_instructions)
     ) {
@@ -317,7 +286,6 @@ export default function ImportantFilesView({
     }
   }, [
     activeTab?.type,
-    aiReviewText,
     pkg?.ai_description,
     pkg?.ai_usage_instructions,
     activeFileContent,
@@ -361,74 +329,7 @@ export default function ImportantFilesView({
         )}
       </div>
     )
-  }, [
-    pkg?.ai_description,
-    pkg?.ai_usage_instructions,
-    canManagePackage,
-    onRequestAiDescriptionUpdate,
-  ])
-
-  const renderAiReviewContent = useCallback(() => {
-    if (!aiReviewText && !aiReviewRequested) {
-      return (
-        <div className="flex flex-col items-center justify-center py-8 px-4">
-          <div className="text-center space-y-4 max-w-md">
-            <div className="flex justify-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <SparklesIcon className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600">
-                Get detailed feedback and suggestions for improving your package
-                from our AI assistant.
-              </p>
-            </div>
-            {!canManagePackage ? (
-              <p className="text-sm text-gray-500">
-                Only the package owner can generate an AI review
-              </p>
-            ) : !Boolean(circuitJson) ? (
-              <p className="text-sm text-gray-500">
-                Circuit JSON is required for AI review.
-              </p>
-            ) : (
-              <Button
-                onClick={onRequestAiReview}
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200 hover:shadow-md"
-              >
-                <SparklesIcon className="h-4 w-4 mr-2" />
-                Request AI Review
-              </Button>
-            )}
-          </div>
-        </div>
-      )
-    }
-
-    if (!aiReviewText && aiReviewRequested) {
-      return (
-        <div className="flex flex-col items-center justify-center py-8 px-4">
-          <div className="text-center space-y-4 max-w-md">
-            <div className="flex justify-center">
-              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                <Loader2 className="h-6 w-6 text-gray-600 animate-spin" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600">
-                Our AI is analyzing your package. This usually takes a few
-                minutes. Please check back shortly.
-              </p>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
-    return <MarkdownViewer markdownContent={aiReviewText || ""} />
-  }, [aiReviewText, aiReviewRequested, canManagePackage, onRequestAiReview])
+  }, [pkg?.ai_description, pkg?.ai_usage_instructions])
 
   const renderFileContent = useCallback(() => {
     if (!isActiveFileFetched || !activeTab?.filePath || !activeFileContent) {
@@ -471,14 +372,12 @@ export default function ImportantFilesView({
     switch (activeTab.type) {
       case "ai":
         return renderAiContent()
-      case "ai-review":
-        return renderAiReviewContent()
       case "file":
         return renderFileContent()
       default:
         return null
     }
-  }, [activeTab, renderAiContent, renderAiReviewContent, renderFileContent])
+  }, [activeTab, renderAiContent, renderFileContent])
 
   // Tab styling helper
   const getTabClassName = useCallback(
@@ -522,7 +421,7 @@ export default function ImportantFilesView({
     )
   }
 
-  if (importantFiles.length === 0 && !hasAiContent && !hasAiReview) {
+  if (importantFiles.length === 0 && !hasAiContent) {
     return (
       <div className="mt-4 border border-gray-200 dark:border-[#30363d] rounded-md overflow-hidden">
         <div className="flex items-center pl-2 pr-4 py-2 bg-gray-100 dark:bg-[#161b22] border-b border-gray-200 dark:border-[#30363d]">
@@ -558,7 +457,6 @@ export default function ImportantFilesView({
         </div>
         <div className="ml-auto flex items-center">
           {(activeTab?.type === "file" && activeFileContent) ||
-          (activeTab?.type === "ai-review" && aiReviewText) ||
           (activeTab?.type === "ai" &&
             (pkg?.ai_description || pkg?.ai_usage_instructions)) ? (
             <button
@@ -571,18 +469,6 @@ export default function ImportantFilesView({
                 <CopyCheck className="h-4 w-4" />
               )}
               <span className="sr-only">Copy</span>
-            </button>
-          ) : null}
-          {activeTab?.type === "ai-review" &&
-          aiReviewText &&
-          canManagePackage ? (
-            <button
-              className="hover:bg-gray-200 dark:hover:bg-[#30363d] p-1 rounded-md ml-1"
-              onClick={onRequestAiReview}
-              title="Re-request AI Review"
-            >
-              <RefreshCcwIcon className="h-4 w-4" />
-              <span className="sr-only">Re-request AI Review</span>
             </button>
           ) : null}
           {activeTab?.type === "ai" && hasAiContent && canManagePackage ? (

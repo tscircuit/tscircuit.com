@@ -4,6 +4,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { StreamedLogEntry, useSSELogStream } from "@/hooks/use-sse-log-stream"
+import { downloadBuildLogs } from "@/lib/download-fns/download-build-logs"
 import { getStepDuration } from "@/lib/utils/getStepDuration"
 import {
   PackageBuild,
@@ -12,6 +13,7 @@ import {
 import {
   ChevronRight,
   Clock,
+  Download,
   ExternalLink,
   Loader2,
   PackageOpen,
@@ -96,6 +98,9 @@ export const ReleaseBuildLogs = ({
   const shouldShowCompletedLogs = completedLogs.length > 0
   const shouldShowStreamedLogs =
     usercodeStreamedLogs.length > 0 && !shouldShowCompletedLogs
+  const logsForDownload = shouldShowCompletedLogs
+    ? completedLogs
+    : usercodeStreamedLogs
 
   // Gracefully handle when there is no build yet
   if (isLoadingBuild) {
@@ -262,20 +267,39 @@ export const ReleaseBuildLogs = ({
                   !userCodeJobInProgress && (
                     <div className="text-gray-500">No logs available</div>
                   )}
-                {packageBuild.user_code_job_log_stream_url &&
-                  !userCodeJobInProgress && (
-                    <div className="mt-4 pt-3 border-t border-gray-200">
-                      <a
-                        href={packageBuild.user_code_job_log_stream_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
+                {(logsForDownload.length > 0 ||
+                  (packageBuild.user_code_job_log_stream_url &&
+                    !userCodeJobInProgress)) && (
+                  <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-gray-200">
+                    {packageBuild.user_code_job_log_stream_url &&
+                      !userCodeJobInProgress && (
+                        <a
+                          href={packageBuild.user_code_job_log_stream_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
+                        >
+                          View raw log stream
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    {logsForDownload.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadBuildLogs(
+                            logsForDownload,
+                            packageBuild.package_build_id,
+                          )
+                        }
+                        className="ml-auto inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs"
                       >
-                        View raw log stream
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  )}
+                        Download logs
+                        <Download className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CollapsibleContent>
