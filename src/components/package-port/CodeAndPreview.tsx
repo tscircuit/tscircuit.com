@@ -256,7 +256,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         <div
           className={cn(
             "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            state.showPreview ? "w-full md:w-1/2" : "w-full flex",
+            state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
           )}
         >
           <CodeEditor
@@ -289,7 +289,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         </div>
         <div
           className={cn(
-            "flex min-h-0 p-0 flex-col overflow-y-hidden",
+            "flex flex-1 min-h-0 p-0 flex-col overflow-y-hidden",
             state.fullScreen
               ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
               : "w-full md:w-1/2",
