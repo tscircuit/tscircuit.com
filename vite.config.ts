@@ -97,7 +97,40 @@ function vercelSsrDevPlugin(): Plugin {
         const accept = req.headers.accept || ""
 
         if (url === "/" || url === "/landing.html") {
-          return next()
+          try {
+            const response = await fetch(
+              "https://tscircuit-com-landing.vercel.app/index.html",
+            )
+            const html = await response.text()
+            res.setHeader("Content-Type", "text/html")
+            res.end(html)
+            return
+          } catch (e) {
+            console.error("Failed to fetch landing page from Vercel:", e)
+            return next()
+          }
+        }
+
+        if (url.startsWith("/assets/")) {
+          const localPath = path.join(__dirname, "public", url)
+          const fs = await import("fs")
+          if (!fs.existsSync(localPath)) {
+            try {
+              const targetUrl = `https://tscircuit-com-landing.vercel.app${url}`
+              const response = await fetch(targetUrl)
+              if (response.ok) {
+                const contentType = response.headers.get("content-type")
+                if (contentType) {
+                  res.setHeader("Content-Type", contentType)
+                }
+                const arrayBuffer = await response.arrayBuffer()
+                res.end(Buffer.from(arrayBuffer))
+                return
+              }
+            } catch (e) {
+              console.warn("Failed to proxy asset:", e)
+            }
+          }
         }
 
         if (url.startsWith("/api/")) {

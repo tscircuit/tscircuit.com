@@ -43,7 +43,7 @@ export const HeaderLogin = () => {
     } finally {
       setSession(null)
       setIsOpen(false)
-      setLocation("/")
+      window.location.href = "/"
     }
   }
 
