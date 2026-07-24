@@ -26,10 +26,7 @@ import type {
   PackageFile as ApiPackageFile,
   PublicPackageRelease,
 } from "fake-snippets-api/lib/db/schema"
-import { useRequestAiReviewMutation } from "@/hooks/use-request-ai-review-mutation"
 import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
-import { useAiReview } from "@/hooks/use-ai-review"
-import { useQueryClient } from "react-query"
 import SidebarReleasesSection from "./sidebar-releases-section"
 
 interface PackageFile extends ApiPackageFile {
@@ -89,21 +86,8 @@ export default function RepoPageContent({
   onFileBrowserViewChange,
 }: RepoPageContentProps) {
   const [activeView, setActiveView] = useState<string>("files")
-  const [pendingAiReviewId, setPendingAiReviewId] = useState<string | null>(
-    null,
-  )
   const [licenseFileRequested, setLicenseFileRequested] =
     useState<boolean>(false)
-  const queryClient = useQueryClient()
-  const { data: aiReview } = useAiReview(pendingAiReviewId, {
-    refetchInterval: (data) => (data && !data.ai_review_text ? 2000 : false),
-  })
-  useEffect(() => {
-    if (aiReview?.ai_review_text) {
-      queryClient.invalidateQueries(["packageRelease"])
-      setPendingAiReviewId(null)
-    }
-  }, [aiReview?.ai_review_text, queryClient])
   const session = useGlobalStore((s) => s.session)
 
   useHotkeyCombo(
@@ -115,20 +99,7 @@ export default function RepoPageContent({
     useCurrentPackageCircuitJson()
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
 
-  const { mutate: requestAiReview, isLoading: isRequestingAiReview } =
-    useRequestAiReviewMutation({
-      onSuccess: (_packageRelease, aiReview) => {
-        setPendingAiReviewId(aiReview.ai_review_id)
-      },
-    })
-
-  const { mutate: updateAiDescription, isLoading: isUpdatingAiDescription } =
-    useUpdateAiDescriptionMutation()
-
-  const aiReviewRequested =
-    Boolean(packageRelease?.ai_review_requested) ||
-    Boolean(pendingAiReviewId) ||
-    isRequestingAiReview
+  const { mutate: updateAiDescription } = useUpdateAiDescriptionMutation()
 
   const handleLicenseFileRequest = () => {
     setLicenseFileRequested(true)
@@ -308,15 +279,6 @@ export default function RepoPageContent({
                 isFetched={arePackageFilesFetched}
                 pkg={packageInfo}
                 onEditClicked={onEditClicked}
-                aiReviewText={packageRelease?.ai_review_text ?? null}
-                aiReviewRequested={aiReviewRequested}
-                onRequestAiReview={() => {
-                  if (packageRelease) {
-                    requestAiReview({
-                      package_release_id: packageRelease.package_release_id,
-                    })
-                  }
-                }}
                 onRequestAiDescriptionUpdate={() => {
                   if (packageInfo) {
                     updateAiDescription({
