@@ -1,10 +1,11 @@
-import axios from "redaxios"
+import { getAuthenticationErrorCopy } from "@/lib/auth/authentication-error-copy"
+import { getLoginPath } from "@/lib/utils/handle-redirect"
 import { useMemo } from "react"
+import axios from "redaxios"
+import { useLocation } from "wouter"
 import { useGlobalStore } from "./use-global-store"
 import { useApiBaseUrl } from "./use-packages-base-api-url"
 import { ToastContent, useToast } from "./use-toast"
-import { useLocation } from "wouter"
-import { getLoginPath } from "@/lib/utils/handle-redirect"
 
 export const useAxios = () => {
   const snippetsBaseApiUrl = useApiBaseUrl()
@@ -36,9 +37,8 @@ export const useAxios = () => {
       const errorCode =
         error?.data?.error_code || error?.data?.error?.error_code
       if (status === 401) {
-        const isSessionInvalid =
-          errorCode === "session_not_found" || errorCode === "session_expired"
-        if (isSessionInvalid) {
+        const authErrorCopy = getAuthenticationErrorCopy(errorCode)
+        if (authErrorCopy.shouldClearSession) {
           setSession(null)
         }
         toastLibrary.custom(
@@ -50,12 +50,8 @@ export const useAxios = () => {
               className="cursor-pointer"
             >
               <ToastContent
-                title={isSessionInvalid ? "Session Expired" : "Unauthorized"}
-                description={
-                  isSessionInvalid
-                    ? "Your session has expired. Click here to sign in again"
-                    : "You may need to sign in. Click here to sign in again"
-                }
+                title={authErrorCopy.title}
+                description={authErrorCopy.description}
                 variant={"destructive"}
                 t={t}
               />
