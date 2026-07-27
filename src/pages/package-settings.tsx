@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams, useLocation, Redirect, Link } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { useMutation, useQueryClient } from "react-query"
@@ -49,8 +49,11 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PackageDomainsList } from "@/components/package-settings/PackageDomainsList"
+import { useSettingsSection } from "@/hooks/use-settings-section"
 
 type SettingsSection = "general" | "domains" | "github" | "danger"
+
+const settingsSections = ["general", "domains", "github", "danger"] as const
 
 const navItems: { id: SettingsSection; label: string }[] = [
   { id: "general", label: "General" },
@@ -130,7 +133,10 @@ export default function PackageSettingsPage() {
   const qc = useQueryClient()
   const session = useGlobalStore((s) => s.session)
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useSettingsSection(
+    settingsSections,
+    "general",
+  )
 
   const {
     packageInfo,

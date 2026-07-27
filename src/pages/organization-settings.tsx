@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -60,6 +60,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 import { cn } from "@/lib/utils"
 import { OrgDomainsList } from "@/components/org-settings/OrgDomainsList"
+import { useSettingsSection } from "@/hooks/use-settings-section"
 
 const organizationSettingsSchema = z.object({
   tscircuit_handle: z
@@ -77,6 +78,14 @@ const organizationSettingsSchema = z.object({
 type OrganizationSettingsFormData = z.infer<typeof organizationSettingsSchema>
 
 type SettingsSection = "general" | "members" | "domains" | "github" | "danger"
+
+const settingsSections = [
+  "general",
+  "members",
+  "domains",
+  "github",
+  "danger",
+] as const
 
 const navItems: { id: SettingsSection; label: string }[] = [
   { id: "general", label: "General" },
@@ -140,7 +149,10 @@ export default function OrganizationSettingsPage() {
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useSettingsSection(
+    settingsSections,
+    "general",
+  )
 
   const {
     organization,
