@@ -321,7 +321,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                     : "Sign In Required",
                   description: hadSessionToken
                     ? "Your session has expired. Please sign in again."
-                    : "Please sign in to continue.",
+                    : "Please sign in to fetch component data, then run again.",
                   variant: "destructive",
                   duration: 10_000,
                 })

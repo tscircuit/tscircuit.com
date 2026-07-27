@@ -31,9 +31,9 @@ test("asks a logged-out user to sign in when the proxy returns 401", async ({
   await expect(page.getByText("Sign In Required")).toBeVisible({
     timeout: 15_000,
   })
-  await expect(page.getByText("Please sign in to continue.")).toBeVisible({
-    timeout: 15_000,
-  })
+  await expect(
+    page.getByText("Please sign in to fetch component data, then run again."),
+  ).toBeVisible({ timeout: 15_000 })
 })
 
 test("reports an expired session when a token is rejected by the proxy", async ({
