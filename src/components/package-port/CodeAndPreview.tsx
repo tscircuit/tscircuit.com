@@ -18,6 +18,7 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { hasUnauthorizedSourcePartWarning } from "@/lib/has-unauthorized-source-part-warning"
 
 interface Props {
   pkg?: Package
@@ -43,6 +44,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const setSession = useGlobalStore((s) => s.setSession)
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
@@ -309,6 +311,21 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }
             onRenderFinished={({ circuitJson }) => {
+              if (hasUnauthorizedSourcePartWarning(circuitJson)) {
+                const hadSessionToken = Boolean(sessionToken)
+                if (hadSessionToken) setSession(null)
+                toast({
+                  id: "auth-401",
+                  title: hadSessionToken
+                    ? "Session Expired"
+                    : "Sign In Required",
+                  description: hadSessionToken
+                    ? "Your session has expired. Please sign in again."
+                    : "Please sign in to continue.",
+                  variant: "destructive",
+                  duration: 10_000,
+                })
+              }
               setState((prev) => ({ ...prev, circuitJson }))
               toastManualEditConflicts(circuitJson, toast)
             }}
