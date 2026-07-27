@@ -222,7 +222,7 @@ const MobileSidebar = ({
           <>
             {canManageOrg && packageInfo && (
               <Link
-                href={`/${packageInfo.name}/settings`}
+                href={`/${packageInfo.name}/settings?tab=github`}
                 className="flex items-center hover:underline hover:underline-offset-2 cursor-pointer hover:decoration-gray-500"
                 title="Connect GitHub"
               >
