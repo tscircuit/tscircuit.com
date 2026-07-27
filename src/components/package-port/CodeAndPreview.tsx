@@ -18,7 +18,8 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { hasUnauthorizedSourcePartWarning } from "@/lib/has-unauthorized-source-part-warning"
+import { getEasyEdaProxyAuthErrorCode } from "@/lib/get-easyeda-proxy-auth-error-code"
+import { isTscircuitSessionJwtExpired } from "@/lib/auth/session"
 
 interface Props {
   pkg?: Package
@@ -191,6 +192,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const isMouseOverRunFrame = useRef(false)
   const runFrameContainerRef = useRef<HTMLDivElement>(null)
+  const sessionTokenAtRenderStartRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     const isTextEntryElement = (element: Element | null) => {
@@ -306,20 +308,40 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             showRunButton
             forceLatestEvalVersion
             isLoadingFiles={isLoading || !isFullyLoaded}
-            onRenderStarted={() =>
+            onRenderStarted={() => {
+              sessionTokenAtRenderStartRef.current = sessionToken
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }
+            }}
             onRenderFinished={({ circuitJson }) => {
-              if (hasUnauthorizedSourcePartWarning(circuitJson)) {
-                const hadSessionToken = Boolean(sessionToken)
+              const proxyAuthErrorCode =
+                getEasyEdaProxyAuthErrorCode(circuitJson)
+
+              if (proxyAuthErrorCode) {
+                const tokenUsedForRender = sessionTokenAtRenderStartRef.current
+                const isExpiredSession =
+                  proxyAuthErrorCode === "session_expired" ||
+                  (proxyAuthErrorCode === "invalid_token" &&
+                    tokenUsedForRender !== undefined &&
+                    isTscircuitSessionJwtExpired(tokenUsedForRender))
+                const isSignInRequired =
+                  proxyAuthErrorCode === "no_token" && !tokenUsedForRender
+                let title = "Authentication Failed"
+                let description =
+                  "We couldn't authenticate your session. Please sign out and sign in again."
+
+                if (isExpiredSession) {
+                  title = "Session Expired"
+                  description =
+                    "Your session has expired. Please sign out and sign in again."
+                } else if (isSignInRequired) {
+                  title = "Sign In Required"
+                  description = "Please sign in to fetch component data."
+                }
+
                 toast({
                   id: "auth-401",
-                  title: hadSessionToken
-                    ? "Authentication Failed"
-                    : "Sign In Required",
-                  description: hadSessionToken
-                    ? "We couldn't authenticate your session. Please sign out and sign in again."
-                    : "Please sign in to fetch component data, then run again.",
+                  title,
+                  description,
                   variant: "destructive",
                   duration: 10_000,
                 })

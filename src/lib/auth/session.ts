@@ -17,6 +17,16 @@ export const decodeTscircuitSessionJwt = (
   }
 }
 
+export const isTscircuitSessionJwtExpired = (
+  token: string,
+  nowMs = Date.now(),
+): boolean => {
+  const decodedToken = decodeTscircuitSessionJwt(token)
+  return (
+    typeof decodedToken?.exp === "number" && decodedToken.exp * 1000 <= nowMs
+  )
+}
+
 export const getSessionFromJwt = (
   token: string,
   overrides: Partial<NonNullable<Store["session"]>> = {},
