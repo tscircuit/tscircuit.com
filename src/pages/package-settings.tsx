@@ -130,7 +130,24 @@ export default function PackageSettingsPage() {
   const qc = useQueryClient()
   const session = useGlobalStore((s) => s.session)
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useState<SettingsSection>(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "domains", "github", "danger"].includes(tab)) {
+        return tab
+      }
+    }
+    return "general"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "domains", "github", "danger"].includes(tab)) {
+        setActiveSection(tab)
+      }
+    }
+  }, [])
 
   const {
     packageInfo,

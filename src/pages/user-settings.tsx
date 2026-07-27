@@ -111,7 +111,24 @@ export default function UserSettingsPage() {
   const apiBaseUrl = useApiBaseUrl()
   const { handleLogout } = useLogout()
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useState<SettingsSection>(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "github", "danger"].includes(tab)) {
+        return tab
+      }
+    }
+    return "general"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "github", "danger"].includes(tab)) {
+        setActiveSection(tab)
+      }
+    }
+  }, [])
 
   const { Dialog: DeleteAccountDialog, openDialog: openDeleteAccountDialog } =
     useConfirmDeleteAccountDialog()

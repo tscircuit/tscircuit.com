@@ -140,7 +140,24 @@ export default function OrganizationSettingsPage() {
   const { toast } = useToast()
   const session = useGlobalStore((s) => s.session)
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useState<SettingsSection>(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "members", "domains", "github", "danger"].includes(tab)) {
+        return tab
+      }
+    }
+    return "general"
+  })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab") as SettingsSection
+      if (tab && ["general", "members", "domains", "github", "danger"].includes(tab)) {
+        setActiveSection(tab)
+      }
+    }
+  }, [])
 
   const {
     organization,
