@@ -118,7 +118,7 @@
     "@vercel/analytics": "^1.4.1",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
-    "circuit-to-svg": "^0.0.376",
+    "circuit-to-svg": "^0.0.393",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
