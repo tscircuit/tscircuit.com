@@ -18,8 +18,7 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { getEasyEdaProxyAuthErrorCode } from "@/lib/get-easyeda-proxy-auth-error-code"
-import { isTscircuitSessionJwtExpired } from "@/lib/auth/session"
+import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 
 interface Props {
   pkg?: Package
@@ -313,39 +312,12 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
             }}
             onRenderFinished={({ circuitJson }) => {
-              const proxyAuthErrorCode =
-                getEasyEdaProxyAuthErrorCode(circuitJson)
+              const authToast = getEasyEdaProxyAuthToast({
+                circuitJson,
+                sessionToken: sessionTokenAtRenderStartRef.current,
+              })
+              if (authToast) toast(authToast)
 
-              if (proxyAuthErrorCode) {
-                const tokenUsedForRender = sessionTokenAtRenderStartRef.current
-                const isExpiredSession =
-                  proxyAuthErrorCode === "session_expired" ||
-                  (proxyAuthErrorCode === "invalid_token" &&
-                    tokenUsedForRender !== undefined &&
-                    isTscircuitSessionJwtExpired(tokenUsedForRender))
-                const isSignInRequired =
-                  proxyAuthErrorCode === "no_token" && !tokenUsedForRender
-                let title = "Authentication Failed"
-                let description =
-                  "We couldn't authenticate your session. Please sign out and sign in again."
-
-                if (isExpiredSession) {
-                  title = "Session Expired"
-                  description =
-                    "Your session has expired. Please sign out and sign in again."
-                } else if (isSignInRequired) {
-                  title = "Sign In Required"
-                  description = "Please sign in to fetch component data."
-                }
-
-                toast({
-                  id: "auth-401",
-                  title,
-                  description,
-                  variant: "destructive",
-                  duration: 10_000,
-                })
-              }
               setState((prev) => ({ ...prev, circuitJson }))
               toastManualEditConflicts(circuitJson, toast)
             }}
