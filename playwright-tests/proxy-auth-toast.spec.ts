@@ -36,7 +36,7 @@ test("asks a logged-out user to sign in when the proxy returns 401", async ({
   ).toBeVisible({ timeout: 15_000 })
 })
 
-test("reports an expired session when a token is rejected by the proxy", async ({
+test("reports an authentication failure without clearing the session", async ({
   page,
 }) => {
   const response = await page.request.post(
@@ -66,10 +66,19 @@ test("reports an expired session when a token is rejected by the proxy", async (
 
   await runConnectorCode(page)
 
-  await expect(page.getByText("Session Expired")).toBeVisible({
+  await expect(page.getByText("Authentication Failed")).toBeVisible({
     timeout: 15_000,
   })
   await expect(
-    page.getByText("Your session has expired. Please sign in again."),
+    page.getByText(
+      "We couldn't authenticate your session. Please sign out and sign in again.",
+    ),
   ).toBeVisible({ timeout: 15_000 })
+
+  const storedSessionToken = await page.evaluate(() => {
+    const sessionStore = localStorage.getItem("session_store")
+    if (!sessionStore) return null
+    return JSON.parse(sessionStore).state?.session?.token ?? null
+  })
+  expect(storedSessionToken).toBe(session.token)
 })

@@ -44,7 +44,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
-  const setSession = useGlobalStore((s) => s.setSession)
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
@@ -313,14 +312,13 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             onRenderFinished={({ circuitJson }) => {
               if (hasUnauthorizedSourcePartWarning(circuitJson)) {
                 const hadSessionToken = Boolean(sessionToken)
-                if (hadSessionToken) setSession(null)
                 toast({
                   id: "auth-401",
                   title: hadSessionToken
-                    ? "Session Expired"
+                    ? "Authentication Failed"
                     : "Sign In Required",
                   description: hadSessionToken
-                    ? "Your session has expired. Please sign in again."
+                    ? "We couldn't authenticate your session. Please sign out and sign in again."
                     : "Please sign in to fetch component data, then run again.",
                   variant: "destructive",
                   duration: 10_000,
