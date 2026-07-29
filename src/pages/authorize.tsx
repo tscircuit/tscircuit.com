@@ -70,7 +70,7 @@ const AuthenticatePageInnerContent = () => {
             )
             return
           }
-          handleRedirect(redirect, () => window.location.href = "/")
+          handleRedirect(redirect, () => {            window.location.href = "/"          })
         }, 1000)
         return
       }
