@@ -3,7 +3,7 @@ import { createDatabase } from "./fake-snippets-api/lib/db/db-client"
 import { defineConfig, Plugin, UserConfig } from "vite"
 import type { PluginOption } from "vite"
 import path, { extname } from "path"
-import { readFileSync } from "fs"
+import { existsSync, readFileSync } from "fs"
 import react from "@vitejs/plugin-react"
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer"
 import { getNodeHandler } from "winterspec/adapters/node"
@@ -97,7 +97,44 @@ function vercelSsrDevPlugin(): Plugin {
         const accept = req.headers.accept || ""
 
         if (url === "/" || url === "/landing.html") {
-          return next()
+          try {
+            const response = await fetch(
+              "https://tscircuit-com-landing.vercel.app/index.html",
+            )
+            if (!response.ok) {
+              throw new Error(`Landing page returned ${response.status}`)
+            }
+            const contentType = response.headers.get("content-type")
+            if (contentType) {
+              res.setHeader("Content-Type", contentType)
+            }
+            res.end(await response.text())
+            return
+          } catch (error) {
+            console.error("Failed to fetch the new landing page:", error)
+            return next()
+          }
+        }
+
+        if (url.startsWith("/assets/")) {
+          const localPath = path.join(__dirname, "public", url)
+          if (!existsSync(localPath)) {
+            try {
+              const response = await fetch(
+                `https://tscircuit-com-landing.vercel.app${url}`,
+              )
+              if (response.ok) {
+                const contentType = response.headers.get("content-type")
+                if (contentType) {
+                  res.setHeader("Content-Type", contentType)
+                }
+                res.end(Buffer.from(await response.arrayBuffer()))
+                return
+              }
+            } catch (error) {
+              console.warn("Failed to fetch a landing-page asset:", error)
+            }
+          }
         }
 
         if (url.startsWith("/api/")) {
