@@ -1,4 +1,4 @@
-import { CodeEditor } from "@/components/package-port/CodeEditor"
+import { lazy, Suspense } from "react"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -6,7 +6,7 @@ import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
 import { getSnippetTemplate } from "@/lib/get-snippet-template"
 import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
 import { SuspenseRunFrame } from "../SuspenseRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
@@ -19,6 +19,19 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
+import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
+import { useIsMobile } from "@/components/ViewPackagePage/hooks/use-mobile"
+
+// Lazy-loaded so the heavy monaco-editor library (and the package's top-level
+// `loader.config({ monaco })` side effect) is only fetched and evaluated when
+// the editor is actually rendered. A static import would pull monaco into the
+// JS heap on module load regardless of `shouldRenderCodeEditor`, which on
+// WKWebView-based iOS browsers is enough to blow the memory cap on its own.
+const WorkspaceCodeEditor = lazy(() =>
+  import("@tscircuit/monaco-code-editor").then((m) => ({
+    default: m.WorkspaceCodeEditor,
+  })),
+)
 
 interface Props {
   pkg?: Package
@@ -99,7 +112,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     isSaving,
     currentFile,
     fsMap,
-    priorityFileFetched,
     isLoading,
     createFile,
     mainComponentPath,
@@ -124,6 +136,36 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
     releaseId: releaseIdForVersion,
+  })
+
+  const isMobile = useIsMobile()
+  // On mobile the editor and preview panes are mutually exclusive: only the
+  // preview is visible while `showPreview` is true. Monaco (editor + TS worker +
+  // Shiki) is memory-heavy, and keeping it mounted alongside the eval/render
+  // that Run triggers pushes WKWebView-based iOS browsers past their memory cap,
+  // crashing the tab. Unmount it while the editor pane is hidden so Run has room.
+  const shouldRenderCodeEditor = !isMobile || !state.showPreview
+
+  const filesByPath = useMemo(
+    () =>
+      Object.fromEntries(localFiles.map((file) => [file.path, file.content])),
+    [localFiles],
+  )
+  const handleFileContentChange = useCallback(
+    (path: string, content: string) => {
+      setLocalFiles((previousFiles) =>
+        previousFiles.map((file) =>
+          file.path === path ? { ...file, content } : file,
+        ),
+      )
+    },
+    [setLocalFiles],
+  )
+  const { importComponentDialog, openImportDialog } = useEditorComponentImport({
+    currentFile,
+    files: filesByPath,
+    updateFileContent: handleFileContentChange,
+    createFile,
   })
 
   const hasUnsavedChanges = useMemo(
@@ -181,6 +223,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     toast({
       title: "Changes discarded",
       description: "All unsaved changes have been discarded.",
+    })
+  }
+
+  const handleFileOperationError = (error: Error) => {
+    toast({
+      title: "Error",
+      description: error.message,
+      variant: "destructive",
     })
   }
 
@@ -249,6 +299,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isViewingOlderVersion={isViewingOlderVersion}
         viewingVersion={versionFromUrl}
         latestVersion={latestVersion}
+        onImportComponent={openImportDialog}
       />
       <div
         className={`flex flex-1 min-h-0 ${
@@ -261,33 +312,42 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
           )}
         >
-          <CodeEditor
-            isSaving={isSaving}
-            handleCreateFile={createFile}
-            totalFilesCount={totalFilesCount}
-            loadedFilesCount={loadedFilesCount}
-            isFullyLoaded={isFullyLoaded}
-            handleDeleteFile={deleteFile}
-            handleRenameFile={renameFile}
-            isPriorityFileFetched={
-              !priorityFileFetched && Boolean(urlParams.package_id)
-            }
-            pkg={pkg}
-            currentFile={currentFile}
-            onFileSelect={onFileSelect}
-            files={localFiles}
-            onCodeChange={(newCode, filename) => {
-              const targetFilename = filename ?? currentFile
-              setLocalFiles((prev) =>
-                prev.map((file) =>
-                  file.path === targetFilename
-                    ? { ...file, content: newCode }
-                    : file,
-                ),
-              )
-            }}
-            pkgFilesLoaded={!isLoading}
-          />
+          {shouldRenderCodeEditor && (
+            <Suspense fallback={null}>
+              <WorkspaceCodeEditor
+                files={localFiles}
+                currentFile={currentFile}
+                onFileSelect={onFileSelect}
+                onFileContentChange={handleFileContentChange}
+                onCreateFile={(path, content) =>
+                  createFile({
+                    newFileName: path,
+                    content,
+                    onError: handleFileOperationError,
+                  })
+                }
+                onDeleteFile={(path) =>
+                  deleteFile({
+                    filename: path,
+                    onError: handleFileOperationError,
+                  })
+                }
+                onRenameFile={(oldPath, newPath) =>
+                  renameFile({
+                    oldFilename: oldPath,
+                    newFilename: newPath,
+                    onError: handleFileOperationError,
+                  })
+                }
+                isLoadingFiles={isLoading || !isFullyLoaded}
+                loadingProgress={
+                  totalFilesCount > 0 && loadedFilesCount < totalFilesCount
+                    ? `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                    : null
+                }
+              />
+            </Suspense>
+          )}
         </div>
         <div
           className={cn(
@@ -338,6 +398,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
+      {importComponentDialog}
     </div>
   )
 }

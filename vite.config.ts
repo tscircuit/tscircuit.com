@@ -256,7 +256,7 @@ export default defineConfig(async (): Promise<UserConfig> => {
     vercelSsrDevPlugin(),
   ]
 
-  if (process.env.VITE_BUNDLE_ANALYZE === "true" || 1) {
+  if (process.env.VITE_BUNDLE_ANALYZE === "true") {
     const { visualizer } = await import("rollup-plugin-visualizer")
     plugins.push(
       visualizer({
@@ -306,6 +306,9 @@ export default defineConfig(async (): Promise<UserConfig> => {
     build: {
       copyPublicDir: true,
       minify: "esbuild",
+      // Monaco 0.55's workers use native destructuring that esbuild cannot
+      // downlevel for Vite's legacy Safari 14 default target.
+      target: "es2020",
       // terserOptions: {
       //   compress: {
       //     drop_console: true,
