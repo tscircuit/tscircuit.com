@@ -21,14 +21,14 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
 import { useIsMobile } from "@/components/ViewPackagePage/hooks/use-mobile"
+import { useMemoryConstrainedWebKit } from "@/hooks/use-memory-constrained-webkit"
+import { MobileCodeEditor } from "@/components/package-port/MobileCodeEditor"
 
-// Lazy-loaded so the heavy monaco-editor library (and the package's top-level
-// `loader.config({ monaco })` side effect) is only fetched and evaluated when
-// the editor is actually rendered. A static import would pull monaco into the
-// JS heap on module load regardless of `shouldRenderCodeEditor`, which on
-// WKWebView-based iOS browsers is enough to blow the memory cap on its own.
+// Desktop-only. Workers + Monaco styles are imported inside this module so they
+// never enter the main-bundle heap on iOS Chrome (which OOMs at a lower
+// WKWebView watermark than Safari).
 const WorkspaceCodeEditor = lazy(() =>
-  import("@tscircuit/monaco-code-editor").then((m) => ({
+  import("@/lib/monaco-workspace-editor").then((m) => ({
     default: m.WorkspaceCodeEditor,
   })),
 )
@@ -139,12 +139,17 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   })
 
   const isMobile = useIsMobile()
-  // On mobile the editor and preview panes are mutually exclusive: only the
-  // preview is visible while `showPreview` is true. Monaco (editor + TS worker +
-  // Shiki) is memory-heavy, and keeping it mounted alongside the eval/render
-  // that Run triggers pushes WKWebView-based iOS browsers past their memory cap,
-  // crashing the tab. Unmount it while the editor pane is hidden so Run has room.
-  const shouldRenderCodeEditor = !isMobile || !state.showPreview
+  const isMemoryConstrainedWebKit = useMemoryConstrainedWebKit()
+  // Monaco must never load on mobile / iOS Chrome — even unmounted-but-imported
+  // workers tipped CriOS over the WKWebView memory cap. Mobile "Show Code" uses
+  // a textarea fallback; desktop keeps Monaco.
+  const shouldRenderMonaco = !isMobile
+  const shouldRenderMobileCodeEditor = isMobile && !state.showPreview
+  // On iOS Chrome, defer mounting RunFrame until the user opts in. Opening the
+  // editor route otherwise parses ~14MB of JS and starts eval in one shot.
+  const [previewEngineEnabled, setPreviewEngineEnabled] = useState(
+    () => !isMemoryConstrainedWebKit,
+  )
 
   const filesByPath = useMemo(
     () =>
@@ -308,11 +313,18 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       >
         <div
           className={cn(
-            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
+            "flex-col border-r border-gray-200 bg-gray-50",
+            isMobile
+              ? state.showPreview
+                ? "hidden"
+                : "flex w-full flex-1"
+              : cn(
+                  "hidden md:flex",
+                  state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
+                ),
           )}
         >
-          {shouldRenderCodeEditor && (
+          {shouldRenderMonaco && (
             <Suspense fallback={null}>
               <WorkspaceCodeEditor
                 files={localFiles}
@@ -348,6 +360,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               />
             </Suspense>
           )}
+          {shouldRenderMobileCodeEditor && (
+            <MobileCodeEditor
+              files={localFiles}
+              currentFile={currentFile}
+              onFileSelect={onFileSelect}
+              onFileContentChange={handleFileContentChange}
+            />
+          )}
         </div>
         <div
           className={cn(
@@ -361,39 +381,55 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           onMouseEnter={() => (isMouseOverRunFrame.current = true)}
           onMouseLeave={() => (isMouseOverRunFrame.current = false)}
         >
-          <SuspenseRunFrame
-            tscircuitSessionToken={sessionToken}
-            showFileMenu={false}
-            showRunButton
-            forceLatestEvalVersion
-            isLoadingFiles={isLoading || !isFullyLoaded}
-            onRenderStarted={() => {
-              sessionTokenAtRenderStartRef.current = sessionToken
-              setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }}
-            onRenderFinished={({ circuitJson }) => {
-              const authToast = getEasyEdaProxyAuthToast({
-                circuitJson,
-                sessionToken: sessionTokenAtRenderStartRef.current,
-              })
-              if (authToast) toast(authToast)
+          {state.showPreview && !previewEngineEnabled ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 bg-gray-50 px-6 text-center">
+              <p className="max-w-sm text-sm text-gray-600">
+                Preview is loaded on demand in this browser to avoid running out
+                of memory.
+              </p>
+              <button
+                type="button"
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+                onClick={() => setPreviewEngineEnabled(true)}
+              >
+                Load preview
+              </button>
+            </div>
+          ) : (
+            <SuspenseRunFrame
+              tscircuitSessionToken={sessionToken}
+              showFileMenu={false}
+              showRunButton
+              forceLatestEvalVersion
+              isLoadingFiles={isLoading || !isFullyLoaded}
+              onRenderStarted={() => {
+                sessionTokenAtRenderStartRef.current = sessionToken
+                setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
+              }}
+              onRenderFinished={({ circuitJson }) => {
+                const authToast = getEasyEdaProxyAuthToast({
+                  circuitJson,
+                  sessionToken: sessionTokenAtRenderStartRef.current,
+                })
+                if (authToast) toast(authToast)
 
-              setState((prev) => ({ ...prev, circuitJson }))
-              toastManualEditConflicts(circuitJson, toast)
-            }}
-            mainComponentPath={mainComponentPath}
-            onEditEvent={(event) => {
-              handleEditEvent(event)
-            }}
-            fsMap={fsMap}
-            projectUrl={projectUrl}
-            easyEdaProxyConfig={{
-              proxyEndpointUrl: `${apiBaseUrl}/proxy`,
-              headers: sessionToken
-                ? { Authorization: `Bearer ${sessionToken}` }
-                : undefined,
-            }}
-          />
+                setState((prev) => ({ ...prev, circuitJson }))
+                toastManualEditConflicts(circuitJson, toast)
+              }}
+              mainComponentPath={mainComponentPath}
+              onEditEvent={(event) => {
+                handleEditEvent(event)
+              }}
+              fsMap={fsMap}
+              projectUrl={projectUrl}
+              easyEdaProxyConfig={{
+                proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+                headers: sessionToken
+                  ? { Authorization: `Bearer ${sessionToken}` }
+                  : undefined,
+              }}
+            />
+          )}
         </div>
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
