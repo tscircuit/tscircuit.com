@@ -1,4 +1,4 @@
-import { ComponentType, Suspense, lazy } from "react"
+import { ComponentType, Suspense, lazy, useEffect } from "react"
 import { Route, Switch } from "wouter"
 import "./components/CmdKMenu"
 import { ContextProviders } from "./ContextProviders"
@@ -58,7 +58,6 @@ const EditorPage = lazyImport(async () => {
   ])
   return editorModule
 })
-const LandingPage = lazyImport(() => import("@/pages/landing"))
 const MyOrdersPage = lazyImport(() => import("@/pages/my-orders"))
 const OrderSuccessPage = lazyImport(() => import("@/pages/order-success"))
 const OrderCancelPage = lazyImport(() => import("@/pages/order-cancel"))
@@ -105,6 +104,14 @@ const PackageSettingsPage = lazyImport(() => import("@/pages/package-settings"))
 const AcceptOrgInvitationPage = lazyImport(
   () => import("@/pages/accept-org-invitation"),
 )
+
+const LandingPageRedirect = () => {
+  useEffect(() => {
+    window.location.replace("/")
+  }, [])
+
+  return <FullPageLoader />
+}
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -264,7 +271,7 @@ function App() {
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader />}>
           <Switch>
-            <Route path="/" component={LandingPage} />
+            <Route path="/" component={LandingPageRedirect} />
             <Route
               path="/view-package/:author/:packageName"
               component={ViewPackagePage}
