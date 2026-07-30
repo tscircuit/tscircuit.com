@@ -1,4 +1,4 @@
-import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
+import { lazy, Suspense } from "react"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { useUrlParams } from "@/hooks/use-url-params"
@@ -20,6 +20,19 @@ import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
+import { useIsMobile } from "@/components/ViewPackagePage/hooks/use-mobile"
+import { MobileCodeEditor } from "@/components/package-port/MobileCodeEditor"
+
+// Lazy-loaded so the heavy monaco-editor library (and the package's top-level
+// `loader.config({ monaco })` side effect) is only fetched and evaluated when
+// the desktop editor actually renders. On mobile we render MobileCodeEditor
+// instead, so this import never fires and Monaco stays out of the JS heap —
+// which is what keeps WKWebView-based iOS browsers under their memory cap.
+const WorkspaceCodeEditor = lazy(() =>
+  import("@tscircuit/monaco-code-editor").then((m) => ({
+    default: m.WorkspaceCodeEditor,
+  })),
+)
 
 interface Props {
   pkg?: Package
@@ -125,6 +138,13 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     },
     releaseId: releaseIdForVersion,
   })
+
+  // On mobile we swap Monaco for a lightweight CodeMirror editor (no worker /
+  // autocomplete / type-checking) so the memory-heavy Monaco stack never loads
+  // and WKWebView-based iOS browsers stay under their memory cap. `useIsMobile`
+  // resolves synchronously, so Monaco's lazy import is never triggered on a
+  // phone even on the first render.
+  const isMobile = useIsMobile()
 
   const filesByPath = useMemo(
     () =>
@@ -292,35 +312,50 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
           )}
         >
-          <WorkspaceCodeEditor
-            files={localFiles}
-            currentFile={currentFile}
-            onFileSelect={onFileSelect}
-            onFileContentChange={handleFileContentChange}
-            onCreateFile={(path, content) =>
-              createFile({
-                newFileName: path,
-                content,
-                onError: handleFileOperationError,
-              })
-            }
-            onDeleteFile={(path) =>
-              deleteFile({ filename: path, onError: handleFileOperationError })
-            }
-            onRenameFile={(oldPath, newPath) =>
-              renameFile({
-                oldFilename: oldPath,
-                newFilename: newPath,
-                onError: handleFileOperationError,
-              })
-            }
-            isLoadingFiles={isLoading || !isFullyLoaded}
-            loadingProgress={
-              totalFilesCount > 0 && loadedFilesCount < totalFilesCount
-                ? `Loading files (${loadedFilesCount}/${totalFilesCount})`
-                : null
-            }
-          />
+          {isMobile ? (
+            <MobileCodeEditor
+              files={localFiles}
+              currentFile={currentFile}
+              onFileSelect={onFileSelect}
+              onFileContentChange={handleFileContentChange}
+              isLoading={isLoading || !isFullyLoaded}
+            />
+          ) : (
+            <Suspense fallback={null}>
+              <WorkspaceCodeEditor
+                files={localFiles}
+                currentFile={currentFile}
+                onFileSelect={onFileSelect}
+                onFileContentChange={handleFileContentChange}
+                onCreateFile={(path, content) =>
+                  createFile({
+                    newFileName: path,
+                    content,
+                    onError: handleFileOperationError,
+                  })
+                }
+                onDeleteFile={(path) =>
+                  deleteFile({
+                    filename: path,
+                    onError: handleFileOperationError,
+                  })
+                }
+                onRenameFile={(oldPath, newPath) =>
+                  renameFile({
+                    oldFilename: oldPath,
+                    newFilename: newPath,
+                    onError: handleFileOperationError,
+                  })
+                }
+                isLoadingFiles={isLoading || !isFullyLoaded}
+                loadingProgress={
+                  totalFilesCount > 0 && loadedFilesCount < totalFilesCount
+                    ? `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                    : null
+                }
+              />
+            </Suspense>
+          )}
         </div>
         <div
           className={cn(
