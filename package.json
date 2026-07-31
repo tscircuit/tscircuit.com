@@ -12,6 +12,9 @@
   "trustedDependencies": [
     "@tscircuit/fake-stripe"
   ],
+  "patchedDependencies": {
+    "@tscircuit/monaco-code-editor@0.0.22": "patches/@tscircuit%2Fmonaco-code-editor@0.0.22.patch"
+  },
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
