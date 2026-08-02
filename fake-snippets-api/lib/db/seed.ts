@@ -2963,4 +2963,36 @@ export default () => (
     has_transpiled: true,
     transpilation_error: null,
   })
+
+  // A package whose only release has neither transpiled output nor a package
+  // build. The registry npm proxy advertises a "latest" dist-tag for such
+  // packages but serves an empty versions map, so they show up in search but
+  // cannot be installed (issue #4204).
+  const { package_release_id: uninstallableReleaseId } = db.addSnippet({
+    name: "testuser/uninstallable-board",
+    unscoped_name: "uninstallable-board",
+    owner_name: "testuser",
+    creator_account_id: account_id,
+    code: `
+export default () => (
+  <board width="10mm" height="10mm">
+    <resistor name="R1" resistance="1k" footprint="0402" />
+  </board>
+)`.trim(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    snippet_type: "board",
+    description: "A board whose latest release has no installable artifact",
+  })
+  const uninstallableRelease = db.getPackageReleaseById(uninstallableReleaseId)
+  if (uninstallableRelease) {
+    db.updatePackageRelease({
+      ...uninstallableRelease,
+      has_transpiled: false,
+      latest_package_build_id: null,
+      transpilation_display_status: "pending",
+      transpilation_is_stale: true,
+      display_status: "pending",
+    })
+  }
 }

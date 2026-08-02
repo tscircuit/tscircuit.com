@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
 import MainContentHeader from "./main-content-header"
+import NoInstallableReleaseBanner from "./no-installable-release-banner"
 import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
 import ImportantFilesView from "./important-files-view"
@@ -259,6 +260,11 @@ export default function RepoPageContent({
       <div className="max-w-[1200px] mx-auto">
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:flex-1 border-r border-gray-200 dark:border-[#30363d] p-4 md:max-w-[calc(100%-296px)] max-w-full">
+            <NoInstallableReleaseBanner
+              packageInfo={packageInfo}
+              packageRelease={packageRelease}
+            />
+
             {/* Main Content Header with Tabs */}
             <MainContentHeader
               activeView={activeView}
