@@ -46,6 +46,16 @@
       "permanent": false
     },
     {
+      "source": "/discord",
+      "destination": "https://discord.gg/V7FGE5ZCbA",
+      "permanent": false
+    },
+    {
+      "source": "/door",
+      "destination": "https://photos.app.goo.gl/U2QuQWjZHKPZqND26",
+      "permanent": false
+    },
+    {
       "source": "/legal/terms-of-service",
       "destination": "https://registry.tscircuit.com/legal/terms-of-service.html",
       "permanent": false

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -31,6 +31,7 @@ import { useOrganization } from "@/hooks/use-organization"
 import { useAvatarUploadDialog } from "@/hooks/use-avatar-upload-dialog"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useLogout } from "@/hooks/use-logout"
+import { useSettingsSection } from "@/hooks/use-settings-section"
 import { useConfirmDeleteAccountDialog } from "@/components/dialogs/confirm-delete-account-dialog"
 import { cn } from "@/lib/utils"
 
@@ -48,6 +49,8 @@ const accountSettingsSchema = z.object({
 type AccountSettingsFormData = z.infer<typeof accountSettingsSchema>
 
 type SettingsSection = "general" | "github" | "danger"
+
+const settingsSections = ["general", "github", "danger"] as const
 
 const navItems: { id: SettingsSection; label: string }[] = [
   { id: "general", label: "General" },
@@ -111,7 +114,10 @@ export default function UserSettingsPage() {
   const apiBaseUrl = useApiBaseUrl()
   const { handleLogout } = useLogout()
 
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general")
+  const [activeSection, setActiveSection] = useSettingsSection(
+    settingsSections,
+    "general",
+  )
 
   const { Dialog: DeleteAccountDialog, openDialog: openDeleteAccountDialog } =
     useConfirmDeleteAccountDialog()

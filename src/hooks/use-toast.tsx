@@ -2,6 +2,7 @@ import toastLibrary, { Toaster, type Toast } from "react-hot-toast"
 import React from "react"
 
 export interface ToasterToast {
+  id?: string
   title?: React.ReactNode
   description?: React.ReactNode
   variant?: "default" | "destructive"
@@ -35,6 +36,7 @@ export function ToastContent({
 const toast = ({
   duration,
   description,
+  id,
   variant = "default",
   title,
 }: ToasterToast) => {
@@ -48,15 +50,15 @@ const toast = ({
           t={t}
         />
       ),
-      { duration },
+      { duration, id },
     )
   }
 
   if (variant === "destructive") {
-    return toastLibrary.error(<>{title}</>, { duration })
+    return toastLibrary.error(<>{title}</>, { duration, id })
   }
 
-  return toastLibrary(<>{title}</>, { duration })
+  return toastLibrary(<>{title}</>, { duration, id })
 }
 
 function useToast() {

@@ -18,6 +18,7 @@ import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-promp
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 
 interface Props {
   pkg?: Package
@@ -190,6 +191,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const isMouseOverRunFrame = useRef(false)
   const runFrameContainerRef = useRef<HTMLDivElement>(null)
+  const sessionTokenAtRenderStartRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     const isTextEntryElement = (element: Element | null) => {
@@ -305,10 +307,17 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             showRunButton
             forceLatestEvalVersion
             isLoadingFiles={isLoading || !isFullyLoaded}
-            onRenderStarted={() =>
+            onRenderStarted={() => {
+              sessionTokenAtRenderStartRef.current = sessionToken
               setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }
+            }}
             onRenderFinished={({ circuitJson }) => {
+              const authToast = getEasyEdaProxyAuthToast({
+                circuitJson,
+                sessionToken: sessionTokenAtRenderStartRef.current,
+              })
+              if (authToast) toast(authToast)
+
               setState((prev) => ({ ...prev, circuitJson }))
               toastManualEditConflicts(circuitJson, toast)
             }}
