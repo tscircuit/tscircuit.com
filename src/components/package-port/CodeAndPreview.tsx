@@ -329,6 +329,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 : `Loading files (${loadedFilesCount}/${totalFilesCount})`
             }
             enableTypeScriptLanguageService={enableMonacoLanguageService}
+            options={{ fixedOverflowWidgets: true }}
             className="flex-1 min-h-0"
             height="100%"
           />
