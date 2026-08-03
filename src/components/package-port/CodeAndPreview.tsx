@@ -20,6 +20,7 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
+import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
 
 interface Props {
   pkg?: Package
@@ -237,6 +238,13 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     [setLocalFiles],
   )
 
+  const { importComponentDialog, openImportDialog } = useEditorComponentImport({
+    currentFile,
+    files: fsMap,
+    updateFileContent: handleFileContentChange,
+    createFile,
+  })
+
   useWarnUserOnPageChange({
     hasUnsavedChanges: Boolean(hasUnsavedChanges),
     isPackageThere: Boolean(pkg),
@@ -302,6 +310,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         isViewingOlderVersion={isViewingOlderVersion}
         viewingVersion={versionFromUrl}
         latestVersion={latestVersion}
+        onImportComponent={openImportDialog}
       />
       <div
         className={`flex flex-1 min-h-0 ${
@@ -383,6 +392,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
+      {importComponentDialog}
     </div>
   )
 }
