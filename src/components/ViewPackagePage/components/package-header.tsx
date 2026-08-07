@@ -386,7 +386,7 @@ export default function PackageHeader({
           </div>
 
           <div className="hidden md:flex items-center space-x-2">
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               onClick={handleOrderClick}
@@ -396,7 +396,7 @@ export default function PackageHeader({
             >
               <Package className="w-4 h-4 mr-2" />
               Order
-            </Button>
+            </Button> */}
 
             <TooltipProvider>
               <Tooltip>
@@ -470,7 +470,7 @@ export default function PackageHeader({
 
           {/* Mobile buttons */}
           <div className="md:hidden flex items-center space-x-2 w-full justify-end pt-2">
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               onClick={handleOrderClick}
@@ -480,7 +480,7 @@ export default function PackageHeader({
             >
               <Package className="w-4 h-4 mr-2" />
               Order
-            </Button>
+            </Button> */}
             <Button
               variant="outline"
               size="sm"
