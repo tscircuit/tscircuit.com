@@ -21,6 +21,18 @@ import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
+import type { ImperativePanelHandle } from "react-resizable-panels"
+
+const MIN_PANE_WIDTH = 280
+const MOBILE_SPLIT_WIDTH = 768
+const MOBILE_MEDIA_QUERY = `(max-width: ${MOBILE_SPLIT_WIDTH - 1}px)`
+
+const CODE_EDITOR_OPTIONS = { fixedOverflowWidgets: true } as const
 
 interface Props {
   pkg?: Package
@@ -251,8 +263,62 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   })
 
   const isMouseOverRunFrame = useRef(false)
+  const splitContainerRef = useRef<HTMLDivElement>(null)
   const runFrameContainerRef = useRef<HTMLDivElement>(null)
   const sessionTokenAtRenderStartRef = useRef<string | undefined>(undefined)
+  const editorPanelRef = useRef<ImperativePanelHandle>(null)
+  const previewPanelRef = useRef<ImperativePanelHandle>(null)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia(MOBILE_MEDIA_QUERY).matches
+      : false,
+  )
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mql = window.matchMedia(MOBILE_MEDIA_QUERY)
+    const onChange = () => setIsMobile(mql.matches)
+    onChange()
+    mql.addEventListener("change", onChange)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  const [minPaneSizePercent, setMinPaneSizePercent] = useState(() =>
+    typeof window !== "undefined"
+      ? Math.min(40, (MIN_PANE_WIDTH / window.innerWidth) * 100)
+      : 30,
+  )
+
+  useEffect(() => {
+    const container = splitContainerRef.current
+    if (!container) return
+    const updateMinSize = () => {
+      const { width } = container.getBoundingClientRect()
+      if (width <= 0) return
+      const next = Math.min(40, (MIN_PANE_WIDTH / width) * 100)
+      setMinPaneSizePercent((prev) =>
+        Math.abs(prev - next) < 0.5 ? prev : next,
+      )
+    }
+    updateMinSize()
+    const observer = new ResizeObserver(updateMinSize)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const editorPanel = editorPanelRef.current
+    if (!editorPanel) return
+    if (isMobile && state.showPreview) editorPanel.collapse()
+    else editorPanel.expand()
+  }, [isMobile, state.showPreview])
+
+  useEffect(() => {
+    const previewPanel = previewPanelRef.current
+    if (!previewPanel) return
+    if (state.showPreview) previewPanel.expand()
+    else previewPanel.collapse()
+  }, [state.showPreview])
 
   useEffect(() => {
     const isTextEntryElement = (element: Element | null) => {
@@ -312,83 +378,113 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         latestVersion={latestVersion}
         onImportComponent={openImportDialog}
       />
-      <div
-        className={`flex flex-1 min-h-0 ${
-          state.showPreview ? "flex-col md:flex-row" : ""
-        }`}
-      >
-        <div
-          className={cn(
-            "hidden flex-col md:flex border-r border-gray-200 bg-gray-50",
-            state.showPreview ? "w-full md:w-1/2" : "w-full flex flex-1",
-          )}
-        >
-          <WorkspaceCodeEditor
-            files={localFiles}
-            currentFile={currentFile}
-            onFileSelect={onFileSelect}
-            onFileContentChange={handleFileContentChange}
-            onCreateFile={handleCreateFile}
-            onDeleteFile={handleDeleteFile}
-            onRenameFile={handleRenameFile}
-            isLoadingFiles={!isFullyLoaded}
-            loadingProgress={
-              isFullyLoaded
-                ? null
-                : `Loading files (${loadedFilesCount}/${totalFilesCount})`
-            }
-            enableTypeScriptLanguageService={enableMonacoLanguageService}
-            options={{ fixedOverflowWidgets: true }}
-            className="flex-1 min-h-0"
-            height="100%"
+      <div className="flex flex-1 min-h-0" ref={splitContainerRef}>
+        <ResizablePanelGroup direction="horizontal" className="min-h-0">
+          <ResizablePanel
+            ref={editorPanelRef}
+            collapsible
+            collapsedSize={0}
+            defaultSize={50}
+            minSize={minPaneSizePercent}
+            className="min-w-0"
+          >
+            <div
+              className={cn(
+                "h-full w-full min-w-0 flex-col bg-gray-50",
+                isMobile
+                  ? state.showPreview
+                    ? "hidden"
+                    : "flex"
+                  : "hidden md:flex",
+              )}
+            >
+              <WorkspaceCodeEditor
+                files={localFiles}
+                currentFile={currentFile}
+                onFileSelect={onFileSelect}
+                onFileContentChange={handleFileContentChange}
+                onCreateFile={handleCreateFile}
+                onDeleteFile={handleDeleteFile}
+                onRenameFile={handleRenameFile}
+                isLoadingFiles={!isFullyLoaded}
+                loadingProgress={
+                  isFullyLoaded
+                    ? null
+                    : `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                }
+                enableTypeScriptLanguageService={enableMonacoLanguageService}
+                options={CODE_EDITOR_OPTIONS}
+                className="flex-1 min-h-0"
+                height="100%"
+              />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle
+            withHandle
+            aria-label="Resize code editor and preview"
+            className={cn(
+              "hover:bg-blue-400 data-[resize-handle-state=drag]:bg-blue-500",
+              state.showPreview ? "hidden md:flex" : "hidden",
+            )}
           />
-        </div>
-        <div
-          className={cn(
-            "flex flex-1 min-h-0 p-0 flex-col overflow-y-hidden",
-            state.fullScreen
-              ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
-              : "w-full md:w-1/2",
-            !state.showPreview && "hidden",
-          )}
-          ref={runFrameContainerRef}
-          onMouseEnter={() => (isMouseOverRunFrame.current = true)}
-          onMouseLeave={() => (isMouseOverRunFrame.current = false)}
-        >
-          <SuspenseRunFrame
-            tscircuitSessionToken={sessionToken}
-            showFileMenu={false}
-            showRunButton
-            forceLatestEvalVersion
-            isLoadingFiles={isLoading || !isFullyLoaded}
-            onRenderStarted={() => {
-              sessionTokenAtRenderStartRef.current = sessionToken
-              setState((prev) => ({ ...prev, lastRunCode: currentFileCode }))
-            }}
-            onRenderFinished={({ circuitJson }) => {
-              const authToast = getEasyEdaProxyAuthToast({
-                circuitJson,
-                sessionToken: sessionTokenAtRenderStartRef.current,
-              })
-              if (authToast) toast(authToast)
+          <ResizablePanel
+            ref={previewPanelRef}
+            collapsible
+            collapsedSize={0}
+            minSize={minPaneSizePercent}
+            className="min-w-0"
+          >
+            <div
+              className={cn(
+                "flex h-full min-h-0 flex-col overflow-y-hidden p-0",
+                state.fullScreen
+                  ? "fixed inset-0 z-50 bg-white p-4 overflow-hidden"
+                  : "w-full min-w-0",
+                !state.showPreview && "hidden",
+              )}
+              ref={runFrameContainerRef}
+              onMouseEnter={() => (isMouseOverRunFrame.current = true)}
+              onMouseLeave={() => (isMouseOverRunFrame.current = false)}
+            >
+              <SuspenseRunFrame
+                tscircuitSessionToken={sessionToken}
+                showFileMenu={false}
+                showRunButton
+                forceLatestEvalVersion
+                isLoadingFiles={isLoading || !isFullyLoaded}
+                onRenderStarted={() => {
+                  sessionTokenAtRenderStartRef.current = sessionToken
+                  setState((prev) => ({
+                    ...prev,
+                    lastRunCode: currentFileCode,
+                  }))
+                }}
+                onRenderFinished={({ circuitJson }) => {
+                  const authToast = getEasyEdaProxyAuthToast({
+                    circuitJson,
+                    sessionToken: sessionTokenAtRenderStartRef.current,
+                  })
+                  if (authToast) toast(authToast)
 
-              setState((prev) => ({ ...prev, circuitJson }))
-              toastManualEditConflicts(circuitJson, toast)
-            }}
-            mainComponentPath={mainComponentPath}
-            onEditEvent={(event) => {
-              handleEditEvent(event)
-            }}
-            fsMap={fsMap}
-            projectUrl={projectUrl}
-            easyEdaProxyConfig={{
-              proxyEndpointUrl: `${apiBaseUrl}/proxy`,
-              headers: sessionToken
-                ? { Authorization: `Bearer ${sessionToken}` }
-                : undefined,
-            }}
-          />
-        </div>
+                  setState((prev) => ({ ...prev, circuitJson }))
+                  toastManualEditConflicts(circuitJson, toast)
+                }}
+                mainComponentPath={mainComponentPath}
+                onEditEvent={(event) => {
+                  handleEditEvent(event)
+                }}
+                fsMap={fsMap}
+                projectUrl={projectUrl}
+                easyEdaProxyConfig={{
+                  proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+                  headers: sessionToken
+                    ? { Authorization: `Bearer ${sessionToken}` }
+                    : undefined,
+                }}
+              />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
