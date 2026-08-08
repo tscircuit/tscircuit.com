@@ -400,7 +400,16 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             minSize={minPaneSizePercent}
             className="min-w-0"
           >
-            <div className={cn("h-full w-full min-w-0 flex-col bg-gray-50", isMobile ? (state.showPreview ? "hidden" : "flex") : "hidden md:flex")}>
+            <div
+              className={cn(
+                "h-full w-full min-w-0 flex-col bg-gray-50",
+                isMobile
+                  ? state.showPreview
+                    ? "hidden"
+                    : "flex"
+                  : "hidden md:flex",
+              )}
+            >
               <WorkspaceCodeEditor
                 files={localFiles}
                 currentFile={currentFile}
