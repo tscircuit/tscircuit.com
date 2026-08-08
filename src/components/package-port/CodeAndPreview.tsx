@@ -314,14 +314,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     return () => observer.disconnect()
   }, [])
 
-  // Collapse (not just CSS-hide) the editor panel on mobile so the preview fills
-  // the width instead of the panel leaving a sized gap.
+  // Collapse editor panel on mobile when preview is shown so the preview fills
+  // the width; expand when preview is hidden so the editor is visible.
   useEffect(() => {
     const editorPanel = editorPanelRef.current
     if (!editorPanel) return
-    if (isMobile) editorPanel.collapse()
+    if (isMobile && state.showPreview) editorPanel.collapse()
     else editorPanel.expand()
-  }, [isMobile])
+  }, [isMobile, state.showPreview])
 
   useEffect(() => {
     const previewPanel = previewPanelRef.current
@@ -400,7 +400,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             minSize={minPaneSizePercent}
             className="min-w-0"
           >
-            <div className="hidden h-full w-full min-w-0 flex-col bg-gray-50 md:flex">
+            <div className={cn("h-full w-full min-w-0 flex-col bg-gray-50", isMobile ? (state.showPreview ? "hidden" : "flex") : "hidden md:flex")}>
               <WorkspaceCodeEditor
                 files={localFiles}
                 currentFile={currentFile}
