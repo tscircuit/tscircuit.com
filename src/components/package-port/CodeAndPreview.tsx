@@ -268,14 +268,11 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const sessionTokenAtRenderStartRef = useRef<string | undefined>(undefined)
   const editorPanelRef = useRef<ImperativePanelHandle>(null)
   const previewPanelRef = useRef<ImperativePanelHandle>(null)
-  // Synchronous so the editor panel mounts at the right size, avoiding a first-paint
-  // flash where it opens then collapses on mobile (as an async hook would cause).
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined"
       ? window.matchMedia(MOBILE_MEDIA_QUERY).matches
       : false,
   )
-  const defaultEditorSize = isMobile ? 0 : 50
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -292,8 +289,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       : 30,
   )
 
-  // react-resizable-panels sizes in percentages, so recompute MIN_PANE_WIDTH as a
-  // percentage on resize to keep the 280px minimum meaningful at every width.
   useEffect(() => {
     const container = splitContainerRef.current
     if (!container) return
@@ -301,9 +296,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       const { width } = container.getBoundingClientRect()
       if (width <= 0) return
       const next = Math.min(40, (MIN_PANE_WIDTH / width) * 100)
-      // ResizeObserver fires every frame during a window resize; bail out unless
-      // the percentage moved enough to matter, so we don't re-render this heavy
-      // tree (Monaco + RunFrame) on every frame.
       setMinPaneSizePercent((prev) =>
         Math.abs(prev - next) < 0.5 ? prev : next,
       )
@@ -314,8 +306,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     return () => observer.disconnect()
   }, [])
 
-  // Collapse editor panel on mobile when preview is shown so the preview fills
-  // the width; expand when preview is hidden so the editor is visible.
   useEffect(() => {
     const editorPanel = editorPanelRef.current
     if (!editorPanel) return
@@ -326,8 +316,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   useEffect(() => {
     const previewPanel = previewPanelRef.current
     if (!previewPanel) return
-    // On mobile the editor panel is collapsed, so an expanded preview fills the
-    // width; on desktop the editor effect reclaims its half.
     if (state.showPreview) previewPanel.expand()
     else previewPanel.collapse()
   }, [state.showPreview])
@@ -396,7 +384,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             ref={editorPanelRef}
             collapsible
             collapsedSize={0}
-            defaultSize={defaultEditorSize}
+            defaultSize={50}
             minSize={minPaneSizePercent}
             className="min-w-0"
           >
