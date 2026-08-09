@@ -196,5 +196,8 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
+  },
+  "patchedDependencies": {
+    "@tscircuit/runframe@0.0.2410": "patches/@tscircuit%2Frunframe@0.0.2410.patch"
   }
 }

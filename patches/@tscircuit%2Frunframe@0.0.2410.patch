@@ -1,0 +1,19 @@
+diff --git a/dist/chunk-GAZKWG2C.js b/dist/chunk-GAZKWG2C.js
+index a484647604bfad96d0370625f6aa6ee5546c36d1..53ca06578c2c685f4db0d96cddd158c287b86f13 100644
+--- a/dist/chunk-GAZKWG2C.js
++++ b/dist/chunk-GAZKWG2C.js
+@@ -3335,5 +3335,6 @@
+ // lib/utils/z-index-map.ts
+ var zIndexMap = {
++  circuitJsonPreviewFullScreen: 60,
+   importComponentDialog: 101,
+   importComponentDetailsDialog: 102
+ };
+@@ -6432,6 +6433,7 @@ var CircuitJsonPreview = ({
+             "rf-md:sticky rf-md:top-2 rf-h-full",
+             isFullScreen && "rf-fixed rf-top-0 rf-left-0 rf-w-full rf-h-full rf-bg-white rf-overflow-hidden"
+           ),
++          style: isFullScreen ? { zIndex: zIndexMap.circuitJsonPreviewFullScreen } : void 0,
+           children: /* @__PURE__ */ jsxs30(
+             Tabs,
+             {
