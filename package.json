@@ -182,7 +182,7 @@
     "terser": "^5.27.0",
     "three": "0.165.0",
     "three-stdlib": "^2.36.0",
-    "tscircuit": "^0.0.2272",
+    "tscircuit": "^0.0.2160",
     "tsup": "^8.5.0",
     "typescript": "^5.6.3",
     "use-async-memo": "^1.2.5",
@@ -196,9 +196,5 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
-  },
-  "dependencies": {
-    "@tscircuit/core": "^0.0.1635",
-    "circuit-json": "^0.0.465"
   }
 }
