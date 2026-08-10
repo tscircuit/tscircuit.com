@@ -13,7 +13,7 @@ import {
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { useAxios } from "@/hooks/use-axios"
 import { useToast } from "@/hooks/use-toast"
-import { useSignIn } from "@/hooks/use-sign-in"
+import { AuthProviderButtons } from "@/components/auth/AuthProviderButtons"
 import { Loader2, CheckCircle2, XCircle } from "lucide-react"
 
 export default function CliLoginPage() {
@@ -23,11 +23,12 @@ export default function CliLoginPage() {
   const session = useGlobalStore((s) => s.session)
   const axios = useAxios()
   const { toast } = useToast()
-  const signIn = useSignIn()
-  const searchParams = new URLSearchParams(useSearch())
+  const search = useSearch()
+  const searchParams = new URLSearchParams(search)
   const login_page_id = searchParams.get("login_page_id")
   const login_page_auth_token = searchParams.get("login_page_auth_token")
   const autoclose = searchParams.get("autoclose") === "true"
+  const redirectPath = `/cli-login${search}`
 
   useEffect(() => {
     if (complete && autoclose) {
@@ -109,9 +110,7 @@ export default function CliLoginPage() {
                     <span>Authorize CLI Access</span>
                   </Button>
                 ) : (
-                  <Button onClick={signIn} className="w-full">
-                    <span>Sign In</span>
-                  </Button>
+                  <AuthProviderButtons redirectPath={redirectPath} />
                 )}
               </CardContent>
             </Card>
