@@ -475,12 +475,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 }}
                 fsMap={fsMap}
                 projectUrl={projectUrl}
-                easyEdaProxyConfig={{
-                  proxyEndpointUrl: `${apiBaseUrl}/proxy`,
-                  headers: sessionToken
-                    ? { Authorization: `Bearer ${sessionToken}` }
-                    : undefined,
-                }}
+                easyEdaProxyConfig={
+                  sessionToken
+                    ? {
+                        proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+                        headers: { Authorization: `Bearer ${sessionToken}` },
+                      }
+                    : undefined
+                }
               />
             </div>
           </ResizablePanel>
