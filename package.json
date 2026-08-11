@@ -94,7 +94,7 @@
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.36",
     "@tscircuit/mm": "^0.0.8",
-    "@tscircuit/monaco-code-editor": "git+https://github.com/tscircuit/monaco-code-editor.git#9a3c50c55ab7467e24459c0237b1f2d597381f4b",
+    "@tscircuit/monaco-code-editor": "git+https://github.com/tscircuit/monaco-code-editor.git#3173b7dc1d32e762f511422fbac301557ff1360b",
     "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#55a2839",
     "@tscircuit/pcb-viewer": "1.11.384",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
