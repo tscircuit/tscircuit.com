@@ -27,8 +27,9 @@ import { downloadSimpleRouteJson } from "@/lib/download-fns/download-simple-rout
 import { downloadSpiceFile } from "@/lib/download-fns/download-spice-file"
 import { downloadStepFile } from "@/lib/download-fns/download-step"
 import { CubeIcon } from "@radix-ui/react-icons"
+import { ExportAccessoryDialog } from "@tscircuit/runframe"
 import { AnyCircuitElement } from "circuit-json"
-import { ChevronDown, Download, Hammer, ImageIcon } from "lucide-react"
+import { ChevronDown, Download, Hammer, ImageIcon, Wrench } from "lucide-react"
 import { useState } from "react"
 
 interface DownloadButtonAndMenuProps {
@@ -59,6 +60,10 @@ export function DownloadButtonAndMenu({
     AnyCircuitElement[] | null
   >(null)
   const [isFetchingCircuitJson, setIsFetchingCircuitJson] = useState(false)
+  const [isAccessoryDialogOpen, setIsAccessoryDialogOpen] = useState(false)
+  const [accessoryCircuitJson, setAccessoryCircuitJson] = useState<
+    AnyCircuitElement[] | null
+  >(null)
 
   const canDownload = Boolean(
     hasCircuitJson || (circuitJson && circuitJson.length),
@@ -337,6 +342,25 @@ export function DownloadButtonAndMenu({
 
           <DropdownMenuItem
             className="text-xs"
+            disabled={isFetchingCircuitJson}
+            onSelect={async () => {
+              try {
+                const cj = await getCircuitJson()
+                setAccessoryCircuitJson(cj)
+                setIsAccessoryDialogOpen(true)
+              } catch {
+                // getCircuitJson displays the download error toast.
+              }
+            }}
+          >
+            <Wrench className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">
+              {isFetchingCircuitJson ? "Loading Accessories…" : "Accessory…"}
+            </span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="text-xs"
             onClick={async () => {
               const cj = await getCircuitJson()
               await downloadFabricationFiles({
@@ -436,6 +460,14 @@ export function DownloadButtonAndMenu({
         circuitJson={fetchedCircuitJson || circuitJson || []}
         fileName={unscopedName || "circuit"}
       />
+      {accessoryCircuitJson && (
+        <ExportAccessoryDialog
+          open={isAccessoryDialogOpen}
+          onOpenChange={setIsAccessoryDialogOpen}
+          circuitJson={accessoryCircuitJson}
+          projectName={unscopedName || "circuit"}
+        />
+      )}
     </div>
   )
 }
