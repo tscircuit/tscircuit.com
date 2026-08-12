@@ -1,34 +1,33 @@
 import { Badge } from "@/components/ui/badge"
-import {
-  GitFork,
-  Star,
-  Settings,
-  Link as LinkIcon,
-  Github,
-  Plus,
-  RefreshCw,
-  Boxes,
-} from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useState, useEffect, useMemo } from "react"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
+import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useGetOrgMember } from "@/hooks/use-get-org-member"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useManualGitHubSync } from "@/hooks/use-manual-github-sync"
+import { useOrganization } from "@/hooks/use-organization"
+import { usePackageDomains } from "@/hooks/use-package-domains"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { getLicenseFromLicenseContent } from "@/lib/getLicenseFromLicenseContent"
 import { PackageInfo } from "@/lib/types"
-import { useOrganization } from "@/hooks/use-organization"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { useGetOrgMember } from "@/hooks/use-get-org-member"
-import { usePackageDomains } from "@/hooks/use-package-domains"
+import {
+  Boxes,
+  GitFork,
+  Github,
+  Link as LinkIcon,
+  Plus,
+  RefreshCw,
+  Settings,
+  Star,
+} from "lucide-react"
+import { useEffect, useMemo } from "react"
 import { Link, useLocation } from "wouter"
 
 interface SidebarAboutSectionProps {
@@ -100,34 +99,7 @@ export default function SidebarAboutSection({
 
   const canManagePackage = isOwner || Boolean(orgMember)
 
-  const [isSyncing, setIsSyncing] = useState(false)
-
-  const axios = useAxios()
-  const { toast } = useToast()
-
-  const handleGitHubSync = async () => {
-    if (!packageInfo?.package_id) return
-    setIsSyncing(true)
-    try {
-      const response = await axios.post("/packages/start_github_sync", {
-        package_id: packageInfo.package_id,
-      })
-      if (response.data?.start_github_sync_result?.ok) {
-        toast({
-          title: "Sync started",
-          description: response.data.start_github_sync_result.message,
-        })
-      }
-    } catch (error: any) {
-      toast({
-        title: "Sync failed",
-        description: error?.data?.message || "Failed to start GitHub sync",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSyncing(false)
-    }
-  }
+  const { handleGitHubSync, isSyncing } = useManualGitHubSync(packageInfo)
 
   const websiteUrl =
     packageInfo?.website || packageRelease?.package_release_website_url
@@ -248,6 +220,7 @@ export default function SidebarAboutSection({
                     <button
                       onClick={handleGitHubSync}
                       disabled={isSyncing}
+                      aria-label="Sync from GitHub"
                       className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
                     >
                       <RefreshCw

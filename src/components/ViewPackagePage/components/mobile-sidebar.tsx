@@ -1,32 +1,31 @@
-import {
-  GitFork,
-  Star,
-  Tag,
-  Settings,
-  LinkIcon,
-  Github,
-  Plus,
-  RefreshCw,
-} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useGlobalStore } from "@/hooks/use-global-store"
 import { Button } from "@/components/ui/button"
-import React, { useState, useEffect, useMemo, useCallback } from "react"
-import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
-import PreviewImageSquares from "./preview-image-squares"
-import { useOrganization } from "@/hooks/use-organization"
-import { useAxios } from "@/hooks/use-axios"
-import { useToast } from "@/hooks/use-toast"
-import { useGetOrgMember } from "@/hooks/use-get-org-member"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Link, useLocation } from "wouter"
+import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
+import { useGetOrgMember } from "@/hooks/use-get-org-member"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useManualGitHubSync } from "@/hooks/use-manual-github-sync"
+import { useOrganization } from "@/hooks/use-organization"
+import {
+  GitFork,
+  Github,
+  LinkIcon,
+  Plus,
+  RefreshCw,
+  Settings,
+  Star,
+  Tag,
+} from "lucide-react"
+import React, { useEffect, useMemo } from "react"
+import { Link, useLocation } from "wouter"
+import PreviewImageSquares from "./preview-image-squares"
 
 interface MobileSidebarProps {
   isLoading?: boolean
@@ -75,33 +74,7 @@ const MobileSidebar = ({
 
   const canManagePackage = isOwner || Boolean(orgMember)
 
-  const [isSyncing, setIsSyncing] = useState(false)
-  const axios = useAxios()
-  const { toast } = useToast()
-
-  const handleGitHubSync = useCallback(async () => {
-    if (!packageInfo?.package_id) return
-    setIsSyncing(true)
-    try {
-      const response = await axios.post("/packages/start_github_sync", {
-        package_id: packageInfo.package_id,
-      })
-      if (response.data?.start_github_sync_result?.ok) {
-        toast({
-          title: "Sync started",
-          description: response.data.start_github_sync_result.message,
-        })
-      }
-    } catch (error: any) {
-      toast({
-        title: "Sync failed",
-        description: error?.data?.message || "Failed to start GitHub sync",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSyncing(false)
-    }
-  }, [packageInfo?.package_id, axios, toast])
+  const { handleGitHubSync, isSyncing } = useManualGitHubSync(packageInfo)
 
   const websiteUrl =
     packageInfo?.website || packageRelease?.package_release_website_url
@@ -204,6 +177,7 @@ const MobileSidebar = ({
                     <button
                       onClick={handleGitHubSync}
                       disabled={isSyncing}
+                      aria-label="Sync from GitHub"
                       className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
                     >
                       <RefreshCw
