@@ -54,7 +54,7 @@
         "@tscircuit/create-snippet-url": "^0.0.14",
         "@tscircuit/eval": "^0.0.1185",
         "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
-        "@tscircuit/internal-dynamic-import": "^0.0.13",
+        "@tscircuit/internal-dynamic-import": "^0.0.15",
         "@tscircuit/layout": "^0.0.29",
         "@tscircuit/math-utils": "^0.0.36",
         "@tscircuit/mm": "^0.0.8",
@@ -831,7 +831,7 @@
 
     "@tscircuit/infgrid-ijump-astar": ["@tscircuit/infgrid-ijump-astar@0.0.35", "", {}, "sha512-PZx3GyD7mDNEhLJn8+7n8NjrieOvrX03g7Gx1cvwXv9mmgSC4M+yTA0WC4DgOvcRdTnarf0R8xvwtDeJ4tMK9Q=="],
 
-    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.13", "", {}, "sha512-ji4NIF22ehRjR7G2Kv42epv/Uj2mjcYmpMi+L7Rlf2u8h2IaALjnh6vaL+Wy++a+TkDd/Wlo0/W4cpmG0XPmEQ=="],
+    "@tscircuit/internal-dynamic-import": ["@tscircuit/internal-dynamic-import@0.0.15", "", {}, "sha512-88yoEXJeesTHmdas7JHUyCwGpVtLAtVc3G8Y5VFP6cSKkhcHkqyVAykP8n00iBXVrKF8ga3GFIwlJGB8KUjaSQ=="],
 
     "@tscircuit/krt-wasm": ["@tscircuit/krt-wasm@0.1.8", "", { "peerDependencies": { "tscircuit": "*" } }, "sha512-ivC3RYpyqlpOLVrhLq7IjyzLd6xHHrB8VM8WW4YWQlgsOLE8bZ89RBlmiku04whwFs3Xi1oFF7jxQDhggZ9Gmw=="],
 
