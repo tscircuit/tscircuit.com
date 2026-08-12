@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test"
+import { type Page, expect, test } from "@playwright/test"
 
 const baseUrl = "http://127.0.0.1:5177"
 const packagePath = "/testuser/my-test-board"
@@ -34,7 +34,31 @@ for (const viewport of [
     await page.setViewportSize(viewport)
     await installSession(page)
 
+    let syncStarted = false
+    let postSyncBuildChecks = 0
+
+    await page.route("**/package_releases/list**", async (route) => {
+      if (syncStarted) postSyncBuildChecks += 1
+
+      if (!syncStarted || postSyncBuildChecks < 2) {
+        await route.continue()
+        return
+      }
+
+      await route.fulfill({
+        json: {
+          package_releases: [
+            {
+              latest_package_build_id: "new-build",
+              package_release_id: "new-release",
+            },
+          ],
+        },
+      })
+    })
+
     await page.route("**/packages/start_github_sync", async (route) => {
+      syncStarted = true
       await route.fulfill({
         json: {
           start_github_sync_result: {
@@ -49,7 +73,8 @@ for (const viewport of [
     await page.getByRole("button", { name: "Sync from GitHub" }).click()
 
     await expect(page).toHaveURL(
-      /\/testuser\/my-test-board\/releases\/package_release_\d+$/,
+      /\/testuser\/my-test-board\/releases\/new-release\/builds\/new-build$/,
     )
+    expect(postSyncBuildChecks).toBe(2)
   })
 }
