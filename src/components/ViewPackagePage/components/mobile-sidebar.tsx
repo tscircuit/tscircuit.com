@@ -91,6 +91,9 @@ const MobileSidebar = ({
           title: "Sync started",
           description: response.data.start_github_sync_result.message,
         })
+        navigate(
+          `/${packageInfo.name}/releases/${packageInfo.latest_package_release_id}`,
+        )
       }
     } catch (error: any) {
       toast({
@@ -101,7 +104,7 @@ const MobileSidebar = ({
     } finally {
       setIsSyncing(false)
     }
-  }, [packageInfo?.package_id, axios, toast])
+  }, [packageInfo, axios, toast, navigate])
 
   const websiteUrl =
     packageInfo?.website || packageRelease?.package_release_website_url
@@ -204,6 +207,7 @@ const MobileSidebar = ({
                     <button
                       onClick={handleGitHubSync}
                       disabled={isSyncing}
+                      aria-label="Sync from GitHub"
                       className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
                     >
                       <RefreshCw
