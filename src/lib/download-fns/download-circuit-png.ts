@@ -83,6 +83,9 @@ const renderCircuitToPng = async (
   const pngBytes = await renderCircuitJsonTo3dPng(circuitJson, {
     cameraPreset: "top-left-corner",
     boardTextureResolution: 2048,
+    width: 1920,
+    height: 1440,
+    supersampling: 2,
   })
   // Copy into a fresh ArrayBuffer: a Uint8Array view isn't assignable to BlobPart.
   const pngBuffer = new ArrayBuffer(pngBytes.byteLength)
