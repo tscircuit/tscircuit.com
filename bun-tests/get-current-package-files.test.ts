@@ -16,9 +16,7 @@ test("excludes a stale path after a file is renamed", () => {
 
   const files = getCurrentPackageFiles(packageFiles, loadedFiles)
 
-  expect(files).toEqual([
-    { path: "new-name.tsx", content: "export default 1" },
-  ])
+  expect(files).toEqual([{ path: "new-name.tsx", content: "export default 1" }])
 })
 
 test("returns loaded files in current package metadata order", () => {
