@@ -6,6 +6,7 @@ import { useMemo, useState } from "react"
 import { isDownloadOnlyPackageFile } from "@/lib/is-download-only-package-file"
 import { useQueries, useQuery } from "react-query"
 import { useGlobalStore } from "./use-global-store"
+import { getCurrentPackageFiles } from "@/lib/get-current-package-files"
 
 function isTextContent(str: string): boolean {
   return !str.includes("\0")
@@ -205,9 +206,8 @@ export function useOptimizedPackageFilesLoader(
   )
 
   const allFiles = useMemo(() => {
-    const files = Array.from(loadedFiles.values())
-    return files
-  }, [loadedFiles])
+    return getCurrentPackageFiles(pkgFiles.data ?? [], loadedFiles)
+  }, [loadedFiles, pkgFiles.data])
 
   const areAllFilesLoading =
     remainingFilesQueries.some((q) => q.isLoading) ||
