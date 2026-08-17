@@ -145,7 +145,11 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   // file is written, which otherwise makes a fast click start a run with an
   // incomplete file map.
   const isRunFrameLoading =
-    isLoading || !isFullyLoaded || localFiles.length === 0 || !currentFile
+    isLoading ||
+    !isFullyLoaded ||
+    localFiles.length === 0 ||
+    !currentFile ||
+    (totalFilesCount > 0 && loadedFilesCount < totalFilesCount)
 
   const hasUnsavedChanges = useMemo(
     () =>
