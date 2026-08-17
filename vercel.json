@@ -12,6 +12,14 @@
   ],
   "routes": [
     {
+      "src": "^/compare$",
+      "dest": "https://tscircuit-com-compare.vercel.app/compare"
+    },
+    {
+      "src": "^/compare/(.*)$",
+      "dest": "https://tscircuit-com-compare.vercel.app/compare/$1"
+    },
+    {
       "src": "^/$",
       "dest": "https://tscircuit-com-landing.vercel.app/index.html"
     },
