@@ -8,28 +8,31 @@ on:
       - 'fake-snippets-api/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     if: ${{ !(github.event_name == 'push' && startsWith(github.event.head_commit.message, 'v')) }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
+          package-manager-cache: false
           registry-url: https://registry.npmjs.org/
       - run: npm install -g pver
       - run: bun install --frozen-lockfile
       - run: bun run build:fake-api
       - run: pver release --no-push-main
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.TSCIRCUIT_BOT_GITHUB_TOKEN }}
 
       - name: Create Pull Request
