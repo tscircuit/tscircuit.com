@@ -239,6 +239,7 @@ export const GitHubRepositorySelector = ({
             <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
               <PopoverTrigger asChild>
                 <Button
+                  id="repository"
                   variant="outline"
                   role="combobox"
                   aria-expanded={comboboxOpen}
@@ -254,10 +255,14 @@ export const GitHubRepositorySelector = ({
                 align="start"
               >
                 <Command shouldFilter={false}>
+                  {/* Keep password-manager menus from claiming repository navigation keys. */}
                   <CommandInput
                     value={searchValue}
                     onValueChange={setSearchValue}
                     placeholder="Search repositories..."
+                    autoComplete="off"
+                    data-1p-ignore="true"
+                    data-lpignore="true"
                   />
                   <CommandList
                     className="max-h-[400px] overflow-y-auto overscroll-contain [&_[cmdk-list-sizer]]:overflow-visible"
