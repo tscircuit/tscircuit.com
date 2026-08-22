@@ -23,7 +23,10 @@ type CircuitJsonToGerberModule = {
   stringifyGerberCommandLayers: (
     gerberLayerCommands: any,
   ) => Record<string, string>
-  convertSoupToExcellonDrillCommands: (params: any) => any
+  convertSoupToExcellonDrillCommandLayers: (params: {
+    circuitJson: AnyCircuitElement[]
+    flip_y_axis?: boolean
+  }) => Record<string, any[]>
   stringifyExcellonDrill: (drillCommands: any) => string
 }
 
