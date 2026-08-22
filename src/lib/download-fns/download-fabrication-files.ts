@@ -24,30 +24,17 @@ export const createFabricationFilesZip = async ({
   pnpConverter: PnpConverter
 }) => {
   const zip = new JSZip()
-  const {
-    convertSoupToGerberCommands,
-    stringifyGerberCommandLayers,
-    convertSoupToExcellonDrillCommandLayers,
-    stringifyExcellonDrill,
-  } = gerberConverter
   const { convertCircuitJsonToBomRows, convertBomRowsToCsv } = bomConverter
   const { convertCircuitJsonToPickAndPlaceCsv } = pnpConverter
 
-  const gerberLayerCmds = convertSoupToGerberCommands(circuitJson, {
-    flip_y_axis: false,
-  })
-  const gerberFileContents = stringifyGerberCommandLayers(gerberLayerCmds)
-
-  for (const [fileName, fileContents] of Object.entries(gerberFileContents)) {
-    zip.file(`gerber/${fileName}.gbr`, fileContents)
-  }
-
-  const drillCommandLayers = convertSoupToExcellonDrillCommandLayers({
+  const gerberFiles = gerberConverter.convertCircuitJsonToGerberFiles(
     circuitJson,
-    flip_y_axis: false,
-  })
-  for (const [fileName, drillCommands] of Object.entries(drillCommandLayers)) {
-    zip.file(`gerber/${fileName}`, stringifyExcellonDrill(drillCommands))
+    {
+      flip_y_axis: false,
+    },
+  )
+  for (const [fileName, fileContents] of Object.entries(gerberFiles)) {
+    zip.file(`gerber/${fileName}`, fileContents)
   }
 
   const bomRows = await convertCircuitJsonToBomRows({ circuitJson })

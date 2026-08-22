@@ -7,14 +7,12 @@ test("fabrication zip includes plated, blind, and non-plated drill layers", asyn
   const zipBlob = await createFabricationFilesZip({
     circuitJson: [] as AnyCircuitElement[],
     gerberConverter: {
-      convertSoupToGerberCommands: () => ({ frontCopper: [] }),
-      stringifyGerberCommandLayers: () => ({ F_Cu: "front copper" }),
-      convertSoupToExcellonDrillCommandLayers: () => ({
-        "drill-L1-L2.drl": ["blind plated"],
-        "drill-L1-L4.drl": ["through plated"],
-        "drill_npth.drl": ["non-plated"],
+      convertCircuitJsonToGerberFiles: () => ({
+        "F_Cu.gbr": "front copper",
+        "drill-L1-L2.drl": "blind plated",
+        "drill-L1-L4.drl": "through plated",
+        "drill_npth.drl": "non-plated",
       }),
-      stringifyExcellonDrill: (commands) => commands.join("\n"),
     },
     bomConverter: {
       convertCircuitJsonToBomRows: () => [],
