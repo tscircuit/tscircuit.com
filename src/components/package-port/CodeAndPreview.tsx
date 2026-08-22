@@ -140,6 +140,17 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     releaseId: releaseIdForVersion,
   })
 
+  // Keep RunFrame's controls disabled until the file-management state has
+  // settled. `isFullyLoaded` can become true one render before the selected
+  // file is written, which otherwise makes a fast click start a run with an
+  // incomplete file map.
+  const isRunFrameLoading =
+    isLoading ||
+    !isFullyLoaded ||
+    localFiles.length === 0 ||
+    !currentFile ||
+    (totalFilesCount > 0 && loadedFilesCount < totalFilesCount)
+
   const hasUnsavedChanges = useMemo(
     () =>
       (!isSaving &&
@@ -451,7 +462,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 showFileMenu={false}
                 showRunButton
                 forceLatestEvalVersion
-                isLoadingFiles={isLoading || !isFullyLoaded}
+                isLoadingFiles={isRunFrameLoading}
                 onRenderStarted={() => {
                   sessionTokenAtRenderStartRef.current = sessionToken
                   setState((prev) => ({
