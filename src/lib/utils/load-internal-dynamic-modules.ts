@@ -16,15 +16,10 @@ type CircuitJsonToBomCsvModule = {
 }
 
 type CircuitJsonToGerberModule = {
-  convertSoupToGerberCommands: (
+  convertCircuitJsonToGerberFiles: (
     circuitJson: AnyCircuitElement[],
-    options?: any,
-  ) => any
-  stringifyGerberCommandLayers: (
-    gerberLayerCommands: any,
+    options?: { flip_y_axis?: boolean },
   ) => Record<string, string>
-  convertSoupToExcellonDrillCommands: (params: any) => any
-  stringifyExcellonDrill: (drillCommands: any) => string
 }
 
 type CircuitJsonToGltfModule = {
