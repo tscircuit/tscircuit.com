@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
@@ -56,6 +58,8 @@ export function DownloadButtonAndMenu({
     usePcbDownloadDialog()
   const axios = useAxios()
   const { packageId } = useCurrentPackageId()
+  const sessionToken = useGlobalStore((s) => s.session?.token)
+  const apiBaseUrl = useApiBaseUrl()
   const [fetchedCircuitJson, setFetchedCircuitJson] = useState<
     AnyCircuitElement[] | null
   >(null)
@@ -366,6 +370,12 @@ export function DownloadButtonAndMenu({
               await downloadFabricationFiles({
                 circuitJson: cj,
                 snippetUnscopedName: unscopedName || "snippet",
+                easyEdaProxyConfig: {
+                  proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+                  headers: sessionToken
+                    ? { Authorization: `Bearer ${sessionToken}` }
+                    : undefined,
+                },
               }).catch((error) => {
                 console.error(error)
                 console.log(error, error.stack)

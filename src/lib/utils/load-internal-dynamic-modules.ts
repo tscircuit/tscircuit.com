@@ -58,6 +58,7 @@ type CircuitJsonToLbrnModule = Record<string, unknown>
 type CircuitJsonToPnpCsvModule = {
   convertCircuitJsonToPickAndPlaceCsv: (
     circuitJson: AnyCircuitElement[],
+    options?: { supplier?: "jlcpcb"; flip_y_axis?: boolean },
   ) => Promise<string> | string
 }
 

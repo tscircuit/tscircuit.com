@@ -7,6 +7,12 @@ import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
 import { withDownloadToast } from "./download-toast"
+import {
+  createFabricationPartFetcher,
+  prepareJlcpcbPickAndPlace,
+  type FabricationPlatformOptions,
+  type FetchSupplierPartCircuitJson,
+} from "./prepare-jlcpcb-pick-and-place"
 
 type GerberConverter = Awaited<ReturnType<typeof loadCircuitJsonToGerber>>
 type BomConverter = Awaited<ReturnType<typeof loadCircuitJsonToBomCsv>>
@@ -17,11 +23,13 @@ export const createFabricationFilesZip = async ({
   gerberConverter,
   bomConverter,
   pnpConverter,
+  fetchSupplierPartCircuitJson = createFabricationPartFetcher(),
 }: {
   circuitJson: AnyCircuitElement[]
   gerberConverter: GerberConverter
   bomConverter: BomConverter
   pnpConverter: PnpConverter
+  fetchSupplierPartCircuitJson?: FetchSupplierPartCircuitJson
 }) => {
   const zip = new JSZip()
   const { convertCircuitJsonToBomRows, convertBomRowsToCsv } = bomConverter
@@ -41,8 +49,18 @@ export const createFabricationFilesZip = async ({
   const bomCsv = await convertBomRowsToCsv(bomRows)
   zip.file("bom.csv", bomCsv)
 
-  const pnpCsv = await convertCircuitJsonToPickAndPlaceCsv(circuitJson)
+  const placement = await prepareJlcpcbPickAndPlace(
+    circuitJson,
+    fetchSupplierPartCircuitJson,
+  )
+  const pnpCsv = await convertCircuitJsonToPickAndPlaceCsv(
+    placement.circuitJson,
+    { supplier: "jlcpcb" },
+  )
   zip.file("pick_and_place.csv", pnpCsv)
+  if (placement.warnings.length) {
+    zip.file("placement_warnings.txt", placement.warnings.sort().join("\n"))
+  }
 
   return zip.generateAsync({ type: "blob" })
 }
@@ -50,9 +68,11 @@ export const createFabricationFilesZip = async ({
 export const downloadFabricationFiles = async ({
   circuitJson,
   snippetUnscopedName,
+  easyEdaProxyConfig,
 }: {
   circuitJson: AnyCircuitElement[]
   snippetUnscopedName: string
+  easyEdaProxyConfig?: FabricationPlatformOptions["easyEdaProxyConfig"]
 }) => {
   const zipBlob = await withDownloadToast(
     "Preparing fabrication files...",
@@ -68,6 +88,9 @@ export const downloadFabricationFiles = async ({
         gerberConverter,
         bomConverter,
         pnpConverter,
+        fetchSupplierPartCircuitJson: createFabricationPartFetcher({
+          easyEdaProxyConfig,
+        }),
       })
     },
   )
