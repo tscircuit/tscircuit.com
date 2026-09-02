@@ -4,6 +4,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useMemo, useState } from "react"
 import { isDownloadOnlyPackageFile } from "@/lib/is-download-only-package-file"
+import { findPriorityFilePath } from "@/lib/utils/findPriorityFilePath"
 import { useQueries, useQuery } from "react-query"
 import { useGlobalStore } from "./use-global-store"
 
@@ -47,26 +48,7 @@ export function useOptimizedPackageFilesLoader(
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath
 
-    if (priorityFilePath) {
-      const exactMatch = pkgFiles.data.find(
-        (f) => f.file_path === priorityFilePath,
-      )
-      if (exactMatch) return exactMatch.file_path
-
-      const partialMatch = pkgFiles.data.find(
-        (f) =>
-          f.file_path.includes(priorityFilePath) ||
-          priorityFilePath.includes(f.file_path),
-      )
-      if (partialMatch) return partialMatch.file_path
-    }
-
-    // Check for index.tsx first
-    const indexFile = pkgFiles.data.find((f) => f.file_path === "index.tsx")
-    if (indexFile) return indexFile.file_path
-
-    // Fallback to first file
-    return pkgFiles.data[0]?.file_path || null
+    return findPriorityFilePath(pkgFiles.data, priorityFilePath)
   }, [pkgFiles.data, priorityFilePath])
 
   const priorityFileData = pkgFiles.data?.find(
@@ -214,17 +196,21 @@ export function useOptimizedPackageFilesLoader(
     priorityFileQuery.isLoading
   const error =
     priorityFileQuery.error || remainingFilesQueries.find((q) => q.error)?.error
+  // A package containing only hidden files has no automatic selection, so
+  // there is no priority request to wait for before showing the file browser.
+  const isPriorityFileFetched =
+    priorityFileQuery.isFetched || (pkgFiles.isFetched && !targetFilePath)
 
   return {
     priorityFile: priorityFileQuery.data || null,
-    priorityFileFetched: priorityFileQuery.isFetched,
+    priorityFileFetched: isPriorityFileFetched,
     allFiles,
-    isPriorityLoading: priorityFileQuery.isLoading,
+    isPriorityLoading: Boolean(priorityFileData) && priorityFileQuery.isLoading,
     areAllFilesLoading,
     error,
     isMetaLoading: pkgFiles.isLoading,
     totalFilesCount: pkgFiles.data?.length || 0,
     loadedFilesCount: allFiles.length,
-    isPriorityFileFetched: priorityFileQuery.isFetched,
+    isPriorityFileFetched,
   }
 }

@@ -189,7 +189,7 @@ export function useFileManagement({
         })
         setLocalFiles(filesFromUrl)
         setInitialFiles([])
-        setCurrentFile(targetFile?.path || filesFromUrl[0]?.path || null)
+        setCurrentFile(targetFile?.path ?? null)
         return
       }
 
