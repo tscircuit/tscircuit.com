@@ -14,6 +14,7 @@ import {
 import { Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useUploadOrgAvatarMutation } from "@/hooks/use-upload-org-avatar-mutation"
+import { getAvatarUploadErrorMessage } from "@/lib/get-avatar-upload-error-message"
 
 interface UseAvatarUploadDialogProps {
   orgId: string | null | undefined
@@ -59,11 +60,8 @@ export const useAvatarUploadDialog = ({
       setIsOpen(false)
       onSuccess?.()
     },
-    onError: (err: any) => {
-      const errorMessage =
-        err?.data?.error?.message ||
-        err?.response?.data?.error?.message ||
-        "Failed to upload avatar"
+    onError: (err: unknown) => {
+      const errorMessage = getAvatarUploadErrorMessage(err)
       setError(errorMessage)
       toast({
         title: "Failed to upload avatar",
@@ -164,7 +162,11 @@ export const useAvatarUploadDialog = ({
               onChange={handleFileChange}
               disabled={uploadMutation.isLoading}
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-red-600">
+                {error}
+              </p>
+            )}
             <p className="text-xs text-gray-500">
               Supported formats: PNG, JPG, GIF. Max size 5MB.
             </p>
