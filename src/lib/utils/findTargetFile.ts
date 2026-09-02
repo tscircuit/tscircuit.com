@@ -64,10 +64,6 @@ export const findTargetFile = ({
   }
 
   let targetFile: PackageFile | undefined | null = null
-  if (!filePathFromUrl) {
-    files = files.filter((x) => !isHiddenFile(x.path))
-  }
-
   if (filePathFromUrl) {
     const file = files.find((file) => file.path === filePathFromUrl)?.path
     if (
@@ -86,6 +82,10 @@ export const findTargetFile = ({
       }
     }
   }
+
+  // Explicit selections may open hidden files, but automatic fallbacks must
+  // exclude them even when the URL points to a file that no longer exists.
+  files = files.filter((file) => !isHiddenFile(file.path))
 
   if (!targetFile) {
     targetFile =
