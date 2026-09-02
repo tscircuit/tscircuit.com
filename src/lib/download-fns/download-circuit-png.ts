@@ -4,7 +4,7 @@ import {
   convertCircuitJsonToAssemblySvg,
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToPinoutSvg,
-  convertCircuitJsonToSchematicSvg,
+  convertCircuitJsonToStackedSchematicSheetsSvg,
 } from "circuit-to-svg"
 import { saveAs } from "file-saver"
 import { withDownloadToast } from "./download-toast"
@@ -23,7 +23,7 @@ const SVG_RENDERERS: Record<
   string,
   (circuitJson: AnyCircuitElement[], options: any) => string
 > = {
-  schematic: convertCircuitJsonToSchematicSvg,
+  schematic: convertCircuitJsonToStackedSchematicSheetsSvg,
   pcb: convertCircuitJsonToPcbSvg,
   assembly: convertCircuitJsonToAssemblySvg,
   pinout: convertCircuitJsonToPinoutSvg,
