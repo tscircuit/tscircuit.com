@@ -192,6 +192,110 @@ describe("renderPackagePageContent", () => {
     expect(releasesHtml).toContain("success")
     expect(buildsHtml).toContain("build-1")
   })
+
+  test.each(["release", "build"])(
+    "renders build logs in the %s page body without JavaScript",
+    (kind) => {
+      const html = renderPackagePageContent({
+        ...baseData,
+        route: {
+          ...baseData.route,
+          kind,
+          releaseId: "release-1",
+          buildId: "build-1",
+        },
+        packageBuild: {
+          package_build_id: "build-1",
+          user_code_job_started_at: "2026-09-03T14:15:35.301Z",
+          user_code_job_completed_at: "2026-09-03T14:16:35.301Z",
+          user_code_job_completed_logs: [
+            {
+              timestamp: "2026-09-03T14:15:41.583Z",
+              msg: "Starting execution",
+            },
+            {
+              timestamp: "2026-09-03T14:15:55.294Z",
+              stream: "stderr",
+              msg: 'Build <board />\n<script>alert("nope")</script> & done',
+            },
+            "Plain text log",
+            { action: "execution_complete", exitCode: 0 },
+          ],
+        },
+      })
+
+      expect(html).toContain("<h2>Build Logs</h2>")
+      expect(html).toContain("Status: Ready")
+      expect(html).toContain(
+        "<dt>Started</dt><dd>2026-09-03T14:15:35.301Z</dd>",
+      )
+      expect(html).toContain(
+        "<dt>Completed</dt><dd>2026-09-03T14:16:35.301Z</dd>",
+      )
+      expect(html).toContain(
+        "<pre><code>2026-09-03T14:15:41.583Z Starting execution\n2026-09-03T14:15:55.294Z Build &lt;board /&gt;\n&lt;script&gt;alert(&quot;nope&quot;)&lt;/script&gt; &amp; done\nPlain text log\n{&quot;action&quot;:&quot;execution_complete&quot;,&quot;exitCode&quot;:0}</code></pre>",
+      )
+      expect(html).not.toContain("<script>")
+    },
+  )
+
+  test.each([
+    "Build failed <details>",
+    { message: "Build failed <details>" },
+    { code: "BUILD_FAILED" },
+  ])("renders build errors even when logs are absent: %j", (error) => {
+    const html = renderPackagePageContent({
+      ...baseData,
+      route: { ...baseData.route, kind: "release", releaseId: "release-1" },
+      packageBuild: {
+        package_build_id: "build-1",
+        build_in_progress: true,
+        user_code_job_error: error,
+        user_code_job_completed_logs: null,
+      },
+    })
+
+    expect(html).toContain("Status: Failed")
+    expect(html).toContain("<strong>Error:</strong>")
+    expect(html).toContain(
+      typeof error === "string" || error.message
+        ? "Build failed &lt;details&gt;"
+        : "{&quot;code&quot;:&quot;BUILD_FAILED&quot;}",
+    )
+    expect(html).toContain("No logs available.")
+    expect(html).not.toContain("Build in progress.")
+  })
+
+  test("renders the available log snapshot for an active build", () => {
+    const html = renderPackagePageContent({
+      ...baseData,
+      route: { ...baseData.route, kind: "build", buildId: "build-1" },
+      packageBuild: {
+        package_build_id: "build-1",
+        user_code_job_started_at: "2026-09-03T14:15:35.301Z",
+        user_code_job_completed_logs: [{ msg: "Autorouting phase 2" }],
+      },
+    })
+
+    expect(html).toContain("Status: Building")
+    expect(html).toContain("<pre><code>Autorouting phase 2</code></pre>")
+    expect(html).toContain("Refresh this page for updated logs.")
+  })
+
+  test("renders queued builds and releases without builds", () => {
+    const data = {
+      ...baseData,
+      route: { ...baseData.route, kind: "release", releaseId: "release-1" },
+    }
+    const queuedHtml = renderPackagePageContent({
+      ...data,
+      packageBuild: { package_build_id: "build-1" },
+    })
+
+    expect(queuedHtml).toContain("Status: Queued")
+    expect(queuedHtml).toContain("No logs available.")
+    expect(renderPackagePageContent(data)).toContain("No build available.")
+  })
 })
 
 test("injectPackagePageContent replaces the empty SPA root", () => {
@@ -209,4 +313,22 @@ test("serializeForInlineScript prevents closing the script element", () => {
   const serialized = serializeForInlineScript({ value: "</script><script>" })
   expect(serialized).not.toContain("</script>")
   expect(serialized).toContain("\\u003c/script\\u003e")
+})
+
+test("injectPackagePageContent preserves dollar patterns in build logs", () => {
+  const content = renderPackagePageContent({
+    ...baseData,
+    route: { ...baseData.route, kind: "build", buildId: "build-1" },
+    packageBuild: {
+      package_build_id: "build-1",
+      user_code_job_completed_logs: [{ msg: "Patterns: $& $$ $` $'" }],
+    },
+  })
+  const html = injectPackagePageContent(
+    '<body><div id="root"></div></body>',
+    content,
+  )
+
+  expect(html).toContain("Patterns: $&amp; $$ $` $&#39;")
+  expect(html).toContain(content)
 })

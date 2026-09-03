@@ -270,9 +270,59 @@ const renderBuild = (packageBuild) =>
     ["Build ID", packageBuild?.package_build_id],
     ["Status", getStatus(packageBuild)],
     ["Created", formatDate(packageBuild?.created_at)],
-    ["Started", formatDate(packageBuild?.started_at)],
-    ["Completed", formatDate(packageBuild?.completed_at)],
+    ["Started", formatDate(packageBuild?.user_code_job_started_at)],
+    ["Completed", formatDate(packageBuild?.user_code_job_completed_at)],
   ])
+
+const renderBuildLogs = (packageBuild) => {
+  if (!packageBuild) {
+    return "<section><h2>Build Logs</h2><p>No build available.</p></section>"
+  }
+
+  const error = packageBuild.user_code_job_error
+  const errorMessage =
+    typeof error === "string"
+      ? error
+      : error?.message || (error ? JSON.stringify(error) : null)
+  const isBuilding =
+    !error &&
+    (packageBuild.build_in_progress ||
+      (packageBuild.user_code_job_started_at &&
+        !packageBuild.user_code_job_completed_at))
+  const status = error
+    ? "Failed"
+    : isBuilding
+      ? "Building"
+      : packageBuild.user_code_job_completed_at
+        ? "Ready"
+        : "Queued"
+  const logs = packageBuild.user_code_job_completed_logs ?? []
+  const logText = logs
+    .map((log) => {
+      const message =
+        typeof log === "string"
+          ? log
+          : typeof log?.msg === "string"
+            ? log.msg
+            : JSON.stringify(log)
+      return [log?.timestamp, message].filter((part) => part != null).join(" ")
+    })
+    .join("\n")
+
+  return `<section><h2>Build Logs</h2><p>Status: ${status}</p>${
+    errorMessage
+      ? `<p><strong>Error:</strong></p><pre><code>${escapeHtml(errorMessage)}</code></pre>`
+      : ""
+  }${
+    logs.length > 0
+      ? `<pre><code>${escapeHtml(logText)}</code></pre>`
+      : "<p>No logs available.</p>"
+  }${
+    isBuilding
+      ? "<p>Build in progress. Refresh this page for updated logs.</p>"
+      : ""
+  }</section>`
+}
 
 const convertCircuitJsonForPreview = (contentText, converter) => {
   if (!contentText) return null
@@ -401,7 +451,7 @@ const renderRouteContent = ({
       packageRelease,
     )}${
       packageBuild ? `<h3>Latest build</h3>${renderBuild(packageBuild)}` : ""
-    }</section>`
+    }</section>${route.kind === "release" ? renderBuildLogs(packageBuild) : ""}`
   }
 
   if (route.kind === "builds") {
@@ -416,7 +466,7 @@ const renderRouteContent = ({
   if (route.kind === "build") {
     return `<section><h2>Build ${escapeHtml(
       packageBuild?.package_build_id || route.buildId,
-    )}</h2>${renderBuild(packageBuild)}</section>`
+    )}</h2>${renderBuild(packageBuild)}</section>${renderBuildLogs(packageBuild)}`
   }
 
   if (route.kind === "settings") {
@@ -468,7 +518,7 @@ export function injectPackagePageContent(html, ssrContent) {
   if (!ssrContent) return html
   return html.replace(
     /<div id="root"(?: class="[^"]*")?><\/div>/,
-    `<div id="root" data-server-rendered="true">${ssrContent}</div>`,
+    () => `<div id="root" data-server-rendered="true">${ssrContent}</div>`,
   )
 }
 
