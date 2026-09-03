@@ -1,5 +1,6 @@
 import path from "node:path"
 import { withRouteSpec } from "fake-snippets-api/lib/with-winter-spec"
+import { getCircuitJsonBuildOutputPath } from "fake-snippets-api/utils/getCircuitJsonBuildOutputPath"
 import { normalizeProjectFilePath } from "fake-snippets-api/utils/normalizeProjectFilePath"
 import { z } from "zod"
 
@@ -162,13 +163,8 @@ export default withRouteSpec({
   const mainEntrypoint = tscircuitConfig?.mainEntrypoint
 
   const fetchCircuitJsonByComponentPath = (componentPath: string) => {
-    const isCircuitJsonPath = componentPath.endsWith("circuit.json")
-    const extension = path.posix.extname(componentPath)
-    const pathWithoutExt = componentPath.slice(0, -extension.length)
     const circuitJsonPath = normalizeProjectFilePath(
-      isCircuitJsonPath
-        ? `dist/${componentPath}`
-        : `dist/${pathWithoutExt}/circuit.json`,
+      getCircuitJsonBuildOutputPath(componentPath),
     )
     const circuitFile = getFileByNormalizedPath(circuitJsonPath)
     const circuitJson = parseCircuitJson(circuitFile?.content_text ?? null)

@@ -112,6 +112,53 @@ test("get_preview_circuit_json - mainEntrypoint from config", async () => {
   expect(body.circuit_json).toEqual(mainCircuitJson)
 })
 
+test("get_preview_circuit_json - tsci source suffixes", async () => {
+  const { axios } = await getTestServer()
+
+  const cases = [
+    {
+      packageName: "testuser/preview-circuit-tsx-entrypoint",
+      config: {
+        mainEntrypoint: "rp2040-connector-routed.circuit.tsx",
+      },
+      componentPath: "rp2040-connector-routed.circuit.tsx",
+      circuitJsonPath: "dist/rp2040-connector-routed/circuit.json",
+    },
+    {
+      packageName: "testuser/preview-board-tsx-component",
+      config: { previewComponentPath: "boards/controller.board.tsx" },
+      componentPath: "boards/controller.board.tsx",
+      circuitJsonPath: "dist/boards/controller/circuit.json",
+    },
+  ]
+
+  for (const testCase of cases) {
+    const circuitJson = [
+      { type: "source_component", name: testCase.packageName },
+    ]
+    const { package_release_id } = await createPackageWithFiles(
+      axios,
+      testCase.packageName,
+      {
+        "tscircuit.config.json": JSON.stringify(testCase.config),
+        [testCase.componentPath]: "export default () => null",
+        [testCase.circuitJsonPath]: JSON.stringify(circuitJson),
+      },
+    )
+
+    const res = await axios.post(
+      "/api/package_releases/get_preview_circuit_json",
+      { package_release_id },
+    )
+
+    expect(res.status).toBe(200)
+    const body = res.data.preview_circuit_json_response
+    expect(body.circuit_json_found).toBe(true)
+    expect(body.component_path).toBe(testCase.componentPath)
+    expect(body.circuit_json).toEqual(circuitJson)
+  }
+})
+
 test("get_preview_circuit_json - initialComponentPath discovery via src/index.tsx", async () => {
   const { axios } = await getTestServer()
 
@@ -280,7 +327,7 @@ test("get_preview_circuit_json - .board.tsx file discovery", async () => {
     "testuser/preview-board-file",
     {
       "my-circuit.board.tsx": "export default () => null",
-      "dist/my-circuit.board/circuit.json": JSON.stringify(boardCircuitJson),
+      "dist/my-circuit/circuit.json": JSON.stringify(boardCircuitJson),
     },
   )
 
