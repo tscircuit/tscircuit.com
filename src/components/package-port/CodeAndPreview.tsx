@@ -250,6 +250,22 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     [setLocalFiles],
   )
 
+  const handleFileSelect = useCallback(
+    (path: string, lineNumber?: number) => {
+      onFileSelect(path)
+
+      const url = new URL(window.location.href)
+      url.searchParams.set("file_path", path)
+      if (lineNumber) {
+        url.searchParams.set("line", lineNumber.toString())
+      } else {
+        url.searchParams.delete("line")
+      }
+      window.history.replaceState(null, "", url)
+    },
+    [onFileSelect],
+  )
+
   const { importComponentDialog, openImportDialog } = useEditorComponentImport({
     currentFile,
     files: fsMap,
@@ -401,7 +417,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               <WorkspaceCodeEditor
                 files={localFiles}
                 currentFile={currentFile}
-                onFileSelect={onFileSelect}
+                onFileSelect={handleFileSelect}
                 onFileContentChange={handleFileContentChange}
                 onCreateFile={handleCreateFile}
                 onDeleteFile={handleDeleteFile}
