@@ -1,16 +1,17 @@
-// api/generated-index.js
-import ky from "ky"
 import { readFileSync } from "fs"
-import { join, dirname } from "path"
+import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import he from "he"
+// api/generated-index.js
+import ky from "ky"
+import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
+import { getPackagePageImageUrl } from "../server/package-page-seo.js"
 import {
   injectPackagePageContent,
   parsePackagePageRoute,
   renderPackagePageContent,
   serializeForInlineScript,
 } from "../server/package-page-ssr.js"
-import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -519,14 +520,13 @@ async function handlePackagePage(req, res, route) {
   const title = he.encode(
     getPackagePageTitle(route, packageInfo, data.packageRelease),
   )
-  const allowedViews = ["schematic", "pcb", "assembly", "3d"]
-  const defaultView = packageInfo.default_view || "3d"
-  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "3d"
-  const imageUrl = `${REGISTRY_URL}/packages/images/${encodeURIComponent(
-    route.author,
-  )}/${encodeURIComponent(route.packageName)}/${thumbnailView}.png?fs_sha=${encodeURIComponent(
-    packageInfo.latest_package_release_fs_sha || "",
-  )}`
+  const imageUrl = getPackagePageImageUrl({
+    registryUrl: REGISTRY_URL,
+    packageInfo,
+    packageRelease: data.packageRelease,
+    author: route.author,
+    packageName: route.packageName,
+  })
   const ssrContent = renderPackagePageContent(data)
   const html = getHtmlWithModifiedSeoTags({
     title,
@@ -643,14 +643,13 @@ async function handleCustomPackageHtml(req, res) {
   )
   const title = he.encode(`${packageInfo.name} - tscircuit`)
 
-  const allowedViews = ["schematic", "pcb", "assembly", "3d"]
-  const defaultView = packageInfo.default_view || "3d"
-  const thumbnailView = allowedViews.includes(defaultView) ? defaultView : "3d"
-  const imageUrl = `${REGISTRY_URL}/packages/images/${he.encode(
+  const imageUrl = getPackagePageImageUrl({
+    registryUrl: REGISTRY_URL,
+    packageInfo,
+    packageRelease,
     author,
-  )}/${he.encode(unscopedPackageName)}/${thumbnailView}.png?fs_sha=${
-    packageInfo.latest_package_release_fs_sha
-  }`
+    packageName: unscopedPackageName,
+  })
 
   const html = getHtmlWithModifiedSeoTags({
     title,
