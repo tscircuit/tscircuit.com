@@ -124,6 +124,25 @@ test("still opens a lockfile explicitly requested in the URL", async ({
   )
 })
 
+test("updates file_path in the URL when selecting a workspace file", async ({
+  page,
+}) => {
+  await mockPackage(page, {
+    "index.circuit.tsx": "export default () => <board />",
+    "imports/part.tsx": "export const Part = () => <resistor />",
+  })
+
+  await page.goto(editorUrl)
+  await page.getByText("imports", { exact: true }).click()
+  await expect(page.getByText("part.tsx", { exact: true })).toBeVisible()
+
+  await page.getByText("part.tsx", { exact: true }).click()
+
+  await expect(page).toHaveURL(
+    new RegExp(`file_path=${encodeURIComponent("imports/part.tsx")}`),
+  )
+})
+
 test("a lockfile-only package finishes loading without a default selection", async ({
   page,
 }) => {
