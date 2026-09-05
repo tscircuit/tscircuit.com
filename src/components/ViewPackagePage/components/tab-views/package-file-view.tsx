@@ -12,9 +12,8 @@ import { saveAs } from "file-saver"
 import { usePackageFile } from "@/hooks/use-package-files"
 import { useAxios } from "@/hooks/use-axios"
 import { Button } from "@/components/ui/button"
-import { ShikiCodeViewer } from "../ShikiCodeViewer"
-import MarkdownViewer from "../markdown-viewer"
 import PackageFileArtifactPreview from "./package-file-artifact-preview"
+import { PackageFileContent } from "./package-file-content"
 import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 
 interface PackageFileViewProps {
@@ -209,22 +208,13 @@ export default function PackageFileView({
               {fileName} is not available in this package release.
             </p>
           </div>
-        ) : file?.content_text == null ? (
-          <div className="px-4 py-12 text-center text-sm text-gray-500 dark:text-[#8b949e]">
-            A preview is not available for this file.
-          </div>
-        ) : file.content_text === "" ? (
-          <div className="px-4 py-12 text-center text-sm text-gray-500 dark:text-[#8b949e]">
-            This file is empty.
-          </div>
-        ) : isMarkdownFile(filePath) ? (
-          <div className="p-4 sm:p-6">
-            <MarkdownViewer markdownContent={file.content_text} />
-          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <ShikiCodeViewer code={file.content_text} filePath={filePath} />
-          </div>
+          <PackageFileContent
+            file={file}
+            fileName={fileName}
+            filePath={filePath}
+            isMarkdownFile={isMarkdownFile(filePath)}
+          />
         )}
       </div>
     </div>
