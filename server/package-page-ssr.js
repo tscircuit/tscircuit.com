@@ -435,6 +435,31 @@ const renderRouteContent = ({
   }`
 }
 
+const relatedPackageLabels = {
+  same_author: "More from this author",
+  similar_ai_description: "Similar package",
+  random: "Discover something new",
+}
+
+const renderRelatedPackages = (relatedPackages) => {
+  if (!relatedPackages?.length) return ""
+
+  return `<style>.ssr-related-packages{border-top:1px solid #e5e7eb;margin-top:2rem;padding-top:.5rem}.ssr-related-packages ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;padding:0;list-style:none}.ssr-related-packages li{margin:0;border:1px solid #e5e7eb;border-radius:.5rem;overflow:hidden}.ssr-related-packages a{display:block;color:#111827}.ssr-related-packages img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#f9fafb}.ssr-related-packages a>span{display:grid;gap:.25rem;padding:1rem}.ssr-related-packages small{color:#6b7280;text-transform:uppercase}.ssr-related-packages strong{color:#2563eb}.ssr-related-packages strong+span{font-size:.875rem;color:#4b5563}@media(max-width:640px){.ssr-related-packages ul{grid-template-columns:1fr}}</style><section class="ssr-related-packages" aria-labelledby="ssr-related-packages-heading"><h2 id="ssr-related-packages-heading">Related Packages</h2><ul>${relatedPackages
+    .map(
+      (pkg) =>
+        `<li><a href="/${encodePath(pkg.name)}"><img src="${escapeHtml(
+          pkg.thumbnail_url,
+        )}" alt="${escapeHtml(
+          pkg.name,
+        )} preview" loading="lazy" decoding="async"><span><small>${escapeHtml(
+          relatedPackageLabels[pkg.related_type] || "Related package",
+        )}</small><strong>${escapeHtml(pkg.name)}</strong>${
+          pkg.description ? `<span>${escapeHtml(pkg.description)}</span>` : ""
+        }</span></a></li>`,
+    )
+    .join("")}</ul></section>`
+}
+
 export function renderPackagePageContent(data) {
   const { route, packageInfo, packageRelease } = data
   const packageDescription =
@@ -461,7 +486,9 @@ export function renderPackagePageContent(data) {
     ["Version", packageRelease?.version || packageInfo.latest_version],
     ["License", packageInfo.license],
     ["Stars", packageInfo.star_count],
-  ])}</header>${renderRouteContent(data)}</main>`
+  ])}</header>${renderRouteContent(data)}${renderRelatedPackages(
+    data.relatedPackages,
+  )}</main>`
 }
 
 export function injectPackagePageContent(html, ssrContent) {

@@ -115,6 +115,7 @@ function getHtmlWithModifiedSeoTags({
       packageReleases,
       packageBuilds,
       packageBuild,
+      relatedPackages,
       route,
     } = ssrPackageData
 
@@ -152,6 +153,11 @@ function getHtmlWithModifiedSeoTags({
     if (packageBuild) {
       assignments.push(
         `window.SSR_PACKAGE_BUILD = ${serializeForInlineScript(packageBuild)};`,
+      )
+    }
+    if (relatedPackages?.length) {
+      assignments.push(
+        `window.SSR_RELATED_PACKAGES = ${serializeForInlineScript(relatedPackages)};`,
       )
     }
     if (route) {
@@ -264,6 +270,50 @@ async function fetchPackageRelease(route) {
     package_name: route.packageNameWithScope,
     is_latest: true,
   })
+}
+
+function startCachedRelatedPackagesLookup(packageInfo) {
+  const isPublicPackage =
+    packageInfo.is_public !== false &&
+    !packageInfo.is_private &&
+    !packageInfo.is_unlisted
+  if (!isPublicPackage) return null
+
+  const abortController = new AbortController()
+  let isSettled = false
+  let packages = []
+
+  void requestJsonOrNull(
+    ky.get(`${REGISTRY_URL}/packages/list_related_packages`, {
+      searchParams: {
+        package_id: packageInfo.package_id,
+        cached_only: true,
+      },
+      signal: abortController.signal,
+      timeout: 2_000,
+    }),
+  )
+    .then((response) => {
+      packages = response?.packages ?? []
+    })
+    .catch((error) => {
+      if (error?.name !== "AbortError") {
+        console.warn("Failed to fetch cached related packages for SSR:", error)
+      }
+    })
+    .finally(() => {
+      isSettled = true
+    })
+
+  return {
+    takeIfReady() {
+      if (!isSettled) {
+        abortController.abort()
+        return []
+      }
+      return packages
+    },
+  }
 }
 
 async function fetchPackagePageData(route, packageInfo) {
@@ -509,7 +559,9 @@ async function handlePackagePage(req, res, route) {
   }
 
   const packageInfo = packageDetails.package
+  const relatedPackagesLookup = startCachedRelatedPackagesLookup(packageInfo)
   const data = await fetchPackagePageData(route, packageInfo)
+  data.relatedPackages = relatedPackagesLookup?.takeIfReady() ?? []
   const description = he.encode(
     `${
       packageInfo.description ||
@@ -542,6 +594,7 @@ async function handlePackagePage(req, res, route) {
       packageReleases: data.packageReleases,
       packageBuilds: data.packageBuilds,
       packageBuild: data.packageBuild,
+      relatedPackages: data.relatedPackages,
       route,
     },
   })

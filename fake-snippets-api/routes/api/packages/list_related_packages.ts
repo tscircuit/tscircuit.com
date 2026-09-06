@@ -10,6 +10,13 @@ const relatedTypeSchema = z.enum([
   "random",
 ])
 
+type RelatedPackage = Package & {
+  related_type: z.infer<typeof relatedTypeSchema>
+  thumbnail_url: string
+}
+
+const relatedPackagesCache = new Map<string, RelatedPackage[]>()
+
 const getThumbnailUrl = (pkg: Package) =>
   pkg.latest_pcb_preview_image_url ??
   pkg.latest_sch_preview_image_url ??
@@ -19,7 +26,10 @@ const getThumbnailUrl = (pkg: Package) =>
 export default withRouteSpec({
   methods: ["GET"],
   auth: "none",
-  commonParams: z.object({ package_id: z.string() }),
+  commonParams: z.object({
+    package_id: z.string(),
+    cached_only: z.coerce.boolean().optional().default(false),
+  }),
   jsonResponse: z.object({
     ok: z.boolean(),
     packages: z.array(
@@ -28,6 +38,7 @@ export default withRouteSpec({
         thumbnail_url: z.string(),
       }),
     ),
+    cache_status: z.enum(["hit", "miss"]),
   }),
 })(async (req, ctx) => {
   const sourcePackage = ctx.db.getPackageById(req.commonParams.package_id)
@@ -39,6 +50,21 @@ export default withRouteSpec({
     })
   }
 
+  const cachedPackages = relatedPackagesCache.get(sourcePackage.package_id)
+  if (cachedPackages) {
+    return ctx
+      .json({ ok: true, packages: cachedPackages, cache_status: "hit" })
+      .headers({
+        "Cache-Control": `public, max-age=${CACHE_DURATION_SECONDS}, s-maxage=${CACHE_DURATION_SECONDS}`,
+      })
+  }
+
+  if (req.commonParams.cached_only) {
+    return ctx
+      .json({ ok: true, packages: [], cache_status: "miss" })
+      .headers({ "Cache-Control": "private, no-store" })
+  }
+
   const eligiblePackages = ctx.db.packages.filter(
     (pkg) =>
       pkg.package_id !== sourcePackage.package_id &&
@@ -48,12 +74,7 @@ export default withRouteSpec({
       Boolean(getThumbnailUrl(pkg)),
   )
   const selectedPackageIds = new Set<string>()
-  const packages: Array<
-    Package & {
-      related_type: z.infer<typeof relatedTypeSchema>
-      thumbnail_url: string
-    }
-  > = []
+  const packages: RelatedPackage[] = []
 
   const addPackage = (
     pkg: Package | undefined,
@@ -93,7 +114,9 @@ export default withRouteSpec({
     "random",
   )
 
-  return ctx.json({ ok: true, packages }).headers({
+  relatedPackagesCache.set(sourcePackage.package_id, packages)
+
+  return ctx.json({ ok: true, packages, cache_status: "miss" }).headers({
     "Cache-Control": `public, max-age=${CACHE_DURATION_SECONDS}, s-maxage=${CACHE_DURATION_SECONDS}`,
   })
 })
