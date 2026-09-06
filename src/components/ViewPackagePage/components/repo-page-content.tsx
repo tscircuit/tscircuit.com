@@ -28,6 +28,7 @@ import type {
 } from "fake-snippets-api/lib/db/schema"
 import { useUpdateAiDescriptionMutation } from "@/hooks/use-update-ai-description-mutation"
 import SidebarReleasesSection from "./sidebar-releases-section"
+import { RelatedPackagesSection } from "./related-packages-section"
 
 interface PackageFile extends ApiPackageFile {
   file_content?: string
@@ -304,6 +305,15 @@ export default function RepoPageContent({
           </div>
         </div>
       </div>
+      <RelatedPackagesSection
+        packageId={
+          packageInfo?.is_public !== false &&
+          !packageInfo?.is_private &&
+          !packageInfo?.is_unlisted
+            ? (packageInfo?.package_id ?? null)
+            : null
+        }
+      />
       <Footer />
     </div>
   )
