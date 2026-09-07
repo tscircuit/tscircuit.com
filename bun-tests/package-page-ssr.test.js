@@ -192,6 +192,29 @@ describe("renderPackagePageContent", () => {
     expect(releasesHtml).toContain("success")
     expect(buildsHtml).toContain("build-1")
   })
+
+  test("renders cached related packages at the bottom of the page", () => {
+    const html = renderPackagePageContent({
+      ...baseData,
+      relatedPackages: [
+        {
+          package_id: "related-1",
+          name: "bob/other-board",
+          description: "A related <board>",
+          related_type: "similar_ai_description",
+          thumbnail_url: "https://example.com/other-board.png",
+        },
+      ],
+    })
+
+    expect(html).toContain("Related Packages")
+    expect(html).toContain('href="/bob/other-board"')
+    expect(html).toContain('src="https://example.com/other-board.png"')
+    expect(html).toContain("A related &lt;board&gt;")
+    expect(html.indexOf("Related Packages")).toBeGreaterThan(
+      html.indexOf("# Board"),
+    )
+  })
 })
 
 test("injectPackagePageContent replaces the empty SPA root", () => {

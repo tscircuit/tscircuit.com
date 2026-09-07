@@ -15,6 +15,7 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
   const ssrPackageReleases = windowAny.SSR_PACKAGE_RELEASES
   const ssrPackageBuilds = windowAny.SSR_PACKAGE_BUILDS
   const ssrPackageBuild = windowAny.SSR_PACKAGE_BUILD
+  const ssrRelatedPackages = windowAny.SSR_RELATED_PACKAGES
   const ssrPackageRoute = windowAny.SSR_PACKAGE_ROUTE
 
   if (!ssrPackage) return
@@ -23,6 +24,13 @@ export function populateQueryCacheWithSSRData(queryClient: QueryClient) {
   queryClient.setQueryData(["package", ssrPackage.name], ssrPackage)
   queryClient.setQueryData(["package", ssrPackage.package_id], ssrPackage)
   queryClient.setQueryData(["packages", ssrPackage.package_id], ssrPackage)
+
+  if (Array.isArray(ssrRelatedPackages) && ssrRelatedPackages.length > 0) {
+    queryClient.setQueryData(
+      ["relatedPackages", ssrPackage.package_id],
+      ssrRelatedPackages,
+    )
+  }
 
   if (ssrPackageReleases) {
     queryClient.setQueryData(
