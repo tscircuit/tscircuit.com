@@ -262,9 +262,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                         <div className="font-medium text-blue-600 break-words text-xs">
                           {pkg.name}
                         </div>
-                        {pkg.description && (
+                        {(pkg.description || pkg.ai_description) && (
                           <div className="text-xs text-gray-500 break-words h-8 overflow-hidden">
-                            {pkg.description}
+                            {pkg.description || pkg.ai_description}
                           </div>
                         )}
                       </div>
