@@ -129,7 +129,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
               <p
                 className={`${compact ? "line-clamp-1" : "line-clamp-1 md:line-clamp-2 md:h-10 md:mb-2"} text-sm text-gray-600 overflow-hidden`}
               >
-                {pkg.description || "No description available"}
+                {pkg.description ||
+                  pkg.ai_description ||
+                  "No description available"}
               </p>
             </div>
 
