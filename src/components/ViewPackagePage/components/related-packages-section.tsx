@@ -52,9 +52,9 @@ const RelatedPackageCard = ({ pkg }: { pkg: RelatedPackage }) => (
       <h3 className="truncate font-semibold text-blue-600 group-hover:text-blue-700 dark:text-[#58a6ff]">
         {pkg.name}
       </h3>
-      {pkg.description && (
+      {(pkg.description || pkg.ai_description) && (
         <p className="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-          {pkg.description}
+          {pkg.description || pkg.ai_description}
         </p>
       )}
     </div>
