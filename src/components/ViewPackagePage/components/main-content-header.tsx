@@ -10,6 +10,7 @@ import {
   DownloadIcon,
   Package2,
   GitPullRequest,
+  AlertTriangle,
 } from "lucide-react"
 import {
   Tooltip,
@@ -38,6 +39,7 @@ import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
+import { isReleaseInstallable } from "@/lib/utils/isReleaseInstallable"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -286,6 +288,22 @@ export default function MainContentHeader({
             <span className="underline">Switch to latest</span>
           </button>
         ) : null)}
+      {packageRelease && !isReleaseInstallable(packageRelease) && (
+        <div
+          role="alert"
+          data-testid="not-installable-warning"
+          className="self-start flex items-start gap-1.5 px-2 py-1 text-xs bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-amber-700 dark:text-amber-400"
+        >
+          <AlertTriangle className="h-3.5 w-3.5 mt-px flex-shrink-0" />
+          <span>
+            No installable release
+            {packageRelease.version ? ` (v${packageRelease.version})` : ""} —
+            this version has no transpiled artifact, so{" "}
+            <code className="font-mono">tsci add</code> / npm install will fail.
+            Trigger a rebuild or try another version.
+          </span>
+        </div>
+      )}
     </div>
   )
 }
