@@ -454,7 +454,9 @@ const renderRelatedPackages = (relatedPackages) => {
         )} preview" loading="lazy" decoding="async"><span><small>${escapeHtml(
           relatedPackageLabels[pkg.related_type] || "Related package",
         )}</small><strong>${escapeHtml(pkg.name)}</strong>${
-          pkg.description ? `<span>${escapeHtml(pkg.description)}</span>` : ""
+          pkg.description || pkg.ai_description
+            ? `<span>${escapeHtml(pkg.description || pkg.ai_description)}</span>`
+            : ""
         }</span></a></li>`,
     )
     .join("")}</ul></section>`

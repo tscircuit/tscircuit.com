@@ -201,8 +201,17 @@ describe("renderPackagePageContent", () => {
           package_id: "related-1",
           name: "bob/other-board",
           description: "A related <board>",
+          ai_description: "This should not replace the manual description",
           related_type: "similar_ai_description",
           thumbnail_url: "https://example.com/other-board.png",
+        },
+        {
+          package_id: "related-2",
+          name: "carol/ai-described-board",
+          description: null,
+          ai_description: "An AI-described <board>",
+          related_type: "random",
+          thumbnail_url: "https://example.com/ai-described-board.png",
         },
       ],
     })
@@ -211,6 +220,8 @@ describe("renderPackagePageContent", () => {
     expect(html).toContain('href="/bob/other-board"')
     expect(html).toContain('src="https://example.com/other-board.png"')
     expect(html).toContain("A related &lt;board&gt;")
+    expect(html).toContain("An AI-described &lt;board&gt;")
+    expect(html).not.toContain("This should not replace the manual description")
     expect(html.indexOf("Related Packages")).toBeGreaterThan(
       html.indexOf("# Board"),
     )
