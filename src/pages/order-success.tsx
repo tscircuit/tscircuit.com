@@ -95,9 +95,9 @@ export const OrderSuccessPage = () => {
                       View order
                     </Button>
                   </Link>
-                  <Link href="/">
+                  <a href="/">
                     <Button variant="outline">Back to home</Button>
-                  </Link>
+                  </a>
                 </div>
               </div>
             ) : (

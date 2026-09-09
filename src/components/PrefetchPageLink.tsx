@@ -6,7 +6,6 @@ import { useAxios } from "@/hooks/use-axios"
 
 // Whitelist of known pages that can be safely prefetched
 const PREFETCHABLE_PAGES = new Set([
-  "landing",
   "editor",
   "search",
   "trending",
@@ -58,7 +57,7 @@ export const PrefetchPageLink = ({
   useEffect(() => {
     if (!inView) return
 
-    const path = href === "/" ? "landing" : href.slice(1)
+    const path = href.slice(1)
     if (!path) return
 
     // Handle user profile paths
@@ -100,6 +99,21 @@ export const PrefetchPageLink = ({
       })
     }
   }, [inView, href])
+
+  // Home is served by a separate deployment, so it needs a document navigation.
+  if (href === "/") {
+    return (
+      <a
+        {...props}
+        href={href}
+        className={className}
+        draggable={false}
+        ref={ref}
+      >
+        {children}
+      </a>
+    )
+  }
 
   return (
     <Link
