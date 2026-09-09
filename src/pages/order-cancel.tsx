@@ -81,9 +81,9 @@ export const OrderCancelPage = () => {
                   My orders
                 </Button>
               </Link>
-              <Link href="/">
+              <a href="/">
                 <Button>Back to home</Button>
-              </Link>
+              </a>
             </div>
           </div>
         </section>
