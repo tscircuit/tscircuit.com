@@ -10,8 +10,7 @@
     "dist"
   ],
   "trustedDependencies": [
-    "@tscircuit/fake-stripe",
-    "altiumts"
+    "@tscircuit/fake-stripe"
   ],
   "main": "dist/index.js",
   "exports": {
@@ -199,5 +198,8 @@
     "zod": "^3.23.8",
     "zustand": "^4.5.5",
     "zustand-hoist": "^2.0.1"
+  },
+  "overrides": {
+    "altiumts": "0.0.59"
   }
 }
