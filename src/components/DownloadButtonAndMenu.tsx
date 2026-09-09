@@ -13,6 +13,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
 import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
@@ -409,6 +410,27 @@ export function DownloadButtonAndMenu({
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+
+          <DropdownMenuItem
+            className="text-xs"
+            onSelect={async () => {
+              const cj = await getCircuitJson().catch(() => null)
+              if (!cj) return
+              await downloadAltiumFiles(cj, unscopedName || "circuit").catch(
+                (error) => {
+                  toast({
+                    title: "Error Downloading Altium Project",
+                    description: String(error),
+                    variant: "destructive",
+                  })
+                },
+              )
+            }}
+          >
+            <Download className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Altium Project</span>
+            {formatBadge("zip", "bg-orange-500")}
+          </DropdownMenuItem>
 
           <DropdownMenuItem
             className="text-xs"

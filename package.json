@@ -10,7 +10,8 @@
     "dist"
   ],
   "trustedDependencies": [
-    "@tscircuit/fake-stripe"
+    "@tscircuit/fake-stripe",
+    "altiumts"
   ],
   "main": "dist/index.js",
   "exports": {
@@ -120,6 +121,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "circuit-json": "^0.0.484",
+    "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#72d97e867283de953bc9a0235f8c7f6a92fc008d",
     "circuit-to-svg": "^0.0.393",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
