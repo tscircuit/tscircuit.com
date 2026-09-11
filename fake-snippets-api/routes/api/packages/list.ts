@@ -12,6 +12,7 @@ export default withRouteSpec({
     is_writable: z.boolean().optional(),
     owner_org_id: z.string().optional(),
     name: z.string().optional(),
+    starred_by: z.string().optional(),
     limit: z.number().int().min(1).optional(),
   }),
   jsonResponse: z.object({
@@ -36,6 +37,7 @@ export default withRouteSpec({
     is_writable,
     owner_org_id,
     limit,
+    starred_by,
   } = req.commonParams
 
   const auth = "auth" in ctx && ctx.auth ? ctx.auth : null
@@ -92,20 +94,33 @@ export default withRouteSpec({
   if (owner_org_id) {
     packages = packages.filter((p) => p.owner_org_id === owner_org_id)
   }
-  if (limit) {
-    packages = packages.slice(0, limit)
-  }
   if (is_writable && auth) {
     packages = packages.filter(canManagePackage)
   }
 
-  // Get star timestamps for authenticated user
+  // Match production: starred_by selects packages, not whose metadata is returned.
+  if (starred_by) {
+    const account = ctx.db.accounts.find(
+      (account) => account.github_username === starred_by.toLowerCase(),
+    )
+    const starredPackageIds = new Set(
+      ctx.db.accountPackages
+        .filter((ap) => ap.account_id === account?.account_id && ap.is_starred)
+        .map((ap) => ap.package_id),
+    )
+    packages = packages.filter((pkg) => starredPackageIds.has(pkg.package_id))
+  }
+  if (limit) {
+    packages = packages.slice(0, limit)
+  }
+
+  // Production returns the viewer's timestamp, including a retained unstar timestamp.
   const starTimestamps = new Map<string, string>()
   if (auth) {
     ctx.db.accountPackages
-      .filter((ap) => ap.account_id === auth.account_id && ap.is_starred)
+      .filter((ap) => ap.account_id === auth.account_id)
       .forEach((ap) => {
-        starTimestamps.set(ap.package_id, ap.updated_at)
+        if (ap.starred_at) starTimestamps.set(ap.package_id, ap.starred_at)
       })
   }
 

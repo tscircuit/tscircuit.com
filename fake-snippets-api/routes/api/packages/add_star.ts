@@ -64,6 +64,7 @@ export default withRouteSpec({
     // If record exists but is_starred is false, update to is_starred=true
     existing.is_starred = true
     existing.updated_at = new Date().toISOString()
+    existing.starred_at = existing.updated_at
   } else {
     // Add star by creating a new account_package record
     const newTimestamp = new Date().toISOString()
@@ -72,6 +73,7 @@ export default withRouteSpec({
       account_id: ctx.auth.account_id,
       package_id: packageId,
       is_starred: true,
+      starred_at: newTimestamp,
       created_at: newTimestamp,
       updated_at: newTimestamp,
     }
