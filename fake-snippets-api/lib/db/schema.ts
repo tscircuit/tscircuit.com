@@ -246,6 +246,7 @@ export const accountPackageSchema = z.object({
   account_id: z.string(),
   package_id: z.string(),
   is_starred: z.boolean(),
+  starred_at: z.string().nullable().optional(),
   created_at: z.string(),
   updated_at: z.string(),
 })
