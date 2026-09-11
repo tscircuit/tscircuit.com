@@ -50,7 +50,9 @@ const LatestPage: React.FC = () => {
       const searchableFields = [
         pkg.unscoped_name.toLowerCase(),
         pkg.owner_github_username?.toLowerCase() ?? "",
+        pkg.org_owner_tscircuit_handle?.toLowerCase() ?? "",
         (pkg.description || "").toLowerCase(),
+        (pkg.ai_description || "").toLowerCase(),
       ]
 
       return searchableFields.some((field) => {
