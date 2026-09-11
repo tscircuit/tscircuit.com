@@ -79,6 +79,7 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
           )
         }
       },
+      onSuccess: () => queryClient.invalidateQueries(["starredPackages"]),
     },
   )
 
@@ -116,6 +117,7 @@ export const usePackageStarMutation = (query: PackageStarQuery) => {
           )
         }
       },
+      onSuccess: () => queryClient.invalidateQueries(["starredPackages"]),
     },
   )
 
