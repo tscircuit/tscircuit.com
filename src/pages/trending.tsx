@@ -76,7 +76,9 @@ const TrendingPage: React.FC = () => {
       const searchableFields = [
         pkg.unscoped_name?.toLowerCase() || "",
         pkg.owner_github_username?.toLowerCase() || "",
+        pkg.org_owner_tscircuit_handle?.toLowerCase() || "",
         pkg.description?.toLowerCase() || "",
+        pkg.ai_description?.toLowerCase() || "",
       ].filter(Boolean)
 
       const queryWords = query.split(/\s+/).filter((word) => word.length > 0)
