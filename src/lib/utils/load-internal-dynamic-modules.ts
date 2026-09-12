@@ -101,7 +101,7 @@ const loadCircuitJsonConverter = <T>(packageName: string): Promise<T> => {
 const ensureCircuitJsonToGltfLoaded =
   async (): Promise<CircuitJsonToGltfModule> => {
     return loadCircuitJsonConverter<CircuitJsonToGltfModule>(
-      "circuit-json-to-gltf",
+      "circuit-json-to-gltf@0.0.124",
     )
   }
 
