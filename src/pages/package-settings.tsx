@@ -49,16 +49,24 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PackageDomainsList } from "@/components/package-settings/PackageDomainsList"
+import { PackageRenderImages } from "@/components/package-settings/PackageRenderImages"
 import { useSettingsSection } from "@/hooks/use-settings-section"
 
-type SettingsSection = "general" | "domains" | "github" | "danger"
+type SettingsSection = "general" | "domains" | "github" | "renders" | "danger"
 
-const settingsSections = ["general", "domains", "github", "danger"] as const
+const settingsSections = [
+  "general",
+  "domains",
+  "github",
+  "renders",
+  "danger",
+] as const
 
 const navItems: { id: SettingsSection; label: string }[] = [
   { id: "general", label: "General" },
   { id: "domains", label: "Domains" },
   { id: "github", label: "GitHub" },
+  { id: "renders", label: "Render images" },
   { id: "danger", label: "Danger Zone" },
 ]
 
@@ -144,7 +152,11 @@ export default function PackageSettingsPage() {
     error: packageError,
     packageSlug: currentPackageSlug,
   } = useCurrentPackageInfo()
-  const { packageRelease } = useCurrentPackageRelease()
+  const {
+    packageRelease,
+    isLoading: isLoadingRelease,
+    error: releaseError,
+  } = useCurrentPackageRelease()
   const { data: organizations = [] } = useListUserOrgs()
 
   const { data: releaseFiles } = usePackageFiles(
@@ -831,6 +843,24 @@ export default function PackageSettingsPage() {
                 </SettingCard>
               </>
             )}
+
+            {activeSection === "renders" &&
+              (packageRelease ? (
+                <PackageRenderImages
+                  key={`${session.account_id}:${packageRelease.package_release_id}`}
+                  releaseId={packageRelease.package_release_id}
+                  version={packageRelease.version}
+                  creatorAccountId={packageInfo.creator_account_id}
+                />
+              ) : (
+                <p className="text-sm text-gray-600">
+                  {isLoadingRelease
+                    ? "Loading release…"
+                    : releaseError
+                      ? "Could not load the package release. Reload this page to try again."
+                      : "Publish and build a release to generate render images."}
+                </p>
+              ))}
 
             {activeSection === "domains" && (
               <PackageDomainsList
