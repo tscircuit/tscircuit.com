@@ -110,3 +110,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [React](https://reactjs.org/), [Vite](https://vitejs.dev/), and [Tailwind CSS](https://tailwindcss.com/)
 
 For more information, visit [tscircuit.com](https://tscircuit.com).
+
+### Local render settings demo
+
+Run `bun run dev` with `SNIPPETS_API_URL` unset to use the fake API, then open
+`http://localhost:5173/api/_fake/render_demo` (adjust the port if needed). This
+starts a fake `testuser` session and opens the render settings for the seeded
+board. Click **Generate all three views** to see queued/processing states and
+sample PNGs after 12–16 seconds. No Blender, AI, or paid service is called.
+
+The fake jobs live in memory. The **Restart demo** link clears the demo board's
+jobs; restarting the dev server clears all fake jobs.

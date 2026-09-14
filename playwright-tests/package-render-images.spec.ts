@@ -152,7 +152,9 @@ for (const viewport of [
         await image.evaluate((img: HTMLImageElement) => img.naturalWidth),
       ).toBeGreaterThan(0)
     await page.screenshot({
-      path: `/private/tmp/package-render-settings-${viewport.width}.png`,
+      path: test
+        .info()
+        .outputPath(`package-render-settings-${viewport.width}.png`),
       fullPage: true,
     })
     expect(

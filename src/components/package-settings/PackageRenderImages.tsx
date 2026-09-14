@@ -156,7 +156,7 @@ export function PackageRenderImages({
   const records = queries.map((q) => q.data as Render | null | undefined)
   const existingPath = records.find(Boolean)?.circuit_json_file_path
   const paths = (files ?? [])
-    .map((f) => f.file_path.replace(/^\.\//, ""))
+    .map((f) => f.file_path.replace(/^(\.\/|\/)+/, ""))
     .filter((p) => p.startsWith("dist/") && p.endsWith("/circuit.json"))
     .sort()
   const circuitPath =
@@ -212,6 +212,15 @@ export function PackageRenderImages({
         </p>
       </div>
       <div className="p-4 sm:p-6 space-y-4">
+        {import.meta.env.VITE_USE_FAKE_API === "true" && (
+          <p className="rounded bg-blue-50 p-3 text-sm text-blue-800">
+            Fake server: simulated progress and sample images. No Blender or AI
+            requests are made.{" "}
+            <a className="underline" href="/api/_fake/render_demo">
+              Restart demo
+            </a>
+          </p>
+        )}
         {filesError && (
           <p role="alert" className="text-sm text-red-600">
             Could not load the release files.{" "}
