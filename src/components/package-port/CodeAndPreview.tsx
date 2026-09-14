@@ -281,9 +281,15 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const isMouseOverRunFrame = useRef(false)
   const splitContainerRef = useRef<HTMLDivElement>(null)
   const runFrameContainerRef = useRef<HTMLDivElement>(null)
+  const editorContainerRef = useRef<HTMLDivElement>(null)
   const sessionTokenAtRenderStartRef = useRef<string | undefined>(undefined)
   const editorPanelRef = useRef<ImperativePanelHandle>(null)
   const previewPanelRef = useRef<ImperativePanelHandle>(null)
+  // Monaco measures line DOM during decoration and reveal passes. When its
+  // container has no size (a hidden pane, or a panel collapsed to zero width),
+  // that DOM is never built and the measurement throws. Only mount the editor
+  // while its container is measurable.
+  const [isEditorVisible, setIsEditorVisible] = useState(false)
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined"
       ? window.matchMedia(MOBILE_MEDIA_QUERY).matches
@@ -318,6 +324,19 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     }
     updateMinSize()
     const observer = new ResizeObserver(updateMinSize)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const container = editorContainerRef.current
+    if (!container) return
+    const updateEditorVisibility = () => {
+      const { width, height } = container.getBoundingClientRect()
+      setIsEditorVisible(width > 0 && height > 0)
+    }
+    updateEditorVisibility()
+    const observer = new ResizeObserver(updateEditorVisibility)
     observer.observe(container)
     return () => observer.disconnect()
   }, [])
@@ -405,6 +424,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             className="min-w-0"
           >
             <div
+              ref={editorContainerRef}
               className={cn(
                 "h-full w-full min-w-0 flex-col bg-gray-50",
                 isMobile
@@ -414,25 +434,27 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                   : "hidden md:flex",
               )}
             >
-              <WorkspaceCodeEditor
-                files={localFiles}
-                currentFile={currentFile}
-                onFileSelect={handleFileSelect}
-                onFileContentChange={handleFileContentChange}
-                onCreateFile={handleCreateFile}
-                onDeleteFile={handleDeleteFile}
-                onRenameFile={handleRenameFile}
-                isLoadingFiles={!isFullyLoaded}
-                loadingProgress={
-                  isFullyLoaded
-                    ? null
-                    : `Loading files (${loadedFilesCount}/${totalFilesCount})`
-                }
-                enableTypeScriptLanguageService={enableMonacoLanguageService}
-                options={CODE_EDITOR_OPTIONS}
-                className="flex-1 min-h-0"
-                height="100%"
-              />
+              {isEditorVisible && (
+                <WorkspaceCodeEditor
+                  files={localFiles}
+                  currentFile={currentFile}
+                  onFileSelect={handleFileSelect}
+                  onFileContentChange={handleFileContentChange}
+                  onCreateFile={handleCreateFile}
+                  onDeleteFile={handleDeleteFile}
+                  onRenameFile={handleRenameFile}
+                  isLoadingFiles={!isFullyLoaded}
+                  loadingProgress={
+                    isFullyLoaded
+                      ? null
+                      : `Loading files (${loadedFilesCount}/${totalFilesCount})`
+                  }
+                  enableTypeScriptLanguageService={enableMonacoLanguageService}
+                  options={CODE_EDITOR_OPTIONS}
+                  className="flex-1 min-h-0"
+                  height="100%"
+                />
+              )}
             </div>
           </ResizablePanel>
           <ResizableHandle
