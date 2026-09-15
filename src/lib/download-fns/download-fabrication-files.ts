@@ -41,7 +41,9 @@ export const createFabricationFilesZip = async ({
   const bomCsv = await convertBomRowsToCsv(bomRows)
   zip.file("bom.csv", bomCsv)
 
-  const pnpCsv = await convertCircuitJsonToPickAndPlaceCsv(circuitJson)
+  const pnpCsv = await convertCircuitJsonToPickAndPlaceCsv(circuitJson, {
+    supplier: "jlcpcb",
+  })
   zip.file("pick_and_place.csv", pnpCsv)
 
   return zip.generateAsync({ type: "blob" })
