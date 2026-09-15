@@ -1,5 +1,5 @@
 import importer from "@tscircuit/internal-dynamic-import"
-import type { AnyCircuitElement, CircuitJson } from "circuit-json"
+import type { AnyCircuitElement, CircuitJson, SupplierName } from "circuit-json"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -58,6 +58,7 @@ type CircuitJsonToLbrnModule = Record<string, unknown>
 type CircuitJsonToPnpCsvModule = {
   convertCircuitJsonToPickAndPlaceCsv: (
     circuitJson: AnyCircuitElement[],
+    options?: { supplier?: SupplierName },
   ) => Promise<string> | string
 }
 

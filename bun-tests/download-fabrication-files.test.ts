@@ -44,3 +44,54 @@ test("fabrication zip includes plated, blind, and non-plated drill layers", asyn
     "non-plated",
   )
 })
+
+test("fabrication download applies JLCPCB orientation frames to the exported CPL", async () => {
+  const { convertCircuitJsonToPickAndPlaceCsv } = await import(
+    "circuit-json-to-pnp-csv"
+  )
+  const circuitJson = [
+    ...["Q_PD_ENABLE", "Q_BUZZER"].flatMap((name, index) => [
+      {
+        type: "source_component",
+        source_component_id: `s${index}`,
+        ftype: "simple_chip",
+        name,
+      },
+      {
+        type: "pcb_component",
+        pcb_component_id: `p${index}`,
+        source_component_id: `s${index}`,
+        center: { x: index * 5, y: 0 },
+        width: 3,
+        height: 3,
+        layer: "top",
+        rotation: 0,
+        pin1_location: index === 0 ? "leftside_top" : "rightside_bottom",
+        supplier_pin1_location_map: { jlcpcb: "rightside_bottom" },
+      },
+    ]),
+  ] as AnyCircuitElement[]
+  const before = structuredClone(circuitJson)
+  const blob = await createFabricationFilesZip({
+    circuitJson,
+    gerberConverter: {
+      convertCircuitJsonToGerberFiles: () => ({
+        "F_Cu.gbr": "unchanged copper",
+      }),
+    },
+    bomConverter: {
+      convertCircuitJsonToBomRows: () => [],
+      convertBomRowsToCsv: () => "unchanged bom",
+    },
+    pnpConverter: { convertCircuitJsonToPickAndPlaceCsv },
+  })
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer())
+  const cpl = await zip.file("pick_and_place.csv")!.async("string")
+  expect(cpl).toContain("Q_PD_ENABLE,0.000,0.000,top,180")
+  expect(cpl).toContain("Q_BUZZER,5.000,0.000,top,0")
+  expect(circuitJson).toEqual(before)
+  expect(await zip.file("gerber/F_Cu.gbr")!.async("string")).toBe(
+    "unchanged copper",
+  )
+  expect(await zip.file("bom.csv")!.async("string")).toBe("unchanged bom")
+})
