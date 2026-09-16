@@ -40,58 +40,11 @@ const getManufacturerPart = (row: BomRow) =>
     .filter(Boolean)
     .join(", ")
 
-const getSortedEntries = (record?: Record<string, string | undefined>) =>
-  Object.entries(record ?? {}).sort(([left], [right]) =>
-    left.localeCompare(right),
-  )
-
-const getBomRowKey = (row: BomRow) =>
-  JSON.stringify({
-    comment: row.comment ?? "",
-    value: row.value ?? "",
-    footprint: row.footprint ?? "",
-    supplierParts: getSortedEntries(row.supplier_part_number_columns),
-    manufacturerParts: [...(row.manufacturer_mpn_pairs ?? [])].sort((a, b) =>
-      `${a.manufacturer ?? ""}:${a.mpn ?? ""}`.localeCompare(
-        `${b.manufacturer ?? ""}:${b.mpn ?? ""}`,
-      ),
-    ),
-    extraColumns: getSortedEntries(row.extra_columns),
-  })
-
-const groupBomRows = (rows: BomRow[]) => {
-  const groupedRows = new Map<string, BomRow>()
-
-  for (const row of rows) {
-    const key = getBomRowKey(row)
-    const existingRow = groupedRows.get(key)
-
-    if (!existingRow) {
-      groupedRows.set(key, { ...row })
-      continue
-    }
-
-    const designators = new Set([
-      ...getDesignators(existingRow.designator),
-      ...getDesignators(row.designator),
-    ])
-
-    existingRow.designator = [...designators]
-      .sort((left, right) =>
-        left.localeCompare(right, undefined, { numeric: true }),
-      )
-      .join(", ")
-  }
-
-  return [...groupedRows.values()]
-}
-
 function BomSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-[#30363d] dark:bg-[#0d1117]">
       <div className="flex flex-col-reverse gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-[#30363d]">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-          <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-[#21262d]" />
           <div className="h-4 w-20 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
           <div className="h-4 w-32 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
         </div>
@@ -149,7 +102,7 @@ export default function BOMView() {
           "circuit-json-to-bom-csv",
         )
         const bomRows = await convertCircuitJsonToBomRows({ circuitJson })
-        if (!cancelled) setRows(groupBomRows(bomRows as BomRow[]))
+        if (!cancelled) setRows(bomRows as BomRow[])
       } catch (error) {
         if (!cancelled) {
           setBomError(
@@ -251,9 +204,6 @@ export default function BOMView() {
     >
       <div className="flex flex-col-reverse gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-[#30363d]">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {rows.length} unique parts
-          </span>
           <span className="text-gray-500 dark:text-[#8b949e]">
             {summary.placements} placements
           </span>
