@@ -40,6 +40,52 @@ const getManufacturerPart = (row: BomRow) =>
     .filter(Boolean)
     .join(", ")
 
+const getSortedEntries = (record?: Record<string, string | undefined>) =>
+  Object.entries(record ?? {}).sort(([left], [right]) =>
+    left.localeCompare(right),
+  )
+
+const getBomRowKey = (row: BomRow) =>
+  JSON.stringify({
+    comment: row.comment ?? "",
+    value: row.value ?? "",
+    footprint: row.footprint ?? "",
+    supplierParts: getSortedEntries(row.supplier_part_number_columns),
+    manufacturerParts: [...(row.manufacturer_mpn_pairs ?? [])].sort((a, b) =>
+      `${a.manufacturer ?? ""}:${a.mpn ?? ""}`.localeCompare(
+        `${b.manufacturer ?? ""}:${b.mpn ?? ""}`,
+      ),
+    ),
+    extraColumns: getSortedEntries(row.extra_columns),
+  })
+
+const groupBomRows = (rows: BomRow[]) => {
+  const groupedRows = new Map<string, BomRow>()
+
+  for (const row of rows) {
+    const key = getBomRowKey(row)
+    const existingRow = groupedRows.get(key)
+
+    if (!existingRow) {
+      groupedRows.set(key, { ...row })
+      continue
+    }
+
+    const designators = new Set([
+      ...getDesignators(existingRow.designator),
+      ...getDesignators(row.designator),
+    ])
+
+    existingRow.designator = [...designators]
+      .sort((left, right) =>
+        left.localeCompare(right, undefined, { numeric: true }),
+      )
+      .join(", ")
+  }
+
+  return [...groupedRows.values()]
+}
+
 function BomSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-[#30363d] dark:bg-[#0d1117]">
@@ -103,7 +149,7 @@ export default function BOMView() {
           "circuit-json-to-bom-csv",
         )
         const bomRows = await convertCircuitJsonToBomRows({ circuitJson })
-        if (!cancelled) setRows(bomRows as BomRow[])
+        if (!cancelled) setRows(groupBomRows(bomRows as BomRow[]))
       } catch (error) {
         if (!cancelled) {
           setBomError(
