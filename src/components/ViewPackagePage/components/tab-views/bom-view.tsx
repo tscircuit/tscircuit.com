@@ -39,27 +39,32 @@ const getManufacturerPart = (row: BomRow) =>
 function BomSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-[#30363d] dark:bg-[#0d1117]">
-      <div className="border-b border-gray-200 px-5 py-5 dark:border-[#30363d]">
-        <div className="h-5 w-40 animate-pulse rounded bg-gray-200 dark:bg-[#21262d]" />
-        <div className="mt-2 h-4 w-72 max-w-full animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
+      <div className="flex flex-col-reverse gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-[#30363d]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div className="h-4 w-24 animate-pulse rounded bg-gray-200 dark:bg-[#21262d]" />
+          <div className="h-4 w-20 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
+          <div className="h-4 w-32 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
+        </div>
+        <div className="h-9 w-full animate-pulse rounded-md bg-gray-100 sm:w-72 dark:bg-[#161b22]" />
       </div>
-      <div className="grid grid-cols-3 border-b border-gray-200 dark:border-[#30363d]">
-        {[0, 1, 2].map((item) => (
+      <div className="grid grid-cols-4 gap-8 border-b border-gray-100 bg-gray-50/80 px-5 py-3 dark:border-[#21262d] dark:bg-[#161b22]">
+        {[0, 1, 2, 3].map((item) => (
           <div
-            className="border-r border-gray-200 p-4 last:border-r-0 dark:border-[#30363d]"
-            key={item}
-          >
-            <div className="h-3 w-16 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
-            <div className="mt-2 h-6 w-10 animate-pulse rounded bg-gray-200 dark:bg-[#21262d]" />
-          </div>
-        ))}
-      </div>
-      <div className="space-y-3 p-5">
-        {[0, 1, 2, 3, 4].map((item) => (
-          <div
-            className="h-11 animate-pulse rounded bg-gray-50 dark:bg-[#161b22]"
+            className="h-3 w-16 animate-pulse rounded bg-gray-200 dark:bg-[#21262d]"
             key={item}
           />
+        ))}
+      </div>
+      <div className="divide-y divide-gray-100 dark:divide-[#21262d]">
+        {[0, 1, 2, 3, 4].map((item) => (
+          <div className="grid grid-cols-4 gap-8 px-5 py-4" key={item}>
+            {[0, 1, 2, 3].map((cell) => (
+              <div
+                className="h-4 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]"
+                key={cell}
+              />
+            ))}
+          </div>
         ))}
       </div>
     </div>
