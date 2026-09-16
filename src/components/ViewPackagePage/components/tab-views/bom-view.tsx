@@ -2,6 +2,8 @@ import importer from "@tscircuit/internal-dynamic-import"
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   PackageSearch,
   Search,
   X,
@@ -18,6 +20,8 @@ interface BomRow {
   manufacturer_mpn_pairs?: Array<{ manufacturer?: string; mpn?: string }>
   extra_columns?: Record<string, string | undefined>
 }
+
+const PAGE_SIZE = 25
 
 const getDesignators = (designator = "") =>
   designator
@@ -67,6 +71,10 @@ function BomSkeleton() {
           </div>
         ))}
       </div>
+      <div className="flex items-center justify-between border-t border-gray-200 px-5 py-3 dark:border-[#30363d]">
+        <div className="h-4 w-28 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
+        <div className="h-8 w-32 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]" />
+      </div>
     </div>
   )
 }
@@ -80,6 +88,7 @@ export default function BOMView() {
   const [rows, setRows] = useState<BomRow[] | null>(null)
   const [bomError, setBomError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     if (!circuitJson) return
@@ -138,6 +147,19 @@ export default function BOMView() {
       { placements: 0, sourced: 0 },
     )
   }, [rows])
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const firstRowIndex = (currentPage - 1) * PAGE_SIZE
+  const paginatedRows = filteredRows.slice(
+    firstRowIndex,
+    firstRowIndex + PAGE_SIZE,
+  )
+
+  const updateQuery = (value: string) => {
+    setQuery(value)
+    setPage(1)
+  }
 
   if (isCircuitJsonLoading || (circuitJson && !rows && !bomError)) {
     return <BomSkeleton />
@@ -209,14 +231,14 @@ export default function BOMView() {
               type="text"
               role="searchbox"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => updateQuery(event.target.value)}
               placeholder="Search parts, values, footprints…"
               className="h-9 w-full rounded-md border border-gray-300 bg-white pl-9 pr-9 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[#30363d] dark:bg-[#161b22] dark:text-gray-100 dark:placeholder:text-[#6e7681] dark:focus:border-blue-500"
             />
             {query && (
               <button
                 type="button"
-                onClick={() => setQuery("")}
+                onClick={() => updateQuery("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-[#21262d] dark:hover:text-gray-200"
                 aria-label="Clear search"
               >
@@ -246,11 +268,12 @@ export default function BOMView() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-[#21262d]">
-            {filteredRows.map((row, rowIndex) => {
+            {paginatedRows.map((row, rowIndex) => {
               const designators = getDesignators(row.designator)
               const supplierPart = getSupplierPart(row)
               const manufacturerPart = getManufacturerPart(row)
-              const rowKey = row.designator || `${row.comment}-${rowIndex}`
+              const rowKey =
+                row.designator || `${row.comment}-${firstRowIndex + rowIndex}`
 
               return (
                 <tr
@@ -329,6 +352,46 @@ export default function BOMView() {
             Try a reference, value, footprint, or part number.
           </p>
         </div>
+      )}
+
+      {filteredRows.length > PAGE_SIZE && (
+        <nav
+          className="flex flex-col gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-[#30363d]"
+          aria-label="BOM pagination"
+        >
+          <p className="text-sm text-gray-500 dark:text-[#8b949e]">
+            Showing {firstRowIndex + 1}–
+            {Math.min(firstRowIndex + PAGE_SIZE, filteredRows.length)} of{" "}
+            {filteredRows.length} parts
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex h-8 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-[#30363d] dark:bg-[#161b22] dark:text-gray-200 dark:hover:bg-[#21262d]"
+              aria-label="Previous BOM page"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              Previous
+            </button>
+            <span className="min-w-20 text-center text-sm tabular-nums text-gray-600 dark:text-[#8b949e]">
+              {currentPage} / {pageCount}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setPage((current) => Math.min(pageCount, current + 1))
+              }
+              disabled={currentPage === pageCount}
+              className="inline-flex h-8 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-[#30363d] dark:bg-[#161b22] dark:text-gray-200 dark:hover:bg-[#21262d]"
+              aria-label="Next BOM page"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        </nav>
       )}
     </section>
   )
