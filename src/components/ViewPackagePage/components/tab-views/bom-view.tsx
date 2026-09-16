@@ -1,7 +1,6 @@
 import importer from "@tscircuit/internal-dynamic-import"
 import {
   AlertCircle,
-  Boxes,
   CheckCircle2,
   PackageSearch,
   Search,
@@ -175,25 +174,26 @@ export default function BOMView() {
   return (
     <section
       className="mb-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-[#30363d] dark:bg-[#0d1117]"
-      aria-labelledby="bom-heading"
+      aria-label="Bill of materials"
     >
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-4 py-4 sm:px-5 dark:border-[#30363d]">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <div className="flex items-center gap-2">
-              <Boxes
-                className="h-4 w-4 text-blue-600 dark:text-blue-400"
-                aria-hidden="true"
-              />
-              <h2
-                id="bom-heading"
-                className="text-base font-semibold tracking-tight text-gray-950 dark:text-gray-50"
-              >
-                Bill of materials
-              </h2>
-            </div>
-          </div>
+      <div className="flex flex-col-reverse gap-3 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5 dark:border-[#30363d]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+          <span className="font-medium text-gray-900 dark:text-gray-100">
+            {rows.length} unique parts
+          </span>
+          <span className="text-gray-500 dark:text-[#8b949e]">
+            {summary.placements} placements
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-gray-500 dark:text-[#8b949e]">
+            <CheckCircle2
+              className="h-3.5 w-3.5 text-emerald-500"
+              aria-hidden="true"
+            />
+            {summary.sourced} with supplier parts
+          </span>
+        </div>
 
+        <div>
           <label className="relative block w-full sm:w-72">
             <span className="sr-only">Search bill of materials</span>
             <Search
@@ -219,22 +219,6 @@ export default function BOMView() {
               </button>
             )}
           </label>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {rows.length} unique parts
-          </span>
-          <span className="text-gray-500 dark:text-[#8b949e]">
-            {summary.placements} placements
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-gray-500 dark:text-[#8b949e]">
-            <CheckCircle2
-              className="h-3.5 w-3.5 text-emerald-500"
-              aria-hidden="true"
-            />
-            {summary.sourced} with supplier parts
-          </span>
         </div>
       </div>
 
