@@ -53,7 +53,7 @@ export default withRouteSpec({
     is_tscircuit_staff: account.is_tscircuit_staff,
   })
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime(new Date(Date.now() + ms("60 day")).toISOString())
+    .setExpirationTime(Math.floor((Date.now() + ms("60 day")) / 1000))
     .sign(new TextEncoder().encode(process.env.JWT_SECRET || ""))
 
   return ctx.json({
