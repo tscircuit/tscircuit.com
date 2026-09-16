@@ -21,7 +21,7 @@ interface BomRow {
   extra_columns?: Record<string, string | undefined>
 }
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = 15
 
 const getDesignators = (designator = "") =>
   designator
@@ -61,7 +61,7 @@ function BomSkeleton() {
       </div>
       <div className="divide-y divide-gray-100 dark:divide-[#21262d]">
         {[0, 1, 2, 3, 4].map((item) => (
-          <div className="grid grid-cols-4 gap-8 px-5 py-4" key={item}>
+          <div className="grid grid-cols-4 gap-8 px-5 py-3" key={item}>
             {[0, 1, 2, 3].map((cell) => (
               <div
                 className="h-4 animate-pulse rounded bg-gray-100 dark:bg-[#161b22]"
@@ -280,7 +280,7 @@ export default function BOMView() {
                   key={rowKey}
                   className="group align-top transition-colors hover:bg-blue-50/40 dark:hover:bg-blue-950/10"
                 >
-                  <td className="max-w-52 px-4 py-3.5 sm:px-5">
+                  <td className="max-w-52 px-4 py-2.5 sm:px-5">
                     <div className="flex flex-wrap gap-1">
                       {(designators.length ? designators : ["—"]).map(
                         (reference) => (
@@ -294,7 +294,7 @@ export default function BOMView() {
                       )}
                     </div>
                   </td>
-                  <td className="max-w-60 px-3 py-3.5">
+                  <td className="max-w-60 px-3 py-2.5">
                     <div className="font-medium text-gray-900 dark:text-gray-100">
                       {row.value || row.comment || "Unspecified part"}
                     </div>
@@ -304,7 +304,7 @@ export default function BOMView() {
                       </div>
                     )}
                   </td>
-                  <td className="max-w-48 px-3 py-3.5">
+                  <td className="max-w-48 px-3 py-2.5">
                     <span
                       className="block truncate font-mono text-xs text-gray-600 dark:text-[#8b949e]"
                       title={row.footprint}
@@ -312,7 +312,7 @@ export default function BOMView() {
                       {row.footprint || "—"}
                     </span>
                   </td>
-                  <td className="max-w-64 px-3 py-3.5 pr-5">
+                  <td className="max-w-64 px-3 py-2.5 pr-5">
                     {supplierPart ? (
                       <a
                         href={`https://jlcpcb.com/partdetail/${encodeURIComponent(supplierPart)}`}
