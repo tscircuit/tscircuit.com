@@ -178,7 +178,7 @@ export default function BOMView() {
       aria-labelledby="bom-heading"
     >
       <div className="flex flex-col gap-4 border-b border-gray-200 px-4 py-4 sm:px-5 dark:border-[#30363d]">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">
               <Boxes
@@ -192,9 +192,6 @@ export default function BOMView() {
                 Bill of materials
               </h2>
             </div>
-            <p className="mt-1 text-sm text-gray-500 dark:text-[#8b949e]">
-              Grouped parts ready for sourcing and assembly.
-            </p>
           </div>
 
           <label className="relative block w-full sm:w-72">
