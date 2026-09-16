@@ -253,7 +253,7 @@ export default function BOMView() {
                 References
               </th>
               <th className="px-3 py-3" scope="col">
-                Part / value
+                Value
               </th>
               <th className="px-3 py-3" scope="col">
                 Footprint
