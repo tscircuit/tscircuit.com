@@ -245,10 +245,7 @@ export default function BOMView() {
         <table className="w-full min-w-[760px] border-collapse text-left text-sm">
           <thead className="bg-gray-50/80 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:bg-[#161b22] dark:text-[#8b949e]">
             <tr>
-              <th className="w-20 px-4 py-3 text-center sm:px-5" scope="col">
-                Qty
-              </th>
-              <th className="px-3 py-3" scope="col">
+              <th className="px-4 py-3 sm:px-5" scope="col">
                 References
               </th>
               <th className="px-3 py-3" scope="col">
@@ -274,12 +271,7 @@ export default function BOMView() {
                   key={rowKey}
                   className="group align-top transition-colors hover:bg-blue-50/40 dark:hover:bg-blue-950/10"
                 >
-                  <td className="px-4 py-3.5 text-center sm:px-5">
-                    <span className="inline-flex min-w-7 items-center justify-center rounded-full bg-gray-100 px-2 py-1 font-mono text-xs font-semibold tabular-nums text-gray-700 dark:bg-[#21262d] dark:text-gray-200">
-                      {designators.length || 1}
-                    </span>
-                  </td>
-                  <td className="max-w-52 px-3 py-3.5">
+                  <td className="max-w-52 px-4 py-3.5 sm:px-5">
                     <div className="flex flex-wrap gap-1">
                       {(designators.length ? designators : ["—"]).map(
                         (reference) => (
