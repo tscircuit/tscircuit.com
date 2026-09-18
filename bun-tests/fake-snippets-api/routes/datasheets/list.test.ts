@@ -10,6 +10,8 @@ test("list datasheets", async () => {
   await axios.post("/api/datasheets/create", { chip_name: "Chip" })
   await axios.post("/api/datasheets/create", { chip_name: "Other" })
 
+  await axios.post("/api/_fake/datasheets/process_all_datasheets")
+
   const res = await axios.get("/api/datasheets/list", {
     params: { chip_name: "Chip" },
   })
@@ -27,6 +29,8 @@ test("list datasheets is_popular returns all", async () => {
   await axios.post("/api/datasheets/create", { chip_name: "Chip" })
   await axios.post("/api/datasheets/create", { chip_name: "Other" })
 
+  await axios.post("/api/_fake/datasheets/process_all_datasheets")
+
   const res = await axios.get("/api/datasheets/list", {
     params: { is_popular: true },
   })
@@ -39,6 +43,8 @@ test("list datasheets empty", async () => {
   const { axios } = await getTestServer()
 
   await axios.post("/api/datasheets/create", { chip_name: "Other" })
+
+  await axios.post("/api/_fake/datasheets/process_all_datasheets")
 
   const res = await axios.get("/api/datasheets/list", {
     params: { chip_name: "Chip" },
