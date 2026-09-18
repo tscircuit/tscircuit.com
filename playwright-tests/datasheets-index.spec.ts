@@ -1,32 +1,32 @@
 import { test, expect } from "@playwright/test"
 
-test("datasheet index loads all pages and links non-popular chips", async ({
+test("datasheet index loads all chips in one request and links non-popular chips", async ({
   page,
 }, testInfo) => {
   const chips = Array.from({ length: 503 }, (_, i) => ({
     datasheet_id: `chip-${i}`,
     chip_name: `CHIP${String(i).padStart(3, "0")}`,
   }))
-  const offsets: number[] = []
+  let requestCount = 0
   await page.route(/\/datasheets\/list\b/, async (route) => {
     const params = new URL(route.request().url()).searchParams
     expect(params.has("is_popular")).toBe(false)
-    const offset = Number(params.get("offset"))
-    offsets.push(offset)
+    expect(params.has("limit")).toBe(false)
+    expect(params.has("offset")).toBe(false)
+    requestCount++
     const matching = chips.filter((chip) =>
       chip.chip_name.includes(params.get("chip_name") || ""),
     )
     await route.fulfill({
       json: {
-        datasheets: matching.slice(offset, offset + 500),
-        next_offset: offset + 500 < matching.length ? offset + 500 : null,
+        datasheets: matching,
       },
     })
   })
   await page.goto("http://127.0.0.1:5177/datasheets")
   const index = page.getByRole("region", { name: "Indexed datasheets" })
   await expect(index.getByRole("link")).toHaveCount(503)
-  expect(offsets).toEqual([0, 500])
+  expect(requestCount).toBe(1)
   await page.screenshot({ path: testInfo.outputPath("datasheet-index.png") })
   await expect(
     index.getByRole("link", { name: "CHIP502", exact: true }),

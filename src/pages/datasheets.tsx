@@ -28,23 +28,10 @@ export const DatasheetsPage: React.FC = () => {
   } = useQuery(
     ["datasheetList", searchQuery],
     async () => {
-      const datasheets: DatasheetSummary[] = []
-      let offset: number | null = 0
-      do {
-        const {
-          data,
-        }: {
-          data: { datasheets: DatasheetSummary[]; next_offset?: number | null }
-        } = await axios.get("/datasheets/list", {
-          params: {
-            ...(searchQuery ? { chip_name: searchQuery } : {}),
-            limit: 500,
-            offset,
-          },
-        })
-        datasheets.push(...data.datasheets)
-        offset = data.next_offset ?? null
-      } while (offset !== null)
+      const { data } = await axios.get("/datasheets/list", {
+        params: searchQuery ? { chip_name: searchQuery } : {},
+      })
+      const datasheets = data.datasheets as DatasheetSummary[]
       return datasheets.sort((a, b) =>
         a.chip_name.localeCompare(b.chip_name, undefined, { numeric: true }),
       )
