@@ -14,23 +14,38 @@ const ALLOWED_DOMAINS: Array<{ domain: string; routes?: string[] }> = [
   { domain: "easyeda.com" },
 ]
 
-function isAllowedDomain(url: string) {
+function isAllowedDomain(url: string, selfPort?: string | null) {
   try {
-    const { hostname, pathname, port } = new URL(url)
+    const { hostname, pathname, port, protocol } = new URL(url)
+
+    if (protocol !== "http:" && protocol !== "https:") {
+      return false
+    }
+
     const allowedDomain = ALLOWED_DOMAINS.find(
       (domain) => domain.domain === hostname,
     )
 
     if (allowedDomain) {
+      if (protocol !== "https:") {
+        return false
+      }
       if (
         !allowedDomain.routes ||
         allowedDomain.routes.some((route) => pathname.startsWith(route))
       ) {
         return true
       }
+      return false
     }
 
-    return hostname === "localhost" || (hostname === "127.0.0.1" && port)
+    // Only allow loopback requests back to this same server instance (e.g.
+    // health checks), never to arbitrary ports/hosts on the internal network.
+    return (
+      (hostname === "localhost" || hostname === "127.0.0.1") &&
+      Boolean(selfPort) &&
+      port === selfPort
+    )
   } catch {
     return false
   }
