@@ -6,7 +6,7 @@ export default withRouteSpec({
   auth: "none",
   commonParams: z.object({
     chip_name: z.string().optional(),
-    is_popular: z.boolean().optional(),
+    is_popular: z.coerce.boolean().optional(),
   }),
   jsonResponse: z.object({
     datasheets: z.array(
@@ -25,5 +25,14 @@ export default withRouteSpec({
       chip_name: ds.chip_name,
     }))
 
-  return ctx.json({ datasheets })
+  datasheets.sort((a, b) =>
+    a.chip_name < b.chip_name
+      ? -1
+      : a.chip_name > b.chip_name
+        ? 1
+        : a.datasheet_id.localeCompare(b.datasheet_id),
+  )
+  return ctx.json({
+    datasheets,
+  })
 })

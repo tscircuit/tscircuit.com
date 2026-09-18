@@ -1,3 +1,4 @@
+import ReactMarkdown from "react-markdown"
 import { useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
@@ -80,7 +81,11 @@ export const DatasheetPage = () => {
             <SectionCard title="Description">
               {datasheetQuery.data.ai_description ? (
                 <div className="flex items-center gap-3 text-gray-500">
-                  <span>{datasheetQuery.data.ai_description}</span>
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>
+                      {datasheetQuery.data.ai_description}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               ) : (
                 <p className="text-gray-500">No description available.</p>

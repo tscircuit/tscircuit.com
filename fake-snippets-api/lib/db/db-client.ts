@@ -1590,8 +1590,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
     }
 
     if (chip_name) {
-      return state.datasheets.filter(
-        (d) => d.chip_name.toLowerCase() === chip_name.toLowerCase(),
+      return state.datasheets.filter((d) =>
+        d.chip_name.toLowerCase().includes(chip_name.toLowerCase()),
       )
     }
 

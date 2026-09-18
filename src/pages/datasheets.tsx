@@ -28,14 +28,13 @@ export const DatasheetsPage: React.FC = () => {
   } = useQuery(
     ["datasheetList", searchQuery],
     async () => {
-      const params = new URLSearchParams()
-      if (searchQuery) {
-        params.append("chip_name", searchQuery)
-      } else {
-        params.append("is_popular", "true")
-      }
-      const { data } = await axios.get(`/datasheets/list?${params.toString()}`)
-      return data.datasheets as DatasheetSummary[]
+      const { data } = await axios.get("/datasheets/list", {
+        params: searchQuery ? { chip_name: searchQuery } : {},
+      })
+      const datasheets = data.datasheets as DatasheetSummary[]
+      return datasheets.sort((a, b) =>
+        a.chip_name.localeCompare(b.chip_name, undefined, { numeric: true }),
+      )
     },
     { keepPreviousData: true },
   )
@@ -49,8 +48,8 @@ export const DatasheetsPage: React.FC = () => {
             <h1 className="text-4xl font-bold text-gray-900">Datasheets</h1>
           </div>
           <p className="text-lg text-gray-600 mb-4">
-            Explore datasheets for popular electronic components and chips.
-            Search to find specific ones.
+            Browse all indexed electronic components and chips, or search by
+            name.
           </p>
         </div>
 
@@ -100,17 +99,24 @@ export const DatasheetsPage: React.FC = () => {
             </div>
           </div>
         ) : datasheets && datasheets.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {datasheets.map((ds) => (
-              <Link
-                key={ds.datasheet_id}
-                href={`/datasheets/${ds.chip_name}`}
-                className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
-              >
-                <h3 className="font-semibold text-gray-900">{ds.chip_name}</h3>
-              </Link>
-            ))}
-          </div>
+          <section aria-label="Indexed datasheets">
+            <p className="mb-3 text-sm text-gray-500" role="status">
+              {datasheets.length.toLocaleString()}{" "}
+              {searchQuery ? "matching" : "indexed"} datasheets
+            </p>
+            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-1 border-t border-gray-200 pt-3">
+              {datasheets.map((ds) => (
+                <li key={ds.datasheet_id} className="min-w-0">
+                  <Link
+                    href={`/datasheets/${encodeURIComponent(ds.chip_name)}`}
+                    className="block rounded px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 break-words"
+                  >
+                    {ds.chip_name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         ) : (
           <div className="text-center py-12 px-4">
             <div className="bg-slate-50 inline-flex rounded-full p-4 mb-4">
@@ -122,7 +128,7 @@ export const DatasheetsPage: React.FC = () => {
             <p className="text-slate-500 max-w-md mx-auto mb-6">
               {searchQuery
                 ? `No datasheets match your search for "${searchQuery}".`
-                : "There are no popular datasheets at the moment."}
+                : "No datasheets have been indexed yet."}
             </p>
             {searchQuery && (
               <button
