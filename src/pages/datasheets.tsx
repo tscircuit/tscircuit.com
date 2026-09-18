@@ -48,8 +48,8 @@ export const DatasheetsPage: React.FC = () => {
             <h1 className="text-4xl font-bold text-gray-900">Datasheets</h1>
           </div>
           <p className="text-lg text-gray-600 mb-4">
-            Browse all indexed electronic components and chips, or search by
-            name.
+            Browse datasheets with descriptions, PDF links, and populated pin
+            information, or search by name.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export const DatasheetsPage: React.FC = () => {
             <p className="text-slate-500 max-w-md mx-auto mb-6">
               {searchQuery
                 ? `No datasheets match your search for "${searchQuery}".`
-                : "No datasheets have been indexed yet."}
+                : "No fully populated datasheets are available yet."}
             </p>
             {searchQuery && (
               <button

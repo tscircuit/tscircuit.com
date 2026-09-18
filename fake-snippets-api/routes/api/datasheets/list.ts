@@ -1,3 +1,4 @@
+import { isDatasheetComplete } from "fake-snippets-api/lib/datasheet/is-datasheet-complete"
 import { withRouteSpec } from "fake-snippets-api/lib/middleware/with-winter-spec"
 import { z } from "zod"
 
@@ -20,6 +21,7 @@ export default withRouteSpec({
   const { chip_name, is_popular } = req.commonParams
   const datasheets = ctx.db
     .listDatasheets({ chip_name, is_popular })
+    .filter(isDatasheetComplete)
     .map((ds) => ({
       datasheet_id: ds.datasheet_id,
       chip_name: ds.chip_name,
