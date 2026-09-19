@@ -30,12 +30,13 @@ const errorMessage = (error: any) =>
 function RenderPreview({
   releaseId,
   angle,
-}: { releaseId: string; angle: Angle }) {
+  renderId,
+}: { releaseId: string; angle: Angle; renderId: string }) {
   const axios = useAxios()
   const accountId = useGlobalStore((s) => s.session?.account_id)
   const [imageUrl, setImageUrl] = useState<string>()
   const image = useQuery<Blob>(
-    ["package-render-png", accountId, releaseId, angle],
+    ["package-render-png", accountId, releaseId, angle, renderId],
     async () => {
       // Fetch with session headers; an <img src="API URL"> cannot authenticate private images.
       const response = await axios.get(
@@ -102,6 +103,64 @@ function RenderPreview({
         Download PNG
       </a>
     </>
+  )
+}
+
+function RenderAction({
+  releaseId,
+  angle,
+  row,
+  disabled,
+}: {
+  releaseId: string
+  angle: Angle
+  row: Render
+  disabled: boolean
+}) {
+  const axios = useAxios()
+  const qc = useQueryClient()
+  const accountId = useGlobalStore((s) => s.session?.account_id)
+  const key = ["package-render-images", accountId, releaseId, angle]
+  const request = useMutation(async () => {
+    await qc.cancelQueries(key, { exact: true })
+    const { data } = await axios.post("/package_releases/create_render_image", {
+      package_release_id: releaseId,
+      angle,
+      ...(row.status === "failed"
+        ? { retry_failed: true }
+        : { regenerate: true }),
+    })
+    await qc.cancelQueries(key, { exact: true })
+    qc.setQueryData(key, data.render_image)
+    await qc.invalidateQueries(key, { exact: true })
+  })
+  if (!["failed", "succeeded"].includes(row.status)) return null
+  return (
+    <div className="border-t p-3 space-y-2">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={disabled || request.isLoading}
+        onClick={() => request.mutate()}
+        aria-label={`${row.status === "failed" ? "Retry" : "Regenerate"} ${labels[angle].toLowerCase()} image`}
+      >
+        {request.isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <RefreshCw className="mr-2 h-4 w-4" />
+        )}
+        {request.isLoading
+          ? "Requesting…"
+          : row.status === "failed"
+            ? "Retry image"
+            : "Regenerate image"}
+      </Button>
+      {request.isError && (
+        <p role="alert" className="text-xs text-red-600 break-words">
+          Request failed: {errorMessage(request.error)}
+        </p>
+      )}
+    </div>
   )
 }
 
@@ -306,7 +365,7 @@ export function PackageRenderImages({
             return (
               <article
                 key={angle}
-                className="overflow-hidden rounded-lg border"
+                className="min-w-0 overflow-hidden rounded-lg border"
                 aria-label={`${labels[angle]} view`}
               >
                 <div className="flex items-center justify-between border-b p-3">
@@ -322,7 +381,12 @@ export function PackageRenderImages({
                   </span>
                 </div>
                 {row?.status === "succeeded" ? (
-                  <RenderPreview releaseId={releaseId} angle={angle} />
+                  <RenderPreview
+                    key={row.package_release_render_image_id}
+                    releaseId={releaseId}
+                    angle={angle}
+                    renderId={row.package_release_render_image_id}
+                  />
                 ) : (
                   <div className="flex aspect-[6/5] items-center justify-center bg-gray-50 p-4 text-center text-sm text-gray-500">
                     {processing ? (
@@ -331,13 +395,26 @@ export function PackageRenderImages({
                         {statuses[row.status]}…
                       </span>
                     ) : row?.status === "failed" ? (
-                      <p role="alert">
+                      <p
+                        role="alert"
+                        className="max-h-64 min-w-0 overflow-auto whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
+                      >
                         {row.error || "This render could not be completed."}
                       </p>
                     ) : (
                       "Your rendered image will appear here."
                     )}
                   </div>
+                )}
+                {isAuthor && row && (
+                  <RenderAction
+                    releaseId={releaseId}
+                    angle={angle}
+                    row={row}
+                    disabled={
+                      generate.isLoading || query.isError || query.isFetching
+                    }
+                  />
                 )}
                 {requestErrors[angle] && (
                   <p className="border-t p-3 text-xs text-red-600" role="alert">
@@ -348,10 +425,11 @@ export function PackageRenderImages({
             )
           })}
         </div>
-        {records.some((r) => r?.status === "failed") && (
+        {isAuthor && (
           <p className="text-xs text-gray-500">
-            Failed renders cannot be restarted for this release. Existing images
-            are kept; use a new release to generate new renders.
+            Retry a failed image or regenerate a ready image individually.
+            Regenerating replaces that image; other views are kept. Each view
+            uses its original board.
           </p>
         )}
       </div>
