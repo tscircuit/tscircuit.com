@@ -13,6 +13,8 @@ export default withRouteSpec({
   auth: "session",
   jsonBody: renderParams.extend({
     circuit_json_file_path: z.string().optional(),
+    retry_failed: z.boolean().default(false),
+    regenerate: z.boolean().default(false),
   }),
   jsonResponse: z.any(),
 })(async (req, ctx) => {
@@ -30,7 +32,17 @@ export default withRouteSpec({
     })
   const store = renderStore(ctx.db)
   const existing = store.get(renderKey(p))
-  if (existing) return ctx.json({ render_image: publicRender(existing) })
+  if (existing) {
+    if (!p.regenerate || publicRender(existing).status !== "succeeded")
+      return ctx.json({ render_image: publicRender(existing) })
+    const job = {
+      ...existing,
+      package_release_render_image_id: crypto.randomUUID(),
+      created: Date.now(),
+    }
+    store.set(renderKey(p), job)
+    return ctx.json({ render_image: publicRender(job) }, { status: 202 })
+  }
   const path = p.circuit_json_file_path || "dist/circuit.json"
   const file = ctx.db.packageFiles.find(
     (f) =>

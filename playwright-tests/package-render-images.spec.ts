@@ -314,3 +314,123 @@ test("a release without built circuit JSON explains why generation is unavailabl
     page.getByRole("button", { name: "Generate all three views" }),
   ).toBeDisabled()
 })
+
+for (const author of [true, false]) {
+  test(`individual render controls preserve other views and refresh image data (author=${author})`, async ({
+    page,
+  }) => {
+    await setup(page, author)
+    await page.setViewportSize({ width: 390, height: 844 })
+    const rows: Record<string, any> = Object.fromEntries(
+      angles.map((angle) => [
+        angle,
+        {
+          package_release_render_image_id: `${angle}-old`,
+          status: angle === "bottom" ? "failed" : "succeeded",
+          error: "Pipeline failed: " + "long_error_detail_".repeat(150),
+          circuit_json_file_path: "dist/boards/controller/circuit.json",
+        },
+      ]),
+    )
+    const requests: any[] = []
+    const images: Record<string, number> = {}
+    let reject = true
+    await page.route("**/package_releases/get_render_image?**", (route) => {
+      const angle = new URL(route.request().url()).searchParams.get("angle")!
+      return route.fulfill({ json: { render_image: rows[angle] } })
+    })
+    await page.route(
+      "**/package_releases/get_render_image_file?**",
+      (route) => {
+        const angle = new URL(route.request().url()).searchParams.get("angle")!
+        images[angle] = (images[angle] || 0) + 1
+        return route.fulfill({ contentType: "image/png", body: png })
+      },
+    )
+    await page.route(
+      "**/package_releases/create_render_image",
+      async (route) => {
+        const body = route.request().postDataJSON()
+        requests.push(body)
+        if (reject)
+          return route.fulfill({
+            status: 503,
+            json: { error: { message: "Try again shortly" } },
+          })
+        rows[body.angle] = {
+          ...rows[body.angle],
+          status: "queued",
+          error: null,
+          package_release_render_image_id: `${body.angle}-new`,
+        }
+        await route.fulfill({
+          status: 202,
+          json: { render_image: rows[body.angle] },
+        })
+      },
+    )
+    await page.goto(url)
+    const bottom = page.getByRole("article", { name: "Bottom view" })
+    const top = page.getByRole("article", { name: "Top view" })
+    await expect(
+      top.getByRole("img", { name: "Top rendered board" }),
+    ).toBeVisible()
+    await expect(bottom.getByRole("status")).toHaveText("Failed")
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true)
+    if (!author) {
+      await expect(
+        page.getByRole("button", {
+          name: /^(Retry|Regenerate) (angled|top|bottom) image$/,
+        }),
+      ).toHaveCount(0)
+      expect(requests).toHaveLength(0)
+      return
+    }
+    await page.screenshot({
+      path: test.info().outputPath("individual-render-controls.png"),
+      fullPage: true,
+    })
+    await bottom.getByRole("button", { name: "Retry bottom image" }).click()
+    await expect(
+      bottom.getByText("Request failed: Try again shortly"),
+    ).toBeVisible()
+    await expect(top.getByRole("status")).toHaveText("Ready")
+    reject = false
+    await bottom.getByRole("button", { name: "Retry bottom image" }).click()
+    await expect(bottom.getByRole("status")).toHaveText("Queued")
+    await expect(
+      bottom.getByRole("button", { name: "Retry bottom image" }),
+    ).toHaveCount(0)
+    expect(requests[1]).toEqual({
+      package_release_id: "selected-release",
+      angle: "bottom",
+      retry_failed: true,
+    })
+    await top.getByRole("button", { name: "Regenerate top image" }).click()
+    await expect(top.getByRole("status")).toHaveText("Queued")
+    await expect(
+      top.getByRole("img", { name: "Top rendered board" }),
+    ).toHaveCount(0)
+    expect(requests[2]).toEqual({
+      package_release_id: "selected-release",
+      angle: "top",
+      regenerate: true,
+    })
+    rows.top.status = "succeeded"
+    rows.bottom.status = "succeeded"
+    await page.getByRole("button", { name: "Refresh status" }).click()
+    await expect(
+      top.getByRole("img", { name: "Top rendered board" }),
+    ).toBeVisible()
+    await expect.poll(() => images.top).toBe(2)
+    expect(images.angled).toBe(1)
+    expect(requests.map((r) => r.angle)).toEqual(["bottom", "bottom", "top"])
+    await expect(
+      page.getByText("Failed renders cannot be restarted", { exact: false }),
+    ).toHaveCount(0)
+  })
+}
