@@ -4,7 +4,7 @@ import { expect, test } from "bun:test"
 test("starred_by filters before limit and keeps viewer metadata", async () => {
   const { axios, jane_axios, unauthenticatedAxios, db, seed } =
     await getTestServer()
-  seed.account2.github_username = "JaNe"
+  db.updateAccount(seed.account2.account_id, { github_username: "JaNe" })
   await axios.post("/api/packages/create", { name: "testuser/unstarred" })
   const {
     data: { package: pkg },
@@ -48,6 +48,7 @@ test("starred_by filters before limit and keeps viewer metadata", async () => {
 
   const anonymous = await unauthenticatedAxios.post("/api/packages/list", {
     starred_by: "jane",
+    owner_tscircuit_handle: "testuser",
   })
   expect(anonymous.data.packages).toHaveLength(1)
   expect(anonymous.data.packages[0].starred_at).toBeNull()
@@ -55,4 +56,21 @@ test("starred_by filters before limit and keeps viewer metadata", async () => {
     starred_by: "unknown",
   })
   expect(unknown.data.packages).toEqual([])
+})
+
+test("anonymous starred_by alone is rejected like production", async () => {
+  const { unauthenticatedAxios } = await getTestServer()
+  for (const method of ["get", "post"] as const) {
+    try {
+      await unauthenticatedAxios[method](
+        "/api/packages/list",
+        method === "get"
+          ? { params: { starred_by: "testuser" } }
+          : { starred_by: "testuser" },
+      )
+      throw new Error("Expected the request to fail")
+    } catch (error: any) {
+      expect(error.status).toBe(400)
+    }
+  }
 })

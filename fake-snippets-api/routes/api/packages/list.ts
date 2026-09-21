@@ -48,8 +48,7 @@ export default withRouteSpec({
     !creator_account_id &&
     !owner_github_username &&
     !owner_tscircuit_handle &&
-    !owner_org_id &&
-    !starred_by
+    !owner_org_id
   ) {
     return ctx.error(400, {
       error_code: "invalid_request",
@@ -99,7 +98,7 @@ export default withRouteSpec({
     packages = packages.filter(canManagePackage)
   }
 
-  // starred_by selects packages, not whose metadata is returned.
+  // Match production: starred_by selects packages, not whose metadata is returned.
   if (starred_by) {
     const account = ctx.db.accounts.find(
       (account) =>
