@@ -48,7 +48,8 @@ export default withRouteSpec({
     !creator_account_id &&
     !owner_github_username &&
     !owner_tscircuit_handle &&
-    !owner_org_id
+    !owner_org_id &&
+    !starred_by
   ) {
     return ctx.error(400, {
       error_code: "invalid_request",
@@ -98,10 +99,11 @@ export default withRouteSpec({
     packages = packages.filter(canManagePackage)
   }
 
-  // Match production: starred_by selects packages, not whose metadata is returned.
+  // starred_by selects packages, not whose metadata is returned.
   if (starred_by) {
     const account = ctx.db.accounts.find(
-      (account) => account.github_username === starred_by.toLowerCase(),
+      (account) =>
+        account.github_username.toLowerCase() === starred_by.toLowerCase(),
     )
     const starredPackageIds = new Set(
       ctx.db.accountPackages
