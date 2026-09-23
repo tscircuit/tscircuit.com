@@ -52,6 +52,16 @@ test("reads Bun's JSONC lockfile with comments and trailing commas", () => {
   ).toBe("0.0.2617")
 })
 
+test("keeps URL-like text inside JSONC strings intact", () => {
+  expect(
+    getProjectTscircuitVersion({
+      "package.json": manifest("^0.0.2617"),
+      "bun.lock":
+        '{"comment":"https://example.com/a,b", "packages":{"tscircuit":["tscircuit@0.0.2617",]},}',
+    }),
+  ).toBe("0.0.2617")
+})
+
 test("rejects conflicting lockfiles and stale versions", () => {
   expect(() =>
     getProjectTscircuitVersion({
@@ -64,6 +74,18 @@ test("rejects conflicting lockfiles and stale versions", () => {
     getProjectTscircuitVersion({
       "package.json": manifest("0.0.2617"),
       "package-lock.json": npmLock("0.0.2616"),
+    }),
+  ).toThrow("up-to-date")
+  expect(() =>
+    getProjectTscircuitVersion({
+      "package.json": manifest("^0.0.2617"),
+      "package-lock.json": npmLock("0.0.2618"),
+    }),
+  ).toThrow("up-to-date")
+  expect(() =>
+    getProjectTscircuitVersion({
+      "package.json": manifest("~0.0.2600"),
+      "package-lock.json": npmLock("0.1.0"),
     }),
   ).toThrow("up-to-date")
 })
