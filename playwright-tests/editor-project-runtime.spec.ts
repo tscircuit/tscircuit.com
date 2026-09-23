@@ -1,3 +1,4 @@
+import path from "node:path"
 import { expect, test } from "@playwright/test"
 import { gzipSync, strToU8 } from "fflate"
 
@@ -12,13 +13,10 @@ test("loads the project's bundled worker and reports missing bundles without fal
   page,
 }) => {
   const requests: string[] = []
-  await page.route(
-    "**/npm/tscircuit@*/dist/webworker.min.js",
-    async (route) => {
-      requests.push(route.request().url())
-      await route.fulfill({ status: 404, body: "Not found" })
-    },
-  )
+  await page.route(/.*tscircuit.*\/dist\/webworker\.min\.js/, async (route) => {
+    requests.push(route.request().url())
+    await route.fulfill({ status: 404, body: "Not found" })
+  })
   await page.goto(
     editorUrl({
       "index.circuit.tsx":
@@ -37,7 +35,9 @@ test("loads the project's bundled worker and reports missing bundles without fal
       .filter({ hasText: "Could not load the tscircuit 0.0.2617 worker" }),
   ).toBeVisible()
   expect(requests).toEqual([
+    "https://jscdn.tscircuit.com/tscircuit/0.0.2617/dist/webworker.min.js",
     "https://cdn.jsdelivr.net/npm/tscircuit@0.0.2617/dist/webworker.min.js",
+    "https://unpkg.com/tscircuit@0.0.2617/dist/webworker.min.js",
   ])
   await expect(
     page.getByRole("button", { name: "Run", exact: true }),
@@ -66,22 +66,16 @@ test("replaces the worker when the project runtime changes", async ({
   page,
 }) => {
   const requests: string[] = []
-  // A minimal Comlink worker keeps this lifecycle test independent of routing,
-  // supplier APIs, and CDN availability. It accepts configuration RPCs.
-  await page.route(
-    "**/npm/tscircuit@*/dist/webworker.min.js",
-    async (route) => {
-      requests.push(route.request().url())
-      await route.fulfill({
-        contentType: "application/javascript",
-        body: `
-      self.onmessage = ({ data }) => {
-        if (data.id) self.postMessage({ id: data.id, type: "RAW", value: undefined })
-      }
-    `,
-      })
-    },
+  const realWorker = path.resolve(
+    "node_modules/tscircuit/dist/webworker.min.js",
   )
+  await page.route(/.*tscircuit.*\/dist\/webworker\.min\.js/, async (route) => {
+    requests.push(route.request().url())
+    await route.fulfill({
+      contentType: "application/javascript",
+      path: realWorker,
+    })
+  })
   await page.goto(
     editorUrl({
       "index.circuit.tsx": "export default () => <board />",
@@ -93,6 +87,10 @@ test("replaces the worker when the project runtime changes", async ({
   await expect(
     page.getByRole("button", { name: "Run", exact: true }),
   ).toBeVisible({ timeout: 30_000 })
+  await page.getByRole("button", { name: "Run", exact: true }).click()
+  await expect
+    .poll(() => page.evaluate(() => !!globalThis.runFrameWorker))
+    .toBe(true)
   await page.evaluate(() => {
     const state = window as any
     state.oldProjectWorker = state.runFrameWorker
@@ -122,5 +120,5 @@ test("replaces the worker when the project runtime changes", async ({
       )
     }),
   ).toBe(true)
-  expect(requests[1]).toContain("tscircuit@0.0.2618/dist/webworker.min.js")
+  expect(requests[1]).toContain("0.0.2618/dist/webworker.min.js")
 })
