@@ -1,0 +1,186 @@
+diff --git a/dist/index.js b/dist/index.js
+index 1e24473c0a6ad3882639da3aee79a5393646beb9..d30ccff0dbb6ed1767ecd6ba4e0162e6abd40219 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -39851,16 +39851,23 @@ var Canvas = forwardRef(
+       onCreatedRef.current?.({ camera, renderer });
+       let animationFrameId;
+       const clock = new THREE16.Clock();
++      let isVisible = true;
++      const visibilityObserver = new IntersectionObserver(([entry]) => {
++        isVisible = entry?.isIntersecting ?? false;
++        if (isVisible) handleResize();
++      });
++      visibilityObserver.observe(mountRef.current);
+       const animate = () => {
++        animationFrameId = requestAnimationFrame(animate);
++        if (!isVisible) return;
+         const time = clock.getElapsedTime();
+         const delta = clock.getDelta();
+         frameListeners.current.forEach((listener) => listener(time, delta));
+         renderer.render(scene, camera);
+-        animationFrameId = requestAnimationFrame(animate);
+       };
+       animate();
+       const handleResize = () => {
+-        if (mountRef.current) {
++        if (mountRef.current?.clientWidth && mountRef.current.clientHeight) {
+           const newAspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+           if (camera instanceof THREE16.PerspectiveCamera) {
+             camera.aspect = newAspect;
+@@ -39886,6 +39893,7 @@ var Canvas = forwardRef(
+         };
+         window.removeEventListener("resize", handleResize);
+         cancelAnimationFrame(animationFrameId);
++        visibilityObserver.disconnect();
+         if (mountRef.current && renderer.domElement) {
+           mountRef.current.removeChild(renderer.domElement);
+         }
+@@ -40383,7 +40391,14 @@ var OrientationCubeCanvas = () => {
+     group.add(topText);
+     group.add(bottomText);
+     let animationFrameId = null;
++    let isVisible = true;
++    const visibilityObserver = new IntersectionObserver(([entry]) => {
++      isVisible = entry?.isIntersecting ?? false;
++    });
++    visibilityObserver.observe(canvas);
+     const animate = () => {
++      animationFrameId = requestAnimationFrame(animate);
++      if (!isVisible) return;
+       if (mainCameraRef.current) {
+         const cameraPosition = computePointInFront(
+           mainCameraRef.current.rotation ?? new THREE20.Euler(0, 0, 0),
+@@ -40395,10 +40410,10 @@ var OrientationCubeCanvas = () => {
+         }
+       }
+       renderer.render(scene, camera);
+-      animationFrameId = requestAnimationFrame(animate);
+     };
+     animate();
+     return () => {
++      visibilityObserver.disconnect();
+       canvas.remove();
+       if (animationFrameId !== null) {
+         cancelAnimationFrame(animationFrameId);
+@@ -44614,6 +44629,7 @@ var createDataTexture = (canvas) => {
+ var createBoardReliefTextures = (texture, maskedCopperMask) => {
+   const sourceCanvas = texture.image;
+   if (!sourceCanvas?.width || !sourceCanvas.height) return null;
++  const {width:canvasWidth,height:canvasHeight}=sourceCanvas;
+   const sourceCtx = sourceCanvas.getContext("2d");
+   if (!sourceCtx) return null;
+   const maskCanvas = maskedCopperMask?.image;
+@@ -44624,32 +44640,32 @@ var createBoardReliefTextures = (texture, maskedCopperMask) => {
+   const imageData = sourceCtx.getImageData(
+     0,
+     0,
+-    sourceCanvas.width,
+-    sourceCanvas.height
++    canvasWidth,
++    canvasHeight
+   );
+   const data = imageData.data;
+-  const heights = new Float32Array(sourceCanvas.width * sourceCanvas.height);
++  const heights = new Float32Array(canvasWidth * canvasHeight);
+   const roughnessCanvas = document.createElement("canvas");
+   const metalnessCanvas = document.createElement("canvas");
+-  roughnessCanvas.width = metalnessCanvas.width = sourceCanvas.width;
+-  roughnessCanvas.height = metalnessCanvas.height = sourceCanvas.height;
++  roughnessCanvas.width = metalnessCanvas.width = canvasWidth;
++  roughnessCanvas.height = metalnessCanvas.height = canvasHeight;
+   const roughnessCtx = roughnessCanvas.getContext("2d");
+   const metalnessCtx = metalnessCanvas.getContext("2d");
+   if (!roughnessCtx || !metalnessCtx) return null;
+   const roughnessImageData = roughnessCtx.createImageData(
+-    sourceCanvas.width,
+-    sourceCanvas.height
++    canvasWidth,
++    canvasHeight
+   );
+   const metalnessImageData = metalnessCtx.createImageData(
+-    sourceCanvas.width,
+-    sourceCanvas.height
++    canvasWidth,
++    canvasHeight
+   );
+   const roughnessData = roughnessImageData.data;
+   const metalnessData = metalnessImageData.data;
+   for (let i = 0; i < data.length; i += 4) {
+     const pixelIndex = i / 4;
+-    const x = pixelIndex % sourceCanvas.width;
+-    const y = Math.floor(pixelIndex / sourceCanvas.width);
++    const x = pixelIndex % canvasWidth;
++    const y = Math.floor(pixelIndex / canvasWidth);
+     const alpha = data[i + 3] ?? 0;
+     if (alpha < 16) {
+       heights[pixelIndex] = invertSurfaceHeight(PLAIN_SOLDERMASK_HEIGHT);
+@@ -44657,11 +44673,11 @@ var createBoardReliefTextures = (texture, maskedCopperMask) => {
+     }
+     const maskX = maskImageData ? Math.min(
+       maskWidth - 1,
+-      Math.floor(x / sourceCanvas.width * maskWidth)
++      Math.floor(x / canvasWidth * maskWidth)
+     ) : 0;
+     const maskY = maskImageData ? Math.min(
+       maskHeight - 1,
+-      Math.floor(y / sourceCanvas.height * maskHeight)
++      Math.floor(y / canvasHeight * maskHeight)
+     ) : 0;
+     const maskAlpha = maskImageData ? maskImageData.data[(maskY * maskWidth + maskX) * 4 + 3] ?? 0 : 0;
+     const profile = getBoardSurfaceProfile(
+@@ -44670,7 +44686,7 @@ var createBoardReliefTextures = (texture, maskedCopperMask) => {
+       data[i + 2] ?? 0,
+       maskAlpha >= 16
+     );
+-    const salt = sourceCanvas.width + sourceCanvas.height;
++    const salt = canvasWidth + canvasHeight;
+     const fineGrain = profile.isExposedCopper ? createCopperDetail(x, y, salt) : profile.isMaskedCopper ? createMaskedTraceDetail(x, y, salt) : 0;
+     const height10 = clamp01(
+       invertSurfaceHeight(profile.height) + fineGrain * profile.microSurfaceWeight
+@@ -44694,31 +44710,31 @@ var createBoardReliefTextures = (texture, maskedCopperMask) => {
+   roughnessCtx.putImageData(roughnessImageData, 0, 0);
+   metalnessCtx.putImageData(metalnessImageData, 0, 0);
+   const bumpCanvas = document.createElement("canvas");
+-  bumpCanvas.width = sourceCanvas.width;
+-  bumpCanvas.height = sourceCanvas.height;
++  bumpCanvas.width = canvasWidth;
++  bumpCanvas.height = canvasHeight;
+   const bumpCtx = bumpCanvas.getContext("2d");
+   if (!bumpCtx) return null;
+   bumpCtx.putImageData(imageData, 0, 0);
+   const normalCanvas = document.createElement("canvas");
+-  normalCanvas.width = sourceCanvas.width;
+-  normalCanvas.height = sourceCanvas.height;
++  normalCanvas.width = canvasWidth;
++  normalCanvas.height = canvasHeight;
+   const normalCtx = normalCanvas.getContext("2d");
+   if (!normalCtx) return null;
+   const normalImageData = normalCtx.createImageData(
+-    sourceCanvas.width,
+-    sourceCanvas.height
++    canvasWidth,
++    canvasHeight
+   );
+   const normalData = normalImageData.data;
+-  const getHeight4 = (x, y) => heights[Math.max(0, Math.min(sourceCanvas.height - 1, y)) * sourceCanvas.width + Math.max(0, Math.min(sourceCanvas.width - 1, x))] ?? 0;
+-  for (let y = 0; y < sourceCanvas.height; y++) {
+-    for (let x = 0; x < sourceCanvas.width; x++) {
++  const getHeight4 = (x, y) => heights[Math.max(0, Math.min(canvasHeight - 1, y)) * canvasWidth + Math.max(0, Math.min(canvasWidth - 1, x))] ?? 0;
++  for (let y = 0; y < canvasHeight; y++) {
++    for (let x = 0; x < canvasWidth; x++) {
+       const dx = (getHeight4(x + 1, y) - getHeight4(x - 1, y)) * 4;
+       const dy = (getHeight4(x, y + 1) - getHeight4(x, y - 1)) * 4;
+-      const normal = new THREE40.Vector3(-dx, -dy, 1).normalize();
+-      const i = (y * sourceCanvas.width + x) * 4;
+-      normalData[i] = (normal.x * 0.5 + 0.5) * 255;
+-      normalData[i + 1] = (normal.y * 0.5 + 0.5) * 255;
+-      normalData[i + 2] = (normal.z * 0.5 + 0.5) * 255;
++      const inverseLength = 1 / Math.sqrt(dx * dx + dy * dy + 1);
++      const i = (y * canvasWidth + x) * 4;
++      normalData[i] = (-dx * inverseLength * 0.5 + 0.5) * 255;
++      normalData[i + 1] = (-dy * inverseLength * 0.5 + 0.5) * 255;
++      normalData[i + 2] = (inverseLength * 0.5 + 0.5) * 255;
+       normalData[i + 3] = 255;
+     }
+   }

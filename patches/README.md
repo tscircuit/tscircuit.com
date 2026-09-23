@@ -1,0 +1,1 @@
+The patch for `@tscircuit/3d-viewer@0.0.603` backports the relief-texture loop optimization and hidden-canvas rendering pause from https://github.com/tscircuit/3d-viewer/pull/1004. It allows this website's Vercel preview to exercise the complete tab-switch fix before the upstream package is released. Remove the patch when upgrading to a version that includes that PR.

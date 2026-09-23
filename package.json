@@ -203,5 +203,8 @@
   },
   "overrides": {
     "altiumts": "0.0.59"
+  },
+  "patchedDependencies": {
+    "@tscircuit/3d-viewer@0.0.603": "patches/@tscircuit%2F3d-viewer@0.0.603.patch"
   }
 }
