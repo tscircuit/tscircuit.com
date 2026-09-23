@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import type { Package } from "fake-snippets-api/lib/db/schema"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
-import { SuspenseRunFrame } from "../SuspenseRunFrame"
+import { ProjectRunFrame } from "./ProjectRunFrame"
 import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
@@ -462,11 +462,10 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               onMouseEnter={() => (isMouseOverRunFrame.current = true)}
               onMouseLeave={() => (isMouseOverRunFrame.current = false)}
             >
-              <SuspenseRunFrame
+              <ProjectRunFrame
                 tscircuitSessionToken={sessionToken}
                 showFileMenu={false}
                 showRunButton
-                forceLatestEvalVersion
                 isLoadingFiles={isLoading || !isFullyLoaded}
                 onRenderStarted={() => {
                   sessionTokenAtRenderStartRef.current = sessionToken
