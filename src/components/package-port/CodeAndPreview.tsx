@@ -1,32 +1,32 @@
-import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
 import { useConfirmDiscardChangesDialog } from "@/components/dialogs/confirm-discard-changes-dialog"
-import { useEnableMonacoLanguageService } from "@/hooks/use-enable-monaco-language-service"
-import { useToast } from "@/hooks/use-toast"
-import { useUrlParams } from "@/hooks/use-url-params"
-import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
-import { getSnippetTemplate } from "@/lib/get-snippet-template"
-import { cn } from "@/lib/utils"
-import type { Package } from "fake-snippets-api/lib/db/schema"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import EditorNav from "@/components/package-port/EditorNav"
-import { ProjectRunFrame } from "./ProjectRunFrame"
-import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
-import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
-import { ManualEditEvent } from "@tscircuit/props"
-import { useFileManagement } from "@/hooks/useFileManagement"
-import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
-import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
-import { useGlobalStore } from "@/hooks/use-global-store"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
-import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
-import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
-import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
+import { useEnableMonacoLanguageService } from "@/hooks/use-enable-monaco-language-service"
+import { useGlobalStore } from "@/hooks/use-global-store"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useToast } from "@/hooks/use-toast"
+import { useUrlParams } from "@/hooks/use-url-params"
+import useWarnUserOnPageChange from "@/hooks/use-warn-user-on-page-change"
+import { useFileManagement } from "@/hooks/useFileManagement"
+import { getSnippetTemplate } from "@/lib/get-snippet-template"
+import { cn } from "@/lib/utils"
+import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
+import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
+import { WorkspaceCodeEditor } from "@tscircuit/monaco-code-editor"
+import { ManualEditEvent } from "@tscircuit/props"
+import type { Package } from "fake-snippets-api/lib/db/schema"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { ImperativePanelHandle } from "react-resizable-panels"
+import { SuspenseRunFrame } from "../SuspenseRunFrame"
+import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
+import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
+import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 
 const MIN_PANE_WIDTH = 280
 const MOBILE_SPLIT_WIDTH = 768
@@ -462,7 +462,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
               onMouseEnter={() => (isMouseOverRunFrame.current = true)}
               onMouseLeave={() => (isMouseOverRunFrame.current = false)}
             >
-              <ProjectRunFrame
+              <SuspenseRunFrame
                 tscircuitSessionToken={sessionToken}
                 showFileMenu={false}
                 showRunButton
