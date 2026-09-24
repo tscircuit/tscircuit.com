@@ -1,166 +1,50 @@
+import { usePackageModelAssets } from "@/hooks/use-package-model-assets"
+import { getPackageFileLookupParams } from "@/lib/package-model-assets"
 import { CadViewer } from "@tscircuit/3d-viewer"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react"
+import { Suspense, useMemo } from "react"
 import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 
-const NODE_MODULES_TSCI_PACKAGE_ASSET_REGEX =
-  /^\.?\/?node_modules\/@tsci\/([^/.]+)\.([^/]+)\/(.+)$/
-
-const normalizeAssetPath = (assetPath: string) =>
-  assetPath.startsWith("./") ? assetPath.slice(2) : assetPath
-
-const getPackageFileLookupParams = ({
-  assetUrl,
-  releaseId,
-  author,
-  packageName,
-  version,
-}: {
-  assetUrl: string
-  releaseId?: string
-  author?: string
-  packageName?: string
-  version?: string
-}): Record<string, string> | null => {
-  const normalizedAssetUrl = normalizeAssetPath(assetUrl)
-  const externalPackageMatch = normalizedAssetUrl.match(
-    NODE_MODULES_TSCI_PACKAGE_ASSET_REGEX,
-  )
-
-  if (externalPackageMatch) {
-    const [, externalAuthor, externalPackageName, filePath] =
-      externalPackageMatch
-    return {
-      package_name_with_version: `${externalAuthor}/${externalPackageName}@latest`,
-      file_path: `dist/${filePath}`,
-    }
-  }
-
-  if (releaseId) {
-    return {
-      package_release_id: releaseId,
-      file_path: normalizedAssetUrl,
-    }
-  }
-
-  if (author && packageName) {
-    return {
-      package_name_with_version: `${author}/${packageName}@${version || "latest"}`,
-      file_path: normalizedAssetUrl,
-    }
-  }
-
-  return null
-}
-
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   const { author, packageName } = useParams()
-  const urlParams = useUrlParams()
+  const { version, package_release_id: releaseId } = useUrlParams()
   const apiBaseUrl = useApiBaseUrl()
-  const session = useGlobalStore((s) => s.session)
-
-  const version = urlParams.version
-  const releaseId = urlParams.package_release_id
-
-  const assetUrls = useMemo(() => {
-    if (!circuitJson) return []
+  const token = useGlobalStore((s) => s.session?.token)
+  const request = useMemo(() => {
     const urls = new Set<string>()
-    for (const element of circuitJson) {
+    for (const element of circuitJson ?? []) {
       if (element.type !== "cad_component") continue
-      for (const value of Object.values(element)) {
-        if (typeof value === "string" && value.includes(".")) {
-          urls.add(value)
-        }
-      }
-    }
-    return Array.from(urls)
-  }, [circuitJson])
-
-  const [blobUrlMap, setBlobUrlMap] = useState<Record<string, string>>({})
-  const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    if (assetUrls.length === 0) return
-
-    let cancelled = false
-    const blobUrls: string[] = []
-
-    const fetchModels = async () => {
-      setIsLoading(true)
-      const map: Record<string, string> = {}
-
-      await Promise.all(
-        assetUrls.map(async (assetUrl) => {
-          const lookupParams = getPackageFileLookupParams({
-            assetUrl,
+      for (const [key, value] of Object.entries(element)) {
+        if (
+          key.startsWith("model_") &&
+          key.endsWith("_url") &&
+          typeof value === "string" &&
+          getPackageFileLookupParams({
+            assetUrl: value,
             releaseId,
             author,
             packageName,
             version,
           })
-          if (!lookupParams) return
-
-          const params = new URLSearchParams(lookupParams)
-
-          const headers: Record<string, string> = {}
-          if (session?.token) {
-            headers.Authorization = `Bearer ${session.token}`
-          }
-
-          try {
-            const response = await fetch(
-              `${apiBaseUrl}/package_files/download?${params.toString()}`,
-              { headers },
-            )
-            if (!response.ok) return
-            const blob = await response.blob()
-            const blobUrl = URL.createObjectURL(blob)
-            blobUrls.push(blobUrl)
-            map[assetUrl] = blobUrl
-            map[normalizeAssetPath(assetUrl)] = blobUrl
-          } catch {
-            // Skip models that fail to load
-          }
-        }),
-      )
-
-      if (!cancelled) {
-        setBlobUrlMap(map)
-        setIsLoading(false)
+        )
+          urls.add(value)
       }
     }
-
-    fetchModels()
-
-    return () => {
-      cancelled = true
-      for (const url of blobUrls) {
-        URL.revokeObjectURL(url)
-      }
+    return {
+      assetUrls: Array.from(urls),
+      apiBaseUrl,
+      token,
+      releaseId,
+      author,
+      packageName,
+      version,
     }
-  }, [
-    assetUrls,
-    releaseId,
-    author,
-    packageName,
-    version,
-    apiBaseUrl,
-    session?.token,
-  ])
-
-  const resolveStaticAsset = useCallback(
-    (assetPath: string) =>
-      blobUrlMap[assetPath] ??
-      blobUrlMap[normalizeAssetPath(assetPath)] ??
-      assetPath,
-    [blobUrlMap],
-  )
-
-  return { resolveStaticAsset, isLoading }
+  }, [circuitJson, apiBaseUrl, token, releaseId, author, packageName, version])
+  return usePackageModelAssets(request)
 }
 
 export default function ThreeDView() {

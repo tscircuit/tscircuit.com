@@ -9,6 +9,7 @@ import { useHotkeyCombo } from "@/hooks/use-hotkey"
 import FilesView from "./tab-views/files-view"
 import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
+import { KeepMountedView } from "./keep-mounted-view"
 import SchematicView from "./tab-views/schematic-view"
 import BOMView from "./tab-views/bom-view"
 import PackageFileView from "./tab-views/package-file-view"
@@ -215,9 +216,9 @@ export default function RepoPageContent({
       case "files":
         return renderFilesContent()
       case "3d":
-        return <ThreeDView />
+        return null
       case "pcb":
-        return <PCBView />
+        return null
       case "schematic":
         return <SchematicView />
       case "bom":
@@ -273,6 +274,18 @@ export default function RepoPageContent({
             />
 
             {/* Dynamic Content based on active view */}
+            <KeepMountedView
+              key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
+              active={activeView === "3d"}
+            >
+              <ThreeDView />
+            </KeepMountedView>
+            <KeepMountedView
+              key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
+              active={activeView === "pcb"}
+            >
+              <PCBView />
+            </KeepMountedView>
             {renderContent()}
             {fileBrowserMode !== "file" && (
               <ImportantFilesView
