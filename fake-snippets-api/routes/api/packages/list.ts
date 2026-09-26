@@ -101,7 +101,8 @@ export default withRouteSpec({
   // Match production: starred_by selects packages, not whose metadata is returned.
   if (starred_by) {
     const account = ctx.db.accounts.find(
-      (account) => account.github_username === starred_by.toLowerCase(),
+      (account) =>
+        account.github_username.toLowerCase() === starred_by.toLowerCase(),
     )
     const starredPackageIds = new Set(
       ctx.db.accountPackages

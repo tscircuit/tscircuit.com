@@ -4,6 +4,7 @@ import { expect, test } from "bun:test"
 test("starred_by filters before limit and keeps viewer metadata", async () => {
   const { axios, jane_axios, unauthenticatedAxios, db, seed } =
     await getTestServer()
+  db.updateAccount(seed.account2.account_id, { github_username: "JaNe" })
   await axios.post("/api/packages/create", { name: "testuser/unstarred" })
   const {
     data: { package: pkg },
