@@ -119,7 +119,7 @@
         "ms": "^2.1.3",
         "next-themes": "^0.3.0",
         "postcss": "^8.4.47",
-        "posthog-js": "^1.203.2",
+        "posthog-js": "^1.434.17",
         "prompts": "^2.4.2",
         "react": "^19.1.1",
         "react-cookie-consent": "^9.0.0",
@@ -527,11 +527,11 @@
 
     "@playwright/test": ["@playwright/test@1.62.1", "", { "dependencies": { "playwright": "1.62.1" }, "bin": { "playwright": "cli.js" } }, "sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ=="],
 
-    "@posthog/browser-common": ["@posthog/browser-common@0.4.0", "", { "dependencies": { "@posthog/core": "^1.46.8", "@posthog/types": "^1.402.0" } }, "sha512-W9DCGVks15docUMPvJ2nd8NS16Gn74bsGWuaeg31beEKFSjdW8wvnQ1ETY6WSql5pYxZb3GdJmEUZVVstKSrBQ=="],
+    "@posthog/browser-common": ["@posthog/browser-common@0.9.0", "", { "dependencies": { "@posthog/core": "^1.54.2", "@posthog/types": "^1.412.1" } }, "sha512-EWoVzs1vVY7ihpn8yOjj3jyjriHUEEMVSBNL/TW3hk09fTriWRe76vJXrRg0G0yjTYxHmtlSkNn4mOV24ZEzzA=="],
 
-    "@posthog/core": ["@posthog/core@1.46.9", "", { "dependencies": { "@posthog/types": "^1.402.2" } }, "sha512-EXO6y5ih+jBkTCpUCuYgQmajuDZuvy6vMvflkub6pLQyi0GPlCPWVSvZZkOeQw9e2MxoD5GteeGCt9R8+UJ/yQ=="],
+    "@posthog/core": ["@posthog/core@1.55.2", "", { "dependencies": { "@posthog/types": "^1.412.4" } }, "sha512-2mYxGbDmTLUs096VbcZqSWo0lrI48/BrX65r54NynxxFq409BOx9w73HxOAtOKZ1vblkdV6/GxQTe7KDcIQidg=="],
 
-    "@posthog/types": ["@posthog/types@1.402.2", "", {}, "sha512-ZZTiS4dLwF4/D0YTzS3gGSLFnhuNOY5yu4d9VGS9trGe5GW6FjIXo20p18K5BPW2RZSYSld8sdnSAY3AUXleUQ=="],
+    "@posthog/types": ["@posthog/types@1.412.4", "", {}, "sha512-Q7lV9O9TbLngjOYw1ucm3bS3tn48xb1B4ZQdDy8gv7yfKe99hCTeWYG4xZ36nJM80VxpTF9TriiJt5hngDOkBg=="],
 
     "@radix-ui/number": ["@radix-ui/number@1.1.3", "", {}, "sha512-Road2bidD0uu/1BGDOWNdPI06g0lIRy6IF9GZcIrDK2KGItfor8IQwQa+yM2ERgHM1MmHxaxpTzk0/Jp42lNfA=="],
 
@@ -1997,7 +1997,7 @@
 
     "postcss-value-parser": ["postcss-value-parser@4.2.0", "", {}, "sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ=="],
 
-    "posthog-js": ["posthog-js@1.414.0", "", { "dependencies": { "@posthog/browser-common": "^0.4.0", "@posthog/core": "^1.46.9", "@posthog/types": "^1.402.2", "core-js": "^3.49.0", "dompurify": "^3.4.12", "fflate": "^0.4.8", "preact": "^10.29.3", "query-selector-shadow-dom": "^1.0.1", "web-vitals": "^5.3.0", "web-vitals-soft-navs": "npm:web-vitals@6.0.0" } }, "sha512-dtZd4asdskr8lNyltAEX6zyn48uO1pO0EMvx6AXJU65PFhu6yn2LPbKtQcyLysjcN57FJPNT9QYL6St5SBJHqw=="],
+    "posthog-js": ["posthog-js@1.434.17", "", { "dependencies": { "@posthog/browser-common": "^0.9.0", "@posthog/core": "^1.55.2", "@posthog/types": "^1.412.4", "core-js": "^3.49.0", "dompurify": "^3.4.13", "fflate": "^0.4.8", "preact": "^10.29.3", "query-selector-shadow-dom": "^1.0.1", "web-vitals": "^6.2.1", "web-vitals-soft-navs": "npm:web-vitals@6.2.1" }, "peerDependencies": { "@types/react": ">=16.8.0", "react": ">=16.8.0" }, "optionalPeers": ["@types/react", "react"] }, "sha512-R5Tb+YrDnZLVtMKXASXklXpfPwzwJ6YJKvcdL/UWV8OHigLm+ZveXtSsz3zwfidMpmSXHI0g2PJkeArO51qnAA=="],
 
     "potpack": ["potpack@1.0.2", "", {}, "sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ=="],
 
@@ -2425,9 +2425,9 @@
 
     "web-streams-polyfill": ["web-streams-polyfill@4.0.0-beta.3", "", {}, "sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug=="],
 
-    "web-vitals": ["web-vitals@5.3.0", "", {}, "sha512-q6LWsLatGYZp5VGBIOvbTj6JBV2nOmC8KvWztXBmwJcfFAzhwKwbOxhUH306XY3CcaZDUlSmSuNPBsCn0bFu+g=="],
+    "web-vitals": ["web-vitals@6.2.2", "", {}, "sha512-oto5x6dLEgrRqfcWed+pZEUb2q6ikbFmqF54CRDhI/QGbn+qxC49b4C4OkbH+kb9C3a8shpFD3SgR9kRcs80ZQ=="],
 
-    "web-vitals-soft-navs": ["web-vitals@6.0.0", "", {}, "sha512-Guaibvy/+uNtL6Bsu4jmMJGzuSl91oeRH5iO9pPRbYftnFUr3yqT1TUNX/OE4o9HexuEMU3Kb/Wg7iKhlffZUA=="],
+    "web-vitals-soft-navs": ["web-vitals@6.2.1", "", {}, "sha512-rLcLXA2sx6+9dE88NHFubwTtGxpK4yYBLj6qHPdFoCaLr0cXGb4efOqtKLlm4loGA4OEKHIQKMKzZkKyOh5ctw=="],
 
     "webgl-sdf-generator": ["webgl-sdf-generator@1.1.1", "", {}, "sha512-9Z0JcMTFxeE+b2x1LJTdnaT8rT8aEp7MVxkNwoycNmJWwPdzoXzMh0BjJSh/AEFP+KPYZUli814h8bJZFIZ2jA=="],
 
