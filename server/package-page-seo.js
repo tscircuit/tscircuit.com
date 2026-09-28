@@ -1,13 +1,5 @@
 const allowedThumbnailViews = new Set(["schematic", "pcb", "assembly", "3d"])
 
-const makeAbsoluteUrl = (url, baseUrl) => {
-  try {
-    return new URL(url, `${baseUrl.replace(/\/+$/, "")}/`).toString()
-  } catch {
-    return url
-  }
-}
-
 export const getPackagePageImageUrl = ({
   registryUrl,
   packageInfo,
@@ -21,13 +13,14 @@ export const getPackagePageImageUrl = ({
     : "3d"
 
   if (thumbnailView === "3d") {
-    const builtCadPreviewUrl =
-      packageRelease?.cad_preview_image_url ??
-      packageInfo.latest_cad_preview_image_url
+    const releaseId =
+      packageRelease?.package_release_id ??
+      packageInfo.latest_package_release_id
+    const query = releaseId
+      ? `package_release_id=${encodeURIComponent(releaseId)}`
+      : `fs_sha=${encodeURIComponent(packageInfo.latest_package_release_fs_sha || "")}`
 
-    if (builtCadPreviewUrl) {
-      return makeAbsoluteUrl(builtCadPreviewUrl, registryUrl)
-    }
+    return `${registryUrl}/packages/images/${encodeURIComponent(author)}/${encodeURIComponent(packageName)}/3d-whitebg.png?${query}`
   }
 
   return `${registryUrl}/packages/images/${encodeURIComponent(
