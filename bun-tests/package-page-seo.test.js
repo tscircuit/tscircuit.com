@@ -14,47 +14,83 @@ const baseOptions = {
 }
 
 describe("getPackagePageImageUrl", () => {
-  test("uses the release's built dist 3D preview", () => {
-    const builtPreviewUrl =
-      "https://api.tscircuit.com/package_files/view?package_release_id=release-1&file_path=dist%2Findex%2F3d.png"
-
-    expect(
-      getPackagePageImageUrl({
-        ...baseOptions,
-        packageRelease: { cad_preview_image_url: builtPreviewUrl },
-      }),
-    ).toBe(builtPreviewUrl)
-  })
-
-  test("falls back to the package's latest built 3D preview", () => {
-    const builtPreviewPath =
-      "/package_files/view?package_release_id=release-1&file_path=dist%2Findex%2F3d.png"
-
+  test("uses a white-background image pinned to the selected release", () => {
     expect(
       getPackagePageImageUrl({
         ...baseOptions,
         packageInfo: {
           ...baseOptions.packageInfo,
-          latest_cad_preview_image_url: builtPreviewPath,
+          latest_package_release_id: "latest-release",
+          latest_cad_preview_image_url: "https://example.com/latest.png",
+        },
+        packageRelease: {
+          package_release_id: "selected-release",
+          cad_preview_image_url: "https://example.com/transparent.png",
         },
       }),
-    ).toBe(`${registryUrl}${builtPreviewPath}`)
-  })
-
-  test("uses the image renderer when no built 3D preview is available", () => {
-    expect(getPackagePageImageUrl(baseOptions)).toBe(
-      `${registryUrl}/packages/images/alice/board/3d.png?fs_sha=md5-latest`,
+    ).toBe(
+      `${registryUrl}/packages/images/alice/board/3d-whitebg.png?package_release_id=selected-release`,
     )
   })
 
-  test("preserves the configured non-3D thumbnail renderer", () => {
+  test("uses the latest release ID when no release was loaded", () => {
     expect(
       getPackagePageImageUrl({
         ...baseOptions,
-        packageInfo: { ...baseOptions.packageInfo, default_view: "pcb" },
+        packageInfo: {
+          ...baseOptions.packageInfo,
+          latest_package_release_id: "latest-release",
+          latest_cad_preview_image_url:
+            "/package_files/view?file_path=dist%2F3d.png",
+        },
       }),
     ).toBe(
-      `${registryUrl}/packages/images/alice/board/pcb.png?fs_sha=md5-latest`,
+      `${registryUrl}/packages/images/alice/board/3d-whitebg.png?package_release_id=latest-release`,
     )
+  })
+
+  test("falls back to the filesystem hash when no release ID is available", () => {
+    expect(getPackagePageImageUrl(baseOptions)).toBe(
+      `${registryUrl}/packages/images/alice/board/3d-whitebg.png?fs_sha=md5-latest`,
+    )
+  })
+
+  test("defaults missing and unsupported views to a white-background 3D preview", () => {
+    for (const default_view of [undefined, null, "code"]) {
+      expect(
+        getPackagePageImageUrl({
+          ...baseOptions,
+          packageInfo: { ...baseOptions.packageInfo, default_view },
+        }),
+      ).toBe(
+        `${registryUrl}/packages/images/alice/board/3d-whitebg.png?fs_sha=md5-latest`,
+      )
+    }
+  })
+
+  test("encodes package names and release selectors", () => {
+    expect(
+      getPackagePageImageUrl({
+        ...baseOptions,
+        author: "alice org",
+        packageName: "board/part",
+        packageRelease: { package_release_id: "release&id" },
+      }),
+    ).toBe(
+      `${registryUrl}/packages/images/alice%20org/board%2Fpart/3d-whitebg.png?package_release_id=release%26id`,
+    )
+  })
+
+  test("preserves configured non-3D thumbnail renderers", () => {
+    for (const default_view of ["pcb", "schematic", "assembly"]) {
+      expect(
+        getPackagePageImageUrl({
+          ...baseOptions,
+          packageInfo: { ...baseOptions.packageInfo, default_view },
+        }),
+      ).toBe(
+        `${registryUrl}/packages/images/alice/board/${default_view}.png?fs_sha=md5-latest`,
+      )
+    }
   })
 })
