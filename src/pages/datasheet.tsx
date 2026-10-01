@@ -1,5 +1,5 @@
 import ReactMarkdown from "react-markdown"
-import { useParams } from "wouter"
+import { Link, useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
@@ -7,6 +7,14 @@ import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Loader2, AlertCircle, FileText } from "lucide-react"
 
 const SectionCard = ({
@@ -35,6 +43,19 @@ export const DatasheetPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow  mx-auto px-4 md:px-20 lg:px-28 py-8 w-full">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/datasheets">Datasheets</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage className="break-all">{chipName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
             {chipName} Datasheet
