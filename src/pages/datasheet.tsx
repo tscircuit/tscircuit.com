@@ -4,8 +4,7 @@ import { useDatasheet } from "@/hooks/use-datasheet"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import ExpandableText from "@/components/ExpandableText"
-import type { Datasheet } from "fake-snippets-api/lib/db/schema"
+import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2, AlertCircle, FileText } from "lucide-react"
@@ -41,9 +40,7 @@ export const DatasheetPage = () => {
             {chipName} Datasheet
           </h1>
           <p className="text-lg text-gray-600 mb-4">
-            View and download the datasheet for{" "}
-            <span className="font-semibold text-gray-800">{chipName}</span>. If
-            the datasheet is not available, you can request its creation.
+            Pin functions, electrical requirements, and manufacturer documents.
           </p>
           <a
             href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
@@ -78,84 +75,58 @@ export const DatasheetPage = () => {
               </SectionCard>
             )}
 
-            <SectionCard title="Description">
-              {datasheetQuery.data.ai_description ? (
-                <div className="flex items-center gap-3 text-gray-500">
-                  <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>
-                      {datasheetQuery.data.ai_description}
-                    </ReactMarkdown>
+            <div className="grid gap-x-6 lg:grid-cols-[2fr_1fr]">
+              <SectionCard title="Overview">
+                {datasheetQuery.data.ai_description ? (
+                  <div className="flex items-center gap-3 text-gray-500">
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>
+                        {datasheetQuery.data.ai_description}
+                      </ReactMarkdown>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p className="text-gray-500">No description available.</p>
-              )}
-            </SectionCard>
+                ) : (
+                  <p className="text-gray-500">No description available.</p>
+                )}
+              </SectionCard>
 
-            <SectionCard title="PDFs">
-              {datasheetQuery.data.datasheet_pdf_urls &&
-              datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
-                <ul className="list-disc pl-5 space-y-2">
-                  {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
-                    <li key={url}>
-                      <a
-                        href={url}
-                        className="text-blue-600 underline break-all"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {url}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No datasheet PDFs available.</p>
-              )}
-            </SectionCard>
-
+              <SectionCard title="Source documents">
+                {datasheetQuery.data.datasheet_pdf_urls &&
+                datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
+                  <ul className="space-y-2">
+                    {datasheetQuery.data.datasheet_pdf_urls.map(
+                      (url, index) => (
+                        <li key={url}>
+                          <a
+                            href={url}
+                            className="inline-flex items-center gap-2 text-blue-600 hover:underline break-all"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FileText className="h-4 w-4 shrink-0" />
+                            Datasheet PDF
+                            {(datasheetQuery.data.datasheet_pdf_urls?.length ??
+                              0) > 1
+                              ? ` ${index + 1}`
+                              : ""}
+                          </a>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">No datasheet PDFs available.</p>
+                )}
+              </SectionCard>
+            </div>
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border-collapse text-sm">
-                    <thead>
-                      <tr>
-                        <th className="border-b px-3 py-2 text-left font-semibold">
-                          Pin
-                        </th>
-                        <th className="border-b px-3 py-2 text-left font-semibold">
-                          Name
-                        </th>
-                        <th className="border-b px-3 py-2 text-left font-semibold">
-                          Description
-                        </th>
-                        <th className="border-b px-3 py-2 text-left font-semibold">
-                          Capabilities
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {datasheetQuery.data.pin_information.map((pin) => (
-                        <tr key={pin.pin_number} className="hover:bg-gray-50">
-                          <td className="border-b px-3 py-2 font-mono">
-                            {pin.pin_number}
-                          </td>
-                          <td className="border-b px-3 py-2">{pin.name}</td>
-                          <td className="border-b px-3 py-2">
-                            {pin.description}
-                          </td>
-                          <td className="border-b px-3 py-2">
-                            <ExpandableText
-                              text={pin.capabilities.join(", ")}
-                              maxChars={30}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DatasheetPinTable
+                  key={chipName}
+                  pins={datasheetQuery.data.pin_information}
+                  pinAttributes={datasheetQuery.data.pin_attributes}
+                />
               ) : (
                 <p className="text-gray-500">No pin information available.</p>
               )}
