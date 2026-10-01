@@ -205,6 +205,21 @@ export async function handleUserProfile(req, res) {
   res.status(200).send(html)
 }
 
+function handleDatasheetsIndex(req, res) {
+  const html = getHtmlWithModifiedSeoTags({
+    title: "Electronic Component Datasheets - tscircuit",
+    description:
+      "Browse and search electronic component datasheets on tscircuit. Find chip descriptions, PDF datasheets, pinouts, and pin information for your circuit designs.",
+    canonicalUrl: `${BASE_URL}/datasheets`,
+    imageUrl: `${BASE_URL}/tscircuit-logo.png`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 async function handleDatasheetPage(req, res) {
   const parts = req.url.split("?")[0].split("/")
   if (parts[1] !== "datasheets" || !parts[2]) {
@@ -1078,6 +1093,11 @@ export async function handleAvatarRedirect(req, res) {
 
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
+  if (urlPath === "/datasheets" || urlPath === "/datasheets/") {
+    handleDatasheetsIndex(req, res)
+    return
+  }
+
   const packageFileImageMatch = urlPath.match(
     /^\/package-file-images\/([0-9a-f-]+)\.svg$/i,
   )
