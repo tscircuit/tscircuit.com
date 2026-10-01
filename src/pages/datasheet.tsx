@@ -94,25 +94,19 @@ export const DatasheetPage = () => {
                 {datasheetQuery.data.datasheet_pdf_urls &&
                 datasheetQuery.data.datasheet_pdf_urls.length > 0 ? (
                   <ul className="space-y-2">
-                    {datasheetQuery.data.datasheet_pdf_urls.map(
-                      (url, index) => (
-                        <li key={url}>
-                          <a
-                            href={url}
-                            className="inline-flex items-center gap-2 text-blue-600 hover:underline break-all"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <FileText className="h-4 w-4 shrink-0" />
-                            Datasheet PDF
-                            {(datasheetQuery.data.datasheet_pdf_urls?.length ??
-                              0) > 1
-                              ? ` ${index + 1}`
-                              : ""}
-                          </a>
-                        </li>
-                      ),
-                    )}
+                    {datasheetQuery.data.datasheet_pdf_urls.map((url) => (
+                      <li key={url}>
+                        <a
+                          href={url}
+                          className="inline-flex max-w-full items-start gap-2 text-blue-600 hover:underline"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <FileText className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span className="min-w-0 break-all">{url}</span>
+                        </a>
+                      </li>
+                    ))}
                   </ul>
                 ) : (
                   <p className="text-gray-500">No datasheet PDFs available.</p>
