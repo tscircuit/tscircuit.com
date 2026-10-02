@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu"
 
 const communityLinks = [
+  { label: "Blog", href: "https://blog.tscircuit.com" },
   { label: "Discord", href: "/join" },
   { label: "Knowledge Base", href: "https://community.tscircuit.com" },
 ]
