@@ -5,6 +5,7 @@ import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
+import { DatasheetFootprint } from "@/components/DatasheetFootprint"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -134,6 +135,10 @@ export const DatasheetPage = () => {
                 )}
               </SectionCard>
             </div>
+            <DatasheetFootprint
+              chipName={chipName}
+              footprinterString={datasheetQuery.data.footprinter_string}
+            />
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (
