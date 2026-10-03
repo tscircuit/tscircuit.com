@@ -225,12 +225,31 @@ async function handleDatasheetPage(req, res) {
   if (parts[1] !== "datasheets" || !parts[2]) {
     throw new Error("Not a datasheet page")
   }
-  const chipName = parts[2]
+  const chipName = decodeURIComponent(parts[2])
+  let datasheet = null
+  try {
+    const response = await ky
+      .get(`${REGISTRY_URL}/datasheets/get`, {
+        searchParams: { chip_name: chipName },
+        timeout: 5000,
+        retry: 0,
+      })
+      .json()
+    datasheet = response?.datasheet
+  } catch {
+    // Keep the page available so the client can retry unavailable API data.
+  }
+  const generatedTsx = datasheet?.generated_tsx
+  const tsxContent =
+    typeof generatedTsx === "string" && generatedTsx.trim()
+      ? `<details class="mb-6 rounded-lg border"><summary class="cursor-pointer p-6 text-xl font-semibold">TSX</summary><pre class="mx-6 mb-6 max-h-96 overflow-auto rounded-md bg-slate-50 p-4 text-sm"><code>${he.encode(generatedTsx)}</code></pre></details>`
+      : ""
 
   const html = getHtmlWithModifiedSeoTags({
-    title: `${chipName} Datasheet - tscircuit`,
-    description: `View the ${chipName} datasheet on tscircuit.`,
-    canonicalUrl: `${BASE_URL}/datasheets/${he.encode(chipName)}`,
+    title: `${he.encode(chipName)} Datasheet - tscircuit`,
+    description: `View the ${he.encode(chipName)} datasheet on tscircuit.`,
+    canonicalUrl: `${BASE_URL}/datasheets/${encodeURIComponent(chipName)}`,
+    ssrContent: `<style>#loader{display:none}</style><main data-ssr-datasheet-page class="mx-auto px-4 md:px-20 lg:px-28 py-8 w-full"><h1 class="mb-6 text-3xl font-bold break-words">${he.encode(chipName)} Datasheet</h1>${tsxContent}</main>`,
   })
 
   res.setHeader("Content-Type", "text/html; charset=utf-8")

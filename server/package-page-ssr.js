@@ -497,7 +497,7 @@ export function injectPackagePageContent(html, ssrContent) {
   if (!ssrContent) return html
   return html.replace(
     /<div id="root"(?: class="[^"]*")?><\/div>/,
-    `<div id="root" data-server-rendered="true">${ssrContent}</div>`,
+    () => `<div id="root" data-server-rendered="true">${ssrContent}</div>`,
   )
 }
 
