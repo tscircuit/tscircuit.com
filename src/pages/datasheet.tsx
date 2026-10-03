@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
@@ -16,7 +17,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Loader2, AlertCircle, FileText } from "lucide-react"
+import { Loader2, AlertCircle, FileText, Copy } from "lucide-react"
 
 const SectionCard = ({
   title,
@@ -34,6 +35,9 @@ export const DatasheetPage = () => {
   const { chipName } = useParams<{ chipName: string }>()
   const datasheetQuery = useDatasheet(chipName)
   const createDatasheet = useCreateDatasheet()
+  const { copyToClipboard } = useCopyToClipboard()
+  const generatedTsx = datasheetQuery.data?.generated_tsx
+  const hasTsx = Boolean(generatedTsx?.trim())
 
   const handleCreate = () => {
     if (!chipName) return
@@ -64,14 +68,24 @@ export const DatasheetPage = () => {
           <p className="text-lg text-gray-600 mb-4">
             Pin functions, electrical requirements, and manufacturer documents.
           </p>
-          <a
-            href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-            className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FileText className="w-4 h-4" /> Download JSON
-          </a>
+          <div className="flex flex-wrap items-center gap-4">
+            {hasTsx && (
+              <Button
+                variant="outline"
+                onClick={() => copyToClipboard(generatedTsx!)}
+              >
+                <Copy className="mr-2 h-4 w-4" /> Copy TSX
+              </Button>
+            )}
+            <a
+              href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FileText className="w-4 h-4" /> Download JSON
+            </a>
+          </div>
         </div>
 
         {datasheetQuery.isLoading ? (
@@ -139,6 +153,20 @@ export const DatasheetPage = () => {
               chipName={chipName}
               footprinterString={datasheetQuery.data.footprinter_string}
             />
+            {hasTsx && (
+              <Card className="mb-6">
+                <details>
+                  <summary className="cursor-pointer p-6 text-xl font-semibold">
+                    TSX
+                  </summary>
+                  <CardContent>
+                    <pre className="max-h-96 overflow-auto rounded-md bg-slate-50 p-4 text-sm">
+                      <code>{generatedTsx}</code>
+                    </pre>
+                  </CardContent>
+                </details>
+              </Card>
+            )}
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (

@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test"
 import { getUncompressedSnippetString } from "@tscircuit/create-snippet-url"
 
 const footprint = "qfp64_w10_h10_p0.5"
+const generatedTsx = `export const EXAMPLE64 = () => <chip footprint="${footprint}" pinAttributes={{ pin1: { requiresVoltage: 2.8 } }} />\n// </code><script>throw new Error("must not execute this code")</script>`
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect x="40" y="40" width="120" height="120" fill="#333"/><path d="M20 60h20 M20 80h20 M20 100h20 M20 120h20 M160 60h20 M160 80h20 M160 100h20 M160 120h20" stroke="#e69c26" stroke-width="8"/></svg>`
 
 test.beforeEach(async ({ page }) => {
@@ -15,7 +16,7 @@ test.beforeEach(async ({ page }) => {
           pin_information: [],
           ai_description: "Example processor with a stored footprint.",
           footprinter_string: footprint,
-          generated_tsx: 'throw new Error("must not execute this code")',
+          generated_tsx: generatedTsx,
         },
       },
     }),
@@ -41,7 +42,7 @@ test("shows the stored string and safely generated PCB SVG at desktop and mobile
     page.getByRole("heading", { name: "Footprint", exact: true }),
   ).toBeVisible()
   await expect(
-    page.locator("code").filter({ hasText: footprint }),
+    page.locator("code").filter({ hasText: "{/* ... */}" }),
   ).toBeVisible()
   const preview = page.getByRole("img", { name: "EXAMPLE64 PCB footprint" })
   await expect(preview).toBeVisible()
@@ -81,7 +82,7 @@ test("keeps the string visible on preview failure and allows retry", async ({
     "Footprint preview could not be loaded.Retry preview",
   )
   await expect(
-    page.locator("code").filter({ hasText: footprint }),
+    page.locator("code").filter({ hasText: "{/* ... */}" }),
   ).toBeVisible()
   await page.getByRole("button", { name: "Retry preview" }).click()
   await expect(page.getByRole("alert")).toHaveCount(0)
@@ -139,4 +140,32 @@ test("does not request a preview when footprint metadata is absent", async ({
     page.getByRole("heading", { name: "Footprint", exact: true }),
   ).toHaveCount(0)
   expect(requests).toBe(0)
+  await expect(page.getByRole("button", { name: "Copy TSX" })).toHaveCount(0)
+})
+
+test("copies the complete stored TSX from the header and displays it as text", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (text: string) => {
+          ;(window as any).copiedTsx = text
+        },
+      },
+    })
+  })
+  await page.route("https://svg.tscircuit.com/**", (route) =>
+    route.fulfill({ contentType: "image/svg+xml", body: svg }),
+  )
+  await page.goto("http://127.0.0.1:5177/datasheets/EXAMPLE64")
+  await page.getByRole("button", { name: "Copy TSX", exact: true }).click()
+  expect(await page.evaluate(() => (window as any).copiedTsx)).toBe(
+    generatedTsx,
+  )
+  await expect(
+    page.getByText("Copied to clipboard!", { exact: true }),
+  ).toBeVisible()
+  await page.locator("summary").filter({ hasText: /^TSX$/ }).click()
+  await expect(page.locator("details code")).toHaveText(generatedTsx)
 })

@@ -25,11 +25,11 @@ export const DatasheetFootprint = ({
           footprinterString={footprinterString}
         />
         <div className="min-w-0">
-          <p className="mb-2 text-sm font-medium text-gray-700">
-            Footprinter string
-          </p>
           <pre className="rounded-lg border bg-slate-50 p-4 text-sm whitespace-pre-wrap break-all">
-            <code>{footprinterString}</code>
+            <code>{`<chip
+  footprint=${JSON.stringify(footprinterString)}
+  {/* ... */}
+/>`}</code>
           </pre>
         </div>
       </CardContent>

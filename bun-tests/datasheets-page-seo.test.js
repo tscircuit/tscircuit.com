@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test"
 import { readFileSync } from "node:fs"
+import he from "he"
 
 // Load the real HTML template without requiring a production build in Bun tests.
 const previousDevSsr = process.env.TSC_DEV_SSR
@@ -85,4 +86,85 @@ describe("datasheets index SEO", () => {
         .destination,
     ).toBe("/tscircuit-logo.png")
   })
+})
+
+describe("datasheet TSX in server-rendered HTML", () => {
+  test("includes the complete escaped TSX and requests the decoded chip name", async () => {
+    const tsx = `export const Example = () => <chip pinAttributes={{ pin1: { requiresVoltage: 2.8 } }} />\n// </code><script>alert("x")</script>\n// $& $\x60 $' $$`
+    const originalFetch = globalThis.fetch
+    let requestedUrl
+    globalThis.fetch = async (request) => {
+      requestedUrl = new URL(request.url)
+      return Response.json({ datasheet: { generated_tsx: tsx } })
+    }
+    try {
+      const { html, statusCode } = await getPage("/datasheets/EXAMPLE%2B64")
+      expect(statusCode).toBe(200)
+      expect(requestedUrl.pathname).toBe("/datasheets/get")
+      expect(requestedUrl.searchParams.get("chip_name")).toBe("EXAMPLE+64")
+      expect(html).toContain("data-ssr-datasheet-page")
+      expect(html).toContain("EXAMPLE+64 Datasheet")
+      expect(html).toContain(
+        '<summary class="cursor-pointer p-6 text-xl font-semibold">TSX</summary>',
+      )
+      expect(he.decode(html.match(/<code>([\s\S]*?)<\/code>/)[1])).toBe(tsx)
+      expect(html).not.toContain('<script>alert("x")</script>')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test.each([null, "", "   "])("omits unavailable TSX (%s)", async (tsx) => {
+    const originalFetch = globalThis.fetch
+    globalThis.fetch = async () =>
+      Response.json({ datasheet: { generated_tsx: tsx } })
+    try {
+      const { html, statusCode } = await getPage("/datasheets/EXAMPLE64")
+      expect(statusCode).toBe(200)
+      expect(html).not.toContain("<code>")
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  })
+
+  test.each([404, 503])(
+    "keeps the page available when the API returns %s without retrying",
+    async (status) => {
+      const originalFetch = globalThis.fetch
+      let requests = 0
+      globalThis.fetch = async () => {
+        requests++
+        return new Response("Unavailable", { status })
+      }
+      try {
+        const { html, statusCode } = await getPage("/datasheets/EXAMPLE64")
+        expect(statusCode).toBe(200)
+        expect(html).toContain("EXAMPLE64 Datasheet")
+        expect(html).not.toContain("<code>")
+        expect(requests).toBe(1)
+      } finally {
+        globalThis.fetch = originalFetch
+      }
+    },
+  )
+
+  test("limits a stalled API request to five seconds", async () => {
+    const originalFetch = globalThis.fetch
+    let requests = 0
+    globalThis.fetch = () => {
+      requests++
+      return new Promise(() => {})
+    }
+    const started = performance.now()
+    try {
+      const { html, statusCode } = await getPage("/datasheets/EXAMPLE64")
+      expect(statusCode).toBe(200)
+      expect(html).not.toContain("<code>")
+      expect(requests).toBe(1)
+      expect(performance.now() - started).toBeGreaterThanOrEqual(4900)
+      expect(performance.now() - started).toBeLessThan(6500)
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  }, 8000)
 })

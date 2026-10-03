@@ -10,6 +10,7 @@ export type DatasheetWithPinAttributes = Omit<Datasheet, "pin_information"> & {
   pin_information: DatasheetPin[] | null
   pin_attributes?: Record<string, PinAttributeMap> | null
   footprinter_string?: string | null
+  generated_tsx?: string | null
 }
 
 export const getPinNames = (pin: DatasheetPin) =>
