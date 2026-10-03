@@ -1,7 +1,14 @@
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
-import { SchematicViewer } from "@tscircuit/schematic-viewer"
+import {
+  SchematicViewer,
+  type SchematicViewerController,
+} from "@tscircuit/schematic-viewer"
 
-export default function SchematicView() {
+export default function SchematicView({
+  controller,
+}: {
+  controller?: SchematicViewerController
+}) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
   if (isLoading) {
     return (
@@ -26,6 +33,7 @@ export default function SchematicView() {
   return (
     <div className="h-[620px]">
       <SchematicViewer
+        controller={controller}
         disableGroups
         clickToInteractEnabled
         circuitJson={circuitJson}

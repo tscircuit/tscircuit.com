@@ -5,7 +5,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { useUrlParams } from "@/hooks/use-url-params"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { Suspense, useMemo } from "react"
+import { Suspense, useMemo, type ComponentProps } from "react"
 import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 
@@ -47,7 +47,13 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   return usePackageModelAssets(request)
 }
 
-export default function ThreeDView() {
+export default function ThreeDView({
+  onViewSchematicComponent,
+}: {
+  onViewSchematicComponent?: ComponentProps<
+    typeof CadViewer
+  >["onViewSchematicComponent"]
+}) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
   const { resolveStaticAsset, isLoading: isLoadingModels } =
     useModelBlobUrls(circuitJson)
@@ -87,6 +93,7 @@ export default function ThreeDView() {
           clickToInteractEnabled
           circuitJson={circuitJson}
           resolveStaticAsset={resolveStaticAsset}
+          onViewSchematicComponent={onViewSchematicComponent}
         />
       </Suspense>
     </div>
