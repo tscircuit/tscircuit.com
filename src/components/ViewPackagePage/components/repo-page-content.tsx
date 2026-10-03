@@ -4,6 +4,7 @@ import Sidebar from "./sidebar"
 import MobileSidebar from "./mobile-sidebar"
 import ImportantFilesView from "./important-files-view"
 import { useHotkeyCombo } from "@/hooks/use-hotkey"
+import { useSchematicViewerController } from "@tscircuit/schematic-viewer"
 
 // Tab Views
 import FilesView from "./tab-views/files-view"
@@ -97,9 +98,14 @@ export default function RepoPageContent({
     useCallback(() => onEditClicked?.(), [onEditClicked]),
   )
 
-  const { circuitJsonFound, isLoading: isCircuitJsonLoading } =
-    useCurrentPackageCircuitJson()
+  const {
+    circuitJson,
+    circuitJsonFound,
+    isLoading: isCircuitJsonLoading,
+  } = useCurrentPackageCircuitJson()
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
+  const { controller: schematicController, focusSchematicComponent } =
+    useSchematicViewerController()
 
   const { mutate: updateAiDescription } = useUpdateAiDescriptionMutation()
 
@@ -220,7 +226,7 @@ export default function RepoPageContent({
       case "pcb":
         return null
       case "schematic":
-        return <SchematicView />
+        return <SchematicView controller={schematicController} />
       case "bom":
         return <BOMView />
       default:
@@ -235,6 +241,19 @@ export default function RepoPageContent({
       return
     }
     window.location.hash = view
+  }
+
+  const handleViewSchematicComponent = ({
+    source_component_id,
+  }: { source_component_id: string }) => {
+    const component = circuitJson?.find(
+      (element) =>
+        element.type === "schematic_component" &&
+        element.source_component_id === source_component_id,
+    )
+    if (!component) return
+    focusSchematicComponent(component.schematic_component_id)
+    handleViewChange("schematic")
   }
 
   return (
@@ -278,7 +297,15 @@ export default function RepoPageContent({
               key={`3d:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
               active={activeView === "3d"}
             >
-              <ThreeDView />
+              <ThreeDView
+                onViewSchematicComponent={
+                  circuitJson?.some(
+                    (element) => element.type === "schematic_component",
+                  )
+                    ? handleViewSchematicComponent
+                    : undefined
+                }
+              />
             </KeepMountedView>
             <KeepMountedView
               key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
