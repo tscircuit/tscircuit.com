@@ -54,7 +54,7 @@
         "@tscircuit/checks": "^0.0.192",
         "@tscircuit/circuit-json-util": "^0.0.116",
         "@tscircuit/create-snippet-url": "^0.0.14",
-        "@tscircuit/eval": "^0.0.1552",
+        "@tscircuit/eval": "^0.0.1553",
         "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
         "@tscircuit/internal-dynamic-import": "^0.0.15",
         "@tscircuit/layout": "^0.0.29",
@@ -823,7 +823,7 @@
 
     "@tscircuit/create-snippet-url": ["@tscircuit/create-snippet-url@0.0.14", "", { "dependencies": { "fflate": "^0.8.2" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-zFmfkaFyKqj4TGRo+UW135Hds1m6T/hiuYy93xVxWKyCTUcnUR7MfVAPcrEtnctW/VFFTCdZqlWupQeaTe3KhQ=="],
 
-    "@tscircuit/eval": ["@tscircuit/eval@0.0.1552", "", { "peerDependencies": { "@tscircuit/core": ">=0.0.1906", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-atDNPAWJ+94jVu4I1eP5a98Ig3RBohfiDnxDg05j6To5Q4bvVwviQc3HXz5uZxpHbl/U+I7FloSG9Ji/38XUyA=="],
+    "@tscircuit/eval": ["@tscircuit/eval@0.0.1553", "", { "peerDependencies": { "@tscircuit/core": ">=0.0.1906", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-qOhQT6Yh/WTnKn8ljrxB/6N3FuQ20vT0e57A9D4sacvn2PKXgV75exxAdi8g73V0MNTS20cCfEf+m9LSrdJzSw=="],
 
     "@tscircuit/fake-stripe": ["@tscircuit/fake-stripe@github:tscircuit/fake-stripe#f1a5b40", { "dependencies": { "winterspec": "^0.0.114", "zod": "^3.23.8", "zustand": "^5.0.13", "zustand-hoist": "^2.0.1" }, "peerDependencies": { "typescript": "^5" } }, "tscircuit-fake-stripe-f1a5b40", "sha512-epbFoco46c1w8yPEi6xK0dzcltS/lLMwV0+UAU2CusjGwS7gCknkWafRklCctFa+FGF2sNklTJYZgUWTav1eMg=="],
 
