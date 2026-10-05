@@ -213,3 +213,53 @@ test("POST /api/package_releases/get - returns pr_number, pr_title, branch_name,
   )
   expect(getRes.data.package_release.is_pr_preview).toBe(true)
 })
+
+test("POST /api/package_releases/get - falls back to valid transpiled release when latest is broken #4204", async () => {
+  const { axios, db } = await getTestServer()
+
+  const pkgRes = await axios.post("/api/packages/create", {
+    name: "testuser/fallback-valid-release",
+    description: "A package with a broken latest release",
+  })
+  expect(pkgRes.status).toBe(200)
+
+  // Older valid release v0.1.0
+  const rel1 = await axios.post("/api/package_releases/create", {
+    package_id: pkgRes.data.package.package_id,
+    version: "0.1.0",
+    is_latest: false,
+  })
+  expect(rel1.status).toBe(200)
+
+  const rel1Id = rel1.data.package_release.package_release_id
+  const rel1Obj = db.getPackageReleaseById(rel1Id)!
+  db.updatePackageRelease({
+    ...rel1Obj,
+    has_transpiled: true,
+  })
+
+  // Broken latest release v0.2.0
+  const rel2 = await axios.post("/api/package_releases/create", {
+    package_id: pkgRes.data.package.package_id,
+    version: "0.2.0",
+    is_latest: true,
+  })
+  expect(rel2.status).toBe(200)
+
+  const rel2Id = rel2.data.package_release.package_release_id
+  const rel2Obj = db.getPackageReleaseById(rel2Id)!
+  db.updatePackageRelease({
+    ...rel2Obj,
+    circuit_json_build_error: "Transpile failed",
+    has_transpiled: false,
+  })
+
+  const getRes = await axios.post("/api/package_releases/get", {
+    package_name: "testuser/fallback-valid-release",
+    is_latest: true,
+  })
+
+  expect(getRes.status).toBe(200)
+  expect(getRes.data.ok).toBe(true)
+  expect(getRes.data.package_release.version).toBe("0.1.0")
+})

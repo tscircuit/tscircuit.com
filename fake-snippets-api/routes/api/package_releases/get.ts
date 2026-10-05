@@ -45,9 +45,35 @@ export default withRouteSpec({
         })
       }
 
-      const packageRelease = ctx.db.packageReleases.find(
-        (x) => x.package_id === pkg.package_id && x.is_latest,
-      )
+      const isReleaseValid = (x: zt.PackageRelease) =>
+        !x.circuit_json_build_error && !x.transpilation_error
+
+      const validLatestRelease =
+        ctx.db.packageReleases.find(
+          (x) =>
+            x.package_id === pkg.package_id &&
+            x.is_latest &&
+            isReleaseValid(x) &&
+            x.has_transpiled !== false,
+        ) ??
+        ctx.db.packageReleases.find(
+          (x) =>
+            x.package_id === pkg.package_id && x.is_latest && isReleaseValid(x),
+        )
+
+      const fallbackRelease = ctx.db.packageReleases
+        .filter((x) => x.package_id === pkg.package_id && isReleaseValid(x))
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0]
+
+      const packageRelease =
+        validLatestRelease ??
+        fallbackRelease ??
+        ctx.db.packageReleases.find(
+          (x) => x.package_id === pkg.package_id && x.is_latest,
+        )
 
       if (!packageRelease) {
         return ctx.error(404, {
