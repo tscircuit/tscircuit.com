@@ -20,9 +20,9 @@ async function seedFilePreview(page: import("@playwright/test").Page) {
     localStorage.setItem("cadViewerAutoRotate", "false")
   })
   await page.route("**/package_files/list?*", async (route) => {
-    const response = await route.fetch()
-    const data = await response.json()
-    const releaseId = data.package_files[0]?.package_release_id
+    const releaseId = new URL(route.request().url()).searchParams.get(
+      "package_release_id",
+    )
     await route.fulfill({
       json: {
         package_files: paths.map((file_path, index) => ({
