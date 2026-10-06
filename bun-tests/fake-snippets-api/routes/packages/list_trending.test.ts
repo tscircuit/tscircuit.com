@@ -1,5 +1,10 @@
 import { getTestServer } from "bun-tests/fake-snippets-api/fixtures/get-test-server"
 import { expect, test } from "bun:test"
+import { packageSchema } from "fake-snippets-api/lib/db/schema"
+import { createElement } from "react"
+import { renderToStaticMarkup } from "react-dom/server"
+import PackageSearchResults from "@/components/PackageSearchResults"
+import { Router } from "wouter"
 
 test("list trending packages", async () => {
   const { axios, db } = await getTestServer()
@@ -77,8 +82,7 @@ test("list trending packages", async () => {
   // Verify response structure
   expect(data.ok).toBe(true)
   expect(Array.isArray(data.packages)).toBe(true)
-  expect(data.packages.length).toBeGreaterThan(0)
-  expect(data.packages.length).toBeLessThanOrEqual(10) // Should return at most 10 packages
+  expect(data.packages.length).toBe(3)
 
   // Verify that packages with more stars appear first
   // Note: Since the endpoint randomizes the order after sorting by stars,
@@ -100,4 +104,74 @@ test("list trending packages", async () => {
     expect(pkg).toHaveProperty("creator_account_id")
     expect(pkg).toHaveProperty("latest_package_release_id")
   })
+})
+
+test("list trending returns all 100 top-starred packages", async () => {
+  const { axios, db } = await getTestServer()
+  const packageDefaults = packageSchema.parse({
+    package_id: "unused",
+    creator_account_id: "creator1",
+    owner_org_id: "org1",
+    github_repo_full_name: null,
+    name: "testuser/default",
+    unscoped_name: "default",
+    description: null,
+    created_at: "2023-01-01T00:00:00Z",
+    updated_at: "2023-01-01T00:00:00Z",
+    latest_package_release_id: null,
+    latest_version: null,
+    license: null,
+    ai_description: null,
+    ai_usage_instructions: null,
+  })
+  const { package_id, github_repo_full_name, ...defaults } = packageDefaults
+  const packages = Array.from({ length: 105 }, (_, i) => {
+    const pkg = db.addPackage({
+      ...defaults,
+      name: `testuser/trending-${i}`,
+      unscoped_name: `trending-${i}`,
+      creator_account_id: "creator1",
+    })
+    db.addStar("user1", pkg.package_id)
+    return pkg
+  })
+  const mostStarredPackage = packages[104]
+  db.addStar("user2", mostStarredPackage.package_id)
+  const unstarredPackage = db.addPackage({
+    ...defaults,
+    name: "testuser/unstarred",
+    unscoped_name: "unstarred",
+    creator_account_id: "creator1",
+  })
+
+  const { data } = await axios.get("/api/packages/list_trending")
+  expect(data.ok).toBe(true)
+  expect(data.packages).toHaveLength(100)
+  const ids = data.packages.map((pkg: any) => pkg.package_id)
+  expect(new Set(ids).size).toBe(100)
+  expect(ids).toContain(mostStarredPackage.package_id)
+  expect(ids).not.toContain(unstarredPackage.package_id)
+  expect(
+    data.packages.find(
+      (pkg: any) => pkg.package_id === mostStarredPackage.package_id,
+    ).star_count,
+  ).toBe(2)
+
+  const html = renderToStaticMarkup(
+    createElement(
+      Router,
+      { ssrPath: "/trending" },
+      createElement(PackageSearchResults, {
+        isLoading: false,
+        error: null,
+        filteredPackages: data.packages,
+        apiBaseUrl: "/api",
+        emptyStateMessage: "No trending packages",
+      }),
+    ),
+  )
+  expect(html.match(/href="\/testuser\/trending-\d+"/g)).toHaveLength(100)
+  for (const pkg of data.packages) {
+    expect(html).toContain(`href="/${pkg.name}"`)
+  }
 })
