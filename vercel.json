@@ -12,6 +12,10 @@
   ],
   "routes": [
     {
+      "src": "^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+(?:\\.git)?)/(info/refs|git-upload-pack|git-receive-pack)$",
+      "dest": "https://registry-api.tscircuit.com/git/$1/$2/$3"
+    },
+    {
       "src": "^/compare$",
       "dest": "https://tscircuit-com-compare.vercel.app/compare"
     },
