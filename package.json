@@ -101,7 +101,7 @@
     "@tscircuit/pcb-viewer": "^1.11.421",
     "@tscircuit/prompt-benchmarks": "^0.0.28",
     "@tscircuit/props": "^0.0.697",
-    "@tscircuit/runframe": "^0.0.2932",
+    "@tscircuit/runframe": "^0.0.2934",
     "@tscircuit/schematic-viewer": "^2.0.102",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
