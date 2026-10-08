@@ -12,7 +12,7 @@ test("Git endpoints reach the registry before page rendering", () => {
     "/astra/pd-power-supply/git-receive-pack",
   ]) {
     expect(path.replace(pattern, route.dest)).toBe(
-      `https://registry-api.tscircuit.com/git${path}`,
+      `https://api.tscircuit.com/git${path}`,
     )
   }
   expect(pattern.test("/astra/pd-power-supply")).toBe(false)

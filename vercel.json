@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+(?:\\.git)?)/(info/refs|git-upload-pack|git-receive-pack)$",
-      "dest": "https://registry-api.tscircuit.com/git/$1/$2/$3"
+      "dest": "https://api.tscircuit.com/git/$1/$2/$3"
     },
     {
       "src": "^/compare$",
