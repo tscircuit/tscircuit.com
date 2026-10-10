@@ -9,9 +9,13 @@ import { Suspense, useMemo, type ComponentProps } from "react"
 import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
 
-function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
+function useModelBlobUrls(
+  circuitJson: AnyCircuitElement[] | null,
+  packageReleaseId?: string,
+) {
   const { author, packageName } = useParams()
-  const { version, package_release_id: releaseId } = useUrlParams()
+  const { version, package_release_id } = useUrlParams()
+  const releaseId = packageReleaseId ?? package_release_id
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
   const request = useMemo(() => {
@@ -55,8 +59,35 @@ export default function ThreeDView({
   >["onViewSchematicComponent"]
 }) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
-  const { resolveStaticAsset, isLoading: isLoadingModels } =
-    useModelBlobUrls(circuitJson)
+  return (
+    <ThreeDCircuitPreview
+      circuitJson={circuitJson}
+      isLoading={isLoading}
+      error={error}
+      onViewSchematicComponent={onViewSchematicComponent}
+    />
+  )
+}
+
+export function ThreeDCircuitPreview({
+  circuitJson,
+  isLoading = false,
+  error,
+  packageReleaseId,
+  onViewSchematicComponent,
+}: {
+  circuitJson: AnyCircuitElement[] | null
+  isLoading?: boolean
+  error?: string | null
+  packageReleaseId?: string
+  onViewSchematicComponent?: ComponentProps<
+    typeof CadViewer
+  >["onViewSchematicComponent"]
+}) {
+  const { resolveStaticAsset, isLoading: isLoadingModels } = useModelBlobUrls(
+    circuitJson,
+    packageReleaseId,
+  )
 
   if (isLoading || isLoadingModels) {
     return (

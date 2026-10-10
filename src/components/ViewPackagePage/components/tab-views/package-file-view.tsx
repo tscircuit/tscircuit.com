@@ -191,6 +191,7 @@ export default function PackageFileView({
 
       <div className="bg-white dark:bg-[#0d1117]">
         <PackageFileArtifactPreview
+          key={`${packageReleaseId}:${filePath}`}
           packageReleaseId={packageReleaseId}
           selectedFilePath={filePath}
           packageFiles={packageFiles}

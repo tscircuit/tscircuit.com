@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
+import type { AnyCircuitElement } from "circuit-json"
+import { ThreeDCircuitPreview } from "./3d-view"
 import {
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToSchematicSvg,
@@ -9,7 +12,7 @@ import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getPackageFileArtifactPaths } from "@/lib/package-file-artifacts"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-type PreviewKind = "pcb" | "schematic"
+type PreviewKind = "pcb" | "schematic" | "3d"
 
 interface PackageFileArtifactPreviewProps {
   packageReleaseId?: string
@@ -24,7 +27,7 @@ const parseCircuitJson = (contentText?: string | null) => {
   if (!contentText) return null
   try {
     const parsed = JSON.parse(contentText)
-    return Array.isArray(parsed) ? parsed : null
+    return Array.isArray(parsed) ? (parsed as AnyCircuitElement[]) : null
   } catch {
     return null
   }
@@ -74,9 +77,7 @@ export default function PackageFileArtifactPreview({
     refetchOnWindowFocus: false,
   }
   const circuitJsonFile = usePackageFile(
-    packageReleaseId &&
-      artifactPaths.circuitJsonPath &&
-      (!pcbSvgUrl || !schematicSvgUrl)
+    packageReleaseId && artifactPaths.circuitJsonPath
       ? {
           package_release_id: packageReleaseId,
           file_path: artifactPaths.circuitJsonPath,
@@ -107,8 +108,9 @@ export default function PackageFileArtifactPreview({
       [
         pcbPreviewSrc ? "pcb" : null,
         schematicPreviewSrc ? "schematic" : null,
+        artifactPaths.circuitJsonPath ? "3d" : null,
       ].filter((kind): kind is PreviewKind => Boolean(kind)),
-    [pcbPreviewSrc, schematicPreviewSrc],
+    [pcbPreviewSrc, schematicPreviewSrc, artifactPaths.circuitJsonPath],
   )
   const [selectedKind, setSelectedKind] = useState<PreviewKind>("pcb")
 
@@ -155,13 +157,29 @@ export default function PackageFileArtifactPreview({
           <TabsList aria-label="Circuit preview type">
             {availableKinds.map((kind) => (
               <TabsTrigger key={kind} value={kind} className="capitalize">
-                {kind === "pcb" ? "PCB" : "Schematic"}
+                {kind === "pcb" ? "PCB" : kind === "3d" ? "3D" : "Schematic"}
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
       )}
-      {selectedPreviewSrc && (
+      {selectedKind === "3d" ? (
+        <ErrorBoundary
+          key={`${packageReleaseId}:${selectedFilePath}`}
+          fallback={
+            <p role="alert" className="p-8 text-sm text-red-500">
+              Unable to render 3D preview.
+            </p>
+          }
+        >
+          <ThreeDCircuitPreview
+            circuitJson={circuitJson}
+            packageReleaseId={packageReleaseId}
+            isLoading={isLoading}
+            error={circuitJsonFile.error?.message}
+          />
+        </ErrorBoundary>
+      ) : selectedPreviewSrc ? (
         <img
           key={selectedKind}
           src={selectedPreviewSrc}
@@ -170,7 +188,7 @@ export default function PackageFileArtifactPreview({
           alt={`${selectedKind === "pcb" ? "PCB" : "Schematic"} preview for ${selectedFilePath}`}
           className="max-h-[36rem] min-h-64 w-full rounded-md border border-gray-200 bg-white object-contain dark:border-[#30363d]"
         />
-      )}
+      ) : null}
     </section>
   )
 }
