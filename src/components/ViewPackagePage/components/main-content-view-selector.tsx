@@ -30,7 +30,7 @@ export default function MainContentViewSelector({
   activeView,
   onViewChange,
 }: MainContentViewSelectorProps) {
-  const { circuitJson } = useCurrentPackageCircuitJson()
+  const { circuitJson, hasSchematic } = useCurrentPackageCircuitJson()
 
   const views = [
     {
@@ -65,13 +65,24 @@ export default function MainContentViewSelector({
     },
   ]
 
+  const getDisabledReason = (view: (typeof views)[number]) => {
+    if (!circuitJson && view.requiresCircuitJson) {
+      return "Circuit JSON not available"
+    }
+    if (view.id === "schematic" && !hasSchematic) {
+      return "Schematic not available"
+    }
+    return null
+  }
+
   return (
     <>
       {/* Desktop Tabs */}
       <div className="bg-gray-100 dark:bg-[#161b22] rounded-md p-1 hidden lg:flex">
         <TooltipProvider>
           {views.map((view) => {
-            const isDisabled = !circuitJson && view.requiresCircuitJson
+            const disabledReason = getDisabledReason(view)
+            const isDisabled = Boolean(disabledReason)
             return (
               <Tooltip key={view.id}>
                 <TooltipTrigger asChild>
@@ -94,7 +105,7 @@ export default function MainContentViewSelector({
                 </TooltipTrigger>
                 {isDisabled && (
                   <TooltipContent>
-                    <p>Circuit JSON not available</p>
+                    <p>{disabledReason}</p>
                   </TooltipContent>
                 )}
               </Tooltip>
@@ -133,7 +144,8 @@ export default function MainContentViewSelector({
           <DropdownMenuContent align="start" className="z-[101]">
             <TooltipProvider>
               {views.map((view) => {
-                const isDisabled = !circuitJson && view.requiresCircuitJson
+                const disabledReason = getDisabledReason(view)
+                const isDisabled = Boolean(disabledReason)
                 return (
                   <Tooltip key={view.id}>
                     <TooltipTrigger asChild>
@@ -152,7 +164,7 @@ export default function MainContentViewSelector({
                     </TooltipTrigger>
                     {isDisabled && (
                       <TooltipContent>
-                        <p>Circuit JSON not available</p>
+                        <p>{disabledReason}</p>
                       </TooltipContent>
                     )}
                   </Tooltip>
