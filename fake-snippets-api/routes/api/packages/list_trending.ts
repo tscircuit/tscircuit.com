@@ -24,18 +24,17 @@ export default withRouteSpec({
   })
 
   // Filter out packages with no stars and sort by star count
-  const trendingPackages = ctx.db.packages
+  const trendingPackages = packagesWithStars
     .filter((p) => p.star_count > 0)
     .sort((a, b) => b.star_count - a.star_count)
-    .slice(0, 50)
+    .slice(0, 100)
 
-  // Randomize the order of the packages, then pick the first 10
+  // Randomize the order of all selected packages, matching the production API
   const randomizedPackages = trendingPackages.sort(() => Math.random() - 0.5)
-  const selectedPackages = randomizedPackages.slice(0, 10)
 
   return ctx.json({
     ok: true,
-    packages: selectedPackages.map((p) => ({
+    packages: randomizedPackages.map((p) => ({
       ...p,
       latest_package_release_id: p.latest_package_release_id || null,
     })),
