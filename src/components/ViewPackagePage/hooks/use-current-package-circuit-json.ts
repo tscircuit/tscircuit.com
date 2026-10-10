@@ -64,6 +64,9 @@ export function useCurrentPackageCircuitJson() {
   const circuitJson = data?.preview_circuit_json_response.circuit_json ?? null
   const circuitJsonFound =
     data?.preview_circuit_json_response.circuit_json_found ?? false
+  const hasSchematic =
+    circuitJson?.some((element) => element.type.startsWith("schematic_")) ??
+    false
 
   const errorMessage = error
     ? error.message
@@ -71,5 +74,11 @@ export function useCurrentPackageCircuitJson() {
       ? "Circuit JSON not found in package"
       : null
 
-  return { circuitJson, circuitJsonFound, isLoading, error: errorMessage }
+  return {
+    circuitJson,
+    circuitJsonFound,
+    hasSchematic,
+    isLoading,
+    error: errorMessage,
+  }
 }

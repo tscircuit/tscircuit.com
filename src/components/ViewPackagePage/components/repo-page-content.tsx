@@ -101,6 +101,7 @@ export default function RepoPageContent({
   const {
     circuitJson,
     circuitJsonFound,
+    hasSchematic,
     isLoading: isCircuitJsonLoading,
   } = useCurrentPackageCircuitJson()
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
@@ -128,9 +129,11 @@ export default function RepoPageContent({
 
     const circuitDependentViews = new Set(["3d", "pcb", "schematic", "bom"])
     const validViews = ["files", "3d", "pcb", "schematic", "bom"]
-    const availableViews = circuitJsonExists
-      ? validViews
-      : validViews.filter((view) => !circuitDependentViews.has(view))
+    const availableViews = validViews.filter(
+      (view) =>
+        (circuitJsonExists || !circuitDependentViews.has(view)) &&
+        (view !== "schematic" || hasSchematic),
+    )
 
     const availableViewSet = new Set(availableViews)
 
@@ -165,6 +168,7 @@ export default function RepoPageContent({
     packageInfo?.default_view,
     arePackageFilesFetched,
     circuitJsonExists,
+    hasSchematic,
     isCircuitJsonLoading,
     fileBrowserMode,
   ])
@@ -235,6 +239,7 @@ export default function RepoPageContent({
   }
 
   const handleViewChange = (view: string) => {
+    if (view === "schematic" && !hasSchematic) return
     setActiveView(view)
     if (fileBrowserMode) {
       if (view !== "files") onFileBrowserViewChange?.(view)
