@@ -4,7 +4,6 @@ import {
   CuboidIcon as Cube,
   CircuitBoardIcon as Circuit,
   FileTerminal,
-  ClipboardList,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -55,12 +54,6 @@ export default function MainContentViewSelector({
       id: "schematic",
       label: "Schematic",
       icon: <FileTerminal className="h-4 w-4 mr-1" />,
-      requiresCircuitJson: true,
-    },
-    {
-      id: "bom",
-      label: "BOM",
-      icon: <ClipboardList className="h-4 w-4 mr-1" />,
       requiresCircuitJson: true,
     },
   ]

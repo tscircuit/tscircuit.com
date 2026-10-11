@@ -10,9 +10,7 @@ import {
 import { useCurrentPackageInfo } from "@/hooks/use-current-package-info"
 import { useCurrentPackageRelease } from "@/hooks/use-current-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
-import { getBuildStatus } from "@/components/preview"
 import { Link } from "wouter"
-import { usePackageBuild } from "@/hooks/use-package-builds"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { useMemo } from "react"
 import { usePackageDomains } from "@/hooks/use-package-domains"
@@ -20,10 +18,6 @@ import { usePackageDomains } from "@/hooks/use-package-domains"
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
   const { packageRelease } = useCurrentPackageRelease()
-  const { data: latestBuild } = usePackageBuild(
-    packageRelease?.latest_package_build_id ?? null,
-  )
-
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
   )
