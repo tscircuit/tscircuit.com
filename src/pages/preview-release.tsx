@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useParams } from "wouter"
 import { Helmet } from "react-helmet-async"
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react"
@@ -13,6 +13,8 @@ import { PackageBuild } from "fake-snippets-api/lib/db/schema"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { RunFrameStaticBuildViewer } from "@tscircuit/runframe/runner"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { useAxios } from "@/hooks/use-axios"
+import { useSearch } from "wouter"
 
 const StatusPill = ({ status }: { status: string }) => {
   const color =
@@ -24,23 +26,6 @@ const StatusPill = ({ status }: { status: string }) => {
           ? "bg-blue-600 animate-pulse"
           : "bg-gray-500"
   return <span className={cn("inline-block w-2 h-2 rounded-full", color)} />
-}
-
-const fetchCircuitJson = async (fileRef: {
-  filePath: string
-  fileStaticAssetUrl: string
-}): Promise<object> => {
-  let res = await fetch(String(fileRef.fileStaticAssetUrl))
-  if (!res.ok) {
-    const fallbackUrl = fileRef.fileStaticAssetUrl.replace(
-      "file_path=dist/index/circuit.json",
-      "file_path=dist/circuit.json",
-    )
-    res = await fetch(fallbackUrl)
-  }
-  const resJson = await res.json()
-  const circuitJson = JSON.parse(resJson.package_file.content_text)
-  return circuitJson
 }
 
 export default function PreviewBuildPage() {
@@ -56,6 +41,23 @@ export default function PreviewBuildPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
 
   const apiUrl = useApiBaseUrl()
+  const axios = useAxios()
+  const search = useSearch()
+  const tabSelected =
+    new URLSearchParams(search).get("tab") === "errors" ? "errors" : undefined
+  const fetchCircuitJson = useCallback(async () => {
+    const { data } = await axios.get(
+      "/package_releases/get_preview_circuit_json",
+      {
+        params: { package_release_id: packageReleaseId },
+      },
+    )
+    const preview = data.preview_circuit_json_response
+    if (!preview?.circuit_json_found || !Array.isArray(preview.circuit_json)) {
+      throw new Error("Circuit JSON not found in package")
+    }
+    return preview.circuit_json
+  }, [axios, packageReleaseId])
   const { data: packageRelease, isLoading: isLoadingRelease } =
     usePackageReleaseById(packageReleaseId)
   const { data: pkg, isLoading: isLoadingPackage } = usePackageByName(
@@ -167,10 +169,11 @@ export default function PreviewBuildPage() {
                   files={[
                     {
                       filePath: "circuit.json",
-                      fileStaticAssetUrl: `${apiUrl}/package_files/get?file_path=dist/index/circuit.json&package_release_id=${build?.package_release_id}`,
+                      fileStaticAssetUrl: `${apiUrl}/package_releases/get_preview_circuit_json?package_release_id=${packageReleaseId}`,
                     },
                   ]}
-                  onFetchFile={fetchCircuitJson as any}
+                  onFetchFile={fetchCircuitJson}
+                  tabSelected={tabSelected}
                 />
               ) : (
                 <div className="flex-1 flex items-center justify-center">
