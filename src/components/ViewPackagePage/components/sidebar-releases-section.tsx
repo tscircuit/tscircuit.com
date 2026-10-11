@@ -1,4 +1,4 @@
-import { Tag, Clock, Globe, AlertTriangle, AlertCircle } from "lucide-react"
+import { Tag, Clock, Globe } from "lucide-react"
 import { KicadPcmCommand } from "@/components/KicadPcmCommand"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -14,26 +14,10 @@ import { Link } from "wouter"
 import { usePackageFileById, usePackageFiles } from "@/hooks/use-package-files"
 import { useMemo } from "react"
 import { usePackageDomains } from "@/hooks/use-package-domains"
-import { useCurrentPackageCircuitJson } from "../hooks/use-current-package-circuit-json"
-import { getCircuitDiagnosticCounts } from "@/lib/get-circuit-diagnostic-counts"
 
 export default function SidebarReleasesSection() {
   const { packageInfo } = useCurrentPackageInfo()
   const { packageRelease } = useCurrentPackageRelease()
-  const {
-    circuitJson,
-    isLoading: isLoadingCircuitJson,
-    error: circuitJsonError,
-  } = useCurrentPackageCircuitJson()
-  const diagnosticCounts = useMemo(
-    () => getCircuitDiagnosticCounts(circuitJson),
-    [circuitJson],
-  )
-  const diagnosticsHref =
-    packageInfo && packageRelease
-      ? `/${packageInfo.name}/releases/${packageRelease.package_release_id}/preview?tab=errors`
-      : null
-
   const { data: releaseFiles } = usePackageFiles(
     packageInfo?.latest_package_release_id,
   )
@@ -81,34 +65,6 @@ export default function SidebarReleasesSection() {
 
   return (
     <div className="mb-6 text-sm">
-      {diagnosticsHref &&
-        !isLoadingCircuitJson &&
-        !circuitJsonError &&
-        circuitJson && (
-          <div
-            className="flex items-center gap-3 mb-2 text-xs leading-4"
-            aria-label="Circuit diagnostics"
-          >
-            <Link
-              href={diagnosticsHref}
-              title={`${diagnosticCounts.warnings} warnings — view circuit diagnostics`}
-              aria-label={`View ${diagnosticCounts.warnings} circuit warnings`}
-              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-            >
-              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
-              <span className="tabular-nums">{diagnosticCounts.warnings}</span>
-            </Link>
-            <Link
-              href={diagnosticsHref}
-              title={`${diagnosticCounts.errors} errors — view circuit diagnostics`}
-              aria-label={`View ${diagnosticCounts.errors} circuit errors`}
-              className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-            >
-              <AlertCircle className="h-3 w-3" aria-hidden="true" />
-              <span className="tabular-nums">{diagnosticCounts.errors}</span>
-            </Link>
-          </div>
-        )}
       <h2 className="text-lg font-semibold mb-2">
         <Link
           href={`/${packageInfo?.name}/releases`}
