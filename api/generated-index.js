@@ -205,6 +205,21 @@ export async function handleUserProfile(req, res) {
   res.status(200).send(html)
 }
 
+function handleEnterprisePage(req, res) {
+  const html = getHtmlWithModifiedSeoTags({
+    title: "tscircuit Enterprise — Offline circuit design",
+    description:
+      "Run tscircuit inside enterprise environments without outbound web requests. Download standalone binaries with a bundled JavaScript runtime and component catalog.",
+    canonicalUrl: `${BASE_URL}/enterprise`,
+    imageUrl: `${BASE_URL}/tscircuit-logo.png`,
+  })
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 function handleDatasheetsIndex(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title: "Electronic Component Datasheets - tscircuit",
@@ -1112,6 +1127,10 @@ export async function handleAvatarRedirect(req, res) {
 
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
+  if (urlPath === "/enterprise" || urlPath === "/enterprise/") {
+    handleEnterprisePage(req, res)
+    return
+  }
   if (urlPath === "/datasheets" || urlPath === "/datasheets/") {
     handleDatasheetsIndex(req, res)
     return
