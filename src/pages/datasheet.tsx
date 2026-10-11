@@ -6,7 +6,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
-import { DatasheetFootprint } from "@/components/DatasheetFootprint"
+import { DatasheetViews } from "@/components/DatasheetViews"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -149,9 +149,9 @@ export const DatasheetPage = () => {
                 )}
               </SectionCard>
             </div>
-            <DatasheetFootprint
+            <DatasheetViews
               chipName={chipName}
-              footprinterString={datasheetQuery.data.footprinter_string}
+              datasheet={datasheetQuery.data}
             />
             {hasTsx && (
               <Card className="mb-6">
