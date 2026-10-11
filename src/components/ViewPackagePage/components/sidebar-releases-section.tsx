@@ -86,25 +86,25 @@ export default function SidebarReleasesSection() {
         !circuitJsonError &&
         circuitJson && (
           <div
-            className="flex items-center gap-4 mb-4"
+            className="flex items-center gap-3 mb-2 text-xs leading-4"
             aria-label="Circuit diagnostics"
           >
             <Link
               href={diagnosticsHref}
               title={`${diagnosticCounts.warnings} warnings — view circuit diagnostics`}
               aria-label={`View ${diagnosticCounts.warnings} circuit warnings`}
-              className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+              className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
-              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+              <AlertTriangle className="h-3 w-3" aria-hidden="true" />
               <span className="tabular-nums">{diagnosticCounts.warnings}</span>
             </Link>
             <Link
               href={diagnosticsHref}
               title={`${diagnosticCounts.errors} errors — view circuit diagnostics`}
               aria-label={`View ${diagnosticCounts.errors} circuit errors`}
-              className="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertCircle className="h-3 w-3" aria-hidden="true" />
               <span className="tabular-nums">{diagnosticCounts.errors}</span>
             </Link>
           </div>
