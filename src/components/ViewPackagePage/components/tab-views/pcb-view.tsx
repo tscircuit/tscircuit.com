@@ -1,8 +1,15 @@
+import type { ComponentProps } from "react"
 import { getPackagePcbRenderer } from "@/lib/get-package-pcb-renderer"
 import { PcbViewerWithContainerHeight } from "@/components/PcbViewerWithContainerHeight"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
-export default function PCBView() {
+export default function PCBView({
+  onViewSchematicComponent,
+}: {
+  onViewSchematicComponent?: ComponentProps<
+    typeof PcbViewerWithContainerHeight
+  >["onViewSchematicComponent"]
+}) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
 
   if (isLoading) {
@@ -30,6 +37,7 @@ export default function PCBView() {
         disablePcbGroups
         clickToInteractEnabled
         circuitJson={circuitJson}
+        onViewSchematicComponent={onViewSchematicComponent}
         containerClassName="w-full h-[620px]"
       />
     </div>

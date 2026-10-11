@@ -311,7 +311,15 @@ export default function RepoPageContent({
               key={`pcb:${packageRelease?.package_release_id ?? packageInfo?.package_id}`}
               active={activeView === "pcb"}
             >
-              <PCBView />
+              <PCBView
+                onViewSchematicComponent={
+                  circuitJson?.some(
+                    (element) => element.type === "schematic_component",
+                  )
+                    ? handleViewSchematicComponent
+                    : undefined
+                }
+              />
             </KeepMountedView>
             {renderContent()}
             {fileBrowserMode !== "file" && (
