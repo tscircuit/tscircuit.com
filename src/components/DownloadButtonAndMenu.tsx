@@ -379,10 +379,9 @@ export function DownloadButtonAndMenu({
                             )
                           }
                           return {
-                            filePath: file.file_path.replace(
-                              /\/circuit\.json$/,
-                              "",
-                            ),
+                            filePath: file.file_path
+                              .replace(/^dist\//, "")
+                              .replace(/(?:^|\/)circuit\.json$/, ""),
                             circuitJson,
                           }
                         }),
