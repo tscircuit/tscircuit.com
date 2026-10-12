@@ -35,7 +35,7 @@ const withoutExtension = (filePath) => {
 
 const getCandidateDirectories = (selectedFilePath) => {
   const selectedDirectory = getDirectory(selectedFilePath)
-  const candidates = []
+  const candidates = [selectedDirectory]
 
   if (!isArtifact(selectedFilePath) && !selectedFilePath.startsWith("dist/")) {
     if (selectedFilePath.toLowerCase().endsWith(".circuit.tsx")) {
@@ -44,11 +44,10 @@ const getCandidateDirectories = (selectedFilePath) => {
       )
     }
     candidates.push(`dist/${withoutExtension(selectedFilePath)}`)
-  }
 
-  candidates.push(selectedDirectory)
-  if (!isArtifact(selectedFilePath) && !selectedDirectory) {
-    candidates.push("dist")
+    if (!selectedDirectory) {
+      candidates.push("dist")
+    }
   }
 
   return [...new Set(candidates)]
@@ -65,12 +64,6 @@ export const getPackageFileArtifactPaths = (
 
   const artifacts = {}
 
-  if (isCircuitJson(getBasename(normalizedSelectedPath).toLowerCase())) {
-    if (normalizedFiles.includes(normalizedSelectedPath)) {
-      artifacts.circuitJsonPath = normalizedSelectedPath
-    }
-  }
-
   for (const directory of getCandidateDirectories(normalizedSelectedPath)) {
     const filesInDirectory = normalizedFiles.filter(
       (filePath) => getDirectory(filePath) === directory,
@@ -82,14 +75,7 @@ export const getPackageFileArtifactPaths = (
 
     artifacts.pcbSvgPath ||= findArtifact(isPcbSvg)
     artifacts.schematicSvgPath ||= findArtifact(isSchematicSvg)
-    artifacts.circuitJsonPath ||= findArtifact(
-      (basename) =>
-        isCircuitJson(basename) &&
-        (isArtifact(normalizedSelectedPath) ||
-          basename === "circuit.json" ||
-          basename ===
-            `${getBasename(withoutExtension(normalizedSelectedPath)).toLowerCase()}.json`),
-    )
+    artifacts.circuitJsonPath ||= findArtifact(isCircuitJson)
   }
 
   return artifacts

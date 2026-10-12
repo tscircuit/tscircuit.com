@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   ChevronDown,
@@ -38,8 +38,8 @@ import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
-import { usePackageFile } from "@/hooks/use-package-files"
-import { getPackageFileArtifactPaths } from "@/lib/package-file-artifacts"
+import { useAxios } from "@/hooks/use-axios"
+import { getPackageAssemblyCircuits } from "@/lib/download-fns/get-package-assembly-circuits"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -51,7 +51,6 @@ interface MainContentHeaderProps {
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
   packageRelease?: PublicPackageRelease
-  selectedFilePath?: string
 }
 
 export default function MainContentHeader({
@@ -63,7 +62,6 @@ export default function MainContentHeader({
   latestVersion,
   onVersionChange,
   packageRelease,
-  selectedFilePath,
 }: MainContentHeaderProps) {
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
     "copy",
@@ -100,27 +98,7 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
-  const circuitJsonPath = selectedFilePath
-    ? getPackageFileArtifactPaths(selectedFilePath, packageFiles)
-        .circuitJsonPath
-    : undefined
-  const { data: selectedCircuitJsonFile } = usePackageFile(
-    packageRelease?.package_release_id && circuitJsonPath
-      ? {
-          package_release_id: packageRelease.package_release_id,
-          file_path: circuitJsonPath,
-        }
-      : null,
-  )
-  const selectedCircuitJson = useMemo(() => {
-    if (!selectedCircuitJsonFile?.content_text) return null
-    try {
-      const parsed = JSON.parse(selectedCircuitJsonFile.content_text)
-      return Array.isArray(parsed) ? parsed : null
-    } catch {
-      return null
-    }
-  }, [selectedCircuitJsonFile?.content_text])
+  const axios = useAxios()
   const { data: allReleases, isLoading: isAllReleasesLoading } =
     usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
 
@@ -175,19 +153,32 @@ export default function MainContentHeader({
         </div>
         <div className="flex items-center gap-2">
           <DownloadButtonAndMenu
-            key={selectedFilePath ?? "preview"}
             offerMultipleImageFormats
-            unscopedName={
-              selectedFilePath
-                ? selectedFilePath
-                    .split("/")
-                    .pop()
-                    ?.replace(/\.(circuit\.)?(tsx|json)$/, "")
-                : packageInfo?.unscoped_name
-            }
+            unscopedName={packageInfo?.unscoped_name}
             desiredImageType={activeView}
             author={packageInfo?.owner_github_username ?? undefined}
-            circuitJson={selectedFilePath ? selectedCircuitJson : circuitJson}
+            circuitJson={circuitJson}
+            getAssemblyCircuits={
+              packageFiles.length
+                ? () =>
+                    getPackageAssemblyCircuits({
+                      packageFiles,
+                      fallbackCircuitJson: circuitJson ?? [],
+                      readFile: async (file) => {
+                        const { data } = await axios.get("/package_files/get", {
+                          params: { package_file_id: file.package_file_id },
+                        })
+                        const content = data?.package_file?.content_text
+                        if (!content) {
+                          throw new Error(
+                            `Package file ${file.file_path} has no content`,
+                          )
+                        }
+                        return content
+                      },
+                    })
+                : undefined
+            }
           />
 
           <DropdownMenu>

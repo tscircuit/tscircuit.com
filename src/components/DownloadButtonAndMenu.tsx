@@ -13,7 +13,10 @@ import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
-import { downloadAssemblyStepFile } from "@/lib/download-fns/download-assembly-step"
+import {
+  downloadAssemblyStepFile,
+  type AssemblyStepCircuit,
+} from "@/lib/download-fns/download-assembly-step"
 import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -42,6 +45,7 @@ interface DownloadButtonAndMenuProps {
   desiredImageType?: string
   offerMultipleImageFormats?: boolean
   circuitJson?: AnyCircuitElement[] | null
+  getAssemblyCircuits?: () => AsyncIterable<AssemblyStepCircuit>
 }
 
 export function DownloadButtonAndMenu({
@@ -52,6 +56,7 @@ export function DownloadButtonAndMenu({
   hasCircuitJson,
   offerMultipleImageFormats = false,
   circuitJson,
+  getAssemblyCircuits,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
@@ -62,17 +67,14 @@ export function DownloadButtonAndMenu({
     AnyCircuitElement[] | null
   >(null)
   const [isFetchingCircuitJson, setIsFetchingCircuitJson] = useState(false)
+  const [isDownloadingAssembly, setIsDownloadingAssembly] = useState(false)
   const [isAccessoryDialogOpen, setIsAccessoryDialogOpen] = useState(false)
   const [accessoryCircuitJson, setAccessoryCircuitJson] = useState<
     AnyCircuitElement[] | null
   >(null)
 
   const canDownload = Boolean(
-    hasCircuitJson || (circuitJson && circuitJson.length),
-  )
-  const hasPrintedParts = circuitJson?.some(
-    (element) =>
-      element.type === "source_component" && element.ftype === "printedpart",
+    hasCircuitJson || circuitJson?.length || getAssemblyCircuits,
   )
 
   const formatBadge = (
@@ -348,16 +350,17 @@ export function DownloadButtonAndMenu({
 
           <DropdownMenuItem
             className="text-xs"
-            disabled={isFetchingCircuitJson || !hasPrintedParts}
-            title={
-              hasPrintedParts
-                ? undefined
-                : "Select a circuit containing assembly.printedpart elements to export"
-            }
+            disabled={isFetchingCircuitJson || isDownloadingAssembly}
             onSelect={async () => {
+              setIsDownloadingAssembly(true)
               try {
-                const cj = await getCircuitJson()
-                await downloadAssemblyStepFile(cj, unscopedName || "circuit")
+                const circuits = getAssemblyCircuits
+                  ? getAssemblyCircuits()
+                  : [{ circuitJson: await getCircuitJson() }]
+                await downloadAssemblyStepFile(
+                  circuits,
+                  unscopedName || "circuit",
+                )
               } catch (error: any) {
                 toast({
                   title: "Error Downloading Assembly STEP",
@@ -365,6 +368,8 @@ export function DownloadButtonAndMenu({
                     error?.message || error?.toString?.() || "Unknown error",
                   variant: "destructive",
                 })
+              } finally {
+                setIsDownloadingAssembly(false)
               }
             }}
           >

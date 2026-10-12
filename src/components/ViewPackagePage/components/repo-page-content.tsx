@@ -290,9 +290,6 @@ export default function RepoPageContent({
               latestVersion={latestVersion}
               onVersionChange={onVersionChange}
               packageRelease={packageRelease}
-              selectedFilePath={
-                fileBrowserMode === "file" ? fileBrowserPath : undefined
-              }
             />
 
             {/* Dynamic Content based on active view */}
