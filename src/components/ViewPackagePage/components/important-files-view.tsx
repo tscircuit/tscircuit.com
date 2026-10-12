@@ -343,7 +343,13 @@ export default function ImportantFilesView({
     }
 
     if (isMarkdownFile(String(activeTab?.filePath))) {
-      return <MarkdownViewer markdownContent={activeFileContent} />
+      return (
+        <MarkdownViewer
+          markdownContent={activeFileContent}
+          packageReleaseId={activeFileFull?.package_release_id}
+          filePath={activeFileFull?.file_path}
+        />
+      )
     }
 
     if (isCodeFile(String(activeTab?.filePath))) {
@@ -361,6 +367,8 @@ export default function ImportantFilesView({
   }, [
     activeTab,
     activeFileContent,
+    activeFileFull?.package_release_id,
+    activeFileFull?.file_path,
     isActiveFileFetched,
     isMarkdownFile,
     isCodeFile,

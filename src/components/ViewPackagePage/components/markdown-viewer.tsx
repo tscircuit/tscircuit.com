@@ -5,12 +5,19 @@ import remarkGfm from "remark-gfm"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { Check, Clipboard, Copy, CopyPlus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
+import { resolveMarkdownImageUrl } from "@/lib/resolve-markdown-image-url"
 
 export default function MarkdownViewer({
   markdownContent,
+  packageReleaseId,
+  filePath,
 }: {
   markdownContent: string
+  packageReleaseId?: string
+  filePath?: string
 }) {
+  const apiBaseUrl = useApiBaseUrl()
   const { highlighter } = useShikiHighlighter()
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const { toast } = useToast()
@@ -37,6 +44,18 @@ export default function MarkdownViewer({
         <Markdown
           remarkPlugins={[remarkGfm]}
           components={{
+            img({ node, src, ...props }) {
+              return (
+                <img
+                  {...props}
+                  src={resolveMarkdownImageUrl(src, {
+                    packageReleaseId,
+                    filePath,
+                    apiBaseUrl,
+                  })}
+                />
+              )
+            },
             code({ node, className, children, ...props }) {
               const isCodeBlock =
                 className?.includes("language-") || /\n/.test(String(children))
