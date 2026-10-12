@@ -33,6 +33,7 @@ const MOBILE_SPLIT_WIDTH = 768
 const MOBILE_MEDIA_QUERY = `(max-width: ${MOBILE_SPLIT_WIDTH - 1}px)`
 
 const CODE_EDITOR_OPTIONS = { fixedOverflowWidgets: true } as const
+const SIGNED_OUT_PLATFORM_CONFIG = { checkAvailability: false } as const
 
 interface Props {
   pkg?: Package
@@ -464,6 +465,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
             >
               <SuspenseRunFrame
                 tscircuitSessionToken={sessionToken}
+                platformConfig={
+                  sessionToken ? undefined : SIGNED_OUT_PLATFORM_CONFIG
+                }
                 showFileMenu={false}
                 showRunButton
                 forceLatestEvalVersion

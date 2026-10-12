@@ -11,7 +11,9 @@ export const getEasyEdaProxyAuthToast = ({
   circuitJson,
   sessionToken,
 }: GetEasyEdaProxyAuthToastParams): ToasterToast | null => {
-  const proxyAuthErrorCode = getEasyEdaProxyAuthErrorCode(circuitJson)
+  const proxyAuthErrorCode = getEasyEdaProxyAuthErrorCode(circuitJson, {
+    ignoreOptionalSupplierLookups: !sessionToken,
+  })
   if (!proxyAuthErrorCode) return null
 
   const toastOptions = {
