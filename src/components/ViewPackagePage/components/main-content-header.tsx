@@ -38,8 +38,6 @@ import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
-import { useAxios } from "@/hooks/use-axios"
-import { getPackageAssemblyCircuits } from "@/lib/download-fns/get-package-assembly-circuits"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -98,7 +96,6 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
-  const axios = useAxios()
   const { data: allReleases, isLoading: isAllReleasesLoading } =
     usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
 
@@ -158,27 +155,7 @@ export default function MainContentHeader({
             desiredImageType={activeView}
             author={packageInfo?.owner_github_username ?? undefined}
             circuitJson={circuitJson}
-            getAssemblyCircuits={
-              packageFiles.length
-                ? () =>
-                    getPackageAssemblyCircuits({
-                      packageFiles,
-                      fallbackCircuitJson: circuitJson ?? [],
-                      readFile: async (file) => {
-                        const { data } = await axios.get("/package_files/get", {
-                          params: { package_file_id: file.package_file_id },
-                        })
-                        const content = data?.package_file?.content_text
-                        if (!content) {
-                          throw new Error(
-                            `Package file ${file.file_path} has no content`,
-                          )
-                        }
-                        return content
-                      },
-                    })
-                : undefined
-            }
+            packageFiles={packageFiles}
           />
 
           <DropdownMenu>

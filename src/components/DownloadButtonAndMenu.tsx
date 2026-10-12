@@ -13,10 +13,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
-import {
-  downloadAssemblyStepFile,
-  type AssemblyStepCircuit,
-} from "@/lib/download-fns/download-assembly-step"
+import { downloadAssemblyStepFile } from "@/lib/download-fns/download-assembly-step"
 import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -34,6 +31,7 @@ import { downloadStepFile } from "@/lib/download-fns/download-step"
 import { CubeIcon } from "@radix-ui/react-icons"
 import { ExportAccessoryDialog } from "@tscircuit/runframe"
 import { AnyCircuitElement } from "circuit-json"
+import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 import { ChevronDown, Download, Hammer, ImageIcon, Wrench } from "lucide-react"
 import { useState } from "react"
 
@@ -45,7 +43,7 @@ interface DownloadButtonAndMenuProps {
   desiredImageType?: string
   offerMultipleImageFormats?: boolean
   circuitJson?: AnyCircuitElement[] | null
-  getAssemblyCircuits?: () => AsyncIterable<AssemblyStepCircuit>
+  packageFiles?: PackageFile[]
 }
 
 export function DownloadButtonAndMenu({
@@ -56,7 +54,7 @@ export function DownloadButtonAndMenu({
   hasCircuitJson,
   offerMultipleImageFormats = false,
   circuitJson,
-  getAssemblyCircuits,
+  packageFiles,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
@@ -74,7 +72,7 @@ export function DownloadButtonAndMenu({
   >(null)
 
   const canDownload = Boolean(
-    hasCircuitJson || circuitJson?.length || getAssemblyCircuits,
+    hasCircuitJson || circuitJson?.length || packageFiles?.length,
   )
 
   const formatBadge = (
@@ -354,8 +352,41 @@ export function DownloadButtonAndMenu({
             onSelect={async () => {
               setIsDownloadingAssembly(true)
               try {
-                const circuits = getAssemblyCircuits
-                  ? getAssemblyCircuits()
+                const circuits = packageFiles
+                  ? await Promise.all(
+                      packageFiles
+                        .filter(
+                          (file) =>
+                            file.file_path.startsWith("dist/") &&
+                            (file.file_path.endsWith("/circuit.json") ||
+                              file.file_path.endsWith(".circuit.json")),
+                        )
+                        .map(async (file) => {
+                          const { data } = await axios.get(
+                            "/package_files/get",
+                            {
+                              params: {
+                                package_file_id: file.package_file_id,
+                              },
+                            },
+                          )
+                          const circuitJson = JSON.parse(
+                            data.package_file.content_text,
+                          )
+                          if (!Array.isArray(circuitJson)) {
+                            throw new Error(
+                              `Invalid Circuit JSON in ${file.file_path}`,
+                            )
+                          }
+                          return {
+                            filePath: file.file_path.replace(
+                              /\/circuit\.json$/,
+                              "",
+                            ),
+                            circuitJson,
+                          }
+                        }),
+                    )
                   : [{ circuitJson: await getCircuitJson() }]
                 await downloadAssemblyStepFile(
                   circuits,
