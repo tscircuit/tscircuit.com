@@ -146,7 +146,7 @@
     "immer": "^10.1.1",
     "javascript-time-ago": "^2.5.11",
     "jose": "^5.9.3",
-    "jscad-to-step": "git+https://github.com/tscircuit/jscad-to-step.git#e47220e6b7a98746b2135f9be62f5687644e58fc",
+    "jscad-to-step": "github:tscircuit/jscad-to-step#e47220e6b7a98746b2135f9be62f5687644e58fc",
     "jszip": "^3.10.1",
     "kicad-converter": "^0.0.17",
     "kicadts": "^0.0.35",

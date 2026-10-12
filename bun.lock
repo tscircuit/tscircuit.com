@@ -109,7 +109,7 @@
         "immer": "^10.1.1",
         "javascript-time-ago": "^2.5.11",
         "jose": "^5.9.3",
-        "jscad-to-step": "git+https://github.com/tscircuit/jscad-to-step.git#e47220e6b7a98746b2135f9be62f5687644e58fc",
+        "jscad-to-step": "github:tscircuit/jscad-to-step#e47220e6b7a98746b2135f9be62f5687644e58fc",
         "jszip": "^3.10.1",
         "kicad-converter": "^0.0.17",
         "kicadts": "^0.0.35",
@@ -176,7 +176,7 @@
   ],
   "overrides": {
     "altiumts": "0.0.59",
-    "jscad-to-step": "git+https://github.com/tscircuit/jscad-to-step.git#e47220e6b7a98746b2135f9be62f5687644e58fc",
+    "jscad-to-step": "github:tscircuit/jscad-to-step#e47220e6b7a98746b2135f9be62f5687644e58fc",
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
@@ -2622,8 +2622,6 @@
     "circuit-json-to-spice/circuit-json-to-connectivity-map": ["circuit-json-to-connectivity-map@0.0.22", "", { "dependencies": { "@tscircuit/math-utils": "^0.0.9" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-HN8DiISjZZLTglGEkYNRpKeQ/DMG4dDo5j4Hck0UGSJbpux9aFwtJOGszMf06Inh/gu5oKBrpZJIeWxaNacKUg=="],
 
     "circuit-json-to-step/circuit-json-to-connectivity-map": ["circuit-json-to-connectivity-map@0.0.22", "", { "dependencies": { "@tscircuit/math-utils": "^0.0.9" }, "peerDependencies": { "typescript": "^5.0.0" } }, "sha512-HN8DiISjZZLTglGEkYNRpKeQ/DMG4dDo5j4Hck0UGSJbpux9aFwtJOGszMf06Inh/gu5oKBrpZJIeWxaNacKUg=="],
-
-    "circuit-json-to-step/jscad-to-step": ["jscad-to-step@github:tscircuit/jscad-to-step#e47220e", { "dependencies": { "jscad-planner": "^0.0.14", "stepts": "^0.0.4" }, "peerDependencies": { "typescript": "^5" } }, "tscircuit-jscad-to-step-e47220e", "sha512-lqvkEFnBnQ6TCQzudZS5bwnmtHqhfaIfz0VgdGdfHWy2pr5GQfzcN3eRSID/4xMm5YbbWIe0JqDb6Lq5dK9V/g=="],
 
     "circuit-json-to-step/stepts": ["stepts@0.0.4", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-DCGT5bOKy1Ol1uugHsRr50zHrv9S3wwNt87M/kx9hqOb0W8EG0zgqNP4lcXiA4W3qooP+l/pHL32R7ok8wAIsQ=="],
 
