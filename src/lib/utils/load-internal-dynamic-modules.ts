@@ -74,7 +74,12 @@ type CircuitJsonToSpiceModule = {
   }
 }
 
-type CircuitJsonToStepModule = typeof import("circuit-json-to-step")
+type CircuitJsonToStepModule = {
+  circuitJsonToStep: (
+    circuitJson: AnyCircuitElement[],
+    options?: any,
+  ) => Promise<string> | string
+}
 
 type CircuitJsonToTscircuitModule = {
   convertCircuitJsonToTscircuit: (

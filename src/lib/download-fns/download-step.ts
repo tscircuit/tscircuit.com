@@ -1,39 +1,22 @@
-import type { AnyCircuitElement } from "circuit-json"
-import type { CircuitJsonToStepOptions } from "circuit-json-to-step"
+import { loadCircuitJsonToStep } from "@/lib/utils/load-internal-dynamic-modules"
+import { AnyCircuitElement, CircuitJson } from "circuit-json"
 import { saveAs } from "file-saver"
-import JSZip from "jszip"
 import { withDownloadToast } from "./download-toast"
-
-export const createStepDownload = async (
-  circuitJson: AnyCircuitElement[],
-  options: CircuitJsonToStepOptions = {},
-) => {
-  const { circuitJsonToStep } = await import("circuit-json-to-step")
-  const output = await circuitJsonToStep(circuitJson, {
-    includeComponents: true,
-    ...options,
-  })
-  if (typeof output === "string") {
-    return {
-      blob: new Blob([output], { type: "application/step" }),
-      extension: "step",
-    }
-  }
-  const zip = new JSZip()
-  for (const [fileName, content] of Object.entries(output)) {
-    zip.file(fileName, content)
-  }
-  return { blob: await zip.generateAsync({ type: "blob" }), extension: "zip" }
-}
 
 export const downloadStepFile = async (
   circuitJson: AnyCircuitElement[],
   fileName: string,
-  options: CircuitJsonToStepOptions = {},
 ) => {
-  const { blob, extension } = await withDownloadToast(
+  const content = await withDownloadToast(
     "Preparing STEP download...",
-    () => createStepDownload(circuitJson, options),
+    async () => {
+      const { circuitJsonToStep } = await loadCircuitJsonToStep()
+      return circuitJsonToStep(circuitJson, {
+        exportMode: "pcb",
+        includeComponents: true,
+      })
+    },
   )
-  saveAs(blob, `${fileName}.${extension}`)
+  const blob = new Blob([content], { type: "text/plain" })
+  saveAs(blob, fileName + ".step")
 }
