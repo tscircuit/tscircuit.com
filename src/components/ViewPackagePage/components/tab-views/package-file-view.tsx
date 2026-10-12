@@ -219,7 +219,11 @@ export default function PackageFileView({
           </div>
         ) : isMarkdownFile(filePath) ? (
           <div className="p-4 sm:p-6">
-            <MarkdownViewer markdownContent={file.content_text} />
+            <MarkdownViewer
+              markdownContent={file.content_text}
+              packageReleaseId={packageReleaseId}
+              filePath={filePath}
+            />
           </div>
         ) : (
           <div className="overflow-x-auto">
