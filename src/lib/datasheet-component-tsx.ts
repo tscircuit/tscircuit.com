@@ -168,6 +168,18 @@ export const getDatasheetComponentTsx = (
 export const abbreviateComponentTsx = (source: string): string => {
   const file = parse(source)
   const edits: Edit[] = []
+  const isObjectData = (expression: ts.Expression): boolean => {
+    while (
+      ts.isAsExpression(expression) ||
+      ts.isSatisfiesExpression(expression) ||
+      ts.isParenthesizedExpression(expression)
+    )
+      expression = expression.expression
+    return (
+      ts.isObjectLiteralExpression(expression) ||
+      ts.isArrayLiteralExpression(expression)
+    )
+  }
   const complexProps = new Set([
     "pinAttributes",
     "pinLabels",
@@ -185,8 +197,7 @@ export const abbreviateComponentTsx = (source: string): string => {
       const expression = node.initializer.expression
       if (
         complexProps.has(node.name.getText(file)) ||
-        ts.isObjectLiteralExpression(expression) ||
-        ts.isArrayLiteralExpression(expression)
+        isObjectData(expression)
       ) {
         edits.push({
           start: expression.getStart(file),
@@ -199,8 +210,7 @@ export const abbreviateComponentTsx = (source: string): string => {
     if (
       ts.isVariableDeclaration(node) &&
       node.initializer &&
-      (ts.isObjectLiteralExpression(node.initializer) ||
-        ts.isArrayLiteralExpression(node.initializer))
+      isObjectData(node.initializer)
     ) {
       edits.push({
         start: node.initializer.getStart(file),

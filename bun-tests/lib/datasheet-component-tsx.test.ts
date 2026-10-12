@@ -53,7 +53,7 @@ describe("datasheet component TSX", () => {
     const source = getDatasheetComponentTsx({
       ...data,
       generated_tsx:
-        'const labels = {pin1:["VIN"]}; export default () => <chip pinLabels={labels} />',
+        'const labels = {pin1:["VIN"]} as const; export default () => <chip pinLabels={labels} />',
     })!
     const display = abbreviateComponentTsx(source)
     expect(display).toContain("pinAttributes={...}")
