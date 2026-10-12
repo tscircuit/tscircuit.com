@@ -124,7 +124,7 @@
     "circuit-json": "^0.0.525",
     "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#1a50d0dd2c0737cf940d92c0315852dc0111dd87",
     "circuit-json-to-pnp-csv": "0.0.18",
-    "circuit-json-to-step": "^0.0.46",
+    "circuit-json-to-step": "^0.0.47",
     "circuit-to-svg": "^0.0.393",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -145,7 +145,6 @@
     "immer": "^10.1.1",
     "javascript-time-ago": "^2.5.11",
     "jose": "^5.9.3",
-    "jscad-to-step": "^0.0.11",
     "jszip": "^3.10.1",
     "kicad-converter": "^0.0.17",
     "kicadts": "^0.0.35",
@@ -205,7 +204,6 @@
     "zustand-hoist": "^2.0.1"
   },
   "overrides": {
-    "altiumts": "0.0.59",
-    "jscad-to-step": "$jscad-to-step"
+    "altiumts": "0.0.59"
   }
 }
