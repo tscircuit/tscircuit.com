@@ -360,7 +360,7 @@ export function DownloadButtonAndMenu({
             }}
           >
             <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Combined STEP</span>
+            <span className="flex-grow mr-6">Combined Assembly STEP</span>
             {formatBadge("STEP", "bg-emerald-500")}
           </DropdownMenuItem>
 
