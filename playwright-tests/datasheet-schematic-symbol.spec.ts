@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
-test("defaults to footprint and requests the RP2040 symbol only when its tab is selected", async ({
+test("shows both RP2040 previews side by side on desktop and stacked on mobile", async ({
   page,
 }, testInfo) => {
   const requests = { pcb: 0, schematic: 0 }
@@ -30,21 +30,11 @@ test("defaults to footprint and requests the RP2040 symbol only when its tab is 
     return route.fulfill({ contentType: "image/svg+xml", body: svg })
   })
   await page.goto("http://127.0.0.1:5177/datasheets/RP2040")
-  await expect(
-    page.getByRole("tab", { name: "Footprint", exact: true }),
-  ).toHaveAttribute("aria-selected", "true")
-  await expect(
-    page.getByRole("img", { name: "RP2040 PCB footprint" }),
-  ).toBeVisible()
-  expect(requests).toEqual({ pcb: 1, schematic: 0 })
-  await expect(
-    page.getByRole("img", { name: "RP2040 schematic symbol" }),
-  ).toHaveCount(0)
-
-  await page.getByRole("tab", { name: "Schematic", exact: true }).click()
-  await expect(
-    page.getByRole("tab", { name: "Schematic", exact: true }),
-  ).toHaveAttribute("aria-selected", "true")
+  await expect(page.getByRole("tab")).toHaveCount(0)
+  const footprintPreview = page.getByRole("img", {
+    name: "RP2040 PCB footprint",
+  })
+  await expect(footprintPreview).toBeVisible()
   const preview = page.getByRole("img", { name: "RP2040 schematic symbol" })
   await expect(preview).toBeVisible()
   await expect(
@@ -54,23 +44,29 @@ test("defaults to footprint and requests the RP2040 symbol only when its tab is 
     await preview.evaluate((image: HTMLImageElement) => image.naturalWidth),
   ).toBeGreaterThan(0)
   expect(requests).toEqual({ pcb: 1, schematic: 1 })
-  await expect(
-    page.getByRole("img", { name: "RP2040 PCB footprint" }),
-  ).toHaveCount(0)
+  const footprintBounds = (await footprintPreview.boundingBox())!
+  const schematicBounds = (await preview.boundingBox())!
+  expect(schematicBounds.x).toBeGreaterThan(
+    footprintBounds.x + footprintBounds.width,
+  )
+  expect(schematicBounds.y).toBe(footprintBounds.y)
 
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(preview).toBeVisible()
+  await expect(footprintPreview).toBeVisible()
+  const mobileFootprint = (await footprintPreview.boundingBox())!
+  const mobileSchematic = (await preview.boundingBox())!
+  expect(mobileSchematic.y).toBeGreaterThan(
+    mobileFootprint.y + mobileFootprint.height,
+  )
+  expect(mobileSchematic.x).toBe(mobileFootprint.x)
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
     390,
   )
   await page.screenshot({
-    path: testInfo.outputPath("schematic-tab-mobile.png"),
+    path: testInfo.outputPath("schematic-pair-mobile.png"),
     fullPage: true,
   })
-  await page.getByRole("tab", { name: "Footprint", exact: true }).click()
-  await expect(
-    page.getByRole("img", { name: "RP2040 PCB footprint" }),
-  ).toBeVisible()
 })
 
 test("allows retry when the schematic preview fails", async ({ page }) => {
@@ -86,7 +82,6 @@ test("allows retry when the schematic preview fails", async ({ page }) => {
     return route.fulfill({ contentType: "image/svg+xml", body: svg })
   })
   await page.goto("http://127.0.0.1:5177/datasheets/RP2040")
-  await page.getByRole("tab", { name: "Schematic", exact: true }).click()
   await expect(page.getByRole("alert")).toContainText(
     "Schematic preview could not be loaded.",
   )
@@ -98,7 +93,7 @@ test("allows retry when the schematic preview fails", async ({ page }) => {
   expect(schematicAttempts).toBe(2)
 })
 
-test("keeps footprint as the default when only a builtin symbol is available", async ({
+test("shows a builtin symbol without an empty footprint panel", async ({
   page,
 }) => {
   await page.route(/\/datasheets\/get\b/, (route) =>
@@ -124,14 +119,10 @@ test("keeps footprint as the default when only a builtin symbol is available", a
     return route.fulfill({ contentType: "image/svg+xml", body: svg })
   })
   await page.goto("http://127.0.0.1:5177/datasheets/RP2040")
+  await expect(page.getByRole("tab")).toHaveCount(0)
   await expect(
-    page.getByRole("tab", { name: "Footprint", exact: true }),
-  ).toHaveAttribute("aria-selected", "true")
-  await expect(
-    page.getByText("No footprint available.", { exact: true }),
-  ).toBeVisible()
-  expect(symbolRequests).toBe(0)
-  await page.getByRole("tab", { name: "Schematic", exact: true }).click()
+    page.getByRole("heading", { name: "Footprint", exact: true }),
+  ).toHaveCount(0)
   await expect(
     page.getByRole("img", { name: "RP2040 schematic symbol" }),
   ).toBeVisible()
@@ -164,7 +155,6 @@ test("renders custom symbol JSX through the SVG service without executing it in 
     return route.fulfill({ contentType: "image/svg+xml", body: svg })
   })
   await page.goto("http://127.0.0.1:5177/datasheets/RP2040")
-  await page.getByRole("tab", { name: "Schematic", exact: true }).click()
   await expect(
     page.getByRole("img", { name: "RP2040 schematic symbol" }),
   ).toBeVisible()
