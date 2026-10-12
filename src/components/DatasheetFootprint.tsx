@@ -14,39 +14,19 @@ export const DatasheetFootprint = ({
   paired?: boolean
 }) => {
   if (!footprinterString?.trim()) return null
-  const usage = (
-    <pre className="rounded-lg border bg-slate-50 p-4 text-sm whitespace-pre-wrap break-all">
-      <code>{`<chip
-  footprint=${JSON.stringify(footprinterString)}
-  {/* ... */}
-/>`}</code>
-    </pre>
-  )
 
   return (
     <Card className="mb-6">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold">Footprint</CardTitle>
       </CardHeader>
-      <CardContent
-        className={paired ? "space-y-4" : "grid gap-6 md:grid-cols-2"}
-      >
+      <CardContent>
         <FootprintPreview
           key={`${chipName}:${footprinterString}`}
           chipName={chipName}
           footprinterString={footprinterString}
           paired={paired}
         />
-        {paired ? (
-          <details className="rounded-lg border">
-            <summary className="cursor-pointer p-4 font-medium">
-              Footprint TSX
-            </summary>
-            {usage}
-          </details>
-        ) : (
-          <div className="min-w-0">{usage}</div>
-        )}
       </CardContent>
     </Card>
   )

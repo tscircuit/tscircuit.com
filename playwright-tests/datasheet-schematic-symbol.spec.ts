@@ -4,6 +4,74 @@ import rp2040 from "./fixtures/rp2040-datasheet.json" with { type: "json" }
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><rect x="40" y="30" width="120" height="240" fill="white" stroke="black"/><text x="100" y="150" text-anchor="middle">RP2040</text></svg>`
 
+test("shows one highlighted component snippet and copies complete electrical and symbol data", async ({
+  page,
+}) => {
+  const attributes = {
+    pin1: { requiresPower: true, requiresVoltage: "3.3V" },
+    pin57: { requiresGround: true },
+  }
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: async (text: string) => {
+          ;(window as any).copiedComponentTsx = text
+        },
+      },
+    })
+  })
+  await page.route(/\/datasheets\/get\b/, (route) =>
+    route.fulfill({
+      json: {
+        datasheet: {
+          ...rp2040,
+          pin_attributes: attributes,
+          generated_tsx:
+            'export const RP2040 = (props: any) => <chip name="U1" footprint="outdated" pinAttributes={{pin1:{requiresVoltage:1}}} supplierPartNumbers={{jlcpcb:["C2040"]}} {...props} />',
+        },
+      },
+    }),
+  )
+  await page.route("https://svg.tscircuit.com/**", (route) =>
+    route.fulfill({ contentType: "image/svg+xml", body: svg }),
+  )
+  await page.goto("http://127.0.0.1:5177/datasheets/RP2040")
+  await expect(
+    page.getByRole("heading", { name: "Component TSX", exact: true }),
+  ).toHaveCount(1)
+  await expect(page.getByText("Symbol TSX", { exact: true })).toHaveCount(0)
+  await expect(page.getByText("Footprint TSX", { exact: true })).toHaveCount(0)
+  const display = page.getByLabel("Component TSX source")
+  await expect(display).toContainText("pinAttributes={...}")
+  await expect(display).toContainText("schPinArrangement={...}")
+  await expect(display).not.toContainText("3.3V")
+  await expect(display.locator("[data-syntax-token]").first()).toBeVisible()
+  const colors = await display
+    .locator("[data-syntax-token]")
+    .evaluateAll(
+      (elements) =>
+        new Set(elements.map((element) => (element as HTMLElement).style.color))
+          .size,
+    )
+  expect(colors).toBeGreaterThan(1)
+  await page
+    .getByRole("button", { name: "Copy component TSX", exact: true })
+    .click()
+  const copied = await page.evaluate(() => (window as any).copiedComponentTsx)
+  expect(copied).toContain(`pinAttributes={${JSON.stringify(attributes)}}`)
+  expect(copied).toContain(
+    `footprint={${JSON.stringify(rp2040.footprinter_string)}}`,
+  )
+  expect(copied).toContain("schPinArrangement=")
+  expect(copied).toContain('"pin57"')
+  expect(copied).toContain('supplierPartNumbers={{jlcpcb:["C2040"]}}')
+  expect(copied).not.toContain('footprint="outdated"')
+  await page.getByRole("button", { name: "Copy TSX", exact: true }).click()
+  expect(await page.evaluate(() => (window as any).copiedComponentTsx)).toBe(
+    copied,
+  )
+})
+
 test.beforeEach(async ({ page }) => {
   await page.route(/\/datasheets\/get\b/, (route) =>
     route.fulfill({ json: { datasheet: rp2040 } }),

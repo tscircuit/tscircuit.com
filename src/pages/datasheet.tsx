@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
@@ -7,6 +8,8 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { DatasheetViews } from "@/components/DatasheetViews"
+import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
+import { getDatasheetComponentTsx } from "@/lib/datasheet-component-tsx"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,8 +39,14 @@ export const DatasheetPage = () => {
   const datasheetQuery = useDatasheet(chipName)
   const createDatasheet = useCreateDatasheet()
   const { copyToClipboard } = useCopyToClipboard()
-  const generatedTsx = datasheetQuery.data?.generated_tsx
-  const hasTsx = Boolean(generatedTsx?.trim())
+  const componentTsx = useMemo(
+    () =>
+      datasheetQuery.data
+        ? getDatasheetComponentTsx(datasheetQuery.data)
+        : null,
+    [datasheetQuery.data],
+  )
+  const hasTsx = Boolean(componentTsx)
 
   const handleCreate = () => {
     if (!chipName) return
@@ -72,7 +81,7 @@ export const DatasheetPage = () => {
             {hasTsx && (
               <Button
                 variant="outline"
-                onClick={() => copyToClipboard(generatedTsx!)}
+                onClick={() => copyToClipboard(componentTsx!)}
               >
                 <Copy className="mr-2 h-4 w-4" /> Copy TSX
               </Button>
@@ -153,20 +162,7 @@ export const DatasheetPage = () => {
               chipName={chipName}
               datasheet={datasheetQuery.data}
             />
-            {hasTsx && (
-              <Card className="mb-6">
-                <details>
-                  <summary className="cursor-pointer p-6 text-xl font-semibold">
-                    TSX
-                  </summary>
-                  <CardContent>
-                    <pre className="max-h-96 overflow-auto rounded-md bg-slate-50 p-4 text-sm">
-                      <code>{generatedTsx}</code>
-                    </pre>
-                  </CardContent>
-                </details>
-              </Card>
-            )}
+            {componentTsx && <DatasheetComponentTsx source={componentTsx} />}
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (

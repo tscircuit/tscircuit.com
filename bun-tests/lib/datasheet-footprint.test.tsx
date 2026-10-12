@@ -54,7 +54,7 @@ describe("datasheet footprint", () => {
     }
   })
 
-  test("shows chip usage, an accessible preview, and loading state", () => {
+  test("shows only an accessible preview and loading state", () => {
     const html = renderToStaticMarkup(
       <DatasheetFootprint
         chipName="F1C100S"
@@ -62,9 +62,7 @@ describe("datasheet footprint", () => {
       />,
     )
     expect(html).not.toContain("Footprinter string")
-    expect(html).toContain(
-      "<code>&lt;chip\n  footprint=&quot;qfn64_w9_h9_p0.5&quot;\n  {/* ... */}\n/&gt;</code>",
-    )
+    expect(html).not.toContain("<code>")
     expect(html).toContain('alt="F1C100S PCB footprint"')
     expect(html).toContain('role="status"')
     expect(html).not.toContain('loading="lazy"')

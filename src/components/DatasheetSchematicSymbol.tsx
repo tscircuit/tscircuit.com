@@ -3,10 +3,7 @@ import { AlertCircle, ExternalLink, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { DatasheetWithPinAttributes } from "@/lib/datasheet-pin-display"
-import {
-  getDatasheetSchematicSource,
-  getDatasheetSchematicSvgUrl,
-} from "@/lib/datasheet-schematic-symbol"
+import { getDatasheetSchematicSvgUrl } from "@/lib/datasheet-schematic-symbol"
 
 export const DatasheetSchematicSymbol = ({
   chipName,
@@ -15,15 +12,11 @@ export const DatasheetSchematicSymbol = ({
   chipName: string
   datasheet: DatasheetWithPinAttributes
 }) => {
-  const source = useMemo(
-    () => getDatasheetSchematicSource(datasheet),
-    [datasheet],
-  )
   const svgUrl = useMemo(
     () => getDatasheetSchematicSvgUrl(datasheet),
     [datasheet],
   )
-  if (!source || !svgUrl) return null
+  if (!svgUrl) return null
 
   return (
     <Card className="mb-6">
@@ -34,14 +27,6 @@ export const DatasheetSchematicSymbol = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <SchematicPreview key={svgUrl} chipName={chipName} svgUrl={svgUrl} />
-        <details className="rounded-lg border">
-          <summary className="cursor-pointer p-4 font-medium">
-            Symbol TSX
-          </summary>
-          <pre className="max-h-96 overflow-auto border-t bg-slate-50 p-4 text-sm">
-            <code>{source}</code>
-          </pre>
-        </details>
       </CardContent>
     </Card>
   )
