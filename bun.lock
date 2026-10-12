@@ -109,7 +109,7 @@
         "immer": "^10.1.1",
         "javascript-time-ago": "^2.5.11",
         "jose": "^5.9.3",
-        "jscad-to-step": "github:tscircuit/jscad-to-step#e47220e6b7a98746b2135f9be62f5687644e58fc",
+        "jscad-to-step": "^0.0.11",
         "jszip": "^3.10.1",
         "kicad-converter": "^0.0.17",
         "kicadts": "^0.0.35",
@@ -172,11 +172,10 @@
   },
   "trustedDependencies": [
     "@tscircuit/fake-stripe",
-    "jscad-to-step",
   ],
   "overrides": {
     "altiumts": "0.0.59",
-    "jscad-to-step": "github:tscircuit/jscad-to-step#e47220e6b7a98746b2135f9be62f5687644e58fc",
+    "jscad-to-step": "^0.0.11",
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
@@ -1667,7 +1666,7 @@
 
     "jscad-to-gltf": ["jscad-to-gltf@0.0.5", "", { "dependencies": { "@jscad/modeling": "^2.12.6", "jscad-planner": "^0.0.13" }, "peerDependencies": { "typescript": "^5" } }, "sha512-WB0JMzeiZnBhUlwpOgNNwkRryDZ+TZ3OhArereeXj9K+UVOpSahgwcGJGMaLeVQ8XHkwp0wMDM2FXf8M4Dzymw=="],
 
-    "jscad-to-step": ["jscad-to-step@github:tscircuit/jscad-to-step#e47220e", { "dependencies": { "jscad-planner": "^0.0.14", "stepts": "^0.0.4" }, "peerDependencies": { "typescript": "^5" } }, "tscircuit-jscad-to-step-e47220e", "sha512-lqvkEFnBnQ6TCQzudZS5bwnmtHqhfaIfz0VgdGdfHWy2pr5GQfzcN3eRSID/4xMm5YbbWIe0JqDb6Lq5dK9V/g=="],
+    "jscad-to-step": ["jscad-to-step@0.0.11", "", { "dependencies": { "jscad-planner": "^0.0.14", "stepts": "^0.0.4" }, "peerDependencies": { "typescript": "^5" } }, "sha512-AHUgJfCWNYdxkjEAG9EOPQhM1wcoR41BtYWF2On0RMraMUWmldqy5fKk+QQZYuXNu1Y65uNQOlk1pA3NloMOCQ=="],
 
     "jsesc": ["jsesc@3.1.0", "", { "bin": { "jsesc": "bin/jsesc" } }, "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA=="],
 
