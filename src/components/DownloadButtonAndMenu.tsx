@@ -351,7 +351,7 @@ export function DownloadButtonAndMenu({
                 await downloadAssemblyStepFile(cj, unscopedName || "circuit")
               } catch (error: any) {
                 toast({
-                  title: "Error Downloading Assembly STEP",
+                  title: "Error Downloading Combined STEP",
                   description:
                     error?.message || error?.toString?.() || "Unknown error",
                   variant: "destructive",
@@ -360,7 +360,7 @@ export function DownloadButtonAndMenu({
             }}
           >
             <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Assembly STEP</span>
+            <span className="flex-grow mr-6">Combined STEP</span>
             {formatBadge("STEP", "bg-emerald-500")}
           </DropdownMenuItem>
 

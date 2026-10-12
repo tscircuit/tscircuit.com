@@ -7,7 +7,7 @@ export const downloadAssemblyStepFile = async (
   fileName: string,
 ) => {
   const content = await withDownloadToast(
-    "Preparing assembly STEP download...",
+    "Preparing Combined STEP download...",
     async () => {
       const { circuitJsonToStep } = await import("circuit-json-to-step")
       return circuitJsonToStep(circuitJson, { exportMode: "assembly" })
