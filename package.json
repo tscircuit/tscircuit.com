@@ -10,7 +10,8 @@
     "dist"
   ],
   "trustedDependencies": [
-    "@tscircuit/fake-stripe"
+    "@tscircuit/fake-stripe",
+    "circuit-json-to-step"
   ],
   "main": "dist/index.js",
   "exports": {
@@ -124,7 +125,7 @@
     "circuit-json": "^0.0.525",
     "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#1a50d0dd2c0737cf940d92c0315852dc0111dd87",
     "circuit-json-to-pnp-csv": "0.0.18",
-    "circuit-json-to-step": "https://pkg.pr.new/circuit-json-to-step@4ef5eae",
+    "circuit-json-to-step": "github:tscircuit/circuit-json-to-step#c514472b5a4f294dc46f2989b63be8da498f345e",
     "circuit-to-svg": "^0.0.393",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

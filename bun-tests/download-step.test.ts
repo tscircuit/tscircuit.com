@@ -1,10 +1,18 @@
 import { expect, test } from "bun:test"
 import type { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
-import { createPrintedPartStepsZip } from "@/lib/download-fns/download-printed-part-steps"
+import { createStepDownload } from "@/lib/download-fns/download-step"
 
-test("printed parts download contains an independent STEP per part, excluding electronics", async () => {
+test("default STEP download separates printed parts and keeps PCB-only output as STEP", async () => {
   const circuitJson = [
+    {
+      type: "pcb_board",
+      pcb_board_id: "board",
+      center: { x: 0, y: 0 },
+      width: 20,
+      height: 10,
+      thickness: 1.6,
+    },
     ...["BASE", "PLATE", "SCREW"].flatMap((name, i) => [
       {
         type: "source_component",
@@ -22,7 +30,8 @@ test("printed parts download contains an independent STEP per part, excluding el
     ]),
   ] as AnyCircuitElement[]
   const before = structuredClone(circuitJson)
-  const blob = await createPrintedPartStepsZip(circuitJson)
+  const { blob, extension } = await createStepDownload(circuitJson)
+  expect(extension).toBe("zip")
   const zip = await JSZip.loadAsync(await blob.arrayBuffer())
   expect(Object.keys(zip.files)).toEqual(["BASE.step", "PLATE.step"])
   for (const name of ["BASE", "PLATE"]) {
@@ -34,7 +43,18 @@ test("printed parts download contains an independent STEP per part, excluding el
     expect(step).not.toContain("SCREW")
   }
   expect(circuitJson).toEqual(before)
-  await expect(createPrintedPartStepsZip([])).rejects.toThrow(
-    "No assembly.printedpart",
-  )
+  const pcb = await createStepDownload([circuitJson[0]])
+  expect(pcb.extension).toBe("step")
+  expect(await pcb.blob.text()).toContain("ISO-10303-21;")
+  const assembly = await createStepDownload(circuitJson, {
+    exportMode: "assembly",
+  })
+  expect(
+    Object.keys(
+      (await JSZip.loadAsync(await assembly.blob.arrayBuffer())).files,
+    ),
+  ).toEqual(["BASE.step", "PLATE.step"])
+  await expect(
+    createStepDownload([], { exportMode: "assembly" }),
+  ).rejects.toThrow("No assembly.printedpart")
 })
