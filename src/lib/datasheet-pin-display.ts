@@ -14,6 +14,9 @@ export type DatasheetWithPinAttributes = Omit<Datasheet, "pin_information"> & {
   sch_pin_arrangement?: SchematicPinArrangement | null
   symbol_tsx?: string | null
   builtin_symbol_name?: string | null
+  jlc_part_number?: string | null
+  digikey_part_number?: string | null
+  mouser_part_number?: string | null
 }
 
 export const getPinNames = (pin: DatasheetPin) =>

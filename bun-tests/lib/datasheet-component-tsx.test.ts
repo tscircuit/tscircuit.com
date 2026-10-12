@@ -30,6 +30,24 @@ const checkSyntax = (source: string) => {
 }
 
 describe("datasheet component TSX", () => {
+  test("uses API supplier numbers in the copied component and preserves other supplier properties", () => {
+    const source = getDatasheetComponentTsx({
+      ...data,
+      jlc_part_number: "C54321",
+      digikey_part_number: null,
+      mouser_part_number: "123-NEW",
+      generated_tsx:
+        'export default () => <chip supplierPartNumbers={{other:["OTHER"],jlcpcb:["OLD"]}} />',
+    })!
+    checkSyntax(source)
+    expect(source).toContain('other:["OTHER"]')
+    expect(source).toContain('"jlcpcb":["C54321"]')
+    expect(source).toContain('"digikey":[]')
+    expect(source).toContain('"mouser":["123-NEW"]')
+    expect(abbreviateComponentTsx(source)).toContain(
+      "supplierPartNumbers={...}",
+    )
+  })
   test("combines current footprint, symbol and electrical data with the published component", () => {
     const source = getDatasheetComponentTsx({
       ...data,
