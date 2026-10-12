@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   ChevronDown,
@@ -38,6 +38,8 @@ import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
 import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
+import { usePackageFile } from "@/hooks/use-package-files"
+import { getPackageFileArtifactPaths } from "@/lib/package-file-artifacts"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -49,6 +51,7 @@ interface MainContentHeaderProps {
   latestVersion?: string
   onVersionChange?: (version: string, releaseId: string) => void
   packageRelease?: PublicPackageRelease
+  selectedFilePath?: string
 }
 
 export default function MainContentHeader({
@@ -60,6 +63,7 @@ export default function MainContentHeader({
   latestVersion,
   onVersionChange,
   packageRelease,
+  selectedFilePath,
 }: MainContentHeaderProps) {
   const [copyInstallState, setCopyInstallState] = useState<"copy" | "copied">(
     "copy",
@@ -96,6 +100,27 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
+  const circuitJsonPath = selectedFilePath
+    ? getPackageFileArtifactPaths(selectedFilePath, packageFiles)
+        .circuitJsonPath
+    : undefined
+  const { data: selectedCircuitJsonFile } = usePackageFile(
+    packageRelease?.package_release_id && circuitJsonPath
+      ? {
+          package_release_id: packageRelease.package_release_id,
+          file_path: circuitJsonPath,
+        }
+      : null,
+  )
+  const selectedCircuitJson = useMemo(() => {
+    if (!selectedCircuitJsonFile?.content_text) return null
+    try {
+      const parsed = JSON.parse(selectedCircuitJsonFile.content_text)
+      return Array.isArray(parsed) ? parsed : null
+    } catch {
+      return null
+    }
+  }, [selectedCircuitJsonFile?.content_text])
   const { data: allReleases, isLoading: isAllReleasesLoading } =
     usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
 
@@ -150,11 +175,19 @@ export default function MainContentHeader({
         </div>
         <div className="flex items-center gap-2">
           <DownloadButtonAndMenu
+            key={selectedFilePath ?? "preview"}
             offerMultipleImageFormats
-            unscopedName={packageInfo?.unscoped_name}
+            unscopedName={
+              selectedFilePath
+                ? selectedFilePath
+                    .split("/")
+                    .pop()
+                    ?.replace(/\.(circuit\.)?(tsx|json)$/, "")
+                : packageInfo?.unscoped_name
+            }
             desiredImageType={activeView}
             author={packageInfo?.owner_github_username ?? undefined}
-            circuitJson={circuitJson}
+            circuitJson={selectedFilePath ? selectedCircuitJson : circuitJson}
           />
 
           <DropdownMenu>

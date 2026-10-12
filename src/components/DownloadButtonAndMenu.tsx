@@ -70,6 +70,10 @@ export function DownloadButtonAndMenu({
   const canDownload = Boolean(
     hasCircuitJson || (circuitJson && circuitJson.length),
   )
+  const hasPrintedParts = circuitJson?.some(
+    (element) =>
+      element.type === "source_component" && element.ftype === "printedpart",
+  )
 
   const formatBadge = (
     label: string,
@@ -344,7 +348,12 @@ export function DownloadButtonAndMenu({
 
           <DropdownMenuItem
             className="text-xs"
-            disabled={isFetchingCircuitJson}
+            disabled={isFetchingCircuitJson || !hasPrintedParts}
+            title={
+              hasPrintedParts
+                ? undefined
+                : "Select a circuit containing assembly.printedpart elements to export"
+            }
             onSelect={async () => {
               try {
                 const cj = await getCircuitJson()

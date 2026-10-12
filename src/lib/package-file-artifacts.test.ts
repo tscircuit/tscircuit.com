@@ -68,6 +68,26 @@ describe("getPackageFileArtifactPaths", () => {
     })
   })
 
+  test("prefers a source file's built circuit over a sibling board", () => {
+    expect(
+      getPackageFileArtifactPaths(
+        "left-printed-parts.circuit.tsx",
+        files("panel.circuit.json", "dist/left-printed-parts/circuit.json"),
+      ),
+    ).toEqual({
+      circuitJsonPath: "dist/left-printed-parts/circuit.json",
+    })
+  })
+
+  test("uses the selected circuit JSON when several boards share a directory", () => {
+    expect(
+      getPackageFileArtifactPaths(
+        "left.circuit.json",
+        files("panel.circuit.json", "left.circuit.json"),
+      ),
+    ).toEqual({ circuitJsonPath: "left.circuit.json" })
+  })
+
   test("uses dist/circuit.json as a root source fallback", () => {
     expect(
       getPackageFileArtifactPaths(
@@ -82,6 +102,15 @@ describe("getPackageFileArtifactPaths", () => {
       getPackageFileArtifactPaths(
         "src/button.tsx",
         files("examples/button/circuit.json"),
+      ),
+    ).toEqual({})
+  })
+
+  test("does not use another board's JSON for an unbuilt source file", () => {
+    expect(
+      getPackageFileArtifactPaths(
+        "left.circuit.tsx",
+        files("panel.circuit.json"),
       ),
     ).toEqual({})
   })
