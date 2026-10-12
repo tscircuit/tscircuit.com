@@ -17,7 +17,7 @@ export const useShikiHighlighter = () => {
             import("@shikijs/themes/github-light"),
             import("@shikijs/themes/vitesse-light"),
           ],
-          langs: [import("@shikijs/langs/tsx")],
+          langs: [import("@shikijs/langs/tsx"), import("@shikijs/langs/json")],
           // `shiki/wasm` contains the wasm binary inlined as base64 string.
           engine: createOnigurumaEngine(import("shiki/wasm")),
         })

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import {
   convertCircuitJsonToPcbSvg,
   convertCircuitJsonToSchematicSvg,
@@ -8,6 +8,8 @@ import { usePackageFile } from "@/hooks/use-package-files"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getPackageFileArtifactPaths } from "@/lib/package-file-artifacts"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { parseCircuitJsonPreview } from "@/lib/circuit-json-preview"
 
 type PreviewKind = "pcb" | "schematic"
 
@@ -20,21 +22,10 @@ interface PackageFileArtifactPreviewProps {
 const svgToDataUrl = (svg: string) =>
   `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 
-const parseCircuitJson = (contentText?: string | null) => {
-  if (!contentText) return null
-  try {
-    const parsed = JSON.parse(contentText)
-    return Array.isArray(parsed) ? parsed : null
-  } catch {
-    return null
-  }
-}
-
 const convertCircuitJson = (
-  circuitJson: unknown[] | null,
+  circuitJson: unknown[],
   converter: (circuitJson: any[]) => string,
 ) => {
-  if (!circuitJson) return null
   try {
     return converter(circuitJson)
   } catch {
@@ -69,14 +60,30 @@ export default function PackageFileArtifactPreview({
   }
   const pcbSvgUrl = getArtifactDownloadUrl(artifactPaths.pcbSvgPath)
   const schematicSvgUrl = getArtifactDownloadUrl(artifactPaths.schematicSvgPath)
+  const availableKinds = useMemo(
+    () =>
+      [
+        pcbSvgUrl || artifactPaths.circuitJsonPath ? "pcb" : null,
+        schematicSvgUrl || artifactPaths.circuitJsonPath ? "schematic" : null,
+      ].filter((kind): kind is PreviewKind => Boolean(kind)),
+    [pcbSvgUrl, schematicSvgUrl, artifactPaths.circuitJsonPath],
+  )
+  const [selectedKind, setSelectedKind] = useState<PreviewKind>("pcb")
+  const [requestedKinds, setRequestedKinds] = useState(
+    () => new Set<PreviewKind>(),
+  )
+  const activeKind = availableKinds.includes(selectedKind)
+    ? selectedKind
+    : (availableKinds[0] ?? "pcb")
+  const prebuiltSvgUrl = activeKind === "pcb" ? pcbSvgUrl : schematicSvgUrl
+  const needsGeneratedPreview =
+    !prebuiltSvgUrl && requestedKinds.has(activeKind)
   const queryOptions = {
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   }
   const circuitJsonFile = usePackageFile(
-    packageReleaseId &&
-      artifactPaths.circuitJsonPath &&
-      (!pcbSvgUrl || !schematicSvgUrl)
+    packageReleaseId && artifactPaths.circuitJsonPath && needsGeneratedPreview
       ? {
           package_release_id: packageReleaseId,
           file_path: artifactPaths.circuitJsonPath,
@@ -85,60 +92,28 @@ export default function PackageFileArtifactPreview({
     queryOptions,
   )
 
-  const circuitJson = useMemo(
-    () => parseCircuitJson(circuitJsonFile.data?.content_text),
-    [circuitJsonFile.data?.content_text],
-  )
-  const generatedPcbSvg = useMemo(
-    () => convertCircuitJson(circuitJson, convertCircuitJsonToPcbSvg),
-    [circuitJson],
-  )
-  const generatedSchematicSvg = useMemo(
-    () => convertCircuitJson(circuitJson, convertCircuitJsonToSchematicSvg),
-    [circuitJson],
-  )
-  const pcbPreviewSrc =
-    pcbSvgUrl || (generatedPcbSvg ? svgToDataUrl(generatedPcbSvg) : null)
-  const schematicPreviewSrc =
-    schematicSvgUrl ||
-    (generatedSchematicSvg ? svgToDataUrl(generatedSchematicSvg) : null)
-  const availableKinds = useMemo(
+  const parsedPreview = useMemo(
     () =>
-      [
-        pcbPreviewSrc ? "pcb" : null,
-        schematicPreviewSrc ? "schematic" : null,
-      ].filter((kind): kind is PreviewKind => Boolean(kind)),
-    [pcbPreviewSrc, schematicPreviewSrc],
+      needsGeneratedPreview
+        ? parseCircuitJsonPreview(circuitJsonFile.data?.content_text)
+        : { status: "unavailable" as const },
+    [needsGeneratedPreview, circuitJsonFile.data?.content_text],
   )
-  const [selectedKind, setSelectedKind] = useState<PreviewKind>("pcb")
-
-  useEffect(() => {
-    if (!availableKinds.includes(selectedKind) && availableKinds[0]) {
-      setSelectedKind(availableKinds[0])
-    }
-  }, [availableKinds, selectedKind])
-
-  const hasArtifactPath = Boolean(
-    artifactPaths.pcbSvgPath ||
-      artifactPaths.schematicSvgPath ||
-      artifactPaths.circuitJsonPath,
-  )
-  const isLoading = circuitJsonFile.isLoading
-
-  if (!packageReleaseId || !hasArtifactPath) return null
-
-  if (isLoading && availableKinds.length === 0) {
-    return (
-      <div className="flex min-h-64 items-center justify-center border-b border-gray-200 bg-gray-50 text-sm text-gray-500 dark:border-[#30363d] dark:bg-[#161b22] dark:text-[#8b949e]">
-        Loading circuit preview...
-      </div>
+  const generatedSvg = useMemo(() => {
+    if (parsedPreview.status !== "ready") return null
+    const svg = convertCircuitJson(
+      parsedPreview.circuitJson,
+      activeKind === "pcb"
+        ? convertCircuitJsonToPcbSvg
+        : convertCircuitJsonToSchematicSvg,
     )
-  }
+    return svg ? svgToDataUrl(svg) : null
+  }, [parsedPreview, activeKind])
 
-  if (availableKinds.length === 0) return null
+  if (!packageReleaseId || availableKinds.length === 0) return null
 
-  const selectedPreviewSrc =
-    selectedKind === "pcb" ? pcbPreviewSrc : schematicPreviewSrc
+  const selectedPreviewSrc = prebuiltSvgUrl || generatedSvg
+  const previewLabel = activeKind === "pcb" ? "PCB" : "Schematic"
 
   return (
     <section
@@ -148,7 +123,7 @@ export default function PackageFileArtifactPreview({
     >
       {availableKinds.length > 1 && (
         <Tabs
-          value={selectedKind}
+          value={activeKind}
           onValueChange={(value) => setSelectedKind(value as PreviewKind)}
           className="mb-3"
         >
@@ -161,15 +136,39 @@ export default function PackageFileArtifactPreview({
           </TabsList>
         </Tabs>
       )}
-      {selectedPreviewSrc && (
+      {selectedPreviewSrc ? (
         <img
-          key={selectedKind}
+          key={activeKind}
           src={selectedPreviewSrc}
           loading="lazy"
           decoding="async"
-          alt={`${selectedKind === "pcb" ? "PCB" : "Schematic"} preview for ${selectedFilePath}`}
+          alt={`${previewLabel} preview for ${selectedFilePath}`}
           className="max-h-[36rem] min-h-64 w-full rounded-md border border-gray-200 bg-white object-contain dark:border-[#30363d]"
         />
+      ) : (
+        <div className="flex min-h-32 items-center justify-center text-sm text-gray-500 dark:text-[#8b949e]">
+          {!needsGeneratedPreview ? (
+            <Button
+              variant="outline"
+              onClick={() =>
+                setRequestedKinds((previous) =>
+                  new Set(previous).add(activeKind),
+                )
+              }
+            >
+              Load {previewLabel} preview
+            </Button>
+          ) : circuitJsonFile.isLoading ? (
+            <p>Loading circuit preview...</p>
+          ) : parsedPreview.status === "too-large" ? (
+            <p>
+              This circuit file is too large for an inline preview. Download the
+              file to view it.
+            </p>
+          ) : (
+            <p>A circuit preview is not available for this file.</p>
+          )}
+        </div>
       )}
     </section>
   )

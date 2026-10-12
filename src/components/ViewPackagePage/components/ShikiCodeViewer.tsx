@@ -1,6 +1,7 @@
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useMemo } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getCodePreview } from "@/lib/code-preview"
 
 // Pre-randomized array to avoid flickering on re-renders
 export const SKELETON_WIDTHS = [
@@ -20,22 +21,34 @@ export const ShikiCodeViewer = ({
   filePath: string
 }) => {
   const { highlighter } = useShikiHighlighter()
+  const preview = useMemo(() => getCodePreview(code), [code])
 
   const html = useMemo(
     () =>
-      highlighter?.codeToHtml(code, {
-        lang: "tsx",
+      highlighter?.codeToHtml(preview.code, {
+        lang: filePath.toLowerCase().endsWith(".json") ? "json" : "tsx",
         theme: "vitesse-light",
       }),
-    [filePath, code, highlighter],
+    [filePath, preview.code, highlighter],
   )
 
   if (html && html?.trim() !== PLACEHOLDER_SHIKI_HTML) {
     return (
-      <div
-        className="text-sm shiki"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div data-testid="code-preview">
+        {preview.isTruncated && (
+          <p
+            role="note"
+            className="border-b border-gray-200 px-4 py-3 text-sm text-gray-500 dark:border-[#30363d] dark:text-[#8b949e]"
+          >
+            Showing a limited preview. Copy or download the file for the full
+            contents.
+          </p>
+        )}
+        <div
+          className="text-sm shiki"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
     )
   }
 
