@@ -274,6 +274,37 @@ const renderBuild = (packageBuild) =>
     ["Completed", formatDate(packageBuild?.completed_at)],
   ])
 
+const renderBuildLogs = (record) => {
+  const fields = [
+    ["Build error", "circuit_json_build_error"],
+    ["Transpilation logs", "transpilation_logs"],
+    ["Circuit build logs", "circuit_json_build_logs"],
+    ["Image generation logs", "image_generation_logs"],
+    ["User code logs", "user_code_job_completed_logs"],
+  ]
+  return fields
+    .filter(([, key]) => record?.[key] != null && record[key] !== "")
+    .map(([label, key]) => {
+      const value = record[key]
+      const text =
+        typeof value === "string" ? value : JSON.stringify(value, null, 2)
+      return `<section><h3>${label}</h3><pre><code>${escapeHtml(text)}</code></pre></section>`
+    })
+    .join("")
+}
+
+const renderPreviewDiagnostics = (preview) => {
+  if (!preview) {
+    return "<section><h3>Circuit errors and warnings</h3><p>Circuit diagnostics are unavailable.</p></section>"
+  }
+  const entries = preview.diagnostics
+  return `<section data-ssr-circuit-diagnostics><h3>Circuit errors and warnings (${entries.length})</h3>${
+    preview.componentPath
+      ? `<p>Component: ${escapeHtml(preview.componentPath)}</p>`
+      : ""
+  }${entries.length === 0 ? "<p>No circuit errors or warnings found.</p>" : `<ol>${entries.map((entry) => `<li><strong>${escapeHtml(entry.error_type || entry.warning_type || entry.type)}</strong>${entry.message ? `<p>${escapeHtml(entry.message)}</p>` : ""}<pre><code>${escapeHtml(JSON.stringify(entry, null, 2))}</code></pre></li>`).join("")}</ol>`}</section>`
+}
+
 const convertCircuitJsonForPreview = (contentText, converter) => {
   if (!contentText) return null
   try {
@@ -369,6 +400,7 @@ const renderRouteContent = ({
   packageReleases,
   packageBuilds,
   packageBuild,
+  previewDiagnostics,
 }) => {
   if (route.kind === "file") {
     return `<section><h2>${escapeHtml(route.filePath)}</h2>${renderFileArtifactPreview(
@@ -401,7 +433,7 @@ const renderRouteContent = ({
       packageRelease,
     )}${
       packageBuild ? `<h3>Latest build</h3>${renderBuild(packageBuild)}` : ""
-    }</section>`
+    }${route.kind === "preview" ? renderPreviewDiagnostics(previewDiagnostics) : ""}${renderBuildLogs(packageBuild || packageRelease)}</section>`
   }
 
   if (route.kind === "builds") {
@@ -416,7 +448,7 @@ const renderRouteContent = ({
   if (route.kind === "build") {
     return `<section><h2>Build ${escapeHtml(
       packageBuild?.package_build_id || route.buildId,
-    )}</h2>${renderBuild(packageBuild)}</section>`
+    )}</h2>${renderBuild(packageBuild)}${renderBuildLogs(packageBuild)}</section>`
   }
 
   if (route.kind === "settings") {

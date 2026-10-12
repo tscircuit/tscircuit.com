@@ -6,6 +6,7 @@ import he from "he"
 import ky from "ky"
 import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
 import { getPackagePageImageUrl } from "../server/package-page-seo.js"
+import { fetchReleasePreviewDiagnostics } from "../server/release-preview-diagnostics.js"
 import {
   injectPackagePageContent,
   parsePackagePageRoute,
@@ -351,10 +352,18 @@ function startCachedRelatedPackagesLookup(packageInfo) {
 }
 
 async function fetchPackagePageData(route, packageInfo) {
-  const packageRelease = await fetchPackageRelease(route).catch((error) => {
+  let packageRelease = await fetchPackageRelease(route).catch((error) => {
     console.warn("Failed to fetch package release for SSR:", error)
     return null
   })
+  // A release ID in the URL must belong to the named public package.
+  if (
+    packageInfo.is_private ||
+    packageInfo.is_public === false ||
+    packageRelease?.package_id !== packageInfo.package_id
+  ) {
+    packageRelease = null
+  }
 
   const releasesResponse = await requestJsonOrNull(
     ky.post(`${REGISTRY_URL}/package_releases/list`, {
@@ -484,7 +493,7 @@ async function fetchPackagePageData(route, packageInfo) {
   const buildId =
     route.kind === "build"
       ? route.buildId
-      : route.kind === "release"
+      : route.kind === "release" || route.kind === "preview"
         ? packageRelease?.latest_package_build_id
         : null
   if (buildId) {
@@ -499,8 +508,25 @@ async function fetchPackagePageData(route, packageInfo) {
       console.warn("Failed to fetch package build for SSR:", error)
       return null
     })
-    packageBuild = buildResponse?.package_build ?? null
+    const candidate = buildResponse?.package_build
+    if (
+      packageRelease &&
+      candidate?.package_release_id === packageRelease.package_release_id
+    ) {
+      packageBuild = candidate
+    }
   }
+
+  const previewDiagnostics = await fetchReleasePreviewDiagnostics({
+    route,
+    packageInfo,
+    packageRelease,
+    registryUrl: REGISTRY_URL,
+    fetchJson: (url) => requestJsonOrNull(ky.get(url, { timeout: 10_000 })),
+  }).catch((error) => {
+    console.warn("Failed to fetch release preview diagnostics for SSR:", error)
+    return null
+  })
 
   return {
     route,
@@ -512,6 +538,7 @@ async function fetchPackagePageData(route, packageInfo) {
     packageReleases,
     packageBuilds,
     packageBuild,
+    previewDiagnostics,
   }
 }
 
