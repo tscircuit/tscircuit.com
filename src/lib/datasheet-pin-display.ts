@@ -1,4 +1,4 @@
-import type { PinAttributeMap } from "@tscircuit/props"
+import type { PinAttributeMap, SchematicPinArrangement } from "@tscircuit/props"
 import type { Datasheet } from "fake-snippets-api/lib/db/schema"
 
 export type DatasheetPin = Omit<
@@ -11,6 +11,9 @@ export type DatasheetWithPinAttributes = Omit<Datasheet, "pin_information"> & {
   pin_attributes?: Record<string, PinAttributeMap> | null
   footprinter_string?: string | null
   generated_tsx?: string | null
+  sch_pin_arrangement?: SchematicPinArrangement | null
+  symbol_tsx?: string | null
+  builtin_symbol_name?: string | null
 }
 
 export const getPinNames = (pin: DatasheetPin) =>

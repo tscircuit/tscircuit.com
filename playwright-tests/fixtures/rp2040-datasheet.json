@@ -1,0 +1,433 @@
+{
+  "datasheet_id": "2a51fc64-5154-4513-ad7c-29429bdc973e",
+  "chip_name": "RP2040",
+  "footprinter_string": "qfn56_thermalpad3.1mmx3.1mm_p0.4mm_h7.9mm_pw0.2mm_pl0.85mm",
+  "datasheet_pdf_urls": [
+    "https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008371-DS-1-rp2040-datasheet.pdf",
+    "https://pip-assets.raspberrypi.com/categories/814-rp2040/documents/RP-008279-DS-2-hardware-design-with-rp2040.pdf"
+  ],
+  "ai_description": "RP2040 dual-core microcontroller with 30 GPIO pins.",
+  "pin_information": [
+    {
+      "pin_number": "1",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "2",
+      "name": "GPIO0",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "3",
+      "name": "GPIO1",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "4",
+      "name": "GPIO2",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "5",
+      "name": "GPIO3",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "6",
+      "name": "GPIO4",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "7",
+      "name": "GPIO5",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "8",
+      "name": "GPIO6",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "9",
+      "name": "GPIO7",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "10",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "11",
+      "name": "GPIO8",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "12",
+      "name": "GPIO9",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "13",
+      "name": "GPIO10",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "14",
+      "name": "GPIO11",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "15",
+      "name": "GPIO12",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "16",
+      "name": "GPIO13",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "17",
+      "name": "GPIO14",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "18",
+      "name": "GPIO15",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "19",
+      "name": "TESTEN",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "20",
+      "name": "XIN",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "21",
+      "name": "XOUT",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "22",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "23",
+      "name": "DVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "24",
+      "name": "SWCLK",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "25",
+      "name": "SWD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "26",
+      "name": "RUN",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "27",
+      "name": "GPIO16",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "28",
+      "name": "GPIO17",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "29",
+      "name": "GPIO18",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "30",
+      "name": "GPIO19",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "31",
+      "name": "GPIO20",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "32",
+      "name": "GPIO21",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "33",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "34",
+      "name": "GPIO22",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "35",
+      "name": "GPIO23",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "36",
+      "name": "GPIO24",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "37",
+      "name": "GPIO25",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "38",
+      "name": "GPIO26",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "39",
+      "name": "GPIO27",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "40",
+      "name": "GPIO28",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "41",
+      "name": "GPIO29",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "42",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "43",
+      "name": "ADC_AVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "44",
+      "name": "VREG_VIN",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "45",
+      "name": "VREG_VOUT",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "46",
+      "name": "USB_DM",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "47",
+      "name": "USB_DP",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "48",
+      "name": "USB_VDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "49",
+      "name": "IOVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "50",
+      "name": "DVDD",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "51",
+      "name": "QSPI_SD3",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "52",
+      "name": "QSPI_SCLK",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "53",
+      "name": "QSPI_SD0",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "54",
+      "name": "QSPI_SD2",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "55",
+      "name": "QSPI_SD1",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "56",
+      "name": "QSPI_CSn",
+      "description": "",
+      "capabilities": []
+    },
+    {
+      "pin_number": "57",
+      "name": "GND",
+      "description": "",
+      "capabilities": []
+    }
+  ],
+  "sch_pin_arrangement": {
+    "leftSide": {
+      "pins": [
+        "pin26",
+        "pin19",
+        "pin20",
+        "pin21",
+        "pin24",
+        "pin25",
+        "pin52",
+        "pin56",
+        "pin53",
+        "pin55",
+        "pin54",
+        "pin51",
+        "pin47",
+        "pin46",
+        "pin45"
+      ],
+      "direction": "top-to-bottom"
+    },
+    "rightSide": {
+      "pins": [
+        "pin2",
+        "pin3",
+        "pin4",
+        "pin5",
+        "pin6",
+        "pin7",
+        "pin8",
+        "pin9",
+        "pin11",
+        "pin12",
+        "pin13",
+        "pin14",
+        "pin15",
+        "pin16",
+        "pin17",
+        "pin18",
+        "pin27",
+        "pin28",
+        "pin29",
+        "pin30",
+        "pin31",
+        "pin32",
+        "pin34",
+        "pin35",
+        "pin36",
+        "pin37",
+        "pin38",
+        "pin39",
+        "pin40",
+        "pin41"
+      ],
+      "direction": "top-to-bottom"
+    },
+    "topSide": {
+      "pins": [
+        "pin1",
+        "pin10",
+        "pin22",
+        "pin33",
+        "pin42",
+        "pin49",
+        "pin23",
+        "pin50",
+        "pin43",
+        "pin48",
+        "pin44"
+      ],
+      "direction": "left-to-right"
+    },
+    "bottomSide": {
+      "pins": ["pin57"],
+      "direction": "left-to-right"
+    }
+  },
+  "symbol_tsx": null,
+  "builtin_symbol_name": null
+}

@@ -7,9 +7,11 @@ import { getDatasheetFootprintSvgUrl } from "@/lib/datasheet-footprint"
 export const DatasheetFootprint = ({
   chipName,
   footprinterString,
+  paired = false,
 }: {
   chipName: string
   footprinterString?: string | null
+  paired?: boolean
 }) => {
   if (!footprinterString?.trim()) return null
 
@@ -18,20 +20,13 @@ export const DatasheetFootprint = ({
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold">Footprint</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-6 md:grid-cols-2">
+      <CardContent>
         <FootprintPreview
           key={`${chipName}:${footprinterString}`}
           chipName={chipName}
           footprinterString={footprinterString}
+          paired={paired}
         />
-        <div className="min-w-0">
-          <pre className="rounded-lg border bg-slate-50 p-4 text-sm whitespace-pre-wrap break-all">
-            <code>{`<chip
-  footprint=${JSON.stringify(footprinterString)}
-  {/* ... */}
-/>`}</code>
-          </pre>
-        </div>
       </CardContent>
     </Card>
   )
@@ -40,9 +35,11 @@ export const DatasheetFootprint = ({
 const FootprintPreview = ({
   chipName,
   footprinterString,
+  paired,
 }: {
   chipName: string
   footprinterString: string
+  paired: boolean
 }) => {
   const svgUrl = useMemo(
     () => getDatasheetFootprintSvgUrl(footprinterString),
@@ -61,7 +58,9 @@ const FootprintPreview = ({
 
   return (
     <div className="min-w-0">
-      <div className="relative flex h-72 items-center justify-center rounded-lg border bg-slate-50">
+      <div
+        className={`relative flex items-center justify-center rounded-lg border bg-slate-50 ${paired ? "h-[420px] md:h-[600px]" : "h-72"}`}
+      >
         {status === "loading" && (
           <p
             role="status"

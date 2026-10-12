@@ -31,6 +31,7 @@ import { downloadStepFile } from "@/lib/download-fns/download-step"
 import { CubeIcon } from "@radix-ui/react-icons"
 import { ExportAccessoryDialog } from "@tscircuit/runframe"
 import { AnyCircuitElement } from "circuit-json"
+import type { PackageFile } from "fake-snippets-api/lib/db/schema"
 import { ChevronDown, Download, Hammer, ImageIcon, Wrench } from "lucide-react"
 import { useState } from "react"
 
@@ -42,6 +43,7 @@ interface DownloadButtonAndMenuProps {
   desiredImageType?: string
   offerMultipleImageFormats?: boolean
   circuitJson?: AnyCircuitElement[] | null
+  packageFiles?: PackageFile[]
 }
 
 export function DownloadButtonAndMenu({
@@ -52,6 +54,7 @@ export function DownloadButtonAndMenu({
   hasCircuitJson,
   offerMultipleImageFormats = false,
   circuitJson,
+  packageFiles,
 }: DownloadButtonAndMenuProps) {
   const notImplemented = useNotImplementedToast()
   const { Dialog: PcbDownloadDialog, openDialog: openPcbDownloadDialog } =
@@ -62,13 +65,14 @@ export function DownloadButtonAndMenu({
     AnyCircuitElement[] | null
   >(null)
   const [isFetchingCircuitJson, setIsFetchingCircuitJson] = useState(false)
+  const [isDownloadingAssembly, setIsDownloadingAssembly] = useState(false)
   const [isAccessoryDialogOpen, setIsAccessoryDialogOpen] = useState(false)
   const [accessoryCircuitJson, setAccessoryCircuitJson] = useState<
     AnyCircuitElement[] | null
   >(null)
 
   const canDownload = Boolean(
-    hasCircuitJson || (circuitJson && circuitJson.length),
+    hasCircuitJson || circuitJson?.length || packageFiles?.length,
   )
 
   const formatBadge = (
@@ -344,24 +348,64 @@ export function DownloadButtonAndMenu({
 
           <DropdownMenuItem
             className="text-xs"
-            disabled={isFetchingCircuitJson}
+            disabled={isFetchingCircuitJson || isDownloadingAssembly}
             onSelect={async () => {
+              setIsDownloadingAssembly(true)
               try {
-                const cj = await getCircuitJson()
-                await downloadAssemblyStepFile(cj, unscopedName || "circuit")
+                const circuits = packageFiles
+                  ? await Promise.all(
+                      packageFiles
+                        .filter(
+                          (file) =>
+                            file.file_path.startsWith("dist/") &&
+                            (file.file_path.endsWith("/circuit.json") ||
+                              file.file_path.endsWith(".circuit.json")),
+                        )
+                        .map(async (file) => {
+                          const { data } = await axios.get(
+                            "/package_files/get",
+                            {
+                              params: {
+                                package_file_id: file.package_file_id,
+                              },
+                            },
+                          )
+                          const circuitJson = JSON.parse(
+                            data.package_file.content_text,
+                          )
+                          if (!Array.isArray(circuitJson)) {
+                            throw new Error(
+                              `Invalid Circuit JSON in ${file.file_path}`,
+                            )
+                          }
+                          return {
+                            filePath: file.file_path
+                              .replace(/^dist\//, "")
+                              .replace(/(?:^|\/)circuit\.json$/, ""),
+                            circuitJson,
+                          }
+                        }),
+                    )
+                  : [{ circuitJson: await getCircuitJson() }]
+                await downloadAssemblyStepFile(
+                  circuits,
+                  unscopedName || "circuit",
+                )
               } catch (error: any) {
                 toast({
-                  title: "Error Downloading Combined STEP",
+                  title: "Error Downloading Assembly STEP",
                   description:
                     error?.message || error?.toString?.() || "Unknown error",
                   variant: "destructive",
                 })
+              } finally {
+                setIsDownloadingAssembly(false)
               }
             }}
           >
             <CubeIcon className="mr-1 h-3 w-3" />
-            <span className="flex-grow mr-6">Combined Assembly STEP</span>
-            {formatBadge("STEP", "bg-emerald-500")}
+            <span className="flex-grow mr-6">Assembly STEP (ZIP)</span>
+            {formatBadge("ZIP", "bg-emerald-500")}
           </DropdownMenuItem>
 
           <DropdownMenuItem
