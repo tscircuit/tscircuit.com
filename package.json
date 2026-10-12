@@ -125,7 +125,7 @@
     "circuit-json": "^0.0.525",
     "circuit-json-to-altium": "github:tscircuit/circuit-json-to-altium#1a50d0dd2c0737cf940d92c0315852dc0111dd87",
     "circuit-json-to-pnp-csv": "0.0.18",
-    "circuit-json-to-step": "github:tscircuit/circuit-json-to-step#c514472b5a4f294dc46f2989b63be8da498f345e",
+    "circuit-json-to-step": "github:tscircuit/circuit-json-to-step#ddc8e1adedb39a6c5b139b02aa1991787bfb80f9",
     "circuit-to-svg": "^0.0.393",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -3,7 +3,7 @@ import type { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
 import { createStepDownload } from "@/lib/download-fns/download-step"
 
-test("default STEP download separates printed parts and keeps PCB-only output as STEP", async () => {
+test("assembly STEP separates printed parts while default mixed input exports a PCB STEP", async () => {
   const circuitJson = [
     {
       type: "pcb_board",
@@ -30,7 +30,9 @@ test("default STEP download separates printed parts and keeps PCB-only output as
     ]),
   ] as AnyCircuitElement[]
   const before = structuredClone(circuitJson)
-  const { blob, extension } = await createStepDownload(circuitJson)
+  const { blob, extension } = await createStepDownload(circuitJson, {
+    exportMode: "assembly",
+  })
   expect(extension).toBe("zip")
   const zip = await JSZip.loadAsync(await blob.arrayBuffer())
   expect(Object.keys(zip.files)).toEqual(["BASE.step", "PLATE.step"])
@@ -46,14 +48,9 @@ test("default STEP download separates printed parts and keeps PCB-only output as
   const pcb = await createStepDownload([circuitJson[0]])
   expect(pcb.extension).toBe("step")
   expect(await pcb.blob.text()).toContain("ISO-10303-21;")
-  const assembly = await createStepDownload(circuitJson, {
-    exportMode: "assembly",
-  })
-  expect(
-    Object.keys(
-      (await JSZip.loadAsync(await assembly.blob.arrayBuffer())).files,
-    ),
-  ).toEqual(["BASE.step", "PLATE.step"])
+  const defaultMixed = await createStepDownload(circuitJson)
+  expect(defaultMixed.extension).toBe("step")
+  expect(await defaultMixed.blob.text()).toContain("ISO-10303-21;")
   await expect(
     createStepDownload([], { exportMode: "assembly" }),
   ).rejects.toThrow("No assembly.printedpart")
