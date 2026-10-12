@@ -13,6 +13,7 @@ import { useAxios } from "@/hooks/use-axios"
 import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
+import { downloadAssemblyStepFile } from "@/lib/download-fns/download-assembly-step"
 import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -340,6 +341,28 @@ export function DownloadButtonAndMenu({
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+
+          <DropdownMenuItem
+            className="text-xs"
+            disabled={isFetchingCircuitJson}
+            onSelect={async () => {
+              try {
+                const cj = await getCircuitJson()
+                await downloadAssemblyStepFile(cj, unscopedName || "circuit")
+              } catch (error: any) {
+                toast({
+                  title: "Error Downloading Assembly STEP",
+                  description:
+                    error?.message || error?.toString?.() || "Unknown error",
+                  variant: "destructive",
+                })
+              }
+            }}
+          >
+            <CubeIcon className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Assembly STEP</span>
+            {formatBadge("STEP", "bg-emerald-500")}
+          </DropdownMenuItem>
 
           <DropdownMenuItem
             className="text-xs"
