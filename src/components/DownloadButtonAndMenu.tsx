@@ -14,6 +14,7 @@ import { useCurrentPackageId } from "@/hooks/use-current-package-id"
 import { toast, useNotImplementedToast } from "@/hooks/use-toast"
 import { downloadAssemblySvg } from "@/lib/download-fns/download-assembly-svg"
 import { downloadAssemblyStepFile } from "@/lib/download-fns/download-assembly-step"
+import { downloadPrintedPartSteps } from "@/lib/download-fns/download-printed-part-steps"
 import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
@@ -362,6 +363,28 @@ export function DownloadButtonAndMenu({
             <CubeIcon className="mr-1 h-3 w-3" />
             <span className="flex-grow mr-6">Combined Assembly STEP</span>
             {formatBadge("STEP", "bg-emerald-500")}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="text-xs"
+            disabled={isFetchingCircuitJson}
+            onSelect={async () => {
+              try {
+                const cj = await getCircuitJson()
+                await downloadPrintedPartSteps(cj, unscopedName || "circuit")
+              } catch (error: any) {
+                toast({
+                  title: "Error Downloading Printed Parts STEP",
+                  description:
+                    error?.message || error?.toString?.() || "Unknown error",
+                  variant: "destructive",
+                })
+              }
+            }}
+          >
+            <CubeIcon className="mr-1 h-3 w-3" />
+            <span className="flex-grow mr-6">Printed Parts STEP (ZIP)</span>
+            {formatBadge("ZIP", "bg-emerald-500")}
           </DropdownMenuItem>
 
           <DropdownMenuItem
