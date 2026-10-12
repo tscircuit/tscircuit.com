@@ -10,7 +10,7 @@ interface AssemblyStepCircuit {
 
 export const downloadAssemblyStepFile = async (
   circuits: AssemblyStepCircuit[],
-  fileName: string,
+  packageName: string,
 ) => {
   const blob = await withDownloadToast(
     "Preparing Assembly STEP download...",
@@ -25,7 +25,8 @@ export const downloadAssemblyStepFile = async (
             exportMode: "assembly",
           })
           for (const [fileName, stepText] of Object.entries(files)) {
-            zip.file(filePath ? `${filePath}/${fileName}` : fileName, stepText)
+            const partPath = filePath ? `${filePath}/${fileName}` : fileName
+            zip.file(`${packageName}/${partPath}`, stepText)
           }
         } catch (error) {
           if (
@@ -43,5 +44,5 @@ export const downloadAssemblyStepFile = async (
       return zip.generateAsync({ type: "blob" })
     },
   )
-  saveAs(blob, `${fileName}-assembly.zip`)
+  saveAs(blob, `${packageName}-assembly.zip`)
 }
