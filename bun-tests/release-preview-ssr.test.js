@@ -137,6 +137,7 @@ test("missing or invalid circuit data is distinct from a clean circuit", async (
 })
 
 test("production handler serves diagnostics in HTML without browser code or authentication", async () => {
+  const previousDevSsr = process.env.TSC_DEV_SSR
   process.env.TSC_DEV_SSR = "true"
   const originalFetch = globalThis.fetch
   const requested = []
@@ -166,12 +167,7 @@ test("production handler serves diagnostics in HTML without browser code or auth
     return Response.json(responses[url.pathname])
   }
   try {
-    const { default: handler, setHtmlContent } = await import(
-      "../api/generated-index.js"
-    )
-    setHtmlContent(
-      '<html><head><title>test</title></head><body><div id="root"></div></body></html>',
-    )
+    const { default: handler } = await import("../api/generated-index.js")
     let html
     const res = {
       setHeader() {},
@@ -220,5 +216,31 @@ test("production handler serves diagnostics in HTML without browser code or auth
     }
   } finally {
     globalThis.fetch = originalFetch
+    if (previousDevSsr === undefined) {
+      delete process.env.TSC_DEV_SSR
+    } else {
+      process.env.TSC_DEV_SSR = previousDevSsr
+    }
   }
+})
+
+test("preview integration leaves the shared HTML template available to other pages", async () => {
+  const { default: handler } = await import("../api/generated-index.js")
+  let html
+  const res = {
+    setHeader() {},
+    status(code) {
+      assert.equal(code, 200)
+      return this
+    },
+    send(value) {
+      html = value
+    },
+  }
+  await handler({ url: "/datasheets" }, res)
+  assert.ok(
+    html.includes(
+      '<link rel="icon" href="/tscircuit-logo.png" type="image/png" sizes="460x460" />',
+    ),
+  )
 })
