@@ -18,7 +18,10 @@ export const DatasheetSupplierParts = ({
       <CardContent>
         <dl className="grid gap-4 sm:grid-cols-3">
           {suppliers.map((supplier) => (
-            <div key={supplier.name} className="min-w-0">
+            <div
+              key={`${supplier.name}:${supplier.partNumber}`}
+              className="min-w-0"
+            >
               <dt className="mb-1 text-sm font-medium text-gray-600">
                 {supplier.name}
               </dt>

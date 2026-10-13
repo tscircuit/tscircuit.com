@@ -30,23 +30,38 @@ const checkSyntax = (source: string) => {
 }
 
 describe("datasheet component TSX", () => {
-  test("uses API supplier numbers in the copied component and preserves other supplier properties", () => {
+  test("copies all API supplier arrays and replaces stale source values", () => {
     const source = getDatasheetComponentTsx({
       ...data,
-      jlc_part_number: "C54321",
-      digikey_part_number: null,
-      mouser_part_number: "123-NEW",
+      supplier_part_numbers: {
+        jlcpcb: ["C54321", "C12345"],
+        digikey: [],
+        mouser: ["123-NEW"],
+        lcsc: ["C999"],
+      },
       generated_tsx:
         'export default () => <chip supplierPartNumbers={{other:["OTHER"],jlcpcb:["OLD"]}} />',
     })!
     checkSyntax(source)
-    expect(source).toContain('other:["OTHER"]')
-    expect(source).toContain('"jlcpcb":["C54321"]')
+    expect(source).not.toContain('other:["OTHER"]')
+    expect(source).toContain('"lcsc":["C999"]')
+    expect(source).toContain('"jlcpcb":["C54321","C12345"]')
     expect(source).toContain('"digikey":[]')
     expect(source).toContain('"mouser":["123-NEW"]')
     expect(abbreviateComponentTsx(source)).toContain(
       "supplierPartNumbers={...}",
     )
+  })
+  test("clears source supplier numbers when API data is null", () => {
+    const source = getDatasheetComponentTsx({
+      ...data,
+      supplier_part_numbers: null,
+      generated_tsx:
+        'export default () => <chip supplierPartNumbers={{jlcpcb:["OLD"]}} />',
+    })!
+    checkSyntax(source)
+    expect(source).toContain("supplierPartNumbers={{}}")
+    expect(source).not.toContain("OLD")
   })
   test("combines current footprint, symbol and electrical data with the published component", () => {
     const source = getDatasheetComponentTsx({

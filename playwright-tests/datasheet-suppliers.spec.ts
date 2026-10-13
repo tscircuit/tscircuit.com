@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test"
 
 const parts = {
-  jlc_part_number: "C12345",
-  digikey_part_number: "123-EXAMPLE-ND",
-  mouser_part_number: "123-EXAMPLE",
+  jlcpcb: ["C12345", "C54321"],
+  digikey: ["123-EXAMPLE-ND"],
+  mouser: ["123-EXAMPLE"],
+  lcsc: ["C999"],
 }
 
 test("shows supplier links and includes the same part numbers in copied component TSX", async ({
@@ -26,7 +27,7 @@ test("shows supplier links and includes the same part numbers in copied componen
           pin_information: [],
           datasheet_pdf_urls: [],
           ai_description: "Supplier example",
-          ...parts,
+          supplier_part_numbers: parts,
           generated_tsx:
             'export default () => <chip name="U1" supplierPartNumbers={{other:["OTHER"]}} />',
         },
@@ -35,7 +36,7 @@ test("shows supplier links and includes the same part numbers in copied componen
   )
   await page.goto("http://127.0.0.1:5177/datasheets/SUPPLIER-EXAMPLE")
   const jlc = page.getByRole("link", {
-    name: `JLCPCB ${parts.jlc_part_number}`,
+    name: `JLCPCB ${parts.jlcpcb[0]}`,
     exact: true,
   })
   await expect(jlc).toHaveAttribute(
@@ -44,31 +45,32 @@ test("shows supplier links and includes the same part numbers in copied componen
   )
   await expect(
     page.getByRole("link", {
-      name: `DigiKey ${parts.digikey_part_number}`,
+      name: `DigiKey ${parts.digikey[0]}`,
       exact: true,
     }),
   ).toHaveAttribute(
     "href",
-    `https://www.digikey.com/en/products?keywords=${parts.digikey_part_number}`,
+    `https://www.digikey.com/en/products?keywords=${parts.digikey[0]}`,
   )
   await expect(
     page.getByRole("link", {
-      name: `Mouser ${parts.mouser_part_number}`,
+      name: `Mouser ${parts.mouser[0]}`,
       exact: true,
     }),
-  ).toHaveAttribute(
-    "href",
-    `https://www.mouser.com/c/?q=${parts.mouser_part_number}`,
-  )
+  ).toHaveAttribute("href", `https://www.mouser.com/c/?q=${parts.mouser[0]}`)
   await expect(jlc).toHaveAttribute("target", "_blank")
   await page
     .getByRole("button", { name: "Copy component TSX", exact: true })
     .click()
   const copied = await page.evaluate(() => (window as any).copiedTsx)
-  expect(copied).toContain('"jlcpcb":["C12345"]')
+  expect(copied).toContain('"jlcpcb":["C12345","C54321"]')
   expect(copied).toContain('"digikey":["123-EXAMPLE-ND"]')
   expect(copied).toContain('"mouser":["123-EXAMPLE"]')
-  expect(copied).toContain('other:["OTHER"]')
+  expect(copied).not.toContain('other:["OTHER"]')
+  expect(copied).toContain('"lcsc":["C999"]')
+  await expect(
+    page.getByRole("link", { name: "JLCPCB C54321", exact: true }),
+  ).toHaveAttribute("href", "https://jlcpcb.com/partdetail/C54321")
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(jlc).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(
@@ -85,8 +87,7 @@ test("hides supplier links for missing and null values", async ({ page }) => {
           pin_information: [],
           datasheet_pdf_urls: [],
           ai_description: "No suppliers",
-          jlc_part_number: null,
-          digikey_part_number: null,
+          supplier_part_numbers: null,
         },
       },
     }),

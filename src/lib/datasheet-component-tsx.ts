@@ -70,26 +70,10 @@ export const getDatasheetComponentTsx = (
       .filter(ts.isJsxAttribute)
       .map((attr) => [attr.name.getText(file), attr]),
   )
-  const supplierUpdates: Record<string, string[]> = {}
-  for (const [vendor, part] of [
-    ["jlcpcb", datasheet.jlc_part_number],
-    ["digikey", datasheet.digikey_part_number],
-    ["mouser", datasheet.mouser_part_number],
-  ] as const) {
-    if (part !== undefined)
-      supplierUpdates[vendor] = part?.trim() ? [part.trim()] : []
-  }
-  if (Object.keys(supplierUpdates).length) {
-    const previous = existing.get("supplierPartNumbers")?.initializer
-    const expression =
-      previous && ts.isJsxExpression(previous)
-        ? previous.expression?.getText(file)
-        : undefined
+  if (datasheet.supplier_part_numbers !== undefined) {
     updates.set(
       "supplierPartNumbers",
-      expression
-        ? `supplierPartNumbers={{...(${expression}), ...${literal(supplierUpdates)}}}`
-        : `supplierPartNumbers={${literal(supplierUpdates)}}`,
+      `supplierPartNumbers={${literal(datasheet.supplier_part_numbers ?? {})}}`,
     )
   }
   if (preview && !builtin) {
