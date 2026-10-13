@@ -155,6 +155,7 @@ export default function MainContentHeader({
             desiredImageType={activeView}
             author={packageInfo?.owner_github_username ?? undefined}
             circuitJson={circuitJson}
+            packageFiles={packageFiles}
           />
 
           <DropdownMenu>

@@ -7,6 +7,47 @@ const connectorCode = `export default () => (
   </board>
 )`
 
+test("anonymous Run renders local footprints without a supplier auth toast", async ({
+  page,
+}) => {
+  await page.route("https://jlcsearch.tscircuit.com/**", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        resistors: [{ lcsc: 21190 }],
+        capacitors: [{ lcsc: 1525 }],
+      }),
+    })
+  })
+  let proxyCalls = 0
+  await page.route("**/api/proxy", async (route) => {
+    proxyCalls++
+    await route.fulfill({
+      status: 401,
+      contentType: "application/json",
+      body: JSON.stringify({ error_code: "no_token" }),
+    })
+  })
+  await page.goto("http://127.0.0.1:5177/editor")
+  await page
+    .getByRole("textbox")
+    .first()
+    .fill(`export default () => (
+    <board width="10mm" height="10mm">
+      <resistor resistance="1k" footprint="0402" name="R1" />
+      <capacitor capacitance="1000pF" footprint="0402" name="C1"
+        connections={{ pin1: "R1.pin1" }} />
+      <via pcbX="0.8" pcbY="0" tented />
+    </board>
+  )`)
+  const run = page.getByRole("button", { name: "Run", exact: true })
+  await run.click()
+  await expect.poll(() => proxyCalls, { timeout: 15_000 }).toBeGreaterThan(0)
+  await expect(run).toBeEnabled({ timeout: 15_000 })
+  await expect(page.getByText("Session Expired")).not.toBeVisible()
+  await expect(page.getByText("Sign In Required")).not.toBeVisible()
+})
+
 const runConnectorCode = async ({
   page,
   proxyErrorCode,

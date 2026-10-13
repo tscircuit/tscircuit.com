@@ -12,6 +12,7 @@ export const downloadStepFile = async (
     async () => {
       const { circuitJsonToStep } = await loadCircuitJsonToStep()
       return circuitJsonToStep(circuitJson, {
+        exportMode: "pcb",
         includeComponents: true,
       })
     },
