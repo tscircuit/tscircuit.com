@@ -24,9 +24,7 @@ export const getDatasheetSupplierLinks = (datasheet: SupplierFields) => {
     },
   ]
   return suppliers.flatMap(({ name, partNumbers, url }) => {
-    const parts = [
-      ...new Set(partNumbers.map((part) => part.trim()).filter(Boolean)),
-    ]
-    return parts.map((part) => ({ name, partNumber: part, href: url(part) }))
+    const part = partNumbers.map((part) => part.trim()).find(Boolean)
+    return part ? [{ name, partNumber: part, href: url(part) }] : []
   })
 }

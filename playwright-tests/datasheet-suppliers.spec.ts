@@ -7,7 +7,7 @@ const parts = {
   lcsc: ["C999"],
 }
 
-test("shows supplier links and includes the same part numbers in copied component TSX", async ({
+test("shows supplier names in the header and copies complete supplier numbers", async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -36,7 +36,7 @@ test("shows supplier links and includes the same part numbers in copied componen
   )
   await page.goto("http://127.0.0.1:5177/datasheets/SUPPLIER-EXAMPLE")
   const jlc = page.getByRole("link", {
-    name: `JLCPCB ${parts.jlcpcb[0]}`,
+    name: "JLCPCB",
     exact: true,
   })
   await expect(jlc).toHaveAttribute(
@@ -45,7 +45,7 @@ test("shows supplier links and includes the same part numbers in copied componen
   )
   await expect(
     page.getByRole("link", {
-      name: `DigiKey ${parts.digikey[0]}`,
+      name: "DigiKey",
       exact: true,
     }),
   ).toHaveAttribute(
@@ -54,7 +54,7 @@ test("shows supplier links and includes the same part numbers in copied componen
   )
   await expect(
     page.getByRole("link", {
-      name: `Mouser ${parts.mouser[0]}`,
+      name: "Mouser",
       exact: true,
     }),
   ).toHaveAttribute("href", `https://www.mouser.com/c/?q=${parts.mouser[0]}`)
@@ -68,9 +68,17 @@ test("shows supplier links and includes the same part numbers in copied componen
   expect(copied).toContain('"mouser":["123-EXAMPLE"]')
   expect(copied).not.toContain('other:["OTHER"]')
   expect(copied).toContain('"lcsc":["C999"]')
-  await expect(
-    page.getByRole("link", { name: "JLCPCB C54321", exact: true }),
-  ).toHaveAttribute("href", "https://jlcpcb.com/partdetail/C54321")
+  const suppliers = page.getByRole("navigation", {
+    name: "Suppliers",
+    exact: true,
+  })
+  await expect(suppliers.getByRole("link")).toHaveCount(3)
+  await expect(suppliers).toHaveText("JLCPCBDigiKeyMouser")
+  const heading = await page
+    .getByRole("heading", { name: "SUPPLIER-EXAMPLE Datasheet", exact: true })
+    .boundingBox()
+  const supplierBox = await suppliers.boundingBox()
+  expect(supplierBox!.x).toBeGreaterThan(heading!.x + heading!.width)
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(jlc).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(

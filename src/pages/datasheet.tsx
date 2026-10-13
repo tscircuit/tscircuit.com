@@ -71,31 +71,37 @@ export const DatasheetPage = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
-            {chipName} Datasheet
-          </h1>
-          <p className="text-lg text-gray-600 mb-4">
-            Pin functions, electrical requirements, and manufacturer documents.
-          </p>
-          <div className="flex flex-wrap items-center gap-4">
-            {hasTsx && (
-              <Button
-                variant="outline"
-                onClick={() => copyToClipboard(componentTsx!)}
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 break-words">
+              {chipName} Datasheet
+            </h1>
+            <p className="text-lg text-gray-600 mb-4">
+              Pin functions, electrical requirements, and manufacturer
+              documents.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              {hasTsx && (
+                <Button
+                  variant="outline"
+                  onClick={() => copyToClipboard(componentTsx!)}
+                >
+                  <Copy className="mr-2 h-4 w-4" /> Copy TSX
+                </Button>
+              )}
+              <a
+                href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
+                className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Copy className="mr-2 h-4 w-4" /> Copy TSX
-              </Button>
-            )}
-            <a
-              href={`https://api.tscircuit.com/datasheets/get?chip_name=${encodeURIComponent(chipName)}`}
-              className="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FileText className="w-4 h-4" /> Download JSON
-            </a>
+                <FileText className="w-4 h-4" /> Download JSON
+              </a>
+            </div>
           </div>
+          {datasheetQuery.data && (
+            <DatasheetSupplierParts datasheet={datasheetQuery.data} />
+          )}
         </div>
 
         {datasheetQuery.isLoading ? (
@@ -159,7 +165,6 @@ export const DatasheetPage = () => {
                 )}
               </SectionCard>
             </div>
-            <DatasheetSupplierParts datasheet={datasheetQuery.data} />
             <DatasheetViews
               chipName={chipName}
               datasheet={datasheetQuery.data}
