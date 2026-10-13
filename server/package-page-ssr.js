@@ -12,6 +12,7 @@ const RESERVED_TOP_LEVEL_ROUTES = new Set([
   "datasheets",
   "dev-login",
   "editor",
+  "enterprise",
   "landing",
   "latest",
   "legacy-editor",
