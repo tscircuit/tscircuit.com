@@ -3,7 +3,7 @@ import type { AnyCircuitElement } from "circuit-json"
 
 const convert = mock(
   async (_circuit: AnyCircuitElement[], _options: unknown) =>
-    "ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\nENDSEC;\nEND-ISO-10303-21;",
+    "ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\n#1=NEXT_ASSEMBLY_USAGE_OCCURRENCE('pcb','PCB','',#2,#3,'PCB');\nENDSEC;\nEND-ISO-10303-21;",
 )
 const saveAs = mock((_blob: Blob, _name: string) => {})
 const loading = mock((_message: string) => "step-download")
@@ -24,7 +24,7 @@ beforeEach(() => {
   dismiss.mockClear()
 })
 
-test("STEP downloads the complete visible circuit as one assembly file", async () => {
+test("STEP downloads the complete visible circuit using the converter's default assembly export", async () => {
   const circuit = [
     { type: "pcb_board", pcb_board_id: "board", width: 20, height: 10 },
     {
@@ -37,10 +37,7 @@ test("STEP downloads the complete visible circuit as one assembly file", async (
   await downloadStepFile(circuit, "device")
 
   expect(convert).toHaveBeenCalledWith(circuit, {
-    exportMode: "assembly",
     productName: "device",
-    includeComponents: true,
-    includeExternalMeshes: true,
   })
   expect(saveAs).toHaveBeenCalledTimes(1)
   const [blob, filename] = saveAs.mock.calls[0]!
@@ -67,14 +64,21 @@ test("an older per-part converter cannot silently produce an invalid STEP downlo
   expect(saveAs).not.toHaveBeenCalled()
 })
 
+test("an older PCB-only default cannot silently omit assembly parts from the download", async () => {
+  convert.mockResolvedValueOnce(
+    "ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\nENDSEC;\nEND-ISO-10303-21;",
+  )
+  await expect(downloadStepFile([], "device")).rejects.toThrow(
+    "Unable to create a complete STEP assembly",
+  )
+  expect(saveAs).not.toHaveBeenCalled()
+})
+
 test("package STEP assets are passed to the assembly converter", async () => {
   const fsMap = { "./models/chip.step": "ISO-10303-21;" }
   await downloadStepFile([], "device", { fsMap })
   expect(convert.mock.calls[0]![1]).toEqual({
-    exportMode: "assembly",
     productName: "device",
-    includeComponents: true,
-    includeExternalMeshes: true,
     fsMap,
   })
 })

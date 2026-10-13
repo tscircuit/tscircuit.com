@@ -13,17 +13,17 @@ export const downloadStepFile = async (
     async () => {
       const { circuitJsonToStep } = await loadCircuitJsonToStep()
       return circuitJsonToStep(circuitJson, {
-        exportMode: "assembly",
         productName: fileName,
-        includeComponents: true,
-        includeExternalMeshes: true,
         ...(options?.fsMap && Object.keys(options.fsMap).length
           ? { fsMap: options.fsMap }
           : {}),
       })
     },
   )
-  if (typeof content !== "string") {
+  if (
+    typeof content !== "string" ||
+    !/=\s*NEXT_ASSEMBLY_USAGE_OCCURRENCE\s*\(/i.test(content)
+  ) {
     throw new Error(
       "Unable to create a complete STEP assembly. Please try again later.",
     )
