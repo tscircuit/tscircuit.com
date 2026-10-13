@@ -70,6 +70,12 @@ export const getDatasheetComponentTsx = (
       .filter(ts.isJsxAttribute)
       .map((attr) => [attr.name.getText(file), attr]),
   )
+  if (datasheet.supplier_part_numbers !== undefined) {
+    updates.set(
+      "supplierPartNumbers",
+      `supplierPartNumbers={${literal(datasheet.supplier_part_numbers ?? {})}}`,
+    )
+  }
   if (preview && !builtin) {
     const previewFile = parse(preview)
     const previewChip = findChip(previewFile)
