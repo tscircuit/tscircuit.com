@@ -58,7 +58,7 @@ export default function EnterprisePage() {
             environments. Write circuits in TypeScript, build boards and use the
             local playground without outbound web requests.
           </p>
-          <p className="mt-4 text-base leading-7 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-gray-600">
             A standalone binary includes a bundled JavaScript runtime, component
             catalog and development tools. Download it for Linux, macOS or
             Windows and run it on your own machines.
