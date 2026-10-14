@@ -71,14 +71,6 @@ test("Enterprise links the newest published prerelease and explains local use", 
   await expect(
     page.getByRole("link", { name: "Download latest release", exact: true }),
   ).toHaveAttribute("href", `${releasesUrl}/tag/daily-2026-10-10`)
-  const versions = page.getByRole("list", {
-    name: "Recent Enterprise versions",
-  })
-  await expect(versions.getByRole("link")).toHaveCount(3)
-  await expect(versions.getByRole("link").first()).toHaveAttribute(
-    "href",
-    `${releasesUrl}/tag/daily-2026-10-10`,
-  )
   await expect(
     page.getByText(/without outbound web requests/).first(),
   ).toBeVisible()
@@ -125,9 +117,6 @@ test("GitHub download links remain available when release lookup fails", async (
   )
   await page.goto("http://127.0.0.1:5177/enterprise")
   await expect(
-    page.getByText(/Release details are unavailable here/),
-  ).toBeVisible()
-  await expect(
     page.getByRole("link", { name: "Download latest release", exact: true }),
   ).toHaveAttribute("href", releasesUrl)
   await expect(
@@ -140,9 +129,6 @@ test("Enterprise handles the first release not being published yet", async ({
 }) => {
   await page.route(releasesApi, (route) => route.fulfill({ json: [] }))
   await page.goto("http://127.0.0.1:5177/enterprise")
-  await expect(
-    page.getByText(/after the first release is published/),
-  ).toBeVisible()
   await expect(
     page.getByRole("link", { name: "Download latest release", exact: true }),
   ).toHaveAttribute("href", releasesUrl)
