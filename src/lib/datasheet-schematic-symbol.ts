@@ -149,11 +149,13 @@ export const getDatasheetSchematicSource = (
   const props = [
     'name="U1"',
     `displayName={${jsxJson(datasheet.chip_name ?? "U1")}}`,
-    `pinLabels={${jsxJson(pinLabels)}}`,
   ]
   if (symbolTsx) {
+    // Custom symbols define their own ports and labels. Passing the automatic
+    // numeric chip labels here can prevent named pins (A1, EP, etc.) rendering.
     props.push(`symbol={${symbolTsx}}`)
   } else if (arrangement) {
+    props.push(`pinLabels={${jsxJson(pinLabels)}}`)
     const normalizedArrangement = { ...arrangement }
     for (const side of [
       "leftSide",

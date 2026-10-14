@@ -77,6 +77,24 @@ describe("datasheet schematic source", () => {
     expect(source).not.toContain("schPinArrangement=")
   })
 
+  test("custom symbols keep named ports without automatic numeric chip labels", () => {
+    const symbol =
+      '<symbol><port name="A1" schX={-1} schY={0} direction="left" /></symbol>'
+    const datasheet = {
+      chip_name: "BQ25101YFPR",
+      symbol_tsx: symbol,
+      pin_information: [pin("A1", "OUT"), pin("A2", "IN")],
+    }
+    const source = getDatasheetSchematicSource(datasheet)!
+    expect(source).toBe(
+      `export default () => <chip name="U1" displayName={"BQ25101YFPR"} symbol={${symbol}} />`,
+    )
+    const url = new URL(getDatasheetSchematicSvgUrl(datasheet)!)
+    expect(getUncompressedSnippetString(url.searchParams.get("code")!)).toBe(
+      source,
+    )
+  })
+
   test("renders builtins with the core schematic primitive", () => {
     const source = getDatasheetSchematicSource({
       chip_name: "1N4148",
