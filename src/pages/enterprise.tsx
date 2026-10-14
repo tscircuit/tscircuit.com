@@ -53,9 +53,6 @@ export default function EnterprisePage() {
       <Header />
       <main className="flex-grow mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
         <section className="max-w-3xl" aria-labelledby="enterprise-title">
-          <p className="mb-4 text-sm font-semibold text-blue-600">
-            tscircuit in your environment
-          </p>
           <h1
             id="enterprise-title"
             className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl"
@@ -103,10 +100,13 @@ export default function EnterprisePage() {
           ))}
         </section>
 
-        <section className="mt-12" aria-labelledby="downloads-title">
+        <section
+          className="mt-12 !border-t-0"
+          aria-labelledby="downloads-title"
+        >
           <h2
             id="downloads-title"
-            className="text-2xl font-semibold text-gray-900"
+            className="border-b border-black/10 pb-3 text-2xl font-semibold text-gray-900"
           >
             Downloads and versions
           </h2>
@@ -178,10 +178,13 @@ export default function EnterprisePage() {
           </div>
         </section>
 
-        <section className="mt-12" aria-labelledby="getting-started-title">
+        <section
+          className="mt-12 !border-t-0"
+          aria-labelledby="getting-started-title"
+        >
           <h2
             id="getting-started-title"
-            className="text-2xl font-semibold text-gray-900"
+            className="border-b border-black/10 pb-3 text-2xl font-semibold text-gray-900"
           >
             Getting started
           </h2>
@@ -196,10 +199,6 @@ tsci import C2040
 tsci build my-board.circuit.tsx
 tsci dev my-board.circuit.tsx`}</code>
           </pre>
-          <p className="mt-4 text-sm leading-6 text-gray-600">
-            Use the bundled component catalog and dependencies, and import
-            additional circuit files from your local project.
-          </p>
         </section>
       </main>
       <Footer />
