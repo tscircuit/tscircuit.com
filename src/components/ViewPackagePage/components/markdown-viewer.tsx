@@ -7,6 +7,8 @@ import { Check, Clipboard, Copy, CopyPlus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { resolveMarkdownImageUrl } from "@/lib/resolve-markdown-image-url"
+import { useParams } from "wouter"
+import { resolvePackageMarkdownLink } from "@/lib/package-file-routes"
 
 export default function MarkdownViewer({
   markdownContent,
@@ -18,6 +20,7 @@ export default function MarkdownViewer({
   filePath?: string
 }) {
   const apiBaseUrl = useApiBaseUrl()
+  const { author, packageName } = useParams()
   const { highlighter } = useShikiHighlighter()
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const { toast } = useToast()
@@ -44,6 +47,19 @@ export default function MarkdownViewer({
         <Markdown
           remarkPlugins={[remarkGfm]}
           components={{
+            a({ node, href, ...props }) {
+              return (
+                <a
+                  {...props}
+                  href={resolvePackageMarkdownLink(href, {
+                    author,
+                    packageName,
+                    packageReleaseId,
+                    filePath,
+                  })}
+                />
+              )
+            },
             img({ node, src, ...props }) {
               return (
                 <img
