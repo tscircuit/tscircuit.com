@@ -175,7 +175,7 @@ export const loadCircuitJsonToStep =
 
     // Use the release whose default exports all boards and assembly parts.
     return loadCircuitJsonConverter<CircuitJsonToStepModule>(
-      "circuit-json-to-step@0.0.50",
+      "circuit-json-to-step",
     )
   }
 
