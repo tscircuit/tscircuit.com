@@ -35,6 +35,9 @@ test("push button pins expose permanent pairs and copied TSX includes them", asy
     }),
   )
   await page.goto("http://127.0.0.1:5177/datasheets/TS-1187A-B-A-B")
+  await expect(page.getByLabel("Component TSX source")).toContainText(
+    'internallyConnectedPins={[["A","B"],["C","D"]]}',
+  )
   const rows = page.getByRole("row")
   await expect(
     rows.filter({

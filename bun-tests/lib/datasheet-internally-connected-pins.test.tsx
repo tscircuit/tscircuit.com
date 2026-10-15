@@ -1,7 +1,10 @@
 import { expect, test } from "bun:test"
 import { renderToStaticMarkup } from "react-dom/server"
 import { DatasheetPinTable } from "@/components/DatasheetPinTable"
-import { getDatasheetComponentTsx } from "@/lib/datasheet-component-tsx"
+import {
+  getDatasheetComponentTsx,
+  abbreviateComponentTsx,
+} from "@/lib/datasheet-component-tsx"
 import {
   getInternallyConnectedPinNumbers,
   type DatasheetWithPinAttributes,
@@ -36,6 +39,16 @@ test("push button rows show only permanently connected contacts and TSX uses cur
     internally_connected_pins: groups,
   } as unknown as DatasheetWithPinAttributes
   const tsx = getDatasheetComponentTsx(data)!
+  expect(abbreviateComponentTsx(tsx)).toContain(
+    'internallyConnectedPins={[["A","B"],["C","D"]]}',
+  )
+  expect(
+    getDatasheetComponentTsx({
+      ...data,
+      generated_tsx:
+        "export default (props) => <pushbutton internallyConnectedPins={[[1,2]]} {...props} />",
+    }),
+  ).toContain('internallyConnectedPins={[["A","B"],["C","D"]]}')
   expect(tsx).toContain('internallyConnectedPins={[["A","B"],["C","D"]]}')
   expect(
     getDatasheetComponentTsx({
