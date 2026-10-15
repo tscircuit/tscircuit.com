@@ -1,4 +1,5 @@
 import type {
+  ChipProps,
   PinAttributeMap,
   SchematicPinArrangement,
   SupplierPartNumbers,
@@ -12,6 +13,7 @@ export type DatasheetPin = Omit<
 
 export type DatasheetWithPinAttributes = Omit<Datasheet, "pin_information"> & {
   pin_information: DatasheetPin[] | null
+  internally_connected_pins?: ChipProps["internallyConnectedPins"] | null
   pin_attributes?: Record<string, PinAttributeMap> | null
   footprinter_string?: string | null
   generated_tsx?: string | null
@@ -104,4 +106,48 @@ export const formatAttributeValue = (value: unknown) => {
   if (Array.isArray(value))
     return value.map(formatCapability).join(", ") || "None"
   return String(value)
+}
+
+/** Resolve physical identifiers before unique signal aliases; follow overlapping groups. */
+export const getInternallyConnectedPinNumbers = (
+  pin: DatasheetPin,
+  pins: DatasheetPin[],
+  groups: DatasheetWithPinAttributes["internally_connected_pins"],
+): string[] => {
+  const resolvePin = (identifier: string | number) => {
+    const name = String(identifier)
+    const physical = pins.find(
+      (candidate) =>
+        candidate.pin_number === name || `pin${candidate.pin_number}` === name,
+    )
+    if (physical) return physical.pin_number
+    const matches = pins.filter((candidate) =>
+      getPinNames(candidate).includes(name),
+    )
+    return matches.length === 1 ? matches[0].pin_number : undefined
+  }
+  const connected = new Set([pin.pin_number])
+  const resolvedGroups = (groups ?? []).map((group) =>
+    group.map(resolvePin).filter((name): name is string => name !== undefined),
+  )
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const group of resolvedGroups) {
+      if (!group.some((name) => connected.has(name))) continue
+      for (const name of group) {
+        if (!connected.has(name)) {
+          connected.add(name)
+          changed = true
+        }
+      }
+    }
+  }
+  return pins
+    .filter(
+      (candidate) =>
+        candidate.pin_number !== pin.pin_number &&
+        connected.has(candidate.pin_number),
+    )
+    .map((candidate) => candidate.pin_number)
 }
