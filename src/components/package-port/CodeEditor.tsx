@@ -21,7 +21,6 @@ import {
 } from "@/lib/constants"
 import { fetchWithPackageCaching, loadDefaultLibMap } from "@/lib/ts-lib-cache"
 import { findTargetFile } from "@/lib/utils/findTargetFile"
-import { getImportsFromCode } from "@/lib/utils/get-imports-from-code"
 import type { PackageFile } from "@/types/package"
 import {
   acceptCompletion,
@@ -34,6 +33,7 @@ import { json } from "@codemirror/lang-json"
 import { linter } from "@codemirror/lint"
 import { Compartment, EditorState, Prec, StateEffect } from "@codemirror/state"
 import { Decoration, hoverTooltip, keymap } from "@codemirror/view"
+import { getImportsFromCode } from "@tscircuit/prompt-benchmarks/code-runner-utils"
 import type { ATABootstrapConfig } from "@typescript/ata"
 import { setupTypeAcquisition } from "@typescript/ata"
 import {
