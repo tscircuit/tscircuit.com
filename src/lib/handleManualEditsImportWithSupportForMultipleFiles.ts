@@ -1,9 +1,7 @@
-import { FileName } from "@/components/package-port/CodeEditorHeader"
-
 export const handleManualEditsImportWithSupportForMultipleFiles = (
   files: Record<string, string>,
-  updateFileContent: (filename: FileName, content: string) => void,
-  entrypointFileName: FileName = "index.tsx",
+  updateFileContent: (filename: string, content: string) => void,
+  entrypointFileName: string = "index.tsx",
   toast: (options: {
     title: string
     description: string
