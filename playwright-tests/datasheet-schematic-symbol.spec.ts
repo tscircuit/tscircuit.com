@@ -70,6 +70,23 @@ test("shows one highlighted component snippet and copies complete electrical and
   expect(await page.evaluate(() => (window as any).copiedComponentTsx)).toBe(
     copied,
   )
+  await expect(display).not.toContainText("3.3V")
+  await expect(display).toHaveCSS("cursor", "pointer")
+  // Click a syntax token away from the ellipsis to expand the whole source.
+  await display.locator("[data-syntax-token]").first().click()
+  await expect(display).toHaveText(copied)
+  await expect(display).not.toContainText("={...}")
+  // Expanded code stays open when clicked so it can be selected and copied.
+  await display.locator("[data-syntax-token]").first().click()
+  await expect(display).toHaveText(copied)
+
+  for (const key of ["Enter", "Space"]) {
+    await page.reload()
+    const source = page.getByRole("button", { name: "Component TSX source" })
+    await source.focus()
+    await source.press(key)
+    await expect(display).toHaveText(copied)
+  }
 })
 
 test.beforeEach(async ({ page }) => {
