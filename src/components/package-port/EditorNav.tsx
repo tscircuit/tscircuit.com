@@ -494,9 +494,14 @@ export default function EditorNav({
             offerMultipleImageFormats
             unscopedName={pkg?.unscoped_name}
             circuitJson={circuitJson}
+            fsMap={fsMap}
             className="flex"
             desiredImageType={pkg?.default_view ?? "pcb"}
-            author={pkg?.owner_github_username ?? undefined}
+            author={
+              pkg?.org_owner_tscircuit_handle ??
+              pkg?.owner_github_username ??
+              undefined
+            }
           />
           <Button
             variant="ghost"

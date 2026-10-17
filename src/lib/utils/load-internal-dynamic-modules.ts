@@ -173,6 +173,7 @@ export const loadCircuitJsonToStep =
     // circuit-json-to-step dynamically imports circuit-json-to-gltf at runtime.
     await ensureCircuitJsonToGltfLoaded()
 
+    // Use the release whose default exports all boards and assembly parts.
     return loadCircuitJsonConverter<CircuitJsonToStepModule>(
       "circuit-json-to-step",
     )
