@@ -50,3 +50,45 @@ export const getPackageFileUrl = ({
   packageName: string
   filePath: string
 }) => `${getPackageRootUrl(author, packageName)}/blob/${encodePath(filePath)}`
+
+/** Resolve relative Markdown links inside their package and selected release. */
+export const resolvePackageMarkdownLink = (
+  href: string | undefined,
+  {
+    author,
+    packageName,
+    packageReleaseId,
+    filePath = "README.md",
+  }: {
+    author?: string
+    packageName?: string
+    packageReleaseId?: string
+    filePath?: string
+  },
+) => {
+  if (
+    !href ||
+    !author ||
+    !packageName ||
+    !packageReleaseId ||
+    /^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(href)
+  ) {
+    return href
+  }
+
+  try {
+    const target = new URL(
+      href,
+      `https://package.invalid/${encodePath(filePath)}`,
+    )
+    const path = decodeURIComponent(target.pathname.slice(1))
+    const route = target.pathname.endsWith("/")
+      ? getPackageDirectoryUrl({ author, packageName, directoryPath: path })
+      : getPackageFileUrl({ author, packageName, filePath: path })
+    const params = new URLSearchParams(target.search)
+    params.set("package_release_id", packageReleaseId)
+    return `${route}?${params}${target.hash}`
+  } catch {
+    return href
+  }
+}
