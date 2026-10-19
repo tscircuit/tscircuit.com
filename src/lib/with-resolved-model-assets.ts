@@ -84,7 +84,26 @@ export async function withResolvedModelAssets<T>(
     const resolvedCircuitJson = await Promise.all(
       circuitJson.map(async (element) => {
         const field = activeUrlFields.get(element)
-        if (!field) return element
+        if (!field) {
+          if (
+            request.preserveStepUrls &&
+            element.type === "cad_component" &&
+            !element.model_jscad &&
+            element.model_step_url &&
+            URL.canParse(element.model_step_url)
+          ) {
+            const modelUrl = new URL(element.model_step_url)
+            // Model CDN responses vary by origin; keep its cache key in sync.
+            if (modelUrl.searchParams.has("cachebust_origin")) {
+              modelUrl.searchParams.set(
+                "cachebust_origin",
+                window.location.origin,
+              )
+              return { ...element, model_step_url: modelUrl.href }
+            }
+          }
+          return element
+        }
         const value = (element as unknown as Record<string, string>)[field]!
         const blobUrl = urls[value]!
         if (field === "model_step_url" && request.preserveStepUrls) {
