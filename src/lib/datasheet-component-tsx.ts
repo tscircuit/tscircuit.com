@@ -103,11 +103,22 @@ export const getDatasheetComponentTsx = (
       "footprint",
       `footprint={${literal(datasheet.footprinter_string)}}`,
     )
-  if (datasheet.pin_attributes)
-    updates.set(
-      "pinAttributes",
-      `pinAttributes={${literal(datasheet.pin_attributes)}}`,
+  if (datasheet.pin_attributes) {
+    const namedPins = new Set(
+      (datasheet.pin_information ?? [])
+        .map((pin) => pin.pin_number)
+        .filter((pin) => !/^\d+$/.test(pin)),
     )
+    const attributes = Object.fromEntries(
+      Object.entries(datasheet.pin_attributes).map(([name, value]) => [
+        name.startsWith("pin") && namedPins.has(name.slice(3))
+          ? name.slice(3)
+          : name,
+        value,
+      ]),
+    )
+    updates.set("pinAttributes", `pinAttributes={${literal(attributes)}}`)
+  }
   if (builtin)
     updates.set("noSchematicRepresentation", "noSchematicRepresentation")
 
