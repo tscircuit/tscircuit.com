@@ -17,7 +17,7 @@ const findChip = (source: ts.SourceFile) => {
     if (chip) return
     if (
       (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) &&
-      node.tagName.getText(source) === "chip"
+      ["chip", "pushbutton"].includes(node.tagName.getText(source))
     )
       chip = node
     else ts.forEachChild(node, visit)
@@ -53,7 +53,8 @@ export const getDatasheetComponentTsx = (
   if (
     !source &&
     !datasheet.footprinter_string?.trim() &&
-    !datasheet.pin_attributes
+    !datasheet.pin_attributes &&
+    !datasheet.internally_connected_pins
   )
     return null
   const builtin =
@@ -70,6 +71,12 @@ export const getDatasheetComponentTsx = (
       .filter(ts.isJsxAttribute)
       .map((attr) => [attr.name.getText(file), attr]),
   )
+  if (datasheet.internally_connected_pins !== undefined) {
+    updates.set(
+      "internallyConnectedPins",
+      `internallyConnectedPins={${literal(datasheet.internally_connected_pins ?? [])}}`,
+    )
+  }
   if (datasheet.supplier_part_numbers !== undefined) {
     updates.set(
       "supplierPartNumbers",
@@ -201,6 +208,8 @@ export const abbreviateComponentTsx = (source: string): string => {
       node.initializer.expression
     ) {
       const expression = node.initializer.expression
+      // Keep the actual permanent pin groups visible in the component example.
+      if (node.name.getText(file) === "internallyConnectedPins") return
       if (
         complexProps.has(node.name.getText(file)) ||
         isObjectData(expression)

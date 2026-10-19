@@ -1,8 +1,6 @@
-import { FileName } from "@/components/package-port/CodeEditorHeader"
-
 export const handleManualEditsImport = (
   files: Record<string, string>,
-  updateFileContent: (filename: FileName, content: string) => void,
+  updateFileContent: (filename: string, content: string) => void,
   toast: (options: {
     title: string
     description: string

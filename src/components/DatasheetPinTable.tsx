@@ -9,6 +9,7 @@ import {
   getElectricalSummary,
   getPinAttributes,
   getPinNames,
+  getInternallyConnectedPinNumbers,
 } from "@/lib/datasheet-pin-display"
 
 const ElectricalSummary = ({ labels }: { labels: string[] }) =>
@@ -30,9 +31,11 @@ const ElectricalSummary = ({ labels }: { labels: string[] }) =>
 export const DatasheetPinTable = ({
   pins,
   pinAttributes,
+  internallyConnectedPins,
 }: {
   pins: NonNullable<DatasheetWithPinAttributes["pin_information"]>
   pinAttributes: DatasheetWithPinAttributes["pin_attributes"]
+  internallyConnectedPins?: DatasheetWithPinAttributes["internally_connected_pins"]
 }) => {
   const [search, setSearch] = useState("")
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
@@ -49,6 +52,7 @@ export const DatasheetPinTable = ({
       ...(attributes?.capabilities ?? []),
       ...(attributes?.capabilities ?? []).map(formatCapability),
       ...getElectricalSummary(attributes),
+      ...getInternallyConnectedPinNumbers(pin, pins, internallyConnectedPins),
     ]
       .join(" ")
       .toLowerCase()
@@ -120,6 +124,11 @@ export const DatasheetPinTable = ({
               const names = getPinNames(pin)
               const attributes = getPinAttributes(pin, pinAttributes)
               const summary = getElectricalSummary(attributes)
+              const connectedPins = getInternallyConnectedPinNumbers(
+                pin,
+                pins,
+                internallyConnectedPins,
+              )
               const capabilities = [
                 ...new Set([
                   ...(pin.capabilities ?? []),
@@ -160,6 +169,11 @@ export const DatasheetPinTable = ({
                             </button>
                           )}
                         </div>
+                      )}
+                      {connectedPins.length > 0 && (
+                        <p className="mt-1 text-xs text-gray-600">
+                          Internally connected to: {connectedPins.join(", ")}
+                        </p>
                       )}
                       {capabilities.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">

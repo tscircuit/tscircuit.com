@@ -177,6 +177,9 @@ export const DatasheetPage = () => {
                   key={chipName}
                   pins={datasheetQuery.data.pin_information}
                   pinAttributes={datasheetQuery.data.pin_attributes}
+                  internallyConnectedPins={
+                    datasheetQuery.data.internally_connected_pins
+                  }
                 />
               ) : (
                 <p className="text-gray-500">No pin information available.</p>
