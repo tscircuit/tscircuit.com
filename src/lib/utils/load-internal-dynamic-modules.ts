@@ -1,5 +1,5 @@
 import importer from "@tscircuit/internal-dynamic-import"
-import type { AnyCircuitElement, CircuitJson, SupplierName } from "circuit-json"
+import type { AnyCircuitElement, SupplierName } from "circuit-json"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -22,12 +22,10 @@ type CircuitJsonToGerberModule = {
   ) => Record<string, string>
 }
 
-type CircuitJsonToGltfModule = {
-  convertCircuitJsonToGltf: (
-    circuitJson: CircuitJson,
-    options?: { format?: "glb" | "gltf"; [key: string]: any },
-  ) => Promise<any>
-}
+type CircuitJsonToGltfModule = Pick<
+  typeof import("circuit-json-to-gltf"),
+  "convertCircuitJsonToGltf"
+>
 
 type KicadConverterClass = new (
   ...args: any[]
@@ -74,12 +72,10 @@ type CircuitJsonToSpiceModule = {
   }
 }
 
-type CircuitJsonToStepModule = {
-  circuitJsonToStep: (
-    circuitJson: AnyCircuitElement[],
-    options?: any,
-  ) => Promise<string> | string
-}
+type CircuitJsonToStepModule = Pick<
+  typeof import("circuit-json-to-step"),
+  "circuitJsonToStep"
+>
 
 type CircuitJsonToTscircuitModule = {
   convertCircuitJsonToTscircuit: (

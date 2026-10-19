@@ -371,13 +371,11 @@ export function DownloadButtonAndMenu({
                           },
                         ),
                     )
-                  } catch (error: any) {
+                  } catch (error) {
                     toast({
                       title: "Error Downloading STEP",
                       description:
-                        error?.message ||
-                        error?.toString?.() ||
-                        "Unknown error",
+                        error instanceof Error ? error.message : String(error),
                       variant: "destructive",
                     })
                   } finally {

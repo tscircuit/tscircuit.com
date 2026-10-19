@@ -1,12 +1,13 @@
 import { loadCircuitJsonToStep } from "@/lib/utils/load-internal-dynamic-modules"
-import type { AnyCircuitElement } from "circuit-json"
+import type { CircuitJson } from "circuit-json"
+import type { CircuitJsonToStepOptions } from "circuit-json-to-step"
 import { saveAs } from "file-saver"
 import { withDownloadToast } from "./download-toast"
 
 export const downloadStepFile = async (
-  circuitJson: AnyCircuitElement[],
+  circuitJson: CircuitJson,
   fileName: string,
-  options?: { fsMap?: Record<string, string> },
+  options?: Pick<CircuitJsonToStepOptions, "fsMap">,
 ) => {
   const content = await withDownloadToast(
     "Preparing STEP download...",
