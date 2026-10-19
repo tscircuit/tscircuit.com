@@ -16,8 +16,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./schema": "./dist/schema.js",
-    "./bundle": "./dist/bundle.js",
-    "./datasheet-component-tsx": "./dist/datasheet/component-tsx.js"
+    "./bundle": "./dist/bundle.js"
   },
   "scripts": {
     "start": "bun run dev",
@@ -32,7 +31,7 @@
     "format": "biome format --write .",
     "lint": "biome format .",
     "build:vite:analyze": "VITE_BUNDLE_ANALYZE=true vite build",
-    "build:fake-api:tsup": "tsup-node ./fake-snippets-api/lib/index.ts ./fake-snippets-api/lib/datasheet/component-tsx.ts --format esm --dts --external typescript",
+    "build:fake-api:tsup": "tsup-node ./fake-snippets-api/lib/index.ts --format esm --dts",
     "build:fake-api:bundle": "winterspec2 bundle -o dist/bundle.js",
     "build:fake-api": "bun run build:fake-api:tsup && bun run build:fake-api:bundle && bun run build:fake-api:schema",
     "build:fake-api:schema": "tsup-node ./fake-snippets-api/lib/db/schema.ts --format esm --dts",
@@ -99,6 +98,7 @@
     "@tscircuit/mm": "^0.0.8",
     "@tscircuit/monaco-code-editor": "git+https://github.com/tscircuit/monaco-code-editor.git#67127aaf731b6e06f42ec7afceb1759adbe0ebc0",
     "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#55a2839",
+    "@tscircuit/parts-engine": "github:tscircuit/parts-engine#96768bee0fcc7cdf4d13dbee938b2c3665c82508",
     "@tscircuit/pcb-viewer": "^1.11.428",
     "@tscircuit/props": "^0.0.698",
     "@tscircuit/runframe": "^0.0.3023",
