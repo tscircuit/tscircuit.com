@@ -30,7 +30,6 @@ import { downloadSchematicSvg } from "@/lib/download-fns/download-schematic-svg"
 import { downloadSimpleRouteJson } from "@/lib/download-fns/download-simple-route-json"
 import { downloadSpiceFile } from "@/lib/download-fns/download-spice-file"
 import { downloadStepFile } from "@/lib/download-fns/download-step"
-import { withResolvedModelAssets } from "@/lib/with-resolved-model-assets"
 import { CubeIcon } from "@radix-ui/react-icons"
 import { ExportAccessoryDialog } from "@tscircuit/runframe"
 import { AnyCircuitElement } from "circuit-json"
@@ -135,16 +134,10 @@ export function DownloadButtonAndMenu({
   const downloadModel = async (format: "glb" | "gltf") => {
     try {
       const cj = await getCircuitJson()
-      await withResolvedModelAssets(cj, modelAssetRequest, (resolvedCircuit) =>
-        downloadGltfFromCircuitJson(
-          resolvedCircuit,
-          unscopedName || "circuit",
-          {
-            format,
-            boardTextureResolution: 2048,
-          },
-        ),
-      )
+      await downloadGltfFromCircuitJson(cj, unscopedName || "circuit", {
+        format,
+        boardTextureResolution: 2048,
+      })
     } catch (error: any) {
       toast({
         title:
@@ -359,17 +352,10 @@ export function DownloadButtonAndMenu({
                   setIsDownloadingStep(true)
                   try {
                     const cj = await getCircuitJson()
-                    await withResolvedModelAssets(
+                    await downloadStepFile(
                       cj,
-                      { ...modelAssetRequest, preserveStepUrls: true },
-                      (resolvedCircuit, stepFsMap) =>
-                        downloadStepFile(
-                          resolvedCircuit,
-                          unscopedName || "circuit",
-                          {
-                            fsMap: stepFsMap,
-                          },
-                        ),
+                      unscopedName || "circuit",
+                      modelAssetRequest,
                     )
                   } catch (error) {
                     toast({
