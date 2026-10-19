@@ -59,6 +59,32 @@ export type ModelAssetRequest = {
   author?: string
   packageName?: string
   version?: string
+  fsMap?: Record<string, string>
+}
+
+export async function fetchPackageModelAsset(
+  request: Omit<ModelAssetRequest, "assetUrls"> & {
+    assetUrl: string
+    signal?: AbortSignal
+  },
+): Promise<Response> {
+  const lookupParams = getPackageFileLookupParams(request)
+  if (!lookupParams) {
+    throw new Error(`Unable to resolve model asset: ${request.assetUrl}`)
+  }
+  const response = await fetch(
+    `${request.apiBaseUrl}/package_files/download?${new URLSearchParams(lookupParams)}`,
+    {
+      signal: request.signal,
+      headers: request.token
+        ? { Authorization: `Bearer ${request.token}` }
+        : {},
+    },
+  )
+  if (!response.ok || request.signal?.aborted) {
+    throw new Error(`Unable to load model asset: ${request.assetUrl}`)
+  }
+  return response
 }
 
 export function loadPackageModelAssets(request: ModelAssetRequest) {
@@ -66,20 +92,20 @@ export function loadPackageModelAssets(request: ModelAssetRequest) {
   const blobUrls: string[] = []
   const promise = Promise.all(
     request.assetUrls.map(async (assetUrl) => {
-      const lookupParams = getPackageFileLookupParams({ ...request, assetUrl })
-      if (!lookupParams) return null
       try {
-        const response = await fetch(
-          `${request.apiBaseUrl}/package_files/download?${new URLSearchParams(lookupParams)}`,
-          {
-            signal: controller.signal,
-            headers: request.token
-              ? { Authorization: `Bearer ${request.token}` }
-              : {},
-          },
-        )
-        if (!response.ok || controller.signal.aborted) return null
-        const blob = await response.blob()
+        const localContent =
+          request.fsMap?.[assetUrl] ??
+          request.fsMap?.[normalizeAssetPath(assetUrl)]
+        const blob =
+          localContent !== undefined
+            ? new Blob([localContent])
+            : await (
+                await fetchPackageModelAsset({
+                  ...request,
+                  assetUrl,
+                  signal: controller.signal,
+                })
+              ).blob()
         // blob() can finish after cleanup, even when fetch was aborted.
         if (controller.signal.aborted) return null
         const blobUrl = URL.createObjectURL(blob)
