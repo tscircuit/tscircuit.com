@@ -40,6 +40,9 @@
     "generate-sitemap": "bun run scripts/generate-sitemap.ts",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "mime-types": "^3.0.2"
+  },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
     "@babel/preset-react": "^7.25.9",
@@ -153,7 +156,6 @@
     "lz-string": "^1.5.0",
     "marked": "^16.1.1",
     "md5": "^2.3.0",
-    "mime-types": "^3.0.2",
     "ms": "^2.1.3",
     "next-themes": "^0.3.0",
     "postcss": "^8.4.47",
