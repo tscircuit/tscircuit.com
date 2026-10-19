@@ -1,0 +1,635 @@
+// fake-snippets-api/lib/db/schema.ts
+import { z } from "zod";
+var errorSchema = z.object({
+  error_code: z.string(),
+  message: z.string()
+}).passthrough();
+var errorResponseSchema = z.object({
+  error: errorSchema
+});
+var log = z.any();
+var snippetSchema = z.object({
+  snippet_id: z.string(),
+  package_release_id: z.string(),
+  name: z.string(),
+  unscoped_name: z.string(),
+  owner_name: z.string(),
+  is_starred: z.boolean().default(false),
+  code: z.string(),
+  dts: z.string().optional(),
+  compiled_js: z.string().optional().nullable(),
+  circuit_json: z.array(z.record(z.any())).optional().nullable(),
+  manual_edits_json_content: z.string().optional().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  starred_at: z.string().optional(),
+  snippet_type: z.enum(["board", "package", "model", "footprint"]),
+  description: z.string().optional(),
+  version: z.string().default("0.0.1"),
+  star_count: z.number().default(0),
+  is_private: z.boolean().default(false),
+  is_public: z.boolean().default(true),
+  is_unlisted: z.boolean().default(false),
+  tags: z.array(z.string()).optional()
+});
+var sessionSchema = z.object({
+  session_id: z.string(),
+  account_id: z.string(),
+  expires_at: z.string(),
+  is_cli_session: z.boolean()
+});
+var loginPageSchema = z.object({
+  login_page_id: z.string(),
+  login_page_auth_token: z.string(),
+  was_login_successful: z.boolean(),
+  has_been_used_to_create_session: z.boolean(),
+  created_at: z.string(),
+  expires_at: z.string()
+});
+var shippingInfoSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  companyName: z.string().optional(),
+  address: z.string(),
+  apartment: z.string().optional(),
+  city: z.string(),
+  state: z.string(),
+  zipCode: z.string(),
+  country: z.string(),
+  phone: z.string()
+});
+var accountSchema = z.object({
+  account_id: z.string(),
+  github_username: z.string(),
+  tscircuit_handle: z.string().nullable(),
+  shippingInfo: shippingInfoSchema.optional(),
+  personal_org_id: z.string().nullable(),
+  is_tscircuit_staff: z.boolean().default(false),
+  email: z.string().nullable().optional(),
+  created_at: z.date()
+});
+var publicAccountSchema = z.object({
+  account_id: z.string(),
+  github_username: z.string().nullable(),
+  tscircuit_handle: z.string().nullable(),
+  personal_org_id: z.string().nullable(),
+  created_at: z.date()
+});
+var orderSchema = z.object({
+  order_id: z.string(),
+  account_id: z.string().nullable(),
+  submitted_package_release_id: z.string().nullable().optional(),
+  adapted_package_release_id: z.string().nullable().optional(),
+  stripe_checkout_session_id: z.string().nullable().optional(),
+  stripe_checkout_session_url: z.string().nullable().optional(),
+  is_stripe_checkout_session_complete: z.boolean().optional(),
+  is_stripe_checkout_session_expired: z.boolean().optional(),
+  is_stripe_checkout_session_open: z.boolean().optional(),
+  is_stripe_payment_paid: z.boolean().optional(),
+  is_running: z.boolean(),
+  is_started: z.boolean(),
+  is_finished: z.boolean(),
+  error: errorSchema.nullable(),
+  has_error: z.boolean(),
+  created_at: z.string(),
+  started_at: z.string().nullable(),
+  completed_at: z.string().nullable(),
+  circuit_json: z.any()
+});
+var orderFileSchema = z.object({
+  order_file_id: z.string(),
+  order_id: z.string(),
+  is_gerbers_zip: z.boolean(),
+  content_type: z.string(),
+  for_provider: z.string().nullable(),
+  uploaded_at: z.string(),
+  content_text: z.string().nullable(),
+  content_bytes: z.instanceof(Uint8Array).nullable()
+});
+var bugReportSchema = z.object({
+  bug_report_id: z.string().uuid(),
+  reporter_account_id: z.string(),
+  text: z.string().nullable(),
+  is_auto_deleted: z.boolean().default(false),
+  delete_at: z.string().datetime().nullable(),
+  created_at: z.string().datetime(),
+  file_count: z.number().int()
+});
+var bugReportFileSchema = z.object({
+  bug_report_file_id: z.string().uuid(),
+  bug_report_id: z.string().uuid(),
+  file_path: z.string(),
+  content_mimetype: z.string(),
+  is_text: z.boolean(),
+  created_at: z.string().datetime(),
+  content_text: z.string().nullable(),
+  content_bytes: z.instanceof(Uint8Array).nullable()
+});
+var bugReportFileResponseSchema = bugReportFileSchema.omit({
+  content_text: true,
+  content_bytes: true
+});
+var shippingOptionSchema = z.object({
+  carrier: z.string(),
+  service: z.string(),
+  cost: z.number()
+});
+var quotedComponentSchema = z.object({
+  manufacturer_part_number: z.string().nullable(),
+  supplier_part_number: z.string().nullable(),
+  quantity: z.number().default(0),
+  unit_price: z.number().default(0),
+  total_price: z.number().default(0),
+  available: z.boolean().default(true)
+});
+var orderQuoteSchema = z.object({
+  order_quote_id: z.string(),
+  account_id: z.string().nullable(),
+  package_release_id: z.string().nullable(),
+  is_completed: z.boolean().default(false),
+  is_processing: z.boolean().default(true),
+  vendor_name: z.string(),
+  error: errorSchema.nullable(),
+  has_error: z.boolean().default(false),
+  created_at: z.string(),
+  updated_at: z.string(),
+  completed_at: z.string().nullable(),
+  quoted_components: z.array(quotedComponentSchema).nullable(),
+  bare_pcb_cost: z.number().default(0),
+  shipping_options: z.array(shippingOptionSchema),
+  total_cost_without_shipping: z.number().default(0)
+});
+var aiReviewSchema = z.object({
+  ai_review_id: z.string().uuid(),
+  package_release_id: z.string().optional(),
+  ai_review_text: z.string().nullable(),
+  start_processing_at: z.string().datetime().nullable(),
+  finished_processing_at: z.string().datetime().nullable(),
+  processing_error: z.any().nullable(),
+  created_at: z.string().datetime(),
+  display_status: z.enum(["pending", "completed", "failed"])
+});
+var datasheetPinInformationSchema = z.object({
+  pin_number: z.string(),
+  name: z.string(),
+  description: z.string(),
+  capabilities: z.array(z.string())
+});
+var datasheetSchema = z.object({
+  datasheet_id: z.string(),
+  chip_name: z.string(),
+  created_at: z.string(),
+  pin_information: datasheetPinInformationSchema.array().nullable(),
+  datasheet_pdf_urls: z.array(z.string()).nullable(),
+  ai_description: z.string().nullable()
+});
+var githubInstallationSchema = z.object({
+  github_installation_id: z.string(),
+  account_id: z.string(),
+  installation_id: z.string(),
+  // GitHub App installation ID
+  github_username: z.string(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  is_active: z.boolean().default(true),
+  access_token: z.string().nullable().optional(),
+  // For storing GitHub access token
+  access_token_expires_at: z.string().datetime().nullable().optional()
+});
+var accountSnippetSchema = z.object({
+  account_id: z.string(),
+  snippet_id: z.string(),
+  has_starred: z.boolean(),
+  created_at: z.string(),
+  updated_at: z.string()
+});
+var accountPackageSchema = z.object({
+  account_package_id: z.string(),
+  account_id: z.string(),
+  package_id: z.string(),
+  is_starred: z.boolean(),
+  starred_at: z.string().nullable().optional(),
+  created_at: z.string(),
+  updated_at: z.string()
+});
+var packageReleaseSchema = z.object({
+  package_release_id: z.string(),
+  package_id: z.string(),
+  version: z.string().nullable(),
+  is_locked: z.boolean(),
+  is_latest: z.boolean(),
+  created_at: z.string().datetime(),
+  commit_sha: z.string().nullable().optional(),
+  license: z.string().nullable().optional(),
+  circuit_json_build_error: z.string().nullable().optional(),
+  circuit_json_build_error_last_updated_at: z.string().datetime().nullable().optional(),
+  has_transpiled: z.boolean().default(false),
+  transpilation_error: z.string().nullable().optional(),
+  fs_sha: z.string().nullable().optional(),
+  ready_to_build: z.boolean().default(false),
+  pcb_trace_count: z.number().nullable().optional(),
+  active_package_build_id: z.string().nullable().optional(),
+  // Build Status and Display
+  display_status: z.enum(["pending", "building", "complete", "error"]).default("pending"),
+  total_build_duration_ms: z.number().nullable().optional(),
+  // Transpilation Process
+  transpilation_display_status: z.enum(["pending", "building", "complete", "error"]).default("pending"),
+  transpilation_in_progress: z.boolean().default(false),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_logs: z.array(z.any()).default([]),
+  transpilation_is_stale: z.boolean().default(false),
+  // User Code Job Process
+  ext_user_code_job_id: z.string().nullable().default(null),
+  user_code_job_started_at: z.string().datetime().nullable().default(null),
+  user_code_job_completed_at: z.string().datetime().nullable().default(null),
+  user_code_job_completed_logs: z.array(z.any()).nullable().default(null),
+  user_code_job_error: errorSchema.nullable().default(null),
+  user_code_job_log_stream_url: z.string().nullable().default(null),
+  // Circuit JSON Build Process
+  circuit_json_build_display_status: z.enum(["pending", "building", "complete", "error"]).default("pending"),
+  circuit_json_build_in_progress: z.boolean().default(false),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_logs: z.array(z.any()).default([]),
+  circuit_json_build_is_stale: z.boolean().default(false),
+  // Image Generation Process
+  image_generation_display_status: z.enum(["pending", "building", "complete", "error"]).default("pending"),
+  image_generation_in_progress: z.boolean().default(false),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_logs: z.array(z.any()).nullable().default(null),
+  image_generation_is_stale: z.boolean().default(false),
+  image_generation_error: z.string().nullable().optional(),
+  image_generation_error_last_updated_at: z.string().datetime().nullable().optional(),
+  // AI Review
+  ai_review_text: z.string().nullable().default(null).optional(),
+  ai_review_started_at: z.string().datetime().nullable().optional(),
+  ai_review_completed_at: z.string().datetime().nullable().optional(),
+  ai_review_error: z.any().optional().nullable(),
+  ai_review_logs: z.array(z.any()).optional().nullable(),
+  ai_review_requested: z.boolean().default(false),
+  // Preview
+  is_pr_preview: z.boolean().default(false),
+  pr_number: z.number().nullable().default(null),
+  pr_title: z.string().nullable().default(null),
+  branch_name: z.string().nullable().default(null),
+  // Latest Build Reference
+  latest_package_build_id: z.string().nullable().optional(),
+  commit_message: z.string().nullable().optional(),
+  commit_author: z.string().nullable().optional(),
+  // Preview images url
+  pcb_preview_image_url: z.string().nullable().default(null),
+  sch_preview_image_url: z.string().nullable().default(null),
+  cad_preview_image_url: z.string().nullable().default(null),
+  // Website URL
+  package_release_website_url: z.string().nullable().default(null)
+});
+var publicPackageReleaseSchema = z.object({
+  package_release_id: z.string(),
+  package_id: z.string(),
+  version: z.string().nullable(),
+  is_locked: z.boolean(),
+  is_latest: z.boolean(),
+  ready_to_build: z.boolean().optional(),
+  pcb_trace_count: z.number().nullable().optional(),
+  active_package_build_id: z.string().nullable().optional(),
+  is_pr_preview: z.boolean(),
+  created_at: z.string().datetime(),
+  circuit_json_build_error: z.string().nullable().optional(),
+  circuit_json_build_error_last_updated_at: z.string().datetime().nullable().optional(),
+  has_transpiled: z.boolean().nullable().optional(),
+  transpilation_error: z.string().nullable().optional(),
+  transpilation_logs: z.array(log).nullable().optional(),
+  transpilation_in_progress: z.boolean().nullable().optional(),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_is_stale: z.boolean().nullable().optional(),
+  transpilation_display_status: z.string().nullable().optional(),
+  fs_sha: z.string().nullable().optional(),
+  circuit_json_build_logs: z.array(log).nullable().optional(),
+  circuit_json_build_in_progress: z.boolean().nullable().optional(),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_is_stale: z.boolean().nullable().optional(),
+  circuit_json_build_display_status: z.string().nullable().optional(),
+  image_generation_error: z.string().nullable().optional(),
+  image_generation_error_last_updated_at: z.string().datetime().nullable().optional(),
+  image_generation_logs: z.array(log).nullable().optional(),
+  image_generation_in_progress: z.boolean().nullable().optional(),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_is_stale: z.boolean().nullable().optional(),
+  image_generation_display_status: z.string().nullable().optional(),
+  pcb_preview_image_url: z.string().nullable().optional(),
+  sch_preview_image_url: z.string().nullable().optional(),
+  cad_preview_image_url: z.string().nullable().optional(),
+  display_status: z.string().nullable().optional(),
+  latest_package_build_id: z.string().nullable().optional(),
+  user_code_job_started_at: z.string().datetime().nullable().optional(),
+  user_code_job_completed_at: z.string().datetime().nullable().optional(),
+  user_code_job_error: z.any().nullable().optional(),
+  user_code_job_completed_logs: z.array(log).nullable().optional(),
+  user_code_job_log_stream_url: z.string().nullable().optional(),
+  ai_review_requested: z.boolean().optional(),
+  ai_review_text: z.string().nullable().optional(),
+  ai_review_started_at: z.string().datetime().nullable().optional(),
+  ai_review_completed_at: z.string().datetime().nullable().optional(),
+  ai_review_error: z.any().nullable().optional(),
+  github_pr_number: z.number().nullable().optional(),
+  github_pr_title: z.string().nullable().optional(),
+  github_branch_name: z.string().nullable().optional(),
+  github_commit_sha: z.string().nullable(),
+  package_release_website_url: z.string().nullable().optional()
+});
+var packageFileSchema = z.object({
+  package_file_id: z.string(),
+  package_release_id: z.string(),
+  file_path: z.string(),
+  content_text: z.string().nullable().optional(),
+  content_bytes: z.instanceof(Buffer).nullable().optional(),
+  content_mimetype: z.string().nullable().optional(),
+  created_at: z.string().datetime(),
+  is_release_tarball: z.boolean().optional(),
+  npm_pack_output: z.any().nullable().optional(),
+  is_text: z.boolean().optional()
+});
+var packageFileLiteSchema = packageFileSchema.omit({
+  content_text: true
+});
+var packageSchema = z.object({
+  package_id: z.string(),
+  creator_account_id: z.string(),
+  owner_org_id: z.string(),
+  owner_github_username: z.string().nullable().optional(),
+  org_owner_tscircuit_handle: z.string().nullable().optional(),
+  github_repo_full_name: z.string().nullable(),
+  name: z.string(),
+  unscoped_name: z.string(),
+  description: z.string().nullable(),
+  created_at: z.string().datetime(),
+  updated_at: z.string().datetime(),
+  is_snippet: z.boolean().default(false),
+  is_board: z.boolean().default(false),
+  is_package: z.boolean().default(false),
+  is_model: z.boolean().default(false),
+  is_footprint: z.boolean().default(false),
+  is_private: z.boolean().nullable().default(false),
+  is_public: z.boolean().nullable().default(true),
+  is_unlisted: z.boolean().nullable().default(false),
+  is_source_from_github: z.boolean().default(false),
+  snippet_type: z.enum(["board", "package", "model", "footprint"]).optional(),
+  latest_package_release_id: z.string().nullable(),
+  latest_version: z.string().nullable(),
+  license: z.string().nullable(),
+  website: z.string().nullable().default(null),
+  star_count: z.number().default(0),
+  ai_description: z.string().nullable(),
+  latest_license: z.string().nullable().optional(),
+  ai_usage_instructions: z.string().nullable(),
+  latest_package_release_fs_sha: z.string().nullable().default(null),
+  default_view: z.enum(["files", "3d", "pcb", "schematic"]).default("files").optional(),
+  allow_pr_previews: z.boolean().default(false).optional(),
+  public_dist_enabled: z.boolean().default(false).optional(),
+  is_starred: z.boolean().default(false).optional(),
+  latest_pcb_preview_image_url: z.string().nullable().optional(),
+  latest_sch_preview_image_url: z.string().nullable().optional(),
+  latest_cad_preview_image_url: z.string().nullable().optional(),
+  github_installation_id: z.string().nullable().optional()
+});
+var packageBuildSchema = z.object({
+  package_build_id: z.string().uuid(),
+  package_release_id: z.string(),
+  created_at: z.string().datetime(),
+  transpilation_in_progress: z.boolean().default(false),
+  transpilation_started_at: z.string().datetime().nullable().optional(),
+  transpilation_completed_at: z.string().datetime().nullable().optional(),
+  transpilation_logs: z.array(log).nullable(),
+  transpilation_error: z.string().nullable().optional(),
+  circuit_json_build_in_progress: z.boolean().default(false),
+  circuit_json_build_started_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_completed_at: z.string().datetime().nullable().optional(),
+  circuit_json_build_logs: z.array(log).nullable(),
+  circuit_json_build_error: z.string().nullable().optional(),
+  image_generation_in_progress: z.boolean().default(false),
+  image_generation_started_at: z.string().datetime().nullable().optional(),
+  image_generation_completed_at: z.string().datetime().nullable().optional(),
+  image_generation_logs: z.array(log).nullable(),
+  image_generation_error: z.string().nullable().optional(),
+  build_in_progress: z.boolean().default(false),
+  build_started_at: z.string().datetime().nullable().optional(),
+  build_completed_at: z.string().datetime().nullable().optional(),
+  build_error: z.string().nullable().optional(),
+  build_error_last_updated_at: z.string().datetime(),
+  package_build_website_url: z.string().nullable().optional(),
+  build_logs: z.string().nullable().optional(),
+  user_code_job_started_at: z.string().datetime().nullable().optional(),
+  user_code_job_completed_at: z.string().datetime().nullable().optional(),
+  user_code_job_error: z.any().nullable().optional(),
+  user_code_job_completed_logs: z.array(log).nullable().optional(),
+  user_code_job_log_stream_url: z.string().nullable().optional()
+});
+var orgSchema = z.object({
+  org_id: z.string(),
+  owner_account_id: z.string(),
+  is_personal_org: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  org_display_name: z.string().optional(),
+  avatar_url: z.string().nullable().optional(),
+  github_handle: z.string().nullable(),
+  tscircuit_handle: z.string().nullable()
+});
+var orgAccountSchema = z.object({
+  org_account_id: z.string(),
+  org_id: z.string(),
+  account_id: z.string(),
+  is_owner: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  can_manage_org: z.boolean().default(false)
+});
+var orgInvitationSchema = z.object({
+  org_invitation_id: z.string(),
+  org_id: z.string(),
+  invitee_email: z.string().email().nullable(),
+  inviter_account_id: z.string(),
+  invitation_token: z.string(),
+  is_link_invite: z.boolean().default(false),
+  is_pending: z.boolean().default(true),
+  is_accepted: z.boolean().default(false),
+  is_expired: z.boolean().default(false),
+  is_revoked: z.boolean().default(false),
+  created_at: z.string().datetime(),
+  expires_at: z.string().datetime(),
+  accepted_at: z.string().datetime().nullable(),
+  accepted_by_account_id: z.string().nullable()
+});
+var userPermissionsSchema = z.object({
+  can_manage_org: z.boolean().optional(),
+  can_manage_packages: z.boolean().optional()
+});
+var publicOrgSchema = z.object({
+  org_id: z.string(),
+  //.uuid(),
+  owner_account_id: z.string(),
+  //.uuid(),
+  name: z.string().nullable(),
+  member_count: z.number(),
+  is_personal_org: z.boolean(),
+  display_name: z.string().optional(),
+  package_count: z.number(),
+  avatar_url: z.string().nullable().optional(),
+  github_handle: z.string().nullable(),
+  github_installation_handles: z.array(z.string()).optional(),
+  tscircuit_handle: z.string().nullable(),
+  created_at: z.string(),
+  user_permissions: userPermissionsSchema.optional()
+});
+var packageDomainPointsToEnum = z.enum([
+  "package_release",
+  "package_build",
+  "package_release_with_tag",
+  "package"
+]);
+var packageDomainSchema = z.object({
+  package_domain_id: z.string(),
+  points_to: packageDomainPointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  package_build_id: z.string().nullable().optional(),
+  package_id: z.string().nullable().optional(),
+  tag: z.string().nullable().optional(),
+  default_main_component_path: z.string().nullable().optional(),
+  fully_qualified_domain_name: z.string().nullable().optional(),
+  created_at: z.coerce.date()
+});
+var publicPackageDomainSchema = z.object({
+  package_domain_id: z.string(),
+  points_to: packageDomainPointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  package_build_id: z.string().nullable().optional(),
+  package_id: z.string().nullable().optional(),
+  tag: z.string().nullable().optional(),
+  default_main_component_path: z.string().nullable().optional(),
+  fully_qualified_domain_name: z.string().nullable().optional(),
+  created_at: z.string().datetime()
+});
+var orgDomainPointsToEnum = z.enum(["merged_pcm_repositories"]);
+var orgDomainLinkedPackagePointsToEnum = z.enum(["package_release"]);
+var orgDomainLinkedPackageSchema = z.object({
+  org_domain_linked_package_id: z.string(),
+  org_domain_id: z.string(),
+  points_to: orgDomainLinkedPackagePointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  created_at: z.coerce.date()
+});
+var publicOrgDomainLinkedPackageSchema = z.object({
+  org_domain_linked_package_id: z.string(),
+  org_domain_id: z.string(),
+  points_to: orgDomainLinkedPackagePointsToEnum,
+  package_release_id: z.string().nullable().optional(),
+  created_at: z.string().datetime()
+});
+var orgDomainSchema = z.object({
+  org_domain_id: z.string(),
+  org_id: z.string(),
+  fully_qualified_domain_name: z.string(),
+  pcm_repository_name: z.string().nullable().optional(),
+  points_to: orgDomainPointsToEnum,
+  created_at: z.coerce.date()
+});
+var publicOrgDomainSchema = z.object({
+  org_domain_id: z.string(),
+  org_id: z.string(),
+  fully_qualified_domain_name: z.string(),
+  pcm_repository_name: z.string().nullable().optional(),
+  points_to: orgDomainPointsToEnum,
+  created_at: z.string().datetime(),
+  linked_packages: z.array(publicOrgDomainLinkedPackageSchema)
+});
+var databaseSchema = z.object({
+  idCounter: z.number().default(0),
+  snippets: z.array(snippetSchema).default([]),
+  packageReleases: z.array(packageReleaseSchema).default([]),
+  packageFiles: z.array(packageFileSchema).default([]),
+  sessions: z.array(sessionSchema).default([]),
+  loginPages: z.array(loginPageSchema).default([]),
+  accounts: z.array(accountSchema).default([]),
+  packages: z.array(packageSchema).default([]),
+  orders: z.array(orderSchema).default([]),
+  organizations: z.array(orgSchema).default([]),
+  orgAccounts: z.array(orgAccountSchema).default([]),
+  orgInvitations: z.array(orgInvitationSchema).default([]),
+  orderFiles: z.array(orderFileSchema).default([]),
+  accountSnippets: z.array(accountSnippetSchema).default([]),
+  accountPackages: z.array(accountPackageSchema).default([]),
+  orderQuotes: z.array(orderQuoteSchema).default([]),
+  aiReviews: z.array(aiReviewSchema).default([]),
+  datasheets: z.array(datasheetSchema).default([]),
+  githubInstallations: z.array(githubInstallationSchema).default([]),
+  packageBuilds: z.array(packageBuildSchema).default([]),
+  bugReports: z.array(bugReportSchema).default([]),
+  bugReportFiles: z.array(bugReportFileSchema).default([]),
+  packageDomains: z.array(packageDomainSchema).default([]),
+  orgDomains: z.array(orgDomainSchema).default([]),
+  orgDomainLinkedPackages: z.array(orgDomainLinkedPackageSchema).default([])
+});
+var tscircuitHandleSchema = z.string().min(1).max(40).regex(
+  /^[0-9a-z_-]+$/,
+  "tscircuit_handle must be lowercase and may only contain lowercase letters, numbers, underscores, and hyphens"
+);
+var tscircuitHandleStrictSchema = z.string().min(3).max(40).regex(
+  /^[0-9a-z][0-9a-z_-]*[0-9a-z]$/,
+  "tscircuit_handle must be lowercase, start and end with a lowercase letter or number, and may only contain lowercase letters, numbers, underscores, and hyphens"
+);
+var memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
+  joined_at: z.string(),
+  org_member_permissions: userPermissionsSchema,
+  avatar_url: z.string().nullable().optional()
+});
+export {
+  accountPackageSchema,
+  accountSchema,
+  accountSnippetSchema,
+  aiReviewSchema,
+  bugReportFileResponseSchema,
+  bugReportFileSchema,
+  bugReportSchema,
+  databaseSchema,
+  datasheetPinInformationSchema,
+  datasheetSchema,
+  errorResponseSchema,
+  errorSchema,
+  githubInstallationSchema,
+  log,
+  loginPageSchema,
+  memberSchema,
+  orderFileSchema,
+  orderQuoteSchema,
+  orderSchema,
+  orgAccountSchema,
+  orgDomainLinkedPackagePointsToEnum,
+  orgDomainLinkedPackageSchema,
+  orgDomainPointsToEnum,
+  orgDomainSchema,
+  orgInvitationSchema,
+  orgSchema,
+  packageBuildSchema,
+  packageDomainPointsToEnum,
+  packageDomainSchema,
+  packageFileLiteSchema,
+  packageFileSchema,
+  packageReleaseSchema,
+  packageSchema,
+  publicAccountSchema,
+  publicOrgDomainLinkedPackageSchema,
+  publicOrgDomainSchema,
+  publicOrgSchema,
+  publicPackageDomainSchema,
+  publicPackageReleaseSchema,
+  quotedComponentSchema,
+  sessionSchema,
+  shippingInfoSchema,
+  snippetSchema,
+  tscircuitHandleSchema,
+  tscircuitHandleStrictSchema,
+  userPermissionsSchema
+};
