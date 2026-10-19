@@ -64,7 +64,8 @@ export const findPackageReleaseId = async (
     }
 
     const pkg = ctx.db.packages.find(
-      (p: Package) => p.name === package_name.replace(/^@/, ""),
+      (p: Package) =>
+        p.name.toLowerCase() === package_name.replace(/^@/, "").toLowerCase(),
     )
     if (!pkg) {
       return null
@@ -94,7 +95,9 @@ export const findPackageReleaseIdFromPackageNameWithVersion = (
     .replace(/^@/, "")
     .split("@")
 
-  const pkg = db.packages.find((p: Package) => p.name === packageName)
+  const pkg = db.packages.find(
+    (p: Package) => p.name.toLowerCase() === packageName.toLowerCase(),
+  )
   if (!pkg) {
     return null
   }
