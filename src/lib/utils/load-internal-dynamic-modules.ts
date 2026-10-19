@@ -1,6 +1,5 @@
 import importer from "@tscircuit/internal-dynamic-import"
 import type { AnyCircuitElement, SupplierName } from "circuit-json"
-import { version as circuitJsonToStepVersion } from "circuit-json-to-step/package.json"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -171,7 +170,7 @@ export const loadCircuitJsonToStep =
     await ensureCircuitJsonToGltfLoaded()
 
     return loadCircuitJsonConverter<CircuitJsonToStepModule>(
-      `circuit-json-to-step@${circuitJsonToStepVersion}`,
+      "circuit-json-to-step",
     )
   }
 
