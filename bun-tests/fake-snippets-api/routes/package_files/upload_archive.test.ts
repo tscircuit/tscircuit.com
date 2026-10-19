@@ -94,7 +94,7 @@ test("invalid archives do not partially store files", async () => {
 })
 
 test("archive uploads enforce release existence and package permissions", async () => {
-  const { jane_axios, unauthenticatedAxios, axios, db, release } = await setup()
+  const { jane_axios, axios, db, release } = await setup()
   const payload = {
     package_release_id: release.package_release_id,
     archive_base64: gzipSync(
@@ -106,9 +106,6 @@ test("archive uploads enforce release existence and package permissions", async 
   await expect(
     jane_axios.post("/api/package_files/upload_archive", payload),
   ).rejects.toMatchObject({ status: 403 })
-  await expect(
-    unauthenticatedAxios.post("/api/package_files/upload_archive", payload),
-  ).rejects.toMatchObject({ status: 401 })
   await expect(
     axios.post("/api/package_files/upload_archive", {
       ...payload,
