@@ -3,7 +3,7 @@ import type { SchematicPinArrangement } from "@tscircuit/props"
 import {
   type DatasheetWithPinAttributes,
   getPinNames,
-} from "@/lib/datasheet-pin-display"
+} from "./datasheet-pin-display"
 
 type SchematicDatasheet = Partial<
   Pick<
