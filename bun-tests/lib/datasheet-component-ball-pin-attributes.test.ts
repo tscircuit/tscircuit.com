@@ -14,7 +14,7 @@ test("component TSX matches named physical pin attributes to footprint aliases",
       pinA1: { requiresGround: true },
       pin2: { requiresPower: true },
     },
-  } as DatasheetWithPinAttributes)
+  } as unknown as DatasheetWithPinAttributes)
 
   expect(source).toContain('"A1":{"requiresGround":true}')
   expect(source).toContain('"pin2":{"requiresPower":true}')
