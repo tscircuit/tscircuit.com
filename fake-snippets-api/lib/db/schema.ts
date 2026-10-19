@@ -271,6 +271,8 @@ export const packageReleaseSchema = z.object({
   transpilation_error: z.string().nullable().optional(),
   fs_sha: z.string().nullable().optional(),
   ready_to_build: z.boolean().default(false),
+  pcb_trace_count: z.number().nullable().optional(),
+  active_package_build_id: z.string().nullable().optional(),
   // Build Status and Display
   display_status: z
     .enum(["pending", "building", "complete", "error"])
@@ -357,6 +359,8 @@ export const publicPackageReleaseSchema = z.object({
   is_locked: z.boolean(),
   is_latest: z.boolean(),
   ready_to_build: z.boolean().optional(),
+  pcb_trace_count: z.number().nullable().optional(),
+  active_package_build_id: z.string().nullable().optional(),
   is_pr_preview: z.boolean(),
   created_at: z.string().datetime(),
   circuit_json_build_error: z.string().nullable().optional(),

@@ -39,12 +39,6 @@ export const normalizeProjectFilePathAndValidate = (rawPath: string) => {
     )
   }
 
-  if (!normalizedPath.includes(".")) {
-    throw new Error(
-      `Invalid project file path. Must have a file extension. Given "${rawPath}"`,
-    )
-  }
-
   return normalizedPath
 }
 
