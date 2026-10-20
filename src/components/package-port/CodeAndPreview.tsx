@@ -17,10 +17,11 @@ import { useFileManagement } from "@/hooks/useFileManagement"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
+import { usePackageReleaseByNameAndVersion } from "@/hooks/use-package-release"
 import { useApiBaseUrl } from "@/hooks/use-packages-base-api-url"
 import { getEasyEdaProxyAuthToast } from "./get-easyeda-proxy-auth-toast"
 import { useEditorComponentImport } from "@/hooks/use-editor-component-import"
+import { ErrorOutline } from "@/components/ErrorOutline"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -65,30 +66,17 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     [urlParams.template],
   )
 
-  const { data: allReleases } = usePackageReleasesByPackageId(
-    pkg?.package_id ?? null,
-  )
-
-  const latestVersion = useMemo(() => {
-    if (!allReleases || allReleases.length === 0) return pkg?.latest_version
-    const sorted = [...allReleases].sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  const { data: selectedRelease, error: selectedReleaseError } =
+    usePackageReleaseByNameAndVersion(
+      pkg?.name && versionFromUrl ? `${pkg.name}@${versionFromUrl}` : null,
     )
-    return sorted[0].version
-  }, [allReleases, pkg?.latest_version])
-
-  const releaseIdForVersion = useMemo(() => {
-    if (!versionFromUrl || !allReleases) return null
-    const release = allReleases.find((r) => r.version === versionFromUrl)
-    return release?.package_release_id ?? null
-  }, [versionFromUrl, allReleases])
-
-  const isViewingOlderVersion = useMemo(() => {
-    if (!versionFromUrl || !latestVersion) return false
-    if (!releaseIdForVersion) return false
-    return versionFromUrl !== latestVersion
-  }, [versionFromUrl, latestVersion, releaseIdForVersion])
+  const latestVersion = pkg?.latest_version
+  const releaseIdForVersion = versionFromUrl
+    ? (selectedRelease?.package_release_id ?? null)
+    : undefined
+  const isViewingOlderVersion = Boolean(
+    selectedRelease && versionFromUrl && versionFromUrl !== latestVersion,
+  )
 
   const [state, setState] = useState<CodeAndPreviewState>({
     showPreview: true,
@@ -369,6 +357,15 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
+
+  if (versionFromUrl && selectedReleaseError) {
+    return (
+      <ErrorOutline
+        error={selectedReleaseError}
+        description={`Failed to load release v${versionFromUrl}.`}
+      />
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">

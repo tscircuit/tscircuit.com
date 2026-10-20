@@ -6,49 +6,54 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState } from "react"
+import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
 import { timeAgo } from "@/lib/utils/timeAgo"
 import type { PublicPackageRelease } from "fake-snippets-api/lib/db/schema"
 
 interface ReleaseVersionSelectorProps {
+  packageId: string
   currentVersion: string | null
   onVersionChange: (version: string, releaseId: string) => void
   latestVersion?: string
-  allReleases?: PublicPackageRelease[]
-  isAllReleasesLoading?: boolean
 }
 
 export default function ReleaseVersionSelector({
-  allReleases,
-  isAllReleasesLoading,
+  packageId,
   currentVersion,
   onVersionChange,
   latestVersion,
 }: ReleaseVersionSelectorProps) {
-  if (isAllReleasesLoading) {
-    return <Skeleton className="h-8 w-24 rounded-md" />
-  }
+  const [open, setOpen] = useState(false)
+  const {
+    data: allReleases,
+    isLoading,
+    error,
+    refetch,
+  } = usePackageReleasesByPackageId(packageId, {
+    enabled: open,
+    staleTime: 60_000,
+  })
 
-  if (!allReleases || allReleases.length === 0) {
-    return null
-  }
-
-  const sortedReleases = [...allReleases].sort(
+  const sortedReleases = [...(allReleases ?? [])].sort(
     (a, b) =>
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
           size="sm"
           className="h-[38px] text-sm shadow-none"
+          aria-label={`Select release version${currentVersion || latestVersion ? `, current v${currentVersion || latestVersion}` : ""}`}
         >
           <Tag className="h-4 w-4 mr-1.5" />
           <span className="truncate max-w-[80px]">
-            v{currentVersion || latestVersion}
+            {currentVersion || latestVersion
+              ? `v${currentVersion || latestVersion}`
+              : "Releases"}
           </span>
           <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
         </Button>
@@ -57,6 +62,22 @@ export default function ReleaseVersionSelector({
         align="start"
         className="w-64 max-h-80 overflow-y-auto z-[101] no-scrollbar"
       >
+        {isLoading && (
+          <DropdownMenuItem disabled>Loading releases...</DropdownMenuItem>
+        )}
+        {error && (
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault()
+              void refetch()
+            }}
+          >
+            Failed to load releases. Retry
+          </DropdownMenuItem>
+        )}
+        {!isLoading && !error && sortedReleases.length === 0 && (
+          <DropdownMenuItem disabled>No releases found.</DropdownMenuItem>
+        )}
         {sortedReleases.map((release: PublicPackageRelease) => {
           const isSelected = currentVersion
             ? release.version === currentVersion

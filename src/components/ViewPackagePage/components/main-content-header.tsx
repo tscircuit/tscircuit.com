@@ -36,8 +36,6 @@ import { BuildStatusBadge } from "./build-status-badge"
 import { useDownloadZip } from "@/hooks/use-download-zip"
 import { useToast } from "@/hooks/use-toast"
 import ReleaseVersionSelector from "./release-version-selector"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
-import { isVersionOlderByTime } from "@/lib/utils/isVersionOlderByTime"
 
 interface MainContentHeaderProps {
   packageFiles: PackageFile[]
@@ -96,14 +94,8 @@ export default function MainContentHeader({
   }
 
   const { circuitJson } = useCurrentPackageCircuitJson()
-  const { data: allReleases, isLoading: isAllReleasesLoading } =
-    usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
-
   const isViewingOlderVersion =
-    currentVersion &&
-    latestVersion &&
-    currentVersion !== latestVersion &&
-    isVersionOlderByTime(currentVersion, latestVersion, allReleases || [])
+    currentVersion && latestVersion && currentVersion !== latestVersion
 
   return (
     <div className="flex flex-col gap-2 mb-4">
@@ -112,8 +104,7 @@ export default function MainContentHeader({
           {onVersionChange && packageInfo?.package_id && (
             <div className="flex-1 min-w-0">
               <ReleaseVersionSelector
-                allReleases={allReleases}
-                isAllReleasesLoading={isAllReleasesLoading}
+                packageId={packageInfo.package_id}
                 currentVersion={currentVersion || null}
                 onVersionChange={onVersionChange}
                 latestVersion={latestVersion}
@@ -130,8 +121,7 @@ export default function MainContentHeader({
           {onVersionChange && packageInfo?.package_id && (
             <div className="hidden md:block">
               <ReleaseVersionSelector
-                allReleases={allReleases}
-                isAllReleasesLoading={isAllReleasesLoading}
+                packageId={packageInfo.package_id}
                 currentVersion={currentVersion || null}
                 onVersionChange={onVersionChange}
                 latestVersion={latestVersion}
