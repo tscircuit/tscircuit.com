@@ -87,8 +87,7 @@ test("sequential registry calls share one budget and cannot send a late response
     }
     if (path === "/package_files/list") {
       return new Promise((resolve) => {
-        finishLateRequest = () =>
-          resolve(Response.json({ package_files: [] }))
+        finishLateRequest = () => resolve(Response.json({ package_files: [] }))
       })
     }
     throw new Error(`Unexpected request: ${path}`)
@@ -149,23 +148,20 @@ test("registry failures return the shell without retrying", async () => {
 
 test("release pages still load release history within the shared deadline", async () => {
   const paths = []
-  const response = await getPage(
-    async (request) => {
-      const path = new URL(request.url).pathname
-      paths.push(path)
-      switch (path) {
-        case "/packages/get":
-          return Response.json({ package: packageInfo })
-        case "/package_releases/get":
-          return Response.json({ package_release: release })
-        case "/package_releases/list":
-          return Response.json({ package_releases: [release] })
-        default:
-          throw new Error(`Unexpected registry request: ${path}`)
-      }
-    },
-    "/alice/board/releases",
-  )
+  const response = await getPage(async (request) => {
+    const path = new URL(request.url).pathname
+    paths.push(path)
+    switch (path) {
+      case "/packages/get":
+        return Response.json({ package: packageInfo })
+      case "/package_releases/get":
+        return Response.json({ package_release: release })
+      case "/package_releases/list":
+        return Response.json({ package_releases: [release] })
+      default:
+        throw new Error(`Unexpected registry request: ${path}`)
+    }
+  }, "/alice/board/releases")
   expect(response.statusCode).toBe(200)
   expect(response.headers["Cache-Control"]).not.toBe("no-store")
   expect(response.html).toContain("window.SSR_PACKAGE_RELEASES =")
