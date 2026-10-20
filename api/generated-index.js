@@ -4,6 +4,7 @@ import { fileURLToPath } from "url"
 import he from "he"
 // api/generated-index.js
 import ky from "ky"
+import { withSsrDeadline } from "../server/ssr-deadline.js"
 import { getPackageFileArtifactPaths } from "../server/package-file-artifacts.js"
 import { getPackagePageImageUrl } from "../server/package-page-seo.js"
 import {
@@ -284,10 +285,10 @@ async function requestJsonOrNull(request) {
   }
 }
 
-async function fetchPackageRelease(route) {
+async function fetchPackageRelease(route, registry) {
   const getRelease = async (query) => {
     const response = await requestJsonOrNull(
-      ky.post(`${REGISTRY_URL}/package_releases/get`, {
+      registry.post(`${REGISTRY_URL}/package_releases/get`, {
         searchParams: {
           include_logs: true,
           include_ai_review: true,
@@ -321,24 +322,22 @@ async function fetchPackageRelease(route) {
   })
 }
 
-function startCachedRelatedPackagesLookup(packageInfo) {
+function startCachedRelatedPackagesLookup(packageInfo, registry) {
   const isPublicPackage =
     packageInfo.is_public !== false &&
     !packageInfo.is_private &&
     !packageInfo.is_unlisted
   if (!isPublicPackage) return null
 
-  const abortController = new AbortController()
   let isSettled = false
   let packages = []
 
   void requestJsonOrNull(
-    ky.get(`${REGISTRY_URL}/packages/list_related_packages`, {
+    registry.get(`${REGISTRY_URL}/packages/list_related_packages`, {
       searchParams: {
         package_id: packageInfo.package_id,
         cached_only: true,
       },
-      signal: abortController.signal,
       timeout: 2_000,
     }),
   )
@@ -357,7 +356,6 @@ function startCachedRelatedPackagesLookup(packageInfo) {
   return {
     takeIfReady() {
       if (!isSettled) {
-        abortController.abort()
         return []
       }
       return packages
@@ -365,14 +363,14 @@ function startCachedRelatedPackagesLookup(packageInfo) {
   }
 }
 
-async function fetchPackagePageData(route, packageInfo) {
-  const packageRelease = await fetchPackageRelease(route).catch((error) => {
+async function fetchPackagePageData(route, packageInfo, registry) {
+  const packageRelease = await fetchPackageRelease(route, registry).catch((error) => {
     console.warn("Failed to fetch package release for SSR:", error)
     return null
   })
 
   const releasesResponse = await requestJsonOrNull(
-    ky.post(`${REGISTRY_URL}/package_releases/list`, {
+    registry.post(`${REGISTRY_URL}/package_releases/list`, {
       json: { package_id: packageInfo.package_id },
     }),
   ).catch((error) => {
@@ -384,7 +382,7 @@ async function fetchPackagePageData(route, packageInfo) {
   let packageFiles = []
   if (packageRelease?.package_release_id) {
     const filesResponse = await requestJsonOrNull(
-      ky.get(`${REGISTRY_URL}/package_files/list`, {
+      registry.get(`${REGISTRY_URL}/package_files/list`, {
         searchParams: {
           package_release_id: packageRelease.package_release_id,
         },
@@ -422,7 +420,7 @@ async function fetchPackagePageData(route, packageInfo) {
             file_path: route.filePath,
           }
       const fileResponse = await requestJsonOrNull(
-        ky.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
+        registry.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
       ).catch((error) => {
         console.warn("Failed to fetch primary package file for SSR:", error)
         return null
@@ -463,7 +461,7 @@ async function fetchPackagePageData(route, packageInfo) {
             file_path: filePath,
           }
       const response = await requestJsonOrNull(
-        ky.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
+        registry.get(`${REGISTRY_URL}/package_files/get`, { searchParams }),
       ).catch((error) => {
         console.warn(`Failed to fetch ${filePath} for SSR:`, error)
         return null
@@ -483,7 +481,7 @@ async function fetchPackagePageData(route, packageInfo) {
   let packageBuilds = []
   if (route.kind === "builds" && packageRelease?.package_release_id) {
     const buildsResponse = await requestJsonOrNull(
-      ky.get(`${REGISTRY_URL}/package_builds/list`, {
+      registry.get(`${REGISTRY_URL}/package_builds/list`, {
         searchParams: {
           package_release_id: packageRelease.package_release_id,
         },
@@ -504,7 +502,7 @@ async function fetchPackagePageData(route, packageInfo) {
         : null
   if (buildId) {
     const buildResponse = await requestJsonOrNull(
-      ky.get(`${REGISTRY_URL}/package_builds/get`, {
+      registry.get(`${REGISTRY_URL}/package_builds/get`, {
         searchParams: {
           package_build_id: buildId,
           include_logs: true,
@@ -581,9 +579,9 @@ const getPackagePageTitle = (route, packageInfo, packageRelease) => {
   return `${packageTitle} - tscircuit`
 }
 
-async function handlePackagePage(req, res, route) {
+async function getPackagePageHtml(req, route, registry) {
   const packageDetails = await requestJsonOrNull(
-    ky.get(`${REGISTRY_URL}/packages/get`, {
+    registry.get(`${REGISTRY_URL}/packages/get`, {
       searchParams: { name: route.packageNameWithScope },
     }),
   )
@@ -600,16 +598,12 @@ async function handlePackagePage(req, res, route) {
         route.packageNameWithScope,
       )} could not be found.</p></main>`,
     })
-    res.setHeader("Content-Type", "text/html; charset=utf-8")
-    res.setHeader("Cache-Control", cacheControlHeader)
-    res.setHeader("Vary", "Accept-Encoding")
-    res.status(404).send(html)
-    return
+    return { status: 404, html }
   }
 
   const packageInfo = packageDetails.package
-  const relatedPackagesLookup = startCachedRelatedPackagesLookup(packageInfo)
-  const data = await fetchPackagePageData(route, packageInfo)
+  const relatedPackagesLookup = startCachedRelatedPackagesLookup(packageInfo, registry)
+  const data = await fetchPackagePageData(route, packageInfo, registry)
   data.relatedPackages = relatedPackagesLookup?.takeIfReady() ?? []
   const description = he.encode(
     `${
@@ -648,10 +642,7 @@ async function handlePackagePage(req, res, route) {
     },
   })
 
-  res.setHeader("Content-Type", "text/html; charset=utf-8")
-  res.setHeader("Cache-Control", cacheControlHeader)
-  res.setHeader("Vary", "Accept-Encoding")
-  res.status(200).send(html)
+  return { status: 200, html }
 }
 
 async function handleCustomPackageHtml(req, res) {
@@ -1154,7 +1145,24 @@ export default async function handler(req, res) {
 
   const packageRoute = parsePackagePageRoute(req.url)
   if (packageRoute) {
-    await handlePackagePage(req, res, packageRoute)
+    let page
+    try {
+      page = await withSsrDeadline((signal) =>
+        getPackagePageHtml(
+          req,
+          packageRoute,
+          ky.extend({ signal, retry: 0, timeout: false }),
+        ),
+      )
+    } catch (error) {
+      console.warn("Failed to render package page; serving app shell:", error)
+      // No partial SSR globals: the browser must retry missing data.
+      page = { status: 200, html: htmlContent, cacheControl: "no-store" }
+    }
+    res.setHeader("Content-Type", "text/html; charset=utf-8")
+    res.setHeader("Cache-Control", page.cacheControl ?? cacheControlHeader)
+    res.setHeader("Vary", "Accept-Encoding")
+    res.status(page.status).send(page.html)
     return
   }
 
