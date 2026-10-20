@@ -65,7 +65,9 @@ test("a stalled initial package lookup returns the shell and is aborted", async 
   expect(performance.now() - started).toBeGreaterThanOrEqual(
     PACKAGE_SSR_DEADLINE_MS - 100,
   )
-  expect(performance.now() - started).toBeLessThan(PACKAGE_SSR_DEADLINE_MS + 1500)
+  expect(performance.now() - started).toBeLessThan(
+    PACKAGE_SSR_DEADLINE_MS + 1500,
+  )
 }, 8000)
 
 test("sequential registry calls share one budget and cannot send a late response", async () => {
@@ -85,7 +87,8 @@ test("sequential registry calls share one budget and cannot send a late response
     }
     if (path === "/package_releases/list") {
       return new Promise((resolve) => {
-        finishLateRequest = () => resolve(Response.json({ package_releases: [] }))
+        finishLateRequest = () =>
+          resolve(Response.json({ package_releases: [] }))
       })
     }
     throw new Error(`Unexpected request: ${path}`)
@@ -93,7 +96,9 @@ test("sequential registry calls share one budget and cannot send a late response
   expectShell(response)
   expect(requests).toHaveLength(3)
   expect(requests.every((request) => request.signal.aborted)).toBe(true)
-  expect(performance.now() - started).toBeLessThan(PACKAGE_SSR_DEADLINE_MS + 1500)
+  expect(performance.now() - started).toBeLessThan(
+    PACKAGE_SSR_DEADLINE_MS + 1500,
+  )
   finishLateRequest()
   await new Promise((resolve) => setTimeout(resolve, 50))
   expect(response.sends).toBe(1)

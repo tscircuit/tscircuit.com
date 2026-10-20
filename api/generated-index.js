@@ -364,10 +364,12 @@ function startCachedRelatedPackagesLookup(packageInfo, registry) {
 }
 
 async function fetchPackagePageData(route, packageInfo, registry) {
-  const packageRelease = await fetchPackageRelease(route, registry).catch((error) => {
-    console.warn("Failed to fetch package release for SSR:", error)
-    return null
-  })
+  const packageRelease = await fetchPackageRelease(route, registry).catch(
+    (error) => {
+      console.warn("Failed to fetch package release for SSR:", error)
+      return null
+    },
+  )
 
   const releasesResponse = await requestJsonOrNull(
     registry.post(`${REGISTRY_URL}/package_releases/list`, {
@@ -602,7 +604,10 @@ async function getPackagePageHtml(req, route, registry) {
   }
 
   const packageInfo = packageDetails.package
-  const relatedPackagesLookup = startCachedRelatedPackagesLookup(packageInfo, registry)
+  const relatedPackagesLookup = startCachedRelatedPackagesLookup(
+    packageInfo,
+    registry,
+  )
   const data = await fetchPackagePageData(route, packageInfo, registry)
   data.relatedPackages = relatedPackagesLookup?.takeIfReady() ?? []
   const description = he.encode(
