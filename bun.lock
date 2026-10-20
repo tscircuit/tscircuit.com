@@ -62,9 +62,9 @@
         "@tscircuit/mm": "^0.0.8",
         "@tscircuit/monaco-code-editor": "git+https://github.com/tscircuit/monaco-code-editor.git#67127aaf731b6e06f42ec7afceb1759adbe0ebc0",
         "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#55a2839",
-        "@tscircuit/pcb-viewer": "^1.11.428",
+        "@tscircuit/pcb-viewer": "^1.11.429",
         "@tscircuit/props": "^0.0.698",
-        "@tscircuit/runframe": "^0.0.3031",
+        "@tscircuit/runframe": "^0.0.3032",
         "@tscircuit/schematic-viewer": "^2.0.104",
         "@types/babel__standalone": "^7.1.7",
         "@types/bun": "^1.1.10",
@@ -839,7 +839,7 @@
 
     "@tscircuit/props": ["@tscircuit/props@0.0.698", "", { "peerDependencies": { "circuit-json": "*", "react": "*", "zod": "*" } }, "sha512-MUD1RjpApRYSELALdMd5kP4oCa5gTpkHowYHtK2+vl6zRT7bKfS3PmXpeC5CQuM8AJmrB8R+zh9Me7ya1W/Taw=="],
 
-    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.3031", "", { "dependencies": { "@tscircuit/core": "^0.0.1911", "@tscircuit/eval": "0.0.1640", "@tscircuit/solver-utils": "^0.0.16", "debug": "^4.4.0", "format-si-unit": "^0.0.12" } }, "sha512-2VyrRl8M+DxNRSl5J5of2DDiyYLasB28xDA9Zwu85BPm2/RfD5oDDcNxA9HqYcoMwvFDOEs0nj+59q/NgqaokQ=="],
+    "@tscircuit/runframe": ["@tscircuit/runframe@0.0.3032", "", { "dependencies": { "@tscircuit/core": "^0.0.1911", "@tscircuit/eval": "0.0.1640", "@tscircuit/solver-utils": "^0.0.16", "debug": "^4.4.0", "format-si-unit": "^0.0.12" } }, "sha512-0fXVmJJygbldLF2SkVWukKYiLHhbyeBofN7oCl/3/MuIB4sg6Vz6I7m1l2Q6S7pFs74LiRdJlwI1DJijSFh5GA=="],
 
     "@tscircuit/schematic-autolayout": ["@tscircuit/schematic-autolayout@0.0.6", "", { "dependencies": { "@tscircuit/soup-util": "^0.0.38", "transformation-matrix": "^2.16.1" } }, "sha512-34cQxtlSylBKyHkzaMBCynaWJgN9c/mWm7cz63StTYIafKmfFs383K8Xoc4QX8HXCvVrHYl1aK15onZua9MxeA=="],
 
