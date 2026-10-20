@@ -371,18 +371,24 @@ async function fetchPackagePageData(route, packageInfo, registry) {
     },
   )
 
-  const releasesResponse = await requestJsonOrNull(
-    registry.post(`${REGISTRY_URL}/package_releases/list`, {
-      json: { package_id: packageInfo.package_id },
-    }),
-  ).catch((error) => {
-    console.warn("Failed to fetch package releases for SSR:", error)
-    return null
-  })
-  const packageReleases = releasesResponse?.package_releases ?? []
+  let packageReleases = null
+  if (route.kind === "releases") {
+    const releasesResponse = await requestJsonOrNull(
+      registry.post(`${REGISTRY_URL}/package_releases/list`, {
+        json: { package_id: packageInfo.package_id },
+      }),
+    ).catch((error) => {
+      console.warn("Failed to fetch package releases for SSR:", error)
+      return null
+    })
+    packageReleases = releasesResponse?.package_releases ?? []
+  }
 
   let packageFiles = []
-  if (packageRelease?.package_release_id) {
+  if (
+    packageRelease?.package_release_id &&
+    ["package", "directory", "file"].includes(route.kind)
+  ) {
     const filesResponse = await requestJsonOrNull(
       registry.get(`${REGISTRY_URL}/package_files/list`, {
         searchParams: {

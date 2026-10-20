@@ -65,6 +65,7 @@ export function useFileManagement({
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
   updateLastUpdated: () => void
+  /** undefined selects latest; null waits for an explicitly selected release. */
   releaseId?: string | null
 }) {
   const fileChosen = urlParams.file_path ?? null
@@ -79,7 +80,9 @@ export function useFileManagement({
   const { toast } = useToast()
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const effectiveReleaseId =
-    releaseId ?? currentPackage?.latest_package_release_id
+    releaseId === undefined
+      ? currentPackage?.latest_package_release_id
+      : releaseId
   const {
     priorityFile,
     allFiles: packageFilesWithContent,

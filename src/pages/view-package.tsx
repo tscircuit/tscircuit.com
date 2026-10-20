@@ -7,8 +7,7 @@ import NotFoundPage from "./404"
 import { usePackageByName } from "@/hooks/use-package-by-package-name"
 import { SentryNotFoundReporter } from "@/components/SentryNotFoundReporter"
 import { ContentLoadingErrorPage } from "@/components/ContentLoadingErrorPage"
-import { usePackageReleasesByPackageId } from "@/hooks/use-package-release"
-import { useEffect, useMemo, useCallback } from "react"
+import { useCallback } from "react"
 import { useUrlParams } from "@/hooks/use-url-params"
 import {
   decodePackageFilePath,
@@ -43,46 +42,7 @@ export const ViewPackagePage = ({
     isLoading: isLoadingPackage,
   } = usePackageByName(packageNameFull)
 
-  const { data: allReleases, isLoading: isLoadingReleases } =
-    usePackageReleasesByPackageId(packageInfo?.package_id ?? null)
-
-  const latestVersion = useMemo(() => {
-    if (!allReleases || allReleases.length === 0) return undefined
-    const latestRelease = allReleases.find((r) => r.is_latest)
-    if (latestRelease?.version) return latestRelease.version
-    if (
-      packageInfo?.latest_version &&
-      allReleases.some((r) => r.version === packageInfo?.latest_version)
-    ) {
-      return packageInfo?.latest_version
-    }
-  }, [allReleases, packageInfo?.latest_version])
-
-  const isVersionValid = useMemo(() => {
-    if (!versionFromUrl) return true
-    if (!allReleases || allReleases.length === 0) return true
-    return allReleases.some((r) => r.version === versionFromUrl)
-  }, [versionFromUrl, allReleases])
-
-  useEffect(() => {
-    if (
-      !isLoadingReleases &&
-      allReleases &&
-      allReleases.length > 0 &&
-      versionFromUrl &&
-      !isVersionValid
-    ) {
-      const params = new URLSearchParams(window.location.search)
-      params.delete("version")
-      const newSearch = params.toString()
-      const newUrl =
-        window.location.pathname +
-        (newSearch ? `?${newSearch}` : "") +
-        window.location.hash
-      window.history.replaceState({}, "", newUrl)
-      window.dispatchEvent(new Event("popstate"))
-    }
-  }, [isLoadingReleases, allReleases, versionFromUrl, isVersionValid])
+  const latestVersion = packageInfo?.latest_version ?? undefined
 
   const {
     packageRelease,
