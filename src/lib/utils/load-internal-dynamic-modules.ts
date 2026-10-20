@@ -1,4 +1,6 @@
-import importer from "@tscircuit/internal-dynamic-import"
+import importer, {
+  type SupportedModuleMap,
+} from "@tscircuit/internal-dynamic-import"
 import type { AnyCircuitElement, SupplierName } from "circuit-json"
 
 type CircuitJsonTo3dPngModule = {
@@ -27,38 +29,7 @@ type CircuitJsonToGltfModule = Pick<
   "convertCircuitJsonToGltf"
 >
 
-type KicadConverterClass = new (
-  ...args: any[]
-) => {
-  runUntilFinished: () => void
-  getOutputString: () => string
-  getModel3dSourcePaths?: () => string[]
-}
-
-type KicadSchConverterClass = new (
-  ...args: any[]
-) => InstanceType<KicadConverterClass> & {
-  getOutputFiles: (options: { schematicFilename: string }) => {
-    filename: string
-    content: string
-  }[]
-}
-
-type CircuitJsonToKicadModule = {
-  CircuitJsonToKicadPcbConverter: KicadConverterClass
-  CircuitJsonToKicadSchConverter: KicadSchConverterClass
-  CircuitJsonToKicadProConverter: KicadConverterClass
-  resolveAndLoadKicad3dModelFiles?: (params: {
-    projectName: string
-    model3dSourcePaths: string[]
-    fetch: typeof fetch
-    onModelFile: (params: {
-      outputPath: string
-      content: string | Buffer
-    }) => void
-    onError: (params: { sourcePath: string; error?: unknown }) => void
-  }) => Promise<void>
-}
+type CircuitJsonToKicadModule = SupportedModuleMap["circuit-json-to-kicad"]
 
 type CircuitJsonToLbrnModule = Record<string, unknown>
 

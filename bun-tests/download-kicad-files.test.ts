@@ -85,7 +85,11 @@ for (const { name, fileName, childFilenames } of cases) {
         }) => {
           expect(projectName).toBe(fileName)
           expect(model3dSourcePaths).toEqual(["resistor.step"])
-          onModelFile({ outputPath: modelPath, content: modelContent })
+          await onModelFile({
+            sourcePath: "resistor.step",
+            outputPath: modelPath,
+            content: new TextEncoder().encode(modelContent),
+          })
         },
       },
     })

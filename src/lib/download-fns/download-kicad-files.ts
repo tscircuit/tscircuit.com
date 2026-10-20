@@ -6,6 +6,26 @@ import { withDownloadToast } from "./download-toast"
 
 type KicadConverter = Awaited<ReturnType<typeof loadCircuitJsonToKicad>>
 
+// Derive the injectable constructors from the published types, exposing only
+// the instance methods used to build the ZIP.
+type KicadZipConverters = {
+  [Key in
+    | "CircuitJsonToKicadPcbConverter"
+    | "CircuitJsonToKicadSchConverter"
+    | "CircuitJsonToKicadProConverter"]: new (
+    ...args: ConstructorParameters<KicadConverter[Key]>
+  ) => Pick<
+    InstanceType<KicadConverter[Key]>,
+    Extract<
+      keyof InstanceType<KicadConverter[Key]>,
+      | "runUntilFinished"
+      | "getOutputString"
+      | "getOutputFiles"
+      | "getModel3dSourcePaths"
+    >
+  >
+} & Partial<Pick<KicadConverter, "resolveAndLoadKicad3dModelFiles">>
+
 export const createKicadProjectZip = async ({
   circuitJson,
   fileName,
@@ -13,7 +33,7 @@ export const createKicadProjectZip = async ({
 }: {
   circuitJson: AnyCircuitElement[]
   fileName: string
-  kicadConverter: KicadConverter
+  kicadConverter: KicadZipConverters
 }) => {
   const {
     CircuitJsonToKicadPcbConverter,
