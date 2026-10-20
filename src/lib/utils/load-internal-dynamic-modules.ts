@@ -35,9 +35,18 @@ type KicadConverterClass = new (
   getModel3dSourcePaths?: () => string[]
 }
 
+type KicadSchematicConverterClass = new (
+  ...args: any[]
+) => InstanceType<KicadConverterClass> & {
+  getOutputFiles: (options: { schematicFilename: string }) => Array<{
+    filename: string
+    content: string
+  }>
+}
+
 type CircuitJsonToKicadModule = {
   CircuitJsonToKicadPcbConverter: KicadConverterClass
-  CircuitJsonToKicadSchConverter: KicadConverterClass
+  CircuitJsonToKicadSchConverter: KicadSchematicConverterClass
   CircuitJsonToKicadProConverter: KicadConverterClass
   resolveAndLoadKicad3dModelFiles?: (params: {
     projectName: string
