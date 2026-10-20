@@ -27,7 +27,9 @@ export const downloadKicadFiles = async (
 
       const schConverter = new CircuitJsonToKicadSchConverter(circuitJson)
       schConverter.runUntilFinished()
-      const kicadSchContent = schConverter.getOutputString()
+      const schematicFiles = schConverter.getOutputFiles({
+        schematicFilename: `${fileName}.kicad_sch`,
+      })
 
       const proConverter = new CircuitJsonToKicadProConverter(circuitJson, {
         projectName: fileName,
@@ -39,7 +41,9 @@ export const downloadKicadFiles = async (
 
       const zip = new JSZip()
       zip.file(`${fileName}.kicad_pcb`, kicadPcbContent)
-      zip.file(`${fileName}.kicad_sch`, kicadSchContent)
+      for (const { filename, content } of schematicFiles) {
+        zip.file(filename, content)
+      }
       zip.file(`${fileName}.kicad_pro`, kicadProContent)
 
       if (

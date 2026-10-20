@@ -92,7 +92,7 @@
     "@tscircuit/create-snippet-url": "^0.0.14",
     "@tscircuit/eval": "^0.0.1641",
     "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
-    "@tscircuit/internal-dynamic-import": "^0.0.15",
+    "@tscircuit/internal-dynamic-import": "^0.0.20",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.36",
     "@tscircuit/mm": "^0.0.8",
