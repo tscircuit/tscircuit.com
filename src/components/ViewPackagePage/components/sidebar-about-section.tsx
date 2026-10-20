@@ -52,7 +52,7 @@ export default function SidebarAboutSection({
   )
 
   const { data: releaseFiles } = usePackageFiles(
-    packageInfo?.latest_package_release_id,
+    packageRelease?.package_release_id,
   )
   const { data: configFile } = usePackageFileById(
     releaseFiles?.find((f) => f.file_path === "tscircuit.config.json")

@@ -43,7 +43,9 @@ export function useOptimizedPackageFilesLoader(
   )
   const sessionToken = useGlobalStore((s) => s.session?.token)
 
-  const pkgFiles = usePackageFiles(releaseId ?? pkg?.latest_package_release_id)
+  const pkgFiles = usePackageFiles(
+    releaseId === undefined ? pkg?.latest_package_release_id : releaseId,
+  )
 
   const targetFilePath = useMemo(() => {
     if (!pkgFiles.data) return priorityFilePath
