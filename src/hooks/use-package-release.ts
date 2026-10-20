@@ -92,7 +92,10 @@ export const useLatestPackageRelease = (
   return usePackageRelease(query)
 }
 
-export const usePackageReleasesByPackageId = (packageId: string | null) => {
+export const usePackageReleasesByPackageId = (
+  packageId: string | null,
+  options?: { enabled?: boolean; staleTime?: number },
+) => {
   const axios = useAxios()
 
   return useQuery<PublicPackageRelease[], Error & { status: number }>(
@@ -115,10 +118,10 @@ export const usePackageReleasesByPackageId = (packageId: string | null) => {
       return data.package_releases
     },
     {
-      enabled: Boolean(packageId),
+      enabled: Boolean(packageId) && (options?.enabled ?? true),
       retry: false,
       refetchOnWindowFocus: false,
-      staleTime: 0,
+      staleTime: options?.staleTime ?? 0,
     },
   )
 }
