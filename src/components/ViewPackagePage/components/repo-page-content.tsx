@@ -45,6 +45,7 @@ interface RepoPageContentProps {
   onFileClicked?: (file: PackageFile) => void
   onEditClicked?: (filePath?: string | null) => void
   arePackageFilesFetched?: boolean
+  isFetchingPackageFiles?: boolean
   packageFilesError?: Error | null
   currentVersion?: string | null
   latestVersion?: string
@@ -75,6 +76,7 @@ const normalizeView = (view: string | null | undefined): string | null => {
 export default function RepoPageContent({
   packageFiles,
   arePackageFilesFetched = false,
+  isFetchingPackageFiles = false,
   packageFilesError = null,
   packageInfo,
   packageRelease,
@@ -298,6 +300,9 @@ export default function RepoPageContent({
               active={activeView === "3d"}
             >
               <ThreeDView
+                packageFiles={packageFiles}
+                arePackageFilesFetched={arePackageFilesFetched}
+                isFetchingPackageFiles={isFetchingPackageFiles}
                 onViewSchematicComponent={
                   circuitJson?.some(
                     (element) => element.type === "schematic_component",

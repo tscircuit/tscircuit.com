@@ -8,6 +8,11 @@ import { useGlobalStore } from "@/hooks/use-global-store"
 import { Suspense, useMemo, type ComponentProps } from "react"
 import { useParams } from "wouter"
 import type { AnyCircuitElement } from "circuit-json"
+import { useQuery } from "react-query"
+import {
+  findPackagePreviewGlb,
+  downloadPackagePreviewGlb,
+} from "@/lib/package-preview-glb"
 
 function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   const { author, packageName } = useParams()
@@ -47,7 +52,74 @@ function useModelBlobUrls(circuitJson: AnyCircuitElement[] | null) {
   return usePackageModelAssets(request)
 }
 
+type ThreeDViewProps = {
+  packageFiles?: { file_path: string; package_file_id: string }[]
+  arePackageFilesFetched?: boolean
+  isFetchingPackageFiles?: boolean
+  onViewSchematicComponent?: ComponentProps<
+    typeof CadViewer
+  >["onViewSchematicComponent"]
+}
+
 export default function ThreeDView({
+  packageFiles,
+  arePackageFilesFetched = false,
+  isFetchingPackageFiles = false,
+  onViewSchematicComponent,
+}: ThreeDViewProps) {
+  const { componentPath, isLoading } = useCurrentPackageCircuitJson()
+  const apiBaseUrl = useApiBaseUrl()
+  const token = useGlobalStore((s) => s.session?.token)
+  const glb = findPackagePreviewGlb(packageFiles, componentPath)
+  const download = useQuery(
+    ["packagePreviewGlb", apiBaseUrl, glb?.package_file_id, token],
+    ({ signal }) =>
+      downloadPackagePreviewGlb({
+        apiBaseUrl,
+        packageFileId: glb!.package_file_id,
+        token,
+        signal,
+      }),
+    {
+      enabled: arePackageFilesFetched && !isLoading && Boolean(glb),
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 120_000,
+    },
+  )
+
+  if (
+    !arePackageFilesFetched ||
+    isLoading ||
+    (!glb && isFetchingPackageFiles) ||
+    (glb && download.isLoading)
+  )
+    return (
+      <div className="h-[620px] flex items-center justify-center">
+        Loading 3D view...
+      </div>
+    )
+
+  if (download.data && glb)
+    return (
+      <div className="h-[620px]">
+        <CadViewer
+          glbData={download.data}
+          clickToInteractEnabled
+          onViewSchematicComponent={onViewSchematicComponent}
+        />
+      </div>
+    )
+
+  // Mount the per-component renderer only when there is no usable assembly.
+  return (
+    <CircuitJsonThreeDView
+      onViewSchematicComponent={onViewSchematicComponent}
+    />
+  )
+}
+
+function CircuitJsonThreeDView({
   onViewSchematicComponent,
 }: {
   onViewSchematicComponent?: ComponentProps<

@@ -71,5 +71,11 @@ export function useCurrentPackageCircuitJson() {
       ? "Circuit JSON not found in package"
       : null
 
-  return { circuitJson, circuitJsonFound, isLoading, error: errorMessage }
+  return {
+    circuitJson,
+    circuitJsonFound,
+    componentPath: data?.preview_circuit_json_response.component_path,
+    isLoading,
+    error: errorMessage,
+  }
 }

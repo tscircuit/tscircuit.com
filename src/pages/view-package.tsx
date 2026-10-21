@@ -53,6 +53,7 @@ export const ViewPackagePage = ({
   const {
     data: packageFiles,
     isFetched: arePackageFilesFetched,
+    isFetching: isFetchingPackageFiles,
     error: packageFilesError,
   } = usePackageFiles(packageRelease?.package_release_id)
 
@@ -160,6 +161,7 @@ export const ViewPackagePage = ({
       <RepoPageContent
         packageFiles={packageFiles ?? []}
         arePackageFilesFetched={arePackageFilesFetched}
+        isFetchingPackageFiles={isFetchingPackageFiles}
         packageFilesError={packageFilesError}
         packageInfo={packageInfo}
         packageRelease={packageRelease}
