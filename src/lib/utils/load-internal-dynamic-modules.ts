@@ -70,7 +70,10 @@ const loadCircuitJsonConverter = <T>(packageName: string): Promise<T> => {
   const existingPromise = modulePromises.get(packageName)
   if (existingPromise) return existingPromise as Promise<T>
 
-  const modulePromise = importer(packageName)
+  const modulePromise = importer(packageName).catch((error) => {
+    modulePromises.delete(packageName)
+    throw error
+  })
   modulePromises.set(packageName, modulePromise)
   return modulePromise as Promise<T>
 }
