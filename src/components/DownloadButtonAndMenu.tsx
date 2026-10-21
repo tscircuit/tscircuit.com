@@ -435,8 +435,19 @@ export function DownloadButtonAndMenu({
               <DropdownMenuItem
                 className="text-xs"
                 onSelect={async () => {
-                  const cj = await getCircuitJson()
-                  await downloadKicadFiles(cj, unscopedName || "kicad_project")
+                  const cj = await getCircuitJson().catch(() => null)
+                  if (!cj) return
+                  await downloadKicadFiles(
+                    cj,
+                    unscopedName || "kicad_project",
+                  ).catch((error) => {
+                    toast({
+                      title: "Error Downloading KiCad Project",
+                      description:
+                        error instanceof Error ? error.message : String(error),
+                      variant: "destructive",
+                    })
+                  })
                 }}
               >
                 <Download className="mr-1 h-3 w-3" />
