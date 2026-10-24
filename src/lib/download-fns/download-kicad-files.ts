@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast"
 import { loadCircuitJsonToKicad } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
@@ -8,6 +9,7 @@ export const downloadKicadFiles = async (
   circuitJson: AnyCircuitElement[],
   fileName: string,
 ) => {
+  const missingModelPaths = new Set<string>()
   const content = await withDownloadToast(
     "Preparing KiCad project download...",
     async () => {
@@ -58,6 +60,7 @@ export const downloadKicadFiles = async (
             zip.file(outputPath, content)
           },
           onError: ({ sourcePath }) => {
+            missingModelPaths.add(sourcePath)
             console.warn(`Failed to load 3D model from ${sourcePath}`)
           },
         })
@@ -68,4 +71,13 @@ export const downloadKicadFiles = async (
   )
 
   saveAs(content, `${fileName}_kicad.zip`)
+
+  if (missingModelPaths.size > 0) {
+    const count = missingModelPaths.size
+    toast({
+      title: "KiCad project downloaded with missing 3D models",
+      description: `${count} 3D model${count === 1 ? "" : "s"} could not be included. The PCB and schematic files are included.`,
+      duration: 10_000,
+    })
+  }
 }
