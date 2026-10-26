@@ -4,20 +4,27 @@ import { quoteDestinationCountries } from "@/lib/quote-destination-countries"
 import { useAxios } from "@/hooks/use-axios"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { useGlobalStore } from "@/hooks/use-global-store"
 
 const countries = quoteDestinationCountries
 
 export function QuoteDestinationSettings() {
+  const accountId = useGlobalStore((state) => state.session?.account_id)
+  const queryKey = ["quote-preferences", accountId]
   const axios = useAxios()
   const queryClient = useQueryClient()
   const { toast } = useToast()
   const [country, setCountry] = useState("")
-  const preferences = useQuery(["quote-preferences"], async () => {
-    const response = await axios.get("/accounts/get_quote_preferences")
-    return response.data.quote_preferences as {
-      destination_country_code: string | null
-    }
-  })
+  const preferences = useQuery(
+    queryKey,
+    async () => {
+      const response = await axios.get("/accounts/get_quote_preferences")
+      return response.data.quote_preferences as {
+        destination_country_code: string | null
+      }
+    },
+    { enabled: Boolean(accountId) },
+  )
   useEffect(() => {
     if (preferences.data)
       setCountry(preferences.data.destination_country_code ?? "")
@@ -31,7 +38,7 @@ export function QuoteDestinationSettings() {
     },
     {
       onSuccess: (saved) => {
-        queryClient.setQueryData(["quote-preferences"], saved)
+        queryClient.setQueryData(queryKey, saved)
         toast({ title: "Quote destination saved" })
       },
       onError: () => {
