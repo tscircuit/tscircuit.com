@@ -714,4 +714,3 @@ export const memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
   avatar_url: z.string().nullable().optional(),
 })
 export type Member = z.infer<typeof memberSchema>
-
