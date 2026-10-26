@@ -74,6 +74,7 @@ export const accountSchema = z.object({
   github_username: z.string(),
   tscircuit_handle: z.string().nullable(),
   shippingInfo: shippingInfoSchema.optional(),
+  quote_destination_country_code: z.string().nullable().optional(),
   personal_org_id: z.string().nullable(),
   is_tscircuit_staff: z.boolean().default(false),
   email: z.string().nullable().optional(),
@@ -713,3 +714,4 @@ export const memberSchema = accountSchema.omit({ shippingInfo: true }).extend({
   avatar_url: z.string().nullable().optional(),
 })
 export type Member = z.infer<typeof memberSchema>
+

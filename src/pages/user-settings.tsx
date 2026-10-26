@@ -35,6 +35,8 @@ import { useSettingsSection } from "@/hooks/use-settings-section"
 import { useConfirmDeleteAccountDialog } from "@/components/dialogs/confirm-delete-account-dialog"
 import { cn } from "@/lib/utils"
 
+import { QuoteDestinationSettings } from "@/components/settings/QuoteDestinationSettings"
+
 const accountSettingsSchema = z.object({
   tscircuit_handle: z
     .string()
@@ -444,6 +446,8 @@ export default function UserSettingsPage() {
                   </Form>
                 </SettingCard>
 
+                <QuoteDestinationSettings />
+
                 <SettingCard
                   title="Account Information"
                   description="Your account details and session information."
@@ -587,3 +591,4 @@ export default function UserSettingsPage() {
     </div>
   )
 }
+
