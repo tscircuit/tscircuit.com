@@ -591,4 +591,3 @@ export default function UserSettingsPage() {
     </div>
   )
 }
-

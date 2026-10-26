@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { getData } from "country-list";
+import { quoteDestinationCountries } from "@/lib/quote-destination-countries";
 import { useAxios } from "@/hooks/use-axios";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-const countries = getData().sort((a, b) => a.name.localeCompare(b.name));
+const countries = quoteDestinationCountries;
 
 export function QuoteDestinationSettings() {
 	const axios = useAxios();
@@ -34,11 +34,12 @@ export function QuoteDestinationSettings() {
 				queryClient.setQueryData(["quote-preferences"], saved);
 				toast({ title: "Quote destination saved" });
 			},
-			onError: () =>
+			onError: () => {
 				toast({
 					title: "Could not save quote destination",
 					variant: "destructive",
-				}),
+				});
+			},
 		},
 	);
 	return (
