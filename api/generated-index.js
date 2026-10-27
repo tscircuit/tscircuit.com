@@ -209,7 +209,7 @@ function handleEnterprisePage(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title: "tscircuit Enterprise — Offline circuit design",
     description:
-      "Run tscircuit inside enterprise environments without outbound web requests. Download standalone binaries with a bundled JavaScript runtime and component catalog.",
+      "Download the standalone tscircuit CLI with a bundled JavaScript runtime and local viewer assets.",
     canonicalUrl: `${BASE_URL}/enterprise`,
     imageUrl: `${BASE_URL}/tscircuit-logo.png`,
   })

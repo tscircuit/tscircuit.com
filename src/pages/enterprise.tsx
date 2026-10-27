@@ -14,7 +14,7 @@ const features = [
     icon: Server,
     title: "Run inside your environment",
     description:
-      "Design and build circuits inside enterprise networks, including environments without internet access. Circuit files and previews stay local.",
+      "Work with local circuit files and a local preview server in your own environment.",
   },
   {
     icon: Terminal,
@@ -24,9 +24,9 @@ const features = [
   },
   {
     icon: CircuitBoard,
-    title: "Components bundled in",
+    title: "Viewer assets included",
     description:
-      "A built-in component catalog and dependencies let you import supported parts, build boards and preview designs without outbound web requests.",
+      "The local viewer includes its JavaScript assets. Some parts, routing and other features still use remote services.",
   },
 ]
 
@@ -40,7 +40,7 @@ export default function EnterprisePage() {
         <title>tscircuit Enterprise — Offline circuit design</title>
         <meta
           name="description"
-          content="Run tscircuit inside enterprise environments without outbound web requests. Download standalone binaries with a bundled JavaScript runtime and component catalog."
+          content="Download the standalone tscircuit CLI with a bundled JavaScript runtime and local viewer assets."
         />
         <link rel="canonical" href="https://tscircuit.com/enterprise" />
       </Helmet>
@@ -54,14 +54,13 @@ export default function EnterprisePage() {
             tscircuit Enterprise
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            An offline version of tscircuit designed to run inside enterprise
-            environments. Write circuits in TypeScript, build boards and use the
-            local playground without outbound web requests.
+            Run tscircuit on your own machines with a bundled JavaScript runtime
+            and local development tools.
           </p>
           <p className="mt-4 text-lg leading-8 text-gray-600">
-            A standalone binary includes a bundled JavaScript runtime, component
-            catalog and development tools. Download it for Linux, macOS or
-            Windows and run it on your own machines.
+            Download a standalone binary for Linux, macOS or Windows. Some
+            workflows still require network access; test your circuit and tools
+            in your target environment before relying on offline operation.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild className="bg-blue-600 hover:bg-blue-700">
@@ -105,16 +104,27 @@ export default function EnterprisePage() {
             Getting started
           </h2>
           <p className="mt-3 text-gray-600 leading-7">
-            Download the archive for your operating system and architecture,
-            extract it, and put <code>tsci</code> (<code>tsci.exe</code> on
-            Windows) on your PATH. The JavaScript runtime is already included.
+            Choose a release for your operating system and architecture. Use the
+            macOS or Windows installer, or extract the Linux archive. Current
+            releases are development prereleases. Open a new terminal and check
+            your version; the JavaScript runtime is already included.
           </p>
           <pre className="mt-5 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
             <code>{`tsci --version
-tsci import C2040
 tsci build my-board.circuit.tsx
 tsci dev my-board.circuit.tsx`}</code>
           </pre>
+          <p className="mt-4 text-gray-600 leading-7">
+            Remote part imports, routing, registry operations and other features
+            may require network access. See the{" "}
+            <a
+              className="text-blue-600 underline"
+              href="https://docs.tscircuit.com/guides/running-tscircuit/standalone-binary"
+            >
+              standalone installation and usage guide
+            </a>{" "}
+            for platform details and offline limitations.
+          </p>
         </section>
       </main>
       <Footer />

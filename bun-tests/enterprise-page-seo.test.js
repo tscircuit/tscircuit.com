@@ -23,7 +23,7 @@ test.each(["/enterprise", "/enterprise/", "/enterprise?utm_source=product"])(
           '<link rel="canonical" href="https://tscircuit.com/enterprise" />',
         )
         expect(html).toContain(
-          "bundled JavaScript runtime and component catalog",
+          "bundled JavaScript runtime and local viewer assets",
         )
         expect(html).not.toContain("Circuits created by enterprise")
         expect(html).not.toContain("github.com/enterprise.png")
