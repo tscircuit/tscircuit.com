@@ -2,7 +2,7 @@ import { useMemo, useState } from "react"
 import { Copy } from "lucide-react"
 import { useShikiHighlighter } from "@/hooks/use-shiki-highlighter"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
-import { abbreviateComponentTsx } from "@/lib/datasheet-component-tsx"
+import { abbreviateComponentTsx } from "@/lib/abbreviate-component-tsx"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 

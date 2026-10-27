@@ -3,6 +3,8 @@ import { test, expect } from "@playwright/test"
 test("push button pins expose permanent pairs and copied TSX includes them", async ({
   page,
 }) => {
+  const generatedTsx =
+    'export default () => <chip name="U1" pinLabels={{pin1:["A"],pin2:["B"],pin3:["C"],pin4:["D"]}} internallyConnectedPins={[["pin1","pin2"],["pin3","pin4"]]} />'
   await page.addInitScript(() =>
     Object.defineProperty(navigator, "clipboard", {
       value: {
@@ -30,13 +32,14 @@ test("push button pins expose permanent pairs and copied TSX includes them", asy
             ["C", "D"],
           ],
           pin_attributes: null,
+          generated_tsx: generatedTsx,
         },
       },
     }),
   )
   await page.goto("http://127.0.0.1:5177/datasheets/TS-1187A-B-A-B")
   await expect(page.getByLabel("Component TSX source")).toContainText(
-    'internallyConnectedPins={[["A","B"],["C","D"]]}',
+    'internallyConnectedPins={[["pin1","pin2"],["pin3","pin4"]]}',
   )
   const rows = page.getByRole("row")
   await expect(
@@ -52,8 +55,8 @@ test("push button pins expose permanent pairs and copied TSX includes them", asy
   await page
     .getByRole("button", { name: "Copy component TSX", exact: true })
     .click()
-  expect(await page.evaluate(() => (window as any).copiedTsx)).toContain(
-    'internallyConnectedPins={[["A","B"],["C","D"]]}',
+  expect(await page.evaluate(() => (window as any).copiedTsx)).toBe(
+    generatedTsx,
   )
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(

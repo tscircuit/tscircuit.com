@@ -143,7 +143,7 @@ test("does not request a preview when footprint metadata is absent", async ({
   await expect(page.getByRole("button", { name: "Copy TSX" })).toHaveCount(0)
 })
 
-test("copies complete unified TSX while showing abbreviated highlighted source", async ({
+test("copies the exact API TSX while showing abbreviated highlighted source", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -161,7 +161,7 @@ test("copies complete unified TSX while showing abbreviated highlighted source",
   await page.goto("http://127.0.0.1:5177/datasheets/EXAMPLE64")
   await page.getByRole("button", { name: "Copy TSX", exact: true }).click()
   const copied = await page.evaluate(() => (window as any).copiedTsx)
-  expect(copied).toContain('footprint={"' + "qfp64_w10_h10_p0.5" + '"}')
+  expect(copied).toBe(generatedTsx)
   expect(copied).toContain("requiresVoltage: 2.8")
   expect(copied).toContain('throw new Error("must not execute this code")')
   await expect(
@@ -176,3 +176,34 @@ test("copies complete unified TSX while showing abbreviated highlighted source",
     .click()
   expect(await page.evaluate(() => (window as any).copiedTsx)).toBe(copied)
 })
+
+for (const generated_tsx of [null, "", " \n "]) {
+  test(`does not generate TSX from metadata when API source is ${JSON.stringify(generated_tsx)}`, async ({
+    page,
+  }) => {
+    await page.route(/\/datasheets\/get\b/, (route) =>
+      route.fulfill({
+        json: {
+          datasheet: {
+            chip_name: "EXAMPLE64",
+            ai_description: "Metadata without API source",
+            footprinter_string: footprint,
+            pin_attributes: { pin1: { requiresVoltage: 2.8 } },
+            generated_tsx,
+          },
+        },
+      }),
+    )
+    await page.route("https://svg.tscircuit.com/**", (route) =>
+      route.fulfill({ contentType: "image/svg+xml", body: svg }),
+    )
+    await page.goto("http://127.0.0.1:5177/datasheets/EXAMPLE64")
+    await expect(
+      page.getByText("Metadata without API source", { exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("button", { name: "Copy TSX", exact: true }),
+    ).toHaveCount(0)
+    await expect(page.getByLabel("Component TSX source")).toHaveCount(0)
+  })
+}
