@@ -77,7 +77,12 @@ test("Enterprise links the newest published prerelease and explains local use", 
   await expect(
     page.getByRole("heading", { name: "JavaScript runtime included" }),
   ).toBeVisible()
-  await expect(page.getByRole("link", { name: "standalone installation and usage guide" })).toHaveAttribute("href", "https://docs.tscircuit.com/guides/running-tscircuit/standalone-binary")
+  await expect(
+    page.getByRole("link", { name: "standalone installation and usage guide" }),
+  ).toHaveAttribute(
+    "href",
+    "https://docs.tscircuit.com/guides/running-tscircuit/standalone-binary",
+  )
   await expect(page.locator("main")).toHaveScreenshot("enterprise-desktop.png")
 })
 
