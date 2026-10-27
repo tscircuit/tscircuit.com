@@ -100,7 +100,7 @@
     "@tscircuit/order-dialog": "git+https://github.com/tscircuit/order-dialog.git#55a2839",
     "@tscircuit/pcb-viewer": "^1.11.434",
     "@tscircuit/props": "^0.0.698",
-    "@tscircuit/runframe": "^0.0.3071",
+    "@tscircuit/runframe": "^0.0.3072",
     "@tscircuit/schematic-viewer": "^2.0.104",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
