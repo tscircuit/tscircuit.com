@@ -7,7 +7,7 @@ const parts = {
   lcsc: ["C999"],
 }
 
-test("shows supplier names in the header and copies complete supplier numbers", async ({
+test("shows supplier names in the header and copies supplier numbers from API TSX", async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -28,8 +28,7 @@ test("shows supplier names in the header and copies complete supplier numbers", 
           datasheet_pdf_urls: [],
           ai_description: "Supplier example",
           supplier_part_numbers: parts,
-          generated_tsx:
-            'export default () => <chip name="U1" supplierPartNumbers={{other:["OTHER"]}} />',
+          generated_tsx: `export default () => <chip name="U1" supplierPartNumbers={${JSON.stringify(parts)}} />`,
         },
       },
     }),

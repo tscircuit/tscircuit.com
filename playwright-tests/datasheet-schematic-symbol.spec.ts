@@ -11,6 +11,7 @@ test("shows one highlighted component snippet and copies complete electrical and
     pin1: { requiresPower: true, requiresVoltage: "3.3V" },
     pin57: { requiresGround: true },
   }
+  const generatedTsx = `  \nexport const RP2040 = (props: any) => <chip name="U1" footprint={${JSON.stringify(rp2040.footprinter_string)}} pinAttributes={${JSON.stringify(attributes)}} schPinArrangement={${JSON.stringify(rp2040.sch_pin_arrangement)}} supplierPartNumbers={{jlcpcb:["C2040"]}} {...props} />\n  `
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {
       value: {
@@ -26,8 +27,7 @@ test("shows one highlighted component snippet and copies complete electrical and
         datasheet: {
           ...rp2040,
           pin_attributes: attributes,
-          generated_tsx:
-            'export const RP2040 = (props: any) => <chip name="U1" footprint="outdated" pinAttributes={{pin1:{requiresVoltage:1}}} supplierPartNumbers={{jlcpcb:["C2040"]}} {...props} />',
+          generated_tsx: generatedTsx,
         },
       },
     }),
@@ -58,6 +58,7 @@ test("shows one highlighted component snippet and copies complete electrical and
     .getByRole("button", { name: "Copy component TSX", exact: true })
     .click()
   const copied = await page.evaluate(() => (window as any).copiedComponentTsx)
+  expect(copied).toBe(generatedTsx)
   expect(copied).toContain(`pinAttributes={${JSON.stringify(attributes)}}`)
   expect(copied).toContain(
     `footprint={${JSON.stringify(rp2040.footprinter_string)}}`,

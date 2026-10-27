@@ -1,4 +1,3 @@
-import { useMemo } from "react"
 import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "wouter"
 import { useDatasheet } from "@/hooks/use-datasheet"
@@ -10,7 +9,6 @@ import { DatasheetPinTable } from "@/components/DatasheetPinTable"
 import { DatasheetViews } from "@/components/DatasheetViews"
 import { DatasheetComponentTsx } from "@/components/DatasheetComponentTsx"
 import { DatasheetSupplierParts } from "@/components/DatasheetSupplierParts"
-import { getDatasheetComponentTsx } from "@/lib/datasheet-component-tsx"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -40,14 +38,8 @@ export const DatasheetPage = () => {
   const datasheetQuery = useDatasheet(chipName)
   const createDatasheet = useCreateDatasheet()
   const { copyToClipboard } = useCopyToClipboard()
-  const componentTsx = useMemo(
-    () =>
-      datasheetQuery.data
-        ? getDatasheetComponentTsx(datasheetQuery.data)
-        : null,
-    [datasheetQuery.data],
-  )
-  const hasTsx = Boolean(componentTsx)
+  const componentTsx = datasheetQuery.data?.generated_tsx
+  const hasTsx = Boolean(componentTsx?.trim())
 
   const handleCreate = () => {
     if (!chipName) return
@@ -169,7 +161,7 @@ export const DatasheetPage = () => {
               chipName={chipName}
               datasheet={datasheetQuery.data}
             />
-            {componentTsx && <DatasheetComponentTsx source={componentTsx} />}
+            {hasTsx && <DatasheetComponentTsx source={componentTsx!} />}
             <SectionCard title="Pin Information">
               {datasheetQuery.data.pin_information &&
               datasheetQuery.data.pin_information.length > 0 ? (
