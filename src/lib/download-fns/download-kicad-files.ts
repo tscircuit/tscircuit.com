@@ -2,7 +2,9 @@ import { loadCircuitJsonToKicad } from "@/lib/utils/load-internal-dynamic-module
 import { AnyCircuitElement } from "circuit-json"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
+import toast from "react-hot-toast"
 import { withDownloadToast } from "./download-toast"
+import { downloadNativeKicadProject } from "./native-kicad-project"
 
 export const downloadKicadFiles = async (
   circuitJson: AnyCircuitElement[],
@@ -11,6 +13,9 @@ export const downloadKicadFiles = async (
   const content = await withDownloadToast(
     "Preparing KiCad project download...",
     async () => {
+      const nativeProject = await downloadNativeKicadProject(circuitJson)
+      if (nativeProject) return nativeProject
+
       const {
         CircuitJsonToKicadPcbConverter,
         CircuitJsonToKicadSchConverter,
@@ -65,7 +70,12 @@ export const downloadKicadFiles = async (
 
       return zip.generateAsync({ type: "blob" })
     },
-  )
+  ).catch((error) => {
+    toast.error(
+      error instanceof Error ? error.message : "KiCad download failed",
+    )
+    throw error
+  })
 
   saveAs(content, `${fileName}_kicad.zip`)
 }
