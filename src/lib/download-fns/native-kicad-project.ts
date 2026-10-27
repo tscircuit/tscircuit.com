@@ -58,7 +58,7 @@ function safeArchivePath(path: string): boolean {
 /** Null means no native artifact was advertised; errors never trigger fallback. */
 export async function downloadNativeKicadProject(
   circuitJson: unknown[],
-  fetchFile: typeof fetch = fetch,
+  fetchFile: (url: string, options: RequestInit) => Promise<Response> = fetch,
 ): Promise<Blob | null> {
   const declarations = circuitJson.filter(
     (row) =>

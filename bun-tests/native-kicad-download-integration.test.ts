@@ -1,4 +1,4 @@
-import { afterEach, expect, mock, test } from "bun:test"
+import { afterEach, expect, mock, spyOn, test } from "bun:test"
 import { createHash } from "node:crypto"
 import JSZip from "jszip"
 import { nativeKicadCircuitText } from "../src/lib/download-fns/native-kicad-project"
@@ -31,9 +31,8 @@ mock.module("@/lib/utils/load-internal-dynamic-modules", () => ({
 const { downloadKicadFiles } = await import(
   "../src/lib/download-fns/download-kicad-files"
 )
-const originalFetch = globalThis.fetch
 afterEach(() => {
-  globalThis.fetch = originalFetch
+  mock.restore()
   saveAs.mockClear()
   errorToast.mockClear()
   loadConverter.mockClear()
@@ -57,7 +56,9 @@ async function fixture() {
 
 test("download action saves native bytes without loading converters", async () => {
   const f = await fixture()
-  globalThis.fetch = (async () => new Response(f.bytes)) as typeof fetch
+  spyOn(globalThis, "fetch").mockResolvedValue(
+    new Response(Uint8Array.from(f.bytes).buffer),
+  )
   await downloadKicadFiles(f.circuit, "package")
   expect(loadConverter).not.toHaveBeenCalled()
   expect(saveAs).toHaveBeenCalledTimes(1)
@@ -68,7 +69,7 @@ test("download action saves native bytes without loading converters", async () =
 
 test("native download failure shows an error and never saves or converts", async () => {
   const f = await fixture()
-  globalThis.fetch = (async () => new Response("bad bytes")) as typeof fetch
+  spyOn(globalThis, "fetch").mockResolvedValue(new Response("bad bytes"))
   await expect(downloadKicadFiles(f.circuit, "package")).rejects.toThrow(
     "SHA-256 mismatch",
   )

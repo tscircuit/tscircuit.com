@@ -27,11 +27,11 @@ async function fixture(missing?: string) {
     circuit_json_sha256: sha(nativeKicadCircuitText(circuit)),
   }
   let calls = 0
-  const fetchFile = (async (_url: unknown, options: RequestInit) => {
+  const fetchFile = async (_url: string, options: RequestInit) => {
     calls++
     expect(options.credentials).toBe("omit")
-    return new Response(bytes)
-  }) as typeof fetch
+    return new Response(Uint8Array.from(bytes).buffer)
+  }
   return { bytes, circuit, fetchFile, calls: () => calls }
 }
 test("native download preserves exact ZIP bytes and every project member", async () => {
@@ -59,10 +59,7 @@ test("stale viewer data is rejected before a network request", async () => {
 test("changed archive bytes are rejected, never silently regenerated", async () => {
   const f = await fixture()
   await expect(
-    downloadNativeKicadProject(
-      f.circuit,
-      (async () => new Response("corrupt")) as typeof fetch,
-    ),
+    downloadNativeKicadProject(f.circuit, async () => new Response("corrupt")),
   ).rejects.toThrow("SHA-256 mismatch")
 })
 test("incomplete and unavailable native projects fail", async () => {
@@ -73,7 +70,7 @@ test("incomplete and unavailable native projects fail", async () => {
   await expect(
     downloadNativeKicadProject(
       f.circuit,
-      (async () => new Response("missing", { status: 404 })) as typeof fetch,
+      async () => new Response("missing", { status: 404 }),
     ),
   ).rejects.toThrow("HTTP 404")
 })
@@ -118,7 +115,7 @@ test("archive path traversal is rejected even with a matching digest", async () 
   await expect(
     downloadNativeKicadProject(
       f.circuit,
-      (async () => new Response(bytes)) as typeof fetch,
+      async () => new Response(Uint8Array.from(bytes).buffer),
     ),
   ).rejects.toThrow("Unsafe native KiCad archive path")
 })
