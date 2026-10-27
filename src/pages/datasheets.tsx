@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useQuery } from "react-query"
 import { useAxios } from "@/hooks/use-axios"
 import { useCreateDatasheet } from "@/hooks/use-create-datasheet"
@@ -20,6 +20,7 @@ export const DatasheetsPage: React.FC = () => {
     onSuccess: (datasheet) => navigate(`/datasheets/${datasheet.chip_name}`),
   })
   const [searchQuery, setSearchQuery] = useState("")
+  const firstDatasheetRef = useRef<HTMLAnchorElement>(null)
 
   const {
     data: datasheets,
@@ -63,6 +64,12 @@ export const DatasheetsPage: React.FC = () => {
                 className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown" && firstDatasheetRef.current) {
+                    e.preventDefault()
+                    firstDatasheetRef.current.focus()
+                  }
+                }}
                 aria-label="Search datasheets"
                 role="searchbox"
               />
@@ -105,9 +112,10 @@ export const DatasheetsPage: React.FC = () => {
               {searchQuery ? "matching" : "indexed"} datasheets
             </p>
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-1 border-t border-gray-200 pt-3">
-              {datasheets.map((ds) => (
+              {datasheets.map((ds, index) => (
                 <li key={ds.datasheet_id} className="min-w-0">
                   <Link
+                    ref={index === 0 ? firstDatasheetRef : undefined}
                     href={`/datasheets/${encodeURIComponent(ds.chip_name)}`}
                     className="block rounded px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 break-words"
                   >
