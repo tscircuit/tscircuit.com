@@ -72,7 +72,7 @@ test("Enterprise links the newest published prerelease and explains local use", 
     page.getByRole("link", { name: "Download latest release", exact: true }),
   ).toHaveAttribute("href", `${releasesUrl}/tag/daily-2026-10-10`)
   await expect(
-    page.getByText(/workflows still require network access/),
+    page.getByText(/without outbound web requests/).first(),
   ).toBeVisible()
   await expect(
     page.getByRole("heading", { name: "JavaScript runtime included" }),
