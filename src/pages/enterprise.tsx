@@ -106,9 +106,9 @@ export default function EnterprisePage() {
           </h2>
           <p className="mt-3 text-gray-600 leading-7">
             Choose a release for your operating system and architecture. Use the
-            macOS or Windows installer, or extract the Linux archive. Open a
-            new terminal and check your version; the JavaScript runtime is
-            already included.
+            macOS or Windows installer, or extract the Linux archive. Open a new
+            terminal and check your version; the JavaScript runtime is already
+            included.
           </p>
           <p className="mt-5 font-medium text-gray-900">macOS / Linux</p>
           <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
