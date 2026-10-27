@@ -110,7 +110,18 @@ export default function EnterprisePage() {
             new terminal and check your version; the JavaScript runtime is
             already included.
           </p>
-          <pre className="mt-5 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
+          <p className="mt-5 font-medium text-gray-900">macOS / Linux</p>
+          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
+            <code>{`curl -fsSL https://raw.githubusercontent.com/tscircuit/tscircuit-standalone/main/scripts/install.sh | sh`}</code>
+          </pre>
+          <p className="mt-5 font-medium text-gray-900">Windows (PowerShell)</p>
+          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
+            <code>{`curl.exe -fsSL https://raw.githubusercontent.com/tscircuit/tscircuit-standalone/main/scripts/install-windows.ps1 | Out-String | iex`}</code>
+          </pre>
+          <p className="mt-5 text-gray-600 leading-7">
+            Open a new terminal after installation, then run:
+          </p>
+          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
             <code>{`tsci --version
 tsci import C2040
 tsci build my-board.circuit.tsx
