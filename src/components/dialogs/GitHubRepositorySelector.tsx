@@ -23,6 +23,12 @@ import { Label } from "../ui/label"
 import { Minus, Plus, RefreshCw } from "lucide-react"
 import { Switch } from "../ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface GitHubRepositorySelectorProps {
   selectedRepository?: string
@@ -195,19 +201,28 @@ export const GitHubRepositorySelector = ({
             (repositoriesError as any)?.response?.data?.error_code ===
               "github_not_connected"
           ) && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleRefreshRepositories}
-              disabled={disabled || isLoading || isRefreshing}
-              className="h-9 w-9 min-h-9 min-w-9 p-0 sm:h-7 sm:min-h-7 sm:w-7 sm:min-w-7 sm:p-1"
-              aria-label="Refresh repositories"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 sm:w-3 sm:h-3 ${isRefreshing || isLoading ? "animate-spin" : ""}`}
-              />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRefreshRepositories}
+                    disabled={disabled || isLoading || isRefreshing}
+                    className="h-9 w-9 min-h-9 min-w-9 p-0 sm:h-7 sm:min-h-7 sm:w-7 sm:min-w-7 sm:p-1"
+                    aria-label="Refresh repositories"
+                  >
+                    <RefreshCw
+                      className={`w-3.5 h-3.5 sm:w-3 sm:h-3 ${isRefreshing || isLoading ? "animate-spin" : ""}`}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Refresh repositories from GitHub
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
         {(repositoriesError as any)?.response?.status === 400 &&
