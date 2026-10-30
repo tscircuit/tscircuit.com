@@ -49,7 +49,7 @@ export const BuildStatusBadge = ({ packageRelease }: BuildStatusBadgeProps) => {
             <p>{label}</p>
           </TooltipContent>
         </Tooltip>
-        {!isLoading && !error && circuitJson && (
+        {!isLoading && !error && circuitJson && count > 0 && (
           <Link
             href={`/${author}/${packageName}/releases/${packageRelease.package_release_id}/preview?tab=errors`}
             title={`${count} ${kind} — view circuit diagnostics`}
