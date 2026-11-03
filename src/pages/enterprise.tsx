@@ -1,5 +1,6 @@
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { CircuitBoard, Download, Server, Terminal } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Helmet } from "react-helmet-async"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -8,6 +9,11 @@ import {
   enterpriseReleasesUrl,
   useEnterpriseReleases,
 } from "@/hooks/use-enterprise-releases"
+import {
+  type DesktopOperatingSystem,
+  enterpriseDownloads,
+  getDesktopOperatingSystem,
+} from "@/lib/enterprise-downloads"
 
 const features = [
   {
@@ -33,6 +39,27 @@ const features = [
 export default function EnterprisePage() {
   const { data: releases } = useEnterpriseReleases()
   const latestRelease = releases?.[0]
+  const [operatingSystem, setOperatingSystem] =
+    useState<DesktopOperatingSystem | null>(null)
+
+  useEffect(() => {
+    setOperatingSystem(
+      getDesktopOperatingSystem(navigator.userAgent, navigator.maxTouchPoints),
+    )
+  }, [])
+
+  const downloads = enterpriseDownloads.flatMap((download) => {
+    const asset = latestRelease?.assets.find(
+      (asset) => asset.name === download.assetName,
+    )
+    return asset ? [{ ...download, url: asset.browser_download_url }] : []
+  })
+  const recommendedDownloads = downloads.filter(
+    (download) => !operatingSystem || download.os === operatingSystem,
+  )
+  const otherDownloads = downloads.filter(
+    (download) => operatingSystem && download.os !== operatingSystem,
+  )
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -59,17 +86,40 @@ export default function EnterprisePage() {
             local playground without outbound web requests.
           </p>
           <p className="mt-4 text-lg leading-8 text-gray-600">
-            A standalone binary includes a bundled JavaScript runtime, component
-            catalog and development tools. Download it for Linux, macOS or
-            Windows and run it on your own machines.
+            Install tscircuit with a bundled JavaScript runtime, component
+            catalog and development tools. Download the macOS or Windows
+            installer, or a standalone archive for Linux.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <a href={latestRelease?.html_url ?? enterpriseReleasesUrl}>
-                <Download className="mr-2 h-4 w-4" aria-hidden="true" />
-                Download latest release
-              </a>
-            </Button>
+          <h2 className="mt-8 text-lg font-semibold text-gray-900">
+            {operatingSystem
+              ? `Recommended for ${operatingSystem}`
+              : "Choose your download"}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            Run the macOS or Windows installer to get started. For Linux,
+            extract the archive. Choose the architecture for your machine.
+          </p>
+          <div className="mt-4 flex flex-col flex-wrap gap-3 sm:flex-row">
+            {recommendedDownloads.map((download) => (
+              <Button
+                key={download.assetName}
+                asChild
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <a href={download.url}>
+                  <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                  {download.label}
+                </a>
+              </Button>
+            ))}
+            {recommendedDownloads.length === 0 && (
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <a href={latestRelease?.html_url ?? enterpriseReleasesUrl}>
+                  <Download className="mr-2 h-4 w-4" aria-hidden="true" />
+                  Browse installers on GitHub
+                </a>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <a href={enterpriseReleasesUrl}>
                 <GitHubLogoIcon className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -77,6 +127,22 @@ export default function EnterprisePage() {
               </a>
             </Button>
           </div>
+          {otherDownloads.length > 0 && (
+            <details className="mt-4">
+              <summary className="cursor-pointer text-sm font-medium text-blue-600">
+                Downloads for other operating systems
+              </summary>
+              <ul className="mt-3 space-y-2 text-sm">
+                {otherDownloads.map((download) => (
+                  <li key={download.assetName}>
+                    <a className="text-blue-600 underline" href={download.url}>
+                      {download.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
         </section>
 
         <section
@@ -92,51 +158,6 @@ export default function EnterprisePage() {
               </p>
             </div>
           ))}
-        </section>
-
-        <section
-          className="mt-12 !border-t-0"
-          aria-labelledby="getting-started-title"
-        >
-          <h2
-            id="getting-started-title"
-            className="border-b border-black/10 pb-3 text-2xl font-semibold text-gray-900"
-          >
-            Getting started
-          </h2>
-          <p className="mt-3 text-gray-600 leading-7">
-            Choose a release for your operating system and architecture. Use the
-            macOS or Windows installer, or extract the Linux archive. Open a new
-            terminal and check your version; the JavaScript runtime is already
-            included.
-          </p>
-          <p className="mt-5 font-medium text-gray-900">macOS / Linux</p>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
-            <code>{`curl -fsSL https://raw.githubusercontent.com/tscircuit/tscircuit-standalone/main/scripts/install.sh | sh`}</code>
-          </pre>
-          <p className="mt-5 font-medium text-gray-900">Windows (PowerShell)</p>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
-            <code>{`curl.exe -fsSL https://raw.githubusercontent.com/tscircuit/tscircuit-standalone/main/scripts/install-windows.ps1 | Out-String | iex`}</code>
-          </pre>
-          <p className="mt-5 text-gray-600 leading-7">
-            Open a new terminal after installation, then run:
-          </p>
-          <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-5 text-sm leading-7 text-gray-100">
-            <code>{`tsci --version
-tsci import C2040
-tsci build my-board.circuit.tsx
-tsci dev my-board.circuit.tsx`}</code>
-          </pre>
-          <p className="mt-4 text-gray-600 leading-7">
-            See the{" "}
-            <a
-              className="text-blue-600 underline"
-              href="https://docs.tscircuit.com/guides/running-tscircuit/standalone-binary"
-            >
-              standalone installation and usage guide
-            </a>{" "}
-            for more installation options.
-          </p>
         </section>
       </main>
       <Footer />
