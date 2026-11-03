@@ -10,6 +10,7 @@ export interface EnterpriseRelease {
   html_url: string
   published_at: string
   prerelease: boolean
+  assets: { name: string; browser_download_url: string }[]
 }
 
 interface GitHubRelease extends Omit<EnterpriseRelease, "published_at"> {
