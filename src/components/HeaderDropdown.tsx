@@ -19,13 +19,13 @@ export default function HeaderDropdown() {
         <Button
           size="sm"
           variant="default"
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 text-sm"
         >
           New <ChevronDown className="ml-1 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-fit"
+        className="site-header-menu w-fit"
         side="bottom"
         align="start"
         sideOffset={4}
