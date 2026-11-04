@@ -3,8 +3,10 @@ export const esp32BluetoothSpeakerTemplate = {
   type: "board",
   code: `
 import { AMS1117_3_3 } from "./imports/AMS1117_3_3"
+import { B2B_PH_K_S_LF__SN_ } from "./imports/B2B_PH_K_S_LF__SN_"
 import { ESP32_WROOM_32E_N8 } from "./imports/ESP32_WROOM_32E_N8"
 import { MAX98357AETE_T } from "./imports/MAX98357AETE_T"
+import { TYPE_C_31_M_12 } from "./imports/TYPE_C_31_M_12"
 
 // ESP32 Bluetooth speaker: plug in USB-C, pair your phone, play music.
 // Parts are placed by hand and every trace is autorouted, so try moving one.
@@ -15,12 +17,10 @@ export default () => (
     <schematicsection name="audio" displayName="AUDIO" />
 
     {/* USB-C input, the 5.1k CC resistors ask the charger for 5V */}
-    <connector
-      name="J1"
+    <TYPE_C_31_M_12
+      name="USB1"
       schSectionName="power"
-      standard="usb_c"
-      supplierPartNumbers={{ jlcpcb: ["C165948"] }}
-      pcbX={-19}
+      pcbX={-19.3}
       pcbY={9}
       pcbRotation={-90}
       connections={{
@@ -28,10 +28,10 @@ export default () => (
         VBUS2: "net.V5",
         GND1: "net.GND",
         GND2: "net.GND",
-        SHELL1: "net.GND",
-        SHELL2: "net.GND",
-        SHELL3: "net.GND",
-        SHELL4: "net.GND",
+        EH1: "net.GND",
+        EH2: "net.GND",
+        EH3: "net.GND",
+        EH4: "net.GND",
       }}
     />
     <resistor
@@ -41,7 +41,7 @@ export default () => (
       footprint="0603"
       pcbX={-13.5}
       pcbY={10.25}
-      connections={{ pin1: "J1.CC1", pin2: "net.GND" }}
+      connections={{ pin1: "USB1.CC1", pin2: "net.GND" }}
     />
     <resistor
       name="R2"
@@ -50,7 +50,7 @@ export default () => (
       footprint="0603"
       pcbX={-13.5}
       pcbY={7.25}
-      connections={{ pin1: "J1.CC2", pin2: "net.GND" }}
+      connections={{ pin1: "USB1.CC2", pin2: "net.GND" }}
     />
 
     {/* 5V to 3.3V regulator for the ESP32 */}
@@ -163,8 +163,8 @@ export default () => (
         LRCLK: "net.LRCLK",
         DIN: "net.DIN",
         N_SD_MODE: "net.SD_MODE",
-        OUTP: "J2.pin1",
-        OUTN: "J2.pin2",
+        OUTP: "P1.pin1",
+        OUTN: "P1.pin2",
       }}
     />
     <resistor
@@ -186,11 +186,10 @@ export default () => (
       connections={{ pin1: "net.V5", pin2: "net.GND" }}
     />
     {/* 4-8 ohm speaker */}
-    <connector
-      name="J2"
+    <B2B_PH_K_S_LF__SN_
+      name="P1"
       schSectionName="audio"
-      footprint="jst2_ph"
-      pcbX={-22}
+      pcbX={-21}
       pcbY={-6}
       pcbRotation={90}
     />
@@ -232,6 +231,48 @@ export const AMS1117_3_3 = (props: ChipProps<typeof pinLabels>) => {
         stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C6186.step?uuid=e80246a9471445bfb635be848806a22e",
         pcbRotationOffset: 180,
         modelOriginPosition: { x: -0.14002385000003414, y: -0.000012700000070253736, z: -0.049394 },
+      }}
+      {...props}
+    />
+  )
+}
+`.trim(),
+    "imports/B2B_PH_K_S_LF__SN_.tsx": `
+import type { ChipProps } from "@tscircuit/props"
+
+const pinLabels = {
+  pin1: ["pin1"],
+  pin2: ["pin2"]
+} as const
+
+export const B2B_PH_K_S_LF__SN_ = (props: ChipProps<typeof pinLabels>) => {
+  return (
+    <chip
+      pinLabels={pinLabels}
+      supplierPartNumbers={{
+  "jlcpcb": [
+    "C131337"
+  ]
+}}
+      manufacturerPartNumber="B2B-PH-K-S(LF)(SN)"
+      footprint={<footprint>
+        <platedhole  portHints={["pin2"]} pcbX="-0.999998mm" pcbY="-0.550037mm" outerDiameter="1.5999968mm" holeDiameter="0.9000236mm" shape="circle" />
+<platedhole  portHints={["pin1"]} pcbX="0.999998mm" pcbY="-0.550037mm" outerDiameter="1.5999968mm" holeDiameter="0.9000236mm" shape="circle" />
+<silkscreenpath route={[{"x":-2.921000000000049,"y":-0.2960369999999557},{"x":-2.413000000000011,"y":-0.2960369999999557},{"x":-2.413000000000011,"y":1.608963000000017},{"x":2.53999999999985,"y":1.608963000000017},{"x":2.53999999999985,"y":-0.2960369999999557},{"x":2.9209999999998217,"y":-0.2960369999999557}]} />
+<silkscreenpath route={[{"x":3.000044799999955,"y":-0.9310370000000603},{"x":2.4920448000000306,"y":-0.9310370000000603},{"x":2.4920448000000306,"y":-1.6930370000001176},{"x":0.3330447999999251,"y":-1.6930370000001176},{"x":0.3330447999999251,"y":-2.201037000000042}]} />
+<silkscreenpath route={[{"x":-2.921000000000049,"y":-0.9310370000000603},{"x":-2.413000000000011,"y":-0.9310370000000603},{"x":-2.413000000000011,"y":-1.6930370000001176},{"x":-0.2540000000001328,"y":-1.6930370000001176},{"x":-0.2540000000001328,"y":-2.201037000000042}]} />
+<silkscreenrect pcbX="0mm" pcbY="0mm" width="5.999988mm" height="4.500118mm" strokeWidth="0.254mm" />
+<silkscreentext text="{NAME}" pcbX="0.016002mm" pcbY="3.345563mm" anchorAlignment="center" fontSize="1mm" />
+<fabricationnotepath route={[{"x":2.9209999999998217,"y":-0.2960369999999557},{"x":2.53999999999985,"y":-0.2960369999999557},{"x":2.53999999999985,"y":1.608963000000017},{"x":-2.4130000000001246,"y":1.608963000000017},{"x":-2.4130000000001246,"y":-0.2960369999999557},{"x":-2.921000000000163,"y":-0.2960369999999557},{"x":-2.921000000000163,"y":2.243963000000008},{"x":2.9209999999998217,"y":2.243963000000008},{"x":2.9209999999998217,"y":-0.2960369999999557}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":3.000044800000069,"y":-0.9310369999999466},{"x":2.4920448000000306,"y":-0.9310369999999466},{"x":2.4920448000000306,"y":-1.693037000000004},{"x":0.3330448000000388,"y":-1.693037000000004},{"x":0.3330448000000388,"y":-2.201037000000042},{"x":3.0479999999997744,"y":-2.201037000000042},{"x":3.000044800000069,"y":-0.9310369999999466}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":-0.2540000000001328,"y":-1.693037000000004},{"x":-0.2540000000001328,"y":-2.201037000000042},{"x":-2.921000000000163,"y":-2.201037000000042},{"x":-2.921000000000163,"y":-0.9310369999999466},{"x":-2.4130000000001246,"y":-0.9310369999999466},{"x":-2.4130000000001246,"y":-1.693037000000004},{"x":-0.2540000000001328,"y":-1.693037000000004}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<courtyardoutline outline={[{"x":-3.249994000000015,"y":2.599957199999949},{"x":3.249994000000015,"y":2.599957199999949},{"x":3.249994000000015,"y":-2.500033599999938},{"x":-3.249994000000015,"y":-2.500033599999938},{"x":-3.249994000000015,"y":2.599957199999949}]} />
+      </footprint>}
+      cadModel={{
+        objUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C131337.obj?uuid=ee6b32b5c03144688a5663b32f9648c4",
+        stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C131337.step?uuid=ee6b32b5c03144688a5663b32f9648c4",
+        pcbRotationOffset: 180,
+        modelOriginPosition: { x: -0.9995, y: -0.5500381999999945, z: -0.000006999999999646178 },
       }}
       {...props}
     />
@@ -443,6 +484,87 @@ export const MAX98357AETE_T = (props: ChipProps<typeof pinLabels>) => {
         stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C910544.step?uuid=edc2f28e721b49ee8c25b04b981b88c3",
         pcbRotationOffset: 0,
         modelOriginPosition: { x: -0.000012699999842880061, y: 0, z: -0.01 },
+      }}
+      {...props}
+    />
+  )
+}
+`.trim(),
+    "imports/TYPE_C_31_M_12.tsx": `
+import type { ChipProps } from "@tscircuit/props"
+
+const pinLabels = {
+  pin1: ["EH2"],
+  pin2: ["EH1"],
+  pin3: ["EH4"],
+  pin4: ["EH3"],
+  pin5: ["SBU2","B8"],
+  pin6: ["CC1","A5"],
+  pin7: ["DN2","B7"],
+  pin8: ["DP1","A6"],
+  pin9: ["DN1","A7"],
+  pin10: ["DP2","B6"],
+  pin11: ["SBU1","A8"],
+  pin12: ["CC2","B5"],
+  pin13: ["GND1","A1B12"],
+  pin14: ["GND2","B1A12"],
+  pin15: ["VBUS1","B4A9"],
+  pin16: ["VBUS2","A4B9"]
+} as const
+
+const pinAttributes = {
+  pin5: {isPassive: true},
+  pin6: {isPassive: true},
+  pin7: {isPassive: true},
+  pin8: {isPassive: true},
+  pin9: {isPassive: true},
+  pin10: {isPassive: true},
+  pin11: {isPassive: true},
+  pin12: {isPassive: true}
+} satisfies NonNullable<ChipProps["pinAttributes"]>
+
+export const TYPE_C_31_M_12 = (props: ChipProps<typeof pinLabels>) => {
+  return (
+    <chip
+      pinLabels={pinLabels}
+      pinAttributes={pinAttributes}
+      supplierPartNumbers={{
+  "jlcpcb": [
+    "C165948"
+  ]
+}}
+      manufacturerPartNumber="TYPE-C-31-M-12"
+      footprint={<footprint>
+        <hole pcbX="-2.899918mm" pcbY="0.9055672mm" diameter="0.5999988mm" />
+<hole pcbX="2.899918mm" pcbY="0.9055672mm" diameter="0.5999988mm" />
+<platedhole  portHints={["pin2"]} pcbX="4.325112mm" pcbY="-2.7741308mm" holeWidth="0.7999984mm" holeHeight="1.1999976mm" outerWidth="1.1999976mm" outerHeight="1.7999964mm" shape="pill" />
+<platedhole  portHints={["pin1"]} pcbX="4.325112mm" pcbY="1.4056932mm" holeWidth="0.7999984mm" holeHeight="1.499997mm" outerWidth="1.1999976mm" outerHeight="1.999996mm" shape="pill" />
+<platedhole  portHints={["pin4"]} pcbX="-4.325112mm" pcbY="1.4056932mm" holeWidth="0.7999984mm" holeHeight="1.499997mm" outerWidth="1.1999976mm" outerHeight="1.999996mm" shape="pill" />
+<platedhole  portHints={["pin3"]} pcbX="-4.325112mm" pcbY="-2.7741308mm" holeWidth="0.7999984mm" holeHeight="1.1999976mm" outerWidth="1.1999976mm" outerHeight="1.7999964mm" shape="pill" />
+<smtpad portHints={["pin5"]} pcbX="-1.75006mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin6"]} pcbX="-1.249934mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin7"]} pcbX="-0.750062mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin8"]} pcbX="-0.249936mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin9"]} pcbX="0.249936mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin10"]} pcbX="0.750062mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin11"]} pcbX="1.24968mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin12"]} pcbX="1.75006mm" pcbY="2.1740432mm" width="0.2999994mm" height="1.2999974mm" shape="rect" />
+<smtpad portHints={["pin13"]} points={[{x: "-2.8999688mm", y: "1.524108mm"}, {x: "-2.8999688mm", y: "2.8241308mm"}, {x: "-2.8999688mm", y: "2.8241308mm"}, {x: "-3.1999682mm", y: "2.8241308mm"}, {x: "-3.1999682mm", y: "2.8241308mm"}, {x: "-3.1999682mm", y: "2.8239784mm"}, {x: "-3.1999682mm", y: "2.8239784mm"}, {x: "-3.4999422mm", y: "2.8239784mm"}, {x: "-3.4999422mm", y: "2.8239784mm"}, {x: "-3.4999422mm", y: "1.5239556mm"}, {x: "-3.4999422mm", y: "1.5239556mm"}, {x: "-3.1999428mm", y: "1.5239556mm"}, {x: "-3.1999428mm", y: "1.5239556mm"}, {x: "-3.1999428mm", y: "1.524108mm"}, {x: "-3.1999428mm", y: "1.524108mm"}, {x: "-2.8999688mm", y: "1.524108mm"}]} shape="polygon" />
+<smtpad portHints={["pin14"]} points={[{x: "2.8999942mm", y: "2.8241308mm"}, {x: "2.8999942mm", y: "1.5241588mm"}, {x: "2.8999942mm", y: "1.5241588mm"}, {x: "3.1999936mm", y: "1.5241588mm"}, {x: "3.1999936mm", y: "1.5241588mm"}, {x: "3.200019mm", y: "1.5241588mm"}, {x: "3.200019mm", y: "1.5241588mm"}, {x: "3.5000184mm", y: "1.5241588mm"}, {x: "3.5000184mm", y: "1.5241588mm"}, {x: "3.5000184mm", y: "2.8241308mm"}, {x: "3.5000184mm", y: "2.8241308mm"}, {x: "3.200019mm", y: "2.8241308mm"}, {x: "3.200019mm", y: "2.8241308mm"}, {x: "3.1999936mm", y: "2.8241308mm"}, {x: "3.1999936mm", y: "2.8241308mm"}, {x: "2.8999942mm", y: "2.8241308mm"}]} shape="polygon" />
+<smtpad portHints={["pin15"]} points={[{x: "2.7001724mm", y: "1.5241588mm"}, {x: "2.7001724mm", y: "2.8241308mm"}, {x: "2.7001724mm", y: "2.8241308mm"}, {x: "2.400173mm", y: "2.8241308mm"}, {x: "2.400173mm", y: "2.8241308mm"}, {x: "2.4001476mm", y: "2.8241308mm"}, {x: "2.4001476mm", y: "2.8241308mm"}, {x: "2.1001482mm", y: "2.8241308mm"}, {x: "2.1001482mm", y: "2.8241308mm"}, {x: "2.1001482mm", y: "1.5241588mm"}, {x: "2.1001482mm", y: "1.5241588mm"}, {x: "2.4001476mm", y: "1.5241588mm"}, {x: "2.4001476mm", y: "1.5241588mm"}, {x: "2.400173mm", y: "1.5241588mm"}, {x: "2.400173mm", y: "1.5241588mm"}, {x: "2.7001724mm", y: "1.5241588mm"}]} shape="polygon" />
+<smtpad portHints={["pin16"]} points={[{x: "-2.0999704mm", y: "1.5240064mm"}, {x: "-2.0999704mm", y: "2.8239784mm"}, {x: "-2.0999704mm", y: "2.8239784mm"}, {x: "-2.3999952mm", y: "2.8239784mm"}, {x: "-2.3999952mm", y: "2.8239784mm"}, {x: "-2.3999952mm", y: "2.823953mm"}, {x: "-2.3999952mm", y: "2.823953mm"}, {x: "-2.6999438mm", y: "2.823953mm"}, {x: "-2.6999438mm", y: "2.823953mm"}, {x: "-2.6999438mm", y: "1.523981mm"}, {x: "-2.6999438mm", y: "1.523981mm"}, {x: "-2.399919mm", y: "1.523981mm"}, {x: "-2.399919mm", y: "1.523981mm"}, {x: "-2.399919mm", y: "1.5240064mm"}, {x: "-2.399919mm", y: "1.5240064mm"}, {x: "-2.0999704mm", y: "1.5240064mm"}]} shape="polygon" />
+<silkscreenpath route={[{"x":-4.4689776000000165,"y":-1.6757585999999947},{"x":-4.4689776000000165,"y":0.18715359999987413}]} />
+<silkscreenpath route={[{"x":4.471009600000116,"y":-5.394140800000059},{"x":-4.4689776000000165,"y":-5.394140800000059},{"x":-4.4689776000000165,"y":-3.91283820000001}]} />
+<silkscreenpath route={[{"x":4.471009600000116,"y":-1.676114200000029},{"x":4.471009600000116,"y":0.18750920000002225}]} />
+<silkscreenpath route={[{"x":4.471009600000116,"y":-5.394140800000059},{"x":4.471009600000116,"y":-3.912482600000203}]} />
+<silkscreentext text="{NAME}" pcbX="0.002794mm" pcbY="3.8286012mm" anchorAlignment="center" fontSize="1mm" />
+<courtyardoutline outline={[{"x":-5.17511079999997,"y":3.074130799999921},{"x":5.17511079999997,"y":3.074130799999921},{"x":5.17511079999997,"y":-5.60002099999997},{"x":-5.17511079999997,"y":-5.60002099999997},{"x":-5.17511079999997,"y":3.074130799999921}]} />
+      </footprint>}
+      cadModel={{
+        objUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C165948.obj?uuid=617b05f9bba7410b96c001093d8189e4",
+        stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C165948.step?uuid=617b05f9bba7410b96c001093d8189e4",
+        pcbRotationOffset: 180,
+        modelOriginPosition: { x: 0, y: -2.7500289000000517, z: 0.000010999999999872223 },
       }}
       {...props}
     />
