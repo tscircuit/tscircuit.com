@@ -4,6 +4,7 @@ import { analogSimulationTemplate } from "@/lib/templates/analog-simulation-temp
 import { defaultCodeForBlankPage } from "@/lib/defaultCodeForBlankCode"
 import { blinkingLedBoardTemplate } from "@/lib/templates/blinking-led-board-template"
 import { usbCLedFlashlightTemplate } from "@/lib/templates/usb-c-led-flashlight-template"
+import { esp32BluetoothSpeakerTemplate } from "@/lib/templates/esp32-bluetooth-speaker-template"
 
 // Used in quick start and header dropdown
 export const templateCatalogue = [
@@ -33,6 +34,7 @@ const templateMap: Record<string, { code: string; type: string }> = {
   "analog-simulation": analogSimulationTemplate,
   "blinking-led-board": blinkingLedBoardTemplate,
   "usb-c-led-flashlight": usbCLedFlashlightTemplate,
+  "esp32-bluetooth-speaker": esp32BluetoothSpeakerTemplate,
 }
 
 export const getSnippetTemplate = (template: string | undefined) => {

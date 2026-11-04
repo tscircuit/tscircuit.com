@@ -116,6 +116,11 @@ const CmdKMenu = () => {
         type: "board",
         icon: <Sparkles className="w-4 h-4 text-yellow-500" />,
       },
+      {
+        name: "ESP32 Bluetooth Speaker",
+        type: "board",
+        icon: <Sparkles className="w-4 h-4 text-yellow-500" />,
+      },
     ],
     [],
   )
