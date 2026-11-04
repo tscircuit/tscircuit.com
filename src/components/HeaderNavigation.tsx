@@ -1,16 +1,10 @@
+import "./header.css"
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
 import { Building2, ChevronDown, FileText, SquarePen } from "lucide-react"
 import { Link } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
+import { type ComponentType, useEffect, useRef } from "react"
 
 const solutionLinks = [
   { label: "Professional Support", href: "/professional-support" },
@@ -50,6 +44,42 @@ const productLinks = [
   { label: "tscircuit Enterprise", href: "/enterprise", Icon: Building2 },
 ]
 
+type HeaderLink = {
+  label: string
+  href: string
+  Icon?: ComponentType<{
+    className?: string
+    "aria-hidden"?: boolean | "true" | "false"
+  }>
+}
+
+function HeaderNavigationDropdown({
+  label,
+  links,
+  onNavigate,
+}: {
+  label: string
+  links: HeaderLink[]
+  onNavigate?: () => void
+}) {
+  return (
+    <details className="header-nav-dropdown">
+      <summary>
+        {label}
+        <ChevronDown className="h-3 w-3" aria-hidden="true" />
+      </summary>
+      <div className="header-nav-panel">
+        {links.map(({ label: linkLabel, href, Icon }) => (
+          <a key={href} href={href} onClick={onNavigate}>
+            {Icon && <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />}
+            {linkLabel}
+          </a>
+        ))}
+      </div>
+    </details>
+  )
+}
+
 export function HeaderNavigation({
   mobile = false,
   onNavigate,
@@ -58,178 +88,98 @@ export function HeaderNavigation({
   onNavigate?: () => void
 }) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const linkClass = cn(
-    "inline-flex min-h-9 items-center rounded-md text-sm font-medium text-gray-900 transition-colors hover:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
-    mobile && "w-full px-3 py-2",
-  )
-  const communityLinkClass =
-    "block rounded-md px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-  const productLinkClass = cn(communityLinkClass, "flex items-center gap-2")
+  const navigationRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const navigation = navigationRef.current
+    if (!navigation) return
+    const dropdowns = Array.from(
+      navigation.querySelectorAll<HTMLDetailsElement>("details"),
+    )
+    const hover = window.matchMedia("(hover: hover) and (pointer: fine)")
+    const closeOthers = (current?: HTMLDetailsElement) => {
+      for (const dropdown of dropdowns) {
+        if (dropdown !== current) dropdown.open = false
+      }
+    }
+    const cleanup = dropdowns.map((dropdown) => {
+      const enter = () => {
+        if (mobile || !hover.matches) return
+        closeOthers(dropdown)
+        dropdown.open = true
+      }
+      const leave = () => {
+        if (!mobile && hover.matches && !dropdown.matches(":focus-within")) {
+          dropdown.open = false
+        }
+      }
+      const toggle = () => {
+        if (dropdown.open) closeOthers(dropdown)
+      }
+      const focusout = (event: FocusEvent) => {
+        if (!mobile && !dropdown.contains(event.relatedTarget as Node | null)) {
+          dropdown.open = false
+        }
+      }
+      const keydown = (event: KeyboardEvent) => {
+        if (event.key === "Escape" && dropdown.open) {
+          event.preventDefault()
+          dropdown.open = false
+          dropdown.querySelector("summary")?.focus()
+        }
+      }
+      dropdown.addEventListener("pointerenter", enter)
+      dropdown.addEventListener("pointerleave", leave)
+      dropdown.addEventListener("toggle", toggle)
+      dropdown.addEventListener("focusout", focusout)
+      dropdown.addEventListener("keydown", keydown)
+      return () => {
+        dropdown.removeEventListener("pointerenter", enter)
+        dropdown.removeEventListener("pointerleave", leave)
+        dropdown.removeEventListener("toggle", toggle)
+        dropdown.removeEventListener("focusout", focusout)
+        dropdown.removeEventListener("keydown", keydown)
+      }
+    })
+    const dismiss = (event: PointerEvent) => {
+      if (!navigation.contains(event.target as Node)) closeOthers()
+    }
+    document.addEventListener("pointerdown", dismiss)
+    return () => {
+      cleanup.forEach((remove) => remove())
+      document.removeEventListener("pointerdown", dismiss)
+    }
+  }, [mobile])
 
   return (
     <nav
+      ref={navigationRef}
       aria-label="Primary navigation"
-      className={cn("flex", mobile ? "flex-col gap-1" : "items-center gap-6")}
+      className={cn("header-navigation", mobile && "header-navigation-mobile")}
     >
       {isLoggedIn && (
-        <Link href="/dashboard" className={linkClass} onClick={onNavigate}>
+        <Link href="/dashboard" onClick={onNavigate}>
           Dashboard
         </Link>
       )}
-      {mobile ? (
-        <details className="group">
-          <summary
-            className={cn(
-              linkClass,
-              "cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden",
-            )}
-          >
-            Product
-            <ChevronDown
-              className="h-3 w-3 group-open:rotate-180"
-              aria-hidden="true"
-            />
-          </summary>
-          <div className="ml-3 grid gap-1">
-            {productLinks.map(({ label, href, Icon }) => (
-              <a
-                key={href}
-                href={href}
-                className={productLinkClass}
-                onClick={onNavigate}
-              >
-                <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                {label}
-              </a>
-            ))}
-          </div>
-        </details>
-      ) : (
-        <NavigationMenu delayDuration={0} aria-label="Product">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-0 hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                Product
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid w-56 gap-1 p-2">
-                  {productLinks.map(({ label, href, Icon }) => (
-                    <NavigationMenuLink key={href} asChild>
-                      <a href={href} className={productLinkClass}>
-                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        {label}
-                      </a>
-                    </NavigationMenuLink>
-                  ))}
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      )}
-      <a href="https://docs.tscircuit.com/" className={linkClass}>
-        Docs
-      </a>
-      {mobile ? (
-        <details className="group">
-          <summary
-            className={cn(
-              linkClass,
-              "cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden",
-            )}
-          >
-            Solutions
-            <ChevronDown
-              className="h-3 w-3 group-open:rotate-180"
-              aria-hidden="true"
-            />
-          </summary>
-          <div className="ml-3 grid gap-1">
-            {solutionLinks.map(({ label, href }) => (
-              <a
-                key={href}
-                href={href}
-                className={communityLinkClass}
-                onClick={onNavigate}
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-        </details>
-      ) : (
-        <NavigationMenu delayDuration={0} aria-label="Solutions">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-0 hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                Solutions
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid w-64 gap-1 p-2">
-                  {solutionLinks.map(({ label, href }) => (
-                    <NavigationMenuLink key={href} asChild>
-                      <a href={href} className={communityLinkClass}>
-                        {label}
-                      </a>
-                    </NavigationMenuLink>
-                  ))}
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      )}
-      {mobile ? (
-        <details className="group">
-          <summary
-            className={cn(
-              linkClass,
-              "cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden",
-            )}
-          >
-            Community
-            <ChevronDown
-              className="h-3 w-3 group-open:rotate-180"
-              aria-hidden="true"
-            />
-          </summary>
-          <div className="ml-3 grid gap-1">
-            {communityLinks.map(({ label, href }) => (
-              <a
-                key={href}
-                href={href}
-                className={communityLinkClass}
-                onClick={onNavigate}
-              >
-                {label}
-              </a>
-            ))}
-          </div>
-        </details>
-      ) : (
-        <NavigationMenu delayDuration={0} aria-label="Community">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="px-0 hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
-                Community
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <div className="grid w-48 gap-1 p-2">
-                  {communityLinks.map(({ label, href }) => (
-                    <NavigationMenuLink key={href} asChild>
-                      <a href={href} className={communityLinkClass}>
-                        {label}
-                      </a>
-                    </NavigationMenuLink>
-                  ))}
-                </div>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      )}
+      <HeaderNavigationDropdown
+        label="Product"
+        links={productLinks}
+        onNavigate={onNavigate}
+      />
+      <a href="https://docs.tscircuit.com/">Docs</a>
+      <HeaderNavigationDropdown
+        label="Solutions"
+        links={solutionLinks}
+        onNavigate={onNavigate}
+      />
+      <HeaderNavigationDropdown
+        label="Community"
+        links={communityLinks}
+        onNavigate={onNavigate}
+      />
       {mobile && (
-        <Link href="/search" className={linkClass} onClick={onNavigate}>
+        <Link href="/search" onClick={onNavigate}>
           Search
         </Link>
       )}

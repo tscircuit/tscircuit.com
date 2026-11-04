@@ -1,0 +1,152 @@
+/* Keep both application headers aligned with the landing-page typography. */
+.site-header,
+.site-header-menu {
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+.site-header-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 10px;
+  color: #08090a;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.8px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-header-brand img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.header-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.2px;
+}
+
+.header-navigation > a,
+.header-nav-dropdown > summary {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+  gap: 7px;
+  border-radius: 8px;
+  color: #343940;
+  cursor: pointer;
+  text-decoration: none;
+  list-style: none;
+}
+
+.header-nav-dropdown > summary::-webkit-details-marker {
+  display: none;
+}
+
+.header-nav-dropdown[open] > summary > svg {
+  transform: rotate(180deg);
+}
+
+.header-navigation > a:hover,
+.header-nav-dropdown > summary:hover,
+.header-nav-dropdown[open] > summary,
+.header-nav-panel a:hover {
+  background: #f4f5f7;
+  color: #08090a;
+}
+
+.header-navigation :is(a, summary):focus-visible,
+.site-header-brand:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 3px;
+}
+
+.header-nav-dropdown {
+  position: relative;
+}
+
+.header-nav-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 50;
+  display: grid;
+  min-width: 224px;
+  padding: 8px;
+  gap: 2px;
+  border: 1px solid #e7eaf0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgb(20 24 32 / 4%), 0 16px 40px rgb(20 24 32 / 8%);
+}
+
+/* Cover the gap so moving from the trigger into its links never closes it. */
+.header-nav-panel::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 0;
+  width: 100%;
+  height: 11px;
+}
+
+.header-nav-panel a {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  gap: 9px;
+  border-radius: 8px;
+  color: #08090a;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.header-navigation-mobile {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  font-weight: 400;
+}
+
+.header-navigation-mobile > a,
+.header-navigation-mobile .header-nav-dropdown > summary {
+  padding: 0 12px;
+}
+
+.header-navigation-mobile .header-nav-dropdown > summary {
+  justify-content: space-between;
+}
+
+.header-navigation-mobile .header-nav-panel {
+  position: static;
+  min-width: 0;
+  margin: 4px 0 4px 18px;
+  padding: 0 0 0 8px;
+  border: 0;
+  border-left: 1px solid #dfe3e8;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.header-navigation-mobile .header-nav-panel::before {
+  display: none;
+}
+
+/* Portaled header menus inherit neither the header font nor its weight. */
+.site-header-menu {
+  animation: none !important;
+}
