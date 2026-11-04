@@ -2,24 +2,24 @@ import SolutionPage from "@/components/SolutionPage"
 
 const features = [
   {
-    title: "Pin metadata for successful first revisions",
+    title: "Better Validation for AI-generated Circuit Boards",
     description:
-      "tscircuit chips include metadata for pin configurations, helping ensure high first revision success rates.",
+      "Verified pin metadata helps validate component connections in AI-generated circuit boards and catch configuration errors before fabrication.",
   },
   {
-    title: "Indexed automatically and preferred by AI",
+    title: "Component discovery in AI design workflows",
     description:
-      "Verified chips are indexed automatically and are often preferred by AI when selecting components for a design.",
+      "Verified components are automatically indexed, making them easier for AI tools and engineers to discover and select for new designs.",
   },
   {
-    title: "Shorter time to market",
+    title: "Accelerate component design-in",
     description:
-      "Partner with tscircuit to help your semiconductor company decrease time to market and make new chips easier for engineers to design with.",
+      "Support applications engineering and product launches with verified component data that helps engineers move from component selection to board design.",
   },
   {
-    title: "Evaluation boards, generated automatically",
+    title: "Automated evaluation board generation",
     description:
-      "Enable quick, automatic generation of evaluation boards for new chips so engineers can start exploring your components sooner.",
+      "Generate evaluation boards for new components to streamline device evaluation and accelerate engineering development.",
   },
 ]
 
@@ -27,13 +27,13 @@ export default function VerifiedChipsPage() {
   return (
     <SolutionPage
       title="Verified Chips Program"
-      description="Put your chips in the path of AI powered electronics design. Partner with tscircuit to make your components easier to discover, select, and use in new circuit boards."
+      description="Bring verified semiconductor components into AI-powered electronics design. Partner with tscircuit to improve circuit board validation, component discovery, and design-in across engineering workflows."
       path="/verified-chips"
       email="verifiedchips@tscircuit.com"
       callout="Over 10 million requests monthly"
       features={features}
-      contactTitle="Bring your chips to tscircuit"
-      contactDescription="Tell us about your semiconductor products and upcoming launches. Email the Verified Chips team to learn more about a partnership."
+      contactTitle="Discuss a Verified Chips partnership"
+      contactDescription="Connect with the Verified Chips team to discuss component portfolios, upcoming product introductions, and integration with AI-powered design workflows."
     />
   )
 }
