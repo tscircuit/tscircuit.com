@@ -229,7 +229,7 @@ const solutionPages = {
   "/verified-chips": {
     title: "Verified Chips Program — tscircuit",
     description:
-      "Verified semiconductor components for AI-powered circuit board design. Improve validation, streamline component discovery, and accelerate design-in with tscircuit.",
+      "Partner with tscircuit to make your chips easier to discover and design with. Over 10 million requests monthly, verified pin metadata, and automatic evaluation boards.",
   },
 }
 
