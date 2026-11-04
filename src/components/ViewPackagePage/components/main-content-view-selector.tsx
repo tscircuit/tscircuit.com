@@ -39,6 +39,16 @@ export default function MainContentViewSelector({
       icon: <Code className="h-4 w-4 mr-1" />,
       requiresCircuitJson: false,
     },
+    ...(circuitJson?.some((element) => element.type === "system_block_page")
+      ? [
+          {
+            id: "system",
+            label: "System",
+            icon: <Workflow className="h-4 w-4 mr-1" />,
+            requiresCircuitJson: true,
+          },
+        ]
+      : []),
     {
       id: "3d",
       label: "3D",
@@ -57,16 +67,6 @@ export default function MainContentViewSelector({
       icon: <FileTerminal className="h-4 w-4 mr-1" />,
       requiresCircuitJson: true,
     },
-    ...(circuitJson?.some((element) => element.type === "system_block_page")
-      ? [
-          {
-            id: "system",
-            label: "System",
-            icon: <Workflow className="h-4 w-4 mr-1" />,
-            requiresCircuitJson: true,
-          },
-        ]
-      : []),
   ]
 
   return (
