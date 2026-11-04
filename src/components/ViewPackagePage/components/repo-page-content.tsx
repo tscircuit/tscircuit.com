@@ -12,6 +12,7 @@ import ThreeDView from "./tab-views/3d-view"
 import PCBView from "./tab-views/pcb-view"
 import { KeepMountedView } from "./keep-mounted-view"
 import SchematicView from "./tab-views/schematic-view"
+import SystemView from "./tab-views/system-view"
 import BOMView from "./tab-views/bom-view"
 import PackageFileView from "./tab-views/package-file-view"
 import {
@@ -66,7 +67,9 @@ const normalizeView = (view: string | null | undefined): string | null => {
   if (normalized === "schematic view") return "schematic"
   if (normalized === "bill of materials") return "bom"
 
-  if (["files", "3d", "pcb", "schematic", "bom"].includes(normalized)) {
+  if (
+    ["files", "3d", "pcb", "schematic", "system", "bom"].includes(normalized)
+  ) {
     return normalized
   }
 
@@ -105,6 +108,9 @@ export default function RepoPageContent({
     circuitJsonFound,
     isLoading: isCircuitJsonLoading,
   } = useCurrentPackageCircuitJson()
+  const hasSystemPage =
+    circuitJson?.some((element) => element.type === "system_block_page") ??
+    false
   const circuitJsonExists = circuitJsonFound && !isCircuitJsonLoading
   const { controller: schematicController, focusSchematicComponent } =
     useSchematicViewerController()
@@ -128,8 +134,21 @@ export default function RepoPageContent({
     const hashView = normalizeView(window.location.hash.slice(1))
     const defaultView = normalizeView(packageInfo?.default_view)
 
-    const circuitDependentViews = new Set(["3d", "pcb", "schematic", "bom"])
-    const validViews = ["files", "3d", "pcb", "schematic", "bom"]
+    const circuitDependentViews = new Set([
+      "3d",
+      "pcb",
+      "schematic",
+      "system",
+      "bom",
+    ])
+    const validViews = [
+      "files",
+      "3d",
+      "pcb",
+      "schematic",
+      "bom",
+      ...(hasSystemPage ? ["system"] : []),
+    ]
     const availableViews = circuitJsonExists
       ? validViews
       : validViews.filter((view) => !circuitDependentViews.has(view))
@@ -167,6 +186,7 @@ export default function RepoPageContent({
     packageInfo?.default_view,
     arePackageFilesFetched,
     circuitJsonExists,
+    hasSystemPage,
     isCircuitJsonLoading,
     fileBrowserMode,
   ])
@@ -229,6 +249,8 @@ export default function RepoPageContent({
         return null
       case "schematic":
         return <SchematicView controller={schematicController} />
+      case "system":
+        return <SystemView />
       case "bom":
         return <BOMView />
       default:

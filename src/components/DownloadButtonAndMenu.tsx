@@ -181,8 +181,8 @@ export function DownloadButtonAndMenu({
           size="sm"
           className="shadow-none bg-muted text-muted-foreground border border-input cursor-not-allowed"
         >
-          <Download className="h-4 w-4 mr-2" />
-          Download
+          <Download className="h-4 w-4" aria-hidden="true" />
+          <span className="sr-only">Download</span>
           <ChevronDown className="h-4 w-4 ml-1" />
         </Button>
       </div>
@@ -197,8 +197,8 @@ export function DownloadButtonAndMenu({
             size="sm"
             className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
           >
-            <Download className="w-4 h-4 mr-2" />
-            Download
+            <Download className="w-4 h-4" aria-hidden="true" />
+            <span className="sr-only">Download</span>
             <ChevronDown className="w-4 h-4 ml-1" />
           </Button>
         </DropdownMenuTrigger>
