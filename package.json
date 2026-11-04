@@ -102,6 +102,7 @@
     "@tscircuit/props": "^0.0.698",
     "@tscircuit/runframe": "^0.0.3138",
     "@tscircuit/schematic-viewer": "^2.0.106",
+    "@tscircuit/system-block-viewer": "https://jscdn.tscircuit.com/@tscircuit/system-block-viewer/0.0.2.tgz",
     "@types/babel__standalone": "^7.1.7",
     "@types/bun": "^1.1.10",
     "@types/country-list": "^2.1.4",

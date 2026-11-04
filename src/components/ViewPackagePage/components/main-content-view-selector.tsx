@@ -4,6 +4,7 @@ import {
   CuboidIcon as Cube,
   CircuitBoardIcon as Circuit,
   FileTerminal,
+  Workflow,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -56,6 +57,16 @@ export default function MainContentViewSelector({
       icon: <FileTerminal className="h-4 w-4 mr-1" />,
       requiresCircuitJson: true,
     },
+    ...(circuitJson?.some((element) => element.type === "system_block_page")
+      ? [
+          {
+            id: "system",
+            label: "System",
+            icon: <Workflow className="h-4 w-4 mr-1" />,
+            requiresCircuitJson: true,
+          },
+        ]
+      : []),
   ]
 
   return (
