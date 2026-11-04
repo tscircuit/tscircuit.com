@@ -27,7 +27,7 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
-test("Product menu includes the four destinations and icons", async ({
+test("Product menu includes the product destinations and icons", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
@@ -38,6 +38,7 @@ test("Product menu includes the four destinations and icons", async ({
     ["Online Playground", "/playground"],
     ["NPM Package", "https://www.npmjs.com/package/tscircuit"],
     ["tscircuit Skill", "https://github.com/tscircuit/skill"],
+    ["Datasheets", "/datasheets"],
     ["tscircuit Enterprise", "/enterprise"],
   ]) {
     const link = product.getByRole("link", { name, exact: true })
@@ -96,7 +97,7 @@ test("Product navigation and Enterprise page work on mobile", async ({
     .locator("details")
     .filter({ has: page.locator("summary", { hasText: "Product" }) })
   await product.locator("summary").click()
-  await expect(product.getByRole("link")).toHaveCount(4)
+  await expect(product.getByRole("link")).toHaveCount(5)
   await expect(product).toHaveScreenshot("product-mobile.png")
   await product
     .getByRole("link", { name: "tscircuit Enterprise", exact: true })

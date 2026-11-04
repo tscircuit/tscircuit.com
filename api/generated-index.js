@@ -220,6 +220,31 @@ function handleEnterprisePage(req, res) {
   res.status(200).send(html)
 }
 
+const solutionPages = {
+  "/professional-support": {
+    title: "Professional Support — tscircuit",
+    description:
+      "Expert design reviews, dedicated Slack and email channels, custom autorouting, and internal PCB design models. Professional Support starts at $500/mo.",
+  },
+  "/verified-chips": {
+    title: "Verified Chips Program — tscircuit",
+    description:
+      "Partner with tscircuit to make your chips easier to discover and design with. Over 10 million requests monthly, verified pin metadata, and automatic evaluation boards.",
+  },
+}
+
+function handleSolutionPage(path, res) {
+  const html = getHtmlWithModifiedSeoTags({
+    ...solutionPages[path],
+    canonicalUrl: `${BASE_URL}${path}`,
+    imageUrl: `${BASE_URL}/tscircuit-logo.png`,
+  })
+  res.setHeader("Content-Type", "text/html; charset=utf-8")
+  res.setHeader("Cache-Control", cacheControlHeader)
+  res.setHeader("Vary", "Accept-Encoding")
+  res.status(200).send(html)
+}
+
 function handleDatasheetsIndex(req, res) {
   const html = getHtmlWithModifiedSeoTags({
     title: "Electronic Component Datasheets - tscircuit",
@@ -1133,6 +1158,11 @@ export async function handleAvatarRedirect(req, res) {
 
 export default async function handler(req, res) {
   const urlPath = req.url.split("?")[0]
+  const solutionPath = urlPath.replace(/\/$/, "")
+  if (Object.hasOwn(solutionPages, solutionPath)) {
+    handleSolutionPage(solutionPath, res)
+    return
+  }
   if (urlPath === "/enterprise" || urlPath === "/enterprise/") {
     handleEnterprisePage(req, res)
     return
