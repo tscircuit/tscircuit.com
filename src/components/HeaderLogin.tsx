@@ -75,7 +75,7 @@ export const HeaderLogin = () => {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="ml-1 mr-1 md:ml-0 md:mr-1 !z-[1000]"
+          className="site-header-menu ml-1 mr-1 md:ml-0 md:mr-1 !z-[1000]"
           side="bottom"
           align="end"
           sideOffset={4}
@@ -138,7 +138,7 @@ export const HeaderLogin = () => {
           {nonPersonalOrgs && nonPersonalOrgs.length > 0 && (
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>Orgs</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent className="site-header-menu">
                 {nonPersonalOrgs.map((org) => (
                   <DropdownMenuItem key={org.org_id} asChild>
                     <Link

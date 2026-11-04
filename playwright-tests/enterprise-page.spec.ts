@@ -32,8 +32,10 @@ test("Product menu includes the product destinations and icons", async ({
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto("http://127.0.0.1:5177/enterprise")
-  await page.getByRole("button", { name: "Product", exact: true }).click()
-  const product = page.getByRole("navigation", { name: "Product", exact: true })
+  await page.locator("summary", { hasText: "Product" }).hover()
+  const product = page
+    .locator("details")
+    .filter({ has: page.locator("summary", { hasText: "Product" }) })
   for (const [name, href] of [
     ["Online Playground", "/playground"],
     ["NPM Package", "https://www.npmjs.com/package/tscircuit"],
@@ -50,10 +52,11 @@ test("Product menu includes the product destinations and icons", async ({
   ).toHaveAttribute("href", `${releasesUrl}/tag/daily-2026-10-10`)
   await expect(page).toHaveScreenshot("product-menu.png")
   await page.keyboard.press("Escape")
-  await page.getByRole("button", { name: "Community", exact: true }).click()
+  await page.locator("summary", { hasText: "Community" }).hover()
   await expect(
     page
-      .getByRole("navigation", { name: "Community", exact: true })
+      .locator("details")
+      .filter({ has: page.locator("summary", { hasText: "Community" }) })
       .getByRole("link", { name: "Blog", exact: true }),
   ).toHaveAttribute("href", "https://blog.tscircuit.com")
 })

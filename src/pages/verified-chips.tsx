@@ -2,7 +2,7 @@ import SolutionPage from "@/components/SolutionPage"
 
 const features = [
   {
-    title: "Pin metadata for successful first revisions",
+    title: "Better Validation for AI-generated Circuit Boards",
     description:
       "tscircuit chips include metadata for pin configurations, helping ensure high first revision success rates.",
   },
@@ -14,7 +14,7 @@ const features = [
   {
     title: "Shorter time to market",
     description:
-      "Partner with tscircuit to help your semiconductor company decrease time to market and make new chips easier for engineers to design with.",
+      "Partner with tscircuit to accelerate time to market and make new chips easier for engineers to design with.",
   },
   {
     title: "Evaluation boards, generated automatically",
