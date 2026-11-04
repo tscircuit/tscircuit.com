@@ -28,7 +28,15 @@ export const templateCatalogue = [
   },
 ] as const
 
-const templateMap: Record<string, { code: string; type: string }> = {
+export interface SnippetTemplate {
+  type: string
+  /** Contents of index.tsx */
+  code: string
+  /** Extra files opened next to index.tsx, e.g. parts from `tsci import` */
+  files?: Record<string, string>
+}
+
+const templateMap: Record<string, SnippetTemplate> = {
   "blank-circuit-board": blankCircuitBoardTemplate,
   "blank-chip-component": blankPackageTemplate,
   "analog-simulation": analogSimulationTemplate,
@@ -37,7 +45,9 @@ const templateMap: Record<string, { code: string; type: string }> = {
   "esp32-bluetooth-speaker": esp32BluetoothSpeakerTemplate,
 }
 
-export const getSnippetTemplate = (template: string | undefined) => {
+export const getSnippetTemplate = (
+  template: string | undefined,
+): SnippetTemplate => {
   if (template && templateMap[template]) {
     return templateMap[template]
   }

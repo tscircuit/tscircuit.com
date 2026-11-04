@@ -54,6 +54,7 @@ export interface ICreatePackageProps {
 
 export function useFileManagement({
   templateCode,
+  templateFiles,
   currentPackage,
   openNewPackageSaveDialog,
   updateLastUpdated,
@@ -61,6 +62,8 @@ export function useFileManagement({
   releaseId,
 }: {
   templateCode?: string
+  /** Extra files that ship with the template, keyed by path */
+  templateFiles?: Record<string, string>
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
@@ -197,11 +200,19 @@ export function useFileManagement({
       }
 
       if (!urlParams.package_id) {
+        const isTemplateCode = initialCodeContent === templateCode
+        const extraTemplateFiles = isTemplateCode
+          ? Object.entries(templateFiles ?? {}).map(([path, content]) => ({
+              path,
+              content,
+            }))
+          : []
         setLocalFiles([
           {
             path: "index.tsx",
             content: initialCodeContent || "",
           },
+          ...extraTemplateFiles,
         ])
         setInitialFiles([])
         setCurrentFile("index.tsx")

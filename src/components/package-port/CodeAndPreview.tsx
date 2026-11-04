@@ -119,6 +119,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     packageFilesMeta,
   } = useFileManagement({
     templateCode: templateFromUrl?.code,
+    templateFiles: templateFromUrl?.files,
     currentPackage: pkg,
     urlParams,
     openNewPackageSaveDialog,
