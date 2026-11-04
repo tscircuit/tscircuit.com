@@ -1,6 +1,6 @@
 import { GitHubLogoIcon } from "@radix-ui/react-icons"
-import { Building2, ChevronDown, SquarePen } from "lucide-react"
-import { Link, useLocation } from "wouter"
+import { Building2, ChevronDown, FileText, SquarePen } from "lucide-react"
+import { Link } from "wouter"
 import { useGlobalStore } from "@/hooks/use-global-store"
 import { cn } from "@/lib/utils"
 import {
@@ -11,6 +11,11 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
+
+const solutionLinks = [
+  { label: "Professional Support", href: "/professional-support" },
+  { label: "Verified Chips Program", href: "/verified-chips" },
+]
 
 const communityLinks = [
   { label: "Blog", href: "https://blog.tscircuit.com" },
@@ -41,6 +46,7 @@ const productLinks = [
     href: "https://github.com/tscircuit/skill",
     Icon: GitHubLogoIcon,
   },
+  { label: "Datasheets", href: "/datasheets", Icon: FileText },
   { label: "tscircuit Enterprise", href: "/enterprise", Icon: Building2 },
 ]
 
@@ -52,7 +58,6 @@ export function HeaderNavigation({
   onNavigate?: () => void
 }) {
   const isLoggedIn = useGlobalStore((s) => Boolean(s.session))
-  const [location] = useLocation()
   const linkClass = cn(
     "inline-flex min-h-9 items-center rounded-md text-sm font-medium text-gray-900 transition-colors hover:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
     mobile && "w-full px-3 py-2",
@@ -125,17 +130,55 @@ export function HeaderNavigation({
       <a href="https://docs.tscircuit.com/" className={linkClass}>
         Docs
       </a>
-      <Link
-        href="/datasheets"
-        className={cn(
-          linkClass,
-          location.startsWith("/datasheet") && "text-blue-600",
-        )}
-        aria-current={location === "/datasheets" ? "page" : undefined}
-        onClick={onNavigate}
-      >
-        Datasheets
-      </Link>
+      {mobile ? (
+        <details className="group">
+          <summary
+            className={cn(
+              linkClass,
+              "cursor-pointer list-none gap-2 [&::-webkit-details-marker]:hidden",
+            )}
+          >
+            Solutions
+            <ChevronDown
+              className="h-3 w-3 group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="ml-3 grid gap-1">
+            {solutionLinks.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                className={communityLinkClass}
+                onClick={onNavigate}
+              >
+                {label}
+              </a>
+            ))}
+          </div>
+        </details>
+      ) : (
+        <NavigationMenu delayDuration={0} aria-label="Solutions">
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="px-0 hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent">
+                Solutions
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <div className="grid w-64 gap-1 p-2">
+                  {solutionLinks.map(({ label, href }) => (
+                    <NavigationMenuLink key={href} asChild>
+                      <a href={href} className={communityLinkClass}>
+                        {label}
+                      </a>
+                    </NavigationMenuLink>
+                  ))}
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      )}
       {mobile ? (
         <details className="group">
           <summary
