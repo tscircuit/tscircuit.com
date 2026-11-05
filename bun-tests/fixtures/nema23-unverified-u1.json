@@ -1,0 +1,40 @@
+[
+  {
+    "type": "source_component",
+    "source_component_id": "source_component_0",
+    "ftype": "simple_chip",
+    "name": "U1",
+    "manufacturer_part_number": "RP2040",
+    "supplier_part_numbers": {
+      "jlcpcb": ["C2040"]
+    },
+    "source_group_id": "source_group_0"
+  },
+  {
+    "type": "pcb_component",
+    "pcb_component_id": "pcb_component_0",
+    "footprint_origin": {
+      "x": -11,
+      "y": 2
+    },
+    "center": {
+      "x": -11,
+      "y": 2
+    },
+    "width": 7.6998999999999995,
+    "height": 7.700100000000001,
+    "layer": "top",
+    "rotation": 0,
+    "source_component_id": "source_component_0",
+    "subcircuit_id": "subcircuit_source_group_57",
+    "do_not_place": false,
+    "obstructs_within_bounds": true,
+    "is_allowed_to_be_off_board": false,
+    "pcb_group_id": "pcb_group_0",
+    "position_mode": "relative_to_group_anchor",
+    "positioned_relative_to_pcb_group_id": "pcb_group_0",
+    "display_offset_x": 0,
+    "display_offset_y": 0.5,
+    "pin1_location": "leftside_top"
+  }
+]

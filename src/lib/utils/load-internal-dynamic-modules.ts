@@ -1,7 +1,8 @@
 import importer, {
   type SupportedModuleMap,
 } from "@tscircuit/internal-dynamic-import"
-import type { AnyCircuitElement, SupplierName } from "circuit-json"
+import type { AnyCircuitElement } from "circuit-json"
+import type { PickAndPlaceConversionOptions } from "circuit-json-to-pnp-csv"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -36,7 +37,7 @@ type CircuitJsonToLbrnModule = Record<string, unknown>
 type CircuitJsonToPnpCsvModule = {
   convertCircuitJsonToPickAndPlaceCsv: (
     circuitJson: AnyCircuitElement[],
-    options?: { supplier?: SupplierName },
+    options?: PickAndPlaceConversionOptions,
   ) => Promise<string> | string
 }
 

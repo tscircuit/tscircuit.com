@@ -2,6 +2,116 @@ import { expect, test } from "bun:test"
 import type { AnyCircuitElement } from "circuit-json"
 import JSZip from "jszip"
 import { createFabricationFilesZip } from "@/lib/download-fns/download-fabrication-files"
+import unverifiedU1 from "./fixtures/nema23-unverified-u1.json"
+
+test("NEMA-23 v1.4.15 can download fabrication files when U1 has no supplier orientation", async () => {
+  const pnpConverter = await import("circuit-json-to-pnp-csv")
+  // Extracted unchanged from imrishabh18/nema-23-stepper-controller v1.4.15.
+  const circuitJson = unverifiedU1 as AnyCircuitElement[]
+  const before = structuredClone(circuitJson)
+  expect(() =>
+    pnpConverter.convertCircuitJsonToPickAndPlaceCsv(circuitJson, {
+      supplier: "jlcpcb",
+    }),
+  ).toThrow(
+    "U1: cannot verify jlcpcb pick-and-place rotation (missing_supplier_pin1_location); PCB rotation 0 is unverified.",
+  )
+
+  const warnings: string[] = []
+  const blob = await createFabricationFilesZip({
+    circuitJson,
+    gerberConverter: {
+      convertCircuitJsonToGerberFiles: () => ({ "F_Cu.gbr": "copper" }),
+    },
+    bomConverter: {
+      convertCircuitJsonToBomRows: () => [],
+      convertBomRowsToCsv: () => "bom",
+    },
+    pnpConverter,
+    onPlacementWarnings: (items) =>
+      warnings.push(...items.map((item) => item.message)),
+  })
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer())
+  expect(await zip.file("gerber/F_Cu.gbr")!.async("string")).toBe("copper")
+  expect(await zip.file("bom.csv")!.async("string")).toBe("bom")
+  expect(zip.file("pick_and_place.csv")).toBeNull()
+  const report = await zip.file("placement_warnings.txt")!.async("string")
+  expect(report).toContain("Pick-and-place file omitted")
+  expect(report).toContain("missing_supplier_pin1_location")
+  expect(report).toContain("U1: cannot verify jlcpcb")
+  expect(warnings).toHaveLength(1)
+  expect(warnings[0]).toContain("U1: cannot verify jlcpcb")
+  expect(circuitJson).toEqual(before)
+})
+
+test("placement report lists every unresolved fitted component without exporting fallback angles", async () => {
+  const pnpConverter = await import("circuit-json-to-pnp-csv")
+  const circuitJson = structuredClone(unverifiedU1) as AnyCircuitElement[]
+  circuitJson.push(
+    {
+      ...unverifiedU1[0],
+      source_component_id: "source_component_1",
+      name: "U2",
+    } as AnyCircuitElement,
+    {
+      ...unverifiedU1[1],
+      source_component_id: "source_component_1",
+      pcb_component_id: "pcb_component_1",
+      pin1_location: undefined,
+    } as AnyCircuitElement,
+    {
+      ...unverifiedU1[0],
+      source_component_id: "source_dnp",
+      name: "DNP",
+    } as AnyCircuitElement,
+    {
+      ...unverifiedU1[1],
+      source_component_id: "source_dnp",
+      pcb_component_id: "pcb_dnp",
+      do_not_place: true,
+    } as AnyCircuitElement,
+  )
+  const blob = await createFabricationFilesZip({
+    circuitJson,
+    gerberConverter: { convertCircuitJsonToGerberFiles: () => ({}) },
+    bomConverter: {
+      convertCircuitJsonToBomRows: () => [],
+      convertBomRowsToCsv: () => "bom",
+    },
+    pnpConverter,
+  })
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer())
+  const report = await zip.file("placement_warnings.txt")!.async("string")
+  expect(report).toContain("U1: cannot verify jlcpcb")
+  expect(report).toContain("U2: cannot verify jlcpcb")
+  expect(report).toContain("missing_pin1_location")
+  expect(report).not.toContain("DNP")
+  expect(zip.file("pick_and_place.csv")).toBeNull()
+})
+
+test("unexpected placement converter failures still reject the download", async () => {
+  const error = new Error("unexpected converter failure")
+  let warned = false
+  await expect(
+    createFabricationFilesZip({
+      circuitJson: [],
+      gerberConverter: { convertCircuitJsonToGerberFiles: () => ({}) },
+      bomConverter: {
+        convertCircuitJsonToBomRows: () => [],
+        convertBomRowsToCsv: () => "bom",
+      },
+      pnpConverter: {
+        convertCircuitJsonToPickAndPlaceCsv: async () => {
+          throw error
+        },
+      },
+      onPlacementWarnings: () => {
+        warned = true
+      },
+    }),
+  ).rejects.toBe(error)
+  expect(warned).toBe(false)
+})
 
 test("fabrication zip includes plated, blind, and non-plated drill layers", async () => {
   const zipBlob = await createFabricationFilesZip({
@@ -89,6 +199,7 @@ test("fabrication download applies JLCPCB orientation frames to the exported CPL
   const cpl = await zip.file("pick_and_place.csv")!.async("string")
   expect(cpl).toContain("Q_PD_ENABLE,0.000,0.000,top,180")
   expect(cpl).toContain("Q_BUZZER,5.000,0.000,top,0")
+  expect(zip.file("placement_warnings.txt")).toBeNull()
   expect(circuitJson).toEqual(before)
   expect(await zip.file("gerber/F_Cu.gbr")!.async("string")).toBe(
     "unchanged copper",
