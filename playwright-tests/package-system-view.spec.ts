@@ -90,3 +90,49 @@ test("System is absent without a page and an unavailable #system falls back to F
     page.getByRole("region", { name: "System diagram viewport" }),
   ).toHaveCount(0)
 })
+
+test("associated components show refdes and MPN and focus the schematic", async ({
+  page,
+}) => {
+  const { exampleCircuitJson } = await import("./exampleCircuitJson")
+  const circuitJson = [
+    ...exampleCircuitJson.map((element) =>
+      element.type === "source_component" && element.name === "R1"
+        ? { ...element, manufacturer_part_number: "RC0402FR-071KL" }
+        : element,
+    ),
+    ...systemJson.map((element) =>
+      element.type === "system_block_component"
+        ? { ...element, pcb_component_ids: ["pcb_component_0"] }
+        : element,
+    ),
+  ]
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.route("**/package_releases/get_preview_circuit_json?*", (route) =>
+    route.fulfill({
+      json: {
+        preview_circuit_json_response: {
+          circuit_json_found: true,
+          circuit_json: circuitJson,
+        },
+      },
+    }),
+  )
+  await page.goto("http://127.0.0.1:5177/testuser/my-test-board#system")
+  for (let visit = 0; visit < 2; visit++) {
+    await page
+      .getByRole("button", { name: "Show components for Controller" })
+      .click()
+    const component = page.getByRole("button", { name: /R1.*RC0402FR-071KL/ })
+    await expect(component).toBeVisible()
+    await component.click()
+    await expect(page).toHaveURL(/#schematic$/)
+    await expect(
+      page.locator(
+        '[data-schematic-component-id="schematic_component_0"].schematic-search-match',
+      ),
+    ).toBeVisible()
+    if (visit === 0)
+      await page.getByRole("button", { name: "System", exact: true }).click()
+  }
+})

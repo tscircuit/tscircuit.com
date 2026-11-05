@@ -1,8 +1,13 @@
-import { SystemBlockViewer } from "@tscircuit/system-block-viewer"
+import {
+  SystemBlockViewer,
+  type SystemBlockViewerProps,
+} from "@tscircuit/system-block-viewer"
 import { ErrorBoundary } from "react-error-boundary"
 import { useCurrentPackageCircuitJson } from "../../hooks/use-current-package-circuit-json"
 
-export default function SystemView() {
+export default function SystemView({
+  onComponentClick,
+}: Pick<SystemBlockViewerProps, "onComponentClick">) {
   const { circuitJson, isLoading, error } = useCurrentPackageCircuitJson()
   if (isLoading)
     return (
@@ -24,6 +29,7 @@ export default function SystemView() {
       >
         <SystemBlockViewer
           circuitJson={circuitJson}
+          onComponentClick={onComponentClick}
           containerStyle={{ height: 620 }}
         />
       </ErrorBoundary>
