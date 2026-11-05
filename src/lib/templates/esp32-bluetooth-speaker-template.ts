@@ -2,9 +2,10 @@
 export const esp32BluetoothSpeakerTemplate = {
   type: "board",
   code: `
+import { systemblock } from "tscircuit"
 import { AMS1117_3_3 } from "./imports/AMS1117_3_3"
-import { B2B_PH_K_S_LF__SN_ } from "./imports/B2B_PH_K_S_LF__SN_"
 import { ESP32_WROOM_32E_N8 } from "./imports/ESP32_WROOM_32E_N8"
+import { KF350_3_5_2P } from "./imports/KF350_3_5_2P"
 import { MAX98357AETE_T } from "./imports/MAX98357AETE_T"
 import { TYPE_C_31_M_12 } from "./imports/TYPE_C_31_M_12"
 
@@ -133,6 +134,7 @@ export default () => (
       name="J3"
       schSectionName="esp32"
       pinCount={5}
+      supplierPartNumbers={{ jlcpcb: ["C492404"] }}
       pinLabels={["GND", "TX", "RX", "EN", "IO0"]}
       pcbX={14}
       pcbY={-14}
@@ -143,6 +145,22 @@ export default () => (
         EN: "net.EN",
         IO0: "net.IO0",
       }}
+    />
+    {["GND", "TX", "RX", "EN", "IO0"].map((label, i) => (
+      <silkscreentext
+        key={label}
+        text={label}
+        fontSize="0.8mm"
+        pcbX={8.92 + i * 2.54}
+        pcbY={-15.6}
+      />
+    ))}
+    <silkscreentext
+      text="USB-UART PROGRAMMER"
+      anchorAlignment="center_right"
+      fontSize="1mm"
+      pcbX={7.6}
+      pcbY={-14}
     />
 
     {/* 3W class-D amp, the 1M on SD_MODE mixes L+R into mono */}
@@ -185,14 +203,84 @@ export default () => (
       pcbY={-2}
       connections={{ pin1: "net.V5", pin2: "net.GND" }}
     />
-    {/* 4-8 ohm speaker */}
-    <B2B_PH_K_S_LF__SN_
+    {/* Screw terminal for the wires of a 4-8 ohm speaker */}
+    <KF350_3_5_2P
       name="P1"
       schSectionName="audio"
-      pcbX={-21}
+      pcbX={-21.2}
       pcbY={-6}
-      pcbRotation={90}
+      pcbRotation={-90}
     />
+    <silkscreentext text="SPEAKER" fontSize="1mm" pcbX={-21} pcbY={-1.2} />
+    <silkscreentext text="+" fontSize="1.2mm" pcbX={-16.8} pcbY={-4.25} />
+    <silkscreentext text="-" fontSize="1.2mm" pcbX={-16.8} pcbY={-7.75} />
+
+    {/* Overview of the design, open the System tab to see it */}
+    <systemblock.page name="overview" displayName="ESP32 Bluetooth speaker">
+      <systemblock.component
+        name="phone"
+        displayName="Phone"
+        description="Plays the music"
+      />
+      <systemblock.component
+        name="usb"
+        displayName="USB-C input"
+        description="5V from any charger"
+        pcbComponentNames={["USB1", "R1", "R2"]}
+      />
+      <systemblock.component
+        name="regulator"
+        displayName="3.3V regulator"
+        description="Powers the ESP32"
+        pcbComponentNames={["U3", "C1"]}
+      />
+      <systemblock.component
+        name="esp32"
+        displayName="ESP32"
+        description="Receives Bluetooth audio"
+        pcbComponentNames={["U2", "C2", "R3", "C3"]}
+      />
+      <systemblock.component
+        name="programmer"
+        displayName="Programming header"
+        description="Flashes the firmware"
+        pcbComponentName="J3"
+      />
+      <systemblock.component
+        name="amp"
+        displayName="Class-D amp"
+        description="Turns I2S into 3W of audio"
+        pcbComponentNames={["U1", "R4", "C4"]}
+      />
+      <systemblock.component
+        name="speaker"
+        displayName="Speaker"
+        description="4-8 ohm, on a screw terminal"
+        pcbComponentName="P1"
+      />
+      <systemblock.connection from="phone" to="esp32" label="Bluetooth" />
+      <systemblock.connection
+        from="programmer"
+        to="esp32"
+        label="UART"
+        direction="both"
+      />
+      <systemblock.connection from="esp32" to="amp" label="I2S" />
+      <systemblock.connection from="amp" to="speaker" label="Audio" />
+      <systemblock.connection
+        from="usb"
+        to="regulator"
+        label="5V"
+        kind="power"
+      />
+      <systemblock.connection from="usb" to="amp" label="5V" kind="power" />
+      <systemblock.connection
+        from="regulator"
+        to="esp32"
+        label="3.3V"
+        kind="power"
+      />
+    </systemblock.page>
   </board>
 )
 `.trim(),
@@ -231,48 +319,6 @@ export const AMS1117_3_3 = (props: ChipProps<typeof pinLabels>) => {
         stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C6186.step?uuid=e80246a9471445bfb635be848806a22e",
         pcbRotationOffset: 180,
         modelOriginPosition: { x: -0.14002385000003414, y: -0.000012700000070253736, z: -0.049394 },
-      }}
-      {...props}
-    />
-  )
-}
-`.trim(),
-    "imports/B2B_PH_K_S_LF__SN_.tsx": `
-import type { ChipProps } from "@tscircuit/props"
-
-const pinLabels = {
-  pin1: ["pin1"],
-  pin2: ["pin2"]
-} as const
-
-export const B2B_PH_K_S_LF__SN_ = (props: ChipProps<typeof pinLabels>) => {
-  return (
-    <chip
-      pinLabels={pinLabels}
-      supplierPartNumbers={{
-  "jlcpcb": [
-    "C131337"
-  ]
-}}
-      manufacturerPartNumber="B2B-PH-K-S(LF)(SN)"
-      footprint={<footprint>
-        <platedhole  portHints={["pin2"]} pcbX="-0.999998mm" pcbY="-0.550037mm" outerDiameter="1.5999968mm" holeDiameter="0.9000236mm" shape="circle" />
-<platedhole  portHints={["pin1"]} pcbX="0.999998mm" pcbY="-0.550037mm" outerDiameter="1.5999968mm" holeDiameter="0.9000236mm" shape="circle" />
-<silkscreenpath route={[{"x":-2.921000000000049,"y":-0.2960369999999557},{"x":-2.413000000000011,"y":-0.2960369999999557},{"x":-2.413000000000011,"y":1.608963000000017},{"x":2.53999999999985,"y":1.608963000000017},{"x":2.53999999999985,"y":-0.2960369999999557},{"x":2.9209999999998217,"y":-0.2960369999999557}]} />
-<silkscreenpath route={[{"x":3.000044799999955,"y":-0.9310370000000603},{"x":2.4920448000000306,"y":-0.9310370000000603},{"x":2.4920448000000306,"y":-1.6930370000001176},{"x":0.3330447999999251,"y":-1.6930370000001176},{"x":0.3330447999999251,"y":-2.201037000000042}]} />
-<silkscreenpath route={[{"x":-2.921000000000049,"y":-0.9310370000000603},{"x":-2.413000000000011,"y":-0.9310370000000603},{"x":-2.413000000000011,"y":-1.6930370000001176},{"x":-0.2540000000001328,"y":-1.6930370000001176},{"x":-0.2540000000001328,"y":-2.201037000000042}]} />
-<silkscreenrect pcbX="0mm" pcbY="0mm" width="5.999988mm" height="4.500118mm" strokeWidth="0.254mm" />
-<silkscreentext text="{NAME}" pcbX="0.016002mm" pcbY="3.345563mm" anchorAlignment="center" fontSize="1mm" />
-<fabricationnotepath route={[{"x":2.9209999999998217,"y":-0.2960369999999557},{"x":2.53999999999985,"y":-0.2960369999999557},{"x":2.53999999999985,"y":1.608963000000017},{"x":-2.4130000000001246,"y":1.608963000000017},{"x":-2.4130000000001246,"y":-0.2960369999999557},{"x":-2.921000000000163,"y":-0.2960369999999557},{"x":-2.921000000000163,"y":2.243963000000008},{"x":2.9209999999998217,"y":2.243963000000008},{"x":2.9209999999998217,"y":-0.2960369999999557}]} strokeWidth="0mm" isFilled hasStroke={false} />
-<fabricationnotepath route={[{"x":3.000044800000069,"y":-0.9310369999999466},{"x":2.4920448000000306,"y":-0.9310369999999466},{"x":2.4920448000000306,"y":-1.693037000000004},{"x":0.3330448000000388,"y":-1.693037000000004},{"x":0.3330448000000388,"y":-2.201037000000042},{"x":3.0479999999997744,"y":-2.201037000000042},{"x":3.000044800000069,"y":-0.9310369999999466}]} strokeWidth="0mm" isFilled hasStroke={false} />
-<fabricationnotepath route={[{"x":-0.2540000000001328,"y":-1.693037000000004},{"x":-0.2540000000001328,"y":-2.201037000000042},{"x":-2.921000000000163,"y":-2.201037000000042},{"x":-2.921000000000163,"y":-0.9310369999999466},{"x":-2.4130000000001246,"y":-0.9310369999999466},{"x":-2.4130000000001246,"y":-1.693037000000004},{"x":-0.2540000000001328,"y":-1.693037000000004}]} strokeWidth="0mm" isFilled hasStroke={false} />
-<courtyardoutline outline={[{"x":-3.249994000000015,"y":2.599957199999949},{"x":3.249994000000015,"y":2.599957199999949},{"x":3.249994000000015,"y":-2.500033599999938},{"x":-3.249994000000015,"y":-2.500033599999938},{"x":-3.249994000000015,"y":2.599957199999949}]} />
-      </footprint>}
-      cadModel={{
-        objUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C131337.obj?uuid=ee6b32b5c03144688a5663b32f9648c4",
-        stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C131337.step?uuid=ee6b32b5c03144688a5663b32f9648c4",
-        pcbRotationOffset: 180,
-        modelOriginPosition: { x: -0.9995, y: -0.5500381999999945, z: -0.000006999999999646178 },
       }}
       {...props}
     />
@@ -414,6 +460,59 @@ export const ESP32_WROOM_32E_N8 = (props: ChipProps<typeof pinLabels>) => {
         pcbRotationOffset: 180,
         modelOriginPosition: { x: -4.066063750000012, y: 0, z: 0 },
       }}
+      {...props}
+    />
+  )
+}
+`.trim(),
+    "imports/KF350_3_5_2P.tsx": `
+import type { ChipProps } from "@tscircuit/props"
+
+const pinLabels = {
+  pin1: ["pin1"],
+  pin2: ["pin2"]
+} as const
+
+export const KF350_3_5_2P = (props: ChipProps<typeof pinLabels>) => {
+  return (
+    <chip
+      pinLabels={pinLabels}
+      supplierPartNumbers={{
+  "jlcpcb": [
+    "C474892"
+  ]
+}}
+      manufacturerPartNumber="KF350-3.5-2P"
+      footprint={<footprint>
+        <platedhole  portHints={["pin1"]} pcbX="-1.749933mm" pcbY="0mm" outerDiameter="1.999996mm" holeDiameter="0.999998mm" shape="circle" />
+<platedhole  portHints={["pin2"]} pcbX="1.749933mm" pcbY="0mm" outerDiameter="1.999996mm" holeDiameter="0.999998mm" shape="circle" />
+<silkscreenpath route={[{"x":3.500196200000005,"y":3.499967599999991},{"x":3.500196200000005,"y":-3.4000694000000067}]} />
+<silkscreenpath route={[{"x":-3.5000184000000445,"y":-3.4001202000000603},{"x":3.5000184000000445,"y":-3.4001202000000603}]} />
+<silkscreenpath route={[{"x":-2.6805128000000877,"y":-3.4001710000000003},{"x":-2.6805128000000877,"y":-1.9106895999999551},{"x":-2.249906600000031,"y":-1.480108800000039},{"x":-1.2598908000001074,"y":-1.480108800000039},{"x":-0.8136128000001008,"y":-1.926386799999932},{"x":-0.8136128000001008,"y":-3.4001710000000003}]} />
+<silkscreenpath route={[{"x":0.8193023999999696,"y":-3.4001202000000603},{"x":0.8193023999999696,"y":-1.910664200000042},{"x":1.2499339999999393,"y":-1.4800579999999854},{"x":2.2399497999999767,"y":-1.4800579999999854},{"x":2.686227800000097,"y":-1.9263613999999052},{"x":2.686227800000097,"y":-3.4001202000000603}]} />
+<silkscreenpath route={[{"x":-3.5000437999999576,"y":1.868728800000099},{"x":3.5000437999999576,"y":1.868728800000099}]} />
+<silkscreenpath route={[{"x":-3.5000437999999576,"y":3.4999930000000177},{"x":3.499992999999904,"y":3.4999930000000177}]} />
+<silkscreenpath route={[{"x":-3.5000437999999576,"y":3.4999930000000177},{"x":-3.5000437999999576,"y":-3.4000186000000667}]} />
+<silkscreenpath route={[{"x":-3.5000437999999576,"y":-3.4000186000000667},{"x":-3.9500809999999547,"y":-3.4000186000000667},{"x":-3.9500809999999547,"y":-2.5999947999998767},{"x":-3.5000437999999576,"y":-2.5999947999998767}]} />
+<silkscreenpath route={[{"x":3.499992999999904,"y":3.4999930000000177},{"x":3.9500048000001016,"y":3.4999930000000177},{"x":3.9500048000001016,"y":2.699994600000082},{"x":3.499992999999904,"y":2.699994600000082}]} />
+<silkscreentext text="{NAME}" pcbX="0.010033mm" pcbY="4.6322mm" anchorAlignment="center" fontSize="1mm" />
+<fabricationnotepath route={[{"x":-2.8076143999999204,"y":-3.40004399999998},{"x":-2.8076143999999204,"y":-1.9106133999999884},{"x":-2.7979548349023844,"y":-1.8620075982191793},{"x":-2.770428799999877,"y":-1.8207989999999654},{"x":-2.3398226000000477,"y":-1.3901928000000225},{"x":-2.2986140017809475,"y":-1.3626667650974014},{"x":-2.2500082000000248,"y":-1.3530071999998654},{"x":-1.259992400000101,"y":-1.3530071999998654},{"x":-1.2113865982190646,"y":-1.3626667650974014},{"x":-1.170178000000078,"y":-1.3901928000000225},{"x":-0.7239000000000715,"y":-1.8364707999999155},{"x":-0.6963739650974503,"y":-1.8776793982190156},{"x":-0.6867143999999143,"y":-1.9262851999999384},{"x":-0.6867143999999143,"y":-3.40004399999998},{"x":-0.813714399999867,"y":-3.5270439999999326},{"x":-0.9407143999999334,"y":-3.40004399999998},{"x":-0.9407143999999334,"y":-1.9788886000000048},{"x":-1.31259579999994,"y":-1.6070071999998845},{"x":-2.1974047999999584,"y":-1.6070071999998845},{"x":-2.5536143999999013,"y":-1.9632168000000547},{"x":-2.5536143999999013,"y":-3.40004399999998},{"x":-2.680614399999854,"y":-3.5270439999999326},{"x":-2.8076143999999204,"y":-3.40004399999998}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":0.6923023999999032,"y":-3.4000694000000067},{"x":0.6923023999999032,"y":-1.9106387999999015},{"x":0.7019619650976665,"y":-1.8620329982190924},{"x":0.729488000000174,"y":-1.820824400000106},{"x":1.1600942000000032,"y":-1.3902181999999357},{"x":1.2012998712984881,"y":-1.3626784983014204},{"x":1.2499086000000261,"y":-1.3530072000000928},{"x":2.23992439999995,"y":-1.3530071999998654},{"x":2.2885194616609397,"y":-1.3626833583809912},{"x":2.3297134000000597,"y":-1.3902181999999357},{"x":2.7759914000000663,"y":-1.8364961999999423},{"x":2.8035311016985816,"y":-1.8777018712984272},{"x":2.813202399999909,"y":-1.9263105999999652},{"x":2.813202399999909,"y":-3.4000694000000067},{"x":2.6862023999999565,"y":-3.5270693999999594},{"x":2.55920239999989,"y":-3.4000694000000067},{"x":2.55920239999989,"y":-1.9789140000000316},{"x":2.1872955999999704,"y":-1.6070071999998845},{"x":1.3025120000000925,"y":-1.6070071999998845},{"x":0.9463023999999223,"y":-1.9632421999999679},{"x":0.9463023999999223,"y":-3.4000694000000067},{"x":0.8193023999999696,"y":-3.5270693999999594},{"x":0.6923023999999032,"y":-3.4000694000000067}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":-3.500043799999844,"y":-3.273044000000027},{"x":3.4999930000000177,"y":-3.273044000000027},{"x":3.626993000000084,"y":-3.40004399999998},{"x":3.4999930000000177,"y":-3.5270439999999326},{"x":-3.500043799999844,"y":-3.5270439999999326},{"x":-3.6270437999999103,"y":-3.40004399999998},{"x":-3.500043799999844,"y":-3.273044000000027}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":3.4999930000000177,"y":3.373043800000005},{"x":-3.500043799999844,"y":3.373043800000005},{"x":-3.6270437999999103,"y":3.5000437999999576},{"x":-3.500043799999844,"y":3.627043800000024},{"x":3.4999930000000177,"y":3.627043800000024},{"x":3.626993000000084,"y":3.5000437999999576},{"x":3.4999930000000177,"y":3.373043800000005}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":3.627043800000024,"y":3.5000184000000445},{"x":3.627043800000024,"y":-3.4000186000000667},{"x":3.5000438000000713,"y":-3.5270186000000194},{"x":3.373043800000005,"y":-3.4000186000000667},{"x":3.373043800000005,"y":3.5000184000000445},{"x":3.5000438000000713,"y":3.627018399999997},{"x":3.627043800000024,"y":3.5000184000000445}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<fabricationnotepath route={[{"x":-3.627069199999937,"y":-3.40004399999998},{"x":-3.627069199999937,"y":3.5000184000000445},{"x":-3.5000691999999844,"y":3.627018399999997},{"x":-3.373069199999918,"y":3.5000184000000445},{"x":-3.373069199999918,"y":-3.40004399999998},{"x":-3.5000691999999844,"y":-3.5270439999999326},{"x":-3.627069199999937,"y":-3.40004399999998}]} strokeWidth="0mm" isFilled hasStroke={false} />
+<courtyardoutline outline={[{"x":-4.2499919999999065,"y":3.7499930000000177},{"x":4.24999200000002,"y":3.7499930000000177},{"x":4.24999200000002,"y":-3.649993199999926},{"x":-4.2499919999999065,"y":-3.649993199999926},{"x":-4.2499919999999065,"y":3.7499930000000177}]} />
+      </footprint>}
+      
+      cadModel={{
+        objUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C474892.obj?uuid=81e8844df5354ae4bd7bd34179dfd3ff",
+        stepUrl: "https://modelcdn.tscircuit.com/easyeda_models/assets/C474892.step?uuid=81e8844df5354ae4bd7bd34179dfd3ff",
+        pcbRotationOffset: 0,
+        modelOriginPosition: {"x":0,"y":0,"z":-0.199998000000005},
+      
+      }}
+      
       {...props}
     />
   )
