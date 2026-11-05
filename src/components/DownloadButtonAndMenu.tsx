@@ -402,6 +402,8 @@ export function DownloadButtonAndMenu({
               await downloadFabricationFiles({
                 circuitJson: cj,
                 snippetUnscopedName: unscopedName || "snippet",
+                apiBaseUrl,
+                token,
               }).catch((error) => {
                 console.error(error)
                 console.log(error, error.stack)

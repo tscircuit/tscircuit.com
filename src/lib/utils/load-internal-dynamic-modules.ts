@@ -1,7 +1,7 @@
 import importer, {
   type SupportedModuleMap,
 } from "@tscircuit/internal-dynamic-import"
-import type { AnyCircuitElement, SupplierName } from "circuit-json"
+import type { AnyCircuitElement } from "circuit-json"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -33,12 +33,10 @@ type CircuitJsonToKicadModule = SupportedModuleMap["circuit-json-to-kicad"]
 
 type CircuitJsonToLbrnModule = Record<string, unknown>
 
-type CircuitJsonToPnpCsvModule = {
-  convertCircuitJsonToPickAndPlaceCsv: (
-    circuitJson: AnyCircuitElement[],
-    options?: { supplier?: SupplierName },
-  ) => Promise<string> | string
-}
+type CircuitJsonToPnpCsvModule = Pick<
+  typeof import("circuit-json-to-pnp-csv"),
+  "convertCircuitJsonToPickAndPlaceRows"
+>
 
 type CircuitJsonToReadableNetlistModule = {
   convertCircuitJsonToReadableNetlist: (

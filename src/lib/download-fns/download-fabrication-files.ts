@@ -4,6 +4,9 @@ import {
   loadCircuitJsonToPnpCsv,
 } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
+import type { PartOrientationOptions } from "circuit-json-to-pnp-csv"
+import { createSupplierPnpCsv } from "@/lib/fabrication/create-supplier-pnp-csv"
+import { getFabricationPartsEngine } from "@/lib/fabrication/get-fabrication-parts-engine"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
 import { withDownloadToast } from "./download-toast"
@@ -17,15 +20,16 @@ export const createFabricationFilesZip = async ({
   gerberConverter,
   bomConverter,
   pnpConverter,
+  orientationOptions,
 }: {
   circuitJson: AnyCircuitElement[]
   gerberConverter: GerberConverter
   bomConverter: BomConverter
   pnpConverter: PnpConverter
+  orientationOptions?: PartOrientationOptions
 }) => {
   const zip = new JSZip()
   const { convertCircuitJsonToBomRows, convertBomRowsToCsv } = bomConverter
-  const { convertCircuitJsonToPickAndPlaceCsv } = pnpConverter
 
   const gerberFiles = gerberConverter.convertCircuitJsonToGerberFiles(
     circuitJson,
@@ -41,7 +45,8 @@ export const createFabricationFilesZip = async ({
   const bomCsv = await convertBomRowsToCsv(bomRows)
   zip.file("bom.csv", bomCsv)
 
-  const pnpCsv = await convertCircuitJsonToPickAndPlaceCsv(circuitJson, {
+  const pnpCsv = await createSupplierPnpCsv(circuitJson, pnpConverter, {
+    ...orientationOptions,
     supplier: "jlcpcb",
   })
   zip.file("pick_and_place.csv", pnpCsv)
@@ -52,24 +57,31 @@ export const createFabricationFilesZip = async ({
 export const downloadFabricationFiles = async ({
   circuitJson,
   snippetUnscopedName,
+  apiBaseUrl,
+  token,
 }: {
   circuitJson: AnyCircuitElement[]
   snippetUnscopedName: string
+  apiBaseUrl: string
+  token?: string
 }) => {
   const zipBlob = await withDownloadToast(
     "Preparing fabrication files...",
     async () => {
-      const [gerberConverter, bomConverter, pnpConverter] = await Promise.all([
-        loadCircuitJsonToGerber(),
-        loadCircuitJsonToBomCsv(),
-        loadCircuitJsonToPnpCsv(),
-      ])
+      const [gerberConverter, bomConverter, pnpConverter, partsEngine] =
+        await Promise.all([
+          loadCircuitJsonToGerber(),
+          loadCircuitJsonToBomCsv(),
+          loadCircuitJsonToPnpCsv(),
+          getFabricationPartsEngine({ apiBaseUrl, token }),
+        ])
 
       return createFabricationFilesZip({
         circuitJson,
         gerberConverter,
         bomConverter,
         pnpConverter,
+        orientationOptions: { partsEngine },
       })
     },
   )
