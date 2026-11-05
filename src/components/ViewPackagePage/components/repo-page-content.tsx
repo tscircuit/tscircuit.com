@@ -250,7 +250,7 @@ export default function RepoPageContent({
       case "schematic":
         return <SchematicView controller={schematicController} />
       case "system":
-        return <SystemView />
+        return <SystemView onComponentClick={handleViewSchematicComponent} />
       case "bom":
         return <BOMView />
       default:
