@@ -143,6 +143,10 @@ body {
   overflow-x: hidden;
 }
 
+[data-toolbar-overlay] button > svg {
+  display: inline-block;
+}
+
 .tscircuit-runframe [role="tabpanel"][data-state="active"],
 .tscircuit-runframe [role="tabpanel"][data-state="active"] > div {
   min-height: 0 !important;
