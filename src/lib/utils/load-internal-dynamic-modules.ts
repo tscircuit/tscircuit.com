@@ -126,19 +126,9 @@ export const loadCircuitJsonToLbrn =
 
 export const loadCircuitJsonToPnpCsv =
   async (): Promise<CircuitJsonToPnpCsvModule> => {
-    const { convertCircuitJsonToSupplierPickAndPlaceCsv } =
-      await loadCircuitJsonConverter<{
-        convertCircuitJsonToSupplierPickAndPlaceCsv?: CircuitJsonToPnpCsvModule["convertCircuitJsonToPickAndPlaceCsv"]
-      }>("circuit-json-to-pnp-csv")
-    if (!convertCircuitJsonToSupplierPickAndPlaceCsv) {
-      throw new Error(
-        "The loaded PnP converter does not support supplier footprint resolution",
-      )
-    }
-    return {
-      convertCircuitJsonToPickAndPlaceCsv:
-        convertCircuitJsonToSupplierPickAndPlaceCsv,
-    }
+    return loadCircuitJsonConverter<CircuitJsonToPnpCsvModule>(
+      "circuit-json-to-pnp-csv",
+    )
   }
 
 export const loadCircuitJsonToReadableNetlist =
