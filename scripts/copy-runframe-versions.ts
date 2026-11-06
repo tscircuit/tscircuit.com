@@ -4,6 +4,8 @@ import runframePackageJson from "@tscircuit/runframe/package.json"
 import currentPackageJson from "../package.json"
 
 const SYNC_PACKAGES = [
+  "@tscircuit/core",
+  "@tscircuit/props",
   "@tscircuit/pcb-viewer",
   "@tscircuit/3d-viewer",
   "@tscircuit/schematic-viewer",
@@ -37,9 +39,6 @@ for (const packageName of SYNC_PACKAGES) {
   const currentVersion =
     packageJsonData.dependencies?.[packageName] ??
     packageJsonData.devDependencies?.[packageName]
-  if (!currentVersion) {
-    continue
-  }
   if (currentVersion === runframeVersion) {
     continue
   }
@@ -51,6 +50,10 @@ for (const packageName of SYNC_PACKAGES) {
     packageJsonData.dependencies[packageName] = runframeVersion
   }
   if (packageJsonData.devDependencies?.[packageName]) {
+    packageJsonData.devDependencies[packageName] = runframeVersion
+  }
+  if (!currentVersion) {
+    packageJsonData.devDependencies ??= {}
     packageJsonData.devDependencies[packageName] = runframeVersion
   }
   modifiedDeps = true
