@@ -5,8 +5,6 @@ import {
 } from "@/lib/utils/load-internal-dynamic-modules"
 import { AnyCircuitElement } from "circuit-json"
 import type { PartOrientationOptions } from "circuit-json-to-pnp-csv"
-import { createSupplierPnpCsv } from "@/lib/fabrication/create-supplier-pnp-csv"
-import { getFabricationPartsEngine } from "@/lib/fabrication/get-fabrication-parts-engine"
 import { saveAs } from "file-saver"
 import JSZip from "jszip"
 import { withDownloadToast } from "./download-toast"
@@ -45,10 +43,13 @@ export const createFabricationFilesZip = async ({
   const bomCsv = await convertBomRowsToCsv(bomRows)
   zip.file("bom.csv", bomCsv)
 
-  const pnpCsv = await createSupplierPnpCsv(circuitJson, pnpConverter, {
-    ...orientationOptions,
-    supplier: "jlcpcb",
-  })
+  const pnpCsv = await pnpConverter.convertCircuitJsonToPickAndPlaceCsv(
+    circuitJson,
+    {
+      ...orientationOptions,
+      supplier: "jlcpcb",
+    },
+  )
   zip.file("pick_and_place.csv", pnpCsv)
 
   return zip.generateAsync({ type: "blob" })
@@ -68,13 +69,24 @@ export const downloadFabricationFiles = async ({
   const zipBlob = await withDownloadToast(
     "Preparing fabrication files...",
     async () => {
-      const [gerberConverter, bomConverter, pnpConverter, partsEngine] =
-        await Promise.all([
-          loadCircuitJsonToGerber(),
-          loadCircuitJsonToBomCsv(),
-          loadCircuitJsonToPnpCsv(),
-          getFabricationPartsEngine({ apiBaseUrl, token }),
-        ])
+      const [
+        gerberConverter,
+        bomConverter,
+        pnpConverter,
+        { JlcPcbPartsEngine },
+      ] = await Promise.all([
+        loadCircuitJsonToGerber(),
+        loadCircuitJsonToBomCsv(),
+        loadCircuitJsonToPnpCsv(),
+        import("@tscircuit/parts-engine"),
+      ])
+
+      const partsEngine = new JlcPcbPartsEngine({
+        easyEdaProxyConfig: {
+          proxyEndpointUrl: `${apiBaseUrl}/proxy`,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        },
+      })
 
       return createFabricationFilesZip({
         circuitJson,

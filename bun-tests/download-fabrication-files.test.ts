@@ -19,7 +19,7 @@ test("fabrication zip includes plated, blind, and non-plated drill layers", asyn
       convertBomRowsToCsv: () => "bom",
     },
     pnpConverter: {
-      convertCircuitJsonToPickAndPlaceRows: () => [],
+      convertCircuitJsonToPickAndPlaceCsv: () => "pnp",
     },
   })
 
@@ -46,7 +46,7 @@ test("fabrication zip includes plated, blind, and non-plated drill layers", asyn
 })
 
 test("fabrication download applies JLCPCB orientation frames to the exported CPL", async () => {
-  const { convertCircuitJsonToPickAndPlaceRows } = await import(
+  const { convertCircuitJsonToPickAndPlaceCsv } = await import(
     "circuit-json-to-pnp-csv"
   )
   const circuitJson = [
@@ -83,7 +83,7 @@ test("fabrication download applies JLCPCB orientation frames to the exported CPL
       convertCircuitJsonToBomRows: () => [],
       convertBomRowsToCsv: () => "unchanged bom",
     },
-    pnpConverter: { convertCircuitJsonToPickAndPlaceRows },
+    pnpConverter: { convertCircuitJsonToPickAndPlaceCsv },
   })
   const zip = await JSZip.loadAsync(await blob.arrayBuffer())
   const cpl = await zip.file("pick_and_place.csv")!.async("string")

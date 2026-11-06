@@ -1,7 +1,8 @@
 import importer, {
   type SupportedModuleMap,
 } from "@tscircuit/internal-dynamic-import"
-import type { AnyCircuitElement } from "circuit-json"
+import type { AnyCircuitElement, SupplierName } from "circuit-json"
+import type { PartOrientationOptions } from "circuit-json-to-pnp-csv"
 
 type CircuitJsonTo3dPngModule = {
   renderCircuitJsonTo3dPng: (
@@ -33,10 +34,12 @@ type CircuitJsonToKicadModule = SupportedModuleMap["circuit-json-to-kicad"]
 
 type CircuitJsonToLbrnModule = Record<string, unknown>
 
-type CircuitJsonToPnpCsvModule = Pick<
-  typeof import("circuit-json-to-pnp-csv"),
-  "convertCircuitJsonToPickAndPlaceRows"
->
+type CircuitJsonToPnpCsvModule = {
+  convertCircuitJsonToPickAndPlaceCsv: (
+    circuitJson: AnyCircuitElement[],
+    options: PartOrientationOptions & { supplier: SupplierName },
+  ) => Promise<string> | string
+}
 
 type CircuitJsonToReadableNetlistModule = {
   convertCircuitJsonToReadableNetlist: (
@@ -123,9 +126,19 @@ export const loadCircuitJsonToLbrn =
 
 export const loadCircuitJsonToPnpCsv =
   async (): Promise<CircuitJsonToPnpCsvModule> => {
-    return loadCircuitJsonConverter<CircuitJsonToPnpCsvModule>(
-      "circuit-json-to-pnp-csv",
-    )
+    const { convertCircuitJsonToSupplierPickAndPlaceCsv } =
+      await loadCircuitJsonConverter<{
+        convertCircuitJsonToSupplierPickAndPlaceCsv?: CircuitJsonToPnpCsvModule["convertCircuitJsonToPickAndPlaceCsv"]
+      }>("circuit-json-to-pnp-csv")
+    if (!convertCircuitJsonToSupplierPickAndPlaceCsv) {
+      throw new Error(
+        "The loaded PnP converter does not support supplier footprint resolution",
+      )
+    }
+    return {
+      convertCircuitJsonToPickAndPlaceCsv:
+        convertCircuitJsonToSupplierPickAndPlaceCsv,
+    }
   }
 
 export const loadCircuitJsonToReadableNetlist =
