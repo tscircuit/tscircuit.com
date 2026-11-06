@@ -9,6 +9,18 @@ interface PackageFile {
   content: string
 }
 
+function throwRequestFailure(error: unknown, action: string): never {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof error.status === "number"
+  ) {
+    throw new Error(`Failed to ${action} (HTTP ${error.status})`)
+  }
+  throw error
+}
+
 interface UseUpdatePackageFilesMutationProps {
   currentPackage: Package | undefined
   localFiles: PackageFile[]
@@ -34,6 +46,7 @@ export function useUpdatePackageFilesMutation({
     mutationFn: async (
       newPackage: Pick<Package, "package_id" | "name"> & {
         package_name_with_version: string
+        isAutosave?: boolean
       },
     ) => {
       if (currentPackage) {
@@ -55,14 +68,18 @@ export function useUpdatePackageFilesMutation({
             file_path: file.path,
             package_name_with_version: `${newPackage.name}`,
           }
-          const response = await axios.post(
-            "/package_files/create_or_update",
-            updatePkgFilePayload,
-          )
+          const response = await axios
+            .post("/package_files/create_or_update", updatePkgFilePayload)
+            .catch((error: unknown) =>
+              throwRequestFailure(error, `save ${file.path}`),
+            )
 
-          if (response.status === 200) {
-            updatedFilesCount++
+          if (response.status !== 200) {
+            throw new Error(
+              `Failed to save ${file.path} (HTTP ${response.status})`,
+            )
           }
+          updatedFilesCount++
         }
       }
 
@@ -77,14 +94,21 @@ export function useUpdatePackageFilesMutation({
           )
 
           if (fileToDelete?.package_file_id) {
-            const response = await axios.post("/package_files/delete", {
-              package_name_with_version: `${newPackage.name}`,
-              file_path: initialFile.path,
-            })
+            const response = await axios
+              .post("/package_files/delete", {
+                package_name_with_version: `${newPackage.name}`,
+                file_path: initialFile.path,
+              })
+              .catch((error: unknown) =>
+                throwRequestFailure(error, `delete ${initialFile.path}`),
+              )
 
-            if (response.status === 200) {
-              updatedFilesCount++
+            if (response.status !== 200) {
+              throw new Error(
+                `Failed to delete ${initialFile.path} (HTTP ${response.status})`,
+              )
             }
+            updatedFilesCount++
           }
         }
       }
@@ -98,32 +122,30 @@ export function useUpdatePackageFilesMutation({
 
       return updatedFilesCount
     },
-    onSuccess: (updatedFilesCount) => {
+    onSuccess: (updatedFilesCount, { isAutosave }) => {
       if (updatedFilesCount > 0) {
-        toast({
-          title: `Package's ${updatedFilesCount} files saved`,
-          description: "Your changes have been saved successfully.",
-        })
+        if (!isAutosave) {
+          toast({
+            title: `Package's ${updatedFilesCount} files saved`,
+            description: "Your changes have been saved successfully.",
+          })
+        }
         queryClient.invalidateQueries({
           predicate: (q) => {
-            const key = q.queryKey as any
             return (
-              Array.isArray(key) &&
-              (key[0] === "packageFiles" ||
-                key[0] === "packageFile" ||
-                key[0] === "priorityPackageFile")
+              Array.isArray(q.queryKey) &&
+              (q.queryKey[0] === "packageFiles" ||
+                q.queryKey[0] === "packageFile" ||
+                q.queryKey[0] === "priorityPackageFile")
             )
           },
         })
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to update package files. Please try again.",
+        description: error.message,
         variant: "destructive",
       })
     },

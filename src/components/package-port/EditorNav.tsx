@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { useEditorAutosave } from "@/hooks/useEditorAutosave"
 import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
@@ -69,6 +71,8 @@ export default function EditorNav({
   onDiscard,
   packageType,
   isSaving,
+  isFullyLoaded,
+  saveError,
   files,
   packageFilesMeta,
   isViewingOlderVersion,
@@ -86,9 +90,11 @@ export default function EditorNav({
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
-  onSave: () => void
+  isFullyLoaded: boolean
+  saveError: string | null
+  onSave: (options?: { isAutosave?: boolean }) => void
   onDiscard?: () => void
-  files?: { path: string; content: string }[]
+  files: { path: string; content: string }[]
   packageFilesMeta?: {
     created_at: string
     file_path: string
@@ -262,6 +268,16 @@ export default function EditorNav({
     pkg?.creator_account_id,
   ])
 
+  const { isAutosaveEnabled, changeAutosaveEnabled } = useEditorAutosave({
+    files,
+    canSave: Boolean(
+      pkg && canManagePackage && !isViewingOlderVersion && isFullyLoaded,
+    ),
+    hasUnsavedChanges,
+    isSaving,
+    onSave,
+  })
+
   const getMobileVisibilityMenuLabel = () => {
     if (isUpdatingVisibility) return "Changing..."
     if (!canManagePackage) {
@@ -275,7 +291,12 @@ export default function EditorNav({
   useHotkeyCombo(
     "cmd+s",
     () => {
-      if (!hasUnsavedChanges || !canManagePackage || isViewingOlderVersion)
+      if (
+        !hasUnsavedChanges ||
+        !canManagePackage ||
+        isViewingOlderVersion ||
+        isSaving
+      )
         return
       onSave()
     },
@@ -405,6 +426,22 @@ export default function EditorNav({
               Viewing v{viewingVersion} (read-only)
             </div>
           )}
+          {pkg && canManagePackage && !isViewingOlderVersion && (
+            <label
+              htmlFor="editor-autosave"
+              className="ml-2 flex items-center gap-1 text-xs text-gray-600 whitespace-nowrap"
+              title="Automatically save after 2 seconds without edits"
+            >
+              <Switch
+                id="editor-autosave"
+                checked={isAutosaveEnabled}
+                onCheckedChange={changeAutosaveEnabled}
+                disabled={!isFullyLoaded}
+                className="scale-75"
+              />
+              Autosave
+            </label>
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -414,12 +451,15 @@ export default function EditorNav({
                     size="sm"
                     className={"ml-1 h-6 px-2 text-xs save-button"}
                     disabled={
+                      isSaving ||
                       isViewingOlderVersion ||
                       (canManagePackage && pkg
                         ? !hasUnsavedChanges
                         : !isLoggedIn)
                     }
-                    onClick={canManagePackage ? onSave : () => forkSnippet()}
+                    onClick={
+                      canManagePackage ? () => onSave() : () => forkSnippet()
+                    }
                   >
                     {canManagePackage ? (
                       <>
@@ -448,6 +488,16 @@ export default function EditorNav({
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
               Saving...
+            </div>
+          )}
+          {saveError && !isSaving && (
+            <div
+              role="alert"
+              data-testid="editor-save-error"
+              title={saveError}
+              className="ml-2 max-w-48 truncate rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+            >
+              Save failed: {saveError}
             </div>
           )}
           {hasUnsavedChanges && !isSaving && isLoggedIn && (

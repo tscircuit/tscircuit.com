@@ -56,7 +56,6 @@ export function useFileManagement({
   templateCode,
   currentPackage,
   openNewPackageSaveDialog,
-  updateLastUpdated,
   urlParams,
   releaseId,
 }: {
@@ -64,7 +63,6 @@ export function useFileManagement({
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
-  updateLastUpdated: () => void
   /** undefined selects latest; null waits for an explicitly selected release. */
   releaseId?: string | null
 }) {
@@ -167,7 +165,6 @@ export function useFileManagement({
             url.searchParams.delete("should_create_package")
             window.history.pushState({}, "", url.toString())
             window.dispatchEvent(new Event("popstate"))
-            updateLastUpdated()
             setInitialFiles([...localFiles])
           },
         },
@@ -590,7 +587,7 @@ export function useFileManagement({
     }
   }, [localFiles, saveToUrl, isLoggedIn])
 
-  const saveFiles = () => {
+  const saveFiles = (options: { isAutosave?: boolean } = {}) => {
     if (!isLoggedIn) {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
@@ -615,12 +612,15 @@ export function useFileManagement({
       }
       return
     }
-    updatePackageFilesMutation.mutate({
-      package_name_with_version: `${currentPackage.name}@latest`,
-      ...currentPackage,
-    })
-    updateLastUpdated()
-    setInitialFiles([...localFiles])
+    const filesBeingSaved = localFiles
+    updatePackageFilesMutation.mutate(
+      {
+        package_name_with_version: `${currentPackage.name}@latest`,
+        ...currentPackage,
+        isAutosave: options.isAutosave,
+      },
+      { onSuccess: () => setInitialFiles(filesBeingSaved) },
+    )
   }
 
   const isSaving = useMemo(() => {
@@ -684,6 +684,10 @@ export function useFileManagement({
     isLoading,
     isFullyLoaded,
     isSaving,
+    saveError:
+      updatePackageFilesMutation.error instanceof Error
+        ? updatePackageFilesMutation.error.message
+        : null,
     savePackage,
     packageFilesMeta,
     totalFilesCount,

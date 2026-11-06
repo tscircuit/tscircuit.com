@@ -48,7 +48,6 @@ interface Props {
 export interface CodeAndPreviewState {
   showPreview: boolean
   fullScreen: boolean
-  lastSavedAt: number
   circuitJson: null | any
   isPrivate: boolean
   lastRunCode: string
@@ -81,7 +80,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const [state, setState] = useState<CodeAndPreviewState>({
     showPreview: true,
     fullScreen: false,
-    lastSavedAt: Date.now(),
     circuitJson: null,
     isPrivate: false,
     lastRunCode: "",
@@ -99,6 +97,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const {
     savePackage,
     isSaving,
+    saveError,
     currentFile,
     fsMap,
     priorityFileFetched,
@@ -122,23 +121,19 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     currentPackage: pkg,
     urlParams,
     openNewPackageSaveDialog,
-    updateLastUpdated: () => {
-      setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-    },
     releaseId: releaseIdForVersion,
   })
 
   const hasUnsavedChanges = useMemo(
     () =>
-      (!isSaving &&
-        Date.now() - state.lastSavedAt > 1000 &&
+      isFullyLoaded &&
+      (localFiles.length !== initialFiles.length ||
         localFiles.some((file) => {
           if (isHiddenFile(file.path)) return false
           const initialFile = initialFiles.find((x) => x.path === file.path)
           return initialFile?.content !== file.content
-        })) ||
-      localFiles.length !== initialFiles.length,
-    [localFiles, initialFiles, isSaving, state.lastSavedAt],
+        })),
+    [localFiles, initialFiles, isFullyLoaded],
   )
 
   const handleEditEvent = (event: ManualEditEvent) => {
@@ -179,7 +174,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const handleDiscardChanges = () => {
     setLocalFiles([...initialFiles])
-    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     toast({
       title: "Changes discarded",
       description: "All unsaved changes have been discarded.",
@@ -377,6 +371,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         code={String(currentFileCode)}
         fsMap={fsMap}
         isSaving={isSaving}
+        isFullyLoaded={isFullyLoaded}
+        saveError={saveError}
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={saveFiles}
         onDiscard={() => openDiscardChangesDialog()}
