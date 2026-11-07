@@ -55,7 +55,7 @@
         "@tscircuit/circuit-json-util": "^0.0.116",
         "@tscircuit/create-snippet-url": "^0.0.14",
         "@tscircuit/drawing-viewer": "https://jscdn.tscircuit.com/@tscircuit/drawing-viewer/0.0.3.tgz",
-        "@tscircuit/eval": "^0.0.1710",
+        "@tscircuit/eval": "^0.0.1711",
         "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
         "@tscircuit/footprinter": "^0.0.450",
         "@tscircuit/internal-dynamic-import": "^0.0.20",
@@ -802,7 +802,7 @@
 
     "@tscircuit/drawing-viewer": ["@tscircuit/drawing-viewer@https://jscdn.tscircuit.com/@tscircuit/drawing-viewer/0.0.3.tgz", { "dependencies": { "@tscircuit/circuit-json-to-drawing": "https://jscdn.tscircuit.com/@tscircuit/circuit-json-to-drawing/0.0.4.tgz", "circuit-json": "^0.0.543", "circuit-json-to-gltf": "0.0.164", "poppygl": "^0.0.38", "transformation-matrix": "^3.0.0", "use-mouse-matrix-transform": "^1.3.5" }, "peerDependencies": { "react": "^18.2.0 || ^19.0.0", "typescript": "^5.0.0" } }, "sha512-wkv6f1ceJDnlo1maNE8JQcWcLt2TsGfgZyNfqM+c0I2MVO1T9wtY5R2OpPnFMA/JyVFzQhtBbdVeU7m1fPKk8Q=="],
 
-    "@tscircuit/eval": ["@tscircuit/eval@0.0.1710", "", { "peerDependencies": { "@tscircuit/core": ">=0.0.1906", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-S03hO8ocG7PlcAPz3mQd+tiN6u2/LR/4o7fV+2xwKy66b1mOsOHzz7XVl5GU4oATNNRSxk8cwQGyoI4iZ39wRg=="],
+    "@tscircuit/eval": ["@tscircuit/eval@0.0.1711", "", { "peerDependencies": { "@tscircuit/core": ">=0.0.1906", "circuit-json": "*", "typescript": "^5.0.0", "zod": "3" } }, "sha512-QfkO8nVoJVf2gj3tVL9T2IhnDFmqaSDVpgzfFCGMzCMJHlwEvcks2bc14UF5kBFcndNdhpy0CLuoqXxzSS+zBA=="],
 
     "@tscircuit/fake-stripe": ["@tscircuit/fake-stripe@github:tscircuit/fake-stripe#f1a5b40", { "dependencies": { "winterspec": "^0.0.114", "zod": "^3.23.8", "zustand": "^5.0.13", "zustand-hoist": "^2.0.1" }, "peerDependencies": { "typescript": "^5" } }, "tscircuit-fake-stripe-f1a5b40", "sha512-epbFoco46c1w8yPEi6xK0dzcltS/lLMwV0+UAU2CusjGwS7gCknkWafRklCctFa+FGF2sNklTJYZgUWTav1eMg=="],
 
