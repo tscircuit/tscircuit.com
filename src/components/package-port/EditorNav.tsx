@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { useEditorAutosave } from "@/hooks/useEditorAutosave"
+import type { useEditorAutosave } from "@/hooks/useEditorAutosave"
 import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
@@ -71,8 +71,9 @@ export default function EditorNav({
   onDiscard,
   packageType,
   isSaving,
-  isFullyLoaded,
+  areAllFilesLoaded,
   saveError,
+  autosave,
   files,
   packageFilesMeta,
   isViewingOlderVersion,
@@ -90,9 +91,10 @@ export default function EditorNav({
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
-  isFullyLoaded: boolean
+  areAllFilesLoaded: boolean
   saveError: string | null
-  onSave: (options?: { isAutosave?: boolean }) => void
+  autosave: ReturnType<typeof useEditorAutosave>
+  onSave: () => void
   onDiscard?: () => void
   files: { path: string; content: string }[]
   packageFilesMeta?: {
@@ -268,16 +270,6 @@ export default function EditorNav({
     pkg?.creator_account_id,
   ])
 
-  const { isAutosaveEnabled, changeAutosaveEnabled } = useEditorAutosave({
-    files,
-    canSave: Boolean(
-      pkg && canManagePackage && !isViewingOlderVersion && isFullyLoaded,
-    ),
-    hasUnsavedChanges,
-    isSaving,
-    onSave,
-  })
-
   const getMobileVisibilityMenuLabel = () => {
     if (isUpdatingVisibility) return "Changing..."
     if (!canManagePackage) {
@@ -295,6 +287,7 @@ export default function EditorNav({
         !hasUnsavedChanges ||
         !canManagePackage ||
         isViewingOlderVersion ||
+        autosave.hasDraftIssue ||
         isSaving
       )
         return
@@ -430,17 +423,50 @@ export default function EditorNav({
             <label
               htmlFor="editor-autosave"
               className="ml-2 flex items-center gap-1 text-xs text-gray-600 whitespace-nowrap"
-              title="Automatically save after 2 seconds without edits"
+              title="Save a draft in this browser after 2 seconds idle and every 30 seconds while editing. Use Save to upload changes."
             >
               <Switch
                 id="editor-autosave"
-                checked={isAutosaveEnabled}
-                onCheckedChange={changeAutosaveEnabled}
-                disabled={!isFullyLoaded}
+                aria-label="Autosave"
+                checked={autosave.isAutosaveEnabled}
+                onCheckedChange={autosave.changeAutosaveEnabled}
+                disabled={!areAllFilesLoaded}
                 className="scale-75"
               />
-              Autosave
+              Autosave <span className="text-gray-400">(local)</span>
             </label>
+          )}
+          {autosave.draftError && (
+            <div
+              role="alert"
+              data-testid={
+                autosave.draftConflicts.length
+                  ? "local-draft-conflict"
+                  : "editor-local-draft-error"
+              }
+              title={autosave.draftError}
+              className="ml-2 flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800"
+            >
+              <span>{autosave.draftError}</span>
+              {autosave.draftConflicts.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={autosave.restoreLocalDraft}
+                >
+                  Restore draft
+                </Button>
+              )}
+              {autosave.hasDraftIssue && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={autosave.discardLocalDraft}
+                >
+                  Discard draft
+                </Button>
+              )}
+            </div>
           )}
           <TooltipProvider>
             <Tooltip>
@@ -452,6 +478,7 @@ export default function EditorNav({
                     className={"ml-1 h-6 px-2 text-xs save-button"}
                     disabled={
                       isSaving ||
+                      autosave.hasDraftIssue ||
                       isViewingOlderVersion ||
                       (canManagePackage && pkg
                         ? !hasUnsavedChanges
@@ -505,6 +532,16 @@ export default function EditorNav({
               {pkg ? "unsaved changes" : "unsaved"}
             </div>
           )}
+          {autosave.lastDraftSavedAt &&
+            !autosave.hasDraftIssue &&
+            hasUnsavedChanges && (
+              <div
+                title="Saved in this browser only. Click Save to upload changes."
+                className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-800"
+              >
+                Draft saved in this browser
+              </div>
+            )}
           {hasUnsavedChanges && onDiscard && Boolean(pkg?.package_id) && (
             <Button
               variant="ghost"

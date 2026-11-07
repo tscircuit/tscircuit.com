@@ -331,6 +331,20 @@ export function useFileManagement({
     urlParams.package_id,
   ])
 
+  // The editor becomes interactive after the priority file, but local draft
+  // reconciliation must wait until *every* server file has been fetched.
+  const areAllFilesLoaded = Boolean(
+    currentPackage &&
+      effectiveReleaseId &&
+      isFullyLoaded &&
+      !isLoadingPackageFilesWithContent &&
+      loadedFilesCount === totalFilesCount &&
+      initialFiles.length === totalFilesCount &&
+      (packageFilesMeta || []).every((file) =>
+        initialFiles.some((loaded) => loaded.path === file.file_path),
+      ),
+  )
+
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
       (acc, file) => {
@@ -587,7 +601,7 @@ export function useFileManagement({
     }
   }, [localFiles, saveToUrl, isLoggedIn])
 
-  const saveFiles = (options: { isAutosave?: boolean } = {}) => {
+  const saveFiles = (onSuccess?: (savedFiles: PackageFile[]) => void) => {
     if (!isLoggedIn) {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
@@ -617,9 +631,13 @@ export function useFileManagement({
       {
         package_name_with_version: `${currentPackage.name}@latest`,
         ...currentPackage,
-        isAutosave: options.isAutosave,
       },
-      { onSuccess: () => setInitialFiles(filesBeingSaved) },
+      {
+        onSuccess: () => {
+          setInitialFiles(filesBeingSaved)
+          onSuccess?.(filesBeingSaved)
+        },
+      },
     )
   }
 
@@ -683,6 +701,7 @@ export function useFileManagement({
     onFileSelect,
     isLoading,
     isFullyLoaded,
+    areAllFilesLoaded,
     isSaving,
     saveError:
       updatePackageFilesMutation.error instanceof Error

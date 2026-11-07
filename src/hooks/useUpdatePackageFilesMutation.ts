@@ -46,7 +46,6 @@ export function useUpdatePackageFilesMutation({
     mutationFn: async (
       newPackage: Pick<Package, "package_id" | "name"> & {
         package_name_with_version: string
-        isAutosave?: boolean
       },
     ) => {
       if (currentPackage) {
@@ -122,14 +121,12 @@ export function useUpdatePackageFilesMutation({
 
       return updatedFilesCount
     },
-    onSuccess: (updatedFilesCount, { isAutosave }) => {
+    onSuccess: (updatedFilesCount) => {
       if (updatedFilesCount > 0) {
-        if (!isAutosave) {
-          toast({
-            title: `Package's ${updatedFilesCount} files saved`,
-            description: "Your changes have been saved successfully.",
-          })
-        }
+        toast({
+          title: `Package's ${updatedFilesCount} files saved`,
+          description: "Your changes have been saved successfully.",
+        })
         queryClient.invalidateQueries({
           predicate: (q) => {
             return (

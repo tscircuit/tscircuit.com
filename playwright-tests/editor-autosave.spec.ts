@@ -4,6 +4,7 @@ const packageId = "ceec4b8f-865f-4e81-8937-74c8cfa57d89"
 const releaseId = "ff2cab7b-d3e3-46e2-9046-c1929999ffe6"
 const editorUrl = `http://127.0.0.1:5177/editor?package_id=${packageId}`
 const initialCode = 'export default () => <board width="10mm" height="10mm" />'
+const localDraftKey = `tscircuit:editor-local-draft:account-1234:${packageId}:${releaseId}`
 
 async function replaceCode(page: Page, code: string) {
   await page.locator(".monaco-editor .view-lines").first().click()
@@ -15,6 +16,18 @@ async function setupEditor(page: Page) {
   let savedCode = initialCode
   let shouldFailSaving = false
   const saveRequests: string[] = []
+  const releaseOrBuildRequests: string[] = []
+
+  page.on("request", (request) => {
+    if (
+      request.method() === "POST" &&
+      /\/api\/(package_releases\/(create|update|rebuild)|package_builds\/create)/.test(
+        request.url(),
+      )
+    ) {
+      releaseOrBuildRequests.push(request.url())
+    }
+  })
 
   await page.addInitScript(() => {
     localStorage.setItem(
@@ -97,14 +110,20 @@ async function setupEditor(page: Page) {
 
   return {
     saveRequests,
+    releaseOrBuildRequests,
     setShouldFailSaving: (shouldFail: boolean) => {
       shouldFailSaving = shouldFail
+    },
+    setSavedCode: (code: string) => {
+      savedCode = code
     },
   }
 }
 
-test("autosave is opt-in, debounced, and remembered", async ({ page }) => {
-  const { saveRequests } = await setupEditor(page)
+test("autosave stores a local draft without a server write and restores it", async ({
+  page,
+}) => {
+  const { saveRequests, releaseOrBuildRequests } = await setupEditor(page)
   const autosave = page.getByRole("switch", { name: "Autosave" })
 
   await expect(autosave).toHaveAttribute("data-state", "unchecked")
@@ -115,17 +134,35 @@ test("autosave is opt-in, debounced, and remembered", async ({ page }) => {
 
   await autosave.click()
   await expect(autosave).toHaveAttribute("data-state", "checked")
-  await expect.poll(() => saveRequests.length).toBe(1)
-  await expect(page.getByText("unsaved changes")).not.toBeVisible()
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .not.toBeNull()
+  expect(saveRequests).toHaveLength(0)
+  expect(releaseOrBuildRequests).toHaveLength(0)
+  await expect(page.getByText("unsaved changes")).toBeVisible()
+  await expect(page.getByText("Draft saved in this browser")).toBeVisible()
 
   await page.reload()
   await expect(page.getByRole("switch", { name: "Autosave" })).toHaveAttribute(
     "data-state",
     "checked",
   )
+  await expect(
+    page.locator(".monaco-editor .view-lines").first(),
+  ).toContainText('width="12mm"')
+  await page.getByRole("button", { name: "Save", exact: true }).click()
+  await expect.poll(() => saveRequests.length).toBe(1)
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .toBeNull()
+  expect(releaseOrBuildRequests).toHaveLength(0)
 })
 
-test("failed autosave keeps the changes and allows a manual retry", async ({
+test("failed manual save leaves the local draft available for recovery", async ({
   page,
 }) => {
   const { saveRequests, setShouldFailSaving } = await setupEditor(page)
@@ -133,6 +170,13 @@ test("failed autosave keeps the changes and allows a manual retry", async ({
   await page.getByRole("switch", { name: "Autosave" }).click()
   await replaceCode(page, 'export default () => <board width="14mm" />')
 
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .not.toBeNull()
+  expect(saveRequests).toHaveLength(0)
+  await page.getByRole("button", { name: "Save", exact: true }).click()
   await expect.poll(() => saveRequests.length).toBe(1)
   await expect(page.getByTestId("editor-save-error")).toContainText(
     "Save failed",
@@ -140,10 +184,100 @@ test("failed autosave keeps the changes and allows a manual retry", async ({
   await expect(page.getByText("unsaved changes")).toBeVisible()
   await page.waitForTimeout(2300)
   expect(saveRequests).toHaveLength(1)
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+  ).not.toBeNull()
 
   setShouldFailSaving(false)
   await page.getByRole("button", { name: "Save", exact: true }).click()
   await expect.poll(() => saveRequests.length).toBe(2)
   await expect(page.getByTestId("editor-save-error")).not.toBeVisible()
   await expect(page.getByText("unsaved changes")).not.toBeVisible()
+})
+
+test("a server edit to the same file requires explicit draft restoration", async ({
+  page,
+}) => {
+  const { saveRequests, setSavedCode } = await setupEditor(page)
+  await page.getByRole("switch", { name: "Autosave" }).click()
+  await replaceCode(page, 'export default () => <board width="14mm" />')
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .not.toBeNull()
+
+  setSavedCode('export default () => <board width="18mm" />')
+  await page.reload()
+  await expect(page.getByTestId("local-draft-conflict")).toBeVisible()
+  await expect(
+    page.locator(".monaco-editor .view-lines").first(),
+  ).toContainText('width="18mm"')
+  expect(saveRequests).toHaveLength(0)
+
+  await page.getByRole("button", { name: "Restore draft" }).click()
+  await expect(
+    page.locator(".monaco-editor .view-lines").first(),
+  ).toContainText('width="14mm"')
+})
+
+test("a damaged browser draft stays visible until explicitly discarded", async ({
+  page,
+}) => {
+  await page.addInitScript((key) => {
+    localStorage.setItem(key, "{not valid JSON")
+  }, localDraftKey)
+  const { saveRequests } = await setupEditor(page)
+
+  await expect(page.getByTestId("editor-local-draft-error")).toContainText(
+    "Could not read browser draft",
+  )
+  await replaceCode(page, 'export default () => <board width="16mm" />')
+  await expect(
+    page.getByRole("button", { name: "Save", exact: true }),
+  ).toBeDisabled()
+  await page.getByRole("button", { name: "Discard draft" }).click()
+  await expect(page.getByTestId("editor-local-draft-error")).not.toBeVisible()
+  await page.getByRole("switch", { name: "Autosave" }).click()
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .not.toBeNull()
+  expect(saveRequests).toHaveLength(0)
+})
+
+test("turning autosave off stops checkpoints without deleting the previous draft", async ({
+  page,
+}) => {
+  const { saveRequests } = await setupEditor(page)
+  const autosave = page.getByRole("switch", { name: "Autosave" })
+  await autosave.click()
+  await replaceCode(page, 'export default () => <board width="20mm" />')
+  await expect
+    .poll(() =>
+      page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+    )
+    .toContain('width=\\"20mm\\"')
+
+  await autosave.click()
+  await replaceCode(page, 'export default () => <board width="21mm" />')
+  await page.waitForTimeout(2300)
+  expect(
+    await page.evaluate((key) => localStorage.getItem(key), localDraftKey),
+  ).toContain('width=\\"20mm\\"')
+  expect(saveRequests).toHaveLength(0)
+})
+
+test("leaving the page checkpoints the latest edit without waiting for the timer", async ({
+  page,
+}) => {
+  const { saveRequests } = await setupEditor(page)
+  await page.getByRole("switch", { name: "Autosave" }).click()
+  await replaceCode(page, 'export default () => <board width="24mm" />')
+  await page.reload()
+  await expect(
+    page.locator(".monaco-editor .view-lines").first(),
+  ).toContainText('width="24mm"')
+  expect(saveRequests).toHaveLength(0)
 })
