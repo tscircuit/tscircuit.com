@@ -79,7 +79,7 @@
     },
     {
       "source": "/playground",
-      "destination": "/editor?template=blank-circuit-board",
+      "destination": "/editor?template=esp32-bluetooth-speaker",
       "permanent": false
     }
   ]

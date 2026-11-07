@@ -62,6 +62,7 @@ export const QuickstartPage = () => {
   const templates = [
     { name: "Blinking LED Board", type: "board" },
     { name: "USB-C LED Flashlight", type: "board" },
+    { name: "ESP32 Bluetooth Speaker", type: "board" },
   ]
 
   return (
