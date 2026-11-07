@@ -93,6 +93,7 @@
     "@tscircuit/drawing-viewer": "https://jscdn.tscircuit.com/@tscircuit/drawing-viewer/0.0.3.tgz",
     "@tscircuit/eval": "^0.0.1703",
     "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
+    "@tscircuit/footprinter": "^0.0.450",
     "@tscircuit/internal-dynamic-import": "^0.0.20",
     "@tscircuit/layout": "^0.0.29",
     "@tscircuit/math-utils": "^0.0.36",
