@@ -56,7 +56,6 @@ export function useFileManagement({
   templateCode,
   currentPackage,
   openNewPackageSaveDialog,
-  updateLastUpdated,
   urlParams,
   releaseId,
 }: {
@@ -64,7 +63,6 @@ export function useFileManagement({
   currentPackage?: Package
   openNewPackageSaveDialog: () => void
   urlParams: Record<string, string>
-  updateLastUpdated: () => void
   /** undefined selects latest; null waits for an explicitly selected release. */
   releaseId?: string | null
 }) {
@@ -167,7 +165,6 @@ export function useFileManagement({
             url.searchParams.delete("should_create_package")
             window.history.pushState({}, "", url.toString())
             window.dispatchEvent(new Event("popstate"))
-            updateLastUpdated()
             setInitialFiles([...localFiles])
           },
         },
@@ -333,6 +330,20 @@ export function useFileManagement({
     localFiles.length,
     urlParams.package_id,
   ])
+
+  // The editor becomes interactive after the priority file, but local draft
+  // reconciliation must wait until *every* server file has been fetched.
+  const areAllFilesLoaded = Boolean(
+    currentPackage &&
+      effectiveReleaseId &&
+      isFullyLoaded &&
+      !isLoadingPackageFilesWithContent &&
+      loadedFilesCount === totalFilesCount &&
+      initialFiles.length === totalFilesCount &&
+      (packageFilesMeta || []).every((file) =>
+        initialFiles.some((loaded) => loaded.path === file.file_path),
+      ),
+  )
 
   const fsMap = useMemo(() => {
     const map = localFiles.reduce(
@@ -590,7 +601,7 @@ export function useFileManagement({
     }
   }, [localFiles, saveToUrl, isLoggedIn])
 
-  const saveFiles = () => {
+  const saveFiles = (onSuccess?: (savedFiles: PackageFile[]) => void) => {
     if (!isLoggedIn) {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
@@ -615,12 +626,19 @@ export function useFileManagement({
       }
       return
     }
-    updatePackageFilesMutation.mutate({
-      package_name_with_version: `${currentPackage.name}@latest`,
-      ...currentPackage,
-    })
-    updateLastUpdated()
-    setInitialFiles([...localFiles])
+    const filesBeingSaved = localFiles
+    updatePackageFilesMutation.mutate(
+      {
+        package_name_with_version: `${currentPackage.name}@latest`,
+        ...currentPackage,
+      },
+      {
+        onSuccess: () => {
+          setInitialFiles(filesBeingSaved)
+          onSuccess?.(filesBeingSaved)
+        },
+      },
+    )
   }
 
   const isSaving = useMemo(() => {
@@ -683,7 +701,12 @@ export function useFileManagement({
     onFileSelect,
     isLoading,
     isFullyLoaded,
+    areAllFilesLoaded,
     isSaving,
+    saveError:
+      updatePackageFilesMutation.error instanceof Error
+        ? updatePackageFilesMutation.error.message
+        : null,
     savePackage,
     packageFilesMeta,
     totalFilesCount,

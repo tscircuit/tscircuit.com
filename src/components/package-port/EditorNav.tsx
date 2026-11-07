@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import type { useEditorAutosave } from "@/hooks/useEditorAutosave"
 import { GitFork, Loader2, Star } from "lucide-react"
 import {
   DropdownMenu,
@@ -69,6 +71,9 @@ export default function EditorNav({
   onDiscard,
   packageType,
   isSaving,
+  areAllFilesLoaded,
+  saveError,
+  autosave,
   files,
   packageFilesMeta,
   isViewingOlderVersion,
@@ -86,9 +91,12 @@ export default function EditorNav({
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
+  areAllFilesLoaded: boolean
+  saveError: string | null
+  autosave: ReturnType<typeof useEditorAutosave>
   onSave: () => void
   onDiscard?: () => void
-  files?: { path: string; content: string }[]
+  files: { path: string; content: string }[]
   packageFilesMeta?: {
     created_at: string
     file_path: string
@@ -275,7 +283,13 @@ export default function EditorNav({
   useHotkeyCombo(
     "cmd+s",
     () => {
-      if (!hasUnsavedChanges || !canManagePackage || isViewingOlderVersion)
+      if (
+        !hasUnsavedChanges ||
+        !canManagePackage ||
+        isViewingOlderVersion ||
+        autosave.hasDraftIssue ||
+        isSaving
+      )
         return
       onSave()
     },
@@ -405,6 +419,55 @@ export default function EditorNav({
               Viewing v{viewingVersion} (read-only)
             </div>
           )}
+          {pkg && canManagePackage && !isViewingOlderVersion && (
+            <label
+              htmlFor="editor-autosave"
+              className="ml-2 flex items-center gap-1 text-xs text-gray-600 whitespace-nowrap"
+              title="Save a draft in this browser after 2 seconds idle and every 30 seconds while editing. Use Save to upload changes."
+            >
+              <Switch
+                id="editor-autosave"
+                aria-label="Autosave"
+                checked={autosave.isAutosaveEnabled}
+                onCheckedChange={autosave.changeAutosaveEnabled}
+                disabled={!areAllFilesLoaded}
+                className="scale-75"
+              />
+              Autosave <span className="text-gray-400">(local)</span>
+            </label>
+          )}
+          {autosave.draftError && (
+            <div
+              role="alert"
+              data-testid={
+                autosave.draftConflicts.length
+                  ? "local-draft-conflict"
+                  : "editor-local-draft-error"
+              }
+              title={autosave.draftError}
+              className="ml-2 flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800"
+            >
+              <span>{autosave.draftError}</span>
+              {autosave.draftConflicts.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={autosave.restoreLocalDraft}
+                >
+                  Restore draft
+                </Button>
+              )}
+              {autosave.hasDraftIssue && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={autosave.discardLocalDraft}
+                >
+                  Discard draft
+                </Button>
+              )}
+            </div>
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -414,12 +477,16 @@ export default function EditorNav({
                     size="sm"
                     className={"ml-1 h-6 px-2 text-xs save-button"}
                     disabled={
+                      isSaving ||
+                      autosave.hasDraftIssue ||
                       isViewingOlderVersion ||
                       (canManagePackage && pkg
                         ? !hasUnsavedChanges
                         : !isLoggedIn)
                     }
-                    onClick={canManagePackage ? onSave : () => forkSnippet()}
+                    onClick={
+                      canManagePackage ? () => onSave() : () => forkSnippet()
+                    }
                   >
                     {canManagePackage ? (
                       <>
@@ -450,11 +517,31 @@ export default function EditorNav({
               Saving...
             </div>
           )}
+          {saveError && !isSaving && (
+            <div
+              role="alert"
+              data-testid="editor-save-error"
+              title={saveError}
+              className="ml-2 max-w-48 truncate rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+            >
+              Save failed: {saveError}
+            </div>
+          )}
           {hasUnsavedChanges && !isSaving && isLoggedIn && (
             <div className="animate-fadeIn bg-yellow-100 select-none text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
               {pkg ? "unsaved changes" : "unsaved"}
             </div>
           )}
+          {autosave.lastDraftSavedAt &&
+            !autosave.hasDraftIssue &&
+            hasUnsavedChanges && (
+              <div
+                title="Saved in this browser only. Click Save to upload changes."
+                className="rounded bg-green-100 px-2 py-0.5 text-xs text-green-800"
+              >
+                Draft saved in this browser
+              </div>
+            )}
           {hasUnsavedChanges && onDiscard && Boolean(pkg?.package_id) && (
             <Button
               variant="ghost"

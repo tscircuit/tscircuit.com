@@ -14,6 +14,8 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { useEditorAutosave } from "@/hooks/useEditorAutosave"
+import { useOrganization } from "@/hooks/use-organization"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -48,7 +50,6 @@ interface Props {
 export interface CodeAndPreviewState {
   showPreview: boolean
   fullScreen: boolean
-  lastSavedAt: number
   circuitJson: null | any
   isPrivate: boolean
   lastRunCode: string
@@ -59,6 +60,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
+  const accountId = useGlobalStore((s) => s.session?.account_id)
   const apiBaseUrl = useApiBaseUrl()
   const versionFromUrl = urlParams.version
   const templateFromUrl = useMemo(
@@ -81,7 +83,6 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const [state, setState] = useState<CodeAndPreviewState>({
     showPreview: true,
     fullScreen: false,
-    lastSavedAt: Date.now(),
     circuitJson: null,
     isPrivate: false,
     lastRunCode: "",
@@ -99,6 +100,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const {
     savePackage,
     isSaving,
+    saveError,
     currentFile,
     fsMap,
     priorityFileFetched,
@@ -107,6 +109,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     mainComponentPath,
     deleteFile,
     isFullyLoaded,
+    areAllFilesLoaded,
     onFileSelect,
     totalFilesCount,
     saveFiles,
@@ -122,24 +125,45 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
     currentPackage: pkg,
     urlParams,
     openNewPackageSaveDialog,
-    updateLastUpdated: () => {
-      setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
-    },
     releaseId: releaseIdForVersion,
   })
 
   const hasUnsavedChanges = useMemo(
     () =>
-      (!isSaving &&
-        Date.now() - state.lastSavedAt > 1000 &&
+      isFullyLoaded &&
+      (localFiles.length !== initialFiles.length ||
         localFiles.some((file) => {
           if (isHiddenFile(file.path)) return false
           const initialFile = initialFiles.find((x) => x.path === file.path)
           return initialFile?.content !== file.content
-        })) ||
-      localFiles.length !== initialFiles.length,
-    [localFiles, initialFiles, isSaving, state.lastSavedAt],
+        })),
+    [localFiles, initialFiles, isFullyLoaded],
   )
+
+  const { organization } = useOrganization(
+    pkg?.owner_org_id
+      ? { orgId: String(pkg.owner_org_id) }
+      : pkg?.org_owner_tscircuit_handle
+        ? { orgTscircuitHandle: pkg.org_owner_tscircuit_handle }
+        : {},
+  )
+  const canManagePackage = Boolean(
+    accountId &&
+      (pkg?.creator_account_id === accountId ||
+        organization?.owner_account_id === accountId ||
+        organization?.user_permissions?.can_manage_org),
+  )
+  const autosave = useEditorAutosave({
+    accountId,
+    packageId: pkg?.package_id,
+    releaseId: pkg?.latest_package_release_id,
+    files: localFiles,
+    initialFiles,
+    canSave: Boolean(pkg && canManagePackage && !isViewingOlderVersion),
+    areAllFilesLoaded,
+    hasUnsavedChanges,
+    setFiles: setLocalFiles,
+  })
 
   const handleEditEvent = (event: ManualEditEvent) => {
     const parsedManualEdits = JSON.parse(
@@ -178,8 +202,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   }
 
   const handleDiscardChanges = () => {
+    if (!autosave.discardLocalDraft()) return
     setLocalFiles([...initialFiles])
-    setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     toast({
       title: "Changes discarded",
       description: "All unsaved changes have been discarded.",
@@ -377,8 +401,11 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         code={String(currentFileCode)}
         fsMap={fsMap}
         isSaving={isSaving}
+        areAllFilesLoaded={areAllFilesLoaded}
+        autosave={autosave}
+        saveError={saveError}
         hasUnsavedChanges={hasUnsavedChanges}
-        onSave={saveFiles}
+        onSave={() => saveFiles(autosave.onManualSaveSuccess)}
         onDiscard={() => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
