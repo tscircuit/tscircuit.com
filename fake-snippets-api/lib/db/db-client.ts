@@ -17,6 +17,9 @@ import {
   bugReportFileSchema,
   type Package,
   type PackageFile,
+  type PackageDraft,
+  type DraftFile,
+  packageDraftSchema,
   type PackageRelease,
   packageReleaseSchema,
   type PackageBuild,
@@ -1414,6 +1417,110 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       (pr) => pr.package_release_id === packageReleaseId,
     )
   },
+
+  savePackageDraft: (
+    packageId: string,
+    expectedRevision: number,
+    files: DraftFile[],
+  ): PackageDraft | null => {
+    const existing = get().packageDrafts.find((d) => d.package_id === packageId)
+    if ((existing?.revision ?? 0) !== expectedRevision) return null
+
+    const draft = packageDraftSchema.parse({
+      package_id: packageId,
+      revision: expectedRevision + 1,
+      files: files.map((file) => ({ ...file })),
+      updated_at: new Date().toISOString(),
+      last_build_requested_revision: existing?.last_build_requested_revision ?? null,
+      last_build_release_id: existing?.last_build_release_id ?? null,
+      last_package_build_id: existing?.last_package_build_id ?? null,
+    })
+    set((state) => ({
+      packageDrafts: [
+        ...state.packageDrafts.filter((d) => d.package_id !== packageId),
+        draft,
+      ],
+    }))
+    return draft
+  },
+
+  queuePackageDraftBuild: (
+    packageId: string,
+    expectedRevision: number,
+  ): { draft: PackageDraft; release: PackageRelease; build: PackageBuild } | null => {
+    const state = get()
+    const draft = state.packageDrafts.find((d) => d.package_id === packageId)
+    if (!draft || draft.revision !== expectedRevision) return null
+
+    // An explicit build request is idempotent for each saved revision.
+    if (
+      draft.last_build_requested_revision === expectedRevision &&
+      draft.last_build_release_id &&
+      draft.last_package_build_id
+    ) {
+      const release = state.packageReleases.find(
+        (r) => r.package_release_id === draft.last_build_release_id,
+      )
+      const build = state.packageBuilds.find(
+        (b) => b.package_build_id === draft.last_package_build_id,
+      )
+      if (release && build) return { draft, release, build }
+    }
+
+    const createdAt = new Date().toISOString()
+    const releaseId = randomUUID()
+    const buildId = randomUUID()
+    const packageFiles = draft.files.map((file) => ({
+      package_file_id: randomUUID(),
+      package_release_id: releaseId,
+      file_path: file.path,
+      content_text: file.content,
+      content_mimetype: file.path.endsWith(".tsx") || file.path.endsWith(".ts")
+        ? "text/typescript"
+        : "text/plain",
+      created_at: createdAt,
+    }))
+    // Fake API only: a non-latest release holds the immutable build snapshot.
+    // The production backend must use a private build workspace instead.
+    const release = packageReleaseSchema.parse({
+      package_release_id: releaseId,
+      package_id: packageId,
+      version: `draft-r${draft.revision}-${buildId.slice(0, 8)}`,
+      created_at: createdAt,
+      is_latest: false,
+      is_locked: true,
+      has_transpiled: false,
+      ready_to_build: true,
+      fs_sha: generateFsSha(packageFiles),
+      latest_package_build_id: buildId,
+    })
+    const build = packageBuildSchema.parse({
+      package_build_id: buildId,
+      package_release_id: releaseId,
+      created_at: createdAt,
+      build_error_last_updated_at: createdAt,
+      transpilation_logs: null,
+      circuit_json_build_logs: null,
+      image_generation_logs: null,
+    })
+    const updatedDraft = packageDraftSchema.parse({
+      ...draft,
+      last_build_requested_revision: expectedRevision,
+      last_build_release_id: releaseId,
+      last_package_build_id: buildId,
+    })
+
+    set((current) => ({
+      packageReleases: [...current.packageReleases, release],
+      packageFiles: [...current.packageFiles, ...packageFiles],
+      packageBuilds: [...current.packageBuilds, build],
+      packageDrafts: current.packageDrafts.map((d) =>
+        d.package_id === packageId ? updatedDraft : d,
+      ),
+    }))
+    return { draft: updatedDraft, release, build }
+  },
+
   addPackageRelease: (
     packageRelease: Omit<
       z.input<typeof packageReleaseSchema>,

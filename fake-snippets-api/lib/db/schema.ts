@@ -419,6 +419,27 @@ export const publicPackageReleaseSchema = z.object({
 })
 export type PublicPackageRelease = z.infer<typeof publicPackageReleaseSchema>
 
+export const draftFileSchema = z.object({
+  path: z.string().min(1).max(512).refine(
+    (path) => !path.startsWith("/") && !path.includes("\\") &&
+      !path.split("/").some((segment) => segment === ".." || segment === ""),
+    "Draft file path must be relative and cannot traverse directories",
+  ),
+  content: z.string().max(1_000_000),
+})
+export type DraftFile = z.infer<typeof draftFileSchema>
+
+export const packageDraftSchema = z.object({
+  package_id: z.string(),
+  revision: z.number().int().nonnegative(),
+  files: z.array(draftFileSchema).max(200),
+  updated_at: z.string().datetime(),
+  last_build_requested_revision: z.number().int().nonnegative().nullable(),
+  last_build_release_id: z.string().nullable(),
+  last_package_build_id: z.string().nullable(),
+})
+export type PackageDraft = z.infer<typeof packageDraftSchema>
+
 export const packageFileSchema = z.object({
   package_file_id: z.string(),
   package_release_id: z.string(),
@@ -665,6 +686,7 @@ export const databaseSchema = z.object({
   snippets: z.array(snippetSchema).default([]),
   packageReleases: z.array(packageReleaseSchema).default([]),
   packageFiles: z.array(packageFileSchema).default([]),
+  packageDrafts: z.array(packageDraftSchema).default([]),
   sessions: z.array(sessionSchema).default([]),
   loginPages: z.array(loginPageSchema).default([]),
   accounts: z.array(accountSchema).default([]),
