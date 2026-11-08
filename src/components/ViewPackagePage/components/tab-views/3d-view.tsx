@@ -70,7 +70,12 @@ export default function ThreeDView({
   const { componentPath, isLoading } = useCurrentPackageCircuitJson()
   const apiBaseUrl = useApiBaseUrl()
   const token = useGlobalStore((s) => s.session?.token)
-  const glb = findPackagePreviewGlb(packageFiles, componentPath)
+  // Explicit preview files identify their assembly before their JSON finishes loading.
+  // Wait for the default entrypoint before choosing a GLB for an unscoped preview.
+  const glb =
+    componentPath || !isLoading
+      ? findPackagePreviewGlb(packageFiles, componentPath)
+      : undefined
   const download = useQuery(
     ["packagePreviewGlb", apiBaseUrl, glb?.package_file_id, token],
     ({ signal }) =>
@@ -81,7 +86,7 @@ export default function ThreeDView({
         signal,
       }),
     {
-      enabled: arePackageFilesFetched && !isLoading && Boolean(glb),
+      enabled: arePackageFilesFetched && Boolean(glb),
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 120_000,
@@ -90,7 +95,7 @@ export default function ThreeDView({
 
   if (
     !arePackageFilesFetched ||
-    isLoading ||
+    (isLoading && !glb) ||
     (!glb && isFetchingPackageFiles) ||
     (glb && download.isLoading)
   )
