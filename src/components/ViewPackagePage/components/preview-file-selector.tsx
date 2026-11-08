@@ -44,23 +44,14 @@ export default function PreviewFileSelector() {
     >
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
           size="sm"
           role="combobox"
           aria-label="Preview file"
           aria-expanded={open}
-          title={previewFilePath ?? "Package default"}
-          className="max-w-[160px] gap-1.5 min-w-0"
+          className="bg-white shadow-none text-gray-900 hover:bg-gray-100 border border-gray-300 px-1 pl-2 select-none"
         >
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            Preview
-          </span>
-          <span className="truncate text-xs font-mono">
-            {previewFilePath
-              ?.replace(/^dist\//, "")
-              .replace(/\/circuit\.json$/, "") ?? "Default"}
-          </span>
-          <ChevronDown className="h-3 w-3 shrink-0 opacity-50" />
+          {previewFiles.length} Builds
+          <ChevronDown className="w-4 h-4 ml-1" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 max-w-[calc(100vw-2rem)] p-0">
@@ -89,7 +80,7 @@ export default function PreviewFileSelector() {
                     className="gap-2"
                   >
                     <span className="break-all text-xs font-mono flex-1">
-                      {path}
+                      {path.replace(/^dist\//, "")}
                     </span>
                     {previewFilePath === path && (
                       <Check className="h-4 w-4 shrink-0" />

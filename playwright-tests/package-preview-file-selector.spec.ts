@@ -79,8 +79,14 @@ const picker = (page: Page) =>
 
 async function selectLed(page: Page) {
   await picker(page).click()
+  await expect(page.getByRole("option", { name: /^dist\// })).toHaveCount(0)
   await page.getByPlaceholder("Find a preview file…").fill("led")
-  await page.getByRole("option", { name: outputs[1], exact: true }).click()
+  await page
+    .getByRole("option", {
+      name: outputs[1].replace(/^dist\//, ""),
+      exact: true,
+    })
+    .click()
 }
 
 test("picker is limited to preview tabs and updates the system diagram, URL and history", async ({
@@ -99,7 +105,23 @@ test("picker is limited to preview tabs and updates the system diagram, URL and 
       exact: true,
     }),
   ).toBeVisible()
-  await expect(picker(page)).toBeVisible()
+  await expect(picker(page)).toHaveText("2 Builds")
+  const buttonStyles = await Promise.all(
+    [
+      picker(page),
+      page.getByRole("button", { name: "Download", exact: true }),
+    ].map((button) =>
+      button.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          borderColor: style.borderColor,
+          borderWidth: style.borderWidth,
+          boxShadow: style.boxShadow,
+        }
+      }),
+    ),
+  )
+  expect(buttonStyles[0]).toEqual(buttonStyles[1])
   const pickerBounds = (await picker(page).boundingBox())!
   const tabsBounds = (await page
     .getByRole("button", { name: "System", exact: true })
@@ -152,7 +174,10 @@ test("picker is limited to preview tabs and updates the system diagram, URL and 
   ).toBeVisible()
   for (const view of ["PCB", "Schematic", "3D"]) {
     await page.getByRole("button", { name: view, exact: true }).click()
-    await expect(picker(page)).toHaveAttribute("title", outputs[1])
+    await expect(picker(page)).toHaveText("2 Builds")
+    await expect(page).toHaveURL(
+      /preview_file=dist%2Fexamples%2Fled%2Fcircuit.json#/,
+    )
   }
   await page.getByRole("button", { name: "Files", exact: true }).click()
   await expect(picker(page)).toHaveCount(0)
@@ -183,7 +208,7 @@ test("a file absent from the selected release falls back to its default", async 
       exact: true,
     }),
   ).toBeVisible()
-  await expect(picker(page)).toHaveAttribute("title", outputs[0])
+  await expect(picker(page)).toHaveText("2 Builds")
 })
 
 for (const view of ["schematic", "system"]) {
@@ -199,7 +224,8 @@ for (const view of ["schematic", "system"]) {
     await page
       .getByRole("option", { name: "Package default", exact: true })
       .click()
-    await expect(picker(page)).toHaveAttribute("title", outputs[0])
+    await expect(picker(page)).toHaveText("2 Builds")
+    await expect(page).not.toHaveURL(/preview_file=/)
   })
 }
 
