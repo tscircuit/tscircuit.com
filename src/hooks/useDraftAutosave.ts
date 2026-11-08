@@ -214,7 +214,13 @@ export function useDraftAutosave({
   }, [active, packageId])
 
   useEffect(() => {
-    if (!active || !autoSaveEnabled || !ready || currentSnapshot === state.current.confirmed) return
+    if (
+      !active ||
+      !autoSaveEnabled ||
+      !ready ||
+      currentSnapshot === state.current.confirmed
+    )
+      return
     // Never autosave while React is still displaying files from the release
     // instead of a restored draft.
     if (state.current.latest !== currentSnapshot) return
