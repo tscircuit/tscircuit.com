@@ -90,7 +90,14 @@ export default function EditorNav({
   hasUnsavedChanges: boolean
   localAutoSaveEnabled: boolean
   onLocalAutoSaveChange: (enabled: boolean) => void
-  localAutoSaveStatus?: "loading" | "restore" | "editing" | "saved" | "off" | "error" | "conflict"
+  localAutoSaveStatus?:
+    | "loading"
+    | "restore"
+    | "editing"
+    | "saved"
+    | "off"
+    | "error"
+    | "conflict"
   localAutoSaveError?: string | null
   previewOpen: boolean
   onTogglePreview: () => void
@@ -453,7 +460,6 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
-          <label className="ml-2 inline-flex items-center gap-1 text-xs text-gray-700"
             title="Autosave in this browser only; it does not run or build">
             <Switch
               checked={localAutoSaveEnabled}

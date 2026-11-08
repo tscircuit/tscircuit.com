@@ -44,9 +44,11 @@ export function useLocalDraftAutosave({
   })
   const [status, setStatus] = useState<LocalStatus>("loading")
   const [error, setError] = useState<string | null>(null)
-  const [restoreCandidate, setRestoreCandidate] = useState<LocalDraft | null>(null)
+  const [restoreCandidate, setRestoreCandidate] = useState<LocalDraft | null>(
+    null,
+  )
   const key = useMemo(
-    () => projectId ? localDraftKey(accountId, projectId) : null,
+    () => (projectId ? localDraftKey(accountId, projectId) : null),
     [accountId, projectId],
   )
   const phaseRef = useRef<{
@@ -88,7 +90,9 @@ export function useLocalDraftAutosave({
     } catch (cause) {
       phaseRef.current.phase = "error"
       setStatus("error")
-      setError(cause instanceof Error ? cause.message : "Local draft read failed")
+      setError(
+        cause instanceof Error ? cause.message : "Local draft read failed",
+      )
     }
   }, [key, ready, baseline, enabled])
 
@@ -118,7 +122,9 @@ export function useLocalDraftAutosave({
       setStatus(enabled ? "editing" : "off")
     } catch (cause) {
       setStatus("error")
-      setError(cause instanceof Error ? cause.message : "Local draft deletion failed")
+      setError(
+        cause instanceof Error ? cause.message : "Local draft deletion failed",
+      )
     }
   }, [key, enabled])
 
@@ -178,7 +184,11 @@ export function useLocalDraftAutosave({
       setError(null)
     } catch (cause) {
       setStatus("error")
-      setError(cause instanceof Error ? cause.message : "Unable to save autosave preference")
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Unable to save autosave preference",
+      )
     }
   }, [])
 

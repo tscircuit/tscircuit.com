@@ -10,12 +10,24 @@ import {
 function fakeStorage(): Storage {
   const data = new Map<string, string>()
   return {
-    get length() { return data.size },
-    clear() { data.clear() },
-    getItem(key: string) { return data.get(key) ?? null },
-    key(index: number) { return [...data.keys()][index] ?? null },
-    removeItem(key: string) { data.delete(key) },
-    setItem(key: string, value: string) { data.set(key, value) },
+    get length() {
+      return data.size
+    },
+    clear() {
+      data.clear()
+    },
+    getItem(key: string) {
+      return data.get(key) ?? null
+    },
+    key(index: number) {
+      return [...data.keys()][index] ?? null
+    },
+    removeItem(key: string) {
+      data.delete(key)
+    },
+    setItem(key: string, value: string) {
+      data.set(key, value)
+    },
   }
 }
 
@@ -58,17 +70,23 @@ test("invalid stored drafts are reported rather than overwritten", () => {
 
 test("quota failure does not make autosave look successful", () => {
   const storage = fakeStorage()
-  storage.setItem = () => { throw new Error("QuotaExceededError") }
-  expect(() => writeLocalDraft(storage, "draft", [
-    { path: "index.tsx", content: "latest" },
-  ])).toThrow("QuotaExceededError")
+  storage.setItem = () => {
+    throw new Error("QuotaExceededError")
+  }
+  expect(() =>
+    writeLocalDraft(storage, "draft", [
+      { path: "index.tsx", content: "latest" },
+    ]),
+  ).toThrow("QuotaExceededError")
   expect(storage.getItem("draft")).toBeNull()
 })
 
 test("oversized snapshots are rejected before writing", () => {
   const storage = fakeStorage()
-  expect(() => writeLocalDraft(storage, "draft", [
-    { path: "index.tsx", content: "a".repeat(2_000_001) },
-  ])).toThrow("2 MB")
+  expect(() =>
+    writeLocalDraft(storage, "draft", [
+      { path: "index.tsx", content: "a".repeat(2_000_001) },
+    ]),
+  ).toThrow("2 MB")
   expect(storage.getItem("draft")).toBeNull()
 })

@@ -15,7 +15,14 @@ import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
 import { useLocalDraftAutosave } from "@/hooks/use-local-draft-autosave"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
@@ -141,8 +148,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         : `scratch:${urlParams.template ?? urlParams.snippet_type ?? "default"}`,
     ready: Boolean(
       !versionFromUrl &&
-      isFullyLoaded &&
-      (!pkg || loadedFilesCount >= totalFilesCount),
+        isFullyLoaded &&
+        (!pkg || loadedFilesCount >= totalFilesCount),
     ),
     files: localFiles,
     initialFiles,
@@ -403,7 +410,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         onSave={saveFiles}
         localAutoSaveEnabled={localDraft.enabled}
         onLocalAutoSaveChange={localDraft.changeEnabled}
-        localAutoSaveStatus={localDraft.canSaveLocally ? localDraft.status : undefined}
+        localAutoSaveStatus={
+          localDraft.canSaveLocally ? localDraft.status : undefined
+        }
         localAutoSaveError={localDraft.error}
         onDiscard={() => openDiscardChangesDialog()}
         onTogglePreview={() =>
@@ -530,8 +539,8 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           <DialogHeader>
             <DialogTitle>Restore local draft?</DialogTitle>
             <DialogDescription>
-              Unsaved edits from this browser were found. Restore them or discard
-              the local copy. No server files or builds will be changed.
+              Unsaved edits from this browser were found. Restore them or
+              discard the local copy. No server files or builds will be changed.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

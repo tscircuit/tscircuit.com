@@ -27,7 +27,10 @@ export function draftFingerprint(files: LocalDraftFile[]): string {
   return JSON.stringify(files)
 }
 
-export function readLocalDraft(storage: Storage, key: string): LocalDraft | null {
+export function readLocalDraft(
+  storage: Storage,
+  key: string,
+): LocalDraft | null {
   const raw = storage.getItem(key)
   if (raw === null) return null
   const value: unknown = JSON.parse(raw)
@@ -65,7 +68,9 @@ export function writeLocalDraft(
   }
   const encoded = JSON.stringify(draft)
   if (encoded.length > MAX_LOCAL_DRAFT_LENGTH) {
-    throw new Error("Local draft exceeds the 2 MB safety limit. Use manual Save.")
+    throw new Error(
+      "Local draft exceeds the 2 MB safety limit. Use manual Save.",
+    )
   }
   // Storage quotas and privacy restrictions can throw. Never report success then.
   storage.setItem(key, encoded)
