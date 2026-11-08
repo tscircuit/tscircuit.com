@@ -18,7 +18,12 @@ import { useDraftAutosave } from "@/hooks/useDraftAutosave"
 import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
 import { useLocation } from "wouter"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
@@ -142,8 +147,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   const draft = useDraftAutosave({
     packageId: pkg?.package_id,
-    enabled: Boolean(pkg && sessionToken && !versionFromUrl && !isViewingOlderVersion && isFullyLoaded &&
-      loadedFilesCount >= totalFilesCount),
+    enabled: Boolean(
+      pkg &&
+        sessionToken &&
+        !versionFromUrl &&
+        !isViewingOlderVersion &&
+        isFullyLoaded &&
+        loadedFilesCount >= totalFilesCount,
+    ),
     files: localFiles,
     initialFiles,
     onRestore: setLocalFiles,
@@ -284,7 +295,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
 
   useWarnUserOnPageChange({
     hasUnsavedChanges: draft.active
-      ? draft.status === "error" || draft.hasUnsavedChanges || draft.status === "saving"
+      ? draft.status === "error" ||
+        draft.hasUnsavedChanges ||
+        draft.status === "saving"
       : Boolean(hasUnsavedChanges),
     isPackageThere: Boolean(pkg),
   })
@@ -415,7 +428,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         code={String(currentFileCode)}
         fsMap={fsMap}
         isSaving={draft.active ? draft.status === "saving" : isSaving}
-        hasUnsavedChanges={draft.active ? draft.hasUnsavedChanges : hasUnsavedChanges}
+        hasUnsavedChanges={
+          draft.active ? draft.hasUnsavedChanges : hasUnsavedChanges
+        }
         onSave={() => {
           if (draft.active) {
             void draft.flush().catch(() => {})
@@ -425,12 +440,14 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         }}
         draftStatus={draft.active ? draft.status : undefined}
         draftBuildOutdated={draft.active && draft.isBuildOutdated}
-        onBuildAndExit={draft.active
-          ? () => {
-              setExitError(null)
-              setShowExitDialog(true)
-            }
-          : undefined}
+        onBuildAndExit={
+          draft.active
+            ? () => {
+                setExitError(null)
+                setShowExitDialog(true)
+              }
+            : undefined
+        }
         onDiscard={draft.active ? undefined : () => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
@@ -471,7 +488,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 onCreateFile={handleCreateFile}
                 onDeleteFile={handleDeleteFile}
                 onRenameFile={handleRenameFile}
-                isLoadingFiles={!isFullyLoaded || (draft.active && !draft.ready)}
+                isLoadingFiles={
+                  !isFullyLoaded || (draft.active && !draft.ready)
+                }
                 loadingProgress={
                   isFullyLoaded
                     ? null
@@ -516,7 +535,9 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 showFileMenu={false}
                 showRunButton
                 forceLatestEvalVersion
-                isLoadingFiles={isLoading || !isFullyLoaded || (draft.active && !draft.ready)}
+                isLoadingFiles={
+                  isLoading || !isFullyLoaded || (draft.active && !draft.ready)
+                }
                 onRenderStarted={() => {
                   sessionTokenAtRenderStartRef.current = sessionToken
                   setState((prev) => ({
@@ -551,29 +572,42 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-      <Dialog open={showExitDialog} onOpenChange={(open) => !isExiting && setShowExitDialog(open)}>
+      <Dialog
+        open={showExitDialog}
+        onOpenChange={(open) => !isExiting && setShowExitDialog(open)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Exit editor</DialogTitle>
             <DialogDescription>
-              Draft changes are saved separately from existing releases.
-              Only Build &amp; Exit will request a new build.
+              Draft changes are saved separately from existing releases. Only
+              Build &amp; Exit will request a new build.
             </DialogDescription>
           </DialogHeader>
           {exitError && (
-            <p role="alert" className="text-sm text-red-600">{exitError}</p>
+            <p role="alert" className="text-sm text-red-600">
+              {exitError}
+            </p>
           )}
           <DialogFooter className="gap-2">
-            <Button variant="outline" disabled={isExiting}
-              onClick={() => setShowExitDialog(false)}>
+            <Button
+              variant="outline"
+              disabled={isExiting}
+              onClick={() => setShowExitDialog(false)}
+            >
               Stay in editor
             </Button>
-            <Button variant="outline" disabled={isExiting || !draft.ready}
-              onClick={() => void onDraftExit(false)}>
+            <Button
+              variant="outline"
+              disabled={isExiting || !draft.ready}
+              onClick={() => void onDraftExit(false)}
+            >
               Keep draft &amp; exit
             </Button>
-            <Button disabled={isExiting || !draft.ready}
-              onClick={() => void onDraftExit(true)}>
+            <Button
+              disabled={isExiting || !draft.ready}
+              onClick={() => void onDraftExit(true)}
+            >
               {isExiting ? "Saving..." : "Build & Exit"}
             </Button>
           </DialogFooter>

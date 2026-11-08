@@ -452,18 +452,27 @@ export default function EditorNav({
           </TooltipProvider>
           {draftStatus && (
             <div role="status" className="ml-2 text-xs text-gray-700">
-              {draftStatus === "loading" ? "Loading draft..." :
-               draftStatus === "saving" ? "Saving draft..." :
-               draftStatus === "saved" ? "Changes saved" :
-               draftStatus === "error" ? "Save failed — retry with Save" :
-               "Unsaved draft changes"}
+              {draftStatus === "loading"
+                ? "Loading draft..."
+                : draftStatus === "saving"
+                  ? "Saving draft..."
+                  : draftStatus === "saved"
+                    ? "Changes saved"
+                    : draftStatus === "error"
+                      ? "Save failed — retry with Save"
+                      : "Unsaved draft changes"}
               {draftStatus === "saved" && draftBuildOutdated
-                ? " · Build outdated" : ""}
+                ? " · Build outdated"
+                : ""}
             </div>
           )}
           {onBuildAndExit && (
-            <Button size="sm" variant="outline" className="ml-2 h-7"
-              onClick={onBuildAndExit}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="ml-2 h-7"
+              onClick={onBuildAndExit}
+            >
               Build & Exit
             </Button>
           )}

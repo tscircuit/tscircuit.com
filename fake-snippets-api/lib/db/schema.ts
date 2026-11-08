@@ -420,11 +420,21 @@ export const publicPackageReleaseSchema = z.object({
 export type PublicPackageRelease = z.infer<typeof publicPackageReleaseSchema>
 
 export const draftFileSchema = z.object({
-  path: z.string().min(1).max(512).refine(
-    (path) => !path.startsWith("/") && !path.includes("\\") &&
-      !path.split("/").some((segment) => segment === ".." || segment === "." || segment === ""),
-    "Draft file path must be relative and cannot traverse directories",
-  ),
+  path: z
+    .string()
+    .min(1)
+    .max(512)
+    .refine(
+      (path) =>
+        !path.startsWith("/") &&
+        !path.includes("\\") &&
+        !path
+          .split("/")
+          .some(
+            (segment) => segment === ".." || segment === "." || segment === "",
+          ),
+      "Draft file path must be relative and cannot traverse directories",
+    ),
   content: z.string().max(1_000_000),
 })
 export type DraftFile = z.infer<typeof draftFileSchema>

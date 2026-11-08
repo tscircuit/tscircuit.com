@@ -89,7 +89,8 @@ export function useDraftAutosave({
           "/package_drafts/get",
           { params: { package_id: packageId } },
         )
-        if (cancelled || state.current.nextGeneration !== currentGeneration) return
+        if (cancelled || state.current.nextGeneration !== currentGeneration)
+          return
 
         const draft = response.data.draft
         const source = draft?.files ?? draftSnapshot(initialFilesRef.current)
@@ -117,9 +118,12 @@ export function useDraftAutosave({
         setReady(true)
         setStatus("saved")
       } catch (cause) {
-        if (cancelled || state.current.nextGeneration !== currentGeneration) return
+        if (cancelled || state.current.nextGeneration !== currentGeneration)
+          return
         state.current.loading = true
-        setError(cause instanceof Error ? cause.message : "Unable to load draft")
+        setError(
+          cause instanceof Error ? cause.message : "Unable to load draft",
+        )
         setStatus("error")
       }
     })()
@@ -128,7 +132,7 @@ export function useDraftAutosave({
       cancelled = true
       state.current.nextGeneration++
     }
-  // Restore only when the package changes, not after each editor keystroke.
+    // Restore only when the package changes, not after each editor keystroke.
   }, [active, packageId])
 
   const currentSnapshot = serialize(draftSnapshot(files))
@@ -200,7 +204,10 @@ export function useDraftAutosave({
 
     const queued = state.current.queue.then(save)
     // A failed save must not permanently poison future attempts.
-    state.current.queue = queued.then(() => undefined, () => undefined)
+    state.current.queue = queued.then(
+      () => undefined,
+      () => undefined,
+    )
     return queued
   }, [active, packageId])
 
@@ -221,8 +228,12 @@ export function useDraftAutosave({
     if (!active || !packageId) throw new Error("Draft feature unavailable")
     const savedRevision = await flush()
     // Do not build when the editor has changed again during the request.
-    if (serialize(draftSnapshot(filesRef.current)) !== state.current.confirmed) {
-      throw new Error("New edits appeared during save. Save again before building.")
+    if (
+      serialize(draftSnapshot(filesRef.current)) !== state.current.confirmed
+    ) {
+      throw new Error(
+        "New edits appeared during save. Save again before building.",
+      )
     }
     const response = await apiRef.current.post<{
       ok: boolean
@@ -246,8 +257,7 @@ export function useDraftAutosave({
     revision,
     builtRevision,
     isBuildOutdated: ready && revision > 0 && builtRevision !== revision,
-    hasUnsavedChanges: ready &&
-      currentSnapshot !== state.current.confirmed,
+    hasUnsavedChanges: ready && currentSnapshot !== state.current.confirmed,
     flush,
     buildAndExit,
   }

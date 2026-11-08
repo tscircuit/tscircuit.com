@@ -72,13 +72,21 @@ test("cannot read, save, or build another user's draft", async () => {
   const { axios, jane_axios, unauthenticatedAxios } = await getTestServer()
   const packageId = await createPackage(axios, "draft-auth")
   for (const request of [
-    () => jane_axios.get("/api/package_drafts/get", { params: { package_id: packageId } }),
-    () => jane_axios.post("/api/package_drafts/save", {
-      package_id: packageId, expected_revision: 0, files: [],
-    }),
-    () => jane_axios.post("/api/package_drafts/build", {
-      package_id: packageId, expected_revision: 1,
-    }),
+    () =>
+      jane_axios.get("/api/package_drafts/get", {
+        params: { package_id: packageId },
+      }),
+    () =>
+      jane_axios.post("/api/package_drafts/save", {
+        package_id: packageId,
+        expected_revision: 0,
+        files: [],
+      }),
+    () =>
+      jane_axios.post("/api/package_drafts/build", {
+        package_id: packageId,
+        expected_revision: 1,
+      }),
   ]) {
     try {
       await request()
@@ -93,7 +101,7 @@ test("cannot read, save, or build another user's draft", async () => {
     })
     throw new Error("Expected unauthenticated request to fail")
   } catch (error: any) {
-    expect(error.status).toBe(401)
+    expect(error.status).toBe(403)
   }
 })
 
@@ -122,13 +130,25 @@ test("Build & Exit uses a frozen snapshot and never changes the latest release",
   })
   expect(queued.data.build_requested).toBe(true)
   expect(db.packageBuilds.length).toBe(buildCount + 1)
-  expect(db.packageReleases.find((r) => r.package_release_id === queued.data.package_release_id)?.ready_to_build).toBe(true)
-  expect(db.packages.find((p) => p.package_id === packageId)?.latest_package_release_id).toBe(latestId)
-  expect(db.getPackageFilesByReleaseId(queued.data.package_release_id).find((f) => f.file_path === "index.tsx")?.content_text).toBe("snapshot 1")
+  expect(
+    db.packageReleases.find(
+      (r) => r.package_release_id === queued.data.package_release_id,
+    )?.ready_to_build,
+  ).toBe(true)
+  expect(
+    db.packages.find((p) => p.package_id === packageId)
+      ?.latest_package_release_id,
+  ).toBe(latestId)
+  expect(
+    db
+      .getPackageFilesByReleaseId(queued.data.package_release_id)
+      .find((f) => f.file_path === "index.tsx")?.content_text,
+  ).toBe("snapshot 1")
 
   // Duplicate clicks must not enqueue duplicate builds.
   const again = await axios.post("/api/package_drafts/build", {
-    package_id: packageId, expected_revision: 1,
+    package_id: packageId,
+    expected_revision: 1,
   })
   expect(again.data.package_build_id).toBe(queued.data.package_build_id)
   expect(db.packageBuilds.length).toBe(buildCount + 1)
@@ -138,5 +158,9 @@ test("Build & Exit uses a frozen snapshot and never changes the latest release",
     expected_revision: 1,
     files: [{ path: "index.tsx", content: "snapshot 2" }],
   })
-  expect(db.getPackageFilesByReleaseId(queued.data.package_release_id).find((f) => f.file_path === "index.tsx")?.content_text).toBe("snapshot 1")
+  expect(
+    db
+      .getPackageFilesByReleaseId(queued.data.package_release_id)
+      .find((f) => f.file_path === "index.tsx")?.content_text,
+  ).toBe("snapshot 1")
 })

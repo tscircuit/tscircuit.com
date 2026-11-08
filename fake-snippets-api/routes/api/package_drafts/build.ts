@@ -16,7 +16,9 @@ export default withRouteSpec({
     package_build_id: z.string(),
   }),
 })(async (req, ctx) => {
-  const pkg = ctx.db.packages.find((p) => p.package_id === req.jsonBody.package_id)
+  const pkg = ctx.db.packages.find(
+    (p) => p.package_id === req.jsonBody.package_id,
+  )
   if (!pkg) {
     return ctx.error(404, {
       error_code: "package_not_found",

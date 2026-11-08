@@ -6,7 +6,9 @@ import {
 import { z } from "zod"
 
 const isHiddenDraftFile = (path: string): boolean =>
-  path.split("/").some((segment) => segment === ".env" || segment.startsWith(".env."))
+  path
+    .split("/")
+    .some((segment) => segment === ".env" || segment.startsWith(".env."))
 
 export default withRouteSpec({
   methods: ["POST"],
@@ -14,9 +16,12 @@ export default withRouteSpec({
   jsonBody: z.object({
     package_id: z.string().min(1),
     expected_revision: z.number().int().nonnegative(),
-    files: z.array(draftFileSchema).max(200)
+    files: z
+      .array(draftFileSchema)
+      .max(200)
       .refine(
-        (files) => new Set(files.map((file) => file.path)).size === files.length,
+        (files) =>
+          new Set(files.map((file) => file.path)).size === files.length,
         "Draft file paths must be unique",
       )
       .refine(
@@ -30,7 +35,9 @@ export default withRouteSpec({
     build_triggered: z.literal(false),
   }),
 })(async (req, ctx) => {
-  const pkg = ctx.db.packages.find((p) => p.package_id === req.jsonBody.package_id)
+  const pkg = ctx.db.packages.find(
+    (p) => p.package_id === req.jsonBody.package_id,
+  )
   if (!pkg) {
     return ctx.error(404, {
       error_code: "package_not_found",

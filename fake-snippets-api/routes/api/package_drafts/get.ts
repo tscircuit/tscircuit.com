@@ -26,6 +26,7 @@ export default withRouteSpec({
   }
   return ctx.json({
     ok: true,
-    draft: ctx.db.packageDrafts.find((d) => d.package_id === pkg.package_id) ?? null,
+    draft:
+      ctx.db.packageDrafts.find((d) => d.package_id === pkg.package_id) ?? null,
   })
 })

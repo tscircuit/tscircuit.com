@@ -1431,7 +1431,8 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       revision: expectedRevision + 1,
       files: files.map((file) => ({ ...file })),
       updated_at: new Date().toISOString(),
-      last_build_requested_revision: existing?.last_build_requested_revision ?? null,
+      last_build_requested_revision:
+        existing?.last_build_requested_revision ?? null,
       last_build_release_id: existing?.last_build_release_id ?? null,
       last_package_build_id: existing?.last_package_build_id ?? null,
     })
@@ -1447,7 +1448,11 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
   queuePackageDraftBuild: (
     packageId: string,
     expectedRevision: number,
-  ): { draft: PackageDraft; release: PackageRelease; build: PackageBuild } | null => {
+  ): {
+    draft: PackageDraft
+    release: PackageRelease
+    build: PackageBuild
+  } | null => {
     const state = get()
     const draft = state.packageDrafts.find((d) => d.package_id === packageId)
     if (!draft || draft.revision !== expectedRevision) return null
@@ -1475,9 +1480,10 @@ const initializer = combine(databaseSchema.parse({}), (set, get) => ({
       package_release_id: releaseId,
       file_path: file.path,
       content_text: file.content,
-      content_mimetype: file.path.endsWith(".tsx") || file.path.endsWith(".ts")
-        ? "text/typescript"
-        : "text/plain",
+      content_mimetype:
+        file.path.endsWith(".tsx") || file.path.endsWith(".ts")
+          ? "text/typescript"
+          : "text/plain",
       created_at: createdAt,
     }))
     // Fake API only: a non-latest release holds the immutable build snapshot.
