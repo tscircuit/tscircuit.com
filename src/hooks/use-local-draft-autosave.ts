@@ -162,7 +162,9 @@ export function useLocalDraftAutosave({
         } catch (cause) {
           setStatus("error")
           setError(
-            cause instanceof Error ? cause.message : "Local draft cleanup failed",
+            cause instanceof Error
+              ? cause.message
+              : "Local draft cleanup failed",
           )
           return
         }
