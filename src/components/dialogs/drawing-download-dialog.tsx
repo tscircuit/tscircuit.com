@@ -15,7 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { downloadDrawingSvg } from "@/lib/download-fns/download-drawing-svg"
+import {
+  downloadAllDrawingSvgs,
+  downloadDrawingSvg,
+} from "@/lib/download-fns/download-drawing-svg"
 import type { CircuitJson } from "circuit-json"
 import { useId, useState } from "react"
 
@@ -38,7 +41,10 @@ export const DrawingDownloadDialog = ({
   const [selectedPageId, setSelectedPageId] = useState(
     drawingPages[0]?.drawing_page_id,
   )
-  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadFormat, setDownloadFormat] = useState<"svg" | "zip" | null>(
+    null,
+  )
+  const isDownloading = downloadFormat !== null
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const pageSelectId = useId()
   const selectedPage =
@@ -51,7 +57,7 @@ export const DrawingDownloadDialog = ({
         <DialogHeader>
           <DialogTitle>Download Engineering Drawing</DialogTitle>
           <DialogDescription>
-            Choose a drawing sheet to download as an SVG.
+            Download a drawing as an SVG, or all drawings as a ZIP.
           </DialogDescription>
         </DialogHeader>
         {drawingPages.length ? (
@@ -91,11 +97,35 @@ export const DrawingDownloadDialog = ({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
+          {drawingPages.length > 1 && (
+            <Button
+              variant="outline"
+              disabled={isDownloading}
+              onClick={async () => {
+                setDownloadFormat("zip")
+                setDownloadError(null)
+                try {
+                  await downloadAllDrawingSvgs({ circuitJson, fileName })
+                  onOpenChange(false)
+                } catch (error) {
+                  setDownloadError(
+                    error instanceof Error ? error.message : String(error),
+                  )
+                } finally {
+                  setDownloadFormat(null)
+                }
+              }}
+            >
+              {downloadFormat === "zip"
+                ? "Preparing ZIP…"
+                : "Download all (ZIP)"}
+            </Button>
+          )}
           <Button
             disabled={!selectedPage || isDownloading}
             onClick={async () => {
               if (!selectedPage) return
-              setIsDownloading(true)
+              setDownloadFormat("svg")
               setDownloadError(null)
               try {
                 await downloadDrawingSvg({
@@ -109,11 +139,11 @@ export const DrawingDownloadDialog = ({
                   error instanceof Error ? error.message : String(error),
                 )
               } finally {
-                setIsDownloading(false)
+                setDownloadFormat(null)
               }
             }}
           >
-            {isDownloading ? "Preparing SVG…" : "Download SVG"}
+            {downloadFormat === "svg" ? "Preparing SVG…" : "Download SVG"}
           </Button>
         </DialogFooter>
       </DialogContent>

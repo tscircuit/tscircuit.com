@@ -1,5 +1,6 @@
 import type { CircuitJson, DrawingPage } from "circuit-json"
 import { saveAs } from "file-saver"
+import JSZip from "jszip"
 import { withDownloadToast } from "./download-toast"
 
 export const getDrawingSvgFileName = ({
@@ -44,4 +45,54 @@ export const downloadDrawingSvg = async ({
     createDrawingSvg({ circuitJson, drawingPageId }),
   )
   saveAs(content, getDrawingSvgFileName({ drawingPage, fileName }))
+}
+
+export const createDrawingsZip = async ({
+  circuitJson,
+  fileName,
+}: {
+  circuitJson: CircuitJson
+  fileName: string
+}) => {
+  const drawingPages = circuitJson.filter(
+    (element) => element.type === "drawing_page",
+  )
+  if (!drawingPages.length) {
+    throw new Error("No engineering drawings are available for this circuit.")
+  }
+  const { renderDrawingPages } = await import("@tscircuit/drawing-viewer")
+  const pages = await renderDrawingPages(circuitJson)
+  const zip = new JSZip()
+  for (const page of pages) {
+    const drawingPage = drawingPages.find(
+      (drawingPage) => drawingPage.drawing_page_id === page.drawingPageId,
+    )
+    if (!drawingPage) throw new Error("A rendered drawing page was not found.")
+    const svgFileName = getDrawingSvgFileName({ drawingPage, fileName })
+    let uniqueFileName = svgFileName
+    let duplicateIndex = 2
+    while (zip.file(uniqueFileName)) {
+      uniqueFileName = `${svgFileName.slice(0, -4)}-${duplicateIndex++}.svg`
+    }
+    zip.file(uniqueFileName, page.svg)
+  }
+  return zip.generateAsync({ type: "blob", compression: "DEFLATE" })
+}
+
+export const downloadAllDrawingSvgs = async ({
+  circuitJson,
+  fileName,
+}: {
+  circuitJson: CircuitJson
+  fileName: string
+}) => {
+  const content = await withDownloadToast(
+    "Preparing all drawing downloads...",
+    () => createDrawingsZip({ circuitJson, fileName }),
+  )
+  const zipFileName = `${fileName}-drawings.zip`.replace(
+    /[^a-zA-Z0-9_.-]+/g,
+    "-",
+  )
+  saveAs(content, zipFileName)
 }

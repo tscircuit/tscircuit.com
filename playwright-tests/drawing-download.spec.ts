@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import type { CircuitJson } from "circuit-json"
 import { readFile } from "node:fs/promises"
+import JSZip from "jszip"
 import { engineeringDrawingCircuitJson } from "../bun-tests/fixtures/engineering-drawings"
 
 test.describe.configure({ timeout: 60000 })
@@ -60,6 +61,40 @@ for (const viewport of [
     const svg = await readFile((await drawing.path())!, "utf8")
     expect(svg).toContain("CARRIER SECTION")
     expect(svg).not.toContain("CARRIER INSPECTION")
+    await expect(dialog).not.toBeVisible()
+  })
+
+  test(`downloads all engineering drawings in one ZIP at ${viewport.width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize(viewport)
+    await openDownloadMenu({ page, circuitJson: engineeringDrawingCircuitJson })
+    await page
+      .getByRole("menuitem", { name: "Engineering Drawing SVG" })
+      .click()
+    const dialog = page.getByRole("dialog", {
+      name: "Download Engineering Drawing",
+    })
+    await dialog.screenshot({
+      path: testInfo.outputPath("download-all-dialog.png"),
+    })
+    const download = page.waitForEvent("download")
+    await dialog
+      .getByRole("button", { name: "Download all (ZIP)", exact: true })
+      .click()
+    const drawings = await download
+    expect(drawings.suggestedFilename()).toBe("my-test-board-drawings.zip")
+    const zip = await JSZip.loadAsync(await readFile((await drawings.path())!))
+    expect(Object.keys(zip.files).sort()).toEqual([
+      "my-test-board-carrier-inspection.svg",
+      "my-test-board-carrier-section.svg",
+    ])
+    expect(
+      await zip.file("my-test-board-carrier-inspection.svg")!.async("string"),
+    ).toContain("CARRIER INSPECTION")
+    expect(
+      await zip.file("my-test-board-carrier-section.svg")!.async("string"),
+    ).toContain("CARRIER SECTION")
     await expect(dialog).not.toBeVisible()
   })
 }

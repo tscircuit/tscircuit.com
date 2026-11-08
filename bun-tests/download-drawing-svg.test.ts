@@ -1,8 +1,10 @@
 import { expect, test } from "bun:test"
 import {
   createDrawingSvg,
+  createDrawingsZip,
   getDrawingSvgFileName,
 } from "@/lib/download-fns/download-drawing-svg"
+import JSZip from "jszip"
 import { engineeringDrawingCircuitJson } from "./fixtures/engineering-drawings"
 
 test.each([
@@ -65,4 +67,53 @@ test("drawing filenames use page identities and remove path characters", () => {
       fileName: "my-board",
     }),
   ).toBe("my-board-carrier-inspection.svg")
+})
+
+test("downloads every drawing as a separate SVG in one ZIP", async () => {
+  const blob = await createDrawingsZip({
+    circuitJson: engineeringDrawingCircuitJson,
+    fileName: "my-board",
+  })
+  expect(blob.type).toBe("application/zip")
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer())
+  expect(Object.keys(zip.files).sort()).toEqual([
+    "my-board-carrier-inspection.svg",
+    "my-board-carrier-section.svg",
+  ])
+  expect(
+    await zip.file("my-board-carrier-inspection.svg")!.async("string"),
+  ).toContain("CARRIER INSPECTION")
+  expect(
+    await zip.file("my-board-carrier-section.svg")!.async("string"),
+  ).toContain("CARRIER SECTION")
+}, 20000)
+
+test("retains every drawing when sanitized filenames collide", async () => {
+  const circuitJson = engineeringDrawingCircuitJson.map((element) =>
+    element.type === "drawing_page"
+      ? {
+          ...element,
+          name:
+            element.name === "carrier-inspection" ? "same/name" : "same name",
+        }
+      : element,
+  )
+  const blob = await createDrawingsZip({ circuitJson, fileName: "my-board" })
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer())
+  expect(Object.keys(zip.files).sort()).toEqual([
+    "my-board-same-name-2.svg",
+    "my-board-same-name.svg",
+  ])
+  expect(await zip.file("my-board-same-name.svg")!.async("string")).toContain(
+    "CARRIER INSPECTION",
+  )
+  expect(await zip.file("my-board-same-name-2.svg")!.async("string")).toContain(
+    "CARRIER SECTION",
+  )
+}, 20000)
+
+test("does not create an empty drawing ZIP", async () => {
+  await expect(
+    createDrawingsZip({ circuitJson: [], fileName: "my-board" }),
+  ).rejects.toThrow("No engineering drawings")
 })
