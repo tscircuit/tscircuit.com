@@ -60,6 +60,8 @@ export function useDraftAutosave({
   })
   const filesRef = useRef(files)
   filesRef.current = files
+  const initialFilesRef = useRef(initialFiles)
+  initialFilesRef.current = initialFiles
   const restoreRef = useRef(onRestore)
   restoreRef.current = onRestore
   const apiRef = useRef(axios)
@@ -90,7 +92,7 @@ export function useDraftAutosave({
         if (cancelled || state.current.nextGeneration !== currentGeneration) return
 
         const draft = response.data.draft
-        const source = draft?.files ?? draftSnapshot(initialFiles)
+        const source = draft?.files ?? draftSnapshot(initialFilesRef.current)
         const snapshot = serialize(source)
         state.current.revision = draft?.revision ?? 0
         state.current.builtRevision =
@@ -99,7 +101,15 @@ export function useDraftAutosave({
         state.current.latest = snapshot
 
         if (draft) {
-          restoreRef.current(draft.files.map((file) => ({ ...file })))
+          // Preserve generated/hidden files from the loaded release. The draft
+          // tracks only editable source files, not ignored dependencies.
+          const untouched = initialFilesRef.current.filter((file) =>
+            isHiddenFile(file.path),
+          )
+          restoreRef.current([
+            ...untouched,
+            ...draft.files.map((file) => ({ ...file })),
+          ])
         }
         setRevision(state.current.revision)
         setBuiltRevision(state.current.builtRevision)
@@ -153,7 +163,9 @@ export function useDraftAutosave({
       if (generation !== state.current.nextGeneration) {
         throw new Error("Draft has changed packages")
       }
-      if (requested === state.current.confirmed) return state.current.revision
+      if (requested === state.current.confirmed && state.current.revision > 0) {
+        return state.current.revision
+      }
       setStatus("saving")
       setError(null)
       try {

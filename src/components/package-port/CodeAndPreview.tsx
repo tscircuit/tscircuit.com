@@ -471,7 +471,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 onCreateFile={handleCreateFile}
                 onDeleteFile={handleDeleteFile}
                 onRenameFile={handleRenameFile}
-                isLoadingFiles={!isFullyLoaded}
+                isLoadingFiles={!isFullyLoaded || (draft.active && !draft.ready)}
                 loadingProgress={
                   isFullyLoaded
                     ? null
@@ -516,7 +516,7 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
                 showFileMenu={false}
                 showRunButton
                 forceLatestEvalVersion
-                isLoadingFiles={isLoading || !isFullyLoaded}
+                isLoadingFiles={isLoading || !isFullyLoaded || (draft.active && !draft.ready)}
                 onRenderStarted={() => {
                   sessionTokenAtRenderStartRef.current = sessionToken
                   setState((prev) => ({

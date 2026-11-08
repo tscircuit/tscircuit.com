@@ -5,16 +5,24 @@ import {
 } from "fake-snippets-api/lib/db/schema"
 import { z } from "zod"
 
+const isHiddenDraftFile = (path: string): boolean =>
+  path.split("/").some((segment) => segment === ".env" || segment.startsWith(".env."))
+
 export default withRouteSpec({
   methods: ["POST"],
   auth: "session",
   jsonBody: z.object({
     package_id: z.string().min(1),
     expected_revision: z.number().int().nonnegative(),
-    files: z.array(draftFileSchema).max(200).refine(
-      (files) => new Set(files.map((file) => file.path)).size === files.length,
-      "Draft file paths must be unique",
-    ),
+    files: z.array(draftFileSchema).max(200)
+      .refine(
+        (files) => new Set(files.map((file) => file.path)).size === files.length,
+        "Draft file paths must be unique",
+      )
+      .refine(
+        (files) => files.every((file) => !isHiddenDraftFile(file.path)),
+        "Environment files cannot be stored in drafts",
+      ),
   }),
   jsonResponse: z.object({
     ok: z.boolean(),

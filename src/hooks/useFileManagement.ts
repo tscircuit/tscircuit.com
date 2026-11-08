@@ -617,12 +617,16 @@ export function useFileManagement({
     }
     // Update the confirmed baseline only after the server acknowledged all files.
     const savedSnapshot = localFiles.map((file) => ({ ...file }))
-    await updatePackageFilesMutation.mutateAsync({
-      package_name_with_version: `${currentPackage.name}@latest`,
-      ...currentPackage,
-    })
-    updateLastUpdated()
-    setInitialFiles(savedSnapshot)
+    try {
+      await updatePackageFilesMutation.mutateAsync({
+        package_name_with_version: `${currentPackage.name}@latest`,
+        ...currentPackage,
+      })
+      updateLastUpdated()
+      setInitialFiles(savedSnapshot)
+    } catch {
+      // The mutation surfaces the error toast; leave unsaved changes intact.
+    }
   }
 
   const isSaving = useMemo(() => {
