@@ -8,6 +8,7 @@ test("local autosave preference can be disabled and survives reload", async ({
   await page.goto(editorUrl)
 
   const toggle = page.getByRole("switch", { name: "Local AutoSave" })
+  await expect(page.getByText("AutoSave Drafts", { exact: true })).toBeVisible()
   await expect(toggle).toBeVisible()
   await expect(toggle).toBeChecked()
   await expect(page.getByTestId("local-autosave-status")).toHaveText(

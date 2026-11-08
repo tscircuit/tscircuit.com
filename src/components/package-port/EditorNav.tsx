@@ -462,12 +462,13 @@ export default function EditorNav({
             </Tooltip>
           </TooltipProvider>
           <label
-            className="ml-2 inline-flex items-center gap-1 text-xs text-gray-700"
+            className="ml-2 inline-flex items-center gap-2 text-xs text-gray-700"
             title={
               localAutoSaveError ??
               "AutoSave stores drafts in this browser; it does not run or build"
             }
           >
+            <span className="whitespace-nowrap">AutoSave Drafts</span>
             <Switch
               checked={localAutoSaveEnabled}
               onCheckedChange={onLocalAutoSaveChange}
