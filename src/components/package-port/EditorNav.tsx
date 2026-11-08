@@ -463,38 +463,24 @@ export default function EditorNav({
           </TooltipProvider>
           <label
             className="ml-2 inline-flex items-center gap-1 text-xs text-gray-700"
-            title="Autosave in this browser only; it does not run or build"
+            title={
+              localAutoSaveError ??
+              "AutoSave stores drafts in this browser; it does not run or build"
+            }
           >
             <Switch
               checked={localAutoSaveEnabled}
               onCheckedChange={onLocalAutoSaveChange}
               aria-label="Local AutoSave"
             />
-            Local AutoSave {localAutoSaveEnabled ? "On" : "Off"}
-          </label>
-          {localAutoSaveStatus && (
             <span
               role="status"
-              title={localAutoSaveError ?? undefined}
-              className="ml-2 text-xs text-gray-600"
+              data-testid="local-autosave-status"
+              className="text-xs text-gray-600"
             >
-              {localAutoSaveStatus === "saved"
-                ? "Saved in browser"
-                : localAutoSaveStatus === "off"
-                  ? "Local save off"
-                  : localAutoSaveStatus === "idle"
-                    ? "No local changes"
-                    : localAutoSaveStatus === "editing"
-                      ? "Local changes pending"
-                      : localAutoSaveStatus === "restore"
-                        ? "Restore draft available"
-                        : localAutoSaveStatus === "conflict"
-                          ? "Draft changed in another tab"
-                          : localAutoSaveStatus === "error"
-                            ? "Local save failed"
-                            : "Checking local draft"}
+              {localAutoSaveStatus === "saved" ? "Saved" : "Not saved"}
             </span>
-          )}
+          </label>
           {isSaving && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
