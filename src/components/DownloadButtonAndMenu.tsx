@@ -1,5 +1,4 @@
 import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
-import { DrawingDownloadDialog } from "@/components/dialogs/drawing-download-dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -21,6 +20,7 @@ import { downloadAltiumFiles } from "@/lib/download-fns/download-altium-files"
 import { downloadCircuitJson } from "@/lib/download-fns/download-circuit-json-fn"
 import { ImageFormat } from "@/lib/download-fns/download-circuit-png"
 import { downloadDsnFile } from "@/lib/download-fns/download-dsn-file-fn"
+import { downloadDrawingImages } from "@/lib/download-fns/download-drawing-images"
 import { downloadFabricationFiles } from "@/lib/download-fns/download-fabrication-files"
 import { downloadGltfFromCircuitJson } from "@/lib/download-fns/download-gltf-from-circuit-json"
 import { downloadKicadFiles } from "@/lib/download-fns/download-kicad-files"
@@ -86,9 +86,7 @@ export function DownloadButtonAndMenu({
   const [accessoryCircuitJson, setAccessoryCircuitJson] = useState<
     AnyCircuitElement[] | null
   >(null)
-  const [drawingCircuitJson, setDrawingCircuitJson] = useState<
-    AnyCircuitElement[] | null
-  >(null)
+  const [isDownloadingDrawings, setIsDownloadingDrawings] = useState(false)
 
   const canDownload = Boolean(hasCircuitJson || circuitJson?.length)
   const availableCircuitJson = circuitJson?.length
@@ -285,6 +283,51 @@ export function DownloadButtonAndMenu({
                   </DropdownMenuItem>
                 </>
               )}
+              {(["png", "svg"] as const).map((format) => (
+                <DropdownMenuItem
+                  key={format}
+                  className="text-xs"
+                  disabled={
+                    isFetchingCircuitJson ||
+                    isDownloadingDrawings ||
+                    hasDrawingPages === false
+                  }
+                  onSelect={async () => {
+                    setIsDownloadingDrawings(true)
+                    try {
+                      const circuitJson = await getCircuitJson().catch(
+                        () => null,
+                      )
+                      if (!circuitJson) return
+                      await downloadDrawingImages({
+                        circuitJson,
+                        fileName: unscopedName || "circuit",
+                        format,
+                      })
+                    } catch (error) {
+                      toast({
+                        title: `Error Downloading Engineering Drawing ${format.toUpperCase()}`,
+                        description:
+                          error instanceof Error
+                            ? error.message
+                            : String(error),
+                        variant: "destructive",
+                      })
+                    } finally {
+                      setIsDownloadingDrawings(false)
+                    }
+                  }}
+                >
+                  <Download className="mr-1 h-3 w-3" />
+                  <span className="flex-grow mr-6">
+                    Engineering Drawing {format.toUpperCase()}
+                  </span>
+                  {formatBadge(
+                    format,
+                    format === "png" ? "bg-teal-600" : "bg-blue-500",
+                  )}
+                </DropdownMenuItem>
+              ))}
               <DropdownMenuItem
                 className="text-xs"
                 onSelect={async () => {
@@ -294,22 +337,6 @@ export function DownloadButtonAndMenu({
               >
                 <Download className="mr-1 h-3 w-3" />
                 <span className="flex-grow mr-6">Schematic SVG</span>
-                {formatBadge("svg", "bg-blue-500")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-xs"
-                disabled={isFetchingCircuitJson || hasDrawingPages === false}
-                onSelect={async () => {
-                  try {
-                    const circuitJson = await getCircuitJson()
-                    setDrawingCircuitJson(circuitJson)
-                  } catch {
-                    // getCircuitJson displays the download error toast.
-                  }
-                }}
-              >
-                <Download className="mr-1 h-3 w-3" />
-                <span className="flex-grow mr-6">Engineering Drawing SVG</span>
                 {formatBadge("svg", "bg-blue-500")}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -543,16 +570,6 @@ export function DownloadButtonAndMenu({
         circuitJson={fetchedCircuitJson || circuitJson || []}
         fileName={unscopedName || "circuit"}
       />
-      {drawingCircuitJson && (
-        <DrawingDownloadDialog
-          open
-          onOpenChange={(open) => {
-            if (!open) setDrawingCircuitJson(null)
-          }}
-          circuitJson={drawingCircuitJson}
-          fileName={unscopedName || "circuit"}
-        />
-      )}
       {accessoryCircuitJson && (
         <ExportAccessoryDialog
           open={isAccessoryDialogOpen}

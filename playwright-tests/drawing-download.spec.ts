@@ -9,10 +9,7 @@ test.describe.configure({ timeout: 60000 })
 const openDownloadMenu = async ({
   page,
   circuitJson,
-}: {
-  page: Page
-  circuitJson: CircuitJson
-}) => {
+}: { page: Page; circuitJson: CircuitJson }) => {
   await page.route("**/package_releases/get_preview_circuit_json?*", (route) =>
     route.fulfill({
       json: {
@@ -25,104 +22,105 @@ const openDownloadMenu = async ({
   )
   await page.goto("http://127.0.0.1:5177/testuser/my-test-board#files")
   const download = page.getByRole("button", { name: "Download", exact: true })
-  await expect(download).toBeEnabled()
+  await expect(download).toBeEnabled({ timeout: 20000 })
   await download.click()
   await page.getByRole("menuitem", { name: "Images", exact: true }).hover()
+}
+
+const expectDrawingImage = ({
+  bytes,
+  format,
+  title,
+}: { bytes: Buffer; format: "svg" | "png"; title: string }) => {
+  if (format === "svg") {
+    expect(bytes.toString("utf8")).toContain("<svg")
+    expect(bytes.toString("utf8")).toContain(title)
+  } else {
+    expect([...bytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
+    expect(bytes.readUInt32BE(16)).toBeGreaterThan(1000)
+    expect(bytes.readUInt32BE(20)).toBeGreaterThan(700)
+  }
 }
 
 for (const viewport of [
   { width: 1280, height: 900 },
   { width: 390, height: 844 },
 ]) {
-  test(`downloads the chosen engineering drawing at ${viewport.width}px`, async ({
-    page,
-  }) => {
-    await page.setViewportSize(viewport)
-    await openDownloadMenu({ page, circuitJson: engineeringDrawingCircuitJson })
-    await page
-      .getByRole("menuitem", { name: "Engineering Drawing SVG" })
-      .click()
-    const dialog = page.getByRole("dialog", {
-      name: "Download Engineering Drawing",
+  for (const format of ["svg", "png"] as const) {
+    test(`downloads one ${format.toUpperCase()} drawing directly at ${viewport.width}px`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize(viewport)
+      const circuitJson = engineeringDrawingCircuitJson.filter(
+        (element) =>
+          !("drawing_page_id" in element) ||
+          element.drawing_page_id === "carrier-inspection",
+      )
+      await openDownloadMenu({ page, circuitJson })
+      const download = page.waitForEvent("download")
+      await page
+        .getByRole("menuitem", {
+          name: `Engineering Drawing ${format.toUpperCase()}`,
+        })
+        .click()
+      const drawing = await download
+      expect(drawing.suggestedFilename()).toBe(
+        `my-test-board-carrier-inspection.${format}`,
+      )
+      const imagePath = testInfo.outputPath(`drawing.${format}`)
+      await drawing.saveAs(imagePath)
+      expectDrawingImage({
+        bytes: await readFile(imagePath),
+        format,
+        title: "CARRIER INSPECTION",
+      })
+      await expect(page.getByRole("dialog")).toHaveCount(0)
     })
-    await expect(dialog).toBeVisible()
-    await dialog.getByRole("combobox", { name: "Drawing", exact: true }).click()
-    await page
-      .getByRole("option", { name: "Mounting hole section", exact: true })
-      .click()
-    const download = page.waitForEvent("download")
-    await dialog
-      .getByRole("button", { name: "Download SVG", exact: true })
-      .click()
-    const drawing = await download
-    expect(drawing.suggestedFilename()).toBe(
-      "my-test-board-carrier-section.svg",
-    )
-    const svg = await readFile((await drawing.path())!, "utf8")
-    expect(svg).toContain("CARRIER SECTION")
-    expect(svg).not.toContain("CARRIER INSPECTION")
-    await expect(dialog).not.toBeVisible()
-  })
 
-  test(`downloads all engineering drawings in one ZIP at ${viewport.width}px`, async ({
-    page,
-  }, testInfo) => {
-    await page.setViewportSize(viewport)
-    await openDownloadMenu({ page, circuitJson: engineeringDrawingCircuitJson })
-    await page
-      .getByRole("menuitem", { name: "Engineering Drawing SVG" })
-      .click()
-    const dialog = page.getByRole("dialog", {
-      name: "Download Engineering Drawing",
+    test(`automatically downloads all ${format.toUpperCase()} drawings as ZIP at ${viewport.width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport)
+      await openDownloadMenu({
+        page,
+        circuitJson: engineeringDrawingCircuitJson,
+      })
+      const download = page.waitForEvent("download")
+      await page
+        .getByRole("menuitem", {
+          name: `Engineering Drawing ${format.toUpperCase()}`,
+        })
+        .click()
+      const drawings = await download
+      expect(drawings.suggestedFilename()).toBe(
+        `my-test-board-drawings-${format}.zip`,
+      )
+      const zip = await JSZip.loadAsync(
+        await readFile((await drawings.path())!),
+      )
+      expect(Object.keys(zip.files).sort()).toEqual([
+        `my-test-board-carrier-inspection.${format}`,
+        `my-test-board-carrier-section.${format}`,
+      ])
+      const inspection = await zip
+        .file(`my-test-board-carrier-inspection.${format}`)!
+        .async("nodebuffer")
+      const section = await zip
+        .file(`my-test-board-carrier-section.${format}`)!
+        .async("nodebuffer")
+      expectDrawingImage({
+        bytes: inspection,
+        format,
+        title: "CARRIER INSPECTION",
+      })
+      expectDrawingImage({ bytes: section, format, title: "CARRIER SECTION" })
+      expect(inspection.equals(section)).toBe(false)
+      await expect(page.getByRole("dialog")).toHaveCount(0)
     })
-    await dialog.screenshot({
-      path: testInfo.outputPath("download-all-dialog.png"),
-    })
-    const download = page.waitForEvent("download")
-    await dialog
-      .getByRole("button", { name: "Download all (ZIP)", exact: true })
-      .click()
-    const drawings = await download
-    expect(drawings.suggestedFilename()).toBe("my-test-board-drawings.zip")
-    const zip = await JSZip.loadAsync(await readFile((await drawings.path())!))
-    expect(Object.keys(zip.files).sort()).toEqual([
-      "my-test-board-carrier-inspection.svg",
-      "my-test-board-carrier-section.svg",
-    ])
-    expect(
-      await zip.file("my-test-board-carrier-inspection.svg")!.async("string"),
-    ).toContain("CARRIER INSPECTION")
-    expect(
-      await zip.file("my-test-board-carrier-section.svg")!.async("string"),
-    ).toContain("CARRIER SECTION")
-    await expect(dialog).not.toBeVisible()
-  })
+  }
 }
 
-test("downloads a single drawing without requiring a selection change", async ({
-  page,
-}) => {
-  const circuitJson = engineeringDrawingCircuitJson.filter(
-    (element) =>
-      !("drawing_page_id" in element) ||
-      element.drawing_page_id === "carrier-inspection",
-  )
-  await openDownloadMenu({ page, circuitJson })
-  await page.getByRole("menuitem", { name: "Engineering Drawing SVG" }).click()
-  const dialog = page.getByRole("dialog", {
-    name: "Download Engineering Drawing",
-  })
-  await expect(dialog.getByRole("combobox")).toHaveText("Carrier inspection")
-  const download = page.waitForEvent("download")
-  await dialog
-    .getByRole("button", { name: "Download SVG", exact: true })
-    .click()
-  expect((await download).suggestedFilename()).toBe(
-    "my-test-board-carrier-inspection.svg",
-  )
-})
-
-test("disables engineering drawing downloads when the circuit has no drawing pages", async ({
+test("disables both drawing formats when the circuit has no drawing pages", async ({
   page,
 }) => {
   await openDownloadMenu({
@@ -134,9 +132,12 @@ test("disables engineering drawing downloads when the circuit has no drawing pag
   await expect(
     page.getByRole("menuitem", { name: "Engineering Drawing SVG" }),
   ).toBeDisabled()
+  await expect(
+    page.getByRole("menuitem", { name: "Engineering Drawing PNG" }),
+  ).toBeDisabled()
 })
 
-test("keeps the dialog open and reports drawing render errors", async ({
+test("reports drawing render errors without opening a picker", async ({
   page,
 }) => {
   const circuitJson = engineeringDrawingCircuitJson.map((element) =>
@@ -146,14 +147,23 @@ test("keeps the dialog open and reports drawing render errors", async ({
   )
   await openDownloadMenu({ page, circuitJson })
   await page.getByRole("menuitem", { name: "Engineering Drawing SVG" }).click()
-  const dialog = page.getByRole("dialog", {
-    name: "Download Engineering Drawing",
-  })
-  await dialog
-    .getByRole("button", { name: "Download SVG", exact: true })
-    .click()
-  await expect(dialog.getByRole("alert")).toContainText("empty geometry")
   await expect(
-    dialog.getByRole("button", { name: "Download SVG", exact: true }),
-  ).toBeEnabled()
+    page.getByText("Error Downloading Engineering Drawing SVG", {
+      exact: true,
+    }),
+  ).toBeVisible()
+  await expect(page.getByText(/resolved empty geometry/)).toBeVisible()
+  await expect(page.getByRole("dialog")).toHaveCount(0)
+})
+
+test("existing PCB PNG downloads still use the shared rasterizer", async ({
+  page,
+}) => {
+  await openDownloadMenu({ page, circuitJson: engineeringDrawingCircuitJson })
+  const download = page.waitForEvent("download")
+  await page.getByRole("menuitem", { name: "PCB PNG" }).click()
+  const drawing = await download
+  expect(drawing.suggestedFilename()).toBe("my-test-board_pcb.png")
+  const bytes = await readFile((await drawing.path())!)
+  expect([...bytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
 })
