@@ -590,7 +590,7 @@ export function useFileManagement({
     }
   }, [localFiles, saveToUrl, isLoggedIn])
 
-  const saveFiles = () => {
+  const saveFiles = async () => {
     if (!isLoggedIn) {
       if (debounceTimeoutRef.current) {
         clearTimeout(debounceTimeoutRef.current)
@@ -615,12 +615,14 @@ export function useFileManagement({
       }
       return
     }
-    updatePackageFilesMutation.mutate({
+    // Update the confirmed baseline only after the server acknowledged all files.
+    const savedSnapshot = localFiles.map((file) => ({ ...file }))
+    await updatePackageFilesMutation.mutateAsync({
       package_name_with_version: `${currentPackage.name}@latest`,
       ...currentPackage,
     })
     updateLastUpdated()
-    setInitialFiles([...localFiles])
+    setInitialFiles(savedSnapshot)
   }
 
   const isSaving = useMemo(() => {

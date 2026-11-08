@@ -14,6 +14,13 @@ import { applyEditEventsToManualEditsFile } from "@tscircuit/core"
 import { toastManualEditConflicts } from "@/lib/utils/toastManualEditConflicts"
 import { ManualEditEvent } from "@tscircuit/props"
 import { useFileManagement } from "@/hooks/useFileManagement"
+import { useDraftAutosave } from "@/hooks/useDraftAutosave"
+import { useIsUsingFakeApi } from "@/hooks/use-is-using-fake-api"
+import { useLocation } from "wouter"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { isHiddenFile } from "../ViewPackagePage/utils/is-hidden-file"
 import { useNewPackageSavePromptDialog } from "../dialogs/new-package-save-prompt-dialog"
 import { useGlobalStore } from "@/hooks/use-global-store"
@@ -57,6 +64,11 @@ export interface CodeAndPreviewState {
 
 export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   const { toast } = useToast()
+  const [, navigate] = useLocation()
+  const isUsingFakeApi = useIsUsingFakeApi()
+  const [showExitDialog, setShowExitDialog] = useState(false)
+  const [isExiting, setIsExiting] = useState(false)
+  const [exitError, setExitError] = useState<string | null>(null)
   const urlParams = useUrlParams()
   const sessionToken = useGlobalStore((s) => s.session?.token)
   const apiBaseUrl = useApiBaseUrl()
@@ -126,6 +138,15 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
       setState((prev) => ({ ...prev, lastSavedAt: Date.now() }))
     },
     releaseId: releaseIdForVersion,
+  })
+
+  const draft = useDraftAutosave({
+    packageId: pkg?.package_id,
+    enabled: Boolean(pkg && sessionToken && !versionFromUrl && !isViewingOlderVersion && isFullyLoaded &&
+      loadedFilesCount >= totalFilesCount),
+    files: localFiles,
+    initialFiles,
+    onRestore: setLocalFiles,
   })
 
   const hasUnsavedChanges = useMemo(
@@ -262,9 +283,26 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
   })
 
   useWarnUserOnPageChange({
-    hasUnsavedChanges: Boolean(hasUnsavedChanges),
+    hasUnsavedChanges: draft.active
+      ? draft.status === "error" || draft.hasUnsavedChanges || draft.status === "saving"
+      : Boolean(hasUnsavedChanges),
     isPackageThere: Boolean(pkg),
   })
+
+  const onDraftExit = async (build: boolean) => {
+    setIsExiting(true)
+    setExitError(null)
+    try {
+      if (build) await draft.buildAndExit()
+      else await draft.flush()
+      setShowExitDialog(false)
+      navigate("/dashboard")
+    } catch (cause) {
+      setExitError(cause instanceof Error ? cause.message : "Exit failed")
+    } finally {
+      setIsExiting(false)
+    }
+  }
 
   const isMouseOverRunFrame = useRef(false)
   const splitContainerRef = useRef<HTMLDivElement>(null)
@@ -376,10 +414,24 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
         packageType={packageType}
         code={String(currentFileCode)}
         fsMap={fsMap}
-        isSaving={isSaving}
-        hasUnsavedChanges={hasUnsavedChanges}
-        onSave={saveFiles}
-        onDiscard={() => openDiscardChangesDialog()}
+        isSaving={draft.active ? draft.status === "saving" : isSaving}
+        hasUnsavedChanges={draft.active ? draft.hasUnsavedChanges : hasUnsavedChanges}
+        onSave={() => {
+          if (draft.active) {
+            void draft.flush().catch(() => {})
+          } else {
+            saveFiles()
+          }
+        }}
+        draftStatus={draft.active ? draft.status : undefined}
+        draftBuildOutdated={draft.active && draft.isBuildOutdated}
+        onBuildAndExit={draft.active
+          ? () => {
+              setExitError(null)
+              setShowExitDialog(true)
+            }
+          : undefined}
+        onDiscard={draft.active ? undefined : () => openDiscardChangesDialog()}
         onTogglePreview={() =>
           setState((prev) => ({ ...prev, showPreview: !prev.showPreview }))
         }
@@ -499,6 +551,34 @@ export function CodeAndPreview({ pkg, projectUrl, isPackageFetched }: Props) {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <Dialog open={showExitDialog} onOpenChange={(open) => !isExiting && setShowExitDialog(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Exit editor</DialogTitle>
+            <DialogDescription>
+              Draft changes are saved separately from existing releases.
+              Only Build &amp; Exit will request a new build.
+            </DialogDescription>
+          </DialogHeader>
+          {exitError && (
+            <p role="alert" className="text-sm text-red-600">{exitError}</p>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" disabled={isExiting}
+              onClick={() => setShowExitDialog(false)}>
+              Stay in editor
+            </Button>
+            <Button variant="outline" disabled={isExiting || !draft.ready}
+              onClick={() => void onDraftExit(false)}>
+              Keep draft &amp; exit
+            </Button>
+            <Button disabled={isExiting || !draft.ready}
+              onClick={() => void onDraftExit(true)}>
+              {isExiting ? "Saving..." : "Build & Exit"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <NewPackageSaveDialog initialIsPrivate={false} onSave={savePackage} />
       <DiscardChangesDialog onConfirm={handleDiscardChanges} />
       {importComponentDialog}

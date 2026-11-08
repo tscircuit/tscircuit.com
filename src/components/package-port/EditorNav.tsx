@@ -63,6 +63,9 @@ export default function EditorNav({
   code,
   fsMap,
   hasUnsavedChanges,
+  draftStatus,
+  draftBuildOutdated,
+  onBuildAndExit,
   onTogglePreview,
   previewOpen,
   onSave,
@@ -83,6 +86,9 @@ export default function EditorNav({
   fsMap: Record<string, string>
   packageType?: string
   hasUnsavedChanges: boolean
+  draftStatus?: "loading" | "editing" | "saving" | "saved" | "error"
+  draftBuildOutdated?: boolean
+  onBuildAndExit?: () => void
   previewOpen: boolean
   onTogglePreview: () => void
   isSaving: boolean
@@ -444,13 +450,30 @@ export default function EditorNav({
               )}
             </Tooltip>
           </TooltipProvider>
-          {isSaving && (
+          {draftStatus && (
+            <div role="status" className="ml-2 text-xs text-gray-700">
+              {draftStatus === "loading" ? "Loading draft..." :
+               draftStatus === "saving" ? "Saving draft..." :
+               draftStatus === "saved" ? "Changes saved" :
+               draftStatus === "error" ? "Save failed — retry with Save" :
+               "Unsaved draft changes"}
+              {draftStatus === "saved" && draftBuildOutdated
+                ? " · Build outdated" : ""}
+            </div>
+          )}
+          {onBuildAndExit && (
+            <Button size="sm" variant="outline" className="ml-2 h-7"
+              onClick={onBuildAndExit}>
+              Build & Exit
+            </Button>
+          )}
+          {isSaving && !draftStatus && (
             <div className="animate-fadeIn bg-blue-100 select-none text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded flex items-center">
               <Loader2 className="animate-spin h-3 w-3 mr-2 text-blue-600" />
               Saving...
             </div>
           )}
-          {hasUnsavedChanges && !isSaving && isLoggedIn && (
+          {hasUnsavedChanges && !isSaving && isLoggedIn && !draftStatus && (
             <div className="animate-fadeIn bg-yellow-100 select-none text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
               {pkg ? "unsaved changes" : "unsaved"}
             </div>
