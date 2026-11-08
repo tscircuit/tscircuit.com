@@ -90,7 +90,7 @@
     "@tscircuit/checks": "^0.0.192",
     "@tscircuit/circuit-json-util": "^0.0.116",
     "@tscircuit/create-snippet-url": "^0.0.14",
-    "@tscircuit/drawing-viewer": "https://jscdn.tscircuit.com/@tscircuit/drawing-viewer/0.0.3.tgz",
+    "@tscircuit/drawing-viewer": "github:tscircuit/drawing-viewer#489d370ba1f469a9b15461d8ef894c7d05dbab5f",
     "@tscircuit/eval": "^0.0.1712",
     "@tscircuit/fake-stripe": "git+https://github.com/tscircuit/fake-stripe.git#f1a5b40",
     "@tscircuit/footprinter": "^0.0.450",

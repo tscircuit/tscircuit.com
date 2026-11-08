@@ -1,4 +1,5 @@
 import { usePcbDownloadDialog } from "@/components/dialogs/pcb-download-dialog"
+import { DrawingDownloadDialog } from "@/components/dialogs/drawing-download-dialog"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -85,8 +86,17 @@ export function DownloadButtonAndMenu({
   const [accessoryCircuitJson, setAccessoryCircuitJson] = useState<
     AnyCircuitElement[] | null
   >(null)
+  const [drawingCircuitJson, setDrawingCircuitJson] = useState<
+    AnyCircuitElement[] | null
+  >(null)
 
   const canDownload = Boolean(hasCircuitJson || circuitJson?.length)
+  const availableCircuitJson = circuitJson?.length
+    ? circuitJson
+    : fetchedCircuitJson
+  const hasDrawingPages = availableCircuitJson?.some(
+    (element) => element.type === "drawing_page",
+  )
 
   const formatBadge = (
     label: string,
@@ -284,6 +294,22 @@ export function DownloadButtonAndMenu({
               >
                 <Download className="mr-1 h-3 w-3" />
                 <span className="flex-grow mr-6">Schematic SVG</span>
+                {formatBadge("svg", "bg-blue-500")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                disabled={isFetchingCircuitJson || hasDrawingPages === false}
+                onSelect={async () => {
+                  try {
+                    const circuitJson = await getCircuitJson()
+                    setDrawingCircuitJson(circuitJson)
+                  } catch {
+                    // getCircuitJson displays the download error toast.
+                  }
+                }}
+              >
+                <Download className="mr-1 h-3 w-3" />
+                <span className="flex-grow mr-6">Engineering Drawing SVG</span>
                 {formatBadge("svg", "bg-blue-500")}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -517,6 +543,16 @@ export function DownloadButtonAndMenu({
         circuitJson={fetchedCircuitJson || circuitJson || []}
         fileName={unscopedName || "circuit"}
       />
+      {drawingCircuitJson && (
+        <DrawingDownloadDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setDrawingCircuitJson(null)
+          }}
+          circuitJson={drawingCircuitJson}
+          fileName={unscopedName || "circuit"}
+        />
+      )}
       {accessoryCircuitJson && (
         <ExportAccessoryDialog
           open={isAccessoryDialogOpen}
